@@ -34,6 +34,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
 from pymatgen.core.lattice import Lattice
 
+coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+")
 
 class Poscar(VaspInput):
     """
@@ -402,20 +403,37 @@ class Kpoints(VaspInput):
     modified
     """
     def __init__(self):
-        self.l1_comment = "Default"
-        self.l2_gen_style = "0"
-        self.l3_lattice = "Gamma"
-        self.kpts = [1,1,1]
+        self.comment = "Default"
+        self.num_kpts = 0
+        self.style = "Gamma"
+        self.kpts = [[1,1,1]]
+        self.kpts_shift = [0,0,0]
 
     @staticmethod
     def from_file(filename):
         with file_open_zip_aware(filename) as f:
             lines = list(clean_lines(f.readlines(), False))
         kpoints = Kpoints()
-        kpoints.l1_comment = lines[0].strip()
-        kpoints.l2_gen_style = lines[1].strip()
-        kpoints.l3_lattice = lines[2].strip()
-        kpoints.kpts = [int(x) for x in lines[3].strip().split()]
+        kpoints.comment = lines[0].strip()
+        kpoints.num_kpts = lines[1].strip()
+        style = lines[2].strip().lower()[0]
+        if style == "a":
+            kpoints.style = "Auto"
+            kpoints.kpts = [[int(lines[3].strip())]]
+        elif style == "g" or style == "m":
+            kpoints.style = "Gamma" if style == "g" else "Monkhorst-Pack"
+            kpoints.kpts = [[int(x) for x in lines[3].strip().split()]]
+            if len(lines)>4 and coord_pattern.match(lines[4].strip()):
+                try:
+                    kpoints.kpts_shift = [int(x) for x in lines[4].strip().split()]
+                except:
+                    pass
+        else:
+            kpoints.style = "Cartesian" if style == "c" else "Reciprocal"
+            for i in xrange(3,len(lines)):
+                if coord_pattern.match(lines[i].strip()):
+                    kpoints.kpts.append([int(x) for x in lines[3].strip().split()])
+            
         return kpoints
 
     def write_file(self, filename):
@@ -424,15 +442,22 @@ class Kpoints(VaspInput):
         
     def __str__(self):
         lines = []
-        lines += [self.l1_comment]
-        lines += [self.l2_gen_style]
-        lines += [self.l3_lattice]
-        lines += [" ".join([str(x) for x in self.kpts])]
+        lines += [self.comment]
+        lines += [str(self.num_kpts)]
+        lines += [self.style]
+        for line in self.kpts:
+            lines += [" ".join([str(x) for x in line])]
+        lines += [" ".join([str(x) for x in self.kpts_shift])]
         return "\n".join(lines)
     
     @property
     def to_dict(self):
-        return {'comment': self.l1_comment, 'generation style' : self.l2_gen_style, 'lattice' : self.l3_lattice, 'mesh': self.kpts}
+        d = {'comment': self.comment, 'nkpoints' : self.num_kpts, 'generation_style' : self.style, 'kpoints': self.kpts, 'usershift': self.kpts_shift}
+        optional_paras = ['genvec1', 'genvec2', 'genvec3', 'shift']
+        for para in optional_paras:
+            if para in self.__dict__:
+                d[para] = self.__dict__[para]
+        return d 
     
 class PotcarSingle(VaspInput):
     """
@@ -745,8 +770,7 @@ class Vasprun(object):
         d['input'] = {}
         d['input']['incar'] = {k:v for k,v in self.incar.items()}
         d['input']['crystal'] = self.initial_structure.to_dict
-        kpts = self.kpoints
-        d['input']['kpoints'] = {'comment': kpts.l1_comment, 'generation style' : kpts.l2_gen_style, 'lattice' : kpts.l3_lattice, 'mesh': kpts.kpts}
+        d['input']['kpoints'] = self.kpoints.to_dict
         d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))] 
         d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
         d['input']['parameters'] = {k:v for k,v in self.parameters.items()}
@@ -833,9 +857,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and self.state['kpoints']:
                 self.read_val = True
             elif name == "generation" and self.state['kpoints']:
-                self.kpoints.l1_comment   = "K point data read from vasprun.xml"
-                self.kpoints.l2_gen_style  = "-1"
-                self.kpoints.l3_lattice = attributes['param']
+                self.kpoints.comment   = "Kpoints from vasprun.xml"
+                self.kpoints.num_kpts  = 0
+                self.kpoints.style = attributes['param']
+                self.kpoints.kpts = []
+                self.kpoints.kpts_shift = [0,0,0]
             elif name == "c" and (self.state['array'] == "atoms" or self.state['array'] == "atomtypes"):
                 self.read_val = True
             elif name == "i" and self.state['i'] == "version" and self.state['generator']:
@@ -863,7 +889,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.read_structure = True
             elif name == 'varray' and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
                 self.posstr = StringIO.StringIO()
-
             elif name == "eigenvalues":
                 self.all_calculations_read = True
             if self.read_eigen:
@@ -947,7 +972,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     if self.state['varray'] == 'weights':
                         self.actual_kpoints_weights.append(float(self.val.getvalue()))
                     if self.state['v'] == "divisions":
-                        self.kpoints.kpts   = [int(x) for x in re.split("\s+",self.val.getvalue().strip())]
+                        self.kpoints.kpts   = [[int(x) for x in re.split("\s+",self.val.getvalue().strip())]]
+                    elif self.state['v'] == "usershift":
+                        self.kpoints.kpts_shift   = [float(x) for x in re.split("\s+",self.val.getvalue().strip())]
+                    elif self.state['v'] == "genvec1" or self.state['v'] == "genvec2" or self.state['v'] == "genvec3" or self.state['v'] == "shift":
+                        setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+",self.val.getvalue().strip())])
+                        
         else:
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
