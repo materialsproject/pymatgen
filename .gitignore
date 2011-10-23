@@ -1,0 +1,9 @@
+.DS_Store
+pymatgen/*.pyc
+pymatgen/*/*.pyc
+pymatgen/*/*/*.pyc
+pymatgen/*/*/*/*.pyc
+pymatgen/*/*/*/*/*.pyc
+pymatgen/*/*/*/*/*/*.pyc
+pymatgen/*/*/*/*/*/*/*.pyc
+pymatgen/pymatgen.cfg

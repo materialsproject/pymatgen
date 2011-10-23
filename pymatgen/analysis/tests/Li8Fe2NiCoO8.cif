@@ -1,0 +1,62 @@
+#======================================================================
+
+# CRYSTAL DATA
+
+#----------------------------------------------------------------------
+
+data_jcmc_phase_1
+
+_chemical_formula_sum 
+'Li8.000    Fe2.000     Co1.000     Ni1.000     O8.000    '
+_cell_length_a    5.49475 
+_cell_length_b    5.49475 
+_cell_length_c    7.56823 
+_cell_angle_alpha   90.00000 
+_cell_angle_beta   90.00000 
+_cell_angle_gamma   78.49917 
+_cell_volume  223.91414 
+_cell_formula_units_Z    1 
+_symmetry_space_group_name_H-M     'P1' 
+_symmetry_Int_Tables_number          1 
+loop_
+_symmetry_equiv_pos_site_id 
+_symmetry_equiv_pos_as_xyz 
+  1  'x, y, z' 
+loop_ 
+_atom_type_symbol 
+_atom_type_oxidation_number 
+Li      0.0 
+Fe      0.0
+Co      0.0
+Ni      0.0  
+O       0.0 
+loop_ 
+_atom_site_label 
+_atom_site_type_symbol 
+_atom_site_symmetry_multiplicity 
+_atom_site_Wyckoff_symbol 
+_atom_site_fract_x 
+_atom_site_fract_y 
+_atom_site_fract_z 
+_atom_site_B_iso_or_equiv 
+_atom_site_occupancy 
+Li-1  Li 1 a   0.00000  0.00000  0.25000 0.0  1.000 
+Li-2  Li 1 a   0.00000  0.00000  0.75000 0.0  1.000 
+Li-3  Li 1 a   0.00000  0.50000  0.00000 0.0  1.000 
+Li-4  Li 1 a   0.34556  0.34556  0.25000 0.0  1.000 
+Li-5  Li 1 a   0.34556  0.34556  0.75000 0.0  1.000 
+Li-6  Li 1 a   0.50000  0.00000  0.50000 0.0  1.000 
+Li-7  Li 1 a   0.65444  0.65444  0.25000 0.0  1.000 
+Li-8  Li 1 a   0.65444  0.65444  0.75000 0.0  1.000 
+Fe-9  Fe 1 a   0.16721  0.65868  0.50000 0.0  1.000 
+Fe-10  Fe 1 a   0.34132  0.83279  0.00000 0.0  1.000 
+Co-11  Co 1 a   0.65868  0.16721  0.00000 0.0  1.000 
+Ni-12  Ni 1 a   0.83279  0.34132  0.50000 0.0  1.000 
+O-13   O 1 a   0.22199  0.26249  0.50000 0.0  1.000 
+O-14   O 1 a   0.26249  0.22199  0.00000 0.0  1.000 
+O-15   O 1 a   0.27611  0.72389  0.25000 0.0  1.000 
+O-16   O 1 a   0.27611  0.72389  0.75000 0.0  1.000 
+O-17   O 1 a   0.72389  0.27611  0.25000 0.0  1.000 
+O-18   O 1 a   0.72389  0.27611  0.75000 0.0  1.000 
+O-19   O 1 a   0.73751  0.77801  0.00000 0.0  1.000 
+O-20   O 1 a   0.77801  0.73751  0.50000 0.0  1.000 
