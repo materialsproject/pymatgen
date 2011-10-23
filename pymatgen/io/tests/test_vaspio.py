@@ -59,9 +59,12 @@ class  IncarTest(unittest.TestCase):
 class  KpointsTest(unittest.TestCase):
     
     def test_init(self):
+        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.auto')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertEqual(kpoints.kpts,[[10]],"Wrong kpoint lattice read")
         filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.gz')
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.kpts,[2,4,6],"Wrong kpoint lattice read")
+        self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
 
 class  PotcarTest(unittest.TestCase):
     
@@ -90,6 +93,8 @@ class  VasprunTest(unittest.TestCase):
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
+        print vasprun.kpoints
+        print vasprun.kpoints.to_dict
         self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
         self.assertAlmostEqual(vasprun.final_energy,-269.38319884,7, "Wrong final energy")
         self.assertAlmostEqual(vasprun.tdos.get_gap(),2.0589,4,"Wrong gap from dos!")
