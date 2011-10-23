@@ -34,7 +34,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
 from pymatgen.core.lattice import Lattice
 
-coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+")
+coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
 
 class Poscar(VaspInput):
     """
@@ -402,12 +402,12 @@ class Kpoints(VaspInput):
     as a list which can be accessed and
     modified
     """
-    def __init__(self):
-        self.comment = "Default"
-        self.num_kpts = 0
-        self.style = "Gamma"
-        self.kpts = [[1,1,1]]
-        self.kpts_shift = [0,0,0]
+    def __init__(self, comment = "Default", num_kpts = 0, style = "Gamma", kpts = [[1,1,1]], kpts_shift = [0,0,0]):
+        self.comment = comment
+        self.num_kpts = num_kpts
+        self.style = style
+        self.kpts = kpts
+        self.kpts_shift = kpts_shift
 
     @staticmethod
     def from_file(filename):
@@ -415,7 +415,7 @@ class Kpoints(VaspInput):
             lines = list(clean_lines(f.readlines(), False))
         kpoints = Kpoints()
         kpoints.comment = lines[0].strip()
-        kpoints.num_kpts = lines[1].strip()
+        kpoints.num_kpts = int(lines[1].strip())
         style = lines[2].strip().lower()[0]
         if style == "a":
             kpoints.style = "Auto"
@@ -428,11 +428,11 @@ class Kpoints(VaspInput):
                     kpoints.kpts_shift = [int(x) for x in lines[4].strip().split()]
                 except:
                     pass
-        else:
+        elif kpoints.num_kpts <= 0:
             kpoints.style = "Cartesian" if style == "c" else "Reciprocal"
-            for i in xrange(3,len(lines)):
-                if coord_pattern.match(lines[i].strip()):
-                    kpoints.kpts.append([int(x) for x in lines[3].strip().split()])
+            kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
+            kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
+                
             
         return kpoints
 
