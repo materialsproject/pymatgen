@@ -1,0 +1,285 @@
+#!/usr/bin/env python
+# -*- coding: iso-8859-15 -*-
+"""
+Generic driver for Python in-memory MapReduce
+on a MongoDB collection.
+"""
+
+"""
+Author: Dan Gunter
+Created: September 2011
+"""
+
+__rcsid__ = '$Id$'
+
+import imp
+import importlib # requires Python 2.7+
+import logging
+import optparse
+import os
+import sys
+import time
+#
+import pymongo
+#
+from pymatgen.mr import base
+
+__TEST = False
+
+# setup global logger
+g_log = logging.getLogger("matgen")
+_hndlr = logging.StreamHandler()
+_hndlr.setFormatter(logging.Formatter(
+    "%(levelname)-08s %(asctime)s %(message)s"))
+g_log.addHandler(_hndlr)
+
+_write = sys.stdout.write
+def _writeln(s): _write(s + "\n")
+
+class ProgressBar:
+    """Simple visual progress bar.
+    """
+    WIDTH = 40
+    NAMEWIDTH = 16
+    def __init__(self, name="Progress"):
+        self._write = sys.stdout.write
+        self._flush = sys.stdout.flush        
+        self._prev_marks = -1
+        self.total = 0
+        self.name = "{{0:<{0:d}s}}:"\
+                    .format(self.NAMEWIDTH)\
+                    .format(name[:self.NAMEWIDTH])
+
+    def update(self, current):
+        ratio = 1.*current/self.total
+        marks = int(round(self.WIDTH * ratio))
+        if marks > self._prev_marks:
+            self._show(current, self.total, marks)
+            self._prev_marks = marks
+
+    def done(self, ):
+        self._show(self.total, self.total, self.WIDTH)
+        self._write("\n")
+        
+    def _show(self, cur, tot, i):
+        self._write("\r{2} {0:6d}/{1:6d} [".format(cur, tot, self.name))
+        self._write(i * '#')
+        if self.WIDTH > i:
+            self._write((self.WIDTH - i) * ' ')
+        self._write("]")
+        self._flush()
+
+class NullProgressBar(ProgressBar):
+    """Progress bar that does absolutely nothing.
+    """
+    def update(self, current):
+        return
+
+def group(coll, mapper=None, fields=[ ], extractor=None, reducer=None,
+          filter={}, progress_bar=None):
+    """Build aggregated records in memory.
+
+    Args:
+      coll - Input collection
+      mapper - Mapper function, takes a record and returns a key
+      fields - Fields to pre-extract while querying (before extractor)
+      extractor - Extractor function, takes a record and returns
+                  another record
+      reducer - Operates on the groups, takes a list of values
+                and returns a new document.
+      filter - Query filter applied to input collection
+      progress_bar - Instance of ProgressBar class
+
+    Return:
+      Dictionary where key is the key returned by mapper and
+      values are all extracted values for that key.
+    """
+    assert(mapper is not None)
+    assert(reducer is not None)
+    groups, n = { }, 0
+    cursor = coll.find(filter, fields=fields)
+    progress_bar.total = cursor.count()
+    for record in cursor:
+        n += 1
+        try:
+            key = mapper(record)
+            if extractor:
+                value = extractor(record)
+            else:
+                value = record
+        except KeyError, err:
+            g_log.warn("missing_key, key={1} _id={0}".format(
+                str(record['_id']), err))
+            continue
+        group_record = groups.get(key, None)
+        if group_record:
+            group_record.append(value)
+        else:
+            groups[key] = [value]
+        if 0 == (n+1) % 10:
+            progress_bar.update(n+1)
+        if __TEST and n > 100:
+            break #stop after first 100
+    progress_bar.done()
+    # reduce the groups
+    for k, v in groups.iteritems():
+        # replace current item with reduced version
+        groups[k] = reducer(v)
+    return groups
+
+def write_result(coll, data, progress_bar=None):
+    """Write records to output collection.
+    Clear (remove) output collection first.
+
+    Args:
+      coll - Output collection
+      data - Iterable of records to write
+    """
+    # clear collection
+    coll.remove(None)
+    # embed id's in groups
+    #g_log.debug("write_result.embed_keys.begin")
+    #for k in data.iterkeys():
+    #    data[k]['group_id'] = k
+    #g_log.debug("write_result.embed_keys.end")
+    # insert all the data values
+    n = len(data)
+    g_log.debug("write_result.insert.begin, n={0:d}", n)
+    progress_bar.total, i = n, 0
+    for item in data.itervalues():
+        coll.insert(item)
+        i += 1
+        if 0 == (i % 10):
+            progress_bar.update(i)
+    progress_bar.done()
+    g_log.debug("write_result.insert.end")
+
+def list_modules(subpkg):
+    """Get a list of available python modules in a sub-package, which
+    is relative to this package.
+
+    Args:
+       subpkg - Dotted package name, or empty for top-level.
+    Raises:
+      ImportError - if the parent module can't be found.
+    Returns:
+       (list) available modules in sub-package
+    """
+    minfo = imp.find_module('pymmr', sys.path)
+    # paste together filename and rest of package path
+    path = minfo[1] + '/' + subpkg.replace('.','/')
+    # make sure path exists
+    if not os.path.isdir(path):
+        raise ImportError("Could not find subpackage {0}".format(subpkg))
+    # return all modules in path
+    modules = [f[:-3] for f in os.listdir(path) 
+               if f.endswith('.py') and not f.startswith('_')]
+    return sorted(modules)
+
+def main():
+    """Program entry point.
+    """
+    global g_log
+    usage = "%prog [options] <module> (e.g., my.module)"
+    desc = ' '.join(__doc__.split())
+    parser = optparse.OptionParser(usage=usage, description=desc)
+    parser.add_option("-D", "--db", dest="dbname", default="test",
+                      help="database name (%default)")
+    parser.add_option("-g", "--progress", action="store_true", dest="progress",
+                      help="show progress bar")
+    parser.add_option("-H", "--host", dest="dbhost", default="localhost",
+                      help="server to connect to (%default)")
+    parser.add_option("-i", "--input", dest="icoll", default="foo",
+                      help="Input collection (%default)")
+    parser.add_option("-l", "--list", dest="listmod", action="store_true",
+                      help="list built-in modules and quit")
+    parser.add_option("-o", "--output", dest="ocoll", default="bar",
+                      help="Output collection (%default)")
+    parser.add_option("-p", "--password", dest="passwd", default=None,
+                      help="password for authentication (%default)")
+    parser.add_option("-u", "--username", dest="user", default=None,
+                      help="username for authentication (%default)")
+    parser.add_option("-v", "--verbose", dest="vb", action="count", default=0,
+                      help="increase verbosity")
+    options, args = parser.parse_args(sys.argv[1:])
+
+    # list-modules mode
+    if options.listmod:
+        try:
+            modules = list_modules("")
+        except ImportError, err:
+            parser.error("Import error while listing modules: {0}".format(err))
+        _write("Built-in modules: ")
+        _writeln(', '.join(['.' + name for name in modules]))
+        return 0
+    
+    # Check args
+    if len(args) != 1:
+        parser.error("<module> is required")
+    if (options.passwd or options.user) and \
+       not (options.passwd and options.user):
+        parser.error("-p/--password and -u/--username must be given together")
+
+    # Load module and grab functions for
+    # mapper, reducer, extractor
+    module_name = args[0]
+    try:
+        module = importlib.import_module(module_name, 'pymatgen.mr')
+    except ImportError, err:
+        parser.error("cannot find or import module '{0}'".format(module_name))
+    try:
+        _mapper = module.mapper or base.mapper
+        _extractor = module.extractor or base.extractor
+        _reducer = module.reducer or base.reducer
+        _fields = module.fields or base.fields
+    except AttributeError:
+        parser.error("module '{0}' missing required method(s): "
+                     "mapper, extractor, and/or reducer".format(module_name))
+
+    # Connect and optionally authenticate
+    c = pymongo.Connection(options.dbhost)
+    db = c[options.dbname]
+    if options.user and options.passwd:
+        db.authenticate(options.user, options.passwd)
+
+    # Collections to operate on
+    input_collection = db[options.icoll]
+    output_collection = db[options.ocoll]
+    
+    # Logging
+    if options.vb > 1:
+        g_log.setLevel(logging.DEBUG)
+    elif options.vb > 0:
+        g_log.setLevel(logging.INFO)
+    else:
+        g_log.setLevel(logging.WARN)
+
+    # Progress
+    if options.progress:
+        pbar = ProgressBar("MapReduce")
+    else:
+        pbar = NullProgressBar()
+        
+    # Build in-memory groups
+    g_log.info("process.begin")
+    t0 = time.time()
+    groups = group(input_collection,
+                   mapper=_mapper, fields=_fields, extractor=_extractor, reducer=_reducer,
+                   progress_bar=pbar, filter={'was_successful':True})
+    t1 = time.time()
+    g_log.info("process.end, elapsed_sec={0:f}".format(t1 - t0))
+            
+    # Write groups to new collection
+    if groups:
+        if options.progress:
+            pbar = ProgressBar("Write")
+        g_log.info("write.begin")
+        t0 = time.time()
+        write_result(output_collection, groups, progress_bar=pbar)
+        t1 = time.time()
+        g_log.info("write.end, elapsed_sec={0:f}".format(t1 - t0))
+   
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
