@@ -1145,7 +1145,6 @@ class Outcar(object):
                 elif read_charge or read_mag:
                     if clean.startswith("# of ion"):
                         header = re.split("\s{2,}", line.strip())
-                        print header
                     elif clean.startswith("tot"):
                         read_charge = False
                         read_mag = False
