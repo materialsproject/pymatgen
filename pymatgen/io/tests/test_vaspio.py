@@ -114,8 +114,17 @@ class  OutcarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(module_dir, 'vasp_testfiles','OUTCAR.gz')
         outcar = Outcar(filepath)
-        expected_ans = {1: 0.005, 2: 0.813, 3: 0.813, 4: -0.112, 5: -0.162, 6: -0.112, 7: -0.162}
-        self.assertAlmostEqual(outcar.get_magnetization(), expected_ans, 5, "Wrong magnetization read from Outcar")
+        expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
+ {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+ {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+ {'d': 0.0, 'p': -0.117, 's': 0.005, 'tot': -0.112},
+ {'d': 0.0, 'p': -0.165, 's': 0.004, 'tot': -0.162},
+ {'d': 0.0, 'p': -0.117, 's': 0.005, 'tot': -0.112},
+ {'d': 0.0, 'p': -0.165, 's': 0.004, 'tot': -0.162})
+        expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
+
+        self.assertAlmostEqual(outcar.magnetization, expected_mag, 5, "Wrong magnetization read from Outcar")
+        self.assertAlmostEqual(outcar.charge, expected_chg, 5, "Wrong charge read from Outcar")
 
 if __name__ == '__main__':
     unittest.main()

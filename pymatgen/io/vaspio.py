@@ -625,9 +625,8 @@ class Potcar(list,VaspInput):
 
     @staticmethod
     def from_file(filename):
-        reader = file_open_zip_aware(filename, "r")
-        fData = reader.read()
-        reader.close()
+        with file_open_zip_aware(filename, "r") as reader:
+            fData = reader.read()
         potcar = Potcar()
         potcar_strings = re.compile(r"\n{0,1}\s*(.*?End of Dataset)", re.S).findall(fData)
         for p in potcar_strings:
@@ -1125,29 +1124,40 @@ class Outcar(object):
     See the documentation of those methods for more documentation.
     """
     def __init__(self, filename):
-        self.mag = {} # dict of ion number to double
         self.filename = filename
-        # read the data
-        try:
-            self.magmode = 0;
-            search = []
-            # Nonspin cases
-            def magnetization_start(results, match): results.magmode = 1;
-            search.append(['magnetization \(x\)', lambda results, line: results.magmode == 0, magnetization_start])
-
-            def magnetization_tableline(results, match): results.magmode += 1
-            search.append(['^\s*[-]+\s*$', lambda results, line: results.magmode > 0, magnetization_tableline])
-
-            def magnetization_ion(results, match): results.mag[int(match.group(1))] = float(match.group(2));
-            search.append([r'(\d+)\s+[-0-9\.]+\s+[-0-9\.]+\s+[-0-9\.]+\s+([-0-9\.]+)', lambda results, line: results.magmode == 2, magnetization_ion])
-
-            def magnetization_total(results, match): results.totmag = float(match.group(1)); results.magmode = 0
-            search.append([r'tot\s+[-0-9\.]+\s+[-0-9\.]+\s+[-0-9\.]+\s+([-0-9\.]+)', lambda results, line: results.magmode == 3, magnetization_total])
-
-            micro_pyawk(self.filename, search, self)
-
-        except RuntimeError:
-            raise Exception("Error: magnetization not read")
+        
+        with file_open_zip_aware(filename, "r") as f:
+            lines = f.readlines()
+        
+            read_charge = False
+            read_mag = False
+            charge = []
+            mag = []
+            header = []
+            for line in lines:
+                clean = line.strip()
+                if clean == "total charge":
+                    read_charge = True
+                    charge = []
+                elif clean == "magnetization (x)":
+                    read_mag = True
+                    mag = []
+                elif read_charge or read_mag:
+                    if clean.startswith("# of ion"):
+                        header = re.split("\s{2,}", line.strip())
+                        print header
+                    elif clean.startswith("tot"):
+                        read_charge = False
+                        read_mag = False
+                    else:
+                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                        if m:
+                            to_append = charge if read_charge else mag
+                            data = re.findall("[\d\.\-]+", clean)
+                            to_append.append({header[i]:float(data[i]) for i in xrange(1,len(header))})
+            
+            self.magnetization = tuple(mag)
+            self.charge = tuple(charge)
 
     def get_magnetization(self):
         return self.mag
