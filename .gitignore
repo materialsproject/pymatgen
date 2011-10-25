@@ -1,4 +1,5 @@
 .DS_Store
+*.tar.gz
 *.pyc
 pymatgen/*.pyc
 pymatgen/*/*.pyc
