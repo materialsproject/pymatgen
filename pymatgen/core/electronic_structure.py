@@ -113,7 +113,14 @@ class Orbital(object):
         for orb in Orbital.all_orbitals:
             if int(orb) == i:
                 return orb
-        
+    
+    @staticmethod
+    def from_string(orb_str):
+        for orb in Orbital.all_orbitals:
+            if str(orb) == orb_str:
+                return orb
+        raise ValueError("Illegal orbital definition!")
+
 class Dos(object):
 
     def __init__(self, efermi, energies, densities):
@@ -151,13 +158,14 @@ class Dos(object):
         """
         if not (self.energies == other.energies).all():
             raise ValueError("Energies of both DOS are not compatible!")
-        
-        return Dos(self.efermi, self.energies, {Spin.up:self._dos[Spin.up]+other._dos[Spin.up], Spin.down:self._dos[Spin.down]+other._dos[Spin.down]})
+        densities = {spin: self._dos[spin] + other._dos[spin] for spin in self.densities.keys()}
+        return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self,energy):
-        fup = spint.interp1d(self._energies, self._dos[Spin.up])
-        fdown = spint.interp1d(self._energies, self._dos[Spin.down])
-        return {Spin.up:fup(energy), Spin.down:fdown(energy)}
+        f = {}
+        for spin in self._dos.keys():
+            f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
+        return f
     
     def get_interpolated_gap(self,tol=0.001,abs_tol=False,spin=None):
         """
@@ -330,6 +338,9 @@ class CompleteDos(Dos):
                 else:
                     el_dos[el] += pdos
         return el_dos
+    
+    def __str__(self):
+        return "Complete DOS for "+str(self._structure)
     
 def plot_dos(dos_dict):
     import pylab

@@ -1158,9 +1158,6 @@ class Outcar(object):
             self.magnetization = tuple(mag)
             self.charge = tuple(charge)
 
-    def get_magnetization(self):
-        return self.mag
-
     def read_IGPAR(self):
         """ Renders accessible:
                er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
