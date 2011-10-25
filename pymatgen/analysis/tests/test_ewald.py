@@ -10,7 +10,7 @@ class EwaldSummationTest(unittest.TestCase):
 
     def test_init(self):
         module_path = os.path.dirname(pymatgen.io.vaspio.__file__)
-        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'POSCAR.gz')
+        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'POSCAR')
         p = Poscar.from_file(filepath)
         s = p.struct
 

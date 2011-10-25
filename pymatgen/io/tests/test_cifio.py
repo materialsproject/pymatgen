@@ -27,7 +27,7 @@ class  CifIOTest(unittest.TestCase):
             self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif.")
       
     def test_CifWriter(self):
-        filepath = os.path.join(self.module_dir, 'vasp_testfiles','POSCAR.gz')
+        filepath = os.path.join(self.module_dir, 'vasp_testfiles','POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.struct)
         expected_cif_str = """#\#CIF1.1
