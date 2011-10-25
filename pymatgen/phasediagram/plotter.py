@@ -17,6 +17,11 @@ import numpy as np
 import re
 import itertools
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+from mpl_toolkits.mplot3d import Axes3D
+
 class PDPlotter(object):
     '''
     A plotter class for phase diagrams.
@@ -98,12 +103,8 @@ class PDPlotter(object):
 
     def _show_2d_plot(self):
         '''
-        Shows the plot using pylab.  Usually I won't do imports in methods,
-        but since plotting is a fairly expensive library to load and not all 
-        machines have matplotlib installed, I have done it this way.
+        Shows the plot using pylab.
         '''
-        import matplotlib.pyplot as plt
-        from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
             plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
@@ -158,11 +159,8 @@ class PDPlotter(object):
         but since plotting is a fairly expensive library to load and not all 
         machines have matplotlib installed, I have done it this way.
         '''
-        import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d.axes3d as p3
-        from matplotlib.font_manager import FontProperties
         fig=plt.figure()
-        ax = p3.Axes3D(fig)
+        ax = fig.add_subplot(111, projection='3d')
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
@@ -196,12 +194,9 @@ class PDPlotter(object):
         dim = len(self._pd.elements)
         elementref = re.compile("^[A-Z][a-z]*$")
         count = 1
-        import matplotlib as mpl
-        from matplotlib.font_manager import FontProperties
         
         # chose a non-GUI backend
         mpl.use( 'Agg' )
-        import matplotlib.pyplot as plt
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
