@@ -9,7 +9,7 @@ class VoronoiCoordFinderTest(unittest.TestCase):
 
     def setUp(self):
         module_path = os.path.dirname(pymatgen.io.vaspio.__file__)
-        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'vasprun.xml.gz')
+        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'vasprun.xml')
         reader = pymatgen.io.vaspio.Vasprun(filepath)
         s = reader.final_structure
         self.finder = VoronoiCoordFinder(s,[Element("O")])
