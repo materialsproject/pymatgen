@@ -34,10 +34,13 @@ def str_aligned(results, header=None):
             colMaxLength = max([len(str(header[count])), colMaxLength])
         stringlengths.append(colMaxLength)
         count += 1
-    formatString = " ".join(["%" + str(d) + "s" for d in stringlengths])
+    formatString = "   ".join(["%" + str(d) + "s" for d in stringlengths])
     returnstr = ''
     if header != None:
-        returnstr += formatString % tuple(header) + "\n"
+        header_str  = formatString % tuple(header)
+        returnstr += header_str + "\n"
+        returnstr += "-" * len(header_str) + "\n"
+        
     return returnstr + "\n".join([formatString % tuple(result) for result in results])
 
 def formula_double_format(afloat, ignore_ones = True, tol=1e-8):
