@@ -20,6 +20,7 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
+import json
 
 import numpy as np
 from numpy import identity, array, zeros
@@ -35,6 +36,20 @@ from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orb
 from pymatgen.core.lattice import Lattice
 
 coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
+
+
+class VaspParameterSet(object):
+    
+    def __init__(self, name = "MaterialsProject"):
+        self.name = name
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        self._config = ConfigParser.SafeConfigParser()
+        self._config.optionxform = str
+        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
+        self.potcar_settings = dict(self._config.items(name + 'POTCAR'))
+        self.incar_settings = dict(self._config.items(name+'INCAR'))
+        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
+            self.incar_settings[key] = json.loads(self.incar_settings[key])
 
 class Poscar(VaspInput):
     """
@@ -174,7 +189,7 @@ class Poscar(VaspInput):
                         for i in xrange(len(natoms)):
                             atomic_symbols.extend([names[i]] * natoms[i])
                         found_symbols = True
-                    except Exception as ex:
+                    except:
                         pass
         
         #Defaulting to false names.
@@ -303,6 +318,26 @@ class Incar(dict, VaspInput):
             return str_aligned(lines)
         else:
             return str_delimited(lines, None," = ")
+    
+    @staticmethod
+    def from_structure(structure, parameter_set = VaspParameterSet()):
+        incar = Incar()
+        poscar = Poscar(structure)
+        for key, setting in parameter_set.incar_settings.items():
+            if key == "MAGMOM":
+                incar[key] =  [setting.get(site.specie.symbol, 0.6) for site in structure]
+            elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
+                incar[key] =  [setting.get(sym, 0) for sym in poscar.site_symbols]
+            else:
+                incar[key] = setting
+                
+        has_u = sum(incar['LDAUU']) > 0
+        if not has_u:
+            for key in incar.keys():
+                if key.startswith('LDAU'):
+                    del incar[key]
+        
+        return incar
     
     def __str__(self):
         return self.get_string(sort_keys = True, pretty = False)
@@ -503,115 +538,6 @@ class PotcarSingle(VaspInput):
         """
         return Element(self.element).Z
 
-
-DEFAULT_POTCAR_CHOICES = {"Li":"Li_sv",
-"O":"O",
-"Na":"Na_pv",
-"K":"K_sv",
-"Cs":"Cs_sv",
-"Rb":"Rb_sv",
-"Be":"Be_sv",
-"Mg":"Mg_pv",
-"Ca":"Ca_sv",
-"Sr":"Sr_sv",
-"Ba":"Ba_sv",
-"Sc":"Sc_sv",
-"Y":"Y_sv",
-"Ti":"Ti_pv",
-"Zr":"Zr_sv",
-"Hf":"Hf_pv",
-"V":"V_sv",
-"Nb":"Nb_pv",
-"Ta":"Ta_pv",
-"Cr":"Cr_pv",
-"Mo":"Mo_pv",
-"W":"W_pv",
-"Mn":"Mn_pv",
-"Tc":"Tc_pv",
-"Re":"Re_pv",
-"Fe":"Fe_pv",
-"Co":"Co",
-"Ni":"Ni_pv",
-"Cu":"Cu_pv",
-"Zn":"Zn",
-"Ru":"Ru_pv",
-"Rh":"Rh_pv",
-"Pd":"Pd",
-"Ag":"Ag",
-"Cd":"Cd",
-"Hg":"Hg",
-"Au":"Au",
-"Ir":"Ir",
-"Pt":"Pt",
-"Os":"Os_pv",
-"Ga":"Ga_d",
-"Ge":"Ge_d",
-"Al":"Al",
-"As":"As",
-"Se":"Se",
-"Br":"Br",
-"In":"In_d",
-"Sn":"Sn_d",
-"Tl":"Tl_d",
-"Pb":"Pb_d",
-"Bi":"Bi",
-"Po":None,
-"At":None,
-"La":"La",
-"Ce":"Ce",
-"Pr":"Pr_3",
-"Nd":"Nd_3",
-"Pm":"Pm_3",
-"Sm":"Sm_3",
-"Eu":"Eu",
-"Gd":"Gd",
-"Tb":"Tb_3",
-"Dy":"Dy_3",
-"Ho":"Ho_3",
-"Er":"Er_3",
-"Tm":"Tm_3",
-"Yb":"Yb",
-"Lu":"Lu_3",
-"P":"P",
-"H" : "H",
-"Pu" : "Pu",
-"C": "C",
-"Pa" : "Pa",
-"Xe" : "Xe",
-"He" : "He",
-"S" : "S",
-"Ne" : "Ne",
-"Np" : "Np",
-"Fr" : None,
-"Fm" : None,
-"B" : "B",
-"F" : "F",
-"N" : "N",
-"Kr": "Kr",
-"Si" : "Si",
-"Sb": "Sb",
-"Cm": None,
-"Cl": "Cl",
-"Cf": None,
-"Lr" : None,
-"Th" : "Th",
-"Te" : "Te",
-"I" : "I",
-"U" : "U",
-"Ac" : "Ac",
-"Am" : None,
-"Ar" : "Ar",
-"Ra" : None,
-"Rn" : None,
-"Bk" : None,
-"Md" : None,
-"Es" : None,
-"No" : None
-}
-
-
-
-
 class Potcar(list,VaspInput):
     """
     Object for reading and writing POTCAR files for
@@ -647,7 +573,7 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = 'PBE', use_element_default = True):
+    def set_symbols(self, elements, functional = 'PBE', parameter_set = VaspParameterSet()):
         module_dir = os.path.dirname(pymatgen.__file__)
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
@@ -656,8 +582,8 @@ class Potcar(list,VaspInput):
         del self[:]
         for el in elements:
             sym = el
-            if Element.is_valid_symbol(el) and use_element_default and el in DEFAULT_POTCAR_CHOICES:
-                sym = DEFAULT_POTCAR_CHOICES[el]
+            if parameter_set and Element.is_valid_symbol(el) and el in parameter_set.potcar_settings:
+                sym = parameter_set.potcar_settings[el]
             reader = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + sym + ".gz"))
             self.append(PotcarSingle(reader.read()))
             reader.close()
@@ -1528,4 +1454,3 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
-    
