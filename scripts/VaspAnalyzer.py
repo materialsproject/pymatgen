@@ -1,8 +1,7 @@
-#!/usr/bin/python
-import getopt
+#!/usr/bin/env python
+import argparse
 import os
 import re
-import sys
 from pymatgen.io.vaspio import Vasprun, Outcar
 from pymatgen.util.string_utils import str_aligned
 
@@ -39,39 +38,19 @@ def get_magnetizations(mydir, ionList):
                     print "%10d | %3.4f" % (ion, mags[ion])
                 print "-" * 20
 
-def usage():
-    print "Convenient Vasp run analyzer which can recursively go into a dir to search results.\n\
-Author: Shyue Version: 0.1 Last updated: Jul 29 2010\n\
-Usage is as follows: VaspAnalyzer.py [arguments and options] dirnames.\n\
-Default is to just print energies.\n\
-Arguments supported:\n\
--energies : output all final energies in the vasprun.xml\n\
--magnetization=i-j : output magnetizations for ions i-j using OUTCAR"
+parser = argparse.ArgumentParser(description='''Convenient vasp run analyzer which can recursively go into a directory to search results.
+Author: Shyue Ping Ong
+Version: 1.0
+Last updated: Oct 26 2011''')
+parser.add_argument('directories', metavar='dir', default='.', type=str, nargs = '*', help='directory to process (default to .)')
+parser.add_argument('-e', '--energies', dest='get_energies', action='store_const', const=True, help='print energies')
+parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs = 1, help='print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
 
-def main():
-        
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hem:", ["help", "energies", "magnetization="])
-    except getopt.GetoptError, err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-
-    #print args
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        for d in args:
-            if os.path.isdir(d):
-                if o in ("-e", "--energies"):
-                    get_energies(d)
-                elif o in ("-m", "--magnetization"):
-                    ionList = list()
-                    (start, end) = map(int, re.split("-", a))
-                    ionList = range(start, end + 1)
-                    get_magnetizations(d, ionList)
-
-if __name__ == "__main__":
-    main()
+args = parser.parse_args()
+if args.get_energies:
+    map(get_energies, args.directories)
+if args.ion_list:
+    ion_list = list()
+    (start, end) = map(int, re.split("-", args.ion_list[0]))
+    ion_list = range(start, end + 1)
+    get_magnetizations(args.directories, ion_list)
