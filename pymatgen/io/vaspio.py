@@ -622,7 +622,7 @@ class Vasprun(object):
     Author: Shyue Ping Ong
     """
     supported_properties = ['vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
-                            'actual_kpoints_weights', 'dos_energies', 'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi', 'ionic_steps']
+                            'actual_kpoints_weights', 'dos_energies', 'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi', 'ionic_steps', 'dos_has_errors']
     
     def __init__(self, filename):
         self._filename = filename    
@@ -767,7 +767,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.dos_val = []
         self.idos_val = []
         self.raw_data = []
-        
+        self.dos_has_errors = False #will be set to true if there is an error parsing the Dos.
         self.state = defaultdict(bool)
         
     
@@ -936,48 +936,51 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.structures.append(Structure(self.lattice, self.atomic_symbols, self.pos))
                     self.read_structure = False
             elif self.read_dos:
-                if name == "i" and self.state["i"] == "efermi":
-                    self.efermi = float(self.val.getvalue().strip())
-                elif name == "r" and self.state["total"]  and str(self.state["set"]).startswith("spin"):
-                    tok = re.split("\s+", self.val.getvalue().strip())
-                    self.dos_energies_val.append(float(tok[0]))
-                    self.dos_val.append(float(tok[1]))
-                    self.idos_val.append(float(tok[2]))
-                elif name == "r" and self.state["partial"]  and str(self.state["set"]).startswith("spin"):
-                    tok = re.split("\s+", self.val.getvalue().strip())
-                    self.raw_data.append([float(i) for i in tok[1:]])
-                elif name == "set" and self.state["total"] and str(self.state["set"]).startswith("spin"):
-                    spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                    self.tdos[spin] = self.dos_val
-                    self.idos[spin] = self.dos_val
-                    self.dos_energies = self.dos_energies_val
-                    self.dos_energies_val = []
-                    self.dos_val = []
-                    self.idos_val = []
-                elif name == "set" and self.state["partial"] and str(self.state["set"]).startswith("spin"):
-                    spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                    self.norbitals = len(self.raw_data[0])
-                    for i in xrange(self.norbitals):
-                        self.pdos[(self.pdos_ion, i, spin)] = [row[i] for row in self.raw_data]
-                    self.raw_data = []
-                elif name == "partial":
-                    all_pdos = []
-                    natom = len(self.atomic_symbols)
-                    for iatom in xrange(1,natom+1):
-                        all_pdos.append(list())
-                        for iorbital in xrange(self.norbitals):
-                            updos = self.pdos[(iatom, iorbital, Spin.up)]
-                            downdos = None if (iatom, iorbital, Spin.down) not in self.pdos else self.pdos[(iatom, iorbital, Spin.down)]
-                            if downdos:
-                                all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos, Spin.down:downdos}, Orbital.from_vasp_index(iorbital)))
-                            else:
-                                all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos}, Orbital.from_vasp_index(iorbital)))
-                    self.pdos = all_pdos
-                elif name == "total":
-                    self.tdos = Dos(self.efermi, self.dos_energies, self.tdos)
-                    self.idos = Dos(self.efermi, self.dos_energies, self.idos)
-                elif name == "dos":
-                    self.read_dos = False
+                try:
+                    if name == "i" and self.state["i"] == "efermi":
+                        self.efermi = float(self.val.getvalue().strip())
+                    elif name == "r" and self.state["total"]  and str(self.state["set"]).startswith("spin"):
+                        tok = re.split("\s+", self.val.getvalue().strip())
+                        self.dos_energies_val.append(float(tok[0]))
+                        self.dos_val.append(float(tok[1]))
+                        self.idos_val.append(float(tok[2]))
+                    elif name == "r" and self.state["partial"]  and str(self.state["set"]).startswith("spin"):
+                        tok = re.split("\s+", self.val.getvalue().strip())
+                        self.raw_data.append([float(i) for i in tok[1:]])
+                    elif name == "set" and self.state["total"] and str(self.state["set"]).startswith("spin"):
+                        spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+                        self.tdos[spin] = self.dos_val
+                        self.idos[spin] = self.dos_val
+                        self.dos_energies = self.dos_energies_val
+                        self.dos_energies_val = []
+                        self.dos_val = []
+                        self.idos_val = []
+                    elif name == "set" and self.state["partial"] and str(self.state["set"]).startswith("spin"):
+                        spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+                        self.norbitals = len(self.raw_data[0])
+                        for i in xrange(self.norbitals):
+                            self.pdos[(self.pdos_ion, i, spin)] = [row[i] for row in self.raw_data]
+                        self.raw_data = []
+                    elif name == "partial":
+                        all_pdos = []
+                        natom = len(self.atomic_symbols)
+                        for iatom in xrange(1,natom+1):
+                            all_pdos.append(list())
+                            for iorbital in xrange(self.norbitals):
+                                updos = self.pdos[(iatom, iorbital, Spin.up)]
+                                downdos = None if (iatom, iorbital, Spin.down) not in self.pdos else self.pdos[(iatom, iorbital, Spin.down)]
+                                if downdos:
+                                    all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos, Spin.down:downdos}, Orbital.from_vasp_index(iorbital)))
+                                else:
+                                    all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos}, Orbital.from_vasp_index(iorbital)))
+                        self.pdos = all_pdos
+                    elif name == "total":
+                        self.tdos = Dos(self.efermi, self.dos_energies, self.tdos)
+                        self.idos = Dos(self.efermi, self.dos_energies, self.idos)
+                    elif name == "dos":
+                        self.read_dos = False
+                except:
+                    self.dos_has_errors = True
             elif self.read_eigen:
                 if name == "r" and str(self.state["set"]).startswith("kpoint"):
                     tok = re.split("\s+", self.val.getvalue().strip())
