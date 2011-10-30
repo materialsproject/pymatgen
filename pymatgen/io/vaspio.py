@@ -680,9 +680,17 @@ class Vasprun(object):
         d['nelements'] = len(symbols)
         d['is_hubbard'] = self.incar.get('LDAU', False)
         if d['is_hubbard']:
-            us = self.incar['LDAUU']
-            js = self.incar['LDAUJ']
-            d['hubbards'] = { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
+            us = self.incar.get('LDAUU', self.parameters.get('LDAUU'))
+            js = self.incar.get('LDAUJ', self.parameters.get('LDAUJ'))
+            print us
+            print js
+            if len(us) == len(symbols):
+                d['hubbards'] = { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
+            elif sum(us) == 0 and sum(js) == 0:
+                d['is_hubbard'] = False
+                d['hubbards'] = {}
+            else:
+                raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
         else:
             d['hubbards'] = {}
         if d['is_hubbard']:
