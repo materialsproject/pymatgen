@@ -682,8 +682,6 @@ class Vasprun(object):
         if d['is_hubbard']:
             us = self.incar.get('LDAUU', self.parameters.get('LDAUU'))
             js = self.incar.get('LDAUJ', self.parameters.get('LDAUJ'))
-            print us
-            print js
             if len(us) == len(symbols):
                 d['hubbards'] = { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
             elif sum(us) == 0 and sum(js) == 0:
