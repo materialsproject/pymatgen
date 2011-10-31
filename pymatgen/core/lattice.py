@@ -329,7 +329,7 @@ class Lattice(object):
                     b=diffvector
                 else:
                     a=diffvector
-                anychange=True
+            anychange=True
             """
             take care of b
             """
@@ -343,7 +343,7 @@ class Lattice(object):
                     c=diffvector
                 else:
                     a=diffvector
-                anychange=True       
+            anychange=True       
             """
             take care of a
             """
@@ -357,7 +357,7 @@ class Lattice(object):
                     b=diffvector
                 else:
                     c=diffvector
-                anychange=True
+            anychange=True
             if anychange==True:
                 break
         return Lattice([a,b,c])
