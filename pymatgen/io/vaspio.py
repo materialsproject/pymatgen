@@ -47,6 +47,7 @@ class VaspParameterSet(object):
         self._config.optionxform = str
         self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
         self.potcar_settings = dict(self._config.items(name + 'POTCAR'))
+        self.kpoints_settings = dict(self._config.items(name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(name+'INCAR'))
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             self.incar_settings[key] = json.loads(self.incar_settings[key])
@@ -118,8 +119,34 @@ class Poscar(VaspInput):
             Poscar object.
         """
         
+        dirname = os.path.dirname(os.path.abspath(filename))
+        for f in os.listdir(dirname):
+            if re.search("POTCAR.*",f):
+                try:
+                    potcar = Potcar.from_file(os.path.join(dirname, f))
+                    names = [sym.split("_")[0] for sym in potcar.symbols]
+                except:
+                    names = None    
         with file_open_zip_aware(filename, "r") as f:
-            lines = tuple(clean_lines(f.readlines(), False))
+            return Poscar.from_string(f.read(), names)
+    
+    @staticmethod
+    def from_string(string_data, default_names = None):
+        """
+        Reads a Poscar from a string.
+        The code will try its best to determine the elements in the POSCAR in the following order:
+            i) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
+            ii) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
+        If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
+        to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
+        that does not require specific elemental properties should work fine.
+        Arguments:
+            string_data - string containing Poscar data.
+        Returns:
+            Poscar object.
+        """
+        
+        lines = tuple(clean_lines(string_data.split("\n"), False))
 
         comment = lines[0]
         scale = float(lines[1])
@@ -175,23 +202,15 @@ class Poscar(VaspInput):
                 found_symbols = True
             except:
                 pass
-            
-        #Try to find a element from a POTCAR in the same directory.
-        if not found_symbols:
-            dirname = os.path.dirname(os.path.abspath(filename))
-            for f in os.listdir(dirname):
-                if re.search("POTCAR.*",f):
-                    try:
-                        warnings.warn("POTCAR found! Using elements from POTCAR.")
-                        potcar = Potcar.from_file(os.path.join(dirname, f))
-                        names = [sym.split("_")[0] for sym in potcar.symbols]
-                        atomic_symbols = list()
-                        for i in xrange(len(natoms)):
-                            atomic_symbols.extend([names[i]] * natoms[i])
-                        found_symbols = True
-                    except:
-                        pass
-        
+
+        if (not found_symbols) and default_names:
+            atomic_symbols = list()
+            names = list()
+            for i in xrange(len(natoms)):
+                names.append(default_names[i])
+                atomic_symbols.extend([default_names[i]] * natoms[i])
+            found_symbols = True
+
         #Defaulting to false names.
         if not found_symbols:
             names = list()
@@ -471,6 +490,17 @@ class Kpoints(VaspInput):
             
         return kpoints
 
+    @staticmethod
+    def from_structure(structure, parameter_set = VaspParameterSet()):
+        recip = structure.lattice.reciprocal_lattice
+        kpts = [[int(round(int(parameter_set.kpoints_settings['grid_density']) * recip.volume))]]
+        
+        comment = "Auto-generated kpoints file with kpoints parameter = "+parameter_set.kpoints_settings['grid_density']
+        num_kpts = 0
+        style = 'Auto'
+        
+        return Kpoints(comment, num_kpts, style, kpts, [0,0,0])
+        
     def write_file(self, filename):
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
@@ -482,7 +512,8 @@ class Kpoints(VaspInput):
         lines += [self.style]
         for line in self.kpts:
             lines += [" ".join([str(x) for x in line])]
-        lines += [" ".join([str(x) for x in self.kpts_shift])]
+        if self.style != 'Auto':
+            lines += [" ".join([str(x) for x in self.kpts_shift])]
         return "\n".join(lines)
     
     @property

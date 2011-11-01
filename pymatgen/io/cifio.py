@@ -14,6 +14,7 @@ __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
 import re
+import StringIO
 import math
 from collections import OrderedDict
 from pymatgen.core.periodic_table import Element, Specie
@@ -36,9 +37,20 @@ class CifParser:
         Arguments:
             filename - cif file name.  bzipped or gzipped cifs are fine too.
         """
-        with file_open_zip_aware(filename, "r") as f:
-            self._cif = CifFile.ReadCif(f)
+        if isinstance(filename, basestring):
+            with file_open_zip_aware(filename, "r") as f:
+                self._cif = CifFile.ReadCif(f)
+        else:
+            self._cif = CifFile.ReadCif(filename)
+                    
 
+    @staticmethod
+    def from_string(cif_string):
+        output = StringIO.StringIO()
+        output.write(cif_string)
+        output.seek(0)
+        return CifParser(output)
+        
     def _unique_coords(self,coord_in,sympos, primitive, lattice, primlattice):
         """
         Generate unique coordinates using coord and symmetry positions.
@@ -60,6 +72,7 @@ class CifParser:
         Generate structure from part of the cif.
         """
         spacegroup = data['_symmetry_space_group_name_H-M']
+        
         if len(spacegroup) == 0:
             latt_type = "P"
         else:
