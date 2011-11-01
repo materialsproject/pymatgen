@@ -87,7 +87,13 @@ class  KpointsTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
-
+    
+    def test_from_structure(self):
+        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
+        poscar = Poscar.from_file(filepath)
+        kpoints = Kpoints.from_structure(poscar.struct)
+        self.assertIsNotNone(kpoints)
+        
 class  PotcarTest(unittest.TestCase):
     
     def test_init(self):
