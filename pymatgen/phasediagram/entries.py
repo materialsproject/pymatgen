@@ -121,15 +121,17 @@ class PDEntryIO(object):
     """
 
     @staticmethod
-    def to_csv(filename,elements,entries):
+    def to_csv(filename,entries):
         import csv
+        elements = set()
+        map(elements.update, [entry.composition.elements for entry in entries])
+        elements = sorted(list(elements), key=lambda a: a.X)
         writer = csv.writer(open(filename, 'wb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Name']+elements+['Final energy'])
+        writer.writerow(['Name']+elements+['Energy'])
         for entry in entries:
             row = [entry.name]
-            comp = entry.composition
-            row.extend([comp.get_amount(el) for el in elements])
-            row.append(entry.get_energy())
+            row.extend([entry.composition[el] for el in elements])
+            row.append(entry.energy)
             writer.writerow(row)
 
     @staticmethod
