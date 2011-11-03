@@ -1494,3 +1494,4 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
+

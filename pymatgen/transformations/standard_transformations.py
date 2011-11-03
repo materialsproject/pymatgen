@@ -13,9 +13,10 @@ __date__ = "Sep 23, 2011"
 
 import json
 import itertools
+import warnings
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.periodic_table import smart_element_or_specie
@@ -205,6 +206,98 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac}
         return output
 
+class OrderDisorderedStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure. The disordered structure must be oxidation state decorated for ewald sum to be computed.
+    Please note that the current form uses a "dumb" algorithm of completely enumerating all possible combinations of
+    partially occupied sites.  No attempt is made to perform symmetry determination to reduce the number of combinations.
+    Hence, attempting to performing ordering on a large number of disordered sites may be extremely expensive.  Also, simple
+    rounding of the occupancies are performed, with no attempt made to achieve a target composition.  This is usually not a problem
+    for most ordering problems, but there can be times where rounding errors may result in structures that do not have the desired composition.
+    This second step will be implemented in the next iteration of the code.
+    
+    USE WITH CARE.
+    """
+    def __init__(self):
+        pass
+    
+    def apply_transformation(self, structure, max_iterations = 100):
+        """
+        For this transformation, the apply_transformation method will return only the ordered
+        structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
+        However, all structures are stored in the  all_ordered attribute in the transformation object for easy access.
+        """
+        ordered_sites = []
+        
+        sites_to_order = {}
+        for site in structure:
+            species_and_occu = site.species_and_occu
+            if sum(species_and_occu.values()) == 1 and len(species_and_occu) == 1:
+                ordered_sites.append(site)
+            else:
+                for sp, occu in species_and_occu.items():
+                    if (sp,occu) not in sites_to_order:
+                        sites_to_order[(sp,occu)] = [site]
+                    else:
+                        sites_to_order[(sp,occu)].append(site)
+
+        num_to_select = {}
+        for (sp,occu) in sites_to_order.keys():
+            num_to_select[(sp,occu)] = int(round(occu * len(sites_to_order[(sp,occu)])))
+        
+        allselections = [itertools.combinations(sites_to_order[i], num_to_select[i]) for i in sites_to_order.keys()]
+               
+        all_ordered_s = {}
+        
+        count = 0
+        
+        for selection in itertools.product(*allselections):
+            all_species = [site.species_and_occu for site in ordered_sites]
+            all_coords = [site.frac_coords for site in ordered_sites]
+            
+            contains_dupes = False
+            for subsel in selection:
+                for site in subsel:
+                    if site.frac_coords not in all_coords:
+                        all_species.append(site.species_and_occu.keys()[0])
+                        all_coords.append(site.frac_coords)
+                    else:
+                        contains_dupes = True
+                        break
+                if contains_dupes:
+                    break
+            
+            if not contains_dupes:
+                s = Structure(structure.lattice, all_species, all_coords, False)
+                ewaldsum = EwaldSummation(s)
+                ewald_energy = ewaldsum.total_energy
+                all_ordered_s[s] = ewald_energy
+                count += 1
+                if count == max_iterations:
+                    warnings.warn("Maximum number of iterations reached.  Structures will be ordered based on " + str(max_iterations) + " structures.")
+                    break
+
+        self.all_ordered = all_ordered_s
+        sorted_structures = sorted(all_ordered_s.keys(), key=lambda a: all_ordered_s[a])
+                
+        return sorted_structures[0]
+    
+    def __str__(self):
+        return "Order disordered structure transformation"
+     
+    def __repr__(self):
+        return self.__str__()
+    
+    @property
+    def inverse(self):
+        return None
+    
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__}
+        output['init_args'] = {}
+        return output
+
 
 def transformation_from_json(json_string):
     """
@@ -214,3 +307,5 @@ def transformation_from_json(json_string):
     trans = globals()[jsonobj['name']]
     return trans(**jsonobj['init_args'])
 
+
+    
