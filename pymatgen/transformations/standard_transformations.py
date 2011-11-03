@@ -235,31 +235,43 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if sum(species_and_occu.values()) == 1 and len(species_and_occu) == 1:
                 ordered_sites.append(site)
             else:
-                for sp, occu in species_and_occu.items():
-                    if (sp,occu) not in sites_to_order:
-                        sites_to_order[(sp,occu)] = [site]
-                    else:
-                        sites_to_order[(sp,occu)].append(site)
+                spec = tuple([(sp, occu) for sp, occu in species_and_occu.items()])
+                if spec not in sites_to_order:
+                    sites_to_order[spec] = [site]
+                else:
+                    sites_to_order[spec].append(site)
 
-        num_to_select = {}
-        for (sp,occu) in sites_to_order.keys():
-            num_to_select[(sp,occu)] = int(round(occu * len(sites_to_order[(sp,occu)])))
+        allselections = []
+        species = []
+        for spec, sites in sites_to_order.items():
+            total_sites = len(sites)
+            for (sp, fraction) in spec:
+                num_to_select = int(round(fraction * total_sites))
+                if num_to_select == 0:
+                    raise ValueError("Fraction not consistent with selection of at least a single site.  Make a supercell before proceeding further.")
+                allselections.append(itertools.combinations(sites, num_to_select))
+                species.append(sp)
         
-        allselections = [itertools.combinations(sites_to_order[i], num_to_select[i]) for i in sites_to_order.keys()]
-               
         all_ordered_s = {}
-        
         count = 0
+        
+        def in_coords(allcoords, coord):
+            for test_coord in allcoords:
+                if all(coord == test_coord):
+                    return True
+            return False
         
         for selection in itertools.product(*allselections):
             all_species = [site.species_and_occu for site in ordered_sites]
             all_coords = [site.frac_coords for site in ordered_sites]
             
             contains_dupes = False
-            for subsel in selection:
+            for i in xrange(len(selection)):
+                subsel = selection[i]
+                sp = species[i]
                 for site in subsel:
-                    if site.frac_coords not in all_coords:
-                        all_species.append(site.species_and_occu.keys()[0])
+                    if not in_coords(all_coords, site.frac_coords):
+                        all_species.append(sp)
                         all_coords.append(site.frac_coords)
                     else:
                         contains_dupes = True
