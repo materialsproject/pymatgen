@@ -13,6 +13,8 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
+import re
+
 from pymatgen.core.structure import Composition
 from pymatgen.core.periodic_table import Element
 
@@ -121,7 +123,7 @@ class PDEntryIO(object):
     """
 
     @staticmethod
-    def to_csv(filename,entries):
+    def to_csv(filename, entries, latexify_names = False):
         import csv
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
@@ -129,7 +131,7 @@ class PDEntryIO(object):
         writer = csv.writer(open(filename, 'wb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Name']+elements+['Energy'])
         for entry in entries:
-            row = [entry.name]
+            row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
             row.extend([entry.composition[el] for el in elements])
             row.append(entry.energy)
             writer.writerow(row)
