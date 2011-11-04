@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 
 '''
 Created on Sep 23, 2011
@@ -16,7 +17,7 @@ import itertools
 import warnings
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.periodic_table import smart_element_or_specie
@@ -179,15 +180,19 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 
         lowestewald = 1e100
         lowestenergy_s = None
-        
+        all_structures = list()
         for indices in itertools.combinations(specie_indices, num_to_remove):
             mod = StructureEditor(structure)
             mod.delete_sites(indices)
-            s_new = mod.modified_structure
+            s_new = mod.modified_structure.get_sorted_structure()
+            all_structures.append(s_new)
             ewaldsum = EwaldSummation(s_new)
             if ewaldsum.total_energy < lowestewald:
                 lowestewald = ewaldsum.total_energy
                 lowestenergy_s = s_new
+        
+        self.all_structures = all_structures        
+        
         return lowestenergy_s
     
     def __str__(self):
@@ -225,7 +230,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
-        However, all structures are stored in the  all_ordered attribute in the transformation object for easy access.
+        However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
+        Arguments:
+            structure - Oxidation state decorated disordered structure to order
+            max_iterations - Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
+                             and there are too many orderings to enumerate.
         """
         ordered_sites = []
         
@@ -280,7 +289,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     break
             
             if not contains_dupes:
-                s = Structure(structure.lattice, all_species, all_coords, False)
+                s = Structure(structure.lattice, all_species, all_coords, False).get_sorted_structure()
                 ewaldsum = EwaldSummation(s)
                 ewald_energy = ewaldsum.total_energy
                 all_ordered_s[s] = ewald_energy
@@ -289,7 +298,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     warnings.warn("Maximum number of iterations reached.  Structures will be ordered based on " + str(max_iterations) + " structures.")
                     break
 
-        self.all_ordered = all_ordered_s
+        self.all_structures = all_ordered_s
         sorted_structures = sorted(all_ordered_s.keys(), key=lambda a: all_ordered_s[a])
                 
         return sorted_structures[0]
