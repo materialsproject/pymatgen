@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 
 '''
 Created on Sep 23, 2011
@@ -13,7 +14,7 @@ __date__ = "Sep 23, 2011"
 
 import unittest
 
-from pymatgen.transformations.standard_transformations import transformation_from_json, IdentityTransformation, RotationTransformation, OrderDisorderedStructureTransformation
+from pymatgen.transformations.standard_transformations import transformation_from_json, IdentityTransformation, RotationTransformation, PartialRemoveSpecieTransformation, OrderDisorderedStructureTransformation
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -36,6 +37,21 @@ class TransformationsTest(unittest.TestCase):
         s1 = t.inverse.apply_transformation(s2)
         self.assertTrue((abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all())
 
+class PartialRemoveSpecieTransformationTest(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = PartialRemoveSpecieTransformation("Li+", 1/3)
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li+", "Li+", "Li+", "O2-"],coords)
+        t.apply_transformation(struct)
+        self.assertEqual(len(t.all_structures), 3)
+        
+
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
@@ -48,15 +64,15 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
         struct = Structure(lattice,[{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] ,coords)
         t.apply_transformation(struct)
-        self.assertEqual(len(t.all_ordered), 12)
+        self.assertEqual(len(t.all_structures), 12)
         
         struct = Structure(lattice,[{"Si4+":0.5}, {"Si4+":0.5}, {"P5+":0.5, "O2-": 0.5}, {"P5+":0.5, "O2-": 0.5}] ,coords)
         t.apply_transformation(struct)
-        self.assertEqual(len(t.all_ordered), 4)
+        self.assertEqual(len(t.all_structures), 4)
         
         struct = Structure(lattice,[{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] ,coords)
         t.apply_transformation(struct)
-        self.assertEqual(len(t.all_ordered), 3)
+        self.assertEqual(len(t.all_structures), 3)
         
 class TransformationJsonTest(unittest.TestCase):
     
