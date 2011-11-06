@@ -221,7 +221,7 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
         for entry in entries:
             if not (entry.is_element and (entry.composition.elements[0] in chempots)):
                 allentries.append(GrandPotPDEntry(entry,chempots))
-        
+        self.chempots = chempots
         filteredels = list()
         for el in elements:
             if el not in chempots:
