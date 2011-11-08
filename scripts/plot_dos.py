@@ -40,7 +40,7 @@ structure = v.final_structure
 if args.site:
     for i in xrange(len(structure)):
         site = structure[i]
-        all_dos['Site ' + str(i) + site.specie.symbol] = dos.get_site_dos(site)
+        all_dos['Site ' + str(i) +" "+ site.specie.symbol] = dos.get_site_dos(site)
 if args.element:
     all_dos.update(dos.get_element_dos())
 if args.orbital:
