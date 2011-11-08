@@ -627,8 +627,8 @@ class Vasprun(object):
     Accessible attributes from VasprunHandler are:
         Vasp results
         ------------
-        energies - All energies in run, represented as a list of ionic steps, with a list of scstep energies.
-                   E.g. [ [0.1, 0.2, 0.1], [0.1], [0.22, 0.23, 0.20, 0.205]] 
+        ionic_steps - All ionic steps in the run as a list of {'structure': structure at end of run, 
+                'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
         structures - List of Structure objects for the structure at each ionic step.
         tdos - Total dos calculated at the end of run.
         idos - Integrated dos calculated at the end of run.

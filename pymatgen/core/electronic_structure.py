@@ -342,13 +342,14 @@ class CompleteDos(Dos):
     def __str__(self):
         return "Complete DOS for "+str(self._structure)
     
-def plot_dos(dos_dict):
+def plot_dos(dos_dict, zero_at_efermi = True):
     import pylab
     color_order = ['r', 'b', 'g', 'y']
     count = 0
     for key,dos in dos_dict.items():
-        pylab.plot(dos.energies, dos.get_densities(Spin.up), color_order[count % 4], label=str(key) + ' up')
-        pylab.plot(dos.energies, -dos.get_densities(Spin.down), color_order[count % 4], label=str(key) + ' down')
+        energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
+        pylab.plot(energies, dos.get_densities(Spin.up), color_order[count % 4], label=str(key) + ' up')
+        pylab.plot(energies, -dos.get_densities(Spin.down), color_order[count % 4], label=str(key) + ' down')
         count += 1
     
     pylab.xlabel('Energies (eV)', fontsize = 'large')
