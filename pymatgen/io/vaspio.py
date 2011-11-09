@@ -120,6 +120,7 @@ class Poscar(VaspInput):
         """
         
         dirname = os.path.dirname(os.path.abspath(filename))
+        names = None
         for f in os.listdir(dirname):
             if re.search("POTCAR.*",f):
                 try:
