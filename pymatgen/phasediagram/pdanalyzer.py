@@ -44,20 +44,15 @@ class PDAnalyzer(object):
     def _in_facet(self, facet, comp):
         dim = len(self._pd.elements)
         m = np.array([self._pd.qhull_data[i][0:dim-1] for i in facet])
-        m = np.hstack((m, np.ones((dim,1))))
+        cm = np.array([m[i] - m[0] for i in xrange(1, len(m))])
         sumform = comp.num_atoms
         row = list()
         for i in xrange(1,len(self._pd.elements)):
-            row.append(comp[self._pd.elements[i]]*1.0/sumform)
-        row.append(1)
-        compm = np.array(row)
-        mdet = np.linalg.det(m)
-        for i in xrange(0,dim):
-            tempm = m.copy()
-            tempm[i] = compm            
-            if (np.linalg.det(tempm) * mdet < - 1e-8):
-                return False
-        return True
+            row.append(comp[self._pd.elements[i]]/sumform)
+        compm = np.array(row) - m[0]
+        
+        coeffs = np.linalg.solve(cm.transpose(), compm)
+        return (coeffs >= -1e-8).all() and sum(coeffs) <= (1 + 1e-8)
 
     def _get_facets(self,comp):
         memberfacets = list()
