@@ -184,7 +184,6 @@ class PhaseDiagram (object):
         if len(self._qhull_data) == dim or len(self._qhull_data) < 4:
             self._facets = [range(len(self._elements))]
         else:
-            #self._facets = qconvex(self._qhull_data)
             self._facets = Delaunay(self._qhull_data).convex_hull
             finalfacets = list()
 
