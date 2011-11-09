@@ -348,8 +348,11 @@ def plot_dos(dos_dict, zero_at_efermi = True):
     count = 0
     for key,dos in dos_dict.items():
         energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
-        pylab.plot(energies, dos.get_densities(Spin.up), color_order[count % 4], label=str(key) + ' up')
-        pylab.plot(energies, -dos.get_densities(Spin.down), color_order[count % 4], label=str(key) + ' down')
+        densities = dos.densities
+        if Spin.up in densities:
+            pylab.plot(energies, densities[Spin.up], color_order[count % 4], label=str(key) + ' up')
+        if Spin.down in densities:
+            pylab.plot(energies, - densities[Spin.down], color_order[count % 4], label=str(key) + ' down')
         count += 1
     
     pylab.xlabel('Energies (eV)', fontsize = 'large')
