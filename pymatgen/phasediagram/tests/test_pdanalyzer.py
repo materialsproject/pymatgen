@@ -15,15 +15,16 @@ class  PDAnalyzerTest(unittest.TestCase):
         self.analyzer = PDAnalyzer(self.pd)
 
     def test_get_e_above_hull(self):
-        
         for entry in self.pd.stable_entries:
-            self.assertLess(self.analyzer.get_e_above_hull(entry), 1e-5, "Stable entries should have e above hull of zero!")
+            self.assertLess(self.analyzer.get_e_above_hull(entry), 1e-11, "Stable entries should have e above hull of zero!")
     
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
             self.assertEquals(len(self.analyzer.get_decomposition(entry.composition)), 1, "Stable composition should have only 1 decomposition!")
+        dim = len(self.pd.elements)
         for entry in self.pd.all_entries:
-            self.assertTrue(len(self.analyzer.get_decomposition(entry.composition))>0)
+            ndecomp = len(self.analyzer.get_decomposition(entry.composition))
+            self.assertTrue(ndecomp > 0 and ndecomp <= dim, "The number of decomposition phases can at most be equal to the number of components.")
 
     def test_get_transition_chempots(self):
         el = self.pd.elements[random.randint(0,2)]

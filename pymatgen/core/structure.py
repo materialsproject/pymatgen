@@ -781,6 +781,7 @@ class Composition (collections.Mapping, collections.Hashable):
         if not any([isinstance(e, (Element,Specie)) for e in elmap.keys()]):
             raise TypeError("Keys must be instances of Element!")
         self._elmap = elmap.copy()
+        self._natoms = sum(self._elmap.values())
 
     @property
     def is_element(self):
@@ -961,7 +962,7 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
         Total number of atoms in Composition
         '''
-        return sum(self._elmap.values())
+        return self._natoms
     
     @property
     def weight(self):
@@ -977,7 +978,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns:
             Atomic fraction for element el in Composition
         '''
-        return self[el]/self.num_atoms
+        return self[el]/self._natoms
     
     def get_wt_fraction(self, el):
         '''
