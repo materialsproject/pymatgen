@@ -164,7 +164,7 @@ class PhaseDiagram (object):
         # Remove positive formation energy entries and duplicate entries
         def in_list(entries_list, entry):
             for test_entry in entries_list:
-                if abs(entry.energy_per_atom - test_entry.energy_per_atom) <= self.FORMATION_ENERGY_TOLERANCE and entry.composition == test_entry.composition:
+                if abs(entry.energy - test_entry.energy) <= self.FORMATION_ENERGY_TOLERANCE and entry.composition == test_entry.composition:
                     warnings.warn("Duplicate entry found!  Discarding...")
                     return True
             return False
