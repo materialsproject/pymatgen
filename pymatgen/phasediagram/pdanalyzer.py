@@ -69,7 +69,7 @@ class PDAnalyzer(object):
         """
         memberfacets = list()
         for facet in self._pd.facets:
-            if self._in_facet(facet,comp):
+            if self._in_facet(facet, comp):
                 memberfacets.append(facet)
         return memberfacets
 

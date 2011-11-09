@@ -171,7 +171,7 @@ class PhaseDiagram (object):
         
         entries_to_process = list()
         for entry in self._all_entries:
-            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE and (not in_list(entries_to_process, entry)):
+            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:# and (not in_list(entries_to_process, entry)):
                 entries_to_process.append(entry)
                 
         self._qhull_entries = entries_to_process
@@ -181,7 +181,7 @@ class PhaseDiagram (object):
         stable_entries = set()
         dim = len(self._elements)
         self._qhull_data = self._create_convhull_data()
-        if len(self._qhull_data) == dim or len(self._qhull_data) < 4:
+        if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
             self._facets = Delaunay(self._qhull_data).convex_hull

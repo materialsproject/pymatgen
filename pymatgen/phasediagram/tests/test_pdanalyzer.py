@@ -38,10 +38,8 @@ class  PDAnalyzerTest(unittest.TestCase):
 
     def test_get_element_profile(self):
         for el in self.pd.elements:
-            print el
             for entry in self.pd.stable_entries:
                 if not (entry.composition.is_element):
-                    print entry
                     self.assertLessEqual(len(self.analyzer.get_element_profile(el, entry.composition)), len(self.pd.facets))
 
 if __name__ == '__main__':
