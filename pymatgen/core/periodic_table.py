@@ -476,11 +476,11 @@ class PeriodicTable(object):
         return self._all_elements.values()
 
     @staticmethod
-    def print_periodic_table():
+    def print_periodic_table(filter_function = None):
         for row in range(1,10):
             for group in range(1,19):
-                el = Element.select_from_row_and_group(row,group)
-                if el != None:
+                el = Element.from_row_and_group(row,group)
+                if el != None and ((not filter_function) or filter_function(el)):
                     print "%3s" % (el.symbol),
                 else:
                     print "   ",
