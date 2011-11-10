@@ -1,0 +1,3082 @@
+Ac:
+  Boiling point: 3573 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 10070 kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 2250 K
+  Melting point: 1323 K
+  Mineral hardness: no data
+  Molar volume: 22.55 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 12 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.1
+  Youngs modulus: no data GPa
+  atomic mass: 227.0
+  atomic no: 89
+  atomic radius: 1.895
+  electronic: '[Rn].6d<sup>1</sup>.7s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 48
+  min oxidation state: 3.0
+  name: Actinium
+Ag:
+  Boiling point: 2435 K
+  Brinell hardness: 24.5 MN m<sup>-2</sup>
+  Bulk modulus: 100 GPa
+  Coefficient of linear thermal expansion: 18.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 10490 kg m<sup>-3</sup>
+  Electrical resistivity: 1.63 10<sup>-8</sup> &Omega; m
+  Liquid range: 1200.07 K
+  Melting point: 1234.93 K
+  Mineral hardness: '2.5'
+  Molar volume: 10.27 cm<sup>3</sup>
+  Poissons ratio: '0.37'
+  Reflectivity: 97 %
+  Refractive index: no data
+  Rigidity modulus: 30 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 430 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2600 m s<sup>-1</sup>
+  Vickers hardness: 251 MN m<sup>-2</sup>
+  X: 1.93
+  Youngs modulus: 83 GPa
+  atomic mass: 107.8682
+  atomic no: 47
+  atomic radius: 1.286
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 71
+  min oxidation state: 1.0
+  name: Silver
+Al:
+  Boiling point: 2792 K
+  Brinell hardness: 245 MN m<sup>-2</sup>
+  Bulk modulus: 76 GPa
+  Coefficient of linear thermal expansion: 23.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2700 kg m<sup>-3</sup>
+  Electrical resistivity: 2.7 10<sup>-8</sup> &Omega; m
+  Liquid range: 1858.53 K
+  Melting point: 933.47 K
+  Mineral hardness: '2.75'
+  Molar volume: 10.00 cm<sup>3</sup>
+  Poissons ratio: '0.35'
+  Reflectivity: 71 %
+  Refractive index: no data
+  Rigidity modulus: 26 GPa
+  Superconduction temperature: 1.175 K
+  Thermal conductivity: 235 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5100 m s<sup>-1</sup>
+  Vickers hardness: 167 MN m<sup>-2</sup>
+  X: 1.61
+  Youngs modulus: 70 GPa
+  atomic mass: 26.9815386
+  atomic no: 13
+  atomic radius: 1.312
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 80
+  min oxidation state: 3.0
+  name: Aluminum
+Am:
+  Boiling point: 2880 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 1431 K
+  Melting point: 1449 K
+  Mineral hardness: no data
+  Molar volume: 17.63 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 0.6 K
+  Thermal conductivity: 10 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 243.0
+  atomic no: 95
+  atomic radius: 1.757
+  electronic: '[Rn].5f<sup>7</sup>.7s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 42
+  min oxidation state: 2.0
+  name: Americium
+Ar:
+  Boiling point: 87.3 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 150.8 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 3.5 K
+  Melting point: 83.8 K
+  Mineral hardness: no data
+  Molar volume: 22.56 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000281'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.01772 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 319 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: no data GPa
+  atomic mass: 39.948
+  atomic no: 18
+  atomic radius: 0.659
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 3
+  min oxidation state: 0.0
+  name: Argon
+As:
+  Boiling point: 887 K
+  Brinell hardness: 1440 MN m<sup>-2</sup>
+  Bulk modulus: 22 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 1700 K
+  Density of solid: 5727 kg m<sup>-3</sup>
+  Electrical resistivity: 33 10<sup>-8</sup> &Omega; m
+  Liquid range: 203 K
+  Melting point: 1090 K
+  Mineral hardness: '3.5'
+  Molar volume: 12.95 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.001552'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 50 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.18
+  Youngs modulus: 8 GPa
+  atomic mass: 74.9216
+  atomic no: 33
+  atomic radius: 1.001
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 89
+  min oxidation state: -3.0
+  name: Arsenic
+At:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: 575 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 2 (estimate)W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: no data GPa
+  atomic mass: 210.0
+  atomic no: 85
+  atomic radius: 1.146
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 96
+  min oxidation state: 7.0
+  name: Astatine
+Au:
+  Boiling point: 3129 K
+  Brinell hardness: 2450 MN m<sup>-2</sup>
+  Bulk modulus: 220 GPa
+  Coefficient of linear thermal expansion: 14.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 19300 kg m<sup>-3</sup>
+  Electrical resistivity: 2.2 10<sup>-8</sup> &Omega; m
+  Liquid range: 1791.67 K
+  Melting point: 1337.33 K
+  Mineral hardness: '2.5'
+  Molar volume: 10.21 cm<sup>3</sup>
+  Poissons ratio: '0.44'
+  Reflectivity: 95 %
+  Refractive index: no data
+  Rigidity modulus: 27 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 320 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1740 m s<sup>-1</sup>
+  Vickers hardness: 216 MN m<sup>-2</sup>
+  X: 2.54
+  Youngs modulus: 78 GPa
+  atomic mass: 196.966569
+  atomic no: 79
+  atomic radius: 1.187
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 70
+  min oxidation state: 1.0
+  name: Gold
+B:
+  Boiling point: 4200 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 320 GPa
+  Coefficient of linear thermal expansion: 6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2460 kg m<sup>-3</sup>
+  Electrical resistivity: '&gt; 10<sup>12</sup>10<sup>-8</sup> &Omega; m'
+  Liquid range: 1851 K
+  Melting point: 2349 K
+  Mineral hardness: '9.3'
+  Molar volume: 4.39 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 27 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 16200 m s<sup>-1</sup>
+  Vickers hardness: 49000 MN m<sup>-2</sup>
+  X: 2.04
+  Youngs modulus: no data GPa
+  atomic mass: 10.811
+  atomic no: 5
+  atomic radius: 0.776
+  electronic: '[He].2s<sup>2</sup>.2p<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 86
+  min oxidation state: -3.0
+  name: Boron
+Ba:
+  Boiling point: 2143 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 9.6 GPa
+  Coefficient of linear thermal expansion: 20.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 3510 kg m<sup>-3</sup>
+  Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
+  Liquid range: 1143 K
+  Melting point: 1000 K
+  Mineral hardness: '1.25'
+  Molar volume: 38.16 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 4.9 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 18 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1620 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.89
+  Youngs modulus: 13 GPa
+  atomic mass: 137.327
+  atomic no: 56
+  atomic radius: 2.06
+  electronic: '[Xe].6s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 14
+  min oxidation state: 2.0
+  name: Barium
+Be:
+  Boiling point: 2742 K
+  Brinell hardness: 600 MN m<sup>-2</sup>
+  Bulk modulus: 130 GPa
+  Coefficient of linear thermal expansion: 11.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 1848 kg m<sup>-3</sup>
+  Electrical resistivity: 3.8 10<sup>-8</sup> &Omega; m
+  Liquid range: 1182 K
+  Melting point: 1560 K
+  Mineral hardness: '5.5'
+  Molar volume: 4.85 cm<sup>3</sup>
+  Poissons ratio: '0.032'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 132 GPa
+  Superconduction temperature: 0.026 K
+  Thermal conductivity: 190 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 13000 m s<sup>-1</sup>
+  Vickers hardness: 1670 MN m<sup>-2</sup>
+  X: 1.57
+  Youngs modulus: 287 GPa
+  atomic mass: 9.012182
+  atomic no: 4
+  atomic radius: 1.04
+  electronic: '[He].2s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 77
+  min oxidation state: 2.0
+  name: Beryllium
+Bi:
+  Boiling point: 1837 K
+  Brinell hardness: 94.2 MN m<sup>-2</sup>
+  Bulk modulus: 31 GPa
+  Coefficient of linear thermal expansion: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 9780 kg m<sup>-3</sup>
+  Electrical resistivity: 130 10<sup>-8</sup> &Omega; m
+  Liquid range: 1292.6 K
+  Melting point: 544.4 K
+  Mineral hardness: '2.25'
+  Molar volume: 21.31 cm<sup>3</sup>
+  Poissons ratio: '0.33'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 12 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 8 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1790 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.02
+  Youngs modulus: 32 GPa
+  atomic mass: 208.9804
+  atomic no: 83
+  atomic radius: 1.295
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 87
+  min oxidation state: 2.0
+  name: Bismuth
+Bk:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 14780 kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: 1259 K
+  Mineral hardness: no data
+  Molar volume: 16.84 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 10 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 247.0
+  atomic no: 97
+  atomic radius: 1.626
+  electronic: '[Rn].5f<sup>9</sup>.7s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 40
+  min oxidation state: 2.0
+  name: Berkelium
+Br:
+  Boiling point: 332 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 1.9 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 586 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: '&gt; 10<sup>18</sup>10<sup>-8</sup> &Omega; m'
+  Liquid range: 66.2 K
+  Melting point: 265.8 K
+  Mineral hardness: no data
+  Molar volume: 19.78 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.001132'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.12 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.96
+  Youngs modulus: no data GPa
+  atomic mass: 79.904
+  atomic no: 35
+  atomic radius: 0.851
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 98
+  min oxidation state: -1.0
+  name: Bromine
+C:
+  Boiling point: 4300 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 33 GPa
+  Coefficient of linear thermal expansion: 7.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2267 kg m<sup>-3</sup>
+  Electrical resistivity: about 1000 - direction dependent10<sup>-8</sup> &Omega;
+    m
+  Liquid range: 500 K
+  Melting point: 3800 K
+  Mineral hardness: 0.5 (graphite; diamond is 10.0)(no units)
+  Molar volume: 5.29 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: 27 %
+  Refractive index: 2.417 (diamond)(no units)
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 140 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 18350 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.55
+  Youngs modulus: no data GPa
+  atomic mass: 12.0107
+  atomic no: 6
+  atomic radius: 0.62
+  electronic: '[He].2s<sup>2</sup>.2p<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 95
+  min oxidation state: -4.0
+  name: Carbon
+Ca:
+  Boiling point: 1757 K
+  Brinell hardness: 167 MN m<sup>-2</sup>
+  Bulk modulus: 17 GPa
+  Coefficient of linear thermal expansion: 22.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 1550 kg m<sup>-3</sup>
+  Electrical resistivity: 3.4 10<sup>-8</sup> &Omega; m
+  Liquid range: 642 K
+  Melting point: 1115 K
+  Mineral hardness: '1.75'
+  Molar volume: 26.20 cm<sup>3</sup>
+  Poissons ratio: '0.31'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 7.4 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 200 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3810 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.0
+  Youngs modulus: 20 GPa
+  atomic mass: 40.078
+  atomic no: 20
+  atomic radius: 1.69
+  electronic: '[Ar].4s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 16
+  min oxidation state: 2.0
+  name: Calcium
+Cd:
+  Boiling point: 1040 K
+  Brinell hardness: 203 MN m<sup>-2</sup>
+  Bulk modulus: 42 GPa
+  Coefficient of linear thermal expansion: 30.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8650 kg m<sup>-3</sup>
+  Electrical resistivity: 7 10<sup>-8</sup> &Omega; m
+  Liquid range: 445.78 K
+  Melting point: 594.22 K
+  Mineral hardness: '2.0'
+  Molar volume: 13.00 cm<sup>3</sup>
+  Poissons ratio: '0.30'
+  Reflectivity: 67 %
+  Refractive index: no data
+  Rigidity modulus: 19 GPa
+  Superconduction temperature: 0.517 K
+  Thermal conductivity: 97 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2310 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.69
+  Youngs modulus: 50 GPa
+  atomic mass: 112.411
+  atomic no: 48
+  atomic radius: 1.184
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 75
+  min oxidation state: 2.0
+  name: Cadmium
+Ce:
+  Boiling point: 3633 K
+  Brinell hardness: 412 MN m<sup>-2</sup>
+  Bulk modulus: 22 GPa
+  Coefficient of linear thermal expansion: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6689 kg m<sup>-3</sup>
+  Electrical resistivity: 74 10<sup>-8</sup> &Omega; m
+  Liquid range: 2565 K
+  Melting point: 1068 K
+  Mineral hardness: '2.5'
+  Molar volume: 20.69 cm<sup>3</sup>
+  Poissons ratio: '0.24'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 14 GPa
+  Superconduction temperature: 0.022  (under pressure)K
+  Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2100 m s<sup>-1</sup>
+  Vickers hardness: 270 MN m<sup>-2</sup>
+  X: 1.12
+  Youngs modulus: 34 GPa
+  atomic mass: 140.116
+  atomic no: 58
+  atomic radius: 1.978
+  electronic: '[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 32
+  min oxidation state: 2.0
+  name: Cerium
+Cf:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 15100 kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: 1173 K
+  Mineral hardness: no data
+  Molar volume: 16.50 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 251.0
+  atomic no: 98
+  atomic radius: 1.598
+  electronic: '[Rn].5f<sup>10</sup>.7s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 39
+  min oxidation state: 2.0
+  name: Californium
+Cl:
+  Boiling point: 239.11 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 1.1 (liquid)GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 417 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: '&gt; 10<sup>10</sup>10<sup>-8</sup> &Omega; m'
+  Liquid range: 67.51 K
+  Melting point: 171.6 K
+  Mineral hardness: no data
+  Molar volume: 17.39 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000773'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.0089 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 206 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 3.16
+  Youngs modulus: no data GPa
+  atomic mass: 35.453
+  atomic no: 17
+  atomic radius: 0.725
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>5</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 99
+  min oxidation state: -1.0
+  name: Chlorine
+Cm:
+  Boiling point: 3383 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 13510 kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 1770 K
+  Melting point: 1613 K
+  Mineral hardness: no data
+  Molar volume: 18.05 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 8.8 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 247.0
+  atomic no: 96
+  atomic radius: 1.657
+  electronic: '[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 41
+  min oxidation state: 2.0
+  name: Curium
+Co:
+  Boiling point: 3200 K
+  Brinell hardness: 700 MN m<sup>-2</sup>
+  Bulk modulus: 180 GPa
+  Coefficient of linear thermal expansion: 13.0 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8900 kg m<sup>-3</sup>
+  Electrical resistivity: 6 10<sup>-8</sup> &Omega; m
+  Liquid range: 1432 K
+  Melting point: 1768 K
+  Mineral hardness: '5.0'
+  Molar volume: 6.67 cm<sup>3</sup>
+  Poissons ratio: '0.31'
+  Reflectivity: 67 %
+  Refractive index: no data
+  Rigidity modulus: 75 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 100 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4720 m s<sup>-1</sup>
+  Vickers hardness: 1043 MN m<sup>-2</sup>
+  X: 1.88
+  Youngs modulus: 209 GPa
+  atomic mass: 58.933195
+  atomic no: 27
+  atomic radius: 1.181
+  electronic: '[Ar].3d<sup>7</sup>.4s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 64
+  min oxidation state: 2.0
+  name: Cobalt
+Cr:
+  Boiling point: 2944 K
+  Brinell hardness: 1120 MN m<sup>-2</sup>
+  Bulk modulus: 160 GPa
+  Coefficient of linear thermal expansion: 4.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7140 kg m<sup>-3</sup>
+  Electrical resistivity: 12.7 10<sup>-8</sup> &Omega; m
+  Liquid range: 764 K
+  Melting point: 2180 K
+  Mineral hardness: '8.5'
+  Molar volume: 7.23 cm<sup>3</sup>
+  Poissons ratio: '0.21'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 115 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 94 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5940 m s<sup>-1</sup>
+  Vickers hardness: 1060 MN m<sup>-2</sup>
+  X: 1.66
+  Youngs modulus: 279 GPa
+  atomic mass: 51.9961
+  atomic no: 24
+  atomic radius: 1.453
+  electronic: '[Ar].3d<sup>5</sup>.4s<sup>1</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 57
+  min oxidation state: 2.0
+  name: Chromium
+Cs:
+  Boiling point: 944 K
+  Brinell hardness: 0.14 MN m<sup>-2</sup>
+  Bulk modulus: 1.6 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 1938 K
+  Density of solid: 1879 kg m<sup>-3</sup>
+  Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
+  Liquid range: 642.41 K
+  Melting point: 301.59 K
+  Mineral hardness: '0.2'
+  Molar volume: 70.94 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 36 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.79
+  Youngs modulus: 1.7 GPa
+  atomic mass: 132.9054519
+  atomic no: 55
+  atomic radius: 2.518
+  electronic: '[Xe].6s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 8
+  min oxidation state: 1.0
+  name: Cesium
+Cu:
+  Boiling point: 3200 K
+  Brinell hardness: 874 MN m<sup>-2</sup>
+  Bulk modulus: 140 GPa
+  Coefficient of linear thermal expansion: 16.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8920 kg m<sup>-3</sup>
+  Electrical resistivity: 1.72 10<sup>-8</sup> &Omega; m
+  Liquid range: 1842.23 K
+  Melting point: 1357.77 K
+  Mineral hardness: '3.0'
+  Molar volume: 7.11 cm<sup>3</sup>
+  Poissons ratio: '0.34'
+  Reflectivity: 90 %
+  Refractive index: no data
+  Rigidity modulus: 48 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 400 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3570 m s<sup>-1</sup>
+  Vickers hardness: 369 MN m<sup>-2</sup>
+  X: 1.9
+  Youngs modulus: 130 GPa
+  atomic mass: 63.546
+  atomic no: 29
+  atomic radius: 1.191
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 72
+  min oxidation state: 1.0
+  name: Copper
+Dy:
+  Boiling point: 2840 K
+  Brinell hardness: 500 MN m<sup>-2</sup>
+  Bulk modulus: 41 GPa
+  Coefficient of linear thermal expansion: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8551 kg m<sup>-3</sup>
+  Electrical resistivity: 92.6 10<sup>-8</sup> &Omega; m
+  Liquid range: 1160 K
+  Melting point: 1680 K
+  Mineral hardness: no data
+  Molar volume: 19.01 cm<sup>3</sup>
+  Poissons ratio: '0.25'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 25 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2710 m s<sup>-1</sup>
+  Vickers hardness: 540 MN m<sup>-2</sup>
+  X: 1.22
+  Youngs modulus: 61 GPa
+  atomic mass: 162.5
+  atomic no: 66
+  atomic radius: 1.75
+  electronic: '[Xe].4f<sup>10</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 24
+  min oxidation state: 2.0
+  name: Dysprosium
+Er:
+  Boiling point: 3141 K
+  Brinell hardness: 814 MN m<sup>-2</sup>
+  Bulk modulus: 44 GPa
+  Coefficient of linear thermal expansion: 12.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 9066 kg m<sup>-3</sup>
+  Electrical resistivity: 86.0 10<sup>-8</sup> &Omega; m
+  Liquid range: 1371 K
+  Melting point: 1802 K
+  Mineral hardness: no data
+  Molar volume: 18.46 cm<sup>3</sup>
+  Poissons ratio: '0.24'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 28 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 15 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2830 m s<sup>-1</sup>
+  Vickers hardness: 589 MN m<sup>-2</sup>
+  X: 1.24
+  Youngs modulus: 70 GPa
+  atomic mass: 167.259
+  atomic no: 68
+  atomic radius: 1.703
+  electronic: '[Xe].4f<sup>12</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 22
+  min oxidation state: 3.0
+  name: Erbium
+Es:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: 1133 K
+  Mineral hardness: no data
+  Molar volume: 28.52 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 252.0
+  atomic no: 99
+  atomic radius: 1.576
+  electronic: '[Rn].5f<sup>11</sup>.7s<sup>2</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 38
+  min oxidation state: 0.0
+  name: Einsteinium
+Eu:
+  Boiling point: 1800 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 8.3 GPa
+  Coefficient of linear thermal expansion: 35 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 5244 kg m<sup>-3</sup>
+  Electrical resistivity: 90 10<sup>-8</sup> &Omega; m
+  Liquid range: 701 K
+  Melting point: 1099 K
+  Mineral hardness: no data
+  Molar volume: 28.97 cm<sup>3</sup>
+  Poissons ratio: '0.15'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 7.9 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 14 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: 167 MN m<sup>-2</sup>
+  Youngs modulus: 18 GPa
+  atomic mass: 151.964
+  atomic no: 63
+  atomic radius: 1.826
+  electronic: '[Xe].4f<sup>7</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 18
+  min oxidation state: 2.0
+  name: Europium
+F:
+  Boiling point: 85.03 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 144 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 31.5 K
+  Melting point: 53.53 K
+  Mineral hardness: no data
+  Molar volume: 11.20 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000195'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.0277 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 3.98
+  Youngs modulus: no data GPa
+  atomic mass: 18.9984032
+  atomic no: 9
+  atomic radius: 0.396
+  electronic: '[He].2s<sup>2</sup>.2p<sup>5</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 102
+  min oxidation state: -1.0
+  name: Fluorine
+Fe:
+  Boiling point: 3134 K
+  Brinell hardness: 490 MN m<sup>-2</sup>
+  Bulk modulus: 170 GPa
+  Coefficient of linear thermal expansion: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7874 kg m<sup>-3</sup>
+  Electrical resistivity: 10 10<sup>-8</sup> &Omega; m
+  Liquid range: 1323 K
+  Melting point: 1811 K
+  Mineral hardness: '4.0'
+  Molar volume: 7.09 cm<sup>3</sup>
+  Poissons ratio: '0.29'
+  Reflectivity: 65 %
+  Refractive index: no data
+  Rigidity modulus: 82 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 80 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4910 m s<sup>-1</sup>
+  Vickers hardness: 608 MN m<sup>-2</sup>
+  X: 1.83
+  Youngs modulus: 211 GPa
+  atomic mass: 55.845
+  atomic no: 26
+  atomic radius: 1.227
+  electronic: '[Ar].3d<sup>6</sup>.4s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 61
+  min oxidation state: 2.0
+  name: Iron
+Fm:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: about 1800 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 257.0
+  atomic no: 100
+  atomic radius: 1.557
+  electronic: '[Rn].5f<sup>12</sup>.7s<sup>2</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 37
+  min oxidation state: 0.0
+  name: Fermium
+Fr:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: maybe about 300 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.7
+  Youngs modulus: no data GPa
+  atomic mass: 223.0
+  atomic no: 87
+  atomic radius: 2.447
+  electronic: '[Rn].7s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 7
+  min oxidation state: 1.0
+  name: Francium
+Ga:
+  Boiling point: 2477 K
+  Brinell hardness: 60 MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 120 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 5904 kg m<sup>-3</sup>
+  Electrical resistivity: about  14 10<sup>-8</sup> &Omega; m
+  Liquid range: 2174.09 K
+  Melting point: 302.91 K
+  Mineral hardness: '1.5'
+  Molar volume: 11.80 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 1.083 K
+  Thermal conductivity: 29 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2740 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.81
+  Youngs modulus: no data GPa
+  atomic mass: 69.723
+  atomic no: 31
+  atomic radius: 1.254
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 81
+  min oxidation state: 2.0
+  name: Gallium
+Gd:
+  Boiling point: 3523 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 38 GPa
+  Coefficient of linear thermal expansion: 9.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7901 kg m<sup>-3</sup>
+  Electrical resistivity: 131 10<sup>-8</sup> &Omega; m
+  Liquid range: 1938 K
+  Melting point: 1585 K
+  Mineral hardness: no data
+  Molar volume: 19.90 cm<sup>3</sup>
+  Poissons ratio: '0.26'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 22 GPa
+  Superconduction temperature: 1.083 K
+  Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2680 m s<sup>-1</sup>
+  Vickers hardness: 570 MN m<sup>-2</sup>
+  X: 1.2
+  Youngs modulus: 55 GPa
+  atomic mass: 157.25
+  atomic no: 64
+  atomic radius: 1.713
+  electronic: '[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 27
+  min oxidation state: 3.0
+  name: Gadolinium
+Ge:
+  Boiling point: 3093 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 5323 kg m<sup>-3</sup>
+  Electrical resistivity: about 5000010<sup>-8</sup> &Omega; m
+  Liquid range: 1881.6 K
+  Melting point: 1211.4 K
+  Mineral hardness: '6.0'
+  Molar volume: 13.63 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 60 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5400 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.01
+  Youngs modulus: no data GPa
+  atomic mass: 72.64
+  atomic no: 32
+  atomic radius: 1.09
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 84
+  min oxidation state: 2.0
+  name: Germanium
+H:
+  Boiling point: 20.28 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 33 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 6.27 K
+  Melting point: 14.01 K
+  Mineral hardness: no data
+  Molar volume: 11.42 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: 1.000132 (gas; liquid 1.12)(no units)
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.1805 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1270 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: no data GPa
+  atomic mass: 1.00794
+  atomic no: 1
+  atomic radius: 0.537
+  electronic: 1s<sup>1</sup>
+  max oxidation state: 1.0
+  mendeleev no: 103
+  min oxidation state: -1.0
+  name: Hydrogen
+He:
+  Boiling point: 4.22 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 5.19 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 3.27 K
+  Melting point: 0.95 K
+  Mineral hardness: no data
+  Molar volume: 21.0 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: 1.000035 (gas; liquid 1.028)(no units)
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.1513 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 970 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: no data GPa
+  atomic mass: 4.002602
+  atomic no: 2
+  atomic radius: 0.291
+  electronic: 1s<sup>2</sup>
+  max oxidation state: 0.0
+  mendeleev no: 1
+  min oxidation state: 0.0
+  name: Helium
+Hf:
+  Boiling point: 4876 K
+  Brinell hardness: 1700 MN m<sup>-2</sup>
+  Bulk modulus: 110 GPa
+  Coefficient of linear thermal expansion: 5.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 13310 kg m<sup>-3</sup>
+  Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
+  Liquid range: 2370 K
+  Melting point: 2506 K
+  Mineral hardness: '5.5'
+  Molar volume: 13.44 cm<sup>3</sup>
+  Poissons ratio: '0.37'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 30 GPa
+  Superconduction temperature: 0.128 K
+  Thermal conductivity: 23 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3010 m s<sup>-1</sup>
+  Vickers hardness: 1760 MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: 78 GPa
+  atomic mass: 178.49
+  atomic no: 72
+  atomic radius: 1.476
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 50
+  min oxidation state: 3.0
+  name: Hafnium
+Hg:
+  Boiling point: 629.88 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 25 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 1750 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: 96 10<sup>-8</sup> &Omega; m
+  Liquid range: 395.56 K
+  Melting point: 234.32 K
+  Mineral hardness: '1.5'
+  Molar volume: 14.09 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: 73 %
+  Refractive index: '1.000933'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 3.95 K
+  Thermal conductivity: 8.3 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1407 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.0
+  Youngs modulus: no data GPa
+  atomic mass: 200.59
+  atomic no: 80
+  atomic radius: 1.126
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 74
+  min oxidation state: 1.0
+  name: Mercury
+Ho:
+  Boiling point: 2993 K
+  Brinell hardness: 746 MN m<sup>-2</sup>
+  Bulk modulus: 40 GPa
+  Coefficient of linear thermal expansion: 11.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8795 kg m<sup>-3</sup>
+  Electrical resistivity: 81.4 10<sup>-8</sup> &Omega; m
+  Liquid range: 1259 K
+  Melting point: 1734 K
+  Mineral hardness: no data
+  Molar volume: 18.74 cm<sup>3</sup>
+  Poissons ratio: '0.23'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 26 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2760 m s<sup>-1</sup>
+  Vickers hardness: 481 MN m<sup>-2</sup>
+  X: 1.23
+  Youngs modulus: 65 GPa
+  atomic mass: 164.93032
+  atomic no: 67
+  atomic radius: 1.727
+  electronic: '[Xe].4f<sup>11</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 23
+  min oxidation state: 2.0
+  name: Holmium
+I:
+  Boiling point: 457.4 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 7.7 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 819 K
+  Density of solid: 4940 kg m<sup>-3</sup>
+  Electrical resistivity: '&gt; 10<sup>15</sup>10<sup>-8</sup> &Omega; m'
+  Liquid range: 70.55 K
+  Melting point: 386.85 K
+  Mineral hardness: no data
+  Molar volume: 25.72 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.449 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.66
+  Youngs modulus: no data GPa
+  atomic mass: 126.90447
+  atomic no: 53
+  atomic radius: 1.044
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 97
+  min oxidation state: -1.0
+  name: Iodine
+In:
+  Boiling point: 2345 K
+  Brinell hardness: 8.83 MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 32.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7310 kg m<sup>-3</sup>
+  Electrical resistivity: 8 10<sup>-8</sup> &Omega; m
+  Liquid range: 1915.25 K
+  Melting point: 429.75 K
+  Mineral hardness: '1.2'
+  Molar volume: 15.76 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 3.41 K
+  Thermal conductivity: 82 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1215 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.78
+  Youngs modulus: 11 GPa
+  atomic mass: 114.818
+  atomic no: 49
+  atomic radius: 1.382
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 79
+  min oxidation state: 1.0
+  name: Indium
+Ir:
+  Boiling point: 4701 K
+  Brinell hardness: 1670 MN m<sup>-2</sup>
+  Bulk modulus: 320 GPa
+  Coefficient of linear thermal expansion: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 22650 kg m<sup>-3</sup>
+  Electrical resistivity: 4.7 10<sup>-8</sup> &Omega; m
+  Liquid range: 1962 K
+  Melting point: 2739 K
+  Mineral hardness: '6.5'
+  Molar volume: 8.52 cm<sup>3</sup>
+  Poissons ratio: '0.26'
+  Reflectivity: 78 %
+  Refractive index: no data
+  Rigidity modulus: 210 GPa
+  Superconduction temperature: 0.11 K
+  Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4825 m s<sup>-1</sup>
+  Vickers hardness: 1760 MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: 528 GPa
+  atomic mass: 192.217
+  atomic no: 77
+  atomic radius: 1.227
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 66
+  min oxidation state: 1.0
+  name: Iridium
+K:
+  Boiling point: 1032 K
+  Brinell hardness: 0.363 MN m<sup>-2</sup>
+  Bulk modulus: 3.1 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 2223 K
+  Density of solid: 856 kg m<sup>-3</sup>
+  Electrical resistivity: 7.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 695.47 K
+  Melting point: 336.53 K
+  Mineral hardness: '0.4'
+  Molar volume: 45.94 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 1.3 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 100 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2000 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.82
+  Youngs modulus: no data GPa
+  atomic mass: 39.0983
+  atomic no: 19
+  atomic radius: 2.162
+  electronic: '[Ar].4s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 10
+  min oxidation state: 1.0
+  name: Potassium
+Kr:
+  Boiling point: 119.93 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 209.4 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 4.14 K
+  Melting point: 115.79 K
+  Mineral hardness: no data
+  Molar volume: 27.99 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000427'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.00943 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1120 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 3.0
+  Youngs modulus: no data GPa
+  atomic mass: 83.798
+  atomic no: 36
+  atomic radius: 0.795
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 4
+  min oxidation state: 0.0
+  name: Krypton
+La:
+  Boiling point: 3743 K
+  Brinell hardness: 363 MN m<sup>-2</sup>
+  Bulk modulus: 28 GPa
+  Coefficient of linear thermal expansion: 12.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6146 kg m<sup>-3</sup>
+  Electrical resistivity: 61.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 2550 K
+  Melting point: 1193 K
+  Mineral hardness: '2.5'
+  Molar volume: 22.39 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 14 GPa
+  Superconduction temperature: 6.00 K
+  Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2475 m s<sup>-1</sup>
+  Vickers hardness: 491 MN m<sup>-2</sup>
+  X: 1.1
+  Youngs modulus: 37 GPa
+  atomic mass: 138.90547
+  atomic no: 57
+  atomic radius: 1.915
+  electronic: '[Xe].5d<sup>1</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 33
+  min oxidation state: 2.0
+  name: Lanthanum
+Li:
+  Boiling point: 1615 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 11 GPa
+  Coefficient of linear thermal expansion: 46 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 3223 K
+  Density of solid: 535 kg m<sup>-3</sup>
+  Electrical resistivity: 9.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 1161.31 K
+  Melting point: 453.69 K
+  Mineral hardness: '0.6'
+  Molar volume: 13.02 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 4.2 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 85 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 6000 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.98
+  Youngs modulus: 4.9 GPa
+  atomic mass: 6.941
+  atomic no: 3
+  atomic radius: 1.586
+  electronic: '[He].2s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 12
+  min oxidation state: 1.0
+  name: Lithium
+Lr:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: about 1900 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: no data GPa
+  atomic mass: 262.0
+  atomic no: 103
+  atomic radius: 1.581
+  electronic: '[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup> (tentative)'
+  max oxidation state: 0.0
+  mendeleev no: 34
+  min oxidation state: 0.0
+  name: Lawrencium
+Lu:
+  Boiling point: 3675 K
+  Brinell hardness: 893 MN m<sup>-2</sup>
+  Bulk modulus: 48 GPa
+  Coefficient of linear thermal expansion: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 9841 kg m<sup>-3</sup>
+  Electrical resistivity: 58 10<sup>-8</sup> &Omega; m
+  Liquid range: 1750 K
+  Melting point: 1925 K
+  Mineral hardness: no data
+  Molar volume: 17.78 cm<sup>3</sup>
+  Poissons ratio: '0.26'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 27 GPa
+  Superconduction temperature: 0.022 K
+  Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: 1160 MN m<sup>-2</sup>
+  X: 1.27
+  Youngs modulus: 69 GPa
+  atomic mass: 174.967
+  atomic no: 71
+  atomic radius: 1.553
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 20
+  min oxidation state: 3.0
+  name: Lutetium
+Md:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: about 1100 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 258.0
+  atomic no: 101
+  atomic radius: 1.527
+  electronic: '[Rn].5f<sup>13</sup>.7s<sup>2</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 36
+  min oxidation state: 0.0
+  name: Mendelevium
+Mg:
+  Boiling point: 1363 K
+  Brinell hardness: 260 MN m<sup>-2</sup>
+  Bulk modulus: 45 GPa
+  Coefficient of linear thermal expansion: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 1738 kg m<sup>-3</sup>
+  Electrical resistivity: 4.4 10<sup>-8</sup> &Omega; m
+  Liquid range: 440 K
+  Melting point: 923 K
+  Mineral hardness: '2.5'
+  Molar volume: 14.00 cm<sup>3</sup>
+  Poissons ratio: '0.29'
+  Reflectivity: 74 %
+  Refractive index: no data
+  Rigidity modulus: 17 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 160 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4602 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.31
+  Youngs modulus: 45 GPa
+  atomic mass: 24.305
+  atomic no: 12
+  atomic radius: 1.279
+  electronic: '[Ne].3s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 73
+  min oxidation state: 2.0
+  name: Magnesium
+Mn:
+  Boiling point: 2334 K
+  Brinell hardness: 196 MN m<sup>-2</sup>
+  Bulk modulus: 120 GPa
+  Coefficient of linear thermal expansion: 21.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7470 kg m<sup>-3</sup>
+  Electrical resistivity: 144 10<sup>-8</sup> &Omega; m
+  Liquid range: 815 K
+  Melting point: 1519 K
+  Mineral hardness: '6.0'
+  Molar volume: 7.35 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 7.8 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5150 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.55
+  Youngs modulus: 198 GPa
+  atomic mass: 54.938045
+  atomic no: 25
+  atomic radius: 1.278
+  electronic: '[Ar].3d<sup>5</sup>.4s<sup>2</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 60
+  min oxidation state: 1.0
+  name: Manganese
+Mo:
+  Boiling point: 4912 K
+  Brinell hardness: 1500 MN m<sup>-2</sup>
+  Bulk modulus: 230 GPa
+  Coefficient of linear thermal expansion: 4.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 10280 kg m<sup>-3</sup>
+  Electrical resistivity: 5.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 2016 K
+  Melting point: 2896 K
+  Mineral hardness: '5.5'
+  Molar volume: 9.38 cm<sup>3</sup>
+  Poissons ratio: '0.31'
+  Reflectivity: 58 %
+  Refractive index: no data
+  Rigidity modulus: 20 GPa
+  Superconduction temperature: 0.915 K
+  Thermal conductivity: 139 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 6190 m s<sup>-1</sup>
+  Vickers hardness: 1530 MN m<sup>-2</sup>
+  X: 2.16
+  Youngs modulus: 329 GPa
+  atomic mass: 95.94
+  atomic no: 42
+  atomic radius: 1.52
+  electronic: '[Kr].4d<sup>5</sup>.5s<sup>1</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 56
+  min oxidation state: 2.0
+  name: Molybdenum
+N:
+  Boiling point: 77.36 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 126.2 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 14.31 K
+  Melting point: 63.05 K
+  Mineral hardness: no data
+  Molar volume: 13.54 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: 1.000298 (gas; liquid 1.197)(no units)
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.02583 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 333.6 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 3.04
+  Youngs modulus: no data GPa
+  atomic mass: 14.0067
+  atomic no: 7
+  atomic radius: 0.521
+  electronic: '[He].2s<sup>2</sup>.2p<sup>3</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 100
+  min oxidation state: -3.0
+  name: Nitrogen
+Na:
+  Boiling point: 1156 K
+  Brinell hardness: 0.69 MN m<sup>-2</sup>
+  Bulk modulus: 6.3 GPa
+  Coefficient of linear thermal expansion: 71 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 2573 K
+  Density of solid: 968 kg m<sup>-3</sup>
+  Electrical resistivity: 4.9 10<sup>-8</sup> &Omega; m
+  Liquid range: 785.13 K
+  Melting point: 370.87 K
+  Mineral hardness: '0.5'
+  Molar volume: 23.78 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 3.3 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 140 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3200 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.93
+  Youngs modulus: 10 GPa
+  atomic mass: 22.98976928
+  atomic no: 11
+  atomic radius: 1.713
+  electronic: '[Ne].3s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 11
+  min oxidation state: 1.0
+  name: Sodium
+Nb:
+  Boiling point: 5017 K
+  Brinell hardness: 736 MN m<sup>-2</sup>
+  Bulk modulus: 170 GPa
+  Coefficient of linear thermal expansion: 7.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8570 kg m<sup>-3</sup>
+  Electrical resistivity: 15.2 10<sup>-8</sup> &Omega; m
+  Liquid range: 2267 K
+  Melting point: 2750 K
+  Mineral hardness: '6.0'
+  Molar volume: 10.83 cm<sup>3</sup>
+  Poissons ratio: '0.40'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 38 GPa
+  Superconduction temperature: 9.25 K
+  Thermal conductivity: 54 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3480 m s<sup>-1</sup>
+  Vickers hardness: 1320 MN m<sup>-2</sup>
+  X: 1.6
+  Youngs modulus: 105 GPa
+  atomic mass: 92.90638
+  atomic no: 41
+  atomic radius: 1.589
+  electronic: '[Kr].4d<sup>4</sup>.5s<sup>1</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 53
+  min oxidation state: 2.0
+  name: Niobium
+Nd:
+  Boiling point: 3373 K
+  Brinell hardness: 265 MN m<sup>-2</sup>
+  Bulk modulus: 32 GPa
+  Coefficient of linear thermal expansion: 9.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6800 kg m<sup>-3</sup>
+  Electrical resistivity: 64.3 10<sup>-8</sup> &Omega; m
+  Liquid range: 2076 K
+  Melting point: 1297 K
+  Mineral hardness: no data
+  Molar volume: 20.59 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 16 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2330 m s<sup>-1</sup>
+  Vickers hardness: 343 MN m<sup>-2</sup>
+  X: 1.14
+  Youngs modulus: 41 GPa
+  atomic mass: 144.242
+  atomic no: 60
+  atomic radius: 1.912
+  electronic: '[Xe].4f<sup>4</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 30
+  min oxidation state: 2.0
+  name: Neodymium
+Ne:
+  Boiling point: 27.07 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 44.4 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 2.51 K
+  Melting point: 24.56 K
+  Mineral hardness: no data
+  Molar volume: 13.23 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000067'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.0491 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 936 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: no data GPa
+  atomic mass: 20.1797
+  atomic no: 10
+  atomic radius: 0.354
+  electronic: '[He].2s<sup>2</sup>.2p<sup>6</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 2
+  min oxidation state: 0.0
+  name: Neon
+Ni:
+  Boiling point: 3186 K
+  Brinell hardness: 700 MN m<sup>-2</sup>
+  Bulk modulus: 180 GPa
+  Coefficient of linear thermal expansion: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8908 kg m<sup>-3</sup>
+  Electrical resistivity: 7.2 10<sup>-8</sup> &Omega; m
+  Liquid range: 1458 K
+  Melting point: 1728 K
+  Mineral hardness: '4.0'
+  Molar volume: 6.59 cm<sup>3</sup>
+  Poissons ratio: '0.31'
+  Reflectivity: 72 %
+  Refractive index: no data
+  Rigidity modulus: 76 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 91 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4970 m s<sup>-1</sup>
+  Vickers hardness: 638 MN m<sup>-2</sup>
+  X: 1.91
+  Youngs modulus: 200 GPa
+  atomic mass: 58.6934
+  atomic no: 28
+  atomic radius: 1.139
+  electronic: '[Ar].3d<sup>8</sup>.4s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 67
+  min oxidation state: 1.0
+  name: Nickel
+'No':
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: about 1100 K
+  Mineral hardness: no data
+  Molar volume: no data cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: no data W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: no data GPa
+  atomic mass: 259.0
+  atomic no: 102
+  atomic radius: 1.581
+  electronic: '[Rn].5f<sup>14</sup>.7s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 35
+  min oxidation state: 2.0
+  name: Nobelium
+Np:
+  Boiling point: 4273 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 20450 kg m<sup>-3</sup>
+  Electrical resistivity: 120 10<sup>-8</sup> &Omega; m
+  Liquid range: 3363 K
+  Melting point: 910 K
+  Mineral hardness: no data
+  Molar volume: 11.59 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 6 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.36
+  Youngs modulus: no data GPa
+  atomic mass: 237.0
+  atomic no: 93
+  atomic radius: 1.741
+  electronic: '[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 44
+  min oxidation state: 2.0
+  name: Neptunium
+O:
+  Boiling point: 90.2 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 154.6 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 35.4 K
+  Melting point: 54.8 K
+  Mineral hardness: no data
+  Molar volume: 17.36 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: 1.000271 (gas; liquid 1.221)(no units)
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.02658 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 317.5 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 3.44
+  Youngs modulus: no data GPa
+  atomic mass: 15.9994
+  atomic no: 8
+  atomic radius: 0.45
+  electronic: '[He].2s<sup>2</sup>.2p<sup>4</sup>'
+  max oxidation state: -2.0
+  mendeleev no: 101
+  min oxidation state: -2.0
+  name: Oxygen
+Os:
+  Boiling point: 5285 K
+  Brinell hardness: 3920 MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 5.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 22610 kg m<sup>-3</sup>
+  Electrical resistivity: 8.1 10<sup>-8</sup> &Omega; m
+  Liquid range: 1979 K
+  Melting point: 3306 K
+  Mineral hardness: '7.0'
+  Molar volume: 8.42 cm<sup>3</sup>
+  Poissons ratio: '0.25'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 222 GPa
+  Superconduction temperature: 0.66 K
+  Thermal conductivity: 88 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4940 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: no data GPa
+  atomic mass: 190.23
+  atomic no: 76
+  atomic radius: 1.266
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>'
+  max oxidation state: 8.0
+  mendeleev no: 63
+  min oxidation state: 1.0
+  name: Osmium
+P:
+  Boiling point: 550 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 11 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 994 K
+  Density of solid: 1823 kg m<sup>-3</sup>
+  Electrical resistivity: about 10 10<sup>-8</sup> &Omega; m
+  Liquid range: 232.7 K
+  Melting point: (white P) 317.3 K
+  Mineral hardness: no data
+  Molar volume: 17.02 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.001212'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.236 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.19
+  Youngs modulus: no data GPa
+  atomic mass: 30.973762
+  atomic no: 15
+  atomic radius: 0.919
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>3</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 90
+  min oxidation state: 1.0
+  name: Phosphorus
+Pa:
+  Boiling point: no data K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 15370 kg m<sup>-3</sup>
+  Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
+  Liquid range: no data K
+  Melting point: 1841 K
+  Mineral hardness: no data
+  Molar volume: 15.18 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 1.4 K
+  Thermal conductivity: 47 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.5
+  Youngs modulus: no data GPa
+  atomic mass: 231.03588
+  atomic no: 91
+  atomic radius: 1.804
+  electronic: '[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 46
+  min oxidation state: 3.0
+  name: Protactinium
+Pb:
+  Boiling point: 2022 K
+  Brinell hardness: 38.3 MN m<sup>-2</sup>
+  Bulk modulus: 46 GPa
+  Coefficient of linear thermal expansion: 28.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 11340 kg m<sup>-3</sup>
+  Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
+  Liquid range: 1421.39 K
+  Melting point: 600.61 K
+  Mineral hardness: '1.5'
+  Molar volume: 18.26 cm<sup>3</sup>
+  Poissons ratio: '0.44'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 5.6 GPa
+  Superconduction temperature: 7.2 K
+  Thermal conductivity: 35 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1260 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.33
+  Youngs modulus: 16 GPa
+  atomic mass: 207.2
+  atomic no: 82
+  atomic radius: 1.215
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 82
+  min oxidation state: 2.0
+  name: Lead
+Pd:
+  Boiling point: 3236 K
+  Brinell hardness: 37.3 MN m<sup>-2</sup>
+  Bulk modulus: 180 GPa
+  Coefficient of linear thermal expansion: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 12023 kg m<sup>-3</sup>
+  Electrical resistivity: 10.8 10<sup>-8</sup> &Omega; m
+  Liquid range: 1407.95 K
+  Melting point: 1828.05 K
+  Mineral hardness: '4.75'
+  Molar volume: 8.56 cm<sup>3</sup>
+  Poissons ratio: '0.39'
+  Reflectivity: 72 %
+  Refractive index: no data
+  Rigidity modulus: 44 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 72 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3070 m s<sup>-1</sup>
+  Vickers hardness: 461 MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: 121 GPa
+  atomic mass: 106.42
+  atomic no: 46
+  atomic radius: 0.561
+  electronic: '[Kr].4d<sup>10</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 69
+  min oxidation state: 1.0
+  name: Palladium
+Pm:
+  Boiling point: 3273 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 33 GPa
+  Coefficient of linear thermal expansion: 11 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7264 kg m<sup>-3</sup>
+  Electrical resistivity: about 75 10<sup>-8</sup> &Omega; m
+  Liquid range: 1900 K
+  Melting point: 1373 K
+  Mineral hardness: no data
+  Molar volume: 20.23 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 18 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 15 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: 46 GPa
+  atomic mass: 145.0
+  atomic no: 61
+  atomic radius: 1.882
+  electronic: '[Xe].4f<sup>5</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 29
+  min oxidation state: 3.0
+  name: Promethium
+Po:
+  Boiling point: 1235 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 9196 kg m<sup>-3</sup>
+  Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
+  Liquid range: 708 K
+  Melting point: 527 K
+  Mineral hardness: no data
+  Molar volume: 22.97 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 20 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.0
+  Youngs modulus: no data GPa
+  atomic mass: 210.0
+  atomic no: 84
+  atomic radius: 1.212
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 91
+  min oxidation state: 2.0
+  name: Polonium
+Pr:
+  Boiling point: 3563 K
+  Brinell hardness: 481 MN m<sup>-2</sup>
+  Bulk modulus: 29 GPa
+  Coefficient of linear thermal expansion: 6.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6640 kg m<sup>-3</sup>
+  Electrical resistivity: 70 10<sup>-8</sup> &Omega; m
+  Liquid range: 2355 K
+  Melting point: 1208 K
+  Mineral hardness: no data
+  Molar volume: 20.80 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 15 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2280 m s<sup>-1</sup>
+  Vickers hardness: 400 MN m<sup>-2</sup>
+  X: 1.13
+  Youngs modulus: 37 GPa
+  atomic mass: 140.90765
+  atomic no: 59
+  atomic radius: 1.942
+  electronic: '[Xe].4f<sup>3</sup>.6s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 31
+  min oxidation state: 2.0
+  name: Praseodymium
+Pt:
+  Boiling point: 4098 K
+  Brinell hardness: 392 MN m<sup>-2</sup>
+  Bulk modulus: 230 GPa
+  Coefficient of linear thermal expansion: 8.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 21090 kg m<sup>-3</sup>
+  Electrical resistivity: 10.6 10<sup>-8</sup> &Omega; m
+  Liquid range: 2056.6 K
+  Melting point: 2041.4 K
+  Mineral hardness: '3.5'
+  Molar volume: 9.09 cm<sup>3</sup>
+  Poissons ratio: '0.38'
+  Reflectivity: 73 %
+  Refractive index: no data
+  Rigidity modulus: 61 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 72 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2680 m s<sup>-1</sup>
+  Vickers hardness: 549 MN m<sup>-2</sup>
+  X: 2.28
+  Youngs modulus: 168 GPa
+  atomic mass: 195.084
+  atomic no: 78
+  atomic radius: 1.221
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 68
+  min oxidation state: 2.0
+  name: Platinum
+Pu:
+  Boiling point: 3503 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 19816 kg m<sup>-3</sup>
+  Electrical resistivity: 150 10<sup>-8</sup> &Omega; m
+  Liquid range: 2590.5 K
+  Melting point: 912.5 K
+  Mineral hardness: no data
+  Molar volume: 12.29 cm<sup>3</sup>
+  Poissons ratio: '0.21'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 43 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 6 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2260 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.28
+  Youngs modulus: 96 GPa
+  atomic mass: 244.0
+  atomic no: 94
+  atomic radius: 1.784
+  electronic: '[Rn].5f<sup>6</sup>.7s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 43
+  min oxidation state: 2.0
+  name: Plutonium
+Ra:
+  Boiling point: 2010 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 5000 kg m<sup>-3</sup>
+  Electrical resistivity: 100 10<sup>-8</sup> &Omega; m
+  Liquid range: 1037 K
+  Melting point: 973 K
+  Mineral hardness: no data
+  Molar volume: 41.09 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 19 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.9
+  Youngs modulus: no data GPa
+  atomic mass: 226.0
+  atomic no: 88
+  atomic radius: 2.042
+  electronic: '[Rn].7s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 13
+  min oxidation state: 2.0
+  name: Radium
+Rb:
+  Boiling point: 961 K
+  Brinell hardness: 0.216 MN m<sup>-2</sup>
+  Bulk modulus: 2.5 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 2093 K
+  Density of solid: 1532 kg m<sup>-3</sup>
+  Electrical resistivity: 13.3 10<sup>-8</sup> &Omega; m
+  Liquid range: 648.54 K
+  Melting point: 312.46 K
+  Mineral hardness: '0.3'
+  Molar volume: 55.76 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 58 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1300 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.82
+  Youngs modulus: 2.4 GPa
+  atomic mass: 85.4678
+  atomic no: 37
+  atomic radius: 2.287
+  electronic: '[Kr].5s<sup>1</sup>'
+  max oxidation state: 1.0
+  mendeleev no: 9
+  min oxidation state: 1.0
+  name: Rubidium
+Re:
+  Boiling point: 5869 K
+  Brinell hardness: 1320 MN m<sup>-2</sup>
+  Bulk modulus: 370 GPa
+  Coefficient of linear thermal expansion: 6.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 21020 kg m<sup>-3</sup>
+  Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
+  Liquid range: 2410 K
+  Melting point: 3459 K
+  Mineral hardness: '7.0'
+  Molar volume: 8.86 cm<sup>3</sup>
+  Poissons ratio: '0.30'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 178 GPa
+  Superconduction temperature: 1.70 K
+  Thermal conductivity: 48 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4700 m s<sup>-1</sup>
+  Vickers hardness: 2450 MN m<sup>-2</sup>
+  X: 1.9
+  Youngs modulus: 463 GPa
+  atomic mass: 186.207
+  atomic no: 75
+  atomic radius: 1.31
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 58
+  min oxidation state: 1.0
+  name: Rhenium
+Rh:
+  Boiling point: 3968 K
+  Brinell hardness: 1100 MN m<sup>-2</sup>
+  Bulk modulus: 380 GPa
+  Coefficient of linear thermal expansion: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 12450 kg m<sup>-3</sup>
+  Electrical resistivity: 4.3 10<sup>-8</sup> &Omega; m
+  Liquid range: 1731 K
+  Melting point: 2237 K
+  Mineral hardness: '6.0'
+  Molar volume: 8.28 cm<sup>3</sup>
+  Poissons ratio: '0.26'
+  Reflectivity: 84 %
+  Refractive index: no data
+  Rigidity modulus: 150 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4700 m s<sup>-1</sup>
+  Vickers hardness: 1246 MN m<sup>-2</sup>
+  X: 2.28
+  Youngs modulus: 275 GPa
+  atomic mass: 102.9055
+  atomic no: 45
+  atomic radius: 1.364
+  electronic: '[Kr].4d<sup>8</sup>5s<sup>1</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 65
+  min oxidation state: 2.0
+  name: Rhodium
+Rn:
+  Boiling point: 211.3 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 377 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 9.3 K
+  Melting point: 202 K
+  Mineral hardness: no data
+  Molar volume: 50.50 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.00361 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  Youngs modulus: no data GPa
+  atomic mass: 220.0
+  atomic no: 86
+  atomic radius: 1.09
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
+  max oxidation state: 0.0
+  mendeleev no: 6
+  min oxidation state: 0.0
+  name: Radon
+Ru:
+  Boiling point: 4423 K
+  Brinell hardness: 2160 MN m<sup>-2</sup>
+  Bulk modulus: 220 GPa
+  Coefficient of linear thermal expansion: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 12370 kg m<sup>-3</sup>
+  Electrical resistivity: 7.1 10<sup>-8</sup> &Omega; m
+  Liquid range: 1816 K
+  Melting point: 2607 K
+  Mineral hardness: '6.5'
+  Molar volume: 8.17 cm<sup>3</sup>
+  Poissons ratio: '0.30'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 173 GPa
+  Superconduction temperature: 0.49 K
+  Thermal conductivity: 120 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5970 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.2
+  Youngs modulus: 447 GPa
+  atomic mass: 101.07
+  atomic no: 44
+  atomic radius: 1.41
+  electronic: '[Kr].4d<sup>7</sup>5s<sup>1</sup>'
+  max oxidation state: 8.0
+  mendeleev no: 62
+  min oxidation state: 3.0
+  name: Ruthenium
+S:
+  Boiling point: 717.87 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 7.7 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 1314 K
+  Density of solid: 1960 kg m<sup>-3</sup>
+  Electrical resistivity: '&gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m'
+  Liquid range: 329.51 K
+  Melting point: 388.36 K
+  Mineral hardness: '2.0'
+  Molar volume: 15.53 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.001111'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.205 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.58
+  Youngs modulus: no data GPa
+  atomic mass: 32.065
+  atomic no: 16
+  atomic radius: 0.81
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 94
+  min oxidation state: -2.0
+  name: Sulfur
+Sb:
+  Boiling point: 1860 K
+  Brinell hardness: 294 MN m<sup>-2</sup>
+  Bulk modulus: 42 GPa
+  Coefficient of linear thermal expansion: 11 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6697 kg m<sup>-3</sup>
+  Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
+  Liquid range: 956.22 K
+  Melting point: 903.78 K
+  Mineral hardness: '3.0'
+  Molar volume: 18.19 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: 55 %
+  Refractive index: no data
+  Rigidity modulus: 20 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 24 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3420 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.05
+  Youngs modulus: 55 GPa
+  atomic mass: 121.76
+  atomic no: 51
+  atomic radius: 1.193
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 88
+  min oxidation state: -3.0
+  name: Antimony
+Sc:
+  Boiling point: 3103 K
+  Brinell hardness: 750 MN m<sup>-2</sup>
+  Bulk modulus: 57 GPa
+  Coefficient of linear thermal expansion: 10.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2985 kg m<sup>-3</sup>
+  Electrical resistivity: about 55 10<sup>-8</sup> &Omega; m
+  Liquid range: 1289 K
+  Melting point: 1814 K
+  Mineral hardness: no data
+  Molar volume: 15.00 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 29 GPa
+  Superconduction temperature: 0.05  (under pressure)K
+  Thermal conductivity: 16 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.36
+  Youngs modulus: 74 GPa
+  atomic mass: 44.955912
+  atomic no: 21
+  atomic radius: 1.57
+  electronic: '[Ar].3d<sup>1</sup>.4s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 19
+  min oxidation state: 1.0
+  name: Scandium
+Se:
+  Boiling point: 958 K
+  Brinell hardness: 736 MN m<sup>-2</sup>
+  Bulk modulus: 8.3 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 1766 K
+  Density of solid: 4819 kg m<sup>-3</sup>
+  Electrical resistivity: high10<sup>-8</sup> &Omega; m
+  Liquid range: 464 K
+  Melting point: 494 K
+  Mineral hardness: '2.0'
+  Molar volume: 16.42 cm<sup>3</sup>
+  Poissons ratio: '0.33'
+  Reflectivity: no data %
+  Refractive index: '1.000895'
+  Rigidity modulus: 3.7 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.52 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3350 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.55
+  Youngs modulus: 10 GPa
+  atomic mass: 78.96
+  atomic no: 34
+  atomic radius: 0.918
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 93
+  min oxidation state: -2.0
+  name: Selenium
+Si:
+  Boiling point: 3173 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: 100 GPa
+  Coefficient of linear thermal expansion: 2.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2330 kg m<sup>-3</sup>
+  Electrical resistivity: about 10000010<sup>-8</sup> &Omega; m
+  Liquid range: 1486 K
+  Melting point: 1687 K
+  Mineral hardness: '6.5'
+  Molar volume: 12.06 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: 28 %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 150 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2200 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.9
+  Youngs modulus: 47 GPa
+  atomic mass: 28.0855
+  atomic no: 14
+  atomic radius: 1.068
+  electronic: '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 85
+  min oxidation state: -4.0
+  name: Silicon
+Sm:
+  Boiling point: 2076 K
+  Brinell hardness: 441 MN m<sup>-2</sup>
+  Bulk modulus: 38 GPa
+  Coefficient of linear thermal expansion: 12.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7353 kg m<sup>-3</sup>
+  Electrical resistivity: 94 10<sup>-8</sup> &Omega; m
+  Liquid range: 731 K
+  Melting point: 1345 K
+  Mineral hardness: no data
+  Molar volume: 19.98 cm<sup>3</sup>
+  Poissons ratio: '0.27'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 20 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 13 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2130 m s<sup>-1</sup>
+  Vickers hardness: 412 MN m<sup>-2</sup>
+  X: 1.17
+  Youngs modulus: 50 GPa
+  atomic mass: 150.36
+  atomic no: 62
+  atomic radius: 1.854
+  electronic: '[Xe].4f<sup>6</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 28
+  min oxidation state: 2.0
+  name: Samarium
+Sn:
+  Boiling point: 2875 K
+  Brinell hardness: 51 MN m<sup>-2</sup>
+  Bulk modulus: 58 GPa
+  Coefficient of linear thermal expansion: 22 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7310 kg m<sup>-3</sup>
+  Electrical resistivity: 11.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 2369.92 K
+  Melting point: 505.08 K
+  Mineral hardness: '1.5'
+  Molar volume: 16.29 cm<sup>3</sup>
+  Poissons ratio: '0.36'
+  Reflectivity: 54 %
+  Refractive index: no data
+  Rigidity modulus: 18 GPa
+  Superconduction temperature: 3.72 K
+  Thermal conductivity: 67 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2500 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.96
+  Youngs modulus: 50 GPa
+  atomic mass: 118.71
+  atomic no: 50
+  atomic radius: 1.24
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 83
+  min oxidation state: -1.0
+  name: Tin
+Sr:
+  Boiling point: 1655 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 22.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 2630 kg m<sup>-3</sup>
+  Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 605 K
+  Melting point: 1050 K
+  Mineral hardness: '1.5'
+  Molar volume: 33.94 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 6.1 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 35 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 0.95
+  Youngs modulus: no data GPa
+  atomic mass: 87.62
+  atomic no: 38
+  atomic radius: 1.836
+  electronic: '[Kr].5s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 15
+  min oxidation state: 2.0
+  name: Strontium
+Ta:
+  Boiling point: 5731 K
+  Brinell hardness: 800 MN m<sup>-2</sup>
+  Bulk modulus: 200 GPa
+  Coefficient of linear thermal expansion: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 16650 kg m<sup>-3</sup>
+  Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
+  Liquid range: 2441 K
+  Melting point: 3290 K
+  Mineral hardness: '6.5'
+  Molar volume: 10.85 cm<sup>3</sup>
+  Poissons ratio: '0.34'
+  Reflectivity: 78 %
+  Refractive index: no data
+  Rigidity modulus: 69 GPa
+  Superconduction temperature: 4.47 K
+  Thermal conductivity: 57 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3400 m s<sup>-1</sup>
+  Vickers hardness: 873 MN m<sup>-2</sup>
+  X: 1.5
+  Youngs modulus: 186 GPa
+  atomic mass: 180.94788
+  atomic no: 73
+  atomic radius: 1.413
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 52
+  min oxidation state: 3.0
+  name: Tantalum
+Tb:
+  Boiling point: 3503 K
+  Brinell hardness: 677 MN m<sup>-2</sup>
+  Bulk modulus: 38.7 GPa
+  Coefficient of linear thermal expansion: 10.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 8219 kg m<sup>-3</sup>
+  Electrical resistivity: 115 10<sup>-8</sup> &Omega; m
+  Liquid range: 1874 K
+  Melting point: 1629 K
+  Mineral hardness: no data
+  Molar volume: 19.30 cm<sup>3</sup>
+  Poissons ratio: '0.26'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 22 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 11 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2620 m s<sup>-1</sup>
+  Vickers hardness: 863 MN m<sup>-2</sup>
+  Youngs modulus: 56 GPa
+  atomic mass: 158.92535
+  atomic no: 65
+  atomic radius: 1.775
+  electronic: '[Xe].4f<sup>9</sup>.6s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 26
+  min oxidation state: 3.0
+  name: Terbium
+Tc:
+  Boiling point: 4538 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 11500 kg m<sup>-3</sup>
+  Electrical resistivity: about 22 10<sup>-8</sup> &Omega; m
+  Liquid range: 2108 K
+  Melting point: 2430 K
+  Mineral hardness: no data
+  Molar volume: 8.63 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: no data GPa
+  Superconduction temperature: 7.8 K
+  Thermal conductivity: 51 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.9
+  Youngs modulus: no data GPa
+  atomic mass: 98.0
+  atomic no: 43
+  atomic radius: 1.391
+  electronic: '[Kr].4d<sup>6</sup>.5s<sup>1</sup>'
+  max oxidation state: 7.0
+  mendeleev no: 59
+  min oxidation state: 2.0
+  name: Technetium
+Te:
+  Boiling point: 1261 K
+  Brinell hardness: 180 MN m<sup>-2</sup>
+  Bulk modulus: 65 GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6240 kg m<sup>-3</sup>
+  Electrical resistivity: about 1000010<sup>-8</sup> &Omega; m
+  Liquid range: 538.34 K
+  Melting point: 722.66 K
+  Mineral hardness: '2.25'
+  Molar volume: 20.46 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: 50 %
+  Refractive index: '1.000991'
+  Rigidity modulus: 16 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 3 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2610 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.1
+  Youngs modulus: 43 GPa
+  atomic mass: 127.6
+  atomic no: 52
+  atomic radius: 1.111
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 92
+  min oxidation state: -2.0
+  name: Tellurium
+Th:
+  Boiling point: 5093 K
+  Brinell hardness: 400 MN m<sup>-2</sup>
+  Bulk modulus: 54 GPa
+  Coefficient of linear thermal expansion: 11.0 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 11724 kg m<sup>-3</sup>
+  Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
+  Liquid range: 2978 K
+  Melting point: 2115 K
+  Mineral hardness: '3.0'
+  Molar volume: 19.80 cm<sup>3</sup>
+  Poissons ratio: '0.27'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 31 GPa
+  Superconduction temperature: 1.38 K
+  Thermal conductivity: 54 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 2490 m s<sup>-1</sup>
+  Vickers hardness: 350 MN m<sup>-2</sup>
+  X: 1.3
+  Youngs modulus: 79 GPa
+  atomic mass: 232.03806
+  atomic no: 90
+  atomic radius: 1.788
+  electronic: '[Rn].6d<sup>2</sup>.7s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 47
+  min oxidation state: -2.0
+  name: Thorium
+Ti:
+  Boiling point: 3560 K
+  Brinell hardness: 716 MN m<sup>-2</sup>
+  Bulk modulus: 110 GPa
+  Coefficient of linear thermal expansion: 8.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 4507 kg m<sup>-3</sup>
+  Electrical resistivity: about 40 10<sup>-8</sup> &Omega; m
+  Liquid range: 1619 K
+  Melting point: 1941 K
+  Mineral hardness: '6.0'
+  Molar volume: 10.64 cm<sup>3</sup>
+  Poissons ratio: '0.32'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 44 GPa
+  Superconduction temperature: 0.40 K
+  Thermal conductivity: 22 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4140 m s<sup>-1</sup>
+  Vickers hardness: 970 MN m<sup>-2</sup>
+  X: 1.54
+  Youngs modulus: 116 GPa
+  atomic mass: 47.867
+  atomic no: 22
+  atomic radius: 1.477
+  electronic: '[Ar].3d<sup>2</sup>.4s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 51
+  min oxidation state: 2.0
+  name: Titanium
+Tl:
+  Boiling point: 1746 K
+  Brinell hardness: 26.4 MN m<sup>-2</sup>
+  Bulk modulus: 43 GPa
+  Coefficient of linear thermal expansion: 29.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 11850 kg m<sup>-3</sup>
+  Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
+  Liquid range: 1169 K
+  Melting point: 577 K
+  Mineral hardness: '1.2'
+  Molar volume: 17.22 cm<sup>3</sup>
+  Poissons ratio: '0.45'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 2.8 GPa
+  Superconduction temperature: 2.38 K
+  Thermal conductivity: 46 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 818 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.62
+  Youngs modulus: 8 GPa
+  atomic mass: 204.3833
+  atomic no: 81
+  atomic radius: 1.319
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 78
+  min oxidation state: 1.0
+  name: Thallium
+Tm:
+  Boiling point: 2223 K
+  Brinell hardness: 471 MN m<sup>-2</sup>
+  Bulk modulus: 45 GPa
+  Coefficient of linear thermal expansion: 13.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 9321 kg m<sup>-3</sup>
+  Electrical resistivity: 67.6 10<sup>-8</sup> &Omega; m
+  Liquid range: 405 K
+  Melting point: 1818 K
+  Mineral hardness: no data
+  Molar volume: 19.1 cm<sup>3</sup>
+  Poissons ratio: '0.21'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 31 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: no data m s<sup>-1</sup>
+  Vickers hardness: 520 MN m<sup>-2</sup>
+  X: 1.25
+  Youngs modulus: 74 GPa
+  atomic mass: 168.93421
+  atomic no: 69
+  atomic radius: 1.681
+  electronic: '[Xe].4f<sup>13</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 21
+  min oxidation state: 2.0
+  name: Thulium
+U:
+  Boiling point: 4200 K
+  Brinell hardness: 2400 MN m<sup>-2</sup>
+  Bulk modulus: 100 GPa
+  Coefficient of linear thermal expansion: 13.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 19050 kg m<sup>-3</sup>
+  Electrical resistivity: 28 10<sup>-8</sup> &Omega; m
+  Liquid range: 2794.7 K
+  Melting point: 1405.3 K
+  Mineral hardness: '6.0'
+  Molar volume: 12.49 cm<sup>3</sup>
+  Poissons ratio: '0.23'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 111 GPa
+  Superconduction temperature: 0.2 K
+  Thermal conductivity: 27 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3155 m s<sup>-1</sup>
+  Vickers hardness: 1960 MN m<sup>-2</sup>
+  X: 1.38
+  Youngs modulus: 208 GPa
+  atomic mass: 238.02891
+  atomic no: 92
+  atomic radius: 1.775
+  electronic: '[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 45
+  min oxidation state: 2.0
+  name: Uranium
+V:
+  Boiling point: 3680 K
+  Brinell hardness: 628 MN m<sup>-2</sup>
+  Bulk modulus: 160 GPa
+  Coefficient of linear thermal expansion: 8.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6110 kg m<sup>-3</sup>
+  Electrical resistivity: 20 10<sup>-8</sup> &Omega; m
+  Liquid range: 1497 K
+  Melting point: 2183 K
+  Mineral hardness: '7.0'
+  Molar volume: 8.32 cm<sup>3</sup>
+  Poissons ratio: '0.37'
+  Reflectivity: 61 %
+  Refractive index: no data
+  Rigidity modulus: 47 GPa
+  Superconduction temperature: 5.40 K
+  Thermal conductivity: 31 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 4560 m s<sup>-1</sup>
+  Vickers hardness: 628 MN m<sup>-2</sup>
+  X: 1.63
+  Youngs modulus: 128 GPa
+  atomic mass: 50.9415
+  atomic no: 23
+  atomic radius: 1.401
+  electronic: '[Ar].3d<sup>3</sup>.4s<sup>2</sup>'
+  max oxidation state: 5.0
+  mendeleev no: 54
+  min oxidation state: 2.0
+  name: Vanadium
+W:
+  Boiling point: 5828 K
+  Brinell hardness: 2570 MN m<sup>-2</sup>
+  Bulk modulus: 310 GPa
+  Coefficient of linear thermal expansion: 4.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 19250 kg m<sup>-3</sup>
+  Electrical resistivity: 5.4 10<sup>-8</sup> &Omega; m
+  Liquid range: 2133 K
+  Melting point: 3695 K
+  Mineral hardness: '7.5'
+  Molar volume: 9.47 cm<sup>3</sup>
+  Poissons ratio: '0.28'
+  Reflectivity: 62 %
+  Refractive index: no data
+  Rigidity modulus: 161 GPa
+  Superconduction temperature: 0.015 K
+  Thermal conductivity: 170 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 5174 m s<sup>-1</sup>
+  Vickers hardness: 3430 MN m<sup>-2</sup>
+  X: 2.36
+  Youngs modulus: 411 GPa
+  atomic mass: 183.84
+  atomic no: 74
+  atomic radius: 1.36
+  electronic: '[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>'
+  max oxidation state: 6.0
+  mendeleev no: 55
+  min oxidation state: 2.0
+  name: Tungsten
+Xe:
+  Boiling point: 165.1 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 289.7 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Liquid range: 3.7 K
+  Melting point: 161.4 K
+  Mineral hardness: no data
+  Molar volume: 35.92 cm<sup>3</sup>
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000702'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.00565 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1090 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.6
+  Youngs modulus: no data GPa
+  atomic mass: 131.293
+  atomic no: 54
+  atomic radius: 0.986
+  electronic: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+  max oxidation state: 8.0
+  mendeleev no: 5
+  min oxidation state: 2.0
+  name: Xenon
+Y:
+  Boiling point: 3609 K
+  Brinell hardness: 589 MN m<sup>-2</sup>
+  Bulk modulus: 41 GPa
+  Coefficient of linear thermal expansion: 10.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 4472 kg m<sup>-3</sup>
+  Electrical resistivity: about 60 10<sup>-8</sup> &Omega; m
+  Liquid range: 1810 K
+  Melting point: 1799 K
+  Mineral hardness: no data
+  Molar volume: 19.88 cm<sup>3</sup>
+  Poissons ratio: '0.24'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 26 GPa
+  Superconduction temperature: 1.3  (under pressure)K
+  Thermal conductivity: 17 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3300 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.22
+  Youngs modulus: 64 GPa
+  atomic mass: 88.90585
+  atomic no: 39
+  atomic radius: 1.693
+  electronic: '[Kr].4d<sup>1</sup>.5s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 25
+  min oxidation state: 1.0
+  name: Yttrium
+Yb:
+  Boiling point: 1469 K
+  Brinell hardness: 343 MN m<sup>-2</sup>
+  Bulk modulus: 31 GPa
+  Coefficient of linear thermal expansion: 26.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6570 kg m<sup>-3</sup>
+  Electrical resistivity: 25.0 10<sup>-8</sup> &Omega; m
+  Liquid range: 372 K
+  Melting point: 1097 K
+  Mineral hardness: no data
+  Molar volume: 24.84 cm<sup>3</sup>
+  Poissons ratio: '0.21'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 9.9 GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 39 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1590 m s<sup>-1</sup>
+  Vickers hardness: 206 MN m<sup>-2</sup>
+  Youngs modulus: 24 GPa
+  atomic mass: 173.04
+  atomic no: 70
+  atomic radius: 1.658
+  electronic: '[Xe].4f<sup>14</sup>.6s<sup>2</sup>'
+  max oxidation state: 3.0
+  mendeleev no: 17
+  min oxidation state: 2.0
+  name: Ytterbium
+Zn:
+  Boiling point: 1180 K
+  Brinell hardness: 412 MN m<sup>-2</sup>
+  Bulk modulus: 70 GPa
+  Coefficient of linear thermal expansion: 30.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 7140 kg m<sup>-3</sup>
+  Electrical resistivity: 6.0 10<sup>-8</sup> &Omega; m
+  Liquid range: 487.32 K
+  Melting point: 692.68 K
+  Mineral hardness: '2.5'
+  Molar volume: 9.16 cm<sup>3</sup>
+  Poissons ratio: '0.25'
+  Reflectivity: 80 %
+  Refractive index: '1.002050'
+  Rigidity modulus: 43 GPa
+  Superconduction temperature: 0.85 K
+  Thermal conductivity: 120 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3700 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 1.65
+  Youngs modulus: 108 GPa
+  atomic mass: 65.409
+  atomic no: 30
+  atomic radius: 1.065
+  electronic: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
+  max oxidation state: 2.0
+  mendeleev no: 76
+  min oxidation state: 2.0
+  name: Zinc
+Zr:
+  Boiling point: 4682 K
+  Brinell hardness: 650 MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: 5.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: no data K
+  Density of solid: 6511 kg m<sup>-3</sup>
+  Electrical resistivity: 43.3 10<sup>-8</sup> &Omega; m
+  Liquid range: 2554 K
+  Melting point: 2128 K
+  Mineral hardness: '5.0'
+  Molar volume: 14.02 cm<sup>3</sup>
+  Poissons ratio: '0.34'
+  Reflectivity: no data %
+  Refractive index: no data
+  Rigidity modulus: 33 GPa
+  Superconduction temperature: 0.61 K
+  Thermal conductivity: 23 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 3800 m s<sup>-1</sup>
+  Vickers hardness: 903 MN m<sup>-2</sup>
+  X: 1.33
+  Youngs modulus: 68 GPa
+  atomic mass: 91.224
+  atomic no: 40
+  atomic radius: 1.593
+  electronic: '[Kr].4d<sup>2</sup>.5s<sup>2</sup>'
+  max oxidation state: 4.0
+  mendeleev no: 49
+  min oxidation state: 1.0
+  name: Zirconium

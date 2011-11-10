@@ -97,7 +97,9 @@ def clean_json(input_json):
         return [clean_json(i) for i in input_json]
     elif isinstance(input_json, dict):
         return {str(k): clean_json(v) for k, v in input_json.items()}
-    elif isinstance(input_json, (int, float, basestring)):
+    elif isinstance(input_json, (int, float)):
         return input_json
+    elif isinstance(input_json, basestring):
+        return str(input_json)
     else:
         return clean_json(input_json.to_dict)
