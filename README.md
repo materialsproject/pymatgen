@@ -15,14 +15,15 @@ Required for proper functioning of the code.
 1. Python 2.7+ required.  New default modules such as json are used, as well as new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively by all core modules.
 3. scipy 0.9+ - For interpolation, physical constants and other functions. In particular, scipy.spatial.Delaunay is used for phase diagram construction.
-3. nose - For complete unittesting. This is NOT optional!
+4. PyYAML - For parsing of important PyYaml configuration files.
+5. nose - For complete unittesting. This is NOT optional!
 
 ## Optional Python Libraries ##
 
 Optional python libraries that are required if you need certain features
 
 1. matplotlib : For plotting (e.g., Phase Diagrams).
-4. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For reading and writing Crystallographic Information Format (CIF) files [more info](http://pycifrw.berlios.de/)
+2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For reading and writing Crystallographic Information Format (CIF) files [more info](http://pycifrw.berlios.de/)
 
 ## Optional non-Python programs ##
 

@@ -12,17 +12,17 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
-import json
 import os
 import re
+import yaml
 
 from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
 
 def load_periodic_table_data():
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir,"periodictable.json")) as f:
-        return json.load(f)
+    with open(os.path.join(module_dir,"periodic_table.yaml")) as f:
+        return yaml.load(f)
     
 PERIODIC_TABLE_DATA  = load_periodic_table_data()
 PERIODIC_TABLE_ROW_SIZES = (2,8,8,18,18,32,32)
