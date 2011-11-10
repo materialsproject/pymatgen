@@ -52,7 +52,7 @@ class Element(object):
             X, Z, max_oxidation_state, mendeleev_no, min_oxidation_state, name, symbol
         '''
         self._data = PERIODIC_TABLE_DATA[symbol]
-        self._z = self._data['atomic no']
+        self._z = self._data['Atomic no']
         self._symbol = symbol
         
         Element._all_elements[tuple([symbol])] = self
@@ -78,27 +78,27 @@ class Element(object):
 
     @property
     def name(self):
-        return self._data['name']
+        return self._data['Name']
     
     @property
     def atomic_mass(self):
-        return self._data['atomic mass']
+        return self._data['Atomic mass']
     
     @property
     def atomic_radius(self):
-        return self._data['atomic radius']
+        return self._data['Atomic radius']
     
     @property
     def max_oxidation_state(self):
-        return self._data['max oxidation state']
+        return self._data['Max oxidation state']
     
     @property
     def min_oxidation_state(self):
-        return self._data['min oxidation state']
+        return self._data['Min oxidation state']
     
     @property
     def mendeleev_no(self):
-        return self._data['mendeleev no']
+        return self._data['Mendeleev no']
     
     @property
     def electrical_resistivity(self):
@@ -126,7 +126,7 @@ class Element(object):
     
     @property
     def electronic_structure(self):
-        return self._data['electronic']
+        return self._data['Electronic structure']
     
     @property
     def thermal_conductivity(self):
