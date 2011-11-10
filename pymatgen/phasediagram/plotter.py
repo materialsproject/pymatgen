@@ -198,7 +198,7 @@ class PDPlotter(object):
         count = 1
         import matplotlib as mpl
         from matplotlib.font_manager import FontProperties
-        
+            
         # chose a non-GUI backend
         mpl.use( 'Agg' )
         import matplotlib.pyplot as plt
@@ -206,7 +206,11 @@ class PDPlotter(object):
         font.set_weight('bold')
         font.set_size(20)
         
-        if dim==4:
+        if dim == 4:
+            
+            
+            plt.clf()
+            plt.cla()
             import mpl_toolkits.mplot3d.axes3d as p3
             fig=plt.figure()
             ax = p3.Axes3D(fig)
@@ -225,6 +229,9 @@ class PDPlotter(object):
             plt.figtext(0.01,0.01,'\n'.join(newlabels), fontproperties=font)
         
         elif dim < 4 and dim > 1:
+            plt.clf()
+            plt.cla()
+            
             for x,y in lines:
                 plt.plot(x,y,'bo-',linewidth=4,markeredgecolor='b',markerfacecolor='r',markersize=12)
             if dim == 3:
