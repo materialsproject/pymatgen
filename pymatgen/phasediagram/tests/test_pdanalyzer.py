@@ -29,7 +29,9 @@ class  PDAnalyzerTest(unittest.TestCase):
         
         #Just to test decomp for a ficitious composition
         ansdict = {entry.composition.formula: amt for entry, amt in self.analyzer.get_decomposition(Composition.from_formula("Li3Fe7O11")).items()}
-        self.assertAlmostEqual(ansdict, {"Fe2 O2" : 0.0952380952380949, "Li1 Fe1 O2": 0.5714285714285714, "Fe6 O8": 0.33333333333333393})
+        expected_ans = {"Fe2 O2" : 0.0952380952380949, "Li1 Fe1 O2": 0.5714285714285714, "Fe6 O8": 0.33333333333333393}
+        for k, v in expected_ans.items():
+            self.assertAlmostEqual(ansdict[k], v)
 
         
     def test_get_transition_chempots(self):
