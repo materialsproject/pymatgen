@@ -2,7 +2,7 @@ from setuptools import setup,find_packages
 
 setup (
   name = 'pymatgen',
-  version = '1.0.2',
+  version = '1.0.3',
   packages = find_packages(),
 
   # Declare your packages' dependencies here, for eg:
