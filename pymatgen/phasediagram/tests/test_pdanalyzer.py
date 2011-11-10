@@ -1,6 +1,5 @@
 import unittest
 import os
-import random
 
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
