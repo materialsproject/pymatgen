@@ -722,6 +722,18 @@ class Structure(collections.Sequence, collections.Hashable):
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
         return d
+    
+    @staticmethod
+    def from_dict(structure_dict):
+        lattice = Lattice(structure_dict['lattice']['matrix'])
+        species = []
+        coords = []
+            
+        for site_dict in structure_dict['sites']:
+            sp = site_dict['species'] 
+            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']} )
+            coords.append(site_dict['abc'])
+        return Structure(lattice, species, coords)
 
 class StructureError(Exception):
     
