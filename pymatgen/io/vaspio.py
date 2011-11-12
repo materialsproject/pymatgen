@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
+
 """
 Classes for reading/manipulating/writing VASP files.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -37,10 +39,17 @@ from pymatgen.core.lattice import Lattice
 
 coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
 
-
 class VaspParameterSet(object):
-    
+    """
+    Class representing a set of Vasp input parameters.
+    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
+    can be generated in an automated fashion for any structure.
+    """
     def __init__(self, name = "MaterialsProject"):
+        """
+        Args:
+            name : Name of parameters set to use.  Defaults to MaterialsProject parameter set.
+        """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -341,6 +350,9 @@ class Incar(dict, VaspInput):
     
     @staticmethod
     def from_structure(structure, parameter_set = VaspParameterSet()):
+        """
+        Generates an Incar from a structure and a VaspParameterSet.
+        """
         incar = Incar()
         poscar = Poscar(structure)
         for key, setting in parameter_set.incar_settings.items():
@@ -363,11 +375,23 @@ class Incar(dict, VaspInput):
         return self.get_string(sort_keys = True, pretty = False)
 
     def write_file(self, filename):
+        """
+        Write Incar to a file.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
     @staticmethod
     def from_file(filename):
+        """
+        Reads an Incar object from a file.
+        
+        Args:
+            filename - Filename for file
+            
+        Returns:
+            Incar object
+        """
         with file_open_zip_aware(filename, "r") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
@@ -385,7 +409,6 @@ class Incar(dict, VaspInput):
         list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
         boolean_type_keys = ('LDAU', 'LWAVE')
         number_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "EDIFF", "ICHARG", "NELM", "ISMEAR", "NPAR", "SIGMA", "LDAUPRINT", 'LMAXMIX')
-         
         
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1:
@@ -421,6 +444,17 @@ class Incar(dict, VaspInput):
         return val
             
     def diff(self, other):
+        """
+        Diff function for Incar.  Compares two Incars and indicates which parameters are the same and which are not.
+        Useful for checking whether two runs were done using the same parameters.
+        
+        Args:
+            other : The other Incar object to compare to.
+        
+        Returns:
+            Dict of the following format - {'Same' : parameters_that_are_the_same, 'Different': parameters_that_are_different}
+            Note that the parameters are return as full dictionaries of values. E.g. {'ISIF':3}
+        """
         similar_param = {}
         different_param = {}
         for k1,v1 in self.items():
@@ -434,7 +468,7 @@ class Incar(dict, VaspInput):
             if k2 not in similar_param and k2 not in different_param:
                 if k1 not in self:
                     different_param[k1] = {"INCAR1": 'Default', "INCAR2": v2}
-        return {'Same parameters' : similar_param, 'Different': different_param}
+        return {'Same' : similar_param, 'Different': different_param}
                 
     def __add__(self, other):
         """
@@ -625,7 +659,8 @@ class Vasprun(object):
     Vastly improved sax-based parser for vasprun.xml files.
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of magnitude for larger files (~10Mb).
     All data is stored as attributes, which are delegated to the VasprunHandler object.
-    Accessible attributes from VasprunHandler are:
+    
+    Attributes:
         Vasp results
         ------------
         ionic_steps - All ionic steps in the run as a list of {'structure': structure at end of run, 
@@ -649,6 +684,10 @@ class Vasprun(object):
         atomic_symbols - List of atomic symbols, e.g., [u'Li', u'Fe', u'Fe', u'P', u'P', u'P']
         potcar_symbols - List of POTCAR symbols. E.g., [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', ..]
     
+        Convenience attributes
+        ----------------------
+        
+    
     A few helper attributes have also been added to get commonly used results such as final energies.
     
     Author: Shyue Ping Ong
@@ -666,6 +705,9 @@ class Vasprun(object):
     
     @property
     def converged(self):
+        """
+        True if a relaxation run is converged.  Always True for a static run.
+        """
         return len(self.structures) - 2 < self.parameters['NSW'] or self.parameters['NSW'] == 0
     
     @property
@@ -698,6 +740,9 @@ class Vasprun(object):
     
     @property
     def to_dict(self):
+        """
+        Portable dict representation for Vasprun for transferring between different applications.
+        """
         d = {}
         d['vasp_version'] = self.vasp_version
         d['has_vasp_completed'] = self.converged
@@ -1026,6 +1071,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.state[name] = False
         
 def parse_parameters(val_type, val):
+    """
+    Helper function to convert a Vasprun parameter into the proper type.
+    Boolean, int and float types are converted.
+    
+    Args:
+        val_type : Value type parsed from vasprun.xml.
+        val : Actual string value parsed for vasprun.xml.
+    """
     if val_type == "logical":
         return (val == "T")
     elif val_type == "int":
@@ -1036,6 +1089,18 @@ def parse_parameters(val_type, val):
         return float(val)
 
 def parse_v_parameters(val_type, val, filename, param_name):
+    """
+    Helper function to convert a Vasprun array-type parameter into the proper type.
+    Boolean, int and float types are converted.
+    
+    Args:
+        val_type : Value type parsed from vasprun.xml.
+        val : Actual string value parsed for vasprun.xml.
+        filename : Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
+            if vasprun.xml contains *** for some Incar parameters, the code will try
+            to read from an INCAR file present in the same directory.
+        param_name : Name of parameter.
+    """
     if val_type == "logical":
         val = [True if i == "T" else False for i in re.split("\s+", val)]
     elif val_type == "int":
@@ -1061,6 +1126,9 @@ def parse_v_parameters(val_type, val, filename, param_name):
     return val
 
 def parse_from_incar(filename, key):
+    """
+    Helper function to parse a parameter from the INCAR.
+    """
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search("INCAR",f):
@@ -1266,7 +1334,15 @@ class Outcar(object):
 
 class VolumetricData(object):
     """
-    Simple volumetric object for reading LOCPOT and CHGCAR type files
+    Simple volumetric object for reading LOCPOT and CHGCAR type files.
+    
+    Attributes:
+        name : The name from the comment line.
+        poscar : Poscar object
+        spinpolarized : True if run is spin polarized
+        dim: Tuple of dimensions of volumetric grid in each direction (nx, ny, nz)
+        data : Actual data as a dict of {grid coordinate: value}.  Grid coordinate is a (x,y,z) tuple.
+        ngridpts: Total number of grid points in volumetric data.
     """
     def __init__(self, filename):
         self.name   = str()
@@ -1274,7 +1350,7 @@ class VolumetricData(object):
         self.spinpolarized = False
         self.dim = None
         self.data = dict()
-        self.numpts = 0
+        self.ngridpts = 0
         self._read_file(filename)            
 
     def __add__(self, other):
@@ -1293,13 +1369,10 @@ class VolumetricData(object):
         summed.poscar = self.poscar
         summed.spinpolarized = self.spinpolarized
         summed.dim = self.dim
-        summed.numpts = self.numpts
+        summed.numpts = self.ngridpts
         for spin in self.data.keys():
             summed.data[spin] = self.data[spin] + scalefactor* other.data[spin]
         return summed
-
-    def get_num_gridpts(self):
-        return self.numpts
 
     def _read_file(self, filename):
 
@@ -1338,7 +1411,7 @@ class VolumetricData(object):
         data = data[:(a[0] * a[1] * a[2])]
 
         self.dim = a
-        self.numpts = self.dim[0] * self.dim[1] * self.dim[2]
+        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         uppot = zeros((a[0], a[1], a[2]))
         count = 0
         for z in xrange(a[2]):
@@ -1368,7 +1441,13 @@ class Locpot(VolumetricData):
 
     def get_avg_potential_along_axis(self, ind):
         """
-        Get the averaged LOCPOT along a certain axis direction. Useful for visualizing Hartree Potentials
+        Get the averaged LOCPOT along a certain axis direction. Useful for visualizing Hartree Potentials.
+        
+        Args:
+            ind : Index of axis.
+            
+        Returns:
+            Average Hatree potential along axis
         """
         m = self.data[Spin.up]
         
@@ -1412,6 +1491,16 @@ class Chgcar(VolumetricData):
         self._distance_matrix[ind] = distances
 
     def get_diff_int_charge(self, ind, radius):
+        """
+        Get differential integrated charge of atom index ind up to radius.
+        
+        Args:
+            ind : Index of atom.
+            radius : Radius of integration.
+            
+        Returns:
+            Differential integrated charge.
+        """
         if ind not in self._distance_matrix:
             self._calculate_distance_matrix(ind)
         a = self.dim
@@ -1419,9 +1508,18 @@ class Chgcar(VolumetricData):
         for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x,y,z)] < radius:
                 intchg += self.data[Spin.up][x, y, z] - self.data[Spin.down][x, y, z]
-        return intchg / self.numpts
+        return intchg / self.ngridpts
     
     def get_diff_int_charge_slow(self, ind, radius):
+        """
+        Deprecated.  **Much** slower algorithm for finding differential integrated charge.  Used mainly for testing purposes.
+        Args:
+            ind : Index of atom.
+            radius : Radius of integration.
+            
+        Returns:
+            Differential integrated charge.       
+        """
         st = self.poscar.struct
         a = self.dim
         intchg = 0
@@ -1439,7 +1537,7 @@ class Chgcar(VolumetricData):
                     dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
                     if dist < radius:
                         intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
-        return intchg / self.numpts
+        return intchg / self.ngridpts
 
 class Procar(object):
 
@@ -1484,7 +1582,6 @@ class Procar(object):
 
 
 class VaspParserError(Exception):
-    
     '''
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.

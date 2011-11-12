@@ -66,13 +66,12 @@ class  IncarTest(unittest.TestCase):
         
         
     def test_diff(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','INCAR')
-        incar1 = Incar.from_file(filepath)
-        filepath = os.path.join(module_dir, 'vasp_testfiles','INCAR.2')
-        incar2 = Incar.from_file(filepath)
-                
-        self.assertEqual(incar1.diff(incar2), {'Same parameters': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'LORBIT': '11', 'SIGMA': 0.05}, 'Different': {'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NKRED': {'INCAR1': '2', 'INCAR2': 'Default'}, 'ENCUTFOCK': {'INCAR1': '0', 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': '0', 'INCAR2': 'Default'}, 'EDIFF': {'INCAR1': '1E-4', 'INCAR2': 0.0001}, 'HFSCREEN': {'INCAR1': '0.207', 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': '.FALSE.', 'INCAR2': 'Default'}, 'SYSTEM': {'INCAR1': 'id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]', 'INCAR2': 'id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] formula=[Li3 Ni3 O6] sg_name=[R-3m]'}, 'ENCUT': {'INCAR1': '500', 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': '1', 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'TIME': {'INCAR1': '0.4', 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'ISPIND': {'INCAR1': '2', 'INCAR2': 'Default'}}})
-
+        filepath1 = os.path.join(module_dir, 'vasp_testfiles','INCAR')
+        incar1 = Incar.from_file(filepath1)
+        filepath2 = os.path.join(module_dir, 'vasp_testfiles','INCAR.2')
+        incar2 = Incar.from_file(filepath2)        
+        self.assertEqual(incar1.diff(incar2), {'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'LORBIT': '11', 'SIGMA': 0.05}, 'Different': {'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NKRED': {'INCAR1': '2', 'INCAR2': 'Default'}, 'ENCUTFOCK': {'INCAR1': '0', 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': '0', 'INCAR2': 'Default'}, 'EDIFF': {'INCAR1': '1E-4', 'INCAR2': 0.0001}, 'HFSCREEN': {'INCAR1': '0.207', 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': '.FALSE.', 'INCAR2': 'Default'}, 'SYSTEM': {'INCAR1': 'id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]', 'INCAR2': 'id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] formula=[Li3 Ni3 O6] sg_name=[R-3m]'}, 'ENCUT': {'INCAR1': '500', 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': '1', 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'TIME': {'INCAR1': '0.4', 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'ISPIND': {'INCAR1': '2', 'INCAR2': 'Default'}}})       
+        
 class  KpointsTest(unittest.TestCase):
     
     def test_init(self):

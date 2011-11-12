@@ -5,6 +5,8 @@ This module defines PDEntry, which wraps information (composition and energy) ne
 phase diagrams. 
 """
 
+from __future__ import division
+
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
