@@ -23,7 +23,7 @@ incar2 = Incar.from_file(filepath2)
 
 def format_lists(v):
     if isinstance(v, (tuple, list)):
-        return " ".join([str(i) + "*" + str(len(tuple(group))) for (i,group) in itertools.groupby(v)])
+        return " ".join(["%d*%.2f" % (len(tuple(group)), i) for (i,group) in itertools.groupby(v)])
     return v
 
 d = incar1.diff(incar2)
