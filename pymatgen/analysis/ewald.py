@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from __future__ import division
-
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -30,8 +30,10 @@ class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using the Ewald technique. 
     References : http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
+    
     E = E_recip + E_real + E_point
-    Atomic units used in the code, then converted to eV
+    
+    Atomic units used in the code, then converted to eV.
     """
 
     # taken from convasp. converts unit of q*q/r into eV 
@@ -41,18 +43,19 @@ class EwaldSummation:
         """
         Initializes and calculates the Ewald sum. Default convergence parameters have been
         specified, but you can override them if you wish.
-        Arguments:
-            structure - input structure that must have proper Specie on all sites, i.e.
-                        Element with oxidation state. Use OxidationStateDecorator in 
-                        pymatgen.core.structure_modifier for example.
-            real_space_cut - Real space cutoff radius dictating how many terms are used in the 
-                             real space sum. negative means determine automagically using the
-                             formula given in gulp 3.1 documentation
-            recip_space_cut - Reciprocal space cutoff radius. negative means determine automagically using
-                              formula given in gulp 3.1 documentation
-            eta - The screening parameter. negative means determine automatically.
-            calculate_forces - Set to true if forces are desired
-            acc_factor - No. of significant figures each sum is converged to. See the gulp manual. 
+        
+        Args:
+            structure: input structure that must have proper Specie on all sites, i.e.
+                       Element with oxidation state. Use OxidationStateDecorator in 
+                       pymatgen.core.structure_modifier for example.
+            real_space_cut: Real space cutoff radius dictating how many terms are used in the 
+                            real space sum. negative means determine automagically using the
+                            formula given in gulp 3.1 documentation.
+            recip_space_cut: Reciprocal space cutoff radius. negative means determine automagically using
+                             formula given in gulp 3.1 documentation.
+            eta: The screening parameter. negative means determine automatically.
+                 calculate_forces: Set to true if forces are desired
+            acc_factor: No. of significant figures each sum is converged to. See the gulp manual. 
         """
         self._s = structure
         self._vol = structure.volume
