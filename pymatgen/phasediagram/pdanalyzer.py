@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from __future__ import division
-
 """
 This module provides classes for analyzing phase diagrams.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

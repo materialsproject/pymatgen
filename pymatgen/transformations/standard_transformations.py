@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-from __future__ import division
 
 '''
-Created on Sep 23, 2011
+This module defines standard transformations which transforms a structure into another structure.
+All transformations should inherit the AbstractTransformation ABC.
 '''
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

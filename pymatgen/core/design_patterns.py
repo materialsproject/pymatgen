@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module defines some useful design patterns.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
