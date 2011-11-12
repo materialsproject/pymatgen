@@ -2,6 +2,7 @@
 
 """
 Classes for reading/manipulating/writing VASP files.
+All major VASP input files, plus the more common Vasp output files are available.
 """
 
 from __future__ import division
@@ -12,7 +13,7 @@ __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import os
 import re

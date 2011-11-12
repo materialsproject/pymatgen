@@ -23,8 +23,7 @@ class VoronoiCoordFinder:
     Uses a Voronoi algorithm to determine the coordination for each site in a structure.
     """
 
-    default_cutoff = 10.0
-    default_damping = 2.0 
+    default_cutoff = 10.0 #Radius cutoff to look for coordinating atoms
         
     def __init__(self,structure, target = None):
         self._structure = structure
@@ -50,7 +49,7 @@ class VoronoiCoordFinder:
         
         localtarget = self._target
         center = self._structure[n]
-        neighbors = self._structure.get_sites_in_sphere(center.coords, self.default_cutoff)
+        neighbors = self._structure.get_sites_in_sphere(center.coords, VoronoiCoordFinder.default_cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key = lambda s : s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         closest = qvoronoi(qvoronoi_input)
@@ -95,8 +94,11 @@ class VoronoiCoordFinder:
             n: site number
             tol: tolerance to determine if a particular pair is considered a neighbor.
             target: target element
+            
+        Returns:
+            Sites coordinating input site.
         """
-        coordinated_sites = ()
+        coordinated_sites = []
         for site, weight in self.get_voronoi_polyhedra(n).items():
             if weight > tol and (target == None or site.specie == target):
                 coordinated_sites.append(site)        
