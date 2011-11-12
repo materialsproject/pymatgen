@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup (
   name = 'pymatgen',
-  version = '1.0.3',
+  version = '1.0.4',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW', 'PyYAML'],
 
@@ -11,10 +11,9 @@ setup (
   author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Dan Gunter',
   author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, dkgunter@lbl.gov',
   maintainer = 'Shyue Ping Ong',
-  summary = 'The Materials Project Python Library',
-  url = 'www.materialsproject.org',
+  url = 'https://github.com/CederGroupMIT/pymatgen_repo/',
   license = 'MIT',
-  long_description = 'pymatgen is a Python library for the Materials Project. It includes core structure definition and utilities, electronic structure objects, and convenient IO from VASP and CIF files.',
+  long_description = 'pymatgen is a Python library for the Materials Project (www.materialsproject.org). It includes core structure definition and utilities, electronic structure objects, and convenient IO from VASP and CIF files.',
   keywords = ["vasp", "materials", "project", "electronic", "structure"],
   classifiers = [
         "Programming Language :: Python :: 2.7",
@@ -27,6 +26,6 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url = "http://github.com/downloads/CederGroupMIT/pymatgen_repo/pymatgen_1.0.3.tar.gz",
+  download_url = "https://github.com/CederGroupMIT/pymatgen_repo/tarball/master",
 )
 
