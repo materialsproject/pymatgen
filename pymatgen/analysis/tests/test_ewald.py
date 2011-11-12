@@ -17,7 +17,6 @@ class EwaldSummationTest(unittest.TestCase):
         modifier = OxidationStateDecorator(s,{"Li":1, "Fe":2, "P":5, "O":-2})
         s = modifier.modified_structure
         ham = EwaldSummation(s)
-        print ham
         self.assertAlmostEqual(ham.real_space_energy, -354.91294268, 4, "Real space energy incorrect!")
         self.assertAlmostEqual(ham.reciprocal_space_energy, 25.475754801, 4, "Reciprocal space energy incorrect!")
         self.assertAlmostEqual(ham.point_energy, -790.463835033, 4, "Point space energy incorrect!")

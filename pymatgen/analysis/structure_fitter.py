@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes to perform fitting of two structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"

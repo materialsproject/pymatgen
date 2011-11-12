@@ -19,13 +19,14 @@ import yaml
 from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
 
-def load_periodic_table_data():
+def _load__pt_data():
+    """Loads element data from yaml file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(module_dir,"periodic_table.yaml")) as f:
         return yaml.load(f)
-    
-PERIODIC_TABLE_DATA  = load_periodic_table_data()
-PERIODIC_TABLE_ROW_SIZES = (2,8,8,18,18,32,32)
+
+_pt_data  = _load__pt_data()
+_pt_row_sizes = (2,8,8,18,18,32,32)
 
 class Element(object):
     '''
@@ -47,11 +48,9 @@ class Element(object):
 
     def __init__(self,symbol):
         '''
-        Create immutable element.
-        List of attributes are:
-            X, Z, max_oxidation_state, mendeleev_no, min_oxidation_state, name, symbol
+        Create immutable element from a symbol
         '''
-        self._data = PERIODIC_TABLE_DATA[symbol]
+        self._data = _pt_data[symbol]
         self._z = self._data['Atomic no']
         self._symbol = symbol
         
@@ -59,14 +58,17 @@ class Element(object):
         
     @property
     def Z(self):
+        """Atomic number"""
         return self._z
     
     @property
     def symbol(self):
+        """Element symbol"""
         return self._symbol
     
     @property
     def X(self):
+        """Electronegativity"""
         if 'X' in self._data:
             return self._data['X']
         else:
@@ -74,116 +76,163 @@ class Element(object):
         
     @property
     def number(self):
+        """Alternative attribute for atomic number"""
         return self.Z
 
     @property
     def name(self):
+        """Full name for element"""
         return self._data['Name']
     
     @property
     def atomic_mass(self):
+        """Atomic mass"""
         return self._data['Atomic mass']
     
     @property
     def atomic_radius(self):
+        """Atomic radius"""
         return self._data['Atomic radius']
     
     @property
     def max_oxidation_state(self):
+        """Maximum oxidation state for element"""
         return self._data['Max oxidation state']
     
     @property
     def min_oxidation_state(self):
+        """Minimum oxidation state for element"""
         return self._data['Min oxidation state']
     
     @property
     def mendeleev_no(self):
+        """Mendeleev number"""
         return self._data['Mendeleev no']
     
     @property
     def electrical_resistivity(self):
+        """Electrical resistivity"""
         return self._data['Electrical resistivity']
 
     @property
     def velocity_of_sound(self):
+        """Velocity of sound"""
         return self._data['Velocity of sound']
 
     @property
     def reflectivity(self):
+        """Reflectivity"""
         return self._data['Reflectivity']
     
     @property
     def refractive_index(self):
+        """Refractice index"""
         return self._data['Refractive index']
 
     @property
     def poissons_ratio(self):
+        """Poisson's ratio"""
         return self._data['Poissons ratio']
     
     @property
     def molar_volume(self):
+        """Molar volume"""
         return self._data['Molar volume']
     
     @property
     def electronic_structure(self):
+        """Electronic structure. Simplified form with HTML formatting.
+        E.g., The electronic structure for Fe is represented as [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+        """
         return self._data['Electronic structure']
+
+    @property
+    def full_electronic_structure(self):
+        """
+        Full electronic structure as tuple.
+        E.g., The electronic structure for Fe is represented as:
+        [(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6), (3, 'd', 6), (4, 's', 2)]
+        """
+        estr = self._data['Electronic structure']
+        def parse_orbital(orbstr):
+            m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
+            if m:
+                return (int(m.group(1)), m.group(2), int(m.group(3)))
+            return orbstr
+        data = [parse_orbital(s) for s in estr.split(".")]
+        if data[0][0] == "[":
+            data = Element(data[0].replace("[", "").replace("]","")).full_electronic_structure + data[1:]
+        return data
     
     @property
     def thermal_conductivity(self):
+        """Thermal conductivity"""
         return self._data['Thermal conductivity']
     
     @property
     def boiling_point(self):
+        """Boiling point"""
         return self._data['Boiling point']
     
     @property
     def melting_point(self):
+        """Melting point"""
         return self._data['Melting point']
     
     @property
     def critical_temperature(self):
+        """Critical temperature"""
         return self._data['Critical temperature']
     
     @property
     def superconduction_temperature(self):
+        """Superconduction temperature"""
         return self._data['Superconduction temperature']
     
     @property
     def liquid_range(self):
+        """Liquid range"""
         return self._data['Liquid range']
 
     @property
     def bulk_modulus(self):
+        """Bulk modulus"""
         return self._data['Bulk modulus']
     
     @property
     def youngs_modulus(self):
+        """Young's modulus"""
         return self._data['Youngs modulus']
     
     @property
     def brinell_hardness(self):
+        """Brinell hardness"""
         return self._data['Brinell hardness']
 
     @property
     def rigidity_modulus(self):
+        """Rigidity modulous"""
         return self._data['Rigidity modulus']
     
     @property
     def mineral_hardness(self):
+        """Mineral hardness"""
         return self._data['Mineral hardness']
     
     @property
     def vickers_hardness(self):
+        """Vicker's hardness"""
         return self._data['Vickers hardness']
     
     @property
     def density_of_solid(self):
+        """Density of solid phase"""
         return self._data['Density of solid']
 
     @property
     def coefficient_of_linear_thermal_expansion(self):
+        """Coefficient of linear thermal expansion"""
         return self._data['Coefficient of linear thermal expansion']
-
 
     def __eq__(self,other):
         if other == None:
@@ -214,14 +263,17 @@ class Element(object):
 
     @staticmethod       
     def from_Z(z):
-        for sym in PERIODIC_TABLE_DATA.keys():
+        for sym in _pt_data.keys():
             if Element(sym).Z == z:
                 return Element(sym)
         raise ValueError("No element with this atomic number")
 
     @staticmethod
     def from_row_and_group(row,group):
-        for sym in PERIODIC_TABLE_DATA.keys():
+        """
+        Returns an element from a row and group number.  Note that the 18 group number system is used, i.e. Noble gases are group 18.
+        """
+        for sym in _pt_data.keys():
             el = Element(sym)
             if el.row == row and el.group == group:
                 return el
@@ -229,7 +281,8 @@ class Element(object):
 
     @staticmethod
     def is_valid_symbol(symbol):
-        return symbol in PERIODIC_TABLE_DATA
+        """Returns true if symbol is a valid element symbol"""
+        return symbol in _pt_data
 
     @property
     def row(self):
@@ -243,8 +296,8 @@ class Element(object):
         elif (Z >= 89 and Z <= 102):
             return 9
 
-        for i in xrange(len(PERIODIC_TABLE_ROW_SIZES)):
-            totalEls += PERIODIC_TABLE_ROW_SIZES[i]
+        for i in xrange(len(_pt_row_sizes)):
+            totalEls += _pt_row_sizes[i]
             if totalEls >= Z:
                 return i+1
         return 8
@@ -465,7 +518,7 @@ class PeriodicTable(object):
     def __init__(self):
         """ Implementation of the singleton interface """
         self._all_elements = dict()
-        for sym in PERIODIC_TABLE_DATA.keys():
+        for sym in _pt_data.keys():
             el = Element(sym)
             self._all_elements[sym] = el
 

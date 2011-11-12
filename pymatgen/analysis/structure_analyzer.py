@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes to perform topological analyses of structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -38,10 +39,12 @@ class VoronoiCoordFinder:
         construction with solid angle weights.
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'KEEFFE, Acta Cryst. (1979). A35, 772-775
+        
         Args: 
-            n - site number
+            n : site number
+        
         Returns:
-            A dictinoary of sites sharing a common Voronoi facet with the site n
+            A dictionary of sites sharing a common Voronoi facet with the site n
             and their solid angle weights
         """
         
@@ -78,12 +81,20 @@ class VoronoiCoordFinder:
     def get_coordination_number(self, n):
         """
         Returns the coordination number of site with index n.
+        
+        Args: 
+            n : site number
         """
         return sum(self.get_voronoi_polyhedra(n).values())
     
     def get_coordinated_sites(self, n, tol = 0, target = None):
         """
         Returns the sites that are in the coordination radius of site with index n.
+        
+        Args: 
+            n: site number
+            tol: tolerance to determine if a particular pair is considered a neighbor.
+            target: target element
         """
         coordinated_sites = ()
         for site, weight in self.get_voronoi_polyhedra(n).items():

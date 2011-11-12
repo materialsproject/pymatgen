@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes that define a chemical reaction.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,12 +23,16 @@ class Reaction(object):
     A class representing a Reaction.
     """
     
-    TOLERANCE = 1e-6
+    TOLERANCE = 1e-6 #: Tolerance for determining if a particular component fraction is > 0.
     
     def __init__(self, reactants, products):
         """
         Reactants and products to be specified as list of pymatgen.core.structure.Composition.  
-        e.g., [comp1, comp2] 
+        e.g., [comp1, comp2]
+        
+        Args:
+            reactants : List of reactants.
+            products : List of products.
         """
         all_comp = reactants[:]
         all_comp.extend(products[:])
@@ -118,9 +123,11 @@ class Reaction(object):
     
     def calculate_energy(self, energies):
         """
-        Calculates the energy of the reaction. 
+        Calculates the energy of the reaction.
+         
         Args:
-            energies - dict of {comp:energy}.  e.g., {comp1: energy1, comp2: energy2}
+            energies - dict of {comp:energy}.  e.g., {comp1: energy1, comp2: energy2}.
+        
         Returns:
             reaction energy as a float.
         """
@@ -138,31 +145,44 @@ class Reaction(object):
     @property
     def elements(self):
         """
-        List of elements 
+        List of elements in the reaction
         """
         return self._els[:]
     
     @property
     def coeffs(self):
+        """
+        Final coefficients of the calculated reaction
+        """
         return self._coeffs[:]
     
     @property
     def all_comp(self):
+        """
+        List of all compositions in the reaction.
+        """
         return self._all_comp
     
     @property
     def reactants(self):
+        """List of reactants"""
         return filter(lambda k: self._coeffs[self._all_comp.index(k)] < 0, self._all_comp)
     
     @property
     def products(self):
+        """List of products"""
         return filter(lambda k: self._coeffs[self._all_comp.index(k)] > 0, self._all_comp)
     
     def get_coeff(self, comp):
+        """Returns coefficient for a particular composition"""
         return self._coeff[self._all_comp.index(comp)]
     
     @property
     def normalized_repr(self):
+        """
+        Normalized representation for a reaction
+        For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
+        """
         reactant_str= []
         product_str = []
         scaled_coeffs = []
@@ -210,6 +230,12 @@ class Reaction(object):
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
             
 def smart_float_gcd(list_of_floats):
+    """
+    Determines the great common denominator (gcd).  Works on floats as well as integers.
+    
+    Args:
+        list_of_floats: List of floats to determine gcd.
+    """
     mult_factor = 1.0
     all_remainders = sorted([abs(f - int(f)) for f in list_of_floats])
     for i in range(len(all_remainders)):
@@ -220,7 +246,6 @@ def smart_float_gcd(list_of_floats):
     
 
 class ReactionError(Exception):
-    
     '''
     Exception class for Reactions. Allows more information exception messages to cover situations not
     covered by standard exception classes.
