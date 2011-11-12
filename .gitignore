@@ -3,3 +3,4 @@ pymatgen.egg-info
 *.pyc
 pymatgen/pymatgen.cfg
 dist
+docs
