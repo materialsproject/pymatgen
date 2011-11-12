@@ -23,6 +23,12 @@ from pymatgen.core.structure import Structure
 def compute_average_oxidation_state(site):
     """
     Calculates the average oxidation state of a site
+    
+    Args:
+        Site to compute average oxidation state
+        
+    Returns:
+        Average oxidation state of site.
     """
     return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
 
