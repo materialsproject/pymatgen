@@ -35,7 +35,7 @@ class CifParser:
     
     def __init__(self, filename):
         """
-        Arguments:
+        Args:
             filename - cif file name.  bzipped or gzipped cifs are fine too.
         """
         if isinstance(filename, basestring):
