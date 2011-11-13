@@ -85,8 +85,9 @@ class StructureEditor(StructureModifier):
     
     def remove_species(self, species):
         """
-        Remove all occurences of a species from a structure.
-        Arguments:
+        Remove all occurrences of a species from a structure.
+        
+        Args:
             species - species to remove
         """    
         new_sites = []
@@ -99,7 +100,8 @@ class StructureEditor(StructureModifier):
     def append_site(self, species, coords, fractional_coord = True, validate_proximity = True): 
         """
         Append a site to the structure at the end.
-        Arguments:
+        
+        Args:
             species - species of inserted site
             coords - coordinates of inserted site
             fractional_coord - Whether coordinates are fractional. Defaults to True.
@@ -111,7 +113,8 @@ class StructureEditor(StructureModifier):
     def insert_site(self, i, species, coords, fractional_coord = True, validate_proximity = True):
         """
         Insert a site to the structure.
-        Arguments:
+        
+        Args:
             i - index to insert site
             species - species of inserted site
             coords - coordinates of inserted site
@@ -133,7 +136,8 @@ class StructureEditor(StructureModifier):
     def delete_site(self, i):
         """
         Delete site at index i.
-        Arguments:
+        
+        Args:
             i - index
         """
         del(self._sites[i])
@@ -141,7 +145,8 @@ class StructureEditor(StructureModifier):
     def delete_sites(self, indices):
         """
         Delete sites with at indices.
-        Arguments:
+        
+        Args:
             indices - sequence of indices
         """
         self._sites = [self._sites[i] for i in xrange(len(self._sites)) if i not in indices]
@@ -151,6 +156,9 @@ class StructureEditor(StructureModifier):
         Apply a symmetry operation to the structure and return the new structure.
         The lattice is operated by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
+        
+        Args:
+            symmop - Symmetry operation to apply.
         """        
         self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
         def operate_site(site):
@@ -159,6 +167,13 @@ class StructureEditor(StructureModifier):
         self._sites = map(operate_site, self._sites)
     
     def modify_lattice(self, new_lattice):
+        """
+        Modify the lattice of the structure.  Mainly used for changing the basis.
+        
+        Args:
+            new_lattice - New lattice
+        
+        """
         self._lattice = new_lattice
         new_sites = []
         for site in self._sites:
@@ -224,7 +239,8 @@ class OxidationStateDecorator(StructureModifier):
     def __init__(self, structure, oxidation_states):
         """
         Decorates a structure with oxidation states.
-        Arguments:
+        
+        Args:
             structure - pymatgen.core.structure Structure object.
             oxidation_states - a dictionary of oxidation states. 
                                e.g., {"Li":1, "Fe":2, "P":5, "O": -2} 
@@ -246,7 +262,7 @@ class OxidationStateDecorator(StructureModifier):
 
 class BasisChange(StructureModifier):
     """
-    given a new basis, we express the structure in this new basis
+    Given a new basis, we express the structure in this new basis
     """
     
     def __init__(self, structure, new_lattice):
