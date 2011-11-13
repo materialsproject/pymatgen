@@ -263,6 +263,7 @@ class Element(object):
 
     @staticmethod       
     def from_Z(z):
+        '''Get an element from an atomic number'''
         for sym in _pt_data.keys():
             if Element(sym).Z == z:
                 return Element(sym)
@@ -335,15 +336,15 @@ class Element(object):
 
     @property
     def block(self):
-        """docstring for block
-        return the block character 's,p,d,f'
+        """
+        Return the block character 's,p,d,f'
         """
         block = ''
         if self.group in [1,2]:
             block = 's'
         elif self.group in xrange(13,19):
             block = 'p'
-        elif (self.is_actinoid() or self.is_lanthanid()):
+        elif (self.is_actinoid or self.is_lanthanoid):
             block = 'f'
         elif self.group in xrange(3,13):
             block = 'd'
