@@ -11,7 +11,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Nov 12, 2011"
 
-import sys
 import itertools
 import argparse
 

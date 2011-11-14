@@ -207,8 +207,6 @@ class PDPlotter(object):
         font.set_size(20)
         
         if dim == 4:
-            
-            
             plt.clf()
             plt.cla()
             import mpl_toolkits.mplot3d.axes3d as p3
@@ -270,7 +268,7 @@ class PDPlotter(object):
         f = plt.gcf()
         f.set_size_inches( (12, 10) )
         
-        plt.savefig(stream, format=image_format )
+        plt.savefig(stream, format=image_format)
 
 def uniquelines(q):
     '''
