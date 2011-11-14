@@ -14,7 +14,7 @@ __date__ ="$Sep 23, 2011M$"
 
 import os
 import re
-import yaml
+import json
 
 from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
@@ -22,8 +22,8 @@ from pymatgen.util.string_utils import formula_double_format
 def _load__pt_data():
     """Loads element data from yaml file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir,"periodic_table.yaml")) as f:
-        return yaml.load(f)
+    with open(os.path.join(module_dir,"periodic_table.json")) as f:
+        return json.load(f)
 
 _pt_data  = _load__pt_data()
 _pt_row_sizes = (2,8,8,18,18,32,32)
