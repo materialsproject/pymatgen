@@ -712,9 +712,15 @@ class Structure(collections.Sequence, collections.Hashable):
         return "\n".join(outs)
 
     def __str__(self):
-        output = str(self.lattice) + "\n"
-        output += '\n'.join(str(site) for site in self)
-        return output
+        outs = ["Structure Summary ({s})".format(s=str(self.composition))]
+        outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
+        to_s = lambda x : "%0.6f" % x
+        outs.append('abc   : ' + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
+        outs.append('angles: ' + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append("Sites ({i})".format(i = len(self)))
+        for i, site in enumerate(self):
+            outs.append(" ".join([str(i+1), site.specie.symbol, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
+        return "\n".join(outs)
     
     @property
     def to_dict(self):
