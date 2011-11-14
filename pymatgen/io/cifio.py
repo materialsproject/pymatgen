@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 Wrapper classes for Cif input and output from pymatgen.core.structure.Structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -34,7 +35,7 @@ class CifParser:
     
     def __init__(self, filename):
         """
-        Arguments:
+        Args:
             filename - cif file name.  bzipped or gzipped cifs are fine too.
         """
         if isinstance(filename, basestring):

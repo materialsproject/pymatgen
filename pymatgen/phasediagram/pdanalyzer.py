@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from __future__ import division
-
 """
 This module provides classes for analyzing phase diagrams.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -23,7 +23,9 @@ class PDAnalyzer(object):
     """
     A class for performing analyses on Phase Diagrams.
     """
-
+    
+    numerical_tol = 1e-8
+    
     def __init__(self, pd):
         """
         Arguments:
@@ -32,37 +34,42 @@ class PDAnalyzer(object):
         self._pd = pd
 
     def _make_comp_matrix(self,complist):
-        m = list()
-        for comp in complist:
-            sumform = comp.num_atoms
-            row = list()
-            for el in self._pd.elements:
-                row.append(comp[el]/sumform)
-            m.append(row)
-        return np.array(m)
+        """
+        Helper function to generates a normalized composition matrix from a list of composition.
+        """
+        return np.array([[comp.get_atomic_fraction(el) for el in self._pd.elements] for comp in complist])
 
     def _in_facet(self, facet, comp):
+        """
+        Checks if a composition is in a facet using the standard barycentric coordinate system algorithm.
+        The general concept is that the facets from a convex hull form a simplex in n-dimensional space.
+        Taking an arbitrary vertex as an origin, we compute the basis for the simplex from this origin by
+        subtracting all other vertices from the origin. We then project the composition into this 
+        coordinate system and determine the coefficients in this coordinate system.  If the coeffs satisfy
+        that all coeffs >= 0 and sum(coeffs) <= 1, the composition is in the facet.
+        For example, take a 4-comp PD where the facets are tetrahedrons. For a tetrahedron, let's label
+        the vertices as O, A, B anc C.  Let's call our comp coordinate as X.
+        We form the composition matrix M with vectors OA, OB and OB, transponse it, and solve for 
+            M'.a = OX
+        where a are the coefficients.
+        if (a >= 0).all() and sum(a) <= 1, X is in the tetrahedron.
+        Note that in reality, the test needs to provide a tolerance (set to 1e-8 by default) for numerical errors.
+        """
         dim = len(self._pd.elements)
-        m = np.array([self._pd.qhull_data[i][0:dim-1] for i in facet])
-        m = np.hstack((m, np.ones((dim,1))))
-        sumform = comp.num_atoms
-        row = list()
-        for i in xrange(1,len(self._pd.elements)):
-            row.append(comp[self._pd.elements[i]]*1.0/sumform)
-        row.append(1)
-        compm = np.array(row)
-        mdet = np.linalg.det(m)
-        for i in xrange(0,dim):
-            tempm = m.copy()
-            tempm[i] = compm            
-            if (np.linalg.det(tempm) * mdet < - 1e-8):
-                return False
-        return True
+        origin = np.array(self._pd.qhull_data[facet[0]][0:dim-1])
+        cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim-1]) - origin for i in xrange(1, len(facet))])
+        row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1,len(self._pd.elements))]
+        compm = np.array(row) - origin
+        coeffs = np.linalg.solve(cm.transpose(), compm)
+        return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
 
     def _get_facets(self,comp):
+        """
+        Get the facets that a composition falls into.
+        """
         memberfacets = list()
         for facet in self._pd.facets:
-            if self._in_facet(facet,comp):
+            if self._in_facet(facet, comp):
                 memberfacets.append(facet)
         return memberfacets
 
@@ -83,7 +90,7 @@ class PDAnalyzer(object):
         decomp = dict()
         #Scrub away zero amounts
         for i in xrange(len(decompamts)):
-            if abs(decompamts[i][0]) > 1e-8:
+            if abs(decompamts[i][0]) > PDAnalyzer.numerical_tol:
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp
 
@@ -99,7 +106,7 @@ class PDAnalyzer(object):
         eperatom = entry.energy_per_atom
         decomp = self.get_decomposition(comp)
         hullenergy = sum([entry.energy_per_atom*amt for entry, amt in decomp.items()])
-        if abs(eperatom) < 1e-8:
+        if abs(eperatom) < PDAnalyzer.numerical_tol:
             return 0
         return eperatom - hullenergy
     
@@ -115,20 +122,19 @@ class PDAnalyzer(object):
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
         ind = self._pd.elements.index(element)
         critical_chempots = []
-        if ind >= 0:
-            for facet in self._pd.facets:
-                complist = [self._pd.qhull_entries[i].composition for i in facet]
-                energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-                m = self._make_comp_matrix(complist)
-                chempots = np.dot(np.linalg.inv(m),energylist)
-                critical_chempots.append(chempots[ind])
+        for facet in self._pd.facets:
+            complist = [self._pd.qhull_entries[i].composition for i in facet]
+            energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+            m = self._make_comp_matrix(complist)
+            chempots = np.dot(np.linalg.inv(m),energylist)
+            critical_chempots.append(chempots[ind])
                 
         clean_pots = []
         for c in sorted(critical_chempots):
             if len(clean_pots) == 0:
                 clean_pots.append(c)
             else:
-                if abs(c-clean_pots[-1]) > 1e-8:
+                if abs(c-clean_pots[-1]) > PDAnalyzer.numerical_tol:
                     clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)

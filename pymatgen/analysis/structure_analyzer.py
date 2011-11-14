@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes to perform topological analyses of structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,8 +23,7 @@ class VoronoiCoordFinder:
     Uses a Voronoi algorithm to determine the coordination for each site in a structure.
     """
 
-    default_cutoff = 10.0
-    default_damping = 2.0 
+    default_cutoff = 10.0 #Radius cutoff to look for coordinating atoms
         
     def __init__(self,structure, target = None):
         self._structure = structure
@@ -38,16 +38,18 @@ class VoronoiCoordFinder:
         construction with solid angle weights.
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'KEEFFE, Acta Cryst. (1979). A35, 772-775
+        
         Args: 
-            n - site number
+            n : site number
+        
         Returns:
-            A dictinoary of sites sharing a common Voronoi facet with the site n
+            A dictionary of sites sharing a common Voronoi facet with the site n
             and their solid angle weights
         """
         
         localtarget = self._target
         center = self._structure[n]
-        neighbors = self._structure.get_sites_in_sphere(center.coords, self.default_cutoff)
+        neighbors = self._structure.get_sites_in_sphere(center.coords, VoronoiCoordFinder.default_cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key = lambda s : s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         closest = qvoronoi(qvoronoi_input)
@@ -78,14 +80,25 @@ class VoronoiCoordFinder:
     def get_coordination_number(self, n):
         """
         Returns the coordination number of site with index n.
+        
+        Args: 
+            n : site number
         """
         return sum(self.get_voronoi_polyhedra(n).values())
     
     def get_coordinated_sites(self, n, tol = 0, target = None):
         """
         Returns the sites that are in the coordination radius of site with index n.
+        
+        Args: 
+            n: site number
+            tol: tolerance to determine if a particular pair is considered a neighbor.
+            target: target element
+            
+        Returns:
+            Sites coordinating input site.
         """
-        coordinated_sites = ()
+        coordinated_sites = []
         for site, weight in self.get_voronoi_polyhedra(n).items():
             if weight > tol and (target == None or site.specie == target):
                 coordinated_sites.append(site)        

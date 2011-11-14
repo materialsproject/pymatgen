@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes to define electronic structure, such as the density of states, etc.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -342,13 +343,17 @@ class CompleteDos(Dos):
     def __str__(self):
         return "Complete DOS for "+str(self._structure)
     
-def plot_dos(dos_dict):
+def plot_dos(dos_dict, zero_at_efermi = True):
     import pylab
     color_order = ['r', 'b', 'g', 'y']
     count = 0
     for key,dos in dos_dict.items():
-        pylab.plot(dos.energies, dos.get_densities(Spin.up), color_order[count % 4], label=str(key) + ' up')
-        pylab.plot(dos.energies, -dos.get_densities(Spin.down), color_order[count % 4], label=str(key) + ' down')
+        energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
+        densities = dos.densities
+        if Spin.up in densities:
+            pylab.plot(energies, densities[Spin.up], color_order[count % 4], label=str(key) + ' up')
+        if Spin.down in densities:
+            pylab.plot(energies, - densities[Spin.down], color_order[count % 4], label=str(key) + ' down')
         count += 1
     
     pylab.xlabel('Energies (eV)', fontsize = 'large')

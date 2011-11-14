@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -30,9 +31,10 @@ class SymmOp (object):
         In general, this constructor should not be used unless you are 
         transferring rotations.  Use the static constructors instead to
         generate a SymmOp from proper rotations and translation.
-        Arguments:
-            affine_transformation_matrix - A 4x4 numpy.array representing an affine transformation.
-            tol - Tolerance for determining if matrices are equal.
+        
+        Args:
+            affine_transformation_matrix: A 4x4 numpy.array representing an affine transformation.
+            tol: Tolerance for determining if matrices are equal.
         """
         if affine_transformation_matrix.shape != (4,4):
             raise ValueError("Affine Matrix must be a 4x4 numpy array!")
@@ -42,11 +44,12 @@ class SymmOp (object):
     @staticmethod
     def from_rotation_matrix_and_translation_vector(rotation_matrix, translation_vec, tol = 0.1):
         """
-        Creates a symmetry operation from a rotatino matrix and a translation vector
-        Arguments:
-            rotation_matrix - a 3x3 numpy.array specifying a rotation matrix
-            translation_vec - a rank 1 numpy.array specifying a translation vector
-            tol - tolerance to determine if rotaiton matrix is valid
+        Creates a symmetry operation from a rotatino matrix and a translation vector.
+        
+        Args:
+            rotation_matrix: A 3x3 numpy.array specifying a rotation matrix
+            translation_vec: A rank 1 numpy.array specifying a translation vector
+            tol: tolerance to determine if rotation matrix is valid
         """
         if rotation_matrix.shape != (3,3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
@@ -77,7 +80,9 @@ class SymmOp (object):
     
     def operate(self, point):
         """
-        Arguments:
+        Apply the operation on a point.
+        
+        Args:
             point - a cartesian coordinate represented as a rank 1 numpy array of 3 elements.
         """
         affine_point = np.array([point[0],point[1],point[2],1])
@@ -87,7 +92,8 @@ class SymmOp (object):
     def apply_rotation_only(self, vector):
         """
         Vectors should only be operated by the rotation matrix and not the translation vector
-        Arguments:
+        
+        Args:
             vector - a rank 1 numpy array of 3 elements representing a vector.
         """
         return np.dot(self.rotation_matrix, vector)
@@ -95,7 +101,8 @@ class SymmOp (object):
     def are_symmetrically_related(self, point_a, point_b, tol = 0.001):
         """
         Checks if two points are symmetrically related.
-        Arguments:
+        
+        Args:
             point_a - Point a
             point_b - Point b
             tol - tolerance for checking.
@@ -148,7 +155,8 @@ class SymmOp (object):
     def from_axis_angle_and_translation(axis, angle, angle_in_radians = False, translation_vec = np.zeros(3)):
         """
         Generates a SymmOp for a rotation about a given axis plus a translation.
-        Arguments:
+        
+        Args:
             axis - The axis of rotation in cartesian space. For example, [1,0,0] indicates rotation about x-axis.
             angle - The angle of rotation.
             angle_in_radians - Set to True if angles are given in radians.  Else, units of degrees is assumed.
