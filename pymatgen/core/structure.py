@@ -1069,3 +1069,6 @@ class Composition (collections.Mapping, collections.Hashable):
         c = Composition.from_formula(reduced_formula)
         return c.to_dict
 
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
