@@ -122,13 +122,12 @@ class PDAnalyzer(object):
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
         ind = self._pd.elements.index(element)
         critical_chempots = []
-        if ind >= 0:
-            for facet in self._pd.facets:
-                complist = [self._pd.qhull_entries[i].composition for i in facet]
-                energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-                m = self._make_comp_matrix(complist)
-                chempots = np.dot(np.linalg.inv(m),energylist)
-                critical_chempots.append(chempots[ind])
+        for facet in self._pd.facets:
+            complist = [self._pd.qhull_entries[i].composition for i in facet]
+            energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+            m = self._make_comp_matrix(complist)
+            chempots = np.dot(np.linalg.inv(m),energylist)
+            critical_chempots.append(chempots[ind])
                 
         clean_pots = []
         for c in sorted(critical_chempots):
