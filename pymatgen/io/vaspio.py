@@ -408,11 +408,14 @@ class Incar(dict, VaspInput):
     @staticmethod
     def proc_val(key, val):
         list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
-        boolean_type_keys = ('LDAU', 'LWAVE')
-        number_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "EDIFF", "ICHARG", "NELM", "ISMEAR", "NPAR", "SIGMA", "LDAUPRINT", 'LMAXMIX')
-        
+        boolean_type_keys = ('LDAU', 'LWAVE','LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
+        float_type_keys = ("EDIFF", "SIGMA", 'TIME','ENCUTFOCK', 'HFSCREEN')
+        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG", "NELM", 
+                         "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX', 'ENCUT', 'NSIM',
+                         'NKRED', 'NUPDOWN', 'ISPIND')
+
         def smart_int_or_float(numstr):
-            if numstr.find(".") != -1:
+            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
             else:
                 return int(numstr)
@@ -437,8 +440,12 @@ class Incar(dict, VaspInput):
                         return False
                 raise ValueError(key + " should be a boolean type!")
             
-            if key in number_type_keys:
-                return smart_int_or_float(val)
+            if key in float_type_keys:
+                return float(val)
+            
+            if key in int_type_keys:
+                return int(val)
+            
         except:
             return val
               
@@ -664,8 +671,7 @@ class Vasprun(object):
     Attributes:
         Vasp results
         ------------
-        ionic_steps - All ionic steps in the run as a list of {'structure': structure at end of run, 
-                'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
+        ionic_steps - All ionic steps in the run as a list of {'structure': structure at end of run, 'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
         structures - List of Structure objects for the structure at each ionic step.
         tdos - Total dos calculated at the end of run.
         idos - Integrated dos calculated at the end of run.
@@ -1593,4 +1599,3 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
-

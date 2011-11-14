@@ -8,6 +8,8 @@ from pymatgen.util.string_utils import str_aligned
 # A convenience script engine using VaspObjects to do all manner of simple outputs.
 # Shyue
 
+
+
 def get_energies(mydir):
     all_data = []
     for (parent, subdirs, files) in os.walk(mydir):
