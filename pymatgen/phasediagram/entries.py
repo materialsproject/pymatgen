@@ -5,6 +5,8 @@ This module defines PDEntry, which wraps information (composition and energy) ne
 phase diagrams. 
 """
 
+from __future__ import division
+
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -24,7 +26,14 @@ class PDEntry (object):
     diagrams.
     Author: Shyue
     """
+    
     def __init__(self, comp, finalenergy, name = None):
+        """
+        Args:
+            comp - Composition as a pymatgen.core.structure.Composition
+            finalenergy - energy for composition.
+            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+        """
         self._finalenergy = float(finalenergy)
         self._composition = comp
         if name == None:
@@ -56,7 +65,7 @@ class PDEntry (object):
     @property
     def composition(self):
         """
-        Returns the composition, which is an dict of element-number.
+        Returns the composition.
         """
         return self._composition
 
@@ -80,7 +89,13 @@ class GrandPotPDEntry (PDEntry):
     diagrams.  Chemical potentials are given as a element-chemical potential dict.
     Author: Shyue
     """
-    def __init__(self, entry, chempots, name=None):
+    def __init__(self, entry, chempots, name = None):
+        """
+        Args:
+            entry - A PDEntry object containing the composition entry.
+            chempots - Chemical potential specification as {Element: float}.
+            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+        """
         comp = entry.composition
         self._original_entry = entry
         self._original_comp = comp
@@ -95,6 +110,9 @@ class GrandPotPDEntry (PDEntry):
 
     @property
     def original_entry(self):
+        '''
+        Original PDEntry object.
+        '''
         return self._original_entry
 
     @property
@@ -124,6 +142,14 @@ class PDEntryIO(object):
 
     @staticmethod
     def to_csv(filename, entries, latexify_names = False):
+        """
+        Exports PDEntries to a csv
+        
+        Args:
+            filename - Filename to write to.
+            entries - PDEntries to export.
+            latexify_names - Format entry names to be LaTex compatible, e.g., Li_{2}O
+        """
         import csv
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
@@ -138,6 +164,15 @@ class PDEntryIO(object):
 
     @staticmethod
     def from_csv(filename):
+        """
+        Imports PDEntries from a csv
+        
+        Args:
+            filename - Filename to import from.
+
+        Returns:
+            List of PDEntries
+        """
         import csv
         reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         entries = list()
@@ -156,26 +191,3 @@ class PDEntryIO(object):
                 entries.append(PDEntry(Composition(comp),finalenergy,name))
         elements = [Element(el) for el in elements]
         return (elements,entries)
-    
-    @staticmethod
-    def to_json(python_object):
-        if isinstance(python_object, PDEntry):
-            jsonentry = dict()
-            jsonentry['name'] = python_object.name
-            jsonentry['energy'] = python_object.energy
-            jsonentry['formulasum'] = python_object.composition.formula
-            return {'__class__': 'PDEntry',
-                    '__value__': jsonentry}
-        raise TypeError(repr(python_object) + ' is not JSON serializable')
-    
-    @staticmethod    
-    def from_json(json_object):
-        if '__class__' in json_object:
-            if json_object['__class__'] == 'PDEntry':
-                entrydef = json_object['__value__']
-                name = entrydef['name']
-                energy = entrydef['energy']
-                comp = Composition.from_formula(entrydef['formulasum'])
-                return PDEntry(comp,energy,name)
-        return json_object
-

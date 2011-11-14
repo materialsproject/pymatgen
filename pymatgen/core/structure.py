@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes used to define a structure, such as 
 Site, PeriodicSite, Structure, and Composition.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,7 +14,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
-
 
 import re
 import math
@@ -728,6 +728,18 @@ class Structure(collections.Sequence, collections.Hashable):
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
         return d
+    
+    @staticmethod
+    def from_dict(structure_dict):
+        lattice = Lattice(structure_dict['lattice']['matrix'])
+        species = []
+        coords = []
+            
+        for site_dict in structure_dict['sites']:
+            sp = site_dict['species'] 
+            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']} )
+            coords.append(site_dict['abc'])
+        return Structure(lattice, species, coords)
 
 class StructureError(Exception):
     
@@ -787,6 +799,7 @@ class Composition (collections.Mapping, collections.Hashable):
         if not any([isinstance(e, (Element,Specie)) for e in elmap.keys()]):
             raise TypeError("Keys must be instances of Element!")
         self._elmap = elmap.copy()
+        self._natoms = sum(self._elmap.values())
 
     @property
     def is_element(self):
@@ -967,7 +980,7 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
         Total number of atoms in Composition
         '''
-        return sum(self._elmap.values())
+        return self._natoms
     
     @property
     def weight(self):
@@ -983,7 +996,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns:
             Atomic fraction for element el in Composition
         '''
-        return self[el]/self.num_atoms
+        return self[el]/self._natoms
     
     def get_wt_fraction(self, el):
         '''

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-from __future__ import division
-
 '''
 Interface with command line qhull.
 Right now only tested on Linux systems.
 '''
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -19,6 +19,9 @@ import subprocess
 import re
 
 def run_qhull_command(command, data, proc_command = int, output_skip=1):
+    """
+    Helper function for actual qconvex and qvoronoi and qvertex commands.
+    """
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) +"\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])

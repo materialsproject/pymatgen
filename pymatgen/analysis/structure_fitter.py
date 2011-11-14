@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes to perform fitting of two structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -28,9 +29,15 @@ from pymatgen.core.structure_modifier import StructureEditor
 class StructureFitter(object):
     """
     Class to perform fitting of two structures
+    
+    Attributes:
+        fit_found - True if a fit was found
+        mapping_op - Operation that maps the two structures onto one another.  None if no fit was found.
+        structure_a - First structure
+        structure_b - Second structure
     """
 
-    def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, tol_partial_occup = 0.1, supercells_allowed = True, anonymized = False, order_disorder = False):
+    def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, supercells_allowed = True, anonymized = False):
         """
         Fits two structures.
         All fitting parameters have been set with defaults that should work in most cases.
@@ -38,20 +45,31 @@ class StructureFitter(object):
         E.g.,
         fitter = StructureFitter(a, b)
         print fitter
+        
+        Args:
+            structure_a : First structure
+            structure_b : Second structure to try to match with first structure
+            tolerance_cell_misfit : Tolerance for cell misfit. Default = 0.1
+            tolerance_atomic_misfit : Tolerance for atomic misfit. Default = 1.0.
+            supercells_allowed : Whether supercell structures are allowed.  Default = True.
+            anonymized : Whether to attempt matching of different species.  Setting this to true
+                         will allow any two structures with the same framework, but different species
+                         to match to each other. Default = False.
+            el_mapping : Element mapping for anonymized fits.
         """
     
         self._tolerance_cell_misfit = tolerance_cell_misfit
         self._tolerance_atomic_misfit = tolerance_atomic_misfit
-        self._tol_partial_occup = tol_partial_occup
         self._supercells_allowed = supercells_allowed
         self._anonymized = anonymized
-        self._order_disorder = order_disorder
         #Sort structures first so that they have the same arrangement of species
         self._structure_a = structure_a.get_sorted_structure()
         self._structure_b = structure_b.get_sorted_structure()
         self._mapping_op = None
         if not self._anonymized:
             self.fit(self._structure_a, self._structure_b)
+            if self.fit_found:
+                self.el_mapping = {el:el for el in self._structure_a.composition.elements}
         else:
             comp_a = structure_a.composition
             comp_b = structure_b.composition
@@ -251,10 +269,8 @@ class StructureFitter(object):
         output.append(str(self._structure_b))
         output.append("\nFitting parameters:")
         output.append("\tTolerance cell misfit = " + str(self._tolerance_cell_misfit))
-        output.append("\tTol partial occup = " + str(self._tol_partial_occup))
         output.append("\tSupercells allowed = " + str(self._supercells_allowed))
         output.append("\tAnonymized  = " + str(self._anonymized))
-        output.append("\tOrder disorder  = " + str(self._order_disorder))
         output.append("\nFitting " + ("succeeded " if self._mapping_op != None else "failed"))
         if self._mapping_op != None:
             output.append("\tMapping op = " + str(self._mapping_op))
@@ -318,18 +334,26 @@ class StructureFitter(object):
 
     @property
     def fit_found(self):
+        """
+        True if a fit was found.
+        """
         return self.mapping_op != None
 
     @property
-    def mapping_op(self):           
+    def mapping_op(self):
+        """
+        Operation mapping the two structures.  None if no fit was found.
+        """    
         return self._mapping_op
 
     @property
     def structure_a(self):
+        """First input structure"""
         return self._structure_a
 
     @property
     def structure_b(self):
+        """Second input structure"""
         return self._structure_b
 
 def apply_operation(structure, symmop):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module defines the classes relating to 3D lattices.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,49 +23,73 @@ class Lattice(object):
     A lattice object.  Essentially a matrix with conversion matrices.
     '''
     
-    def __init__(self,matrix):
+    def __init__(self, matrix):
         """
-        Create a matrix from a 2d list, e.g., [[1, 0, 0],[0, 1, 0], [0, 0, 1]] or numpy array
-        """
-        if isinstance(matrix, list):
-            self._matrix = np.array(matrix)
-        else:
-            self._matrix = np.copy(matrix)
+        Create a lattice from any sequence of 9 numbers. Note that the sequence is assumed to be read
+        one row at a time.  Each row represents one lattice vector.
         
-        if self._matrix.shape != (3,3):
-            raise ValueError("Lattice must be a 3x3 array.")
+        Args:
+            matrix - sequence of numbers in any form. Examples of acceptable input.
+                i) An actual numpy array.
+                ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
+                iii) [1,0,0,0,1,0,0,0,1]
+                iv) (1,0,0,0,1,0,0,0,1)
+        """
+        
+        self._matrix = np.array(matrix).reshape((3,3))
         #Store these matrices for faster access
         self._md2c = np.transpose(self._matrix)
         self._mc2d = npl.inv(np.transpose(self._matrix))
     
     @property
     def md2c(self):
+        '''Matrix for converting direct to cartesian coordinates'''
         return np.copy(self._md2c)
     
     @property
     def mc2d(self):
+        '''Matrix for converting cartesian to direct coordinates'''
         return np.copy(self._mc2d)
     
     @property
     def matrix(self):
+        '''Copy of matrix representing the Lattice'''
         return np.copy(self._matrix)
       
     def get_cartesian_coords(self, fractional_coords):
         """
-        Returns the cartesian coordinates given fractional coordinates
+        Returns the cartesian coordinates given fractional coordinates.
+        
+        Args:
+            fractional_coords : Fractional coords.
+            
+        Returns:
+            cartesian coordinates
         """
         return np.transpose(np.dot(self._md2c, np.transpose(fractional_coords)))
     
     def get_fractional_coords(self,cart_coords):
         """
         Returns the fractional coordinates given cartesian coordinates
+        
+        Args:
+            cartesian_coords : Cartesian coords.
+            
+        Returns:
+            fractional coordinates
         """
         return np.transpose(np.dot(self._mc2d, np.transpose(cart_coords)))
     
     @staticmethod
     def cubic(a):
         """
-        Returns a new cubic lattice of dimensions a x a x a
+        Returns a new cubic lattice of dimensions a x a x a.
+        
+        Args:
+            a - *a* lattice parameter
+            
+        Returns:
+            Cubic lattice of lattice parameter a.
         """
         return Lattice(np.array([[a, 0.0, 0.0],[0.0, a, 0.0],[0.0, 0.0, a]]))
     
@@ -107,8 +132,10 @@ class Lattice(object):
     def from_lengths_and_angles(abc,ang):
         '''
         Create a Lattice using unit cell lengths and angles (in degrees).
-        abc: lattice parameters
-        ang: lattice angles
+        
+        Args:
+            abc: lattice parameters, e.g. (4,4,5)
+            ang: lattice angles in degrees, e.g., (90,90,120)
         '''
         prim = np.zeros((3,3),float) #
         prim[0,0] = abc[0]
@@ -145,7 +172,7 @@ class Lattice(object):
         return Lattice([vector_a, vector_b, vector_c])
     
     @staticmethod
-    def new_from_dict(args):
+    def from_dict(args):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta, and gamma parameters.
         """
@@ -277,6 +304,7 @@ class Lattice(object):
     
     @property
     def to_dict(self):
+        '''dict representation of the Lattice'''
         d = {
         'matrix': self._matrix.tolist(),
         'a': self.a,

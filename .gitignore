@@ -1,11 +1,6 @@
 .DS_Store
-pymatgen*.tar.gz
+pymatgen.egg-info
 *.pyc
-pymatgen/*.pyc
-pymatgen/*/*.pyc
-pymatgen/*/*/*.pyc
-pymatgen/*/*/*/*.pyc
-pymatgen/*/*/*/*/*.pyc
-pymatgen/*/*/*/*/*/*.pyc
-pymatgen/*/*/*/*/*/*/*.pyc
 pymatgen/pymatgen.cfg
+dist
+docs

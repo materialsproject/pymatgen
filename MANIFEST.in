@@ -1,0 +1,4 @@
+include *.md *.sh
+recursive-include pymatgen *.py
+recursive-include scripts *.py
+prune **/**/tests
