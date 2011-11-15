@@ -33,10 +33,4 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-    pymatgen.io.tests
 

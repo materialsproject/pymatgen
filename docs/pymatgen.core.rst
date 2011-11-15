@@ -73,10 +73,4 @@ core Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-    pymatgen.core.tests
 
