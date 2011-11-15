@@ -171,12 +171,18 @@ class Dos(object):
     def get_interpolated_gap(self,tol=0.001,abs_tol=False,spin=None):
         """
         Expects a DOS object and finds the gap
-        Arguments
-            tol:    tolerance in occupations for determining the gap
-            absTol: is the tolerance an absolute tolerance (True) and a relative one (False)
-            spin:   None    - finds the ap in the summed densities
-                    Up      - finds the gap in the up spin channel
-                    Down    - finds the gap in teh down spin channel
+        
+        Arguments:
+            tol:
+                tolerance in occupations for determining the gap
+            abs_tol:
+                tolerance an absolute tolerance (True) and a relative one (False)
+            spin:
+                Possible values are:
+                    None - finds the ap in the summed densities
+                    Up - finds the gap in the up spin channel
+                    Down - finds the gap in teh down spin channel
+        
         Returns:
             (gap, cbm, vbm) :  tuple of floats in eV corresponding to the gap, cbm and vbm
         """
@@ -200,22 +206,27 @@ class Dos(object):
             end = f(tol)
             return end - start, end, start 
 
-    def get_cbm_vbm(self,tol=0.001,absTol=False,spin=None):
+    def get_cbm_vbm(self, tol = 0.001, abs_tol = False, spin = None):
         """
-        Expects a DOS object and finds the cbm and vbm
-        INPUTS
-        dos:    DOS object
-        tol:    tolerance in occupations for determining the gap
-        absTol: is the tolerance an absolute tolerance (True) and a relative one (False)
-        spin:   None    - finds the ap in the summed densities
-                Up      - finds the gap in the up spin channel
-                Down    - finds the gap in teh down spin channel
-        OUTPUTS
-            (cbm, vbm):    float in eV corresponding to the gap
+        Expects a DOS object and finds the cbm and vbm.
+        
+        Args:
+            tol: 
+                tolerance in occupations for determining the gap
+            abs_tol: 
+                an absolute tolerance (True) and a relative one (False)
+            spin:
+                Possible values are:
+                    None - finds the gap in the summed densities
+                    Up - finds the gap in the up spin channel
+                    Down - finds the gap in teh down spin channel
+        
+        Returns:
+            (cbm, vbm): float in eV corresponding to the gap
         """
         #determine tolerance
         tdos = self.get_densities(spin)
-        if absTol == False:
+        if abs_tol == False:
             tol = tol * tdos.sum() / tdos.shape[0]
     
         # find index of fermi energy
@@ -235,18 +246,23 @@ class Dos(object):
         i_gap_end -= 1
         return (self._energies[i_gap_end],self._energies[i_gap_start])
 
-    def get_gap(self,tol=0.001,abs_tol=False,spin=None):
+    def get_gap(self, tol = 0.001, abs_tol = False, spin = None):
         """
-        Expects a DOS object and finds the gap
-        INPUTS
-        dos:    DOS object
-        tol:    tolerance in occupations for determining the gap
-        absTol: is the tolerance an absolute tolerance (True) and a relative one (False)
-        spin:   None    - finds the ap in the summed densities
-                Up      - finds the gap in the up spin channel
-                Down    - finds the gap in teh down spin channel
-        OUTPUTS
-        gap:    float in eV corresponding to the gap
+        Expects a DOS object and finds the gap.
+        
+        Args:
+            tol: 
+                tolerance in occupations for determining the gap
+            abs_tol: 
+                an absolute tolerance (True) and a relative one (False)
+            spin:
+                Possible values are:
+                    None - finds the gap in the summed densities
+                    Up - finds the gap in the up spin channel
+                    Down - finds the gap in teh down spin channel
+        
+        Returns:
+            gap in eV
         """
         (cbm,vbm) = self.get_cbm_vbm(tol,abs_tol,spin)
         return max(cbm - vbm,0.0)
@@ -265,8 +281,7 @@ class Dos(object):
 
 class PDos(Dos):
     """
-    Projected DOS for a specific orbital
-    extends the DOS object
+    Projected DOS for a specific orbital. Extends the Dos object.
     """
     def __init__(self,efermi,energies,densities,orbital):
         Dos.__init__(self,efermi,energies,densities)
@@ -285,9 +300,12 @@ class CompleteDos(Dos):
     def __init__(self, structure, total_dos, pdoss):
         """
         Arguments:
-            structure - Structure associated with this particular DOS.
-            total_dos - total Dos for structure
-            pdoss - a list of array of Pdos.  pdoss corresponds to site order in structure 
+            structure:
+                Structure associated with this particular DOS.
+            total_dos:
+                total Dos for structure
+            pdoss:
+                a list of array of Pdos.  pdoss corresponds to site order in structure 
         """
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
@@ -313,11 +331,10 @@ class CompleteDos(Dos):
 
     def get_spd_dos(self):
         """
-        Given a list of PDOS objects of shape (nions, norbitals)
-        returns a list of DOS objects [s,p,d]
-        INPUTS:
-        pdoss:  list[ion,orbital] of pdos objects
-        interpolate:    if true DOS are interpolated on common sets of energies
+        Get orbital projected Dos.
+        
+        Returns:
+            dict of {orbital: Dos}, e.g. {'s': Dos object, ...}
         """
         spd_dos = dict()
         for atom_dos in self._pdos.values():
@@ -330,6 +347,13 @@ class CompleteDos(Dos):
         return spd_dos
 
     def get_element_dos(self):
+        """
+        Get element projected Dos.
+        
+        Returns:
+            dict of {Element: Dos}
+        """
+        
         el_dos = dict()
         for site, atom_dos in self._pdos.items():
             el = site.specie
@@ -344,6 +368,16 @@ class CompleteDos(Dos):
         return "Complete DOS for "+str(self._structure)
     
 def plot_dos(dos_dict, zero_at_efermi = True):
+    """
+    Plots a series of Dos using matplotlib.
+    
+    Args:
+        dos_dict:
+            dict of {label: Dos}
+        zero_at_efermi:
+            Whether to shift all Dos to have zero energy at the fermi energy.
+            Defaults to True.
+    """
     import pylab
     color_order = ['r', 'b', 'g', 'y']
     count = 0

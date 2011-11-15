@@ -51,15 +51,9 @@ class StructureEditor(StructureModifier):
     
     def __init__(self, structure):
         """
-        Create a supercell.
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            scaling_matrix - a matrix of transforming the lattice vectors.
-                             defaults to the identity matrix.
-                             Has to be all integers.
-                             e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                             with lattice vectors a' = 2a + b, b' = 3b, c' = c where
-                             a, b, and c are the lattice vectors of the original structure  
+            structure:
+                pymatgen.core.structure Structure object.
         """
         self._original_structure = structure
         self._lattice = structure.lattice
@@ -67,10 +61,12 @@ class StructureEditor(StructureModifier):
     
     def replace_species(self, species_mapping):
         """
-        Swap species in a structure
+        Swap species in a structure.
+        
         Arguments:
-            species_mapping - a dictionary of species to swap.  Species can be elements too.
-                               e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution 
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution.
         """
         
         def mod_site(site):
@@ -88,7 +84,8 @@ class StructureEditor(StructureModifier):
         Remove all occurrences of a species from a structure.
         
         Args:
-            species - species to remove
+            species:
+                species to remove
         """    
         new_sites = []
         for site in self._sites:
@@ -97,31 +94,40 @@ class StructureEditor(StructureModifier):
                 new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords, self._lattice))
         self._sites = new_sites
     
-    def append_site(self, species, coords, fractional_coord = True, validate_proximity = True): 
+    def append_site(self, species, coords, coords_are_cartesian = False, validate_proximity = True): 
         """
         Append a site to the structure at the end.
         
         Args:
-            species - species of inserted site
-            coords - coordinates of inserted site
-            fractional_coord - Whether coordinates are fractional. Defaults to True.
-            validate_proximity - Whether to check if inserted site is too close to an existing site. Defaults to True.
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            fractional_coord:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing site. Defaults to True.
         
         """       
-        self.insert_site(len(self._sites), species, coords, fractional_coord, validate_proximity = True)
+        self.insert_site(len(self._sites), species, coords, coords_are_cartesian, validate_proximity)
         
-    def insert_site(self, i, species, coords, fractional_coord = True, validate_proximity = True):
+    def insert_site(self, i, species, coords, coords_are_cartesian = False, validate_proximity = True):
         """
         Insert a site to the structure.
         
         Args:
-            i - index to insert site
-            species - species of inserted site
-            coords - coordinates of inserted site
-            fractional_coord - Whether coordinates are fractional. Defaults to True.
-            validate_proximity - Whether to check if inserted site is too close to an existing site. Defaults to True.
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing site. Defaults to True.
         """
-        if fractional_coord:
+        if not coords_are_cartesian:
             new_site = PeriodicSite(species,coords,self._lattice)
         else:
             new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords), self._lattice)
@@ -138,7 +144,8 @@ class StructureEditor(StructureModifier):
         Delete site at index i.
         
         Args:
-            i - index
+            i:
+                index of site to delete.
         """
         del(self._sites[i])
         
@@ -147,7 +154,8 @@ class StructureEditor(StructureModifier):
         Delete sites with at indices.
         
         Args:
-            indices - sequence of indices
+            indices:
+                sequence of indices of sites to delete.
         """
         self._sites = [self._sites[i] for i in xrange(len(self._sites)) if i not in indices]
     
@@ -158,7 +166,8 @@ class StructureEditor(StructureModifier):
         Coords are operated in full and then transformed to the new lattice.
         
         Args:
-            symmop - Symmetry operation to apply.
+            symmop:
+                Symmetry operation to apply.
         """        
         self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
         def operate_site(site):
@@ -171,8 +180,8 @@ class StructureEditor(StructureModifier):
         Modify the lattice of the structure.  Mainly used for changing the basis.
         
         Args:
-            new_lattice - New lattice
-        
+            new_lattice:
+                New lattice
         """
         self._lattice = new_lattice
         new_sites = []
@@ -196,14 +205,15 @@ class SupercellMaker(StructureModifier):
     def __init__(self, structure, scaling_matrix = [[1,0,0],[0,1,0],[0,0,1]]):
         """
         Create a supercell.
+        
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            scaling_matrix - a matrix of transforming the lattice vectors.
-                             defaults to the identity matrix.
-                             Has to be all integers.
-                             e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                             with lattice vectors a' = 2a + b, b' = 3b, c' = c where
-                             a, b, and c are the lattice vectors of the original structure  
+            structure:
+                pymatgen.core.structure Structure object.
+            scaling_matrix:
+                a matrix of transforming the lattice vectors. Defaults to the identity matrix.
+                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
+                with lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice 
+                vectors of the original structure. 
         """
         self._original_structure = structure
         old_lattice = structure.lattice
@@ -241,9 +251,10 @@ class OxidationStateDecorator(StructureModifier):
         Decorates a structure with oxidation states.
         
         Args:
-            structure - pymatgen.core.structure Structure object.
-            oxidation_states - a dictionary of oxidation states. 
-                               e.g., {"Li":1, "Fe":2, "P":5, "O": -2} 
+            structure:
+                pymatgen.core.structure Structure object.
+            oxidation_states:
+                dict of oxidation states. e.g., {"Li":1, "Fe":2, "P":5, "O": -2} 
         """
         self._original_structure = structure
         try:
@@ -267,10 +278,13 @@ class BasisChange(StructureModifier):
     
     def __init__(self, structure, new_lattice):
         """
-        express a given structure in a new basis
+        Express a given structure in a new basis.
+        
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            new_lattice - a pymatgen.core.Lattice object
+            structure:
+                pymatgen.core.structure Structure object.
+            new_lattice:
+                a pymatgen.core.Lattice object
         """
         self._original_structure = structure
         sp=[site.species_and_occu for site in structure._sites]
