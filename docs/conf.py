@@ -285,3 +285,5 @@ epub_copyright = u'2011, Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy 
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+sys.path.insert(0, os.path.dirname('..'))
+sys.path.insert(0, os.path.dirname('../pymatgen'))
