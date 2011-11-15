@@ -20,7 +20,7 @@ from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
 
 def _load__pt_data():
-    """Loads element data from yaml file"""
+    """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(module_dir,"periodic_table.json")) as f:
         return json.load(f)
@@ -48,7 +48,11 @@ class Element(object):
 
     def __init__(self,symbol):
         '''
-        Create immutable element from a symbol
+        Create immutable element from a symbol.
+        
+        Args:
+            symbol:
+                Element symbol, e.g., "H", "Fe"
         '''
         self._data = _pt_data[symbol]
         self._z = self._data['Atomic no']
@@ -272,7 +276,10 @@ class Element(object):
     @staticmethod
     def from_row_and_group(row,group):
         """
-        Returns an element from a row and group number.  Note that the 18 group number system is used, i.e. Noble gases are group 18.
+        Returns an element from a row and group number.  
+        
+        .. note::
+            The 18 group number system is used, i.e., Noble gases are group 18.
         """
         for sym in _pt_data.keys():
             el = Element(sym)
@@ -282,7 +289,15 @@ class Element(object):
 
     @staticmethod
     def is_valid_symbol(symbol):
-        """Returns true if symbol is a valid element symbol"""
+        """Returns true if symbol is a valid element symbol.
+        
+        Args:
+            symbol:
+                Element symbol
+        
+        Returns:
+            True if symbol is a valid element (e.g., "H"). False otherwise (e.g., "Zebra").
+        """
         return symbol in _pt_data
 
     @property
@@ -431,16 +446,20 @@ class Element(object):
 class Specie(object):
     """
     An extension of Element with an oxidation state.
-    Note that while Specie does not directly inherit from Element 
-    (because of certain implementation concerns due to the singleton nature of each element),
-    it does inherit all Element attributes and hence function exactly as an Element would.
+    
+    .. note::
+        While Specie does not directly inherit from Element  (because of certain implementation concerns 
+        due to the singleton nature of each element), it does inherit all Element attributes and hence 
+        function exactly as an Element would.
     """
            
     def __init__(self, symbol, oxidation_state):
         """
-        Arguments:
-            symbol - Element symbol, e.g., Fe
-            oxidation_state - e.g., 2 or -2
+        Args:
+            symbol:
+                Element symbol, e.g., Fe
+            oxidation_state:
+                Oxidation state of element, e.g., 2 or -2
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
@@ -448,7 +467,7 @@ class Specie(object):
     
     def __getattr__(self, attr):
         """
-        Trick to make Specie inherit all Element properties.
+        Override getattr to make Specie inherit all Element properties.
         """
         if hasattr(self._el, attr):
             return getattr(self._el,attr) 
@@ -482,7 +501,7 @@ class Specie(object):
     @property
     def oxi_state(self):
         """
-        Oxidation state.
+        Oxidation state of Specie.
         """
         return self._oxi_state
     
@@ -490,7 +509,16 @@ class Specie(object):
     def from_string(species_string):
         """
         Returns a Specie from a string representation. 
-        For example, Mn2+, Fe3+, O2-.
+        
+        Args:
+            species_string: 
+                A typical string representation of a species, e.g., "Mn2+", "Fe3+", "O2-".
+                
+        Returns:
+            A Specie object.
+            
+        Raises:
+            ValueError if species_string cannot be intepreted.
         """
         m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
         if m:
@@ -513,7 +541,9 @@ class Specie(object):
 @singleton
 class PeriodicTable(object):
     '''
-    Periodic table singleton class.
+    A Periodic table singleton class.
+    This class contains methods on the collection of all known elements.  
+    For example, printing all elements, etc.
     '''
 
     def __init__(self):
@@ -526,11 +556,24 @@ class PeriodicTable(object):
     def __getattr__(self, name):
         return self._all_elements[name]
     
+    @property
     def all_elements(self):
+        """
+        Returns the list of all known elements as Element objects.
+        """
         return self._all_elements.values()
 
     @staticmethod
     def print_periodic_table(filter_function = None):
+        """
+        A pretty ASCII printer for the periodic table, based on some filter_function.
+        
+        Args:
+            filter_function:
+                A filtering function taking an Element as input and returning a boolean.
+                For example, setting filter_function = lambda el: el.X > 2 will print
+                a periodic table containing only elements with electronegativity > 2.
+        """
         for row in range(1,10):
             for group in range(1,19):
                 el = Element.from_row_and_group(row,group)
@@ -546,6 +589,17 @@ def smart_element_or_specie(obj):
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
     If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn).
+    
+    Args:
+        obj:
+            An arbitrary object.  Supported objects are actual Element/Specie objects, 
+            integers (representing atomic numbers) or strings (element symbols or species strings).
+            
+    Returns:
+        Specie or Element, with a bias for the maximum number of properties that can be determined.
+        
+    Raises:
+        ValueError if obj cannot be converted into an Element or Specie.
     """
     if isinstance(obj,(Element, Specie)):
         return obj
