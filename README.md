@@ -38,7 +38,7 @@ Optional non-python libraries (because no good pythonic alternative exists at th
 3. (Recommended) Add pymatgen to your PYTHONPATH.
 4. (Recommended for developers) Copy hooks from the example-hooks directory into the .git/hooks/ directory in your local repo.  
 
-With these two basic steps, you should be able to use most of the pymatgen code.  I recommend that you start by reading some of the unittests in the tests subdirectory for each package.  The unittests demonstrate the expected behavior and functionality of the code.  
+With these two basic steps, you should be able to use most of the pymatgen code.  I recommend that you start by reading some of the unittests in the tests subdirectory for each package.  The unittests demonstrate the expected behavior and functionality of the code.
 
 However, some extra functionality do require additional setup, as outlined below.
 
@@ -47,3 +47,14 @@ For the code to generate POTCAR files, it needs to know where the VASP pseudopot
 
 1. cd to the root directory of the repo where a file called run_me_first.sh is present.
 2. Run the run_me_first.sh file, which will generate a resources directory in a location of your choosing. Please choose a location *outside* of the repo itself.  The script will also write a pymatgen.cfg file in the pymatgen subdir.
+
+## Basic usage ##
+
+Some example scripts have been provided in the scripts directory. In general, most file format conversions, manipulations and io can be done with a few quick lines of code. For example, to read a POSCAR and write a cif
+
+	from pymatgen.io.vaspio import Poscar
+	from pymatgen.io.cifio import CifWriter
+	
+	p = Poscar('POSCAR')
+	w = CifWriter(p.struct)
+	w.write_file('mystructure.cif')
