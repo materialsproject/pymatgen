@@ -26,7 +26,7 @@ API/Reference Docs
 --------------------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    pymatgen
 
