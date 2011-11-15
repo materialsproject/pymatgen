@@ -223,7 +223,7 @@ class PeriodicSite(Site):
     PeriodicSite includes a lattice system.
     """
 
-    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell=False, coords_are_cartesian = False):
+    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell = False, coords_are_cartesian = False):
         """
         Create a periodic site.
         
@@ -331,7 +331,7 @@ class PeriodicSite(Site):
         
         .. note::
             Assumes the primitive cell vectors are sufficiently not skewed such that the condition
-            |a|cos(ab_angle) < |b| for all possible cell vector pairs
+            \|a\|cos(ab_angle) < \|b\| for all possible cell vector pairs
             ** this method does not check this condition **
         """
         if jimage == None:
