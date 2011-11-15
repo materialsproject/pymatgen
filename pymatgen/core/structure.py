@@ -596,6 +596,12 @@ class Structure(collections.Sequence, collections.Hashable):
         
         2. keep points falling within r.
         
+        Arguments:
+            pt:
+                cartesian coordinates of center of sphere.
+            r:
+                radius of sphere.
+        
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing requires the distance.
         '''
@@ -628,6 +634,18 @@ class Structure(collections.Sequence, collections.Hashable):
     
     
     def get_neighbors(self, site, r):
+        """
+        Get all neighbors to a site within a sphere of radius r.  Excludes the site itself.
+        
+        Arguments:
+            site:
+                site, which is the center of the sphere.
+            r:
+                radius of sphere.
+        
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing requires the distance.
+        """
         return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
     
     def get_all_neighbors(self, r):
@@ -642,6 +660,14 @@ class Structure(collections.Sequence, collections.Hashable):
         supercell to contain all possible atoms out to a distance r.
         The return type is a [(site, dist) ...] since most of the time, subsequent 
         processing requires the distance.
+        
+        Arguments:
+            r:
+                radius of sphere.
+        
+        Returns:
+            A list of a list of nearest neighbors for each site, i.e., [[(site, dist) ...], ..] 
+        
         """
     
         #use same algorithm as getAtomsInSphere to determine supercell but
@@ -693,6 +719,17 @@ class Structure(collections.Sequence, collections.Hashable):
         """
         Returns all sites in a shell centered on origin (coords) between radii r-dr and r+dr.
         
+        Arguments:
+            origin:
+                cartesian coordinates of center of sphere.
+            r:
+                inner radius of shell.
+            dr: 
+                width of shell.
+        
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing requires the distance.
+        
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -727,13 +764,19 @@ class Structure(collections.Sequence, collections.Hashable):
         sortedsites = sorted(self.sites)
         return Structure(self._lattice,[site.species_and_occu for site in sortedsites],[site.frac_coords for site in sortedsites])
 
-    def interpolate(self,end_structure,numImages=10):
+    def interpolate(self, end_structure, nimages = 10):
         '''
-        Interpolate between this structure and end_structure.
-        Returns a list of interpolated structures.
-        Defaults to 10 images.
-        Added by: Shyue Ping Ong
-        Date: Aug 23 2010
+        Interpolate between this structure and end_structure. Useful for construction
+        NEB inputs.
+        
+        Args:
+            end_structure:
+                structure to interpolate between this structure and end.
+            nimages:
+                number of interpolation images. Defaults to 10 images.
+        
+        Returns:
+            List of interpolated structures.
         '''
         #Check length of structures
         if len(self) != len(end_structure):
@@ -753,7 +796,7 @@ class Structure(collections.Sequence, collections.Hashable):
 
         jimage=-np.array(np.around(end_coords-start_coords),int)
         vec = end_coords - start_coords + jimage
-        intStructs = [Structure(self.lattice,[site.species_and_occu for site in self._sites],start_coords + float(x)/float(numImages) * vec) for x in xrange(0,numImages+1)]
+        intStructs = [Structure(self.lattice,[site.species_and_occu for site in self._sites],start_coords + float(x)/float(nimages) * vec) for x in xrange(0,nimages+1)]
         return intStructs;
     
     @property
@@ -787,6 +830,7 @@ class Structure(collections.Sequence, collections.Hashable):
     
     @property
     def to_dict(self):
+        """Json-friendly, dict representation of Structure"""
         d = {}
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
@@ -794,6 +838,15 @@ class Structure(collections.Sequence, collections.Hashable):
     
     @staticmethod
     def from_dict(structure_dict):
+        """Reconstitute a Structure object from a dict representation of Structure created using to_dict.
+        
+        Arguments:
+            structure_dict: 
+                dict representation of structure.
+        
+        Returns:
+            Structure object
+        """
         lattice = Lattice(structure_dict['lattice']['matrix'])
         species = []
         coords = []
@@ -856,24 +909,29 @@ class Composition (collections.Mapping, collections.Hashable):
     """
     special_formulas = {'LiO':'Li2O2','NaO':'Na2O2','KO':'K2O2','HO':'H2O2', 'O':'O2','F':'F2','N':'N2','Cl':'Cl2', 'H':'H2'}
     
-    def __init__(self,elmap):
+    def __init__(self, elmap):
+        """
+        Args:
+            elmap: 
+                a dict of {Element/Specie: float} representing amounts of each element or specie.
+        """
         if any([e < 0 for e in elmap.values()]):
             raise ValueError("Amounts in Composition cannot be negative!")
         if not any([isinstance(e, (Element,Specie)) for e in elmap.keys()]):
-            raise TypeError("Keys must be instances of Element!")
+            raise TypeError("Keys must be instances of Element or Specie!")
         self._elmap = elmap.copy()
         self._natoms = sum(self._elmap.values())
 
     @property
     def is_element(self):
         '''
-        Returns true if composition is for an element
+        True if composition is for an element
         '''
         return len(self._elmap)==1
 
     def __getitem__(self,el):
         '''
-        Get the amount for element
+        Get the amount for element.
         '''
         return self._elmap.get(el, 0)
         
@@ -1055,7 +1113,8 @@ class Composition (collections.Mapping, collections.Hashable):
     def get_atomic_fraction(self, el):
         '''
         Arguments:
-            el - Element
+            el:
+                Element
         Returns:
             Atomic fraction for element el in Composition
         '''
@@ -1064,7 +1123,8 @@ class Composition (collections.Mapping, collections.Hashable):
     def get_wt_fraction(self, el):
         '''
         Arguments:
-            el - Element
+            el:
+                Element
         Returns:
             Weight fraction for element el in Composition
         '''
@@ -1074,7 +1134,8 @@ class Composition (collections.Mapping, collections.Hashable):
     def from_formula(formula):
         '''
         Arguments:
-            formula - A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            formula:
+                A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
         Returns:
             Composition with that formula.
         '''
@@ -1108,7 +1169,8 @@ class Composition (collections.Mapping, collections.Hashable):
     def from_dict(sym_dict):
         '''
         Arguments:
-            sym_dict - A element symbol: amount dict, e.g. {"Fe":2, "O":3}
+            sym_dict:
+                A element symbol: amount dict, e.g. {"Fe":2, "O":3}
         Returns:
             Composition with that formula.
         '''
