@@ -12,7 +12,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import re
 import StringIO
@@ -135,6 +135,13 @@ class CifParser:
         '''
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
+        
+        Arguments:
+            primitive:
+                Set to False to return conventional unit cells.  Defaults to True.
+        
+        Returns:
+            List of Structures.
         '''
         return [self._get_structure(v, primitive) for k, v in self._cif.items()]
     
@@ -146,7 +153,8 @@ class CifWriter:
     def __init__(self, struct):
         """
         Arguments:
-            struct - a pymatgen.core.structure.Structure object.
+            struct:
+                A pymatgen.core.structure.Structure object.
         """
         block = CifFile.CifBlock()
         latt = struct.lattice

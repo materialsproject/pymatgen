@@ -12,7 +12,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 def singleton(cls):
     """

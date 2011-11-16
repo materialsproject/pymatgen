@@ -180,7 +180,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
                 
-        lowestewald = 1e100
+        lowestewald = float('inf')
         lowestenergy_s = None
         all_structures = list()
         for indices in itertools.combinations(specie_indices, num_to_remove):
@@ -234,9 +234,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
         However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
         Arguments:
-            structure - Oxidation state decorated disordered structure to order
-            max_iterations - Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
-                             and there are too many orderings to enumerate.
+            structure:
+                Oxidation state decorated disordered structure to order
+            max_iterations:
+                Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
+                and there are too many orderings to enumerate.
         """
         ordered_sites = []
         
@@ -325,6 +327,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 def transformation_from_json(json_string):
     """
     A helper function that can simply get a transformation from a json representation.
+    
+    Arguments:
+        json_string:
+            A json string representation of a transformation with init args.
+    
+    Returns:
+        A properly initialized Transformation object
     """
     jsonobj = json.loads(json_string)
     trans = globals()[jsonobj['name']]

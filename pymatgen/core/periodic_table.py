@@ -6,11 +6,11 @@ Module contains classes presenting Element and Specie (Element + oxidation state
 
 __author__="Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import os
 import re
