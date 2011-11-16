@@ -49,7 +49,8 @@ class VaspParameterSet(object):
     def __init__(self, name = "MaterialsProject"):
         """
         Args:
-            name : Name of parameters set to use.  Defaults to MaterialsProject parameter set.
+            name: 
+                Name of parameters set to use.  Defaults to MaterialsProject parameter set.
         """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -68,11 +69,12 @@ class Poscar(VaspInput):
     """
     
     def __init__(self, struct, comment = None):
-        """
-        Creates a POSCAR file from a Structure object.
+        """        
         Arguments:
-            struct - Structure object. See pymatgen.core.structure.Structure.
-            comment - Optional comment line for POSCAR. Defaults to unit cell formula of structure.
+            struct:
+                Structure object. See pymatgen.core.structure.Structure.
+            comment:
+                Optional comment line for POSCAR. Defaults to unit cell formula of structure.
         """
 
         if struct.is_ordered:
@@ -117,14 +119,16 @@ class Poscar(VaspInput):
         """
         Reads a Poscar from a file.
         The code will try its best to determine the elements in the POSCAR in the following order:
-            i) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
-            ii) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
-            iii) Failing (i) and (ii), the code will try to check if a POTCAR is in the same directory as the POSCAR and use elements from that.
+        1. Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
+        2. Failing (1), the code will check if a symbol is provided at the end of each coordinate.
+        3. Failing (i) and (ii), the code will try to check if a POTCAR is in the same directory as the POSCAR and use elements from that.
         If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
         to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
         that does not require specific elemental properties should work fine.
+        
         Arguments:
             filename - file name containing Poscar data.
+        
         Returns:
             Poscar object.
         """
@@ -146,13 +150,16 @@ class Poscar(VaspInput):
         """
         Reads a Poscar from a string.
         The code will try its best to determine the elements in the POSCAR in the following order:
-            i) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
-            ii) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
+        1) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
+        2) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
         If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
         to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
         that does not require specific elemental properties should work fine.
+        
         Arguments:
-            string_data - string containing Poscar data.
+            string_data:
+                string containing Poscar data.
+                
         Returns:
             Poscar object.
         """
@@ -244,12 +251,17 @@ class Poscar(VaspInput):
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """
-        Returns a string to be written as a
-        POSCAR file. Site symbols are written
+        Returns a string to be written as a POSCAR file. By default, site symbols are written
         which means compatibilty is for vasp >= 5.
-        Optional arguments:
-            direct - Whether coordinates are output in direct or cartesian.
-            vasp4_compatible - Set to True to omit site symbols on 6th line to maintain backward vasp 4.x compatibility.
+        
+        Arguments:
+            direct:
+                Whether coordinates are output in direct or cartesian. Defaults to True.
+            vasp4_compatible:
+                Set to True to omit site symbols on 6th line to maintain backward vasp 4.x compatibility. Defaults to False.
+                
+        Returns:
+            String representation of POSCAR.
         """
         lines = []
         lines += [self.comment]
@@ -290,7 +302,8 @@ class Poscar(VaspInput):
     def write_file(self, filename):
         with open(filename, 'w') as f:
             f.write(str(self) + "\n")
-        
+
+"""**Non-exhaustive** list of valid INCAR tags"""
 VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS", "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG",
 "PREC", "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM", "NELMIN", "NELMDL", "EDIFF", "EDIFFG", "NSW", "NBLOCK",
 "KBLOCK", "IBRION", "NFREE", "POTIM", "ISIF", "PSTRESS", "IWAVPR", "ISYM", "SYMPREC", "LCORR", "TEBEG", "TEEND", "SMASS",
@@ -318,7 +331,8 @@ class Incar(dict, VaspInput):
     def __init__(self,params = dict()):
         """
         Creates an Incar object.
-        Optional arguments:
+        
+        Arguments:
             params - A set of input parameters as a dictionary.
         """
         super(Incar,self).__init__()
@@ -334,6 +348,16 @@ class Incar(dict, VaspInput):
         super(Incar,self).__setitem__(key.strip(), Incar.proc_val(key.strip(), val.strip()) if isinstance(val,basestring) else val)
 
     def get_string(self, sort_keys = False, pretty = False):
+        """
+        Returns a string representation of the INCAR.  The reason why this method is
+        different from the __str__ method is to provide options for pretty printing.
+        
+        Arguments:
+            sort_keys:
+                Set to True to sort the INCAR parameters alphabetically. Defaults to False.
+            pretty:
+                Set to True for pretty aligned output. Defaults to False.
+        """
         keys = self.keys()
         if sort_keys:
             keys = sorted(keys)
@@ -353,6 +377,12 @@ class Incar(dict, VaspInput):
     def from_structure(structure, parameter_set = VaspParameterSet()):
         """
         Generates an Incar from a structure and a VaspParameterSet.
+        
+        Arguments:
+            structure:
+                Structure object
+            parameter_set:
+                A VaspParameterSet
         """
         incar = Incar()
         poscar = Poscar(structure)
@@ -378,6 +408,10 @@ class Incar(dict, VaspInput):
     def write_file(self, filename):
         """
         Write Incar to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
         """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
@@ -407,6 +441,15 @@ class Incar(dict, VaspInput):
     
     @staticmethod
     def proc_val(key, val):
+        """
+        Static helper method to convert INCAR parameters to proper types, e.g. integers, floats, lists, etc.
+        
+        Arguments:
+            key:
+                INCAR parameter key
+            val:
+                Actual value of INCAR parameter.
+        """
         list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
         boolean_type_keys = ('LDAU', 'LWAVE','LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
         float_type_keys = ("EDIFF", "SIGMA", 'TIME','ENCUTFOCK', 'HFSCREEN')
@@ -508,6 +551,16 @@ class Kpoints(VaspInput):
 
     @staticmethod
     def from_file(filename):
+        """
+        Reads a Kpoints object from a KPOINTS file.
+        
+        Arguments:
+            filename:
+                filename to read from.
+                
+        Returns:
+            Kpoints object
+        """
         with file_open_zip_aware(filename) as f:
             lines = list(clean_lines(f.readlines(), False))
         kpoints = Kpoints()
@@ -535,6 +588,18 @@ class Kpoints(VaspInput):
 
     @staticmethod
     def from_structure(structure, parameter_set = VaspParameterSet()):
+        """
+        Generate a Kpoints object from a structure and parameter set.
+        
+        Arguments:
+            structure:
+                Structure to generate KPOINTS
+            parameter_set:
+                VaspParameterSet to use. Defaults to Materials Project set.
+                
+        Returns:
+            Kpoints object.
+        """
         recip = structure.lattice.reciprocal_lattice
         kpts = [[int(round(int(parameter_set.kpoints_settings['grid_density']) * recip.volume))]]
         
@@ -545,6 +610,13 @@ class Kpoints(VaspInput):
         return Kpoints(comment, num_kpts, style, kpts, [0,0,0])
         
     def write_file(self, filename):
+        """
+        Write Kpoints to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
@@ -561,6 +633,7 @@ class Kpoints(VaspInput):
     
     @property
     def to_dict(self):
+        """json friendly dict representation of Kpoints"""
         d = {'comment': self.comment, 'nkpoints' : self.num_kpts, 'generation_style' : self.style, 'kpoints': self.kpts, 'usershift': self.kpts_shift}
         optional_paras = ['genvec1', 'genvec2', 'genvec3', 'shift']
         for para in optional_paras:
@@ -637,6 +710,13 @@ class Potcar(list,VaspInput):
         return "\n".join([str(potcar) for potcar in self])
 
     def write_file(self, filename):
+        """
+        Write Potcar to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
@@ -669,33 +749,53 @@ class Vasprun(object):
     All data is stored as attributes, which are delegated to the VasprunHandler object.
     
     Attributes:
-        Vasp results
-        ------------
-        ionic_steps - All ionic steps in the run as a list of {'structure': structure at end of run, 'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
-        structures - List of Structure objects for the structure at each ionic step.
-        tdos - Total dos calculated at the end of run.
-        idos - Integrated dos calculated at the end of run.
-        pdos - List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
-        efermi - Fermi energy
-        eigenvalues - Final eigenvalues as a dict of {(kpoint index, Spin.up):[[eigenvalue, occu]]}. 
-                      This representation is probably not ideal, but since this is not used anywhere else for now, I leave it as such.
-                      Future developers who need to work with this should refactored the object into a sensible structure.
-        
-        Vasp inputs
-        -----------
-        incar - Incar object for parameters specified in INCAR file.
-        parameters - Incar object with parameters that vasp actually used, including all defaults.
-        kpoints = Kpoints object for KPOINTS specified in run.
-        actual_kpoints - List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333], [0.25, 0.375, 0.08333333], ....]
-        actual_kpoints_weights = List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]
-        atomic_symbols - List of atomic symbols, e.g., [u'Li', u'Fe', u'Fe', u'P', u'P', u'P']
-        potcar_symbols - List of POTCAR symbols. E.g., [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', ..]
     
-        Convenience attributes
-        ----------------------
+        **Vasp results**
         
+        ionic_steps: 
+            All ionic steps in the run as a list of {'structure': structure at end of run, 'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
+        structures: 
+            List of Structure objects for the structure at each ionic step.
+        tdos: 
+            Total dos calculated at the end of run.
+        idos: 
+            Integrated dos calculated at the end of run.
+        pdos: 
+            List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
+        efermi: 
+            Fermi energy
+        eigenvalues: 
+            Final eigenvalues as a dict of {(kpoint index, Spin.up):[[eigenvalue, occu]]}. 
+            This representation is probably not ideal, but since this is not used anywhere else for now, I leave it as such.
+            Future developers who need to work with this should refactored the object into a sensible structure.
+        
+        **Vasp inputs**
+        
+        incar:
+            Incar object for parameters specified in INCAR file.
+        parameters:
+            Incar object with parameters that vasp actually used, including all defaults.
+        kpoints:
+            Kpoints object for KPOINTS specified in run.
+        actual_kpoints:
+            List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333], [0.25, 0.375, 0.08333333], ....]
+        actual_kpoints_weights:
+            List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]
+        atomic_symbols:
+            List of atomic symbols, e.g., [u'Li', u'Fe', u'Fe', u'P', u'P', u'P']
+        potcar_symbols:
+            List of POTCAR symbols. E.g., [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', ..]
     
-    A few helper attributes have also been added to get commonly used results such as final energies.
+        **Convenience attributes**
+        
+        final_energy: 
+            Final energy from the run.
+        final_structure: 
+            Final relaxed structure.
+        initial_structure: 
+            Initial input structure.
+        complete_dos: 
+            CompleteDos object containing both the total and projected Dos from the run.
     
     Author: Shyue Ping Ong
     """
@@ -748,7 +848,7 @@ class Vasprun(object):
     @property
     def to_dict(self):
         """
-        Portable dict representation for Vasprun for transferring between different applications.
+        json-friendly dict representation for Vasprun for transferring between different applications.
         """
         d = {}
         d['vasp_version'] = self.vasp_version
@@ -977,10 +1077,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.potcar_symbols.append(self.val.getvalue().strip())
             elif name == "v":
                 if self.state['incar']:
-                    self.incar[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+                    self.incar[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                     self.incar_param = None
                 elif self.state['parameters']:
-                    self.parameters[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+                    self.parameters[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                 elif self.state['kpoints']:
                     if self.state['varray'] == 'kpointlist':
                         self.actual_kpoints.append([float(x) for x in re.split("\s+",self.val.getvalue().strip())])
@@ -1095,18 +1195,25 @@ def parse_parameters(val_type, val):
     else:
         return float(val)
 
-def parse_v_parameters(val_type, val, filename, param_name):
+def _parse_v_parameters(val_type, val, filename, param_name):
     """
     Helper function to convert a Vasprun array-type parameter into the proper type.
     Boolean, int and float types are converted.
     
     Args:
-        val_type : Value type parsed from vasprun.xml.
-        val : Actual string value parsed for vasprun.xml.
-        filename : Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
+        val_type: 
+            Value type parsed from vasprun.xml.
+        val: 
+            Actual string value parsed for vasprun.xml.
+        filename: 
+            Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
             if vasprun.xml contains *** for some Incar parameters, the code will try
             to read from an INCAR file present in the same directory.
-        param_name : Name of parameter.
+        param_name: 
+            Name of parameter.
+            
+    Returns:
+        Parsed value.
     """
     if val_type == "logical":
         val = [True if i == "T" else False for i in re.split("\s+", val)]
@@ -1116,7 +1223,7 @@ def parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
-            val = parse_from_incar(filename, param_name)
+            val = _parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
@@ -1127,12 +1234,12 @@ def parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
-            val = parse_from_incar(filename, param_name)
+            val = _parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
 
-def parse_from_incar(filename, key):
+def _parse_from_incar(filename, key):
     """
     Helper function to parse a parameter from the INCAR.
     """
@@ -1201,14 +1308,16 @@ class Outcar(object):
             self.charge = tuple(charge)
 
     def read_IGPAR(self):
-        """ Renders accessible:
-               er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
-               er_bp = e<r>_bp (dictionary with Spin.up/Spin.down as keys)
-               er_ev_tot = spin up + spin down summed
-               er_bp_tot = spin up + spin down summed
-               p_elc = spin up + spin down summed
-               p_ion = spin up + spin down summed
-            (See VASP section 'LBERRY,  IGPAR,  NPPSTR,  DIPOL tags' for info on what these are)"""
+        """ 
+        Renders accessible:
+            er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
+            er_bp = e<r>_bp (dictionary with Spin.up/Spin.down as keys)
+            er_ev_tot = spin up + spin down summed
+            er_bp_tot = spin up + spin down summed
+            p_elc = spin up + spin down summed
+            p_ion = spin up + spin down summed
+        
+        (See VASP section 'LBERRY,  IGPAR,  NPPSTR,  DIPOL tags' for info on what these are)"""
 
         # variables to be filled
         self.er_ev = {}  #  will  be  dict (Spin.up/down) of array(3*float)
@@ -1520,6 +1629,7 @@ class Chgcar(VolumetricData):
     def get_diff_int_charge_slow(self, ind, radius):
         """
         Deprecated.  **Much** slower algorithm for finding differential integrated charge.  Used mainly for testing purposes.
+        
         Args:
             ind : Index of atom.
             radius : Radius of integration.
