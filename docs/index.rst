@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pymatgen's documentation!
-====================================
+Welcome to pymatgen
+===================
 
 Pymatgen is the python library that powers the Materials Project (http://www.materialsproject.org). This repo contains the public version of this powerful library.  These are some of the key features:
 
@@ -21,9 +21,10 @@ Contents:
 
    installation
    usage
+   contributing
 
 API/Reference Docs
---------------------
+------------------
 
 .. toctree::
    :maxdepth: 2

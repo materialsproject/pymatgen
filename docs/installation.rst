@@ -1,8 +1,3 @@
-.. pymatgen documentation master file, created by
-   sphinx-quickstart on Tue Nov 15 00:13:52 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Installation instructions
 ====================================
 
@@ -15,8 +10,7 @@ Required for proper functioning of the code.
 1. Python 2.7+ required.  New default modules such as json are used, as well as new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively by all core modules.
 3. scipy 0.9+ - For interpolation, physical constants and other functions. In particular, scipy.spatial.Delaunay is used for phase diagram construction.
-4. PyYAML - For parsing of important PyYaml configuration files.
-5. nose - For complete unittesting. This is NOT optional!
+4. nose - For complete unittesting. This is NOT optional for developers!
 
 Optional Python Libraries
 -------------------------
@@ -32,17 +26,23 @@ Optional non-python libraries (because no good pythonic alternative exists at th
 
 1. Qhull (http://www.qhull.org/) : Needed for bond length analysis (structure_analyzer.py).  The executable qconvex and qvoronoi must be in the path.
 
-Basic Setup
-===========
+Basic Setup for Users
+=====================
 
-1. Clone the repo.
-2. Install the necessary python libraries.
-3. (Recommended) Add pymatgen to your PYTHONPATH.
-4. (Recommended for developers) Copy hooks from the example-hooks directory into the .git/hooks/ directory in your local repo.  
+pymatgen is now on PyPI (http://pypi.python.org/pypi/pymatgen).  You can now just do 
 
-With these two basic steps, you should be able to use most of the pymatgen code.  I recommend that you start by reading some of the unittests in the tests subdirectory for each package.  The unittests demonstrate the expected behavior and functionality of the code.
+::
 
-However, some extra functionality do require additional setup, as outlined below.
+	easy_install pymatgen
+	
+to install pymatgen with most of the dependencies set up. Alternatively, you can download the latest source and run 
+
+::
+
+	python setup.py install
+
+With these basic steps, you should be able to use most of the pymatgen code. However, some extra functionality do require additional setup, as outlined below.
+
 
 Generating POTCARs
 ------------------
@@ -52,18 +52,12 @@ For the code to generate POTCAR files, it needs to know where the VASP pseudopot
 1. cd to the root directory of the repo where a file called run_me_first.sh is present.
 2. Run the run_me_first.sh file, which will generate a resources directory in a location of your choosing. Please choose a location *outside* of the repo itself.  The script will also write a pymatgen.cfg file in the pymatgen subdir.
 
-Basic usage
-===========
+Basic Setup for Developers (using github)
+=========================================
 
-Some example scripts have been provided in the scripts directory. In general, most file format conversions, manipulations and io can be done with a few quick lines of code. For example, to read a POSCAR and write a cif:
+1. Clone the repo at http://github.com/CederGroupMIT/pymatgen_repo.
+2. Install the necessary python libraries.
+3. (Recommended) Add pymatgen to your PYTHONPATH.
+4. (Recommended) Copy hooks from the example-hooks directory into the .git/hooks/ directory in your local repo.  
 
-::
-
-	from pymatgen.io.vaspio import Poscar
-	from pymatgen.io.cifio import CifWriter
-
-	p = Poscar('POSCAR')
-	w = CifWriter(p.struct)
-	w.write_file('mystructure.cif')
-
-For more examples, please take a look in the scripts directory. More examples will be added soon.
+I recommend that you start by reading some of the unittests in the tests subdirectory for each package.  The unittests demonstrate the expected behavior and functionality of the code.
