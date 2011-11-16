@@ -363,18 +363,18 @@ class PeriodicSite(Site):
         if jimage == None:
             adj1 = np.array([- math.floor(i) for i in self._fcoords])
             adj2 = np.array([- math.floor(i) for i in fcoords])
-            mindist = 1e100
+            mindist = float('inf')
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
             test_set = [[-1,0] if coord1[i] < coord2[i] else [0,1] for i in xrange(3)]
             for image in itertools.product(*test_set):
-                dist = np.linalg.norm(self.lattice.get_cartesian_coords(coord2 + image - coord1))
+                dist = np.linalg.norm(self._lattice.get_cartesian_coords(coord2 + image - coord1))
                 if dist < mindist:
                     mindist = dist
                     jimage = adj2 - adj1 + image
             return mindist, jimage        
         return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + fcoords - self._fcoords)), jimage
-    
+
     def distance_and_image(self, other, jimage=None):
         """
         Gets distance and instance between two sites assuming periodic boundary conditions.
