@@ -4,7 +4,7 @@ setup (
   name = 'pymatgen',
   version = '1.0.5',
   packages = find_packages(),
-  install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW', 'PyYAML'],
+  install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW'],
 
   data_files=[('data', ['pymatgen/core/periodic_table.json']),
               ('config', ['pymatgen/io/VaspParameterSets.cfg'])],
