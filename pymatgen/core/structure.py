@@ -631,8 +631,7 @@ class Structure(collections.Sequence, collections.Hashable):
                     neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice), dists[i]))
         
         return neighbors
-    
-    
+       
     def get_neighbors(self, site, r):
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the site itself.

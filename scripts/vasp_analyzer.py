@@ -8,20 +8,34 @@ from pymatgen.util.string_utils import str_aligned
 # A convenience script engine using VaspObjects to do all manner of simple outputs.
 # Shyue
 
+import re
+from multiprocessing import Manager, Pool
 
+def get_vasprun_energy(args):
+    (rootdir, parent, f, all_data) = args
+    fullpath = os.path.join(parent, f)
+    displaydir = re.sub(re.escape(rootdir+'/'), "", fullpath)
+    try:
+        xmlrun = Vasprun(fullpath)
+        energy = xmlrun.final_energy
+        num_atoms = len(xmlrun.final_structure)            
+        all_data.append((displaydir, energy, energy/num_atoms))
+    except:
+        all_data.append((displaydir, 'NA', 'NA'))
 
-def get_energies(mydir):
-    all_data = []
-    for (parent, subdirs, files) in os.walk(mydir):
+def get_energies(rootdir):
+    manager = Manager()
+    all_data = manager.list()
+    all_args = []
+    for (parent, subdirs, files) in os.walk(rootdir):
         for f in files:
             if re.match("vasprun.xml.*", f):
-                fullpath = os.path.join(parent, f)
-                xmlrun = Vasprun(fullpath)
-                energy = xmlrun.final_energy
-                num_atoms = len(xmlrun.final_structure)            
-                all_data.append((fullpath.lstrip("./"), energy, energy/num_atoms))
+                all_args.append((rootdir,parent,f,all_data))
+    p = Pool(8)
+    p.map(get_vasprun_energy, all_args)
+    all_data = sorted(all_data, key=lambda x:x[0])
     print str_aligned(all_data, ("Directory", "Energy", "Energy/Atom"))
-    
+
 def get_magnetizations(mydir, ionList):
     print "%10s | %7s" % ("Ion", "Magmoms")
     print "-" * 20
