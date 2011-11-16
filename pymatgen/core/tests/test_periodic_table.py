@@ -51,6 +51,11 @@ class  ElementTestCase(unittest.TestCase):
         for i in xrange(1,93):
             for k in keys:
                 self.assertIsNotNone(getattr(Element.from_Z(i),k))
+            el = Element.from_Z(i)
+            if len(el.oxidation_states) > 0:
+                self.assertEqual(max(el.oxidation_states), el.max_oxidation_state)
+                self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
+            
     
     def test_oxidation_states(self):
         el = Element("Fe")

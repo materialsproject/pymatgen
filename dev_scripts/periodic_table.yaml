@@ -6,6 +6,7 @@ Ac:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 10070 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -18,6 +19,7 @@ Ac:
   Mineral hardness: no data
   Molar volume: 22.55 cm<sup>3</sup>
   Name: Actinium
+  Oxidation_states: [3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -28,8 +30,6 @@ Ac:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.1
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 Ag:
   Atomic mass: 107.8682
   Atomic no: 47
@@ -38,6 +38,7 @@ Ag:
   Brinell hardness: 24.5 MN m<sup>-2</sup>
   Bulk modulus: 100 GPa
   Coefficient of linear thermal expansion: 18.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: no data K
   Density of solid: 10490 kg m<sup>-3</sup>
   Electrical resistivity: 1.63 10<sup>-8</sup> &Omega; m
@@ -50,6 +51,7 @@ Ag:
   Mineral hardness: '2.5'
   Molar volume: 10.27 cm<sup>3</sup>
   Name: Silver
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: '0.37'
   Reflectivity: 97 %
   Refractive index: no data
@@ -60,8 +62,6 @@ Ag:
   Vickers hardness: 251 MN m<sup>-2</sup>
   X: 1.93
   Youngs modulus: 83 GPa
-  common_oxidation_states: [1]
-  oxidation_states: [1, 2, 3]
 Al:
   Atomic mass: 26.9815386
   Atomic no: 13
@@ -70,6 +70,7 @@ Al:
   Brinell hardness: 245 MN m<sup>-2</sup>
   Bulk modulus: 76 GPa
   Coefficient of linear thermal expansion: 23.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 2700 kg m<sup>-3</sup>
   Electrical resistivity: 2.7 10<sup>-8</sup> &Omega; m
@@ -82,6 +83,7 @@ Al:
   Mineral hardness: '2.75'
   Molar volume: 10.00 cm<sup>3</sup>
   Name: Aluminum
+  Oxidation_states: [1, 3]
   Poissons ratio: '0.35'
   Reflectivity: 71 %
   Refractive index: no data
@@ -92,8 +94,6 @@ Al:
   Vickers hardness: 167 MN m<sup>-2</sup>
   X: 1.61
   Youngs modulus: 70 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 3]
 Am:
   Atomic mass: 243.0
   Atomic no: 95
@@ -102,6 +102,7 @@ Am:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -114,6 +115,7 @@ Am:
   Mineral hardness: no data
   Molar volume: 17.63 cm<sup>3</sup>
   Name: Americium
+  Oxidation_states: [2, 3, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -124,8 +126,6 @@ Am:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3, 4, 5, 6]
 Ar: {Atomic mass: 39.948, Atomic no: 18, Atomic radius: 0.659, Boiling point: 87.3
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 150.8 K, Density of solid: no
@@ -145,6 +145,7 @@ As:
   Brinell hardness: 1440 MN m<sup>-2</sup>
   Bulk modulus: 22 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-3, 3, 5]
   Critical temperature: 1700 K
   Density of solid: 5727 kg m<sup>-3</sup>
   Electrical resistivity: 33 10<sup>-8</sup> &Omega; m
@@ -157,6 +158,7 @@ As:
   Mineral hardness: '3.5'
   Molar volume: 12.95 cm<sup>3</sup>
   Name: Arsenic
+  Oxidation_states: [-3, 2, 3, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001552'
@@ -167,8 +169,6 @@ As:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.18
   Youngs modulus: 8 GPa
-  common_oxidation_states: [-3, 3, 5]
-  oxidation_states: [-3, 2, 3, 5]
 At:
   Atomic mass: 210.0
   Atomic no: 85
@@ -177,6 +177,7 @@ At:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1, 1]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -189,6 +190,7 @@ At:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Astatine
+  Oxidation_states: [-1, 1, 3, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -199,8 +201,6 @@ At:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1, 1]
-  oxidation_states: [-1, 1, 3, 5]
 Au:
   Atomic mass: 196.966569
   Atomic no: 79
@@ -209,6 +209,7 @@ Au:
   Brinell hardness: 2450 MN m<sup>-2</sup>
   Bulk modulus: 220 GPa
   Coefficient of linear thermal expansion: 14.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 19300 kg m<sup>-3</sup>
   Electrical resistivity: 2.2 10<sup>-8</sup> &Omega; m
@@ -221,6 +222,7 @@ Au:
   Mineral hardness: '2.5'
   Molar volume: 10.21 cm<sup>3</sup>
   Name: Gold
+  Oxidation_states: [-1, 1, 2, 3, 5]
   Poissons ratio: '0.44'
   Reflectivity: 95 %
   Refractive index: no data
@@ -231,8 +233,6 @@ Au:
   Vickers hardness: 216 MN m<sup>-2</sup>
   X: 2.54
   Youngs modulus: 78 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [-1, 1, 2, 3, 5]
 B:
   Atomic mass: 10.811
   Atomic no: 5
@@ -241,6 +241,7 @@ B:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 320 GPa
   Coefficient of linear thermal expansion: 6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 2460 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>12</sup>10<sup>-8</sup> &Omega; m'
@@ -253,6 +254,7 @@ B:
   Mineral hardness: '9.3'
   Molar volume: 4.39 cm<sup>3</sup>
   Name: Boron
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -263,8 +265,6 @@ B:
   Vickers hardness: 49000 MN m<sup>-2</sup>
   X: 2.04
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Ba:
   Atomic mass: 137.327
   Atomic no: 56
@@ -273,6 +273,7 @@ Ba:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 9.6 GPa
   Coefficient of linear thermal expansion: 20.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 3510 kg m<sup>-3</sup>
   Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
@@ -285,6 +286,7 @@ Ba:
   Mineral hardness: '1.25'
   Molar volume: 38.16 cm<sup>3</sup>
   Name: Barium
+  Oxidation_states: [2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -295,8 +297,6 @@ Ba:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.89
   Youngs modulus: 13 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [2]
 Be:
   Atomic mass: 9.012182
   Atomic no: 4
@@ -305,6 +305,7 @@ Be:
   Brinell hardness: 600 MN m<sup>-2</sup>
   Bulk modulus: 130 GPa
   Coefficient of linear thermal expansion: 11.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 1848 kg m<sup>-3</sup>
   Electrical resistivity: 3.8 10<sup>-8</sup> &Omega; m
@@ -317,6 +318,7 @@ Be:
   Mineral hardness: '5.5'
   Molar volume: 4.85 cm<sup>3</sup>
   Name: Beryllium
+  Oxidation_states: [2]
   Poissons ratio: '0.032'
   Reflectivity: no data %
   Refractive index: no data
@@ -327,8 +329,6 @@ Be:
   Vickers hardness: 1670 MN m<sup>-2</sup>
   X: 1.57
   Youngs modulus: 287 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [2]
 Bi:
   Atomic mass: 208.9804
   Atomic no: 83
@@ -337,6 +337,7 @@ Bi:
   Brinell hardness: 94.2 MN m<sup>-2</sup>
   Bulk modulus: 31 GPa
   Coefficient of linear thermal expansion: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 9780 kg m<sup>-3</sup>
   Electrical resistivity: 130 10<sup>-8</sup> &Omega; m
@@ -349,6 +350,7 @@ Bi:
   Mineral hardness: '2.25'
   Molar volume: 21.31 cm<sup>3</sup>
   Name: Bismuth
+  Oxidation_states: [-3, 3, 5]
   Poissons ratio: '0.33'
   Reflectivity: no data %
   Refractive index: no data
@@ -359,8 +361,6 @@ Bi:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.02
   Youngs modulus: 32 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [-3, 3, 5]
 Bk:
   Atomic mass: 247.0
   Atomic no: 97
@@ -369,6 +369,7 @@ Bk:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 14780 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -381,6 +382,7 @@ Bk:
   Mineral hardness: no data
   Molar volume: 16.84 cm<sup>3</sup>
   Name: Berkelium
+  Oxidation_states: [3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -391,8 +393,6 @@ Bk:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3, 4]
 Br:
   Atomic mass: 79.904
   Atomic no: 35
@@ -401,6 +401,7 @@ Br:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 1.9 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1, 1, 3, 5, 7]
   Critical temperature: 586 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>18</sup>10<sup>-8</sup> &Omega; m'
@@ -413,6 +414,7 @@ Br:
   Mineral hardness: no data
   Molar volume: 19.78 cm<sup>3</sup>
   Name: Bromine
+  Oxidation_states: [-1, 1, 3, 4, 5, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001132'
@@ -423,8 +425,6 @@ Br:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.96
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1, 1, 3, 5, 7]
-  oxidation_states: [-1, 1, 3, 4, 5, 7]
 C:
   Atomic mass: 12.0107
   Atomic no: 6
@@ -433,6 +433,7 @@ C:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 33 GPa
   Coefficient of linear thermal expansion: 7.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-4, 4]
   Critical temperature: no data K
   Density of solid: 2267 kg m<sup>-3</sup>
   Electrical resistivity: about 1000 - direction dependent10<sup>-8</sup> &Omega;
@@ -446,6 +447,7 @@ C:
   Mineral hardness: 0.5 (graphite; diamond is 10.0)(no units)
   Molar volume: 5.29 cm<sup>3</sup>
   Name: Carbon
+  Oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: 27 %
   Refractive index: 2.417 (diamond)(no units)
@@ -456,8 +458,6 @@ C:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.55
   Youngs modulus: no data GPa
-  common_oxidation_states: [-4, 4]
-  oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
 Ca:
   Atomic mass: 40.078
   Atomic no: 20
@@ -466,6 +466,7 @@ Ca:
   Brinell hardness: 167 MN m<sup>-2</sup>
   Bulk modulus: 17 GPa
   Coefficient of linear thermal expansion: 22.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 1550 kg m<sup>-3</sup>
   Electrical resistivity: 3.4 10<sup>-8</sup> &Omega; m
@@ -478,6 +479,7 @@ Ca:
   Mineral hardness: '1.75'
   Molar volume: 26.20 cm<sup>3</sup>
   Name: Calcium
+  Oxidation_states: [2]
   Poissons ratio: '0.31'
   Reflectivity: no data %
   Refractive index: no data
@@ -488,8 +490,6 @@ Ca:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.0
   Youngs modulus: 20 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [2]
 Cd:
   Atomic mass: 112.411
   Atomic no: 48
@@ -498,6 +498,7 @@ Cd:
   Brinell hardness: 203 MN m<sup>-2</sup>
   Bulk modulus: 42 GPa
   Coefficient of linear thermal expansion: 30.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 8650 kg m<sup>-3</sup>
   Electrical resistivity: 7 10<sup>-8</sup> &Omega; m
@@ -510,6 +511,7 @@ Cd:
   Mineral hardness: '2.0'
   Molar volume: 13.00 cm<sup>3</sup>
   Name: Cadmium
+  Oxidation_states: [1, 2]
   Poissons ratio: '0.30'
   Reflectivity: 67 %
   Refractive index: no data
@@ -520,8 +522,6 @@ Cd:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.69
   Youngs modulus: 50 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [1, 2]
 Ce:
   Atomic mass: 140.116
   Atomic no: 58
@@ -530,6 +530,7 @@ Ce:
   Brinell hardness: 412 MN m<sup>-2</sup>
   Bulk modulus: 22 GPa
   Coefficient of linear thermal expansion: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3, 4]
   Critical temperature: no data K
   Density of solid: 6689 kg m<sup>-3</sup>
   Electrical resistivity: 74 10<sup>-8</sup> &Omega; m
@@ -542,6 +543,7 @@ Ce:
   Mineral hardness: '2.5'
   Molar volume: 20.69 cm<sup>3</sup>
   Name: Cerium
+  Oxidation_states: [2, 3, 4]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -552,8 +554,6 @@ Ce:
   Vickers hardness: 270 MN m<sup>-2</sup>
   X: 1.12
   Youngs modulus: 34 GPa
-  common_oxidation_states: [3, 4]
-  oxidation_states: [2, 3, 4]
 Cf:
   Atomic mass: 251.0
   Atomic no: 98
@@ -562,6 +562,7 @@ Cf:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 15100 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -574,6 +575,7 @@ Cf:
   Mineral hardness: no data
   Molar volume: 16.50 cm<sup>3</sup>
   Name: Californium
+  Oxidation_states: [2, 3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -584,8 +586,6 @@ Cf:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3, 4]
 Cl:
   Atomic mass: 35.453
   Atomic no: 17
@@ -594,6 +594,7 @@ Cl:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 1.1 (liquid)GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1, 1, 3, 5, 7]
   Critical temperature: 417 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>10</sup>10<sup>-8</sup> &Omega; m'
@@ -606,6 +607,7 @@ Cl:
   Mineral hardness: no data
   Molar volume: 17.39 cm<sup>3</sup>
   Name: Chlorine
+  Oxidation_states: [-1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.000773'
@@ -616,8 +618,6 @@ Cl:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.16
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1, 1, 3, 5, 7]
-  oxidation_states: [-1, 1, 2, 3, 4, 5, 6, 7]
 Cm:
   Atomic mass: 247.0
   Atomic no: 96
@@ -626,6 +626,7 @@ Cm:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 13510 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -638,6 +639,7 @@ Cm:
   Mineral hardness: no data
   Molar volume: 18.05 cm<sup>3</sup>
   Name: Curium
+  Oxidation_states: [3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -648,8 +650,6 @@ Cm:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3, 4]
 Co:
   Atomic mass: 58.933195
   Atomic no: 27
@@ -658,6 +658,7 @@ Co:
   Brinell hardness: 700 MN m<sup>-2</sup>
   Bulk modulus: 180 GPa
   Coefficient of linear thermal expansion: 13.0 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 3]
   Critical temperature: no data K
   Density of solid: 8900 kg m<sup>-3</sup>
   Electrical resistivity: 6 10<sup>-8</sup> &Omega; m
@@ -670,6 +671,7 @@ Co:
   Mineral hardness: '5.0'
   Molar volume: 6.67 cm<sup>3</sup>
   Name: Cobalt
+  Oxidation_states: [-1, 1, 2, 3, 4, 5]
   Poissons ratio: '0.31'
   Reflectivity: 67 %
   Refractive index: no data
@@ -680,8 +682,6 @@ Co:
   Vickers hardness: 1043 MN m<sup>-2</sup>
   X: 1.88
   Youngs modulus: 209 GPa
-  common_oxidation_states: [2, 3]
-  oxidation_states: [-1, 1, 2, 3, 4, 5]
 Cr:
   Atomic mass: 51.9961
   Atomic no: 24
@@ -690,6 +690,7 @@ Cr:
   Brinell hardness: 1120 MN m<sup>-2</sup>
   Bulk modulus: 160 GPa
   Coefficient of linear thermal expansion: 4.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3, 6]
   Critical temperature: no data K
   Density of solid: 7140 kg m<sup>-3</sup>
   Electrical resistivity: 12.7 10<sup>-8</sup> &Omega; m
@@ -702,6 +703,7 @@ Cr:
   Mineral hardness: '8.5'
   Molar volume: 7.23 cm<sup>3</sup>
   Name: Chromium
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -712,8 +714,6 @@ Cr:
   Vickers hardness: 1060 MN m<sup>-2</sup>
   X: 1.66
   Youngs modulus: 279 GPa
-  common_oxidation_states: [3, 6]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Cs:
   Atomic mass: 132.9054519
   Atomic no: 55
@@ -722,6 +722,7 @@ Cs:
   Brinell hardness: 0.14 MN m<sup>-2</sup>
   Bulk modulus: 1.6 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: 1938 K
   Density of solid: 1879 kg m<sup>-3</sup>
   Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
@@ -734,6 +735,7 @@ Cs:
   Mineral hardness: '0.2'
   Molar volume: 70.94 cm<sup>3</sup>
   Name: Cesium
+  Oxidation_states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -744,8 +746,6 @@ Cs:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.79
   Youngs modulus: 1.7 GPa
-  common_oxidation_states: [1]
-  oxidation_states: [1]
 Cu:
   Atomic mass: 63.546
   Atomic no: 29
@@ -754,6 +754,7 @@ Cu:
   Brinell hardness: 874 MN m<sup>-2</sup>
   Bulk modulus: 140 GPa
   Coefficient of linear thermal expansion: 16.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 8920 kg m<sup>-3</sup>
   Electrical resistivity: 1.72 10<sup>-8</sup> &Omega; m
@@ -766,6 +767,7 @@ Cu:
   Mineral hardness: '3.0'
   Molar volume: 7.11 cm<sup>3</sup>
   Name: Copper
+  Oxidation_states: [1, 2, 3, 4]
   Poissons ratio: '0.34'
   Reflectivity: 90 %
   Refractive index: no data
@@ -776,8 +778,6 @@ Cu:
   Vickers hardness: 369 MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 130 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [1, 2, 3, 4]
 Dy:
   Atomic mass: 162.5
   Atomic no: 66
@@ -786,6 +786,7 @@ Dy:
   Brinell hardness: 500 MN m<sup>-2</sup>
   Bulk modulus: 41 GPa
   Coefficient of linear thermal expansion: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 8551 kg m<sup>-3</sup>
   Electrical resistivity: 92.6 10<sup>-8</sup> &Omega; m
@@ -798,6 +799,7 @@ Dy:
   Mineral hardness: no data
   Molar volume: 19.01 cm<sup>3</sup>
   Name: Dysprosium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.25'
   Reflectivity: no data %
   Refractive index: no data
@@ -808,8 +810,6 @@ Dy:
   Vickers hardness: 540 MN m<sup>-2</sup>
   X: 1.22
   Youngs modulus: 61 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Er:
   Atomic mass: 167.259
   Atomic no: 68
@@ -818,6 +818,7 @@ Er:
   Brinell hardness: 814 MN m<sup>-2</sup>
   Bulk modulus: 44 GPa
   Coefficient of linear thermal expansion: 12.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 9066 kg m<sup>-3</sup>
   Electrical resistivity: 86.0 10<sup>-8</sup> &Omega; m
@@ -830,6 +831,7 @@ Er:
   Mineral hardness: no data
   Molar volume: 18.46 cm<sup>3</sup>
   Name: Erbium
+  Oxidation_states: [3]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -840,8 +842,6 @@ Er:
   Vickers hardness: 589 MN m<sup>-2</sup>
   X: 1.24
   Youngs modulus: 70 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 Es:
   Atomic mass: 252.0
   Atomic no: 99
@@ -850,6 +850,7 @@ Es:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -862,6 +863,7 @@ Es:
   Mineral hardness: no data
   Molar volume: 28.52 cm<sup>3</sup>
   Name: Einsteinium
+  Oxidation_states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -872,8 +874,6 @@ Es:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Eu:
   Atomic mass: 151.964
   Atomic no: 63
@@ -882,6 +882,7 @@ Eu:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 8.3 GPa
   Coefficient of linear thermal expansion: 35 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 3]
   Critical temperature: no data K
   Density of solid: 5244 kg m<sup>-3</sup>
   Electrical resistivity: 90 10<sup>-8</sup> &Omega; m
@@ -894,6 +895,7 @@ Eu:
   Mineral hardness: no data
   Molar volume: 28.97 cm<sup>3</sup>
   Name: Europium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.15'
   Reflectivity: no data %
   Refractive index: no data
@@ -903,8 +905,6 @@ Eu:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: 167 MN m<sup>-2</sup>
   Youngs modulus: 18 GPa
-  common_oxidation_states: [2, 3]
-  oxidation_states: [2, 3]
 F:
   Atomic mass: 18.9984032
   Atomic no: 9
@@ -913,6 +913,7 @@ F:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1]
   Critical temperature: 144 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -925,6 +926,7 @@ F:
   Mineral hardness: no data
   Molar volume: 11.20 cm<sup>3</sup>
   Name: Fluorine
+  Oxidation_states: [-1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.000195'
@@ -935,8 +937,6 @@ F:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.98
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1]
-  oxidation_states: [-1]
 Fe:
   Atomic mass: 55.845
   Atomic no: 26
@@ -945,6 +945,7 @@ Fe:
   Brinell hardness: 490 MN m<sup>-2</sup>
   Bulk modulus: 170 GPa
   Coefficient of linear thermal expansion: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 3]
   Critical temperature: no data K
   Density of solid: 7874 kg m<sup>-3</sup>
   Electrical resistivity: 10 10<sup>-8</sup> &Omega; m
@@ -957,6 +958,7 @@ Fe:
   Mineral hardness: '4.0'
   Molar volume: 7.09 cm<sup>3</sup>
   Name: Iron
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.29'
   Reflectivity: 65 %
   Refractive index: no data
@@ -967,8 +969,6 @@ Fe:
   Vickers hardness: 608 MN m<sup>-2</sup>
   X: 1.83
   Youngs modulus: 211 GPa
-  common_oxidation_states: [2, 3]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Fm:
   Atomic mass: 257.0
   Atomic no: 100
@@ -977,6 +977,7 @@ Fm:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -989,6 +990,7 @@ Fm:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Fermium
+  Oxidation_states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -999,8 +1001,6 @@ Fm:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Fr:
   Atomic mass: 223.0
   Atomic no: 87
@@ -1009,6 +1009,7 @@ Fr:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1021,6 +1022,7 @@ Fr:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Francium
+  Oxidation_states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1031,8 +1033,6 @@ Fr:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.7
   Youngs modulus: no data GPa
-  common_oxidation_states: [1]
-  oxidation_states: [1]
 Ga:
   Atomic mass: 69.723
   Atomic no: 31
@@ -1041,6 +1041,7 @@ Ga:
   Brinell hardness: 60 MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 120 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 5904 kg m<sup>-3</sup>
   Electrical resistivity: about  14 10<sup>-8</sup> &Omega; m
@@ -1053,6 +1054,7 @@ Ga:
   Mineral hardness: '1.5'
   Molar volume: 11.80 cm<sup>3</sup>
   Name: Gallium
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1063,8 +1065,6 @@ Ga:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.81
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Gd:
   Atomic mass: 157.25
   Atomic no: 64
@@ -1073,6 +1073,7 @@ Gd:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 38 GPa
   Coefficient of linear thermal expansion: 9.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 7901 kg m<sup>-3</sup>
   Electrical resistivity: 131 10<sup>-8</sup> &Omega; m
@@ -1085,6 +1086,7 @@ Gd:
   Mineral hardness: no data
   Molar volume: 19.90 cm<sup>3</sup>
   Name: Gadolinium
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -1095,8 +1097,6 @@ Gd:
   Vickers hardness: 570 MN m<sup>-2</sup>
   X: 1.2
   Youngs modulus: 55 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Ge:
   Atomic mass: 72.64
   Atomic no: 32
@@ -1105,6 +1105,7 @@ Ge:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-4, 2, 4]
   Critical temperature: no data K
   Density of solid: 5323 kg m<sup>-3</sup>
   Electrical resistivity: about 5000010<sup>-8</sup> &Omega; m
@@ -1117,6 +1118,7 @@ Ge:
   Mineral hardness: '6.0'
   Molar volume: 13.63 cm<sup>3</sup>
   Name: Germanium
+  Oxidation_states: [-4, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1127,8 +1129,6 @@ Ge:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.01
   Youngs modulus: no data GPa
-  common_oxidation_states: [-4, 2, 4]
-  oxidation_states: [-4, 1, 2, 3, 4]
 H:
   Atomic mass: 1.00794
   Atomic no: 1
@@ -1137,6 +1137,7 @@ H:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1, 1]
   Critical temperature: 33 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1149,6 +1150,7 @@ H:
   Mineral hardness: no data
   Molar volume: 11.42 cm<sup>3</sup>
   Name: Hydrogen
+  Oxidation_states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000132 (gas; liquid 1.12)(no units)
@@ -1159,8 +1161,6 @@ H:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1, 1]
-  oxidation_states: [-1, 1]
 He: {Atomic mass: 4.002602, Atomic no: 2, Atomic radius: 0.291, Boiling point: 4.22
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 5.19 K, Density of solid: no
@@ -1180,6 +1180,7 @@ Hf:
   Brinell hardness: 1700 MN m<sup>-2</sup>
   Bulk modulus: 110 GPa
   Coefficient of linear thermal expansion: 5.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 13310 kg m<sup>-3</sup>
   Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
@@ -1192,6 +1193,7 @@ Hf:
   Mineral hardness: '5.5'
   Molar volume: 13.44 cm<sup>3</sup>
   Name: Hafnium
+  Oxidation_states: [2, 3, 4]
   Poissons ratio: '0.37'
   Reflectivity: no data %
   Refractive index: no data
@@ -1202,8 +1204,6 @@ Hf:
   Vickers hardness: 1760 MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: 78 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [2, 3, 4]
 Hg:
   Atomic mass: 200.59
   Atomic no: 80
@@ -1212,6 +1212,7 @@ Hg:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 25 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1, 2]
   Critical temperature: 1750 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: 96 10<sup>-8</sup> &Omega; m
@@ -1224,6 +1225,7 @@ Hg:
   Mineral hardness: '1.5'
   Molar volume: 14.09 cm<sup>3</sup>
   Name: Mercury
+  Oxidation_states: [1, 2, 4]
   Poissons ratio: no data
   Reflectivity: 73 %
   Refractive index: '1.000933'
@@ -1234,8 +1236,6 @@ Hg:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.0
   Youngs modulus: no data GPa
-  common_oxidation_states: [1, 2]
-  oxidation_states: [1, 2, 4]
 Ho:
   Atomic mass: 164.93032
   Atomic no: 67
@@ -1244,6 +1244,7 @@ Ho:
   Brinell hardness: 746 MN m<sup>-2</sup>
   Bulk modulus: 40 GPa
   Coefficient of linear thermal expansion: 11.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 8795 kg m<sup>-3</sup>
   Electrical resistivity: 81.4 10<sup>-8</sup> &Omega; m
@@ -1256,6 +1257,7 @@ Ho:
   Mineral hardness: no data
   Molar volume: 18.74 cm<sup>3</sup>
   Name: Holmium
+  Oxidation_states: [3]
   Poissons ratio: '0.23'
   Reflectivity: no data %
   Refractive index: no data
@@ -1266,8 +1268,6 @@ Ho:
   Vickers hardness: 481 MN m<sup>-2</sup>
   X: 1.23
   Youngs modulus: 65 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 I:
   Atomic mass: 126.90447
   Atomic no: 53
@@ -1276,6 +1276,7 @@ I:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 7.7 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-1, 1, 3, 5, 7]
   Critical temperature: 819 K
   Density of solid: 4940 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>15</sup>10<sup>-8</sup> &Omega; m'
@@ -1288,6 +1289,7 @@ I:
   Mineral hardness: no data
   Molar volume: 25.72 cm<sup>3</sup>
   Name: Iodine
+  Oxidation_states: [-1, 1, 3, 5, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1298,8 +1300,6 @@ I:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.66
   Youngs modulus: no data GPa
-  common_oxidation_states: [-1, 1, 3, 5, 7]
-  oxidation_states: [-1, 1, 3, 5, 7]
 In:
   Atomic mass: 114.818
   Atomic no: 49
@@ -1308,6 +1308,7 @@ In:
   Brinell hardness: 8.83 MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 32.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 7310 kg m<sup>-3</sup>
   Electrical resistivity: 8 10<sup>-8</sup> &Omega; m
@@ -1320,6 +1321,7 @@ In:
   Mineral hardness: '1.2'
   Molar volume: 15.76 cm<sup>3</sup>
   Name: Indium
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1330,8 +1332,6 @@ In:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.78
   Youngs modulus: 11 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Ir:
   Atomic mass: 192.217
   Atomic no: 77
@@ -1340,6 +1340,7 @@ Ir:
   Brinell hardness: 1670 MN m<sup>-2</sup>
   Bulk modulus: 320 GPa
   Coefficient of linear thermal expansion: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3, 4]
   Critical temperature: no data K
   Density of solid: 22650 kg m<sup>-3</sup>
   Electrical resistivity: 4.7 10<sup>-8</sup> &Omega; m
@@ -1352,6 +1353,7 @@ Ir:
   Mineral hardness: '6.5'
   Molar volume: 8.52 cm<sup>3</sup>
   Name: Iridium
+  Oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.26'
   Reflectivity: 78 %
   Refractive index: no data
@@ -1362,8 +1364,6 @@ Ir:
   Vickers hardness: 1760 MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 528 GPa
-  common_oxidation_states: [3, 4]
-  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6]
 K:
   Atomic mass: 39.0983
   Atomic no: 19
@@ -1372,6 +1372,7 @@ K:
   Brinell hardness: 0.363 MN m<sup>-2</sup>
   Bulk modulus: 3.1 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: 2223 K
   Density of solid: 856 kg m<sup>-3</sup>
   Electrical resistivity: 7.5 10<sup>-8</sup> &Omega; m
@@ -1384,6 +1385,7 @@ K:
   Mineral hardness: '0.4'
   Molar volume: 45.94 cm<sup>3</sup>
   Name: Potassium
+  Oxidation_states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1394,8 +1396,6 @@ K:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.82
   Youngs modulus: no data GPa
-  common_oxidation_states: [1]
-  oxidation_states: [-1, 1]
 Kr: {Atomic mass: 83.798, Atomic no: 36, Atomic radius: 0.795, Boiling point: 119.93
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 209.4 K, Density of solid: no
@@ -1415,6 +1415,7 @@ La:
   Brinell hardness: 363 MN m<sup>-2</sup>
   Bulk modulus: 28 GPa
   Coefficient of linear thermal expansion: 12.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 6146 kg m<sup>-3</sup>
   Electrical resistivity: 61.5 10<sup>-8</sup> &Omega; m
@@ -1427,6 +1428,7 @@ La:
   Mineral hardness: '2.5'
   Molar volume: 22.39 cm<sup>3</sup>
   Name: Lanthanum
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -1437,8 +1439,6 @@ La:
   Vickers hardness: 491 MN m<sup>-2</sup>
   X: 1.1
   Youngs modulus: 37 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Li:
   Atomic mass: 6.941
   Atomic no: 3
@@ -1447,6 +1447,7 @@ Li:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 11 GPa
   Coefficient of linear thermal expansion: 46 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: 3223 K
   Density of solid: 535 kg m<sup>-3</sup>
   Electrical resistivity: 9.5 10<sup>-8</sup> &Omega; m
@@ -1459,6 +1460,7 @@ Li:
   Mineral hardness: '0.6'
   Molar volume: 13.02 cm<sup>3</sup>
   Name: Lithium
+  Oxidation_states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1469,8 +1471,6 @@ Li:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.98
   Youngs modulus: 4.9 GPa
-  common_oxidation_states: [1]
-  oxidation_states: [1]
 Lr:
   Atomic mass: 262.0
   Atomic no: 103
@@ -1479,6 +1479,7 @@ Lr:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1491,6 +1492,7 @@ Lr:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Lawrencium
+  Oxidation_states: [3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1500,8 +1502,6 @@ Lr:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: no data MN m<sup>-2</sup>
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 Lu:
   Atomic mass: 174.967
   Atomic no: 71
@@ -1510,6 +1510,7 @@ Lu:
   Brinell hardness: 893 MN m<sup>-2</sup>
   Bulk modulus: 48 GPa
   Coefficient of linear thermal expansion: 9.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 9841 kg m<sup>-3</sup>
   Electrical resistivity: 58 10<sup>-8</sup> &Omega; m
@@ -1522,6 +1523,7 @@ Lu:
   Mineral hardness: no data
   Molar volume: 17.78 cm<sup>3</sup>
   Name: Lutetium
+  Oxidation_states: [3]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -1532,8 +1534,6 @@ Lu:
   Vickers hardness: 1160 MN m<sup>-2</sup>
   X: 1.27
   Youngs modulus: 69 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 Md:
   Atomic mass: 258.0
   Atomic no: 101
@@ -1542,6 +1542,7 @@ Md:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1554,6 +1555,7 @@ Md:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Mendelevium
+  Oxidation_states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1564,8 +1566,6 @@ Md:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Mg:
   Atomic mass: 24.305
   Atomic no: 12
@@ -1574,6 +1574,7 @@ Mg:
   Brinell hardness: 260 MN m<sup>-2</sup>
   Bulk modulus: 45 GPa
   Coefficient of linear thermal expansion: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 1738 kg m<sup>-3</sup>
   Electrical resistivity: 4.4 10<sup>-8</sup> &Omega; m
@@ -1586,6 +1587,7 @@ Mg:
   Mineral hardness: '2.5'
   Molar volume: 14.00 cm<sup>3</sup>
   Name: Magnesium
+  Oxidation_states: [1, 2]
   Poissons ratio: '0.29'
   Reflectivity: 74 %
   Refractive index: no data
@@ -1596,8 +1598,6 @@ Mg:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.31
   Youngs modulus: 45 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [1, 2]
 Mn:
   Atomic mass: 54.938045
   Atomic no: 25
@@ -1606,6 +1606,7 @@ Mn:
   Brinell hardness: 196 MN m<sup>-2</sup>
   Bulk modulus: 120 GPa
   Coefficient of linear thermal expansion: 21.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 4, 7]
   Critical temperature: no data K
   Density of solid: 7470 kg m<sup>-3</sup>
   Electrical resistivity: 144 10<sup>-8</sup> &Omega; m
@@ -1618,6 +1619,7 @@ Mn:
   Mineral hardness: '6.0'
   Molar volume: 7.35 cm<sup>3</sup>
   Name: Manganese
+  Oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1628,8 +1630,6 @@ Mn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.55
   Youngs modulus: 198 GPa
-  common_oxidation_states: [2, 4, 7]
-  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
 Mo:
   Atomic mass: 95.94
   Atomic no: 42
@@ -1638,6 +1638,7 @@ Mo:
   Brinell hardness: 1500 MN m<sup>-2</sup>
   Bulk modulus: 230 GPa
   Coefficient of linear thermal expansion: 4.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4, 6]
   Critical temperature: no data K
   Density of solid: 10280 kg m<sup>-3</sup>
   Electrical resistivity: 5.5 10<sup>-8</sup> &Omega; m
@@ -1650,6 +1651,7 @@ Mo:
   Mineral hardness: '5.5'
   Molar volume: 9.38 cm<sup>3</sup>
   Name: Molybdenum
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.31'
   Reflectivity: 58 %
   Refractive index: no data
@@ -1660,8 +1662,6 @@ Mo:
   Vickers hardness: 1530 MN m<sup>-2</sup>
   X: 2.16
   Youngs modulus: 329 GPa
-  common_oxidation_states: [4, 6]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 N:
   Atomic mass: 14.0067
   Atomic no: 7
@@ -1670,6 +1670,7 @@ N:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-3, 3, 5]
   Critical temperature: 126.2 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1682,6 +1683,7 @@ N:
   Mineral hardness: no data
   Molar volume: 13.54 cm<sup>3</sup>
   Name: Nitrogen
+  Oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000298 (gas; liquid 1.197)(no units)
@@ -1692,8 +1694,6 @@ N:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.04
   Youngs modulus: no data GPa
-  common_oxidation_states: [-3, 3, 5]
-  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
 Na:
   Atomic mass: 22.98976928
   Atomic no: 11
@@ -1702,6 +1702,7 @@ Na:
   Brinell hardness: 0.69 MN m<sup>-2</sup>
   Bulk modulus: 6.3 GPa
   Coefficient of linear thermal expansion: 71 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: 2573 K
   Density of solid: 968 kg m<sup>-3</sup>
   Electrical resistivity: 4.9 10<sup>-8</sup> &Omega; m
@@ -1714,6 +1715,7 @@ Na:
   Mineral hardness: '0.5'
   Molar volume: 23.78 cm<sup>3</sup>
   Name: Sodium
+  Oxidation_states: [-1, 1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1724,8 +1726,6 @@ Na:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.93
   Youngs modulus: 10 GPa
-  common_oxidation_states: [1]
-  oxidation_states: [-1, 1]
 Nb:
   Atomic mass: 92.90638
   Atomic no: 41
@@ -1734,6 +1734,7 @@ Nb:
   Brinell hardness: 736 MN m<sup>-2</sup>
   Bulk modulus: 170 GPa
   Coefficient of linear thermal expansion: 7.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [5]
   Critical temperature: no data K
   Density of solid: 8570 kg m<sup>-3</sup>
   Electrical resistivity: 15.2 10<sup>-8</sup> &Omega; m
@@ -1746,6 +1747,7 @@ Nb:
   Mineral hardness: '6.0'
   Molar volume: 10.83 cm<sup>3</sup>
   Name: Niobium
+  Oxidation_states: [-1, 2, 3, 4, 5]
   Poissons ratio: '0.40'
   Reflectivity: no data %
   Refractive index: no data
@@ -1756,8 +1758,6 @@ Nb:
   Vickers hardness: 1320 MN m<sup>-2</sup>
   X: 1.6
   Youngs modulus: 105 GPa
-  common_oxidation_states: [5]
-  oxidation_states: [-1, 2, 3, 4, 5]
 Nd:
   Atomic mass: 144.242
   Atomic no: 60
@@ -1766,6 +1766,7 @@ Nd:
   Brinell hardness: 265 MN m<sup>-2</sup>
   Bulk modulus: 32 GPa
   Coefficient of linear thermal expansion: 9.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 6800 kg m<sup>-3</sup>
   Electrical resistivity: 64.3 10<sup>-8</sup> &Omega; m
@@ -1778,6 +1779,7 @@ Nd:
   Mineral hardness: no data
   Molar volume: 20.59 cm<sup>3</sup>
   Name: Neodymium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -1788,8 +1790,6 @@ Nd:
   Vickers hardness: 343 MN m<sup>-2</sup>
   X: 1.14
   Youngs modulus: 41 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Ne: {Atomic mass: 20.1797, Atomic no: 10, Atomic radius: 0.354, Boiling point: 27.07
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 44.4 K, Density of solid: no
@@ -1809,6 +1809,7 @@ Ni:
   Brinell hardness: 700 MN m<sup>-2</sup>
   Bulk modulus: 180 GPa
   Coefficient of linear thermal expansion: 13.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 8908 kg m<sup>-3</sup>
   Electrical resistivity: 7.2 10<sup>-8</sup> &Omega; m
@@ -1821,6 +1822,7 @@ Ni:
   Mineral hardness: '4.0'
   Molar volume: 6.59 cm<sup>3</sup>
   Name: Nickel
+  Oxidation_states: [-1, 1, 2, 3, 4]
   Poissons ratio: '0.31'
   Reflectivity: 72 %
   Refractive index: no data
@@ -1831,8 +1833,6 @@ Ni:
   Vickers hardness: 638 MN m<sup>-2</sup>
   X: 1.91
   Youngs modulus: 200 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [-1, 1, 2, 3, 4]
 'No':
   Atomic mass: 259.0
   Atomic no: 102
@@ -1841,6 +1841,7 @@ Ni:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1853,6 +1854,7 @@ Ni:
   Mineral hardness: no data
   Molar volume: no data cm<sup>3</sup>
   Name: Nobelium
+  Oxidation_states: [2, 3]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1863,8 +1865,6 @@ Ni:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Np:
   Atomic mass: 237.0
   Atomic no: 93
@@ -1873,6 +1873,7 @@ Np:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [5]
   Critical temperature: no data K
   Density of solid: 20450 kg m<sup>-3</sup>
   Electrical resistivity: 120 10<sup>-8</sup> &Omega; m
@@ -1885,6 +1886,7 @@ Np:
   Mineral hardness: no data
   Molar volume: 11.59 cm<sup>3</sup>
   Name: Neptunium
+  Oxidation_states: [3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -1895,8 +1897,6 @@ Np:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.36
   Youngs modulus: no data GPa
-  common_oxidation_states: [5]
-  oxidation_states: [3, 4, 5, 6, 7]
 O:
   Atomic mass: 15.9994
   Atomic no: 8
@@ -1905,6 +1905,7 @@ O:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-2]
   Critical temperature: 154.6 K
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
@@ -1917,6 +1918,7 @@ O:
   Mineral hardness: no data
   Molar volume: 17.36 cm<sup>3</sup>
   Name: Oxygen
+  Oxidation_states: [-2, -1, 1, 2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: 1.000271 (gas; liquid 1.221)(no units)
@@ -1927,8 +1929,6 @@ O:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.44
   Youngs modulus: no data GPa
-  common_oxidation_states: [-2]
-  oxidation_states: [-2, -1, 1, 2]
 Os:
   Atomic mass: 190.23
   Atomic no: 76
@@ -1937,6 +1937,7 @@ Os:
   Brinell hardness: 3920 MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 5.1 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 22610 kg m<sup>-3</sup>
   Electrical resistivity: 8.1 10<sup>-8</sup> &Omega; m
@@ -1949,6 +1950,7 @@ Os:
   Mineral hardness: '7.0'
   Molar volume: 8.42 cm<sup>3</sup>
   Name: Osmium
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
   Poissons ratio: '0.25'
   Reflectivity: no data %
   Refractive index: no data
@@ -1959,8 +1961,6 @@ Os:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
-  common_oxidation_states: [4]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
 P:
   Atomic mass: 30.973762
   Atomic no: 15
@@ -1969,6 +1969,7 @@ P:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 11 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-3, 3, 5]
   Critical temperature: 994 K
   Density of solid: 1823 kg m<sup>-3</sup>
   Electrical resistivity: about 10 10<sup>-8</sup> &Omega; m
@@ -1981,6 +1982,7 @@ P:
   Mineral hardness: no data
   Molar volume: 17.02 cm<sup>3</sup>
   Name: Phosphorus
+  Oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001212'
@@ -1991,8 +1993,6 @@ P:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.19
   Youngs modulus: no data GPa
-  common_oxidation_states: [-3, 3, 5]
-  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
 Pa:
   Atomic mass: 231.03588
   Atomic no: 91
@@ -2001,6 +2001,7 @@ Pa:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [5]
   Critical temperature: no data K
   Density of solid: 15370 kg m<sup>-3</sup>
   Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
@@ -2013,6 +2014,7 @@ Pa:
   Mineral hardness: no data
   Molar volume: 15.18 cm<sup>3</sup>
   Name: Protactinium
+  Oxidation_states: [3, 4, 5]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2023,8 +2025,6 @@ Pa:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.5
   Youngs modulus: no data GPa
-  common_oxidation_states: [5]
-  oxidation_states: [3, 4, 5]
 Pb:
   Atomic mass: 207.2
   Atomic no: 82
@@ -2033,6 +2033,7 @@ Pb:
   Brinell hardness: 38.3 MN m<sup>-2</sup>
   Bulk modulus: 46 GPa
   Coefficient of linear thermal expansion: 28.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 4]
   Critical temperature: no data K
   Density of solid: 11340 kg m<sup>-3</sup>
   Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
@@ -2045,6 +2046,7 @@ Pb:
   Mineral hardness: '1.5'
   Molar volume: 18.26 cm<sup>3</sup>
   Name: Lead
+  Oxidation_states: [-4, 2, 4]
   Poissons ratio: '0.44'
   Reflectivity: no data %
   Refractive index: no data
@@ -2055,8 +2057,6 @@ Pb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.33
   Youngs modulus: 16 GPa
-  common_oxidation_states: [2, 4]
-  oxidation_states: [-4, 2, 4]
 Pd:
   Atomic mass: 106.42
   Atomic no: 46
@@ -2065,6 +2065,7 @@ Pd:
   Brinell hardness: 37.3 MN m<sup>-2</sup>
   Bulk modulus: 180 GPa
   Coefficient of linear thermal expansion: 11.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 4]
   Critical temperature: no data K
   Density of solid: 12023 kg m<sup>-3</sup>
   Electrical resistivity: 10.8 10<sup>-8</sup> &Omega; m
@@ -2077,6 +2078,7 @@ Pd:
   Mineral hardness: '4.75'
   Molar volume: 8.56 cm<sup>3</sup>
   Name: Palladium
+  Oxidation_states: [2, 4]
   Poissons ratio: '0.39'
   Reflectivity: 72 %
   Refractive index: no data
@@ -2087,8 +2089,6 @@ Pd:
   Vickers hardness: 461 MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 121 GPa
-  common_oxidation_states: [2, 4]
-  oxidation_states: [2, 4]
 Pm:
   Atomic mass: 145.0
   Atomic no: 61
@@ -2097,6 +2097,7 @@ Pm:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 33 GPa
   Coefficient of linear thermal expansion: 11 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 7264 kg m<sup>-3</sup>
   Electrical resistivity: about 75 10<sup>-8</sup> &Omega; m
@@ -2109,6 +2110,7 @@ Pm:
   Mineral hardness: no data
   Molar volume: 20.23 cm<sup>3</sup>
   Name: Promethium
+  Oxidation_states: [3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -2118,8 +2120,6 @@ Pm:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: no data MN m<sup>-2</sup>
   Youngs modulus: 46 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [3]
 Po:
   Atomic mass: 210.0
   Atomic no: 84
@@ -2128,6 +2128,7 @@ Po:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-2, 2, 4]
   Critical temperature: no data K
   Density of solid: 9196 kg m<sup>-3</sup>
   Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
@@ -2140,6 +2141,7 @@ Po:
   Mineral hardness: no data
   Molar volume: 22.97 cm<sup>3</sup>
   Name: Polonium
+  Oxidation_states: [-2, 2, 4, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2150,8 +2152,6 @@ Po:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.0
   Youngs modulus: no data GPa
-  common_oxidation_states: [-2, 2, 4]
-  oxidation_states: [-2, 2, 4, 6]
 Pr:
   Atomic mass: 140.90765
   Atomic no: 59
@@ -2160,6 +2160,7 @@ Pr:
   Brinell hardness: 481 MN m<sup>-2</sup>
   Bulk modulus: 29 GPa
   Coefficient of linear thermal expansion: 6.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 6640 kg m<sup>-3</sup>
   Electrical resistivity: 70 10<sup>-8</sup> &Omega; m
@@ -2172,6 +2173,7 @@ Pr:
   Mineral hardness: no data
   Molar volume: 20.80 cm<sup>3</sup>
   Name: Praseodymium
+  Oxidation_states: [2, 3, 4]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -2182,8 +2184,6 @@ Pr:
   Vickers hardness: 400 MN m<sup>-2</sup>
   X: 1.13
   Youngs modulus: 37 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3, 4]
 Pt:
   Atomic mass: 195.084
   Atomic no: 78
@@ -2192,6 +2192,7 @@ Pt:
   Brinell hardness: 392 MN m<sup>-2</sup>
   Bulk modulus: 230 GPa
   Coefficient of linear thermal expansion: 8.8 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2, 4]
   Critical temperature: no data K
   Density of solid: 21090 kg m<sup>-3</sup>
   Electrical resistivity: 10.6 10<sup>-8</sup> &Omega; m
@@ -2204,6 +2205,7 @@ Pt:
   Mineral hardness: '3.5'
   Molar volume: 9.09 cm<sup>3</sup>
   Name: Platinum
+  Oxidation_states: [-2, 2, 4, 5, 6]
   Poissons ratio: '0.38'
   Reflectivity: 73 %
   Refractive index: no data
@@ -2214,8 +2216,6 @@ Pt:
   Vickers hardness: 549 MN m<sup>-2</sup>
   X: 2.28
   Youngs modulus: 168 GPa
-  common_oxidation_states: [2, 4]
-  oxidation_states: [-2, 2, 4, 5, 6]
 Pu:
   Atomic mass: 244.0
   Atomic no: 94
@@ -2224,6 +2224,7 @@ Pu:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 19816 kg m<sup>-3</sup>
   Electrical resistivity: 150 10<sup>-8</sup> &Omega; m
@@ -2236,6 +2237,7 @@ Pu:
   Mineral hardness: no data
   Molar volume: 12.29 cm<sup>3</sup>
   Name: Plutonium
+  Oxidation_states: [3, 4, 5, 6, 7]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -2246,8 +2248,6 @@ Pu:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.28
   Youngs modulus: 96 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [3, 4, 5, 6, 7]
 Ra:
   Atomic mass: 226.0
   Atomic no: 88
@@ -2256,6 +2256,7 @@ Ra:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 5000 kg m<sup>-3</sup>
   Electrical resistivity: 100 10<sup>-8</sup> &Omega; m
@@ -2268,6 +2269,7 @@ Ra:
   Mineral hardness: no data
   Molar volume: 41.09 cm<sup>3</sup>
   Name: Radium
+  Oxidation_states: [2]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2278,8 +2280,6 @@ Ra:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.9
   Youngs modulus: no data GPa
-  common_oxidation_states: [2]
-  oxidation_states: [2]
 Rb:
   Atomic mass: 85.4678
   Atomic no: 37
@@ -2288,6 +2288,7 @@ Rb:
   Brinell hardness: 0.216 MN m<sup>-2</sup>
   Bulk modulus: 2.5 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1]
   Critical temperature: 2093 K
   Density of solid: 1532 kg m<sup>-3</sup>
   Electrical resistivity: 13.3 10<sup>-8</sup> &Omega; m
@@ -2300,6 +2301,7 @@ Rb:
   Mineral hardness: '0.3'
   Molar volume: 55.76 cm<sup>3</sup>
   Name: Rubidium
+  Oxidation_states: [1]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2310,8 +2312,6 @@ Rb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.82
   Youngs modulus: 2.4 GPa
-  common_oxidation_states: [1]
-  oxidation_states: [1]
 Re:
   Atomic mass: 186.207
   Atomic no: 75
@@ -2320,6 +2320,7 @@ Re:
   Brinell hardness: 1320 MN m<sup>-2</sup>
   Bulk modulus: 370 GPa
   Coefficient of linear thermal expansion: 6.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 21020 kg m<sup>-3</sup>
   Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
@@ -2332,6 +2333,7 @@ Re:
   Mineral hardness: '7.0'
   Molar volume: 8.86 cm<sup>3</sup>
   Name: Rhenium
+  Oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: '0.30'
   Reflectivity: no data %
   Refractive index: no data
@@ -2342,8 +2344,6 @@ Re:
   Vickers hardness: 2450 MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 463 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
 Rh:
   Atomic mass: 102.9055
   Atomic no: 45
@@ -2352,6 +2352,7 @@ Rh:
   Brinell hardness: 1100 MN m<sup>-2</sup>
   Bulk modulus: 380 GPa
   Coefficient of linear thermal expansion: 8.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 12450 kg m<sup>-3</sup>
   Electrical resistivity: 4.3 10<sup>-8</sup> &Omega; m
@@ -2364,6 +2365,7 @@ Rh:
   Mineral hardness: '6.0'
   Molar volume: 8.28 cm<sup>3</sup>
   Name: Rhodium
+  Oxidation_states: [-1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.26'
   Reflectivity: 84 %
   Refractive index: no data
@@ -2374,8 +2376,6 @@ Rh:
   Vickers hardness: 1246 MN m<sup>-2</sup>
   X: 2.28
   Youngs modulus: 275 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [-1, 1, 2, 3, 4, 5, 6]
 Rn: {Atomic mass: 220.0, Atomic no: 86, Atomic radius: 1.09, Boiling point: 211.3
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 377 K, Density of solid: no
@@ -2395,6 +2395,7 @@ Ru:
   Brinell hardness: 2160 MN m<sup>-2</sup>
   Bulk modulus: 220 GPa
   Coefficient of linear thermal expansion: 6.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3, 4]
   Critical temperature: no data K
   Density of solid: 12370 kg m<sup>-3</sup>
   Electrical resistivity: 7.1 10<sup>-8</sup> &Omega; m
@@ -2407,6 +2408,7 @@ Ru:
   Mineral hardness: '6.5'
   Molar volume: 8.17 cm<sup>3</sup>
   Name: Ruthenium
+  Oxidation_states: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
   Poissons ratio: '0.30'
   Reflectivity: no data %
   Refractive index: no data
@@ -2417,8 +2419,6 @@ Ru:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 447 GPa
-  common_oxidation_states: [3, 4]
-  oxidation_states: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
 S:
   Atomic mass: 32.065
   Atomic no: 16
@@ -2427,6 +2427,7 @@ S:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 7.7 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-2, 2, 4, 6]
   Critical temperature: 1314 K
   Density of solid: 1960 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m'
@@ -2439,6 +2440,7 @@ S:
   Mineral hardness: '2.0'
   Molar volume: 15.53 cm<sup>3</sup>
   Name: Sulfur
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: '1.001111'
@@ -2449,8 +2451,6 @@ S:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.58
   Youngs modulus: no data GPa
-  common_oxidation_states: [-2, 2, 4, 6]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Sb:
   Atomic mass: 121.76
   Atomic no: 51
@@ -2459,6 +2459,7 @@ Sb:
   Brinell hardness: 294 MN m<sup>-2</sup>
   Bulk modulus: 42 GPa
   Coefficient of linear thermal expansion: 11 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-3, 3, 5]
   Critical temperature: no data K
   Density of solid: 6697 kg m<sup>-3</sup>
   Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
@@ -2471,6 +2472,7 @@ Sb:
   Mineral hardness: '3.0'
   Molar volume: 18.19 cm<sup>3</sup>
   Name: Antimony
+  Oxidation_states: [-3, 3, 5]
   Poissons ratio: no data
   Reflectivity: 55 %
   Refractive index: no data
@@ -2481,8 +2483,6 @@ Sb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.05
   Youngs modulus: 55 GPa
-  common_oxidation_states: [-3, 3, 5]
-  oxidation_states: [-3, 3, 5]
 Sc:
   Atomic mass: 44.955912
   Atomic no: 21
@@ -2491,6 +2491,7 @@ Sc:
   Brinell hardness: 750 MN m<sup>-2</sup>
   Bulk modulus: 57 GPa
   Coefficient of linear thermal expansion: 10.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 2985 kg m<sup>-3</sup>
   Electrical resistivity: about 55 10<sup>-8</sup> &Omega; m
@@ -2503,6 +2504,7 @@ Sc:
   Mineral hardness: no data
   Molar volume: 15.00 cm<sup>3</sup>
   Name: Scandium
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -2513,8 +2515,6 @@ Sc:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.36
   Youngs modulus: 74 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Se:
   Atomic mass: 78.96
   Atomic no: 34
@@ -2523,6 +2523,7 @@ Se:
   Brinell hardness: 736 MN m<sup>-2</sup>
   Bulk modulus: 8.3 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-2, 2, 4, 6]
   Critical temperature: 1766 K
   Density of solid: 4819 kg m<sup>-3</sup>
   Electrical resistivity: high10<sup>-8</sup> &Omega; m
@@ -2535,6 +2536,7 @@ Se:
   Mineral hardness: '2.0'
   Molar volume: 16.42 cm<sup>3</sup>
   Name: Selenium
+  Oxidation_states: [-2, 2, 4, 6]
   Poissons ratio: '0.33'
   Reflectivity: no data %
   Refractive index: '1.000895'
@@ -2545,8 +2547,6 @@ Se:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.55
   Youngs modulus: 10 GPa
-  common_oxidation_states: [-2, 2, 4, 6]
-  oxidation_states: [-2, 2, 4, 6]
 Si:
   Atomic mass: 28.0855
   Atomic no: 14
@@ -2555,6 +2555,7 @@ Si:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: 100 GPa
   Coefficient of linear thermal expansion: 2.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-4, 4]
   Critical temperature: no data K
   Density of solid: 2330 kg m<sup>-3</sup>
   Electrical resistivity: about 10000010<sup>-8</sup> &Omega; m
@@ -2567,6 +2568,7 @@ Si:
   Mineral hardness: '6.5'
   Molar volume: 12.06 cm<sup>3</sup>
   Name: Silicon
+  Oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
   Poissons ratio: no data
   Reflectivity: 28 %
   Refractive index: no data
@@ -2577,8 +2579,6 @@ Si:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 47 GPa
-  common_oxidation_states: [-4, 4]
-  oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
 Sm:
   Atomic mass: 150.36
   Atomic no: 62
@@ -2587,6 +2587,7 @@ Sm:
   Brinell hardness: 441 MN m<sup>-2</sup>
   Bulk modulus: 38 GPa
   Coefficient of linear thermal expansion: 12.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 7353 kg m<sup>-3</sup>
   Electrical resistivity: 94 10<sup>-8</sup> &Omega; m
@@ -2599,6 +2600,7 @@ Sm:
   Mineral hardness: no data
   Molar volume: 19.98 cm<sup>3</sup>
   Name: Samarium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.27'
   Reflectivity: no data %
   Refractive index: no data
@@ -2609,8 +2611,6 @@ Sm:
   Vickers hardness: 412 MN m<sup>-2</sup>
   X: 1.17
   Youngs modulus: 50 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Sn:
   Atomic mass: 118.71
   Atomic no: 50
@@ -2619,6 +2619,7 @@ Sn:
   Brinell hardness: 51 MN m<sup>-2</sup>
   Bulk modulus: 58 GPa
   Coefficient of linear thermal expansion: 22 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-4, 2, 4]
   Critical temperature: no data K
   Density of solid: 7310 kg m<sup>-3</sup>
   Electrical resistivity: 11.5 10<sup>-8</sup> &Omega; m
@@ -2631,6 +2632,7 @@ Sn:
   Mineral hardness: '1.5'
   Molar volume: 16.29 cm<sup>3</sup>
   Name: Tin
+  Oxidation_states: [-4, 2, 4]
   Poissons ratio: '0.36'
   Reflectivity: 54 %
   Refractive index: no data
@@ -2641,8 +2643,6 @@ Sn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.96
   Youngs modulus: 50 GPa
-  common_oxidation_states: [-4, 2, 4]
-  oxidation_states: [-4, 2, 4]
 Sr:
   Atomic mass: 87.62
   Atomic no: 38
@@ -2651,6 +2651,7 @@ Sr:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 22.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 2630 kg m<sup>-3</sup>
   Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
@@ -2663,6 +2664,7 @@ Sr:
   Mineral hardness: '1.5'
   Molar volume: 33.94 cm<sup>3</sup>
   Name: Strontium
+  Oxidation_states: [2]
   Poissons ratio: '0.28'
   Reflectivity: no data %
   Refractive index: no data
@@ -2673,8 +2675,6 @@ Sr:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.95
   Youngs modulus: no data GPa
-  common_oxidation_states: [2]
-  oxidation_states: [2]
 Ta:
   Atomic mass: 180.94788
   Atomic no: 73
@@ -2683,6 +2683,7 @@ Ta:
   Brinell hardness: 800 MN m<sup>-2</sup>
   Bulk modulus: 200 GPa
   Coefficient of linear thermal expansion: 6.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [5]
   Critical temperature: no data K
   Density of solid: 16650 kg m<sup>-3</sup>
   Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
@@ -2695,6 +2696,7 @@ Ta:
   Mineral hardness: '6.5'
   Molar volume: 10.85 cm<sup>3</sup>
   Name: Tantalum
+  Oxidation_states: [-1, 2, 3, 4, 5]
   Poissons ratio: '0.34'
   Reflectivity: 78 %
   Refractive index: no data
@@ -2705,8 +2707,6 @@ Ta:
   Vickers hardness: 873 MN m<sup>-2</sup>
   X: 1.5
   Youngs modulus: 186 GPa
-  common_oxidation_states: [5]
-  oxidation_states: [-1, 2, 3, 4, 5]
 Tb:
   Atomic mass: 158.92535
   Atomic no: 65
@@ -2715,6 +2715,7 @@ Tb:
   Brinell hardness: 677 MN m<sup>-2</sup>
   Bulk modulus: 38.7 GPa
   Coefficient of linear thermal expansion: 10.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 8219 kg m<sup>-3</sup>
   Electrical resistivity: 115 10<sup>-8</sup> &Omega; m
@@ -2727,6 +2728,7 @@ Tb:
   Mineral hardness: no data
   Molar volume: 19.30 cm<sup>3</sup>
   Name: Terbium
+  Oxidation_states: [1, 3, 4]
   Poissons ratio: '0.26'
   Reflectivity: no data %
   Refractive index: no data
@@ -2736,8 +2738,6 @@ Tb:
   Velocity of sound: 2620 m s<sup>-1</sup>
   Vickers hardness: 863 MN m<sup>-2</sup>
   Youngs modulus: 56 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 3, 4]
 Tc:
   Atomic mass: 98.0
   Atomic no: 43
@@ -2746,6 +2746,7 @@ Tc:
   Brinell hardness: no data MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4, 7]
   Critical temperature: no data K
   Density of solid: 11500 kg m<sup>-3</sup>
   Electrical resistivity: about 22 10<sup>-8</sup> &Omega; m
@@ -2758,6 +2759,7 @@ Tc:
   Mineral hardness: no data
   Molar volume: 8.63 cm<sup>3</sup>
   Name: Technetium
+  Oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
   Poissons ratio: no data
   Reflectivity: no data %
   Refractive index: no data
@@ -2768,8 +2770,6 @@ Tc:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: no data GPa
-  common_oxidation_states: [4, 7]
-  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
 Te:
   Atomic mass: 127.6
   Atomic no: 52
@@ -2778,6 +2778,7 @@ Te:
   Brinell hardness: 180 MN m<sup>-2</sup>
   Bulk modulus: 65 GPa
   Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [-2, 2, 4, 6]
   Critical temperature: no data K
   Density of solid: 6240 kg m<sup>-3</sup>
   Electrical resistivity: about 1000010<sup>-8</sup> &Omega; m
@@ -2790,6 +2791,7 @@ Te:
   Mineral hardness: '2.25'
   Molar volume: 20.46 cm<sup>3</sup>
   Name: Tellurium
+  Oxidation_states: [-2, 2, 4, 5, 6]
   Poissons ratio: no data
   Reflectivity: 50 %
   Refractive index: '1.000991'
@@ -2800,8 +2802,6 @@ Te:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.1
   Youngs modulus: 43 GPa
-  common_oxidation_states: [-2, 2, 4, 6]
-  oxidation_states: [-2, 2, 4, 5, 6]
 Th:
   Atomic mass: 232.03806
   Atomic no: 90
@@ -2810,6 +2810,7 @@ Th:
   Brinell hardness: 400 MN m<sup>-2</sup>
   Bulk modulus: 54 GPa
   Coefficient of linear thermal expansion: 11.0 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 11724 kg m<sup>-3</sup>
   Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
@@ -2822,6 +2823,7 @@ Th:
   Mineral hardness: '3.0'
   Molar volume: 19.80 cm<sup>3</sup>
   Name: Thorium
+  Oxidation_states: [2, 3, 4]
   Poissons ratio: '0.27'
   Reflectivity: no data %
   Refractive index: no data
@@ -2832,8 +2834,6 @@ Th:
   Vickers hardness: 350 MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: 79 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [2, 3, 4]
 Ti:
   Atomic mass: 47.867
   Atomic no: 22
@@ -2842,6 +2842,7 @@ Ti:
   Brinell hardness: 716 MN m<sup>-2</sup>
   Bulk modulus: 110 GPa
   Coefficient of linear thermal expansion: 8.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 4507 kg m<sup>-3</sup>
   Electrical resistivity: about 40 10<sup>-8</sup> &Omega; m
@@ -2854,6 +2855,7 @@ Ti:
   Mineral hardness: '6.0'
   Molar volume: 10.64 cm<sup>3</sup>
   Name: Titanium
+  Oxidation_states: [-1, 2, 3, 4]
   Poissons ratio: '0.32'
   Reflectivity: no data %
   Refractive index: no data
@@ -2864,8 +2866,6 @@ Ti:
   Vickers hardness: 970 MN m<sup>-2</sup>
   X: 1.54
   Youngs modulus: 116 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [-1, 2, 3, 4]
 Tl:
   Atomic mass: 204.3833
   Atomic no: 81
@@ -2874,6 +2874,7 @@ Tl:
   Brinell hardness: 26.4 MN m<sup>-2</sup>
   Bulk modulus: 43 GPa
   Coefficient of linear thermal expansion: 29.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [1, 3]
   Critical temperature: no data K
   Density of solid: 11850 kg m<sup>-3</sup>
   Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
@@ -2886,6 +2887,7 @@ Tl:
   Mineral hardness: '1.2'
   Molar volume: 17.22 cm<sup>3</sup>
   Name: Thallium
+  Oxidation_states: [1, 3]
   Poissons ratio: '0.45'
   Reflectivity: no data %
   Refractive index: no data
@@ -2896,8 +2898,6 @@ Tl:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.62
   Youngs modulus: 8 GPa
-  common_oxidation_states: [1, 3]
-  oxidation_states: [1, 3]
 Tm:
   Atomic mass: 168.93421
   Atomic no: 69
@@ -2906,6 +2906,7 @@ Tm:
   Brinell hardness: 471 MN m<sup>-2</sup>
   Bulk modulus: 45 GPa
   Coefficient of linear thermal expansion: 13.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 9321 kg m<sup>-3</sup>
   Electrical resistivity: 67.6 10<sup>-8</sup> &Omega; m
@@ -2918,6 +2919,7 @@ Tm:
   Mineral hardness: no data
   Molar volume: 19.1 cm<sup>3</sup>
   Name: Thulium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -2928,8 +2930,6 @@ Tm:
   Vickers hardness: 520 MN m<sup>-2</sup>
   X: 1.25
   Youngs modulus: 74 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 U:
   Atomic mass: 238.02891
   Atomic no: 92
@@ -2938,6 +2938,7 @@ U:
   Brinell hardness: 2400 MN m<sup>-2</sup>
   Bulk modulus: 100 GPa
   Coefficient of linear thermal expansion: 13.9 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [6]
   Critical temperature: no data K
   Density of solid: 19050 kg m<sup>-3</sup>
   Electrical resistivity: 28 10<sup>-8</sup> &Omega; m
@@ -2950,6 +2951,7 @@ U:
   Mineral hardness: '6.0'
   Molar volume: 12.49 cm<sup>3</sup>
   Name: Uranium
+  Oxidation_states: [3, 4, 5, 6]
   Poissons ratio: '0.23'
   Reflectivity: no data %
   Refractive index: no data
@@ -2960,8 +2962,6 @@ U:
   Vickers hardness: 1960 MN m<sup>-2</sup>
   X: 1.38
   Youngs modulus: 208 GPa
-  common_oxidation_states: [6]
-  oxidation_states: [3, 4, 5, 6]
 V:
   Atomic mass: 50.9415
   Atomic no: 23
@@ -2970,6 +2970,7 @@ V:
   Brinell hardness: 628 MN m<sup>-2</sup>
   Bulk modulus: 160 GPa
   Coefficient of linear thermal expansion: 8.4 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [5]
   Critical temperature: no data K
   Density of solid: 6110 kg m<sup>-3</sup>
   Electrical resistivity: 20 10<sup>-8</sup> &Omega; m
@@ -2982,6 +2983,7 @@ V:
   Mineral hardness: '7.0'
   Molar volume: 8.32 cm<sup>3</sup>
   Name: Vanadium
+  Oxidation_states: [-1, 1, 2, 3, 4, 5]
   Poissons ratio: '0.37'
   Reflectivity: 61 %
   Refractive index: no data
@@ -2992,8 +2994,6 @@ V:
   Vickers hardness: 628 MN m<sup>-2</sup>
   X: 1.63
   Youngs modulus: 128 GPa
-  common_oxidation_states: [5]
-  oxidation_states: [-1, 1, 2, 3, 4, 5]
 W:
   Atomic mass: 183.84
   Atomic no: 74
@@ -3002,6 +3002,7 @@ W:
   Brinell hardness: 2570 MN m<sup>-2</sup>
   Bulk modulus: 310 GPa
   Coefficient of linear thermal expansion: 4.5 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4, 6]
   Critical temperature: no data K
   Density of solid: 19250 kg m<sup>-3</sup>
   Electrical resistivity: 5.4 10<sup>-8</sup> &Omega; m
@@ -3014,6 +3015,7 @@ W:
   Mineral hardness: '7.5'
   Molar volume: 9.47 cm<sup>3</sup>
   Name: Tungsten
+  Oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
   Poissons ratio: '0.28'
   Reflectivity: 62 %
   Refractive index: no data
@@ -3024,8 +3026,6 @@ W:
   Vickers hardness: 3430 MN m<sup>-2</sup>
   X: 2.36
   Youngs modulus: 411 GPa
-  common_oxidation_states: [4, 6]
-  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Xe: {Atomic mass: 131.293, Atomic no: 54, Atomic radius: 0.986, Boiling point: 165.1
     K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
     data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 289.7 K, Density of solid: no
@@ -3045,6 +3045,7 @@ Y:
   Brinell hardness: 589 MN m<sup>-2</sup>
   Bulk modulus: 41 GPa
   Coefficient of linear thermal expansion: 10.6 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 4472 kg m<sup>-3</sup>
   Electrical resistivity: about 60 10<sup>-8</sup> &Omega; m
@@ -3057,6 +3058,7 @@ Y:
   Mineral hardness: no data
   Molar volume: 19.88 cm<sup>3</sup>
   Name: Yttrium
+  Oxidation_states: [1, 2, 3]
   Poissons ratio: '0.24'
   Reflectivity: no data %
   Refractive index: no data
@@ -3067,8 +3069,6 @@ Y:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.22
   Youngs modulus: 64 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [1, 2, 3]
 Yb:
   Atomic mass: 173.04
   Atomic no: 70
@@ -3077,6 +3077,7 @@ Yb:
   Brinell hardness: 343 MN m<sup>-2</sup>
   Bulk modulus: 31 GPa
   Coefficient of linear thermal expansion: 26.3 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [3]
   Critical temperature: no data K
   Density of solid: 6570 kg m<sup>-3</sup>
   Electrical resistivity: 25.0 10<sup>-8</sup> &Omega; m
@@ -3089,6 +3090,7 @@ Yb:
   Mineral hardness: no data
   Molar volume: 24.84 cm<sup>3</sup>
   Name: Ytterbium
+  Oxidation_states: [2, 3]
   Poissons ratio: '0.21'
   Reflectivity: no data %
   Refractive index: no data
@@ -3098,8 +3100,6 @@ Yb:
   Velocity of sound: 1590 m s<sup>-1</sup>
   Vickers hardness: 206 MN m<sup>-2</sup>
   Youngs modulus: 24 GPa
-  common_oxidation_states: [3]
-  oxidation_states: [2, 3]
 Zn:
   Atomic mass: 65.409
   Atomic no: 30
@@ -3108,6 +3108,7 @@ Zn:
   Brinell hardness: 412 MN m<sup>-2</sup>
   Bulk modulus: 70 GPa
   Coefficient of linear thermal expansion: 30.2 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [2]
   Critical temperature: no data K
   Density of solid: 7140 kg m<sup>-3</sup>
   Electrical resistivity: 6.0 10<sup>-8</sup> &Omega; m
@@ -3120,6 +3121,7 @@ Zn:
   Mineral hardness: '2.5'
   Molar volume: 9.16 cm<sup>3</sup>
   Name: Zinc
+  Oxidation_states: [1, 2]
   Poissons ratio: '0.25'
   Reflectivity: 80 %
   Refractive index: '1.002050'
@@ -3130,8 +3132,6 @@ Zn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.65
   Youngs modulus: 108 GPa
-  common_oxidation_states: [2]
-  oxidation_states: [1, 2]
 Zr:
   Atomic mass: 91.224
   Atomic no: 40
@@ -3140,6 +3140,7 @@ Zr:
   Brinell hardness: 650 MN m<sup>-2</sup>
   Bulk modulus: no data GPa
   Coefficient of linear thermal expansion: 5.7 x10<sup>-6</sup>K<sup>-1</sup>
+  Common_oxidation_states: [4]
   Critical temperature: no data K
   Density of solid: 6511 kg m<sup>-3</sup>
   Electrical resistivity: 43.3 10<sup>-8</sup> &Omega; m
@@ -3152,6 +3153,7 @@ Zr:
   Mineral hardness: '5.0'
   Molar volume: 14.02 cm<sup>3</sup>
   Name: Zirconium
+  Oxidation_states: [1, 2, 3, 4]
   Poissons ratio: '0.34'
   Reflectivity: no data %
   Refractive index: no data
@@ -3162,5 +3164,3 @@ Zr:
   Vickers hardness: 903 MN m<sup>-2</sup>
   X: 1.33
   Youngs modulus: 68 GPa
-  common_oxidation_states: [4]
-  oxidation_states: [1, 2, 3, 4]
