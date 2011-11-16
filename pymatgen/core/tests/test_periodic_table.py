@@ -45,13 +45,18 @@ class  ElementTestCase(unittest.TestCase):
                         "reflectivity", "refractive_index", "poissons_ratio", "molar_volume", "thermal_conductivity", "melting_point", "boiling_point",
                         "liquid_range", "critical_temperature", "superconduction_temperature", 
                         "bulk_modulus", "youngs_modulus", "brinell_hardness", "rigidity_modulus", "mineral_hardness", 
-                        "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion"]
+                        "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states"]
         
         #Test all elements up to Uranium
         for i in xrange(1,93):
             for k in keys:
                 self.assertIsNotNone(getattr(Element.from_Z(i),k))
-            
+    
+    def test_oxidation_states(self):
+        el = Element("Fe")
+        self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
+        self.assertEqual(el.common_oxidation_states, (2, 3))
+    
 class  SpecieTestCase(unittest.TestCase):
 
     def setUp(self):

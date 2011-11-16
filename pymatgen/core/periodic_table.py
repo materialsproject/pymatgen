@@ -109,6 +109,16 @@ class Element(object):
         return self._data['Min oxidation state']
     
     @property
+    def oxidation_states(self):
+        """Tuple of all known oxidation states"""
+        return tuple(self._data.get('oxidation_states', list()))
+    
+    @property
+    def common_oxidation_states(self):
+        """Tuple of all known oxidation states"""
+        return tuple(self._data.get('common_oxidation_states', list()))
+    
+    @property
     def mendeleev_no(self):
         """Mendeleev number"""
         return self._data['Mendeleev no']

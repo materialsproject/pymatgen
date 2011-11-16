@@ -28,6 +28,8 @@ Ac:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.1
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 Ag:
   Atomic mass: 107.8682
   Atomic no: 47
@@ -58,6 +60,8 @@ Ag:
   Vickers hardness: 251 MN m<sup>-2</sup>
   X: 1.93
   Youngs modulus: 83 GPa
+  common_oxidation_states: [1]
+  oxidation_states: [1, 2, 3]
 Al:
   Atomic mass: 26.9815386
   Atomic no: 13
@@ -88,6 +92,8 @@ Al:
   Vickers hardness: 167 MN m<sup>-2</sup>
   X: 1.61
   Youngs modulus: 70 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 3]
 Am:
   Atomic mass: 243.0
   Atomic no: 95
@@ -118,35 +124,19 @@ Am:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
-Ar:
-  Atomic mass: 39.948
-  Atomic no: 18
-  Atomic radius: 0.659
-  Boiling point: 87.3 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 150.8 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>6</sup>'
-  Liquid range: 3.5 K
-  Max oxidation state: 0.0
-  Melting point: 83.8 K
-  Mendeleev no: 3
-  Min oxidation state: 0.0
-  Mineral hardness: no data
-  Molar volume: 22.56 cm<sup>3</sup>
-  Name: Argon
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: '1.000281'
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.01772 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: 319 m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3, 4, 5, 6]
+Ar: {Atomic mass: 39.948, Atomic no: 18, Atomic radius: 0.659, Boiling point: 87.3
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 150.8 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>6</sup>', Liquid range: 3.5
+    K, Max oxidation state: 0.0, Melting point: 83.8 K, Mendeleev no: 3, Min oxidation state: 0.0,
+  Mineral hardness: no data, Molar volume: 22.56 cm<sup>3</sup>, Name: Argon, Poissons ratio: no
+    data, Reflectivity: no data %, Refractive index: '1.000281', Rigidity modulus: no
+    data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.01772
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 319 m s<sup>-1</sup>, Vickers hardness: no
+    data MN m<sup>-2</sup>, Youngs modulus: no data GPa}
 As:
   Atomic mass: 74.9216
   Atomic no: 33
@@ -177,6 +167,8 @@ As:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.18
   Youngs modulus: 8 GPa
+  common_oxidation_states: [-3, 3, 5]
+  oxidation_states: [-3, 2, 3, 5]
 At:
   Atomic mass: 210.0
   Atomic no: 85
@@ -207,6 +199,8 @@ At:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
+  common_oxidation_states: [-1, 1]
+  oxidation_states: [-1, 1, 3, 5]
 Au:
   Atomic mass: 196.966569
   Atomic no: 79
@@ -237,6 +231,8 @@ Au:
   Vickers hardness: 216 MN m<sup>-2</sup>
   X: 2.54
   Youngs modulus: 78 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [-1, 1, 2, 3, 5]
 B:
   Atomic mass: 10.811
   Atomic no: 5
@@ -267,6 +263,8 @@ B:
   Vickers hardness: 49000 MN m<sup>-2</sup>
   X: 2.04
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Ba:
   Atomic mass: 137.327
   Atomic no: 56
@@ -297,6 +295,8 @@ Ba:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.89
   Youngs modulus: 13 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [2]
 Be:
   Atomic mass: 9.012182
   Atomic no: 4
@@ -327,6 +327,8 @@ Be:
   Vickers hardness: 1670 MN m<sup>-2</sup>
   X: 1.57
   Youngs modulus: 287 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [2]
 Bi:
   Atomic mass: 208.9804
   Atomic no: 83
@@ -357,6 +359,8 @@ Bi:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.02
   Youngs modulus: 32 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [-3, 3, 5]
 Bk:
   Atomic mass: 247.0
   Atomic no: 97
@@ -387,6 +391,8 @@ Bk:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3, 4]
 Br:
   Atomic mass: 79.904
   Atomic no: 35
@@ -417,6 +423,8 @@ Br:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.96
   Youngs modulus: no data GPa
+  common_oxidation_states: [-1, 1, 3, 5, 7]
+  oxidation_states: [-1, 1, 3, 4, 5, 7]
 C:
   Atomic mass: 12.0107
   Atomic no: 6
@@ -448,6 +456,8 @@ C:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.55
   Youngs modulus: no data GPa
+  common_oxidation_states: [-4, 4]
+  oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
 Ca:
   Atomic mass: 40.078
   Atomic no: 20
@@ -478,6 +488,8 @@ Ca:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.0
   Youngs modulus: 20 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [2]
 Cd:
   Atomic mass: 112.411
   Atomic no: 48
@@ -508,6 +520,8 @@ Cd:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.69
   Youngs modulus: 50 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [1, 2]
 Ce:
   Atomic mass: 140.116
   Atomic no: 58
@@ -538,6 +552,8 @@ Ce:
   Vickers hardness: 270 MN m<sup>-2</sup>
   X: 1.12
   Youngs modulus: 34 GPa
+  common_oxidation_states: [3, 4]
+  oxidation_states: [2, 3, 4]
 Cf:
   Atomic mass: 251.0
   Atomic no: 98
@@ -568,6 +584,8 @@ Cf:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3, 4]
 Cl:
   Atomic mass: 35.453
   Atomic no: 17
@@ -598,6 +616,8 @@ Cl:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.16
   Youngs modulus: no data GPa
+  common_oxidation_states: [-1, 1, 3, 5, 7]
+  oxidation_states: [-1, 1, 2, 3, 4, 5, 6, 7]
 Cm:
   Atomic mass: 247.0
   Atomic no: 96
@@ -628,6 +648,8 @@ Cm:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3, 4]
 Co:
   Atomic mass: 58.933195
   Atomic no: 27
@@ -658,6 +680,8 @@ Co:
   Vickers hardness: 1043 MN m<sup>-2</sup>
   X: 1.88
   Youngs modulus: 209 GPa
+  common_oxidation_states: [2, 3]
+  oxidation_states: [-1, 1, 2, 3, 4, 5]
 Cr:
   Atomic mass: 51.9961
   Atomic no: 24
@@ -688,6 +712,8 @@ Cr:
   Vickers hardness: 1060 MN m<sup>-2</sup>
   X: 1.66
   Youngs modulus: 279 GPa
+  common_oxidation_states: [3, 6]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Cs:
   Atomic mass: 132.9054519
   Atomic no: 55
@@ -718,6 +744,8 @@ Cs:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.79
   Youngs modulus: 1.7 GPa
+  common_oxidation_states: [1]
+  oxidation_states: [1]
 Cu:
   Atomic mass: 63.546
   Atomic no: 29
@@ -748,6 +776,8 @@ Cu:
   Vickers hardness: 369 MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 130 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [1, 2, 3, 4]
 Dy:
   Atomic mass: 162.5
   Atomic no: 66
@@ -778,6 +808,8 @@ Dy:
   Vickers hardness: 540 MN m<sup>-2</sup>
   X: 1.22
   Youngs modulus: 61 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Er:
   Atomic mass: 167.259
   Atomic no: 68
@@ -808,6 +840,8 @@ Er:
   Vickers hardness: 589 MN m<sup>-2</sup>
   X: 1.24
   Youngs modulus: 70 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 Es:
   Atomic mass: 252.0
   Atomic no: 99
@@ -838,6 +872,8 @@ Es:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Eu:
   Atomic mass: 151.964
   Atomic no: 63
@@ -867,6 +903,8 @@ Eu:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: 167 MN m<sup>-2</sup>
   Youngs modulus: 18 GPa
+  common_oxidation_states: [2, 3]
+  oxidation_states: [2, 3]
 F:
   Atomic mass: 18.9984032
   Atomic no: 9
@@ -897,6 +935,8 @@ F:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.98
   Youngs modulus: no data GPa
+  common_oxidation_states: [-1]
+  oxidation_states: [-1]
 Fe:
   Atomic mass: 55.845
   Atomic no: 26
@@ -927,6 +967,8 @@ Fe:
   Vickers hardness: 608 MN m<sup>-2</sup>
   X: 1.83
   Youngs modulus: 211 GPa
+  common_oxidation_states: [2, 3]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Fm:
   Atomic mass: 257.0
   Atomic no: 100
@@ -957,6 +999,8 @@ Fm:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Fr:
   Atomic mass: 223.0
   Atomic no: 87
@@ -987,6 +1031,8 @@ Fr:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.7
   Youngs modulus: no data GPa
+  common_oxidation_states: [1]
+  oxidation_states: [1]
 Ga:
   Atomic mass: 69.723
   Atomic no: 31
@@ -1017,6 +1063,8 @@ Ga:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.81
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Gd:
   Atomic mass: 157.25
   Atomic no: 64
@@ -1047,6 +1095,8 @@ Gd:
   Vickers hardness: 570 MN m<sup>-2</sup>
   X: 1.2
   Youngs modulus: 55 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Ge:
   Atomic mass: 72.64
   Atomic no: 32
@@ -1077,6 +1127,8 @@ Ge:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.01
   Youngs modulus: no data GPa
+  common_oxidation_states: [-4, 2, 4]
+  oxidation_states: [-4, 1, 2, 3, 4]
 H:
   Atomic mass: 1.00794
   Atomic no: 1
@@ -1107,35 +1159,19 @@ H:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
-He:
-  Atomic mass: 4.002602
-  Atomic no: 2
-  Atomic radius: 0.291
-  Boiling point: 4.22 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 5.19 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: 1s<sup>2</sup>
-  Liquid range: 3.27 K
-  Max oxidation state: 0.0
-  Melting point: 0.95 K
-  Mendeleev no: 1
-  Min oxidation state: 0.0
-  Mineral hardness: no data
-  Molar volume: 21.0 cm<sup>3</sup>
-  Name: Helium
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: 1.000035 (gas; liquid 1.028)(no units)
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.1513 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: 970 m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  Youngs modulus: no data GPa
+  common_oxidation_states: [-1, 1]
+  oxidation_states: [-1, 1]
+He: {Atomic mass: 4.002602, Atomic no: 2, Atomic radius: 0.291, Boiling point: 4.22
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 5.19 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: 1s<sup>2</sup>, Liquid range: 3.27 K, Max oxidation state: 0.0,
+  Melting point: 0.95 K, Mendeleev no: 1, Min oxidation state: 0.0, Mineral hardness: no
+    data, Molar volume: 21.0 cm<sup>3</sup>, Name: Helium, Poissons ratio: no data,
+  Reflectivity: no data %, Refractive index: 1.000035 (gas; liquid 1.028)(no units),
+  Rigidity modulus: no data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.1513
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 970 m s<sup>-1</sup>, Vickers hardness: no
+    data MN m<sup>-2</sup>, Youngs modulus: no data GPa}
 Hf:
   Atomic mass: 178.49
   Atomic no: 72
@@ -1166,6 +1202,8 @@ Hf:
   Vickers hardness: 1760 MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: 78 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [2, 3, 4]
 Hg:
   Atomic mass: 200.59
   Atomic no: 80
@@ -1196,6 +1234,8 @@ Hg:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.0
   Youngs modulus: no data GPa
+  common_oxidation_states: [1, 2]
+  oxidation_states: [1, 2, 4]
 Ho:
   Atomic mass: 164.93032
   Atomic no: 67
@@ -1226,6 +1266,8 @@ Ho:
   Vickers hardness: 481 MN m<sup>-2</sup>
   X: 1.23
   Youngs modulus: 65 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 I:
   Atomic mass: 126.90447
   Atomic no: 53
@@ -1256,6 +1298,8 @@ I:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.66
   Youngs modulus: no data GPa
+  common_oxidation_states: [-1, 1, 3, 5, 7]
+  oxidation_states: [-1, 1, 3, 5, 7]
 In:
   Atomic mass: 114.818
   Atomic no: 49
@@ -1286,6 +1330,8 @@ In:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.78
   Youngs modulus: 11 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Ir:
   Atomic mass: 192.217
   Atomic no: 77
@@ -1316,6 +1362,8 @@ Ir:
   Vickers hardness: 1760 MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 528 GPa
+  common_oxidation_states: [3, 4]
+  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6]
 K:
   Atomic mass: 39.0983
   Atomic no: 19
@@ -1346,36 +1394,19 @@ K:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.82
   Youngs modulus: no data GPa
-Kr:
-  Atomic mass: 83.798
-  Atomic no: 36
-  Atomic radius: 0.795
-  Boiling point: 119.93 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 209.4 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>'
-  Liquid range: 4.14 K
-  Max oxidation state: 0.0
-  Melting point: 115.79 K
-  Mendeleev no: 4
-  Min oxidation state: 0.0
-  Mineral hardness: no data
-  Molar volume: 27.99 cm<sup>3</sup>
-  Name: Krypton
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: '1.000427'
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.00943 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: 1120 m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  X: 3.0
-  Youngs modulus: no data GPa
+  common_oxidation_states: [1]
+  oxidation_states: [-1, 1]
+Kr: {Atomic mass: 83.798, Atomic no: 36, Atomic radius: 0.795, Boiling point: 119.93
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 209.4 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>',
+  Liquid range: 4.14 K, Max oxidation state: 0.0, Melting point: 115.79 K, Mendeleev no: 4,
+  Min oxidation state: 0.0, Mineral hardness: no data, Molar volume: 27.99 cm<sup>3</sup>,
+  Name: Krypton, Poissons ratio: no data, Reflectivity: no data %, Refractive index: '1.000427',
+  Rigidity modulus: no data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.00943
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 1120 m s<sup>-1</sup>, Vickers hardness: no
+    data MN m<sup>-2</sup>, X: 3.0, Youngs modulus: no data GPa}
 La:
   Atomic mass: 138.90547
   Atomic no: 57
@@ -1406,6 +1437,8 @@ La:
   Vickers hardness: 491 MN m<sup>-2</sup>
   X: 1.1
   Youngs modulus: 37 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Li:
   Atomic mass: 6.941
   Atomic no: 3
@@ -1436,6 +1469,8 @@ Li:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.98
   Youngs modulus: 4.9 GPa
+  common_oxidation_states: [1]
+  oxidation_states: [1]
 Lr:
   Atomic mass: 262.0
   Atomic no: 103
@@ -1465,6 +1500,8 @@ Lr:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: no data MN m<sup>-2</sup>
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 Lu:
   Atomic mass: 174.967
   Atomic no: 71
@@ -1495,6 +1532,8 @@ Lu:
   Vickers hardness: 1160 MN m<sup>-2</sup>
   X: 1.27
   Youngs modulus: 69 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 Md:
   Atomic mass: 258.0
   Atomic no: 101
@@ -1525,6 +1564,8 @@ Md:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Mg:
   Atomic mass: 24.305
   Atomic no: 12
@@ -1555,6 +1596,8 @@ Mg:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.31
   Youngs modulus: 45 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [1, 2]
 Mn:
   Atomic mass: 54.938045
   Atomic no: 25
@@ -1585,6 +1628,8 @@ Mn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.55
   Youngs modulus: 198 GPa
+  common_oxidation_states: [2, 4, 7]
+  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7]
 Mo:
   Atomic mass: 95.94
   Atomic no: 42
@@ -1615,6 +1660,8 @@ Mo:
   Vickers hardness: 1530 MN m<sup>-2</sup>
   X: 2.16
   Youngs modulus: 329 GPa
+  common_oxidation_states: [4, 6]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 N:
   Atomic mass: 14.0067
   Atomic no: 7
@@ -1645,6 +1692,8 @@ N:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.04
   Youngs modulus: no data GPa
+  common_oxidation_states: [-3, 3, 5]
+  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
 Na:
   Atomic mass: 22.98976928
   Atomic no: 11
@@ -1675,6 +1724,8 @@ Na:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.93
   Youngs modulus: 10 GPa
+  common_oxidation_states: [1]
+  oxidation_states: [-1, 1]
 Nb:
   Atomic mass: 92.90638
   Atomic no: 41
@@ -1705,6 +1756,8 @@ Nb:
   Vickers hardness: 1320 MN m<sup>-2</sup>
   X: 1.6
   Youngs modulus: 105 GPa
+  common_oxidation_states: [5]
+  oxidation_states: [-1, 2, 3, 4, 5]
 Nd:
   Atomic mass: 144.242
   Atomic no: 60
@@ -1735,35 +1788,19 @@ Nd:
   Vickers hardness: 343 MN m<sup>-2</sup>
   X: 1.14
   Youngs modulus: 41 GPa
-Ne:
-  Atomic mass: 20.1797
-  Atomic no: 10
-  Atomic radius: 0.354
-  Boiling point: 27.07 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 44.4 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[He].2s<sup>2</sup>.2p<sup>6</sup>'
-  Liquid range: 2.51 K
-  Max oxidation state: 0.0
-  Melting point: 24.56 K
-  Mendeleev no: 2
-  Min oxidation state: 0.0
-  Mineral hardness: no data
-  Molar volume: 13.23 cm<sup>3</sup>
-  Name: Neon
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: '1.000067'
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.0491 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: 936 m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
+Ne: {Atomic mass: 20.1797, Atomic no: 10, Atomic radius: 0.354, Boiling point: 27.07
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 44.4 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: '[He].2s<sup>2</sup>.2p<sup>6</sup>', Liquid range: 2.51
+    K, Max oxidation state: 0.0, Melting point: 24.56 K, Mendeleev no: 2, Min oxidation state: 0.0,
+  Mineral hardness: no data, Molar volume: 13.23 cm<sup>3</sup>, Name: Neon, Poissons ratio: no
+    data, Reflectivity: no data %, Refractive index: '1.000067', Rigidity modulus: no
+    data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.0491
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 936 m s<sup>-1</sup>, Vickers hardness: no
+    data MN m<sup>-2</sup>, Youngs modulus: no data GPa}
 Ni:
   Atomic mass: 58.6934
   Atomic no: 28
@@ -1794,6 +1831,8 @@ Ni:
   Vickers hardness: 638 MN m<sup>-2</sup>
   X: 1.91
   Youngs modulus: 200 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [-1, 1, 2, 3, 4]
 'No':
   Atomic mass: 259.0
   Atomic no: 102
@@ -1824,6 +1863,8 @@ Ni:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Np:
   Atomic mass: 237.0
   Atomic no: 93
@@ -1854,6 +1895,8 @@ Np:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.36
   Youngs modulus: no data GPa
+  common_oxidation_states: [5]
+  oxidation_states: [3, 4, 5, 6, 7]
 O:
   Atomic mass: 15.9994
   Atomic no: 8
@@ -1884,6 +1927,8 @@ O:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 3.44
   Youngs modulus: no data GPa
+  common_oxidation_states: [-2]
+  oxidation_states: [-2, -1, 1, 2]
 Os:
   Atomic mass: 190.23
   Atomic no: 76
@@ -1914,6 +1959,8 @@ Os:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: no data GPa
+  common_oxidation_states: [4]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6, 7, 8]
 P:
   Atomic mass: 30.973762
   Atomic no: 15
@@ -1944,6 +1991,8 @@ P:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.19
   Youngs modulus: no data GPa
+  common_oxidation_states: [-3, 3, 5]
+  oxidation_states: [-3, -2, -1, 1, 2, 3, 4, 5]
 Pa:
   Atomic mass: 231.03588
   Atomic no: 91
@@ -1974,6 +2023,8 @@ Pa:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.5
   Youngs modulus: no data GPa
+  common_oxidation_states: [5]
+  oxidation_states: [3, 4, 5]
 Pb:
   Atomic mass: 207.2
   Atomic no: 82
@@ -2004,6 +2055,8 @@ Pb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.33
   Youngs modulus: 16 GPa
+  common_oxidation_states: [2, 4]
+  oxidation_states: [-4, 2, 4]
 Pd:
   Atomic mass: 106.42
   Atomic no: 46
@@ -2034,6 +2087,8 @@ Pd:
   Vickers hardness: 461 MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 121 GPa
+  common_oxidation_states: [2, 4]
+  oxidation_states: [2, 4]
 Pm:
   Atomic mass: 145.0
   Atomic no: 61
@@ -2063,6 +2118,8 @@ Pm:
   Velocity of sound: no data m s<sup>-1</sup>
   Vickers hardness: no data MN m<sup>-2</sup>
   Youngs modulus: 46 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [3]
 Po:
   Atomic mass: 210.0
   Atomic no: 84
@@ -2093,6 +2150,8 @@ Po:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.0
   Youngs modulus: no data GPa
+  common_oxidation_states: [-2, 2, 4]
+  oxidation_states: [-2, 2, 4, 6]
 Pr:
   Atomic mass: 140.90765
   Atomic no: 59
@@ -2123,6 +2182,8 @@ Pr:
   Vickers hardness: 400 MN m<sup>-2</sup>
   X: 1.13
   Youngs modulus: 37 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3, 4]
 Pt:
   Atomic mass: 195.084
   Atomic no: 78
@@ -2153,6 +2214,8 @@ Pt:
   Vickers hardness: 549 MN m<sup>-2</sup>
   X: 2.28
   Youngs modulus: 168 GPa
+  common_oxidation_states: [2, 4]
+  oxidation_states: [-2, 2, 4, 5, 6]
 Pu:
   Atomic mass: 244.0
   Atomic no: 94
@@ -2183,6 +2246,8 @@ Pu:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.28
   Youngs modulus: 96 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [3, 4, 5, 6, 7]
 Ra:
   Atomic mass: 226.0
   Atomic no: 88
@@ -2213,6 +2278,8 @@ Ra:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.9
   Youngs modulus: no data GPa
+  common_oxidation_states: [2]
+  oxidation_states: [2]
 Rb:
   Atomic mass: 85.4678
   Atomic no: 37
@@ -2243,6 +2310,8 @@ Rb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.82
   Youngs modulus: 2.4 GPa
+  common_oxidation_states: [1]
+  oxidation_states: [1]
 Re:
   Atomic mass: 186.207
   Atomic no: 75
@@ -2273,6 +2342,8 @@ Re:
   Vickers hardness: 2450 MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 463 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
 Rh:
   Atomic mass: 102.9055
   Atomic no: 45
@@ -2303,35 +2374,19 @@ Rh:
   Vickers hardness: 1246 MN m<sup>-2</sup>
   X: 2.28
   Youngs modulus: 275 GPa
-Rn:
-  Atomic mass: 220.0
-  Atomic no: 86
-  Atomic radius: 1.09
-  Boiling point: 211.3 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 377 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>'
-  Liquid range: 9.3 K
-  Max oxidation state: 0.0
-  Melting point: 202 K
-  Mendeleev no: 6
-  Min oxidation state: 0.0
-  Mineral hardness: no data
-  Molar volume: 50.50 cm<sup>3</sup>
-  Name: Radon
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: no data
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.00361 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: no data m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  Youngs modulus: no data GPa
+  common_oxidation_states: [3]
+  oxidation_states: [-1, 1, 2, 3, 4, 5, 6]
+Rn: {Atomic mass: 220.0, Atomic no: 86, Atomic radius: 1.09, Boiling point: 211.3
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 377 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>',
+  Liquid range: 9.3 K, Max oxidation state: 0.0, Melting point: 202 K, Mendeleev no: 6,
+  Min oxidation state: 0.0, Mineral hardness: no data, Molar volume: 50.50 cm<sup>3</sup>,
+  Name: Radon, Poissons ratio: no data, Reflectivity: no data %, Refractive index: no
+    data, Rigidity modulus: no data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.00361
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: no data m s<sup>-1</sup>,
+  Vickers hardness: no data MN m<sup>-2</sup>, Youngs modulus: no data GPa}
 Ru:
   Atomic mass: 101.07
   Atomic no: 44
@@ -2362,6 +2417,8 @@ Ru:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.2
   Youngs modulus: 447 GPa
+  common_oxidation_states: [3, 4]
+  oxidation_states: [-2, 1, 2, 3, 4, 5, 6, 7, 8]
 S:
   Atomic mass: 32.065
   Atomic no: 16
@@ -2392,6 +2449,8 @@ S:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.58
   Youngs modulus: no data GPa
+  common_oxidation_states: [-2, 2, 4, 6]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
 Sb:
   Atomic mass: 121.76
   Atomic no: 51
@@ -2422,6 +2481,8 @@ Sb:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.05
   Youngs modulus: 55 GPa
+  common_oxidation_states: [-3, 3, 5]
+  oxidation_states: [-3, 3, 5]
 Sc:
   Atomic mass: 44.955912
   Atomic no: 21
@@ -2452,6 +2513,8 @@ Sc:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.36
   Youngs modulus: 74 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Se:
   Atomic mass: 78.96
   Atomic no: 34
@@ -2482,6 +2545,8 @@ Se:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.55
   Youngs modulus: 10 GPa
+  common_oxidation_states: [-2, 2, 4, 6]
+  oxidation_states: [-2, 2, 4, 6]
 Si:
   Atomic mass: 28.0855
   Atomic no: 14
@@ -2512,6 +2577,8 @@ Si:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: 47 GPa
+  common_oxidation_states: [-4, 4]
+  oxidation_states: [-4, -3, -2, -1, 1, 2, 3, 4]
 Sm:
   Atomic mass: 150.36
   Atomic no: 62
@@ -2542,6 +2609,8 @@ Sm:
   Vickers hardness: 412 MN m<sup>-2</sup>
   X: 1.17
   Youngs modulus: 50 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Sn:
   Atomic mass: 118.71
   Atomic no: 50
@@ -2572,6 +2641,8 @@ Sn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.96
   Youngs modulus: 50 GPa
+  common_oxidation_states: [-4, 2, 4]
+  oxidation_states: [-4, 2, 4]
 Sr:
   Atomic mass: 87.62
   Atomic no: 38
@@ -2602,6 +2673,8 @@ Sr:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 0.95
   Youngs modulus: no data GPa
+  common_oxidation_states: [2]
+  oxidation_states: [2]
 Ta:
   Atomic mass: 180.94788
   Atomic no: 73
@@ -2632,6 +2705,8 @@ Ta:
   Vickers hardness: 873 MN m<sup>-2</sup>
   X: 1.5
   Youngs modulus: 186 GPa
+  common_oxidation_states: [5]
+  oxidation_states: [-1, 2, 3, 4, 5]
 Tb:
   Atomic mass: 158.92535
   Atomic no: 65
@@ -2661,6 +2736,8 @@ Tb:
   Velocity of sound: 2620 m s<sup>-1</sup>
   Vickers hardness: 863 MN m<sup>-2</sup>
   Youngs modulus: 56 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 3, 4]
 Tc:
   Atomic mass: 98.0
   Atomic no: 43
@@ -2691,6 +2768,8 @@ Tc:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.9
   Youngs modulus: no data GPa
+  common_oxidation_states: [4, 7]
+  oxidation_states: [-3, -1, 1, 2, 3, 4, 5, 6, 7]
 Te:
   Atomic mass: 127.6
   Atomic no: 52
@@ -2721,6 +2800,8 @@ Te:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 2.1
   Youngs modulus: 43 GPa
+  common_oxidation_states: [-2, 2, 4, 6]
+  oxidation_states: [-2, 2, 4, 5, 6]
 Th:
   Atomic mass: 232.03806
   Atomic no: 90
@@ -2751,6 +2832,8 @@ Th:
   Vickers hardness: 350 MN m<sup>-2</sup>
   X: 1.3
   Youngs modulus: 79 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [2, 3, 4]
 Ti:
   Atomic mass: 47.867
   Atomic no: 22
@@ -2781,6 +2864,8 @@ Ti:
   Vickers hardness: 970 MN m<sup>-2</sup>
   X: 1.54
   Youngs modulus: 116 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [-1, 2, 3, 4]
 Tl:
   Atomic mass: 204.3833
   Atomic no: 81
@@ -2811,6 +2896,8 @@ Tl:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.62
   Youngs modulus: 8 GPa
+  common_oxidation_states: [1, 3]
+  oxidation_states: [1, 3]
 Tm:
   Atomic mass: 168.93421
   Atomic no: 69
@@ -2841,6 +2928,8 @@ Tm:
   Vickers hardness: 520 MN m<sup>-2</sup>
   X: 1.25
   Youngs modulus: 74 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 U:
   Atomic mass: 238.02891
   Atomic no: 92
@@ -2871,6 +2960,8 @@ U:
   Vickers hardness: 1960 MN m<sup>-2</sup>
   X: 1.38
   Youngs modulus: 208 GPa
+  common_oxidation_states: [6]
+  oxidation_states: [3, 4, 5, 6]
 V:
   Atomic mass: 50.9415
   Atomic no: 23
@@ -2901,6 +2992,8 @@ V:
   Vickers hardness: 628 MN m<sup>-2</sup>
   X: 1.63
   Youngs modulus: 128 GPa
+  common_oxidation_states: [5]
+  oxidation_states: [-1, 1, 2, 3, 4, 5]
 W:
   Atomic mass: 183.84
   Atomic no: 74
@@ -2931,36 +3024,19 @@ W:
   Vickers hardness: 3430 MN m<sup>-2</sup>
   X: 2.36
   Youngs modulus: 411 GPa
-Xe:
-  Atomic mass: 131.293
-  Atomic no: 54
-  Atomic radius: 0.986
-  Boiling point: 165.1 K
-  Brinell hardness: no data MN m<sup>-2</sup>
-  Bulk modulus: no data GPa
-  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
-  Critical temperature: 289.7 K
-  Density of solid: no data kg m<sup>-3</sup>
-  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
-  Liquid range: 3.7 K
-  Max oxidation state: 8.0
-  Melting point: 161.4 K
-  Mendeleev no: 5
-  Min oxidation state: 2.0
-  Mineral hardness: no data
-  Molar volume: 35.92 cm<sup>3</sup>
-  Name: Xenon
-  Poissons ratio: no data
-  Reflectivity: no data %
-  Refractive index: '1.000702'
-  Rigidity modulus: no data GPa
-  Superconduction temperature: no data K
-  Thermal conductivity: 0.00565 W m<sup>-1</sup> K<sup>-1</sup>
-  Velocity of sound: 1090 m s<sup>-1</sup>
-  Vickers hardness: no data MN m<sup>-2</sup>
-  X: 2.6
-  Youngs modulus: no data GPa
+  common_oxidation_states: [4, 6]
+  oxidation_states: [-2, -1, 1, 2, 3, 4, 5, 6]
+Xe: {Atomic mass: 131.293, Atomic no: 54, Atomic radius: 0.986, Boiling point: 165.1
+    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
+    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 289.7 K, Density of solid: no
+    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
+    m, Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>',
+  Liquid range: 3.7 K, Max oxidation state: 8.0, Melting point: 161.4 K, Mendeleev no: 5,
+  Min oxidation state: 2.0, Mineral hardness: no data, Molar volume: 35.92 cm<sup>3</sup>,
+  Name: Xenon, Poissons ratio: no data, Reflectivity: no data %, Refractive index: '1.000702',
+  Rigidity modulus: no data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.00565
+    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 1090 m s<sup>-1</sup>, Vickers hardness: no
+    data MN m<sup>-2</sup>, X: 2.6, Youngs modulus: no data GPa}
 Y:
   Atomic mass: 88.90585
   Atomic no: 39
@@ -2991,6 +3067,8 @@ Y:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.22
   Youngs modulus: 64 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [1, 2, 3]
 Yb:
   Atomic mass: 173.04
   Atomic no: 70
@@ -3020,6 +3098,8 @@ Yb:
   Velocity of sound: 1590 m s<sup>-1</sup>
   Vickers hardness: 206 MN m<sup>-2</sup>
   Youngs modulus: 24 GPa
+  common_oxidation_states: [3]
+  oxidation_states: [2, 3]
 Zn:
   Atomic mass: 65.409
   Atomic no: 30
@@ -3050,6 +3130,8 @@ Zn:
   Vickers hardness: no data MN m<sup>-2</sup>
   X: 1.65
   Youngs modulus: 108 GPa
+  common_oxidation_states: [2]
+  oxidation_states: [1, 2]
 Zr:
   Atomic mass: 91.224
   Atomic no: 40
@@ -3080,3 +3162,5 @@ Zr:
   Vickers hardness: 903 MN m<sup>-2</sup>
   X: 1.33
   Youngs modulus: 68 GPa
+  common_oxidation_states: [4]
+  oxidation_states: [1, 2, 3, 4]
