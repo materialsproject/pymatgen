@@ -1,15 +1,19 @@
 #!/usr/bin/env python
+
+"""
+A convenience script engine using VaspObjects to do all manner of simple outputs.
+Written by Shyue Ping Ong
+"""
+
+
 import argparse
 import os
 import re
+
+from multiprocessing import Manager, Pool
+
 from pymatgen.io.vaspio import Vasprun, Outcar
 from pymatgen.util.string_utils import str_aligned
-
-# A convenience script engine using VaspObjects to do all manner of simple outputs.
-# Shyue
-
-import re
-from multiprocessing import Manager, Pool
 
 def get_vasprun_energy(args):
     (rootdir, parent, f, all_data) = args
@@ -57,7 +61,7 @@ def get_magnetizations(mydir, ionList):
 parser = argparse.ArgumentParser(description='''Convenient vasp run analyzer which can recursively go into a directory to search results.
 Author: Shyue Ping Ong
 Version: 1.0
-Last updated: Oct 26 2011''')
+Last updated: Nov 15 2011''')
 parser.add_argument('directories', metavar='dir', default='.', type=str, nargs = '*', help='directory to process (default to .)')
 parser.add_argument('-e', '--energies', dest='get_energies', action='store_const', const=True, help='print energies')
 parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs = 1, help='print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
