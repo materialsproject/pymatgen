@@ -23,7 +23,6 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
-import json
 
 import numpy as np
 from numpy import identity, array, zeros
@@ -39,29 +38,6 @@ from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orb
 from pymatgen.core.lattice import Lattice
 
 coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
-
-class VaspParameterSet(object):
-    """
-    Class representing a set of Vasp input parameters.
-    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
-    can be generated in an automated fashion for any structure.
-    """
-    def __init__(self, name = "MaterialsProject"):
-        """
-        Args:
-            name: 
-                Name of parameters set to use.  Defaults to MaterialsProject parameter set.
-        """
-        self.name = name
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
-        self.potcar_settings = dict(self._config.items(name + 'POTCAR'))
-        self.kpoints_settings = dict(self._config.items(name + 'KPOINTS'))
-        self.incar_settings = dict(self._config.items(name+'INCAR'))
-        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            self.incar_settings[key] = json.loads(self.incar_settings[key])
 
 class Poscar(VaspInput):
     """
@@ -373,35 +349,6 @@ class Incar(dict, VaspInput):
         else:
             return str_delimited(lines, None," = ")
     
-    @staticmethod
-    def from_structure(structure, parameter_set = VaspParameterSet()):
-        """
-        Generates an Incar from a structure and a VaspParameterSet.
-        
-        Arguments:
-            structure:
-                Structure object
-            parameter_set:
-                A VaspParameterSet
-        """
-        incar = Incar()
-        poscar = Poscar(structure)
-        for key, setting in parameter_set.incar_settings.items():
-            if key == "MAGMOM":
-                incar[key] =  [setting.get(site.specie.symbol, 0.6) for site in structure]
-            elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                incar[key] =  [setting.get(sym, 0) for sym in poscar.site_symbols]
-            else:
-                incar[key] = setting
-                
-        has_u = sum(incar['LDAUU']) > 0
-        if not has_u:
-            for key in incar.keys():
-                if key.startswith('LDAU'):
-                    del incar[key]
-        
-        return incar
-    
     def __str__(self):
         return self.get_string(sort_keys = True, pretty = False)
 
@@ -582,32 +529,7 @@ class Kpoints(VaspInput):
             kpoints.style = "Cartesian" if style == "c" else "Reciprocal"
             kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
             kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
-                
-            
         return kpoints
-
-    @staticmethod
-    def from_structure(structure, parameter_set = VaspParameterSet()):
-        """
-        Generate a Kpoints object from a structure and parameter set.
-        
-        Arguments:
-            structure:
-                Structure to generate KPOINTS
-            parameter_set:
-                VaspParameterSet to use. Defaults to Materials Project set.
-                
-        Returns:
-            Kpoints object.
-        """
-        recip = structure.lattice.reciprocal_lattice
-        kpts = [[int(round(int(parameter_set.kpoints_settings['grid_density']) * recip.volume))]]
-        
-        comment = "Auto-generated kpoints file with kpoints parameter = "+parameter_set.kpoints_settings['grid_density']
-        num_kpts = 0
-        style = 'Auto'
-        
-        return Kpoints(comment, num_kpts, style, kpts, [0,0,0])
         
     def write_file(self, filename):
         """
@@ -727,20 +649,15 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = 'PBE', parameter_set = VaspParameterSet()):
+    def set_symbols(self, elements, functional = 'PBE'):
         module_dir = os.path.dirname(pymatgen.__file__)
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
         VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
-        
         del self[:]
         for el in elements:
-            sym = el
-            if parameter_set and Element.is_valid_symbol(el) and el in parameter_set.potcar_settings:
-                sym = parameter_set.potcar_settings[el]
-            reader = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + sym + ".gz"))
-            self.append(PotcarSingle(reader.read()))
-            reader.close()
+            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+                self.append(PotcarSingle(f.read()))
 
 class Vasprun(object):
     """
