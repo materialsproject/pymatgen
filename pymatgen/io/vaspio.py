@@ -57,19 +57,10 @@ class Poscar(VaspInput):
             self._struct = struct
             self._site_symbols = []
             self._natoms = []
-            curr_sym = struct[0].specie.symbol
-            curr_amt = 0
-            for site in struct:
-                el = site.specie
-                if el.symbol == curr_sym:
-                    curr_amt += 1
-                else:
-                    self._site_symbols.append(curr_sym)
-                    self._natoms.append(curr_amt)
-                    curr_sym = el.symbol
-                    curr_amt = 1
-            self._site_symbols.append(curr_sym)
-            self._natoms.append(curr_amt)
+            syms = [site.specie.symbol for site in struct]
+            for s in itertools.groupby(syms):
+                self._site_symbols.append(s[0])
+                self._natoms.append(len(s))
             self._true_names = True
             self._selective_dynamics = None
             self.comment = struct.formula if comment == None else comment    
