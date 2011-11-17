@@ -21,7 +21,8 @@ class MaterialsProjectVaspParameterSetTest(unittest.TestCase):
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
         self.assertEqual(incar['LDAUU'], [5.3, 0, 0])
-        
+        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+         
         si = 14
         coords = list()
         coords.append(array([0,0,0]))
