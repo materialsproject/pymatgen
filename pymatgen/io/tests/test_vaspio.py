@@ -46,24 +46,7 @@ class  IncarTest(unittest.TestCase):
         incar = Incar.from_file(filepath)
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"],"Damped","Wrong Algo")
-        self.assertEqual(float(incar["EDIFF"]),1e-4,"Wrong EDIFF")
-    
-    def test_from_structure(self):
-        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
-        poscar = Poscar.from_file(filepath)
-        incar = Incar.from_structure(poscar.struct)
-        self.assertEqual(incar['LDAUU'], [5.3, 0, 0])
-        si = 14
-        coords = list()
-        coords.append(array([0,0,0]))
-        coords.append(array([0.75,0.5,0.75]))
-
-        #Silicon structure for testing.
-        latt = Lattice(array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
-        struct = Structure(latt,[si,si],coords)
-        incar = Incar.from_structure(struct)
-        self.assertNotIn("LDAU", incar)
-        
+        self.assertEqual(float(incar["EDIFF"]),1e-4,"Wrong EDIFF")        
         
     def test_diff(self):
         filepath1 = os.path.join(module_dir, 'vasp_testfiles','INCAR')
@@ -86,12 +69,6 @@ class  KpointsTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
-    
-    def test_from_structure(self):
-        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
-        poscar = Poscar.from_file(filepath)
-        kpoints = Kpoints.from_structure(poscar.struct)
-        self.assertIsNotNone(kpoints)
         
 class  PotcarTest(unittest.TestCase):
     
