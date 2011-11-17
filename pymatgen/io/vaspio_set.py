@@ -135,6 +135,8 @@ class MITVaspParameterSet(AbstractVaspParameterSet):
                 incar[key] =  [setting.get(site.specie.symbol, 0.6) for site in structure]
             elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
                 incar[key] =  [setting.get(sym, 0) for sym in poscar.site_symbols]
+            elif key == "EDIFF":
+                incar[key] =  float(setting) * structure.num_sites
             else:
                 incar[key] = setting
                 
