@@ -24,7 +24,7 @@ import json
 
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
-class VaspParameterSet(object):
+class AbstractVaspParameterSet(object):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
@@ -74,31 +74,49 @@ class VaspParameterSet(object):
     
     def get_all_vasp_input(self, structure):
         '''
-        Returns all input files
+        Returns all input files as a dict of {filename: file_as_string}
+        
+        Arguments:
+            structure:
+                Structure object
+                
+        Returns:
+            dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
         return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
                 'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
     
     def write_input(self, structure, output_dir, make_dir_if_not_present = True):
+        """
+        Writes a set of VASP input to a directory.
+        
+        Arguments:
+            structure: 
+                Structure object
+            output_dir:
+                Directory to output the VASP input files
+            make_dir_if_not_present:
+                Set to True if you want the directory (and the whole path) to be created if it is not present.
+        """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k,v in self.get_all_vasp_input(structure).items():
             v.write_file(os.path.join(output_dir, k))
     
 
-class MaterialsProjectVaspParameterSet(VaspParameterSet):
+class MITVaspParameterSet(AbstractVaspParameterSet):
     """
-    Class representing a set of Vasp input parameters.
-    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
-    can be generated in an automated fashion for any structure.
+    Standard implementation of VaspParameterSet utilizing parameters in the MIT High-throughput project.
+    The parameters are chosen specifically for a high-throughput project, which means in general smaller
+    pseudopotentials were chosen.
+    
+    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller, K. A. Persson, G. Ceder (2011). 
+    A high-throughput infrastructure for density functional theory calculations. Computational Materials Science, 50(8), 
+    2295-2310. doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
+    
     def __init__(self):
-        """
-        Args:
-            name: 
-                Name of parameters set to use.  Defaults to MaterialsProject parameter set.
-        """
-        self.name = "MaterialsProject"
+        self.name = "MITMatgen"
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
@@ -139,15 +157,10 @@ class MaterialsProjectVaspParameterSet(VaspParameterSet):
             potcar_symbols.append(self.potcar_settings[el] if el in self.potcar_settings else el)
         return Potcar(potcar_symbols)
         
-
     def get_kpoints(self, structure):
         '''
-        Writes out a KPOINTS file using the fully automated grid method
-        The parameter @param tetra controls whether the KPOINTS file instructs
-        VASP to use the tetrahedron method or not, @param kppra is the desired
-        number of kpoints * the number of atoms. 
-        
-        NOTE: uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
+        Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
+        for hexagonal cells and Monkhorst-Pack grids otherwise.
         
         Algorithm: 
             Uses a simple approach scaling the number of divisions along each 
@@ -187,3 +200,21 @@ class MaterialsProjectVaspParameterSet(VaspParameterSet):
         comment = "pymatgen generated Materials Project kpoints with grid density = " + self.kpoints_settings['grid_density'] + ' per atom.'
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0,0,0])        
+
+class MaterialsProjectVaspParameterSet(MITVaspParameterSet):
+    """
+    Class representing a set of Vasp input parameters.
+    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
+    can be generated in an automated fashion for any structure.
+    """
+    def __init__(self):
+        self.name = "MaterialsProject"
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        self._config = ConfigParser.SafeConfigParser()
+        self._config.optionxform = str
+        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
+        self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
+        self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
+        self.incar_settings = dict(self._config.items(self.name+'INCAR'))
+        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
+            self.incar_settings[key] = json.loads(self.incar_settings[key])
