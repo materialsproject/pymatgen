@@ -33,4 +33,10 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`vaspio_set` Module
+------------------------
 
+.. automodule:: pymatgen.io.vaspio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
