@@ -68,10 +68,12 @@ def parse_oxi_state():
                     if m3.group(1):
                         common_oxi.append(int(m3.group(2)))
         if el in data:
-            del data[el]['oxidation_states']
-            del data[el]['common_oxidation_states']
-            data[el]['Oxidation_states'] = oxistates
-            data[el]['Common_oxidation_states'] = common_oxi
+            del data[el]['Max oxidation state']
+            del data[el]['Min oxidation state']
+            del data[el]['Oxidation_states']
+            del data[el]['Common_oxidation_states']
+            data[el]['Oxidation states'] = oxistates
+            data[el]['Common oxidation states'] = common_oxi
         else:
             print el
     with open('periodic_table2.yaml', 'w') as f:

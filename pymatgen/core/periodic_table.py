@@ -101,26 +101,26 @@ class Element(object):
     @property
     def max_oxidation_state(self):
         """Maximum oxidation state for element"""
-        if 'Oxidation_states' in self._data:
-            return max(self._data['Oxidation_states'])
+        if 'Oxidation states' in self._data:
+            return max(self._data['Oxidation states'])
         return 0
     
     @property
     def min_oxidation_state(self):
         """Minimum oxidation state for element"""
-        if 'Oxidation_states' in self._data:
-            return min(self._data['Oxidation_states'])
+        if 'Oxidation states' in self._data:
+            return min(self._data['Oxidation states'])
         return 0
     
     @property
     def oxidation_states(self):
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get('Oxidation_states', list()))
+        return tuple(self._data.get('Oxidation states', list()))
     
     @property
     def common_oxidation_states(self):
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get('Common_oxidation_states', list()))
+        return tuple(self._data.get('Common oxidation states', list()))
     
     @property
     def mendeleev_no(self):
