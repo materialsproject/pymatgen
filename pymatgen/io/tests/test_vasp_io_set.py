@@ -3,9 +3,9 @@ import unittest
 import os
 
 from pymatgen.io.vaspio_set import MaterialsProjectVaspParameterSet
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar
+from pymatgen.io.vaspio import Poscar
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Composition, Structure
+from pymatgen.core.structure import Structure
 from numpy import array
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
