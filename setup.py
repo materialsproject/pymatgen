@@ -8,8 +8,8 @@ setup (
 
   data_files=[('data', ['pymatgen/core/periodic_table.json']),
               ('config', ['pymatgen/io/VaspInputSets.cfg'])],
-  author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter',
-  author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, dkgunter@lbl.gov',
+  author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, Vincent L Chevrier, Rickard Armiento',
+  author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, dkgunter@lbl.gov, vincentchevrier@gmail.com, armiento@mit.edu',
   maintainer = 'Shyue Ping Ong',
   url = 'https://github.com/CederGroupMIT/pymatgen_repo/',
   license = 'MIT',
