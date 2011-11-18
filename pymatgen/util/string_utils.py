@@ -71,11 +71,13 @@ def str_aligned(results, header=None):
 def formula_double_format(afloat, ignore_ones = True, tol=1e-8):
     """
     This function is used to make pretty formulas by formatting the amounts.
-    Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4 
+    Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
+    
     Arguments:
         afloat - a float
         ignore_ones - if true, floats of 1 are ignored.
         tol - tolerance to round to nearest int. i.e. 2.0000000001 -> 2
+    
     Returns:
         A string representation of the float for formulas.
     """

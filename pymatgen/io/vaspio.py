@@ -7,7 +7,7 @@ All major VASP input files, plus the more common Vasp output files are available
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__="Shyue Ping Ong, Rickard Armiento, Vincent L Chevrier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -1179,6 +1179,9 @@ class Outcar(object):
        readLCALCPOL()
 
     See the documentation of those methods for more documentation.
+    
+    Authors: Rickard Armiento, Shyue Ping Ong
+    
     """
     def __init__(self, filename):
         self.filename = filename
