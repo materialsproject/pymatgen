@@ -256,7 +256,7 @@ class StructureFitter(object):
             finaltranslation = mapping_op.translation_vector + mshift[0]
             composite_op = SymmOp.from_rotation_matrix_and_translation_vector(newrot, finaltranslation)
             self._mapping_op = composite_op if self.fixed_is_a else composite_op.inverse
-            #self.time = System.currentTimeMillis() - start
+            #self._mapping_op = mapping_op
             self._cell_misfit = shear_invariant(p)
         
 

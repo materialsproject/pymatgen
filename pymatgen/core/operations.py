@@ -53,8 +53,6 @@ class SymmOp (object):
         """
         if rotation_matrix.shape != (3,3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
-        if abs(abs(np.linalg.det(rotation_matrix)) -1) > tol:
-            raise ValueError("Rotation Matrix must have det = 1. The supplied matrix has det = " + str(np.linalg.det(rotation_matrix)))
         if translation_vec.shape != (3,):
             raise ValueError("Translation vector must be a rank 1 numpy array with 3 elements.")
         affine_matrix = np.eye(4)
