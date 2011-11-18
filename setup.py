@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup (
   name = 'pymatgen',
-  version = '1.0.5',
+  version = '1.0.6',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW'],
 
   data_files=[('data', ['pymatgen/core/periodic_table.json']),
-              ('config', ['pymatgen/io/VaspParameterSets.cfg'])],
+              ('config', ['pymatgen/io/VaspInputSets.cfg'])],
   author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Dan Gunter',
   author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, dkgunter@lbl.gov',
   maintainer = 'Shyue Ping Ong',

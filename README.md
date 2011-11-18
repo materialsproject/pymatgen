@@ -15,7 +15,6 @@ Required for proper functioning of the code.
 1. Python 2.7+ required.  New default modules such as json are used, as well as new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively by all core modules.
 3. scipy 0.9+ - For interpolation, physical constants and other functions. In particular, scipy.spatial.Delaunay is used for phase diagram construction.
-4. PyYAML - For parsing of important PyYaml configuration files.
 5. nose - For complete unittesting. This is NOT optional!
 
 ## Optional Python Libraries ##
