@@ -13,6 +13,7 @@ setup (
   maintainer = 'Shyue Ping Ong',
   url = 'https://github.com/CederGroupMIT/pymatgen_repo/',
   license = 'MIT',
+  description = "pymatgen is the Python library powering the Materials Project (www.materialsproject.org).",
   long_description = 'pymatgen is a Python library for the Materials Project (www.materialsproject.org). It includes core structure definition and utilities, electronic structure objects, and convenient IO from VASP and CIF files.',
   keywords = ["vasp", "materials", "project", "electronic", "structure"],
   classifiers = [
