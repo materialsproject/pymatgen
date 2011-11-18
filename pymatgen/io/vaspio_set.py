@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-This module defines the VaspParameterSet abstract base class and
+This module defines the VaspInputSet abstract base class and
 a concrete implementation for the Materials Project.  The basic
 concept behind a parameter set is to specify a scheme to generate
 a consistent set of Vasp inputs from a structure without further
@@ -24,10 +24,10 @@ import json
 
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
-class AbstractVaspParameterSet(object):
+class AbstractVaspInputSet(object):
     """
     Abstract base class representing a set of Vasp input parameters.
-    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
+    The idea is that using a VaspInputSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
     can be generated in an automated fashion for any structure.
     """
     __metaclass__ = abc.ABCMeta
@@ -104,9 +104,9 @@ class AbstractVaspParameterSet(object):
             v.write_file(os.path.join(output_dir, k))
     
 
-class MITVaspParameterSet(AbstractVaspParameterSet):
+class MITVaspInputSet(AbstractVaspInputSet):
     """
-    Standard implementation of VaspParameterSet utilizing parameters in the MIT High-throughput project.
+    Standard implementation of VaspInputSet utilizing parameters in the MIT High-throughput project.
     The parameters are chosen specifically for a high-throughput project, which means in general smaller
     pseudopotentials were chosen.
     
@@ -120,7 +120,7 @@ class MITVaspParameterSet(AbstractVaspParameterSet):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
+        self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name+'INCAR'))
@@ -149,7 +149,7 @@ class MITVaspParameterSet(AbstractVaspParameterSet):
         return incar
     
     def get_poscar(self, structure):
-        return super(MaterialsProjectVaspParameterSet, self).get_poscar(structure)
+        return super(MaterialsProjectVaspInputSet, self).get_poscar(structure)
 
     def get_potcar(self, structure):               
         p = self.get_poscar(structure)
@@ -203,10 +203,10 @@ class MITVaspParameterSet(AbstractVaspParameterSet):
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0,0,0])        
 
-class MaterialsProjectVaspParameterSet(MITVaspParameterSet):
+class MaterialsProjectVaspInputSet(MITVaspInputSet):
     """
     Class representing a set of Vasp input parameters.
-    The idea is that using a VaspParameterSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
+    The idea is that using a VaspInputSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
     can be generated in an automated fashion for any structure.
     """
     def __init__(self):
@@ -214,7 +214,7 @@ class MaterialsProjectVaspParameterSet(MITVaspParameterSet):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
+        self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name+'INCAR'))
