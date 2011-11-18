@@ -3,16 +3,16 @@
 '''
 This module defines the VaspInputSet abstract base class and
 a concrete implementation for the Materials Project.  The basic
-concept behind a parameter set is to specify a scheme to generate
+concept behind an input set is to specify a scheme to generate
 a consistent set of Vasp inputs from a structure without further
-user intervention.
+user intervention. This ensures comparability across runs.
 '''
 
 from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Nov 16, 2011"

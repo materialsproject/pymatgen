@@ -6,7 +6,7 @@ This module provides classes to define electronic structure, such as the density
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__="Shyue Ping Ong, Vincent L Chevrier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
