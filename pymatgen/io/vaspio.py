@@ -193,9 +193,7 @@ class Poscar(VaspInput):
             ind = 3 if not sdynamics else 6
             try: #check if names are appended at the end of the POSCAR coordinates
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
-                for num in natoms:
-                    if not Element.is_valid_symbol(atomic_symbols[num]):
-                        raise ValueError("Invalid element symbol")
+                [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
             except:
                 #Defaulting to false names.
                 atomic_symbols = list()
