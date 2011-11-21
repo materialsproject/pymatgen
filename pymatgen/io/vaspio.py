@@ -187,29 +187,22 @@ class Poscar(VaspInput):
         #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
         if default_names:
             atomic_symbols = list()
-            names = list()
             for i in xrange(len(natoms)):
-                names.append(default_names[i])
                 atomic_symbols.extend([default_names[i]] * natoms[i])
         elif not vasp5_symbols:
+            ind = 3 if not sdynamics else 6
             try: #check if names are appended at the end of the POSCAR coordinates
-                atomic_symbols = [l.split()[3] for l in lines[ipos + 1:ipos + 1 + nsites]]
-                count = 0
-                names = list()
+                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
                 for num in natoms:
-                    if not Element.is_valid_symbol(atomic_symbols[count]):
-                        raise ValueError("Invalid name")
-                    names.append(atomic_symbols[count])
-                    count += num
+                    if not Element.is_valid_symbol(atomic_symbols[num]):
+                        raise ValueError("Invalid element symbol")
             except:
                 #Defaulting to false names.
-                names = list()
                 atomic_symbols = list()
                 for i in xrange(len(natoms)):
                     sym = Element.from_Z(i+1).symbol
-                    names.append(sym)
                     atomic_symbols.extend([sym] * natoms[i])
-                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(names)+".")
+                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
 
         # read the atomic coordinates
         coords = []
