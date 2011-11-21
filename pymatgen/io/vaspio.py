@@ -25,7 +25,6 @@ from collections import defaultdict
 import ConfigParser
 
 import numpy as np
-from numpy import identity, array, zeros
 from numpy.linalg import det
 
 import pymatgen
@@ -46,13 +45,15 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
     
-    def __init__(self, struct, comment = None):
+    def __init__(self, struct, comment = None, selective_dynamics = None):
         """        
         Arguments:
             struct:
                 Structure object. See pymatgen.core.structure.Structure.
             comment:
-                Optional comment line for POSCAR. Defaults to unit cell formula of structure.
+                Optional comment line for POSCAR. Defaults to unit cell formula of structure. Defaults to None.
+            selective_dynamics:
+                Nx3 2D array of boolean values for selective dynamics, where N is number of sites. Defaults to None.
         """
 
         if struct.is_ordered:
@@ -64,10 +65,22 @@ class Poscar(VaspInput):
                 self._site_symbols.append(s[0])
                 self._natoms.append(len(s))
             self._true_names = True
-            self._selective_dynamics = None
+            if selective_dynamics:
+                self.set_selective_dynamics(selective_dynamics)
+            else:
+                self._selective_dynamics = None
             self.comment = struct.formula if comment == None else comment    
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
+
+    def set_selective_dynamics(self, selective_dynamics):
+        if selective_dynamics and len(selective_dynamics) != len(self._struct):
+            raise ValueError("Selective dynamics array must be same length as the structure.")      
+        self._selective_dynamics = selective_dynamics
+    
+    @property
+    def selective_dynamics(self):
+        return self._selective_dynamics
 
     @property
     def site_symbols(self):
@@ -160,8 +173,10 @@ class Poscar(VaspInput):
         
         postype = lines[ipos].split()[0]
         
+        sdynamics = False
         # Selective dynamics
         if postype[0] in 'sS':
+            sdynamics = True
             ipos += 1
             postype = lines[ipos].split()[0]
         
@@ -197,11 +212,17 @@ class Poscar(VaspInput):
                 warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(names)+".")
 
         # read the atomic coordinates
-        coords = [[float(s) for s in lines[ipos + 1 + i].split()[:3]] for i in xrange(nsites)]
+        coords = []
+        selective_dynamics = list() if sdynamics else None
+        for i in xrange(nsites):
+            toks = lines[ipos + 1 + i].split()
+            coords.append([float(s) for s in toks[:3]])
+            if sdynamics:
+                selective_dynamics.append([True if tok.upper()[0] == 'T' else False for tok in toks[3:6]])
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct,comment)
+        return Poscar(struct,comment, selective_dynamics)
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """
@@ -217,24 +238,25 @@ class Poscar(VaspInput):
         Returns:
             String representation of POSCAR.
         """
-        lines = []
-        lines += [self.comment]
-        lines += ["1.0"]
-        lines += [str(self._struct.lattice)]
+        lines = [self.comment]
+        lines.append("1.0")
+        lines.append(str(self._struct.lattice))
         if self._true_names == True and not vasp4_compatible:
-            lines += [" ".join(self._site_symbols)]
-        lines += [" ".join([str(x) for x in self._natoms])]
-        if self._selective_dynamics != None:
-            lines += ["Selective dynamics"]
-            #extra = map(lambda sdrow: " " + ("F", "T")[sdrow[0]] + " " + ("F", "T")[sdrow[1]] + " " + ("F", "T")[sdrow[2]], self._selective_dynamics)
-        #else:
-        #    extra = None
-        if direct == True:
-            lines += ["direct"]
-            lines += ["%.6f %.6f %.6f %s" % (site.a, site.b, site.c, site.species_string) for site in self._struct.sites]  
-        else:
-            lines += ["cartesian"]
-            lines += ["%.6f %.6f %.6f %s" % (site.x, site.y, site.z, site.species_string) for site in self._struct.sites]
+            lines.append(" ".join(self._site_symbols))
+        lines.append(" ".join([str(x) for x in self._natoms]))
+        if self._selective_dynamics:
+            lines.append("Selective dynamics")
+        lines.append('direct' if direct else 'cartesian')         
+        
+        for i in xrange(len(self._struct)):
+            site = self._struct[i]
+            coords = site.frac_coords if direct else site.coords
+            line = "%.6f %.6f %.6f" % (coords[0], coords[1], coords[2])
+            if self._selective_dynamics:
+                sd = ['T' if j else 'F' for j in self._selective_dynamics[i]]
+                line += " %s %s %s" % (sd[0], sd[1], sd[2])
+            line += " " + site.species_string
+            lines.append(line)
 
         return "\n".join(lines)    
 
@@ -1227,30 +1249,30 @@ class Outcar(object):
         try:
             search = []
             # Nonspin cases
-            def er_ev(results, match): results.er_ev[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_ev[Spin.down] = results.er_ev[Spin.up]; results.context = 2
+            def er_ev(results, match): results.er_ev[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_ev[Spin.down] = results.er_ev[Spin.up]; results.context = 2
             search.append(['^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev])
 
-            def er_bp(results, match): results.er_bp[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_bp[Spin.down] = results.er_bp[Spin.up]
+            def er_bp(results, match): results.er_bp[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_bp[Spin.down] = results.er_bp[Spin.up]
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == 2, er_bp])
 
             # Spin cases
-            def er_ev_up(results, match): results.er_ev[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.up
+            def er_ev_up(results, match): results.er_ev[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.up
             search.append(['^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev_up])
 
-            def er_bp_up(results, match): results.er_bp[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def er_bp_up(results, match): results.er_bp[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == Spin.up, er_bp_up])
 
-            def er_ev_dn(results, match): results.er_ev[Spin.down] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.down
+            def er_ev_dn(results, match): results.er_ev[Spin.down] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.down
             search.append(['^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev_dn])
 
-            def er_bp_dn(results, match): results.er_bp[Spin.down] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def er_bp_dn(results, match): results.er_bp[Spin.down] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == Spin.down, er_bp_dn])
 
             # Always present spin/non-spin
-            def p_elc(results, match): results.p_elc = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_elc(results, match): results.p_elc = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_elc])
 
-            def p_ion(results, match): results.p_ion = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_ion(results, match): results.p_ion = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_ion])
 
             self.context = None
@@ -1281,36 +1303,36 @@ class Outcar(object):
             def dielectric_section_start2(results, match): results.dielectric_index = 0
             search.append(['-------------------------------------', lambda results, line: results.dielectric_index == -1, dielectric_section_start2])
 
-            def dielectric_data(results, match): results.dielectric_tensor[results.dielectric_index, :] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.dielectric_index += 1
+            def dielectric_data(results, match): results.dielectric_tensor[results.dielectric_index, :] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.dielectric_index += 1
             search.append(['^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$', lambda results, line: results.dielectric_index >= 0, dielectric_data])
 
             def dielectric_section_stop(results, match): results.dielectric_index = None
             search.append(['-------------------------------------', lambda results, line: results.dielectric_index >= 1, dielectric_section_stop])
 
             self.dielectric_index = None
-            self.dielectric_tensor = zeros((3, 3))
+            self.dielectric_tensor = np.zeros((3, 3))
 
 
             def piezo_section_start(results, match): results.piezo_index = 0;
             search.append(['PIEZOELECTRIC TENSOR  for field in x, y, z        \(e  Angst\)', None, piezo_section_start])
 
-            def piezo_data(results, match): results.piezo_tensor[results.piezo_index, :] = array([float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)), float(match.group(5)), float(match.group(6))]); results.piezo_index += 1
+            def piezo_data(results, match): results.piezo_tensor[results.piezo_index, :] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)), float(match.group(5)), float(match.group(6))]); results.piezo_index += 1
             search.append(['^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$', lambda results, line: results.piezo_index >= 0, piezo_data])
 
             def piezo_section_stop(results, match): results.piezo_index = None
             search.append(['-------------------------------------', lambda results, line: results.piezo_index >= 1, piezo_section_stop])
 
             self.piezo_index = None
-            self.piezo_tensor = zeros((3, 6))
+            self.piezo_tensor = np.zeros((3, 6))
 
 
             def born_section_start(results, match): results.born_ion = -1;
             search.append(['BORN EFFECTIVE CHARGES \(in e, cummulative output\)', None, born_section_start])
 
-            def born_ion(results, match): results.born_ion = int(match.group(1))-1; results.born[results.born_ion] = zeros((3, 3));
+            def born_ion(results, match): results.born_ion = int(match.group(1))-1; results.born[results.born_ion] = np.zeros((3, 3));
             search.append(['ion +([0-9]+)', lambda results, line: results.born_ion != None, born_ion])
 
-            def born_data(results, match): results.born[results.born_ion][int(match.group(1))-1, :] = array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
+            def born_data(results, match): results.born[results.born_ion][int(match.group(1))-1, :] = np.array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
             search.append(['^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$', lambda results, line: results.born_ion >= 0, born_data])
 
             def born_section_stop(results, match): results.born_index = None
@@ -1335,10 +1357,10 @@ class Outcar(object):
             search = []
 
             # Always present spin/non-spin
-            def p_elc(results, match): results.p_elc = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_elc(results, match): results.p_elc = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_elc])
 
-            def p_ion(results, match): results.p_ion = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_ion(results, match): results.p_ion = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_ion])
 
             micro_pyawk(self.filename, search, self)
@@ -1426,7 +1448,7 @@ class VolumetricData(object):
 
         self.dim = a
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        uppot = zeros((a[0], a[1], a[2]))
+        uppot = np.zeros((a[0], a[1], a[2]))
         count = 0
         for z in xrange(a[2]):
             for y in xrange(a[1]):
@@ -1436,7 +1458,7 @@ class VolumetricData(object):
         if spinpolarized:
             data = (" ".join(lines[j + 1:])).split()
             data = data[:(a[0] * a[1] * a[2])]
-            downpot = zeros((a[0], a[1], a[2]))
+            downpot = np.zeros((a[0], a[1], a[2]))
             count = 0
             for (z,y,x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
                 downpot[x, y, z] = float(data[count]) 
@@ -1466,7 +1488,7 @@ class Locpot(VolumetricData):
         m = self.data[Spin.up]
         
         ng = self.dim
-        avg = zeros((ng[ind], 1))
+        avg = np.zeros((ng[ind], 1))
         for i in xrange(ng[ind]):
             mysum = 0
             for j in xrange(ng[(ind + 1) % 3]):
@@ -1500,7 +1522,7 @@ class Chgcar(VolumetricData):
         a = self.dim
         distances = dict()
         for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            pt = array([x / a[0], y / a[1] ,z / a[2]])
+            pt = np.array([x / a[0], y / a[1] ,z / a[2]])
             distances[(x,y,z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
         self._distance_matrix[ind] = distances
 
@@ -1548,7 +1570,7 @@ class Chgcar(VolumetricData):
                     modx = x % a[0]
                     mody = y % a[1]
                     modz = z % a[2]
-                    pt = array([modx *1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
+                    pt = np.array([modx *1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
                     dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
                     if dist < radius:
                         intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
@@ -1591,9 +1613,9 @@ class Procar(object):
                 linefloatdata = map(float, linedata)
                 index = int(linefloatdata.pop(0))
                 if index in self.data:
-                    self.data[index] = self.data[index] + array(linefloatdata) * weight
+                    self.data[index] = self.data[index] + np.array(linefloatdata) * weight
                 else:
-                    self.data[index] = array(linefloatdata) * weight
+                    self.data[index] = np.array(linefloatdata) * weight
 
 
 class VaspParserError(Exception):
