@@ -49,12 +49,11 @@ direct
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
 0.000000 -2.217138 3.135509
-Si O
 1 1
 Selective dynamics
 direct
-0.000000 0.000000 0.000000 T T T
-0.750000 0.500000 0.750000 F F F"""
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
 
