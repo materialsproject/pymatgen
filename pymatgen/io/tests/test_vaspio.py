@@ -16,7 +16,34 @@ class  PoscarTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         comp = poscar.struct.composition
         self.assertEqual(comp,Composition.from_formula("Fe4P4O16"))
+        
+        #Vasp 4 type with symbols at the end.
+        poscar_string = """Test1
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(poscar.struct.composition, Composition.from_formula("SiF"))
+        
+        #Vasp 4 tyle file with default names, i.e. no element symbol found.
+        poscar_string = """Test2
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000
+0.750000 0.500000 0.750000"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
 
+    def test_str(self):
         si = 14
         coords = list()
         coords.append(array([0,0,0]))
