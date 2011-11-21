@@ -50,6 +50,7 @@ class VaspParameterSet(object):
         self.incar_settings = dict(self._config.items(name+'INCAR'))
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             self.incar_settings[key] = json.loads(self.incar_settings[key])
+        
 
 class Poscar(VaspInput):
     """
@@ -436,6 +437,7 @@ class Kpoints(VaspInput):
     are stored as is but the kpts are stored
     as a list which can be accessed and
     modified
+    GH: NEEDS to be updated to work with band structure kpoint files
     """
     def __init__(self, comment = "Default", num_kpts = 0, style = "Gamma", kpts = [[1,1,1]], kpts_shift = [0,0,0]):
         self.comment = comment
@@ -621,7 +623,7 @@ class Vasprun(object):
     
     Author: Shyue Ping Ong
     """
-    supported_properties = ['vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
+    supported_properties = ['lattice_rec','vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
                             'actual_kpoints_weights', 'dos_energies', 'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi', 'ionic_steps', 'dos_has_errors']
     
     def __init__(self, filename):
@@ -705,6 +707,7 @@ class Vasprun(object):
         d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))] 
         d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
         d['input']['parameters'] = {k:v for k,v in self.parameters.items()}
+        d['input']['lattice_rec'] = self.lattice_rec
         
         d['output'] = {}
         d['output']['ionic_steps'] = clean_json(self.ionic_steps)
@@ -751,10 +754,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.efermi = None 
         self.ionic_steps = [] # should be a list of dict
         self.structures = []
+        self.lattice_rec = []
         
         self.input_read = False
         self.all_calculations_read = False
         self.read_structure = False
+        self.read_rec_lattice = False
         self.read_calculation = False
         self.read_eigen = False
         self.read_dos= False
@@ -809,6 +814,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.read_lattice = True
                 elif name == "v" and self.state['varray'] == 'positions':
                     self.read_positions = True
+                if name == 'v' and self.state['varray'] == 'rec_basis':
+                    self.read_rec_lattice = True
             if name == "calculation":
                 self.scdata = []
                 self.read_calculation = True
@@ -816,6 +823,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.scstep = {}
             elif name == 'structure':
                 self.latticestr = StringIO.StringIO()
+                self.latticerec = StringIO.StringIO()
                 self.posstr = StringIO.StringIO()
                 self.read_structure = True
             elif name == 'varray' and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
@@ -864,6 +872,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.latticestr.write(data)
         elif self.read_positions:
             self.posstr.write(data)
+        elif self.read_rec_lattice:
+            self.latticerec.write(data)
+
     
     #To correct for stupid vasp bug which names Xenon as X!!
     EL_MAPPINGS = {'X':'Xe'}
@@ -928,12 +939,16 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 if name == "v":
                     self.read_positions = False
                     self.read_lattice = False
+                    self.read_lattice_rec = False
+                    self.read_rec_lattice = False
                 elif name == "structure":
                     self.lattice = np.array([float(x) for x in re.split("\s+",self.latticestr.getvalue().strip())])
                     self.lattice.shape = (3,3)
                     self.pos = np.array([float(x) for x in re.split("\s+",self.posstr.getvalue().strip())])
                     self.pos.shape = (len(self.atomic_symbols), 3)
                     self.structures.append(Structure(self.lattice, self.atomic_symbols, self.pos))
+                    self.lattice_rec = np.array([float(x) for x in re.split("\s+",self.latticerec.getvalue().strip())])
+                    self.lattice_rec.shape = (3,3)
                     self.read_structure = False
             elif self.read_dos:
                 try:
