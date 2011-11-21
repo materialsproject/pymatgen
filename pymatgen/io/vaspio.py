@@ -42,6 +42,8 @@ coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)
 class Poscar(VaspInput):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
+    Please note that this current implementation does not parse selective
+    dynamcics POSCAR files.
     """
     
     def __init__(self, struct, comment = None):
@@ -113,7 +115,7 @@ class Poscar(VaspInput):
             return Poscar.from_string(f.read(), names)
     
     @staticmethod
-    def from_string(string_data, default_names = None):
+    def from_string(data, default_names = None):
         """
         Reads a Poscar from a string.
         The code will try its best to determine the elements in the POSCAR in the following order:
@@ -124,93 +126,78 @@ class Poscar(VaspInput):
         that does not require specific elemental properties should work fine.
         
         Arguments:
-            string_data:
+            data:
                 string containing Poscar data.
                 
         Returns:
             Poscar object.
         """
         
-        lines = tuple(clean_lines(string_data.split("\n"), False))
+        lines = tuple(clean_lines(data.split("\n"), False))
 
         comment = lines[0]
         scale = float(lines[1])
-        lattice = identity(3, float)
-        lattice[0] = array([float(s) for s in lines[2].split()])
-        lattice[1] = array([float(s) for s in lines[3].split()])
-        lattice[2] = array([float(s) for s in lines[4].split()])
+        lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
         if scale < 0:
             vol = abs(det(lattice))
-            lattice = (-scale / vol) ** (1. / 3.) * lattice
+            lattice = (-scale / vol) ** (1/3) * lattice
         else:
             lattice = scale * lattice
         lattice = Lattice(lattice)
-
-        found_symbols = False
+        
+        vasp5_symbols = False
         try:
             natoms = [int(s) for s in lines[5].split()]
+            ipos = 6
         except:
-            found_symbols = True
-
-        #Checking for Vasp5+ style Poscars
-        if found_symbols:
+            vasp5_symbols = True
             symbols = lines[5].split()
             natoms = [int(s) for s in lines[6].split()]
             atomic_symbols = list()
             for i in xrange(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
             ipos = 7
-        else:
-            ipos = 6
-
+        
         postype = lines[ipos].split()[0]
-        cart = False
+        
         # Selective dynamics
         if postype[0] in 'sS':
             ipos += 1
             postype = lines[ipos].split()[0]
-        if postype[0] in 'cCkK':
-            cart = True
-        N = sum(natoms)
+        
+        cart = postype[0] in 'cCkK'
+        nsites = sum(natoms)
 
-        # See if the element names are appended at the end.
-        if not found_symbols:
-            try:
-                atomic_symbols = [l.split()[3] for l in lines[ipos + 1:ipos + 1 + N]]
-                count = 0
-                names = list()
-                for num in natoms:
-                    if not Element.is_valid_symbol(atomic_symbols[count]):
-                            raise ValueError("Invalid name")
-                    names.append(atomic_symbols[count])
-                    count += num
-                found_symbols = True
-            except:
-                pass
-
-        if (not found_symbols) and default_names:
+        #If default_names is specified (usually coming from a POTCAR), use them.
+        #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
+        if default_names:
             atomic_symbols = list()
             names = list()
             for i in xrange(len(natoms)):
                 names.append(default_names[i])
                 atomic_symbols.extend([default_names[i]] * natoms[i])
-            found_symbols = True
-
-        #Defaulting to false names.
-        if not found_symbols:
-            names = list()
-            atomic_symbols = list()
-            for i in xrange(len(natoms)):
-                sym = Element.from_Z(i+1).symbol
-                names.append(sym)
-                atomic_symbols.extend([sym] * natoms[i])
-            warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(names)+".")
+        elif not vasp5_symbols:
+            try: #check if names are appended at the end of the POSCAR coordinates
+                atomic_symbols = [l.split()[3] for l in lines[ipos + 1:ipos + 1 + nsites]]
+                count = 0
+                names = list()
+                for num in natoms:
+                    if not Element.is_valid_symbol(atomic_symbols[count]):
+                        raise ValueError("Invalid name")
+                    names.append(atomic_symbols[count])
+                    count += num
+            except:
+                #Defaulting to false names.
+                names = list()
+                atomic_symbols = list()
+                for i in xrange(len(natoms)):
+                    sym = Element.from_Z(i+1).symbol
+                    names.append(sym)
+                    atomic_symbols.extend([sym] * natoms[i])
+                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(names)+".")
 
         # read the atomic coordinates
-        coords = zeros((N, 3), float)
-        for i in xrange(N):
-            iL = ipos + 1 + i
-            coords[i] = array([float(s) for s in lines[iL].split()[:3]], float)
+        coords = [[float(s) for s in lines[ipos + 1 + i].split()[:3]] for i in xrange(nsites)]
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
