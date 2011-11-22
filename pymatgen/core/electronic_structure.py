@@ -16,6 +16,7 @@ __date__ ="Sep 23, 2011"
 
 import numpy as np
 import scipy.interpolate as spint
+from pymatgen.core.lattice import Lattice
 
 class _SpinImpl(object):
     """
@@ -394,6 +395,227 @@ def plot_dos(dos_dict, zero_at_efermi = True):
     pylab.ylabel('Density of states', fontsize = 'large')
     pylab.legend()
     pylab.show()
+    
+class Bandstructure(object):
+    
+    """
+    Created on Nov 2, 2011
 
+    @author: geoffroy (geoffroy.hautier@uclouvain.be)
     
+    The object stores a band structure along symmetry directions.
     
+    the constructor takes:
+    
+    -kpoints: a list of kpoints in a numpy array format
+    -eigenvals: a list of dictionnary (one per band), each dictionary has
+    a list of float linked to an 'energy' key and a list of float linked to an 'occupation' key
+    the order in which the list is set corresponds to the kpoints given in the kpoints list
+    -labels_dict: a dictionnary of label associated with a kpoint
+    -rec_lattice: the reciprocal lattice as a Lattice object
+    -the structure as a Structure object
+    
+    Here is an example of call for the class (two kpoints, one band):
+    
+    kpoints=[np.array([0,0,0]),np.array([0.5,0.5,0.5])]
+    eigenvals=[]
+    eigenvals.append({'energy':[0,6.0],'occup':[1.0,1.0]})
+    eigenvals.append({'energy':[2.0,7.0],'occup':[0.0,0.0]})
+    labels_dict={'Gamma':np.array([0,0,0]),'X':np.array([0.5,0.5,0.5])
+    rec_lattice=Lattice(np.array([[1, 0, 0],[0, 1, 0],[0, 0, 1]]))
+    
+    bs_example=BandStructure(kpoints,eigenvals,labels_dict,rec_lattice,None)
+    
+    The kpoints are stored in self._kpoints as list of dictionary
+    each element in the list stores 
+    "kpoint": the actual kpoint in cartesian coordinates (not fractional and WITH the factor 2pi)
+            stored as a numpy array.
+    "distance": the distance along the x axes when band structures are plotted
+    "label" the label of the kpoint (gamma, X etc...), None value if no label has been assigned
+    "branch": the branch the kpoint belongs to (e.g., gamma-X)
+    
+    the energy bands are stored in self._bands, it's a list of dictionary, each dictionary relates
+    to one band. The number of bands is stored also in self._nb_bands.
+    each dictionary stores:
+    "energy": a list of energy (ordered as the kpoints are ordered in self._kpoints), 
+    "occup": a list of occupations for this band for each kpoint(ordered as the kpoints are ordered in self._kpoints)
+
+
+    Many TODOs in this class:
+    
+    -add a way to enter k-points in fractional coords too
+    -deal better with the need or not to pass a structure (compute the direct lattice from reciprocal?)
+    -add spins
+    -add a class taking care of band projections on orbitals
+    -...
+
+    """
+
+    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure):
+        
+        
+        self._structure=structure
+        
+        """
+        the structure as a Structure object
+        """
+        
+        self._lattice_rec=rec_lattice
+        
+        """
+        reciprocal lattice as a Lattice object
+        """
+        
+        self._kpoints=[]
+        self._kpoints=[{'kpoint':kpoints[i]} for i in range(len(kpoints))]
+        """
+        all kpoints, (order matter!)
+        """
+        
+        
+        self._labels_dict=labels_dict
+        
+        """
+        the labels to the kpoints
+        """
+        
+        self._branches=[]
+        """
+        list used to know what kpoints are in waht branch
+        """
+        self._bands=eigenvals
+        """
+        all energy values for each band at the different kpoints
+        """
+        self._nb_bands=len(eigenvals)
+        """
+        the number of bands
+        """
+        self._branch_labels=set()
+        """
+        all branches labels (ex: Gamma-Z, etc...)
+        """ 
+        
+        one_group=[]
+        branches=[]
+        #get labels and distance for each kpoint
+        previous_kpoint=self._kpoints[0]['kpoint']
+        previous_distance=0.0
+        
+        previous_label=self.get_label(self._kpoints[0]['kpoint'],self._labels_dict)
+        for i in range(len(self._kpoints)):
+            label=self.get_label(self._kpoints[i]['kpoint'],self._labels_dict)
+            if(label!=None and previous_label!=None and label!=previous_label):
+                self._kpoints[i]['distance']=previous_distance+0.05
+            else:
+                self._kpoints[i]['distance']=np.linalg.norm(self._kpoints[i]['kpoint']-previous_kpoint)+previous_distance
+            previous_kpoint=self._kpoints[i]['kpoint']
+            previous_distance=self._kpoints[i]['distance']
+            label=self.get_label(self._kpoints[i]['kpoint'],self._labels_dict)
+            self._kpoints[i]['label']=label
+            
+            if label!=None:
+                if(previous_label!=None and label!=previous_label):
+                    branches.append(one_group)
+                    one_group=[]
+            previous_label=label
+            one_group.append(i)
+            
+            
+        branches.append(one_group)
+        self._branches=branches
+        
+        #go through all the branches and assign their branch name to each kpoint
+        for b in branches:
+            label_start=self.get_label(self._kpoints[b[0]]['kpoint'],self._labels_dict)
+            label_end=self.get_label(self._kpoints[b[-1]]['kpoint'],self._labels_dict)
+            for c in b:
+                self._kpoints[c]['branch']=label_start+"-"+label_end
+                self._branch_labels.add(self._kpoints[c]['branch'])
+                
+                
+    def get_label(self,kpoint,labels_dict):
+        """
+        simple method giving a label for any kpoint
+        """
+        for c in labels_dict:
+            if(np.linalg.norm(kpoint-np.array(labels_dict[c]))<0.0001):
+                return c
+        return None
+                
+    def getVBM(self):
+        """
+        get the valence band minimum (VBM). returns a dictionnary with
+        'band_index': the index of the band containing the VBM (TODO: deal with the case when several bands contain the VBM)
+        'kpoint_index': the index in self._kpoints of the kpoint vbm
+        'kpoint': the kpoint (in cartesian with 2pi factor)
+        'energy': the energy of the VBM
+        'label': the label of the vbm kpoint if any
+        """
+        max_tmp=-1000.0
+        index=None
+        index_band=None
+        for i in range(self._nb_bands):
+            for j in range(len(self._kpoints)):
+                if(self._bands[i]['occup'][j]>0.0):
+                    if(self._bands[i]['energy'][j]>max_tmp):
+                        max_tmp=self._bands[i]['energy'][j]
+                        index=j
+                        kpointvbm=self._kpoints[j]
+                        index_band=i
+        return {'band_index':index_band,'kpoint_index':index,'kpoint':kpointvbm['kpoint'],'energy':max_tmp,'label':kpointvbm['label']}
+    
+    def getCBM(self):
+        """
+        get the conduction band minimum (CBM). returns a dictionnary with
+        'band_index': the index of the band containing the CBM (TODO: deal with the case when several bands contain the CBM)
+        'kpoint_index': the index in self._kpoints of the kpoint cbm
+        'kpoint': the kpoint (in cartesian with 2pi factor)
+        'energy': the energy of the CBM
+        'label': the label of the cbm kpoint if any
+        """
+        min_tmp=1000.0
+        index=None
+        index_band=None
+        for i in range(self._nb_bands):
+            for j in range(len(self._kpoints)):
+                if(self._bands[i]['occup'][j]==0.0):
+                    if(self._bands[i]['energy'][j]<min_tmp):
+                        min_tmp=self._bands[i]['energy'][j]
+                        index=j
+                        kpointcbm=self._kpoints[j]
+                        index_band=i
+        return {'band_index':index_band,'band_index':index_band,'kpoint_index':index,'kpoint':kpointcbm['kpoint'],'energy':min_tmp,'label':kpointcbm['label']}
+
+    def plot_bands(self):
+        """
+        plot the band structure.
+        TODO: add more options
+        """
+        import pylab 
+        for bl in self._branch_labels:
+            for i in range(self._nb_bands):
+                pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'o-')
+        ticks=self.get_ticks()
+        pylab.gca().set_xticks(ticks['distance'])
+        pylab.gca().set_xticklabels(ticks['label'])
+        pylab.xlabel('Kpoints', fontsize = 'large')
+        pylab.ylabel('Energy(eV)', fontsize = 'large')
+        vbm=self.getVBM()['energy']
+        cbm=self.getCBM()['energy']
+        pylab.ylim(vbm-4,cbm+4)
+        pylab.show()
+        pylab.legend()
+        
+        
+    def get_ticks(self):
+        """
+        get all ticks and labels for a band structure plot
+        """
+        tick_distance=[]
+        tick_labels=[]
+        for c in self._kpoints:
+            if(c['label']!=None):
+                tick_distance.append(c['distance'])
+                tick_labels.append(c['label'])
+        return {'distance':tick_distance,'label':tick_labels} 
