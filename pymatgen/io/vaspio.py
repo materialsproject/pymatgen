@@ -23,6 +23,7 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
+import json
 
 import numpy as np
 from numpy.linalg import det
