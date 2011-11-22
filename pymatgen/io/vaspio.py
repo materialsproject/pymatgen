@@ -1,16 +1,19 @@
 #!/usr/bin/env python
-from __future__ import division
+
 """
 Classes for reading/manipulating/writing VASP files.
+All major VASP input files, plus the more common Vasp output files are available.
 """
 
-__author__="Shyue Ping Ong"
+from __future__ import division
+
+__author__="Shyue Ping Ong, Rickard Armiento, Vincent L Chevrier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import os
 import re
@@ -20,10 +23,8 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
-import json
 
 import numpy as np
-from numpy import identity, array, zeros
 from numpy.linalg import det
 
 import pymatgen
@@ -55,38 +56,46 @@ class VaspParameterSet(object):
 class Poscar(VaspInput):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
+    Please note that this current implementation does not parse selective
+    dynamcics POSCAR files.
     """
     
-    def __init__(self, struct, comment = None):
-        """
-        Creates a POSCAR file from a Structure object.
+    def __init__(self, struct, comment = None, selective_dynamics = None):
+        """        
         Arguments:
-            struct - Structure object. See pymatgen.core.structure.Structure.
-            comment - Optional comment line for POSCAR. Defaults to unit cell formula of structure.
+            struct:
+                Structure object. See pymatgen.core.structure.Structure.
+            comment:
+                Optional comment line for POSCAR. Defaults to unit cell formula of structure. Defaults to None.
+            selective_dynamics:
+                Nx3 2D array of boolean values for selective dynamics, where N is number of sites. Defaults to None.
         """
 
         if struct.is_ordered:
             self._struct = struct
             self._site_symbols = []
             self._natoms = []
-            curr_sym = struct[0].specie.symbol
-            curr_amt = 0
-            for site in struct:
-                el = site.specie
-                if el.symbol == curr_sym:
-                    curr_amt += 1
-                else:
-                    self._site_symbols.append(curr_sym)
-                    self._natoms.append(curr_amt)
-                    curr_sym = el.symbol
-                    curr_amt = 1
-            self._site_symbols.append(curr_sym)
-            self._natoms.append(curr_amt)
+            syms = [site.specie.symbol for site in struct]
+            for s in itertools.groupby(syms):
+                self._site_symbols.append(s[0])
+                self._natoms.append(len(s))
             self._true_names = True
-            self._selective_dynamics = None
+            if selective_dynamics:
+                self.set_selective_dynamics(selective_dynamics)
+            else:
+                self._selective_dynamics = None
             self.comment = struct.formula if comment == None else comment    
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
+
+    def set_selective_dynamics(self, selective_dynamics):
+        if selective_dynamics and len(selective_dynamics) != len(self._struct):
+            raise ValueError("Selective dynamics array must be same length as the structure.")      
+        self._selective_dynamics = selective_dynamics
+    
+    @property
+    def selective_dynamics(self):
+        return self._selective_dynamics
 
     @property
     def site_symbols(self):
@@ -107,139 +116,153 @@ class Poscar(VaspInput):
         """
         Reads a Poscar from a file.
         The code will try its best to determine the elements in the POSCAR in the following order:
-            i) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
-            ii) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
-            iii) Failing (i) and (ii), the code will try to check if a POTCAR is in the same directory as the POSCAR and use elements from that.
+        1. Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
+        2. Failing (1), the code will check if a symbol is provided at the end of each coordinate.
+        3. Failing (i) and (ii), the code will try to check if a POTCAR is in the same directory as the POSCAR and use elements from that.
         If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
         to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
         that does not require specific elemental properties should work fine.
+        
         Arguments:
             filename - file name containing Poscar data.
+        
         Returns:
             Poscar object.
         """
         
+        dirname = os.path.dirname(os.path.abspath(filename))
+        names = None
+        for f in os.listdir(dirname):
+            if re.search("POTCAR.*",f):
+                try:
+                    potcar = Potcar.from_file(os.path.join(dirname, f))
+                    names = [sym.split("_")[0] for sym in potcar.symbols]
+                except:
+                    names = None    
         with file_open_zip_aware(filename, "r") as f:
-            lines = tuple(clean_lines(f.readlines(), False))
+            return Poscar.from_string(f.read(), names)
+    
+    @staticmethod
+    def from_string(data, default_names = None):
+        """
+        Reads a Poscar from a string.
+        The code will try its best to determine the elements in the POSCAR in the following order:
+        1) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
+        2) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
+        If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
+        to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
+        that does not require specific elemental properties should work fine.
+        
+        Arguments:
+            data:
+                string containing Poscar data.
+                
+        Returns:
+            Poscar object.
+        """
+        
+        lines = tuple(clean_lines(data.split("\n"), False))
 
         comment = lines[0]
         scale = float(lines[1])
-        lattice = identity(3, float)
-        lattice[0] = array([float(s) for s in lines[2].split()])
-        lattice[1] = array([float(s) for s in lines[3].split()])
-        lattice[2] = array([float(s) for s in lines[4].split()])
+        lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
         if scale < 0:
             vol = abs(det(lattice))
-            lattice = (-scale / vol) ** (1. / 3.) * lattice
+            lattice = (-scale / vol) ** (1/3) * lattice
         else:
             lattice = scale * lattice
         lattice = Lattice(lattice)
-
-        found_symbols = False
+        
+        vasp5_symbols = False
         try:
             natoms = [int(s) for s in lines[5].split()]
+            ipos = 6
         except:
-            found_symbols = True
-
-        #Checking for Vasp5+ style Poscars
-        if found_symbols:
+            vasp5_symbols = True
             symbols = lines[5].split()
             natoms = [int(s) for s in lines[6].split()]
             atomic_symbols = list()
             for i in xrange(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
             ipos = 7
-        else:
-            ipos = 6
-
+        
         postype = lines[ipos].split()[0]
-        cart = False
+        
+        sdynamics = False
         # Selective dynamics
         if postype[0] in 'sS':
+            sdynamics = True
             ipos += 1
             postype = lines[ipos].split()[0]
-        if postype[0] in 'cCkK':
-            cart = True
-        N = sum(natoms)
-
-        # See if the element names are appended at the end.
-        if not found_symbols:
-            try:
-                atomic_symbols = [l.split()[3] for l in lines[ipos + 1:ipos + 1 + N]]
-                count = 0
-                names = list()
-                for num in natoms:
-                    if not Element.is_valid_symbol(atomic_symbols[count]):
-                            raise ValueError("Invalid name")
-                    names.append(atomic_symbols[count])
-                    count += num
-                found_symbols = True
-            except:
-                pass
-            
-        #Try to find a element from a POTCAR in the same directory.
-        if not found_symbols:
-            dirname = os.path.dirname(os.path.abspath(filename))
-            for f in os.listdir(dirname):
-                if re.search("POTCAR.*",f):
-                    try:
-                        warnings.warn("POTCAR found! Using elements from POTCAR.")
-                        potcar = Potcar.from_file(os.path.join(dirname, f))
-                        names = [sym.split("_")[0] for sym in potcar.symbols]
-                        atomic_symbols = list()
-                        for i in xrange(len(natoms)):
-                            atomic_symbols.extend([names[i]] * natoms[i])
-                        found_symbols = True
-                    except:
-                        pass
         
-        #Defaulting to false names.
-        if not found_symbols:
-            names = list()
+        cart = postype[0] in 'cCkK'
+        nsites = sum(natoms)
+
+        #If default_names is specified (usually coming from a POTCAR), use them.
+        #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
+        if default_names:
             atomic_symbols = list()
             for i in xrange(len(natoms)):
-                sym = Element.from_Z(i+1).symbol
-                names.append(sym)
-                atomic_symbols.extend([sym] * natoms[i])
-            warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(names)+".")
+                atomic_symbols.extend([default_names[i]] * natoms[i])
+        elif not vasp5_symbols:
+            ind = 3 if not sdynamics else 6
+            try: #check if names are appended at the end of the POSCAR coordinates
+                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
+                [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
+            except:
+                #Defaulting to false names.
+                atomic_symbols = list()
+                for i in xrange(len(natoms)):
+                    sym = Element.from_Z(i+1).symbol
+                    atomic_symbols.extend([sym] * natoms[i])
+                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
 
         # read the atomic coordinates
-        coords = zeros((N, 3), float)
-        for i in xrange(N):
-            iL = ipos + 1 + i
-            coords[i] = array([float(s) for s in lines[iL].split()[:3]], float)
+        coords = []
+        selective_dynamics = list() if sdynamics else None
+        for i in xrange(nsites):
+            toks = lines[ipos + 1 + i].split()
+            coords.append([float(s) for s in toks[:3]])
+            if sdynamics:
+                selective_dynamics.append([True if tok.upper()[0] == 'T' else False for tok in toks[3:6]])
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct,comment)
+        return Poscar(struct,comment, selective_dynamics)
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """
-        Returns a string to be written as a
-        POSCAR file. Site symbols are written
+        Returns a string to be written as a POSCAR file. By default, site symbols are written
         which means compatibilty is for vasp >= 5.
-        Optional arguments:
-            direct - Whether coordinates are output in direct or cartesian.
-            vasp4_compatible - Set to True to omit site symbols on 6th line to maintain backward vasp 4.x compatibility.
+        
+        Arguments:
+            direct:
+                Whether coordinates are output in direct or cartesian. Defaults to True.
+            vasp4_compatible:
+                Set to True to omit site symbols on 6th line to maintain backward vasp 4.x compatibility. Defaults to False.
+                
+        Returns:
+            String representation of POSCAR.
         """
-        lines = []
-        lines += [self.comment]
-        lines += ["1.0"]
-        lines += [str(self._struct.lattice)]
+        lines = [self.comment]
+        lines.append("1.0")
+        lines.append(str(self._struct.lattice))
         if self._true_names == True and not vasp4_compatible:
-            lines += [" ".join(self._site_symbols)]
-        lines += [" ".join([str(x) for x in self._natoms])]
-        if self._selective_dynamics != None:
-            lines += ["Selective dynamics"]
-            #extra = map(lambda sdrow: " " + ("F", "T")[sdrow[0]] + " " + ("F", "T")[sdrow[1]] + " " + ("F", "T")[sdrow[2]], self._selective_dynamics)
-        #else:
-        #    extra = None
-        if direct == True:
-            lines += ["direct"]
-            lines += ["%.6f %.6f %.6f %s" % (site.a, site.b, site.c, site.species_string) for site in self._struct.sites]  
-        else:
-            lines += ["cartesian"]
-            lines += ["%.6f %.6f %.6f %s" % (site.x, site.y, site.z, site.species_string) for site in self._struct.sites]
+            lines.append(" ".join(self._site_symbols))
+        lines.append(" ".join([str(x) for x in self._natoms]))
+        if self._selective_dynamics:
+            lines.append("Selective dynamics")
+        lines.append('direct' if direct else 'cartesian')         
+        
+        for i in xrange(len(self._struct)):
+            site = self._struct[i]
+            coords = site.frac_coords if direct else site.coords
+            line = "%.6f %.6f %.6f" % (coords[0], coords[1], coords[2])
+            if self._selective_dynamics:
+                sd = ['T' if j else 'F' for j in self._selective_dynamics[i]]
+                line += " %s %s %s" % (sd[0], sd[1], sd[2])
+            line += " " + site.species_string
+            lines.append(line)
 
         return "\n".join(lines)    
 
@@ -261,7 +284,8 @@ class Poscar(VaspInput):
     def write_file(self, filename):
         with open(filename, 'w') as f:
             f.write(str(self) + "\n")
-        
+
+"""**Non-exhaustive** list of valid INCAR tags"""
 VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS", "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG",
 "PREC", "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM", "NELMIN", "NELMDL", "EDIFF", "EDIFFG", "NSW", "NBLOCK",
 "KBLOCK", "IBRION", "NFREE", "POTIM", "ISIF", "PSTRESS", "IWAVPR", "ISYM", "SYMPREC", "LCORR", "TEBEG", "TEEND", "SMASS",
@@ -289,7 +313,8 @@ class Incar(dict, VaspInput):
     def __init__(self,params = dict()):
         """
         Creates an Incar object.
-        Optional arguments:
+        
+        Arguments:
             params - A set of input parameters as a dictionary.
         """
         super(Incar,self).__init__()
@@ -305,6 +330,16 @@ class Incar(dict, VaspInput):
         super(Incar,self).__setitem__(key.strip(), Incar.proc_val(key.strip(), val.strip()) if isinstance(val,basestring) else val)
 
     def get_string(self, sort_keys = False, pretty = False):
+        """
+        Returns a string representation of the INCAR.  The reason why this method is
+        different from the __str__ method is to provide options for pretty printing.
+        
+        Arguments:
+            sort_keys:
+                Set to True to sort the INCAR parameters alphabetically. Defaults to False.
+            pretty:
+                Set to True for pretty aligned output. Defaults to False.
+        """
         keys = self.keys()
         if sort_keys:
             keys = sorted(keys)
@@ -320,35 +355,31 @@ class Incar(dict, VaspInput):
         else:
             return str_delimited(lines, None," = ")
     
-    @staticmethod
-    def from_structure(structure, parameter_set = VaspParameterSet()):
-        incar = Incar()
-        poscar = Poscar(structure)
-        for key, setting in parameter_set.incar_settings.items():
-            if key == "MAGMOM":
-                incar[key] =  [setting.get(site.specie.symbol, 0.6) for site in structure]
-            elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                incar[key] =  [setting.get(sym, 0) for sym in poscar.site_symbols]
-            else:
-                incar[key] = setting
-                
-        has_u = sum(incar['LDAUU']) > 0
-        if not has_u:
-            for key in incar.keys():
-                if key.startswith('LDAU'):
-                    del incar[key]
-        
-        return incar
-    
     def __str__(self):
         return self.get_string(sort_keys = True, pretty = False)
 
     def write_file(self, filename):
+        """
+        Write Incar to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
     @staticmethod
     def from_file(filename):
+        """
+        Reads an Incar object from a file.
+        
+        Args:
+            filename - Filename for file
+            
+        Returns:
+            Incar object
+        """
         with file_open_zip_aware(filename, "r") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
@@ -363,13 +394,24 @@ class Incar(dict, VaspInput):
     
     @staticmethod
     def proc_val(key, val):
-        list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
-        boolean_type_keys = ('LDAU', 'LWAVE')
-        number_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "EDIFF", "ICHARG", "NELM", "ISMEAR", "NPAR", "SIGMA", "LDAUPRINT", 'LMAXMIX')
-         
+        """
+        Static helper method to convert INCAR parameters to proper types, e.g. integers, floats, lists, etc.
         
+        Arguments:
+            key:
+                INCAR parameter key
+            val:
+                Actual value of INCAR parameter.
+        """
+        list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
+        boolean_type_keys = ('LDAU', 'LWAVE','LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
+        float_type_keys = ("EDIFF", "SIGMA", 'TIME','ENCUTFOCK', 'HFSCREEN')
+        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG", "NELM", 
+                         "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX', 'ENCUT', 'NSIM',
+                         'NKRED', 'NUPDOWN', 'ISPIND')
+
         def smart_int_or_float(numstr):
-            if numstr.find(".") != -1:
+            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
             else:
                 return int(numstr)
@@ -394,14 +436,29 @@ class Incar(dict, VaspInput):
                         return False
                 raise ValueError(key + " should be a boolean type!")
             
-            if key in number_type_keys:
-                return smart_int_or_float(val)
+            if key in float_type_keys:
+                return float(val)
+            
+            if key in int_type_keys:
+                return int(val)
+            
         except:
             return val
               
         return val
             
     def diff(self, other):
+        """
+        Diff function for Incar.  Compares two Incars and indicates which parameters are the same and which are not.
+        Useful for checking whether two runs were done using the same parameters.
+        
+        Args:
+            other : The other Incar object to compare to.
+        
+        Returns:
+            Dict of the following format - {'Same' : parameters_that_are_the_same, 'Different': parameters_that_are_different}
+            Note that the parameters are return as full dictionaries of values. E.g. {'ISIF':3}
+        """
         similar_param = {}
         different_param = {}
         for k1,v1 in self.items():
@@ -415,7 +472,7 @@ class Incar(dict, VaspInput):
             if k2 not in similar_param and k2 not in different_param:
                 if k1 not in self:
                     different_param[k1] = {"INCAR1": 'Default', "INCAR2": v2}
-        return {'Same parameters' : similar_param, 'Different': different_param}
+        return {'Same' : similar_param, 'Different': different_param}
                 
     def __add__(self, other):
         """
@@ -448,6 +505,16 @@ class Kpoints(VaspInput):
 
     @staticmethod
     def from_file(filename):
+        """
+        Reads a Kpoints object from a KPOINTS file.
+        
+        Arguments:
+            filename:
+                filename to read from.
+                
+        Returns:
+            Kpoints object
+        """
         with file_open_zip_aware(filename) as f:
             lines = list(clean_lines(f.readlines(), False))
         kpoints = Kpoints()
@@ -469,11 +536,16 @@ class Kpoints(VaspInput):
             kpoints.style = "Cartesian" if style == "c" else "Reciprocal"
             kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
             kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
-                
-            
         return kpoints
-
+        
     def write_file(self, filename):
+        """
+        Write Kpoints to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
@@ -484,11 +556,13 @@ class Kpoints(VaspInput):
         lines += [self.style]
         for line in self.kpts:
             lines += [" ".join([str(x) for x in line])]
-        lines += [" ".join([str(x) for x in self.kpts_shift])]
+        if self.style != 'Auto':
+            lines += [" ".join([str(x) for x in self.kpts_shift])]
         return "\n".join(lines)
     
     @property
     def to_dict(self):
+        """json friendly dict representation of Kpoints"""
         d = {'comment': self.comment, 'nkpoints' : self.num_kpts, 'generation_style' : self.style, 'kpoints': self.kpts, 'usershift': self.kpts_shift}
         optional_paras = ['genvec1', 'genvec2', 'genvec3', 'shift']
         for para in optional_paras:
@@ -565,6 +639,13 @@ class Potcar(list,VaspInput):
         return "\n".join([str(potcar) for potcar in self])
 
     def write_file(self, filename):
+        """
+        Write Potcar to a file.
+        
+        Arguments:
+            filename:
+                filename to write to.
+        """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
         
@@ -575,51 +656,70 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = 'PBE', parameter_set = VaspParameterSet()):
+    def set_symbols(self, elements, functional = 'PBE'):
         module_dir = os.path.dirname(pymatgen.__file__)
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
         VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
-        
         del self[:]
         for el in elements:
-            sym = el
-            if parameter_set and Element.is_valid_symbol(el) and el in parameter_set.potcar_settings:
-                sym = parameter_set.potcar_settings[el]
-            reader = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + sym + ".gz"))
-            self.append(PotcarSingle(reader.read()))
-            reader.close()
+            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+                self.append(PotcarSingle(f.read()))
 
 class Vasprun(object):
     """
     Vastly improved sax-based parser for vasprun.xml files.
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of magnitude for larger files (~10Mb).
     All data is stored as attributes, which are delegated to the VasprunHandler object.
-    Accessible attributes from VasprunHandler are:
-        Vasp results
-        ------------
-        energies - All energies in run, represented as a list of ionic steps, with a list of scstep energies.
-                   E.g. [ [0.1, 0.2, 0.1], [0.1], [0.22, 0.23, 0.20, 0.205]] 
-        structures - List of Structure objects for the structure at each ionic step.
-        tdos - Total dos calculated at the end of run.
-        idos - Integrated dos calculated at the end of run.
-        pdos - List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
-        efermi - Fermi energy
-        eigenvalues - Final eigenvalues as a dict of {(kpoint index, Spin.up):[[eigenvalue, occu]]}. 
-                      This representation is probably not ideal, but since this is not used anywhere else for now, I leave it as such.
-                      Future developers who need to work with this should refactored the object into a sensible structure.
-        
-        Vasp inputs
-        -----------
-        incar - Incar object for parameters specified in INCAR file.
-        parameters - Incar object with parameters that vasp actually used, including all defaults.
-        kpoints = Kpoints object for KPOINTS specified in run.
-        actual_kpoints - List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333], [0.25, 0.375, 0.08333333], ....]
-        actual_kpoints_weights = List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]
-        atomic_symbols - List of atomic symbols, e.g., [u'Li', u'Fe', u'Fe', u'P', u'P', u'P']
-        potcar_symbols - List of POTCAR symbols. E.g., [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', ..]
     
-    A few helper attributes have also been added to get commonly used results such as final energies.
+    Attributes:
+    
+        **Vasp results**
+        
+        ionic_steps: 
+            All ionic steps in the run as a list of {'structure': structure at end of run, 'electronic_steps' : {All electronic step data in vasprun file}, 'stresses' : stress matrix}
+        structures: 
+            List of Structure objects for the structure at each ionic step.
+        tdos: 
+            Total dos calculated at the end of run.
+        idos: 
+            Integrated dos calculated at the end of run.
+        pdos: 
+            List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
+        efermi: 
+            Fermi energy
+        eigenvalues: 
+            Final eigenvalues as a dict of {(kpoint index, Spin.up):[[eigenvalue, occu]]}. 
+            This representation is probably not ideal, but since this is not used anywhere else for now, I leave it as such.
+            Future developers who need to work with this should refactored the object into a sensible structure.
+        
+        **Vasp inputs**
+        
+        incar:
+            Incar object for parameters specified in INCAR file.
+        parameters:
+            Incar object with parameters that vasp actually used, including all defaults.
+        kpoints:
+            Kpoints object for KPOINTS specified in run.
+        actual_kpoints:
+            List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333], [0.25, 0.375, 0.08333333], ....]
+        actual_kpoints_weights:
+            List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]
+        atomic_symbols:
+            List of atomic symbols, e.g., [u'Li', u'Fe', u'Fe', u'P', u'P', u'P']
+        potcar_symbols:
+            List of POTCAR symbols. E.g., [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', ..]
+    
+        **Convenience attributes**
+        
+        final_energy: 
+            Final energy from the run.
+        final_structure: 
+            Final relaxed structure.
+        initial_structure: 
+            Initial input structure.
+        complete_dos: 
+            CompleteDos object containing both the total and projected Dos from the run.
     
     Author: Shyue Ping Ong
     """
@@ -636,6 +736,9 @@ class Vasprun(object):
     
     @property
     def converged(self):
+        """
+        True if a relaxation run is converged.  Always True for a static run.
+        """
         return len(self.structures) - 2 < self.parameters['NSW'] or self.parameters['NSW'] == 0
     
     @property
@@ -668,6 +771,9 @@ class Vasprun(object):
     
     @property
     def to_dict(self):
+        """
+        json-friendly dict representation for Vasprun for transferring between different applications.
+        """
         d = {}
         d['vasp_version'] = self.vasp_version
         d['has_vasp_completed'] = self.converged
@@ -904,10 +1010,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.potcar_symbols.append(self.val.getvalue().strip())
             elif name == "v":
                 if self.state['incar']:
-                    self.incar[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+                    self.incar[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                     self.incar_param = None
                 elif self.state['parameters']:
-                    self.parameters[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+                    self.parameters[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                 elif self.state['kpoints']:
                     if self.state['varray'] == 'kpointlist':
                         self.actual_kpoints.append([float(x) for x in re.split("\s+",self.val.getvalue().strip())])
@@ -1009,6 +1115,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.state[name] = False
         
 def parse_parameters(val_type, val):
+    """
+    Helper function to convert a Vasprun parameter into the proper type.
+    Boolean, int and float types are converted.
+    
+    Args:
+        val_type : Value type parsed from vasprun.xml.
+        val : Actual string value parsed for vasprun.xml.
+    """
     if val_type == "logical":
         return (val == "T")
     elif val_type == "int":
@@ -1018,7 +1132,26 @@ def parse_parameters(val_type, val):
     else:
         return float(val)
 
-def parse_v_parameters(val_type, val, filename, param_name):
+def _parse_v_parameters(val_type, val, filename, param_name):
+    """
+    Helper function to convert a Vasprun array-type parameter into the proper type.
+    Boolean, int and float types are converted.
+    
+    Args:
+        val_type: 
+            Value type parsed from vasprun.xml.
+        val: 
+            Actual string value parsed for vasprun.xml.
+        filename: 
+            Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
+            if vasprun.xml contains *** for some Incar parameters, the code will try
+            to read from an INCAR file present in the same directory.
+        param_name: 
+            Name of parameter.
+            
+    Returns:
+        Parsed value.
+    """
     if val_type == "logical":
         val = [True if i == "T" else False for i in re.split("\s+", val)]
     elif val_type == "int":
@@ -1027,7 +1160,7 @@ def parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
-            val = parse_from_incar(filename, param_name)
+            val = _parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
@@ -1038,12 +1171,15 @@ def parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
-            val = parse_from_incar(filename, param_name)
+            val = _parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
 
-def parse_from_incar(filename, key):
+def _parse_from_incar(filename, key):
+    """
+    Helper function to parse a parameter from the INCAR.
+    """
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search("INCAR",f):
@@ -1072,6 +1208,9 @@ class Outcar(object):
        readLCALCPOL()
 
     See the documentation of those methods for more documentation.
+    
+    Authors: Rickard Armiento, Shyue Ping Ong
+    
     """
     def __init__(self, filename):
         self.filename = filename
@@ -1109,14 +1248,16 @@ class Outcar(object):
             self.charge = tuple(charge)
 
     def read_IGPAR(self):
-        """ Renders accessible:
-               er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
-               er_bp = e<r>_bp (dictionary with Spin.up/Spin.down as keys)
-               er_ev_tot = spin up + spin down summed
-               er_bp_tot = spin up + spin down summed
-               p_elc = spin up + spin down summed
-               p_ion = spin up + spin down summed
-            (See VASP section 'LBERRY,  IGPAR,  NPPSTR,  DIPOL tags' for info on what these are)"""
+        """ 
+        Renders accessible:
+            er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
+            er_bp = e<r>_bp (dictionary with Spin.up/Spin.down as keys)
+            er_ev_tot = spin up + spin down summed
+            er_bp_tot = spin up + spin down summed
+            p_elc = spin up + spin down summed
+            p_ion = spin up + spin down summed
+        
+        (See VASP section 'LBERRY,  IGPAR,  NPPSTR,  DIPOL tags' for info on what these are)"""
 
         # variables to be filled
         self.er_ev = {}  #  will  be  dict (Spin.up/down) of array(3*float)
@@ -1128,30 +1269,30 @@ class Outcar(object):
         try:
             search = []
             # Nonspin cases
-            def er_ev(results, match): results.er_ev[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_ev[Spin.down] = results.er_ev[Spin.up]; results.context = 2
+            def er_ev(results, match): results.er_ev[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_ev[Spin.down] = results.er_ev[Spin.up]; results.context = 2
             search.append(['^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev])
 
-            def er_bp(results, match): results.er_bp[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_bp[Spin.down] = results.er_bp[Spin.up]
+            def er_bp(results, match): results.er_bp[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]) / 2.0; results.er_bp[Spin.down] = results.er_bp[Spin.up]
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == 2, er_bp])
 
             # Spin cases
-            def er_ev_up(results, match): results.er_ev[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.up
+            def er_ev_up(results, match): results.er_ev[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.up
             search.append(['^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev_up])
 
-            def er_bp_up(results, match): results.er_bp[Spin.up] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def er_bp_up(results, match): results.er_bp[Spin.up] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == Spin.up, er_bp_up])
 
-            def er_ev_dn(results, match): results.er_ev[Spin.down] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.down
+            def er_ev_dn(results, match): results.er_ev[Spin.down] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.context = Spin.down
             search.append(['^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, er_ev_dn])
 
-            def er_bp_dn(results, match): results.er_bp[Spin.down] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def er_bp_dn(results, match): results.er_bp[Spin.down] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', lambda results, line: results.context == Spin.down, er_bp_dn])
 
             # Always present spin/non-spin
-            def p_elc(results, match): results.p_elc = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_elc(results, match): results.p_elc = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_elc])
 
-            def p_ion(results, match): results.p_ion = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_ion(results, match): results.p_ion = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_ion])
 
             self.context = None
@@ -1182,36 +1323,36 @@ class Outcar(object):
             def dielectric_section_start2(results, match): results.dielectric_index = 0
             search.append(['-------------------------------------', lambda results, line: results.dielectric_index == -1, dielectric_section_start2])
 
-            def dielectric_data(results, match): results.dielectric_tensor[results.dielectric_index, :] = array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.dielectric_index += 1
+            def dielectric_data(results, match): results.dielectric_tensor[results.dielectric_index, :] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))]); results.dielectric_index += 1
             search.append(['^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$', lambda results, line: results.dielectric_index >= 0, dielectric_data])
 
             def dielectric_section_stop(results, match): results.dielectric_index = None
             search.append(['-------------------------------------', lambda results, line: results.dielectric_index >= 1, dielectric_section_stop])
 
             self.dielectric_index = None
-            self.dielectric_tensor = zeros((3, 3))
+            self.dielectric_tensor = np.zeros((3, 3))
 
 
             def piezo_section_start(results, match): results.piezo_index = 0;
             search.append(['PIEZOELECTRIC TENSOR  for field in x, y, z        \(e  Angst\)', None, piezo_section_start])
 
-            def piezo_data(results, match): results.piezo_tensor[results.piezo_index, :] = array([float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)), float(match.group(5)), float(match.group(6))]); results.piezo_index += 1
+            def piezo_data(results, match): results.piezo_tensor[results.piezo_index, :] = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)), float(match.group(5)), float(match.group(6))]); results.piezo_index += 1
             search.append(['^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)*$', lambda results, line: results.piezo_index >= 0, piezo_data])
 
             def piezo_section_stop(results, match): results.piezo_index = None
             search.append(['-------------------------------------', lambda results, line: results.piezo_index >= 1, piezo_section_stop])
 
             self.piezo_index = None
-            self.piezo_tensor = zeros((3, 6))
+            self.piezo_tensor = np.zeros((3, 6))
 
 
             def born_section_start(results, match): results.born_ion = -1;
             search.append(['BORN EFFECTIVE CHARGES \(in e, cummulative output\)', None, born_section_start])
 
-            def born_ion(results, match): results.born_ion = int(match.group(1))-1; results.born[results.born_ion] = zeros((3, 3));
+            def born_ion(results, match): results.born_ion = int(match.group(1))-1; results.born[results.born_ion] = np.zeros((3, 3));
             search.append(['ion +([0-9]+)', lambda results, line: results.born_ion != None, born_ion])
 
-            def born_data(results, match): results.born[results.born_ion][int(match.group(1))-1, :] = array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
+            def born_data(results, match): results.born[results.born_ion][int(match.group(1))-1, :] = np.array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
             search.append(['^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$', lambda results, line: results.born_ion >= 0, born_data])
 
             def born_section_stop(results, match): results.born_index = None
@@ -1236,10 +1377,10 @@ class Outcar(object):
             search = []
 
             # Always present spin/non-spin
-            def p_elc(results, match): results.p_elc = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_elc(results, match): results.p_elc = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_elc])
 
-            def p_ion(results, match): results.p_ion = array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+            def p_ion(results, match): results.p_ion = np.array([float(match.group(1)), float(match.group(2)), float(match.group(3))])
             search.append(['^.*Ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)', None, p_ion])
 
             micro_pyawk(self.filename, search, self)
@@ -1249,7 +1390,15 @@ class Outcar(object):
 
 class VolumetricData(object):
     """
-    Simple volumetric object for reading LOCPOT and CHGCAR type files
+    Simple volumetric object for reading LOCPOT and CHGCAR type files.
+    
+    Attributes:
+        name : The name from the comment line.
+        poscar : Poscar object
+        spinpolarized : True if run is spin polarized
+        dim: Tuple of dimensions of volumetric grid in each direction (nx, ny, nz)
+        data : Actual data as a dict of {grid coordinate: value}.  Grid coordinate is a (x,y,z) tuple.
+        ngridpts: Total number of grid points in volumetric data.
     """
     def __init__(self, filename):
         self.name   = str()
@@ -1257,7 +1406,7 @@ class VolumetricData(object):
         self.spinpolarized = False
         self.dim = None
         self.data = dict()
-        self.numpts = 0
+        self.ngridpts = 0
         self._read_file(filename)            
 
     def __add__(self, other):
@@ -1276,13 +1425,10 @@ class VolumetricData(object):
         summed.poscar = self.poscar
         summed.spinpolarized = self.spinpolarized
         summed.dim = self.dim
-        summed.numpts = self.numpts
+        summed.numpts = self.ngridpts
         for spin in self.data.keys():
             summed.data[spin] = self.data[spin] + scalefactor* other.data[spin]
         return summed
-
-    def get_num_gridpts(self):
-        return self.numpts
 
     def _read_file(self, filename):
 
@@ -1321,8 +1467,8 @@ class VolumetricData(object):
         data = data[:(a[0] * a[1] * a[2])]
 
         self.dim = a
-        self.numpts = self.dim[0] * self.dim[1] * self.dim[2]
-        uppot = zeros((a[0], a[1], a[2]))
+        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
+        uppot = np.zeros((a[0], a[1], a[2]))
         count = 0
         for z in xrange(a[2]):
             for y in xrange(a[1]):
@@ -1332,7 +1478,7 @@ class VolumetricData(object):
         if spinpolarized:
             data = (" ".join(lines[j + 1:])).split()
             data = data[:(a[0] * a[1] * a[2])]
-            downpot = zeros((a[0], a[1], a[2]))
+            downpot = np.zeros((a[0], a[1], a[2]))
             count = 0
             for (z,y,x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
                 downpot[x, y, z] = float(data[count]) 
@@ -1351,12 +1497,18 @@ class Locpot(VolumetricData):
 
     def get_avg_potential_along_axis(self, ind):
         """
-        Get the averaged LOCPOT along a certain axis direction. Useful for visualizing Hartree Potentials
+        Get the averaged LOCPOT along a certain axis direction. Useful for visualizing Hartree Potentials.
+        
+        Args:
+            ind : Index of axis.
+            
+        Returns:
+            Average Hatree potential along axis
         """
         m = self.data[Spin.up]
         
         ng = self.dim
-        avg = zeros((ng[ind], 1))
+        avg = np.zeros((ng[ind], 1))
         for i in xrange(ng[ind]):
             mysum = 0
             for j in xrange(ng[(ind + 1) % 3]):
@@ -1390,11 +1542,21 @@ class Chgcar(VolumetricData):
         a = self.dim
         distances = dict()
         for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            pt = array([x / a[0], y / a[1] ,z / a[2]])
+            pt = np.array([x / a[0], y / a[1] ,z / a[2]])
             distances[(x,y,z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
         self._distance_matrix[ind] = distances
 
     def get_diff_int_charge(self, ind, radius):
+        """
+        Get differential integrated charge of atom index ind up to radius.
+        
+        Args:
+            ind : Index of atom.
+            radius : Radius of integration.
+            
+        Returns:
+            Differential integrated charge.
+        """
         if ind not in self._distance_matrix:
             self._calculate_distance_matrix(ind)
         a = self.dim
@@ -1402,9 +1564,19 @@ class Chgcar(VolumetricData):
         for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x,y,z)] < radius:
                 intchg += self.data[Spin.up][x, y, z] - self.data[Spin.down][x, y, z]
-        return intchg / self.numpts
+        return intchg / self.ngridpts
     
     def get_diff_int_charge_slow(self, ind, radius):
+        """
+        Deprecated.  **Much** slower algorithm for finding differential integrated charge.  Used mainly for testing purposes.
+        
+        Args:
+            ind : Index of atom.
+            radius : Radius of integration.
+            
+        Returns:
+            Differential integrated charge.       
+        """
         st = self.poscar.struct
         a = self.dim
         intchg = 0
@@ -1418,11 +1590,11 @@ class Chgcar(VolumetricData):
                     modx = x % a[0]
                     mody = y % a[1]
                     modz = z % a[2]
-                    pt = array([modx *1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
+                    pt = np.array([modx *1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
                     dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
                     if dist < radius:
                         intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
-        return intchg / self.numpts
+        return intchg / self.ngridpts
 
 class Procar(object):
 
@@ -1461,13 +1633,12 @@ class Procar(object):
                 linefloatdata = map(float, linedata)
                 index = int(linefloatdata.pop(0))
                 if index in self.data:
-                    self.data[index] = self.data[index] + array(linefloatdata) * weight
+                    self.data[index] = self.data[index] + np.array(linefloatdata) * weight
                 else:
-                    self.data[index] = array(linefloatdata) * weight
+                    self.data[index] = np.array(linefloatdata) * weight
 
 
 class VaspParserError(Exception):
-    
     '''
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.

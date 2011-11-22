@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 Wrapper classes for Cif input and output from pymatgen.core.structure.Structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -11,9 +12,10 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import re
+import StringIO
 import math
 from collections import OrderedDict
 from pymatgen.core.periodic_table import Element, Specie
@@ -33,12 +35,23 @@ class CifParser:
     
     def __init__(self, filename):
         """
-        Arguments:
+        Args:
             filename - cif file name.  bzipped or gzipped cifs are fine too.
         """
-        with file_open_zip_aware(filename, "r") as f:
-            self._cif = CifFile.ReadCif(f)
+        if isinstance(filename, basestring):
+            with file_open_zip_aware(filename, "r") as f:
+                self._cif = CifFile.ReadCif(f)
+        else:
+            self._cif = CifFile.ReadCif(filename)
+                    
 
+    @staticmethod
+    def from_string(cif_string):
+        output = StringIO.StringIO()
+        output.write(cif_string)
+        output.seek(0)
+        return CifParser(output)
+        
     def _unique_coords(self,coord_in,sympos, primitive, lattice, primlattice):
         """
         Generate unique coordinates using coord and symmetry positions.
@@ -60,6 +73,7 @@ class CifParser:
         Generate structure from part of the cif.
         """
         spacegroup = data['_symmetry_space_group_name_H-M']
+        
         if len(spacegroup) == 0:
             latt_type = "P"
         else:
@@ -121,6 +135,13 @@ class CifParser:
         '''
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
+        
+        Arguments:
+            primitive:
+                Set to False to return conventional unit cells.  Defaults to True.
+        
+        Returns:
+            List of Structures.
         '''
         return [self._get_structure(v, primitive) for k, v in self._cif.items()]
     
@@ -132,7 +153,8 @@ class CifWriter:
     def __init__(self, struct):
         """
         Arguments:
-            struct - a pymatgen.core.structure.Structure object.
+            struct:
+                A pymatgen.core.structure.Structure object.
         """
         block = CifFile.CifBlock()
         latt = struct.lattice

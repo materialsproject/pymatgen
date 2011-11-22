@@ -12,6 +12,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
 import abc
+import json
 
 class AbstractTransformation(object):
     """

@@ -18,7 +18,11 @@ class VoronoiCoordFinderTest(unittest.TestCase):
         self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()),10, "Incorrect number of results returned for get_voronoi_polyhedra")
         
     def test_get_coordination_number(self):
-        self.assertAlmostEqual(self.finder.get_coordination_number(0), self.finder.get_coordination_number(0), 7, "Incorrect coordination number returned!")                
+        print self.finder.get_coordination_number(0)
+        self.assertAlmostEqual(self.finder.get_coordination_number(0), 5.60588600732, 7, "Incorrect coordination number returned!")                
+
+    def test_get_coordinated_sites(self):
+        self.assertEqual(len(self.finder.get_coordinated_sites(0)), 10)
 
 class MiscFunctionTest(unittest.TestCase):
 

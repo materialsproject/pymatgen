@@ -6,26 +6,27 @@ Module contains classes presenting Element and Specie (Element + oxidation state
 
 __author__="Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
-import json
 import os
 import re
+import json
 
 from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
 
-def load_periodic_table_data():
+def _load__pt_data():
+    """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir,"periodictable.json")) as f:
+    with open(os.path.join(module_dir,"periodic_table.json")) as f:
         return json.load(f)
-    
-PERIODIC_TABLE_DATA  = load_periodic_table_data()
-PERIODIC_TABLE_ROW_SIZES = (2,8,8,18,18,32,32)
+
+_pt_data  = _load__pt_data()
+_pt_row_sizes = (2,8,8,18,18,32,32)
 
 class Element(object):
     '''
@@ -47,26 +48,31 @@ class Element(object):
 
     def __init__(self,symbol):
         '''
-        Create immutable element.
-        List of attributes are:
-            X, Z, max_oxidation_state, mendeleev_no, min_oxidation_state, name, symbol
+        Create immutable element from a symbol.
+        
+        Args:
+            symbol:
+                Element symbol, e.g., "H", "Fe"
         '''
-        self._data = PERIODIC_TABLE_DATA[symbol]
-        self._z = self._data['atomic no']
+        self._data = _pt_data[symbol]
+        self._z = self._data['Atomic no']
         self._symbol = symbol
         
         Element._all_elements[tuple([symbol])] = self
         
     @property
     def Z(self):
+        """Atomic number"""
         return self._z
     
     @property
     def symbol(self):
+        """Element symbol"""
         return self._symbol
     
     @property
     def X(self):
+        """Electronegativity"""
         if 'X' in self._data:
             return self._data['X']
         else:
@@ -74,116 +80,177 @@ class Element(object):
         
     @property
     def number(self):
+        """Alternative attribute for atomic number"""
         return self.Z
 
     @property
     def name(self):
-        return self._data['name']
+        """Full name for element"""
+        return self._data['Name']
     
     @property
     def atomic_mass(self):
-        return self._data['atomic mass']
+        """Atomic mass"""
+        return self._data['Atomic mass']
     
     @property
     def atomic_radius(self):
-        return self._data['atomic radius']
+        """Atomic radius"""
+        return self._data['Atomic radius']
     
     @property
     def max_oxidation_state(self):
-        return self._data['max oxidation state']
+        """Maximum oxidation state for element"""
+        if 'Oxidation states' in self._data:
+            return max(self._data['Oxidation states'])
+        return 0
     
     @property
     def min_oxidation_state(self):
-        return self._data['min oxidation state']
+        """Minimum oxidation state for element"""
+        if 'Oxidation states' in self._data:
+            return min(self._data['Oxidation states'])
+        return 0
+    
+    @property
+    def oxidation_states(self):
+        """Tuple of all known oxidation states"""
+        return tuple(self._data.get('Oxidation states', list()))
+    
+    @property
+    def common_oxidation_states(self):
+        """Tuple of all known oxidation states"""
+        return tuple(self._data.get('Common oxidation states', list()))
     
     @property
     def mendeleev_no(self):
-        return self._data['mendeleev no']
+        """Mendeleev number"""
+        return self._data['Mendeleev no']
     
     @property
     def electrical_resistivity(self):
+        """Electrical resistivity"""
         return self._data['Electrical resistivity']
 
     @property
     def velocity_of_sound(self):
+        """Velocity of sound"""
         return self._data['Velocity of sound']
 
     @property
     def reflectivity(self):
+        """Reflectivity"""
         return self._data['Reflectivity']
     
     @property
     def refractive_index(self):
+        """Refractice index"""
         return self._data['Refractive index']
 
     @property
     def poissons_ratio(self):
+        """Poisson's ratio"""
         return self._data['Poissons ratio']
     
     @property
     def molar_volume(self):
+        """Molar volume"""
         return self._data['Molar volume']
     
     @property
     def electronic_structure(self):
-        return self._data['electronic']
+        """Electronic structure. Simplified form with HTML formatting.
+        E.g., The electronic structure for Fe is represented as [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+        """
+        return self._data['Electronic structure']
+
+    @property
+    def full_electronic_structure(self):
+        """
+        Full electronic structure as tuple.
+        E.g., The electronic structure for Fe is represented as:
+        [(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6), (3, 'd', 6), (4, 's', 2)]
+        """
+        estr = self._data['Electronic structure']
+        def parse_orbital(orbstr):
+            m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
+            if m:
+                return (int(m.group(1)), m.group(2), int(m.group(3)))
+            return orbstr
+        data = [parse_orbital(s) for s in estr.split(".")]
+        if data[0][0] == "[":
+            data = Element(data[0].replace("[", "").replace("]","")).full_electronic_structure + data[1:]
+        return data
     
     @property
     def thermal_conductivity(self):
+        """Thermal conductivity"""
         return self._data['Thermal conductivity']
     
     @property
     def boiling_point(self):
+        """Boiling point"""
         return self._data['Boiling point']
     
     @property
     def melting_point(self):
+        """Melting point"""
         return self._data['Melting point']
     
     @property
     def critical_temperature(self):
+        """Critical temperature"""
         return self._data['Critical temperature']
     
     @property
     def superconduction_temperature(self):
+        """Superconduction temperature"""
         return self._data['Superconduction temperature']
     
     @property
     def liquid_range(self):
+        """Liquid range"""
         return self._data['Liquid range']
 
     @property
     def bulk_modulus(self):
+        """Bulk modulus"""
         return self._data['Bulk modulus']
     
     @property
     def youngs_modulus(self):
+        """Young's modulus"""
         return self._data['Youngs modulus']
     
     @property
     def brinell_hardness(self):
+        """Brinell hardness"""
         return self._data['Brinell hardness']
 
     @property
     def rigidity_modulus(self):
+        """Rigidity modulous"""
         return self._data['Rigidity modulus']
     
     @property
     def mineral_hardness(self):
+        """Mineral hardness"""
         return self._data['Mineral hardness']
     
     @property
     def vickers_hardness(self):
+        """Vicker's hardness"""
         return self._data['Vickers hardness']
     
     @property
     def density_of_solid(self):
+        """Density of solid phase"""
         return self._data['Density of solid']
 
     @property
     def coefficient_of_linear_thermal_expansion(self):
+        """Coefficient of linear thermal expansion"""
         return self._data['Coefficient of linear thermal expansion']
-
 
     def __eq__(self,other):
         if other == None:
@@ -214,14 +281,21 @@ class Element(object):
 
     @staticmethod       
     def from_Z(z):
-        for sym in PERIODIC_TABLE_DATA.keys():
+        '''Get an element from an atomic number'''
+        for sym in _pt_data.keys():
             if Element(sym).Z == z:
                 return Element(sym)
         raise ValueError("No element with this atomic number")
 
     @staticmethod
     def from_row_and_group(row,group):
-        for sym in PERIODIC_TABLE_DATA.keys():
+        """
+        Returns an element from a row and group number.  
+        
+        .. note::
+            The 18 group number system is used, i.e., Noble gases are group 18.
+        """
+        for sym in _pt_data.keys():
             el = Element(sym)
             if el.row == row and el.group == group:
                 return el
@@ -229,7 +303,16 @@ class Element(object):
 
     @staticmethod
     def is_valid_symbol(symbol):
-        return symbol in PERIODIC_TABLE_DATA
+        """Returns true if symbol is a valid element symbol.
+        
+        Args:
+            symbol:
+                Element symbol
+        
+        Returns:
+            True if symbol is a valid element (e.g., "H"). False otherwise (e.g., "Zebra").
+        """
+        return symbol in _pt_data
 
     @property
     def row(self):
@@ -243,8 +326,8 @@ class Element(object):
         elif (Z >= 89 and Z <= 102):
             return 9
 
-        for i in xrange(len(PERIODIC_TABLE_ROW_SIZES)):
-            totalEls += PERIODIC_TABLE_ROW_SIZES[i]
+        for i in xrange(len(_pt_row_sizes)):
+            totalEls += _pt_row_sizes[i]
             if totalEls >= Z:
                 return i+1
         return 8
@@ -282,15 +365,15 @@ class Element(object):
 
     @property
     def block(self):
-        """docstring for block
-        return the block character 's,p,d,f'
+        """
+        Return the block character 's,p,d,f'
         """
         block = ''
         if self.group in [1,2]:
             block = 's'
         elif self.group in xrange(13,19):
             block = 'p'
-        elif (self.is_actinoid() or self.is_lanthanid()):
+        elif (self.is_actinoid or self.is_lanthanoid):
             block = 'f'
         elif self.group in xrange(3,13):
             block = 'd'
@@ -377,16 +460,20 @@ class Element(object):
 class Specie(object):
     """
     An extension of Element with an oxidation state.
-    Note that while Specie does not directly inherit from Element 
-    (because of certain implementation concerns due to the singleton nature of each element),
-    it does inherit all Element attributes and hence function exactly as an Element would.
+    
+    .. note::
+        While Specie does not directly inherit from Element  (because of certain implementation concerns 
+        due to the singleton nature of each element), it does inherit all Element attributes and hence 
+        function exactly as an Element would.
     """
            
     def __init__(self, symbol, oxidation_state):
         """
-        Arguments:
-            symbol - Element symbol, e.g., Fe
-            oxidation_state - e.g., 2 or -2
+        Args:
+            symbol:
+                Element symbol, e.g., Fe
+            oxidation_state:
+                Oxidation state of element, e.g., 2 or -2
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
@@ -394,7 +481,7 @@ class Specie(object):
     
     def __getattr__(self, attr):
         """
-        Trick to make Specie inherit all Element properties.
+        Override getattr to make Specie inherit all Element properties.
         """
         if hasattr(self._el, attr):
             return getattr(self._el,attr) 
@@ -428,7 +515,7 @@ class Specie(object):
     @property
     def oxi_state(self):
         """
-        Oxidation state.
+        Oxidation state of Specie.
         """
         return self._oxi_state
     
@@ -436,7 +523,16 @@ class Specie(object):
     def from_string(species_string):
         """
         Returns a Specie from a string representation. 
-        For example, Mn2+, Fe3+, O2-.
+        
+        Args:
+            species_string: 
+                A typical string representation of a species, e.g., "Mn2+", "Fe3+", "O2-".
+                
+        Returns:
+            A Specie object.
+            
+        Raises:
+            ValueError if species_string cannot be intepreted.
         """
         m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
         if m:
@@ -459,28 +555,43 @@ class Specie(object):
 @singleton
 class PeriodicTable(object):
     '''
-    Periodic table singleton class.
+    A Periodic table singleton class.
+    This class contains methods on the collection of all known elements.  
+    For example, printing all elements, etc.
     '''
 
     def __init__(self):
         """ Implementation of the singleton interface """
         self._all_elements = dict()
-        for sym in PERIODIC_TABLE_DATA.keys():
+        for sym in _pt_data.keys():
             el = Element(sym)
             self._all_elements[sym] = el
 
     def __getattr__(self, name):
         return self._all_elements[name]
     
+    @property
     def all_elements(self):
+        """
+        Returns the list of all known elements as Element objects.
+        """
         return self._all_elements.values()
 
     @staticmethod
-    def print_periodic_table():
+    def print_periodic_table(filter_function = None):
+        """
+        A pretty ASCII printer for the periodic table, based on some filter_function.
+        
+        Args:
+            filter_function:
+                A filtering function taking an Element as input and returning a boolean.
+                For example, setting filter_function = lambda el: el.X > 2 will print
+                a periodic table containing only elements with electronegativity > 2.
+        """
         for row in range(1,10):
             for group in range(1,19):
-                el = Element.select_from_row_and_group(row,group)
-                if el != None:
+                el = Element.from_row_and_group(row,group)
+                if el != None and ((not filter_function) or filter_function(el)):
                     print "%3s" % (el.symbol),
                 else:
                     print "   ",
@@ -492,6 +603,17 @@ def smart_element_or_specie(obj):
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
     If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn).
+    
+    Args:
+        obj:
+            An arbitrary object.  Supported objects are actual Element/Specie objects, 
+            integers (representing atomic numbers) or strings (element symbols or species strings).
+            
+    Returns:
+        Specie or Element, with a bias for the maximum number of properties that can be determined.
+        
+    Raises:
+        ValueError if obj cannot be converted into an Element or Specie.
     """
     if isinstance(obj,(Element, Specie)):
         return obj
