@@ -34,7 +34,7 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
+from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
 from pymatgen.core.lattice import Lattice
 
 coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
@@ -1650,3 +1650,47 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
+    
+def get_band_structure_from_vasp(path):
+    """
+    method taking a directory with a band structure vasp run
+    and returning the corresponding Bandstructure Object
+    """
+    run=Vasprun(path+"/vasprun.xml")
+    labels_dict=parse_kpoint_labels(path+"/KPOINTS")
+    lattice_rec=Lattice(run.to_dict['input']['lattice_rec'])
+    #make the labels_dict to work with cartesian
+    for c in labels_dict:
+        labels_dict[c]=lattice_rec.get_cartesian_coords(6.28*labels_dict[c])
+    
+    
+    kpoints=[lattice_rec.get_cartesian_coords(6.28*np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    dict_eigen=run.to_dict['output']['eigenvalues']
+    eigenvals=[]
+    for i in range(len(dict_eigen['1']['up'])):
+        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
+        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
+    bands=Bandstructure(kpoints,eigenvals,labels_dict, Lattice(run.to_dict['input']['lattice_rec']), run.final_structure)
+    return bands
+
+def parse_kpoint_labels(file_kpoints):
+    """
+    helper method to parse a kpoint file and get the kpoint labels
+    """
+    with file_open_zip_aware(file_kpoints, "r") as f:
+        lines = f.readlines()
+    print lines
+    count=-1
+    dict_label_kpoints={}
+    for line in lines:
+        count=count+1
+        if(count<4):
+            continue
+        
+        tokens=re.split(" +",line)
+        if len(tokens)<6:
+            continue
+        array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
+        dict_label_kpoints[tokens[5]]=array
+        
+    return dict_label_kpoints

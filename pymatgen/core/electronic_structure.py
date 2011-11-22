@@ -6,7 +6,7 @@ This module provides classes to define electronic structure, such as the density
 
 from __future__ import division
 
-__author__="Shyue Ping Ong, Vincent L Chevrier, Rickard Armiento"
+__author__="Shyue Ping Ong, Vincent L Chevrier, Rickard Armiento, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -16,7 +16,6 @@ __date__ ="Sep 23, 2011"
 
 import numpy as np
 import scipy.interpolate as spint
-from pymatgen.core.lattice import Lattice
 
 class _SpinImpl(object):
     """
