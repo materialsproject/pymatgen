@@ -12,6 +12,18 @@ class  ElementTestCase(unittest.TestCase):
         
         for sym in fictional_symbols:
             self.assertRaises(KeyError, Element, sym)
+            
+    def test_block(self):
+        testsets = {'O':'p', 'Fe':'d','Li':'s', 'U':'f'}
+        for k,v in testsets.items():
+            self.assertEqual(Element(k).block, v)
+    
+    def test_full_electronic_structure(self):
+        testsets = {'O':[(1, 's', 2), (2, 's', 2), (2, 'p', 4)], 'Fe':[(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6), (3, 'd', 6), (4, 's', 2)]
+                    ,'Li':[(1, 's', 2), (2, 's', 1)], 
+                    'U':[(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6), (3, 'd', 10), (4, 's', 2), (4, 'p', 6), (4, 'd', 10), (5, 's', 2), (5, 'p', 6), (4, 'f', 14), (5, 'd', 10), (6, 's', 2), (6, 'p', 6), (5, 'f', 3), (6, 'd', 1), (7, 's', 2)]}
+        for k,v in testsets.items():
+            self.assertEqual(Element(k).full_electronic_structure, v)
     
     def test_attributes(self):
         is_true = {("Xe", "Kr") : "is_noble_gas",
@@ -27,8 +39,29 @@ class  ElementTestCase(unittest.TestCase):
         for k, v in is_true.items():
             for sym in k:
                 self.assertTrue(getattr(Element(sym),v), sym + ' is false')
-
-
+        
+        keys = ["name", "Z", "mendeleev_no", "atomic_mass", "electronic_structure", "X", "atomic_radius", "min_oxidation_state", 
+                        "max_oxidation_state", "electrical_resistivity", "velocity_of_sound",
+                        "reflectivity", "refractive_index", "poissons_ratio", "molar_volume", "thermal_conductivity", "melting_point", "boiling_point",
+                        "liquid_range", "critical_temperature", "superconduction_temperature", 
+                        "bulk_modulus", "youngs_modulus", "brinell_hardness", "rigidity_modulus", "mineral_hardness", 
+                        "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states"]
+        
+        #Test all elements up to Uranium
+        for i in xrange(1,93):
+            for k in keys:
+                self.assertIsNotNone(getattr(Element.from_Z(i),k))
+            el = Element.from_Z(i)
+            if len(el.oxidation_states) > 0:
+                self.assertEqual(max(el.oxidation_states), el.max_oxidation_state)
+                self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
+            
+    
+    def test_oxidation_states(self):
+        el = Element("Fe")
+        self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
+        self.assertEqual(el.common_oxidation_states, (2, 3))
+    
 class  SpecieTestCase(unittest.TestCase):
 
     def setUp(self):

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sphinx-apidoc -o . -f ../pymatgen
+rm *tests*
+make html

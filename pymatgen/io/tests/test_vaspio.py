@@ -16,7 +16,48 @@ class  PoscarTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         comp = poscar.struct.composition
         self.assertEqual(comp,Composition.from_formula("Fe4P4O16"))
+        
+        #Vasp 4 type with symbols at the end.
+        poscar_string = """Test1
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(poscar.struct.composition, Composition.from_formula("SiF"))
+        
+        #Vasp 4 tyle file with default names, i.e. no element symbol found.
+        poscar_string = """Test2
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000
+0.750000 0.500000 0.750000"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
 
+        #Vasp 4 tyle file with default names, i.e. no element symbol found.
+        poscar_string = """Test3
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+
+    def test_str(self):
         si = 14
         coords = list()
         coords.append(array([0,0,0]))
@@ -46,32 +87,14 @@ class  IncarTest(unittest.TestCase):
         incar = Incar.from_file(filepath)
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"],"Damped","Wrong Algo")
-        self.assertEqual(float(incar["EDIFF"]),1e-4,"Wrong EDIFF")
-    
-    def test_from_structure(self):
-        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
-        poscar = Poscar.from_file(filepath)
-        incar = Incar.from_structure(poscar.struct)
-        self.assertEqual(incar['LDAUU'], [5.3, 0, 0])
-        si = 14
-        coords = list()
-        coords.append(array([0,0,0]))
-        coords.append(array([0.75,0.5,0.75]))
-
-        #Silicon structure for testing.
-        latt = Lattice(array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
-        struct = Structure(latt,[si,si],coords)
-        incar = Incar.from_structure(struct)
-        self.assertNotIn("LDAU", incar)
-        
+        self.assertEqual(float(incar["EDIFF"]),1e-4,"Wrong EDIFF")        
         
     def test_diff(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','INCAR')
-        incar1 = Incar.from_file(filepath)
-        filepath = os.path.join(module_dir, 'vasp_testfiles','INCAR.2')
-        incar2 = Incar.from_file(filepath)
-                
-        self.assertEqual(incar1.diff(incar2), {'Same parameters': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'LORBIT': '11', 'SIGMA': 0.05}, 'Different': {'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NKRED': {'INCAR1': '2', 'INCAR2': 'Default'}, 'ENCUTFOCK': {'INCAR1': '0', 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': '0', 'INCAR2': 'Default'}, 'EDIFF': {'INCAR1': '1E-4', 'INCAR2': 0.0001}, 'HFSCREEN': {'INCAR1': '0.207', 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': '.FALSE.', 'INCAR2': 'Default'}, 'SYSTEM': {'INCAR1': 'id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]', 'INCAR2': 'id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] formula=[Li3 Ni3 O6] sg_name=[R-3m]'}, 'ENCUT': {'INCAR1': '500', 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': '1', 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': '.TRUE.', 'INCAR2': 'Default'}, 'TIME': {'INCAR1': '0.4', 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'ISPIND': {'INCAR1': '2', 'INCAR2': 'Default'}}})
+        filepath1 = os.path.join(module_dir, 'vasp_testfiles','INCAR')
+        incar1 = Incar.from_file(filepath1)
+        filepath2 = os.path.join(module_dir, 'vasp_testfiles','INCAR.2')
+        incar2 = Incar.from_file(filepath2)
+        self.assertEqual(incar1.diff(incar2), {'Different': {'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'}, 'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'}, 'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'}, 'SYSTEM': {'INCAR1': 'id=[0] dblock_code=[97763-ICSD] formula=[Li Mn (P O4)] sg_name=[P n m a]', 'INCAR2': 'id=[91090] dblock_code=[20070929235612LiNiO-59.53134651-VASP] formula=[Li3 Ni3 O6] sg_name=[R-3m]'}, 'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'}, 'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'}}, 'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001, 'LORBIT': '11', 'SIGMA': 0.05}})
 
 class  KpointsTest(unittest.TestCase):
     
@@ -87,7 +110,7 @@ class  KpointsTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
-
+        
 class  PotcarTest(unittest.TestCase):
     
     def test_init(self):

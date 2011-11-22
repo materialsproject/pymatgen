@@ -14,7 +14,20 @@ __date__ ="$Sep 23, 2011M$"
 
 def str_delimited(results, header=None, delimiter="\t"):
     """
-    Given a tuple, generate a delimited string form.
+    Given a tuple of tuples, generate a delimited string form.
+    >>> results = [['a','b','c'],['d','e','f'],[1,2,3]]
+    >>> print str_delimited(results,delimiter=',')
+    a,b,c
+    d,e,f
+    1,2,3
+    
+    Args:
+        result: 2d sequence of arbitrary types.
+        header: optional header
+        
+    Returns:
+        Aligned string output in a table-like format.
+    
     """
     returnstr = ''
     if header != None:
@@ -24,6 +37,18 @@ def str_delimited(results, header=None, delimiter="\t"):
 def str_aligned(results, header=None):
     """
     Given a tuple, generate a nicely aligned string form.
+    >>> results = [['a','b','cz'],['d','ez','f'],[1,2,3]]
+    >>> print str_aligned(results)
+    a    b   cz
+    d   ez    f
+    1    2    3
+    
+    Args:
+        result: 2d sequence of arbitrary types.
+        header: optional header
+        
+    Returns:
+        Aligned string output in a table-like format.
     """
     k = list(zip(*results))
     stringlengths = list()
@@ -46,11 +71,13 @@ def str_aligned(results, header=None):
 def formula_double_format(afloat, ignore_ones = True, tol=1e-8):
     """
     This function is used to make pretty formulas by formatting the amounts.
-    Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4 
+    Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
+    
     Arguments:
         afloat - a float
         ignore_ones - if true, floats of 1 are ignored.
         tol - tolerance to round to nearest int. i.e. 2.0000000001 -> 2
+    
     Returns:
         A string representation of the float for formulas.
     """
@@ -61,3 +88,6 @@ def formula_double_format(afloat, ignore_ones = True, tol=1e-8):
     else:
         return str(afloat)
 
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

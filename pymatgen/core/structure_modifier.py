@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from __future__ import division
 
 """
 This module provides classes used to modify structures.
 """
+
+from __future__ import division
 
 __author__="Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -11,7 +12,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ ="Sep 23, 2011"
 
 import abc
 import itertools
@@ -50,15 +51,9 @@ class StructureEditor(StructureModifier):
     
     def __init__(self, structure):
         """
-        Create a supercell.
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            scaling_matrix - a matrix of transforming the lattice vectors.
-                             defaults to the identity matrix.
-                             Has to be all integers.
-                             e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                             with lattice vectors a' = 2a + b, b' = 3b, c' = c where
-                             a, b, and c are the lattice vectors of the original structure  
+            structure:
+                pymatgen.core.structure Structure object.
         """
         self._original_structure = structure
         self._lattice = structure.lattice
@@ -66,10 +61,12 @@ class StructureEditor(StructureModifier):
     
     def replace_species(self, species_mapping):
         """
-        Swap species in a structure
+        Swap species in a structure.
+        
         Arguments:
-            species_mapping - a dictionary of species to swap.  Species can be elements too.
-                               e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution 
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution.
         """
         
         def mod_site(site):
@@ -84,9 +81,11 @@ class StructureEditor(StructureModifier):
     
     def remove_species(self, species):
         """
-        Remove all occurences of a species from a structure.
-        Arguments:
-            species - species to remove
+        Remove all occurrences of a species from a structure.
+        
+        Args:
+            species:
+                species to remove
         """    
         new_sites = []
         for site in self._sites:
@@ -95,29 +94,40 @@ class StructureEditor(StructureModifier):
                 new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords, self._lattice))
         self._sites = new_sites
     
-    def append_site(self, species, coords, fractional_coord = True, validate_proximity = True): 
+    def append_site(self, species, coords, coords_are_cartesian = False, validate_proximity = True): 
         """
         Append a site to the structure at the end.
-        Arguments:
-            species - species of inserted site
-            coords - coordinates of inserted site
-            fractional_coord - Whether coordinates are fractional. Defaults to True.
-            validate_proximity - Whether to check if inserted site is too close to an existing site. Defaults to True.
+        
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            fractional_coord:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing site. Defaults to True.
         
         """       
-        self.insert_site(len(self._sites), species, coords, fractional_coord, validate_proximity = True)
+        self.insert_site(len(self._sites), species, coords, coords_are_cartesian, validate_proximity)
         
-    def insert_site(self, i, species, coords, fractional_coord = True, validate_proximity = True):
+    def insert_site(self, i, species, coords, coords_are_cartesian = False, validate_proximity = True):
         """
         Insert a site to the structure.
-        Arguments:
-            i - index to insert site
-            species - species of inserted site
-            coords - coordinates of inserted site
-            fractional_coord - Whether coordinates are fractional. Defaults to True.
-            validate_proximity - Whether to check if inserted site is too close to an existing site. Defaults to True.
+        
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing site. Defaults to True.
         """
-        if fractional_coord:
+        if not coords_are_cartesian:
             new_site = PeriodicSite(species,coords,self._lattice)
         else:
             new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords), self._lattice)
@@ -132,16 +142,20 @@ class StructureEditor(StructureModifier):
     def delete_site(self, i):
         """
         Delete site at index i.
-        Arguments:
-            i - index
+        
+        Args:
+            i:
+                index of site to delete.
         """
         del(self._sites[i])
         
     def delete_sites(self, indices):
         """
         Delete sites with at indices.
-        Arguments:
-            indices - sequence of indices
+        
+        Args:
+            indices:
+                sequence of indices of sites to delete.
         """
         self._sites = [self._sites[i] for i in xrange(len(self._sites)) if i not in indices]
     
@@ -150,6 +164,10 @@ class StructureEditor(StructureModifier):
         Apply a symmetry operation to the structure and return the new structure.
         The lattice is operated by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
+        
+        Args:
+            symmop:
+                Symmetry operation to apply.
         """        
         self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
         def operate_site(site):
@@ -158,6 +176,13 @@ class StructureEditor(StructureModifier):
         self._sites = map(operate_site, self._sites)
     
     def modify_lattice(self, new_lattice):
+        """
+        Modify the lattice of the structure.  Mainly used for changing the basis.
+        
+        Args:
+            new_lattice:
+                New lattice
+        """
         self._lattice = new_lattice
         new_sites = []
         for site in self._sites:
@@ -180,14 +205,15 @@ class SupercellMaker(StructureModifier):
     def __init__(self, structure, scaling_matrix = [[1,0,0],[0,1,0],[0,0,1]]):
         """
         Create a supercell.
+        
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            scaling_matrix - a matrix of transforming the lattice vectors.
-                             defaults to the identity matrix.
-                             Has to be all integers.
-                             e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                             with lattice vectors a' = 2a + b, b' = 3b, c' = c where
-                             a, b, and c are the lattice vectors of the original structure  
+            structure:
+                pymatgen.core.structure Structure object.
+            scaling_matrix:
+                a matrix of transforming the lattice vectors. Defaults to the identity matrix.
+                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
+                with lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice 
+                vectors of the original structure. 
         """
         self._original_structure = structure
         old_lattice = structure.lattice
@@ -223,10 +249,12 @@ class OxidationStateDecorator(StructureModifier):
     def __init__(self, structure, oxidation_states):
         """
         Decorates a structure with oxidation states.
-        Arguments:
-            structure - pymatgen.core.structure Structure object.
-            oxidation_states - a dictionary of oxidation states. 
-                               e.g., {"Li":1, "Fe":2, "P":5, "O": -2} 
+        
+        Args:
+            structure:
+                pymatgen.core.structure Structure object.
+            oxidation_states:
+                dict of oxidation states. e.g., {"Li":1, "Fe":2, "P":5, "O": -2} 
         """
         self._original_structure = structure
         try:
@@ -245,15 +273,18 @@ class OxidationStateDecorator(StructureModifier):
 
 class BasisChange(StructureModifier):
     """
-    given a new basis, we express the structure in this new basis
+    Given a new basis, we express the structure in this new basis
     """
     
     def __init__(self, structure, new_lattice):
         """
-        express a given structure in a new basis
+        Express a given structure in a new basis.
+        
         Arguments:
-            structure - pymatgen.core.structure Structure object.
-            new_lattice - a pymatgen.core.Lattice object
+            structure:
+                pymatgen.core.structure Structure object.
+            new_lattice:
+                a pymatgen.core.Lattice object
         """
         self._original_structure = structure
         sp=[site.species_and_occu for site in structure._sites]

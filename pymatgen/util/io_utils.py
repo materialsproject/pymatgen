@@ -4,7 +4,7 @@
 This module provides utility classes for io operations.
 """
 
-__author__="Shyue Ping Ong"
+__author__="Shyue Ping Ong, Rickard Armiento"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -19,8 +19,17 @@ import numpy
 
 def file_open_zip_aware(filename, *args):
     """
-    This wrapper wraps around the bz2, gzip and standard python file open
+    This wrapper wraps around the bz2, gzip and standard python's open function 
     to deal intelligently with bzipped, gzipped or standard text files.
+    
+    Arguments:
+        filename:
+            filename 
+        args:
+            Standard args for python open(..).  Examples, 'r' for read, 'w' for write,
+    
+    Returns:
+        File handler
     """
     if filename.split(".")[-1].upper() == "BZ2":
         return bz2.BZ2File(filename,*args)
@@ -31,9 +40,16 @@ def file_open_zip_aware(filename, *args):
 
 def clean_lines(string_list, remove_empty_lines = True):
     """
-    type(list) = list of strings
-    # Strips whitespace from strings '\n' and '\r' and empty lines from a list
-    # (the list is usually obtained with the ".readlines()" method)
+    Strips whitespace from strings '\n' and '\r' and empty lines from a list (usually obtained with the ".readlines()" method)
+    
+    Arguments:
+        string_list:
+            list of strings
+        remove_empty_lines:
+            Set to True to skip lines which are empty after stripping.
+    
+    Returns:
+        List of clean strings with no whitespaces.
     """
     
     for s in string_list:
@@ -44,15 +60,14 @@ def clean_lines(string_list, remove_empty_lines = True):
         clean_s = clean_s.strip()
         if (not remove_empty_lines) or clean_s != '':
             yield clean_s
-                    
-# @author Rickard Armiento
+    
 def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     """
     Small awk-mimicking search routine.
        
     'file' is file to search through.
     'search' is the "search program", a list of lists/tuples with 3 elements; i.e.
-      [[regex,test,run],[regex,test,run],...]
+    [[regex,test,run],[regex,test,run],...]
     'results' is a an object that your search program will have access to for storing results.
 
     Here regex is either as a Regex object, or a string that we compile into a Regex.
@@ -65,7 +80,10 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     The default results is an empty dictionary. Passing a results object let you interact 
     with it in run() and test(). Hence, in many occasions it is thus clever to use results=self. 
     
-    Returns: results
+    Author: Rickard Armiento
+    
+    Returns: 
+        results
     """
     if results == None: results = {}
 
@@ -90,14 +108,23 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
 def clean_json(input_json):
     """
-    This method cleans an input json-like object, either a list or a dictionary, nested or otherwise,
+    This method cleans an input json-like dict object, either a list or a dictionary, nested or otherwise,
     by converting all non-string dictionary keys (such as int and float) to strings.
+    
+    Arguments:
+        input_dict:
+            input dictionary.
+    
+    Returns:
+        Sanitized dict that can be json serialized.
     """
     if isinstance(input_json, (list, numpy.ndarray)):
         return [clean_json(i) for i in input_json]
     elif isinstance(input_json, dict):
         return {str(k): clean_json(v) for k, v in input_json.items()}
-    elif isinstance(input_json, (int, float, basestring)):
+    elif isinstance(input_json, (int, float)):
         return input_json
+    elif isinstance(input_json, basestring):
+        return str(input_json)
     else:
         return clean_json(input_json.to_dict)

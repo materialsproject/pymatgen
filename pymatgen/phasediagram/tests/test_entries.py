@@ -47,15 +47,6 @@ class PDEntryIOTestCase(unittest.TestCase):
         (elements,entries) = PDEntryIO.from_csv(os.path.join(module_dir,"pdentries_test.csv"))
         self.assertEqual(elements,[Element('Li'),Element('Fe'),Element('O')], "Wrong elements!")
         self.assertEqual(len(entries),492,"Wrong number of entries!")
-    
-    def test_to_json(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        (elements,entries) = PDEntryIO.from_csv(os.path.join(module_dir,"pdentries_test.csv"))
-        jsonstr = json.dumps(entries[0],default=PDEntryIO.to_json)
-        expected_json = '{"__class__": "PDEntry", "__value__": {"energy": -67.80799684, "name": "Fe2O3", "formulasum": "Fe4 O6"}}'
-        self.assertEqual(jsonstr, expected_json, "Wrong json string dumped")
-        obj = json.loads(jsonstr,object_hook=PDEntryIO.from_json)
-        self.assertEqual(obj.composition.formula, "Fe4 O6", "Wrong formula for PDEntry restored.")
 
 if __name__ == '__main__':
     unittest.main()

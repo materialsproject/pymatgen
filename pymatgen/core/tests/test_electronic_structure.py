@@ -22,11 +22,6 @@ class OrbitalTest(unittest.TestCase):
 class DosTest(unittest.TestCase):
     
     def setUp(self):
-        #from pymatgen.io.vaspio import Vasprun
-        #filepath = os.path.join("/Users/shyuepingong/Documents/git/pymatgen/pymatgen/io/tests", 'vasp_testfiles','vasprun.xml.gz')
-        #vasprun = Vasprun(filepath)
-        #with open(os.path.join(module_dir,"dos_test_file.pkl"), "wb") as f:
-        #    pickle.dump(vasprun.complete_dos, f)   
         with open(os.path.join(module_dir,"dos_test_file.pkl"), "rb") as f:
             self.dos = pickle.load(f)        
                 
