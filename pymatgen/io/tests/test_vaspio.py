@@ -111,6 +111,22 @@ class  KpointsTest(unittest.TestCase):
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
         
+        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.band')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertIsNotNone(kpoints.labels)
+        self.assertEqual(kpoints.style, "Line_mode")
+        
+    def test_static_constructors(self):
+        kpoints = Kpoints.gamma_automatic([3,3,3], [0,0,0])
+        self.assertEqual(kpoints.style, "Gamma")
+        self.assertEqual(kpoints.kpts, [[3,3,3]])
+        kpoints = Kpoints.monkhorst_automatic([2,2,2], [0,0,0])
+        self.assertEqual(kpoints.style, "Monkhorst")
+        self.assertEqual(kpoints.kpts, [[2,2,2]])
+        kpoints = Kpoints.automatic(100)
+        self.assertEqual(kpoints.style, "Automatic")
+        self.assertEqual(kpoints.kpts, [[100]])
+        
 class  PotcarTest(unittest.TestCase):
     
     def test_init(self):

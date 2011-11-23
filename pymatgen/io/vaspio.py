@@ -17,6 +17,7 @@ __date__ ="Sep 23, 2011"
 
 import os
 import re
+import math
 import itertools
 import warnings
 import xml.sax.handler
@@ -29,6 +30,7 @@ import numpy as np
 from numpy.linalg import det
 
 import pymatgen
+from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
@@ -490,19 +492,94 @@ class Incar(dict, VaspInput):
 
 class Kpoints(VaspInput):
     """
-    Very basic KPOINT reader/writer
-    The lines of the original file
-    are stored as is but the kpts are stored
-    as a list which can be accessed and
-    modified
-    GH: NEEDS to be updated to work with band structure kpoint files
+    KPOINT reader/writer.
     """
-    def __init__(self, comment = "Default", num_kpts = 0, style = "Gamma", kpts = [[1,1,1]], kpts_shift = [0,0,0]):
+    supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
+    
+    def __init__(self, comment = "Default", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = [0,0,0], coord_type = None, labels = None):
+        """
+        Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
+        general, it is recommended that you use the default constructor only if you know exactly what you are doing
+        and requires the flexibility.  For most usage cases, the three automatic schemes can be constructed far 
+        more easily using the convenience static constructors (automatic, gamma_automatic, monkhorst_automatic) and it 
+        is recommended that you use those.
+        
+        Arguments:
+            comment:
+                String comment for Kpoints
+            num_kpts:
+                Following VASP method of defining the KPOINTS file, this parameter is the number of kpoints specified.
+                If set to 0 (or negative), VASP automatically generates the KPOINTS.
+            style:
+                Style for generating KPOINTS.  Must be one of the supported_modes
+            kpts:
+                2D array of kpoints.  Even when only a single specification is required, e.g. in the automatic scheme, 
+                the kpts should still be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+            kpts_shift:
+                Shift for Kpoints.
+            coord_type:
+                In line-mode, this variable specifies whether the Kpoints were given in Cartesian or Reciprocal coordinates
+            labels:
+                In line-mode, this should provide a list of labels for each kpts.
+        
+        The default behavior of the constructor is for a Gamma centered, 1x1x1 KPOINTS with no shift.
+        """
         self.comment = comment
         self.num_kpts = num_kpts
         self.style = style
+        self.coord_type = coord_type
         self.kpts = kpts
         self.kpts_shift = kpts_shift
+        self.labels = labels
+        
+    @staticmethod
+    def automatic(subdivisions):
+        """
+        Convenient static constructor for a fully automatic Kpoint grid, with 
+        gamma centered Monkhorst-Pack grids and the number of subdivisions along
+        each reciprocal lattice vector determined by the scheme in the VASP manual.
+        
+        Arguments:
+            subdivisions:
+                 Parameter determining number of subdivisions along each reciprocal lattice vector
+                 
+        Returns:
+            Kpoints object
+        """
+        return Kpoints("Fully automatic kpoint scheme", 0, style = Kpoints.supported_modes.Automatic, kpts=[[subdivisions]])
+    
+    @staticmethod
+    def gamma_automatic(kpts = (1,1,1), shift = (0,0,0)):
+        """
+        Convenient static constructor for an automatic Gamma centered Kpoint grid.
+        
+        Arguments:
+            kpts:
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors. Defaults to (1,1,1)
+            shift:
+                Shift to be applied to the kpoints. Defaults to (0,0,0)
+                
+        Returns:
+            Kpoints object
+        """
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts = [kpts], kpts_shift = shift)
+
+    @staticmethod
+    def monkhorst_automatic(kpts = (2,2,2), shift = [0,0,0]):
+        """
+        Convenient static constructor for an automatic Monkhorst pack Kpoint grid.
+        
+        Arguments:
+            kpts:
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors. Defaults to (2,2,2)
+            shift:
+                Shift to be applied to the kpoints. Defaults to (0,0,0)
+                
+        Returns:
+            Kpoints object
+        """
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts = [kpts], kpts_shift = shift)
+
 
     @staticmethod
     def from_file(filename):
@@ -520,23 +597,37 @@ class Kpoints(VaspInput):
             lines = list(clean_lines(f.readlines(), False))
         kpoints = Kpoints()
         kpoints.comment = lines[0].strip()
-        kpoints.num_kpts = int(lines[1].strip())
+        kpoints.num_kpts = int(lines[1].split()[0].strip())
         style = lines[2].strip().lower()[0]
         if style == "a":
-            kpoints.style = "Auto"
+            kpoints.style = Kpoints.supported_modes.Automatic
             kpoints.kpts = [[int(lines[3].strip())]]
         elif style == "g" or style == "m":
-            kpoints.style = "Gamma" if style == "g" else "Monkhorst-Pack"
+            kpoints.style = Kpoints.supported_modes.Gamma if style == "g" else Kpoints.supported_modes.Monkhorst
             kpoints.kpts = [[int(x) for x in lines[3].strip().split()]]
             if len(lines)>4 and coord_pattern.match(lines[4].strip()):
                 try:
                     kpoints.kpts_shift = [int(x) for x in lines[4].strip().split()]
                 except:
                     pass
+        elif style == 'l':
+            kpoints.coord_type = 'Cartesian' if lines[3].lower()[0] in 'ck' else 'Reciprocal'
+            kpoints.style = Kpoints.supported_modes.Line_mode
+            kpoints.kpts = []
+            kpoints.labels = []
+            patt = re.compile('([0-9\.\-]+)\s+([0-9\.\-]+)\s+([0-9\.\-]+)\s*!\s*(.*)')
+            for i in range(4,len(lines)):
+                line = lines[i].strip()
+                m = patt.match(line)
+                if m:
+                    kpoints.kpts.append([float(m.group(1)),float(m.group(2)),float(m.group(3))])
+                    kpoints.labels.append(m.group(4).strip())
         elif kpoints.num_kpts <= 0:
-            kpoints.style = "Cartesian" if style == "c" else "Reciprocal"
+            kpoints.style = Kpoints.supported_modes.Cartesian if style == "c" else Kpoints.supported_modes.Reciprocal
             kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
             kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
+        else:
+            raise VaspParserError("Explicit KPOINTS grid not yet supported")
         return kpoints
         
     def write_file(self, filename):
@@ -555,9 +646,13 @@ class Kpoints(VaspInput):
         lines += [self.comment]
         lines += [str(self.num_kpts)]
         lines += [self.style]
-        for line in self.kpts:
-            lines += [" ".join([str(x) for x in line])]
-        if self.style != 'Auto':
+        if self.style == "Line-mode":
+            lines += [self.coord_type]
+        for i in xrange(len(self.kpts)):
+            lines += [" ".join([str(x) for x in self.kpts[i]])]
+            if self.style == "Line-mode":
+                lines[-1] += " ! " + self.labels[i]
+        if self.style[0] not in "Aa":
             lines += [" ".join([str(x) for x in self.kpts_shift])]
         return "\n".join(lines)
     
@@ -770,6 +865,39 @@ class Vasprun(object):
         """
         return CompleteDos(self.final_structure, self.tdos, self.pdos)
     
+    def get_band_structure(self, kpoints_filename = None):
+        """
+        Returns the band structure.
+        
+        Arguments:
+            kpoints_filename:
+                Full path of the KPOINTS file from which the band structure is generated.
+                If none is provided, the code will try to intelligently determine the appropriate
+                KPOINTS file by substituting the filename of the vasprun.xml with KPOINTS.
+                The latter is the default behavior.
+                
+        Returns:
+            Band structure object
+        """
+        if not kpoints_filename:
+            kpoints_filename = self._filename.replace('vasprun.xml', 'KPOINTS')
+        if not os.path.exists(kpoints_filename):
+            raise VaspParserError('KPOINTS file needed to obtain band structure.')
+        k = Kpoints.from_file(kpoints_filename)
+        labels_dict = dict(zip(k.labels, k.kpts))
+        lattice_rec = Lattice(self.lattice_rec)
+        #make the labels_dict to work with cartesian
+        if k.coord_type == "Reciprocal":
+            for c in labels_dict:
+                labels_dict[c]=lattice_rec.get_cartesian_coords(2 * math.pi * np.array(labels_dict[c]))
+        kpoints = [lattice_rec.get_cartesian_coords(2 * math.pi * np.array(k)) for k in self.actual_kpoints]
+        eig = self.eigenvalues
+        eigenvals=[]
+        for i in range(len(eig[(1,Spin.up)])):
+            eigenvals.append({'energy':[eig[(j+1, Spin.up)][i][0] for j in range(len(kpoints))], 
+                              'occup': [eig[(j+1, Spin.up)][i][1] for j in range(len(kpoints))]})
+        return Bandstructure(kpoints,eigenvals,labels_dict, lattice_rec, self.final_structure)
+        
     @property
     def to_dict(self):
         """
@@ -1658,18 +1786,18 @@ def get_band_structure_from_vasp(path):
     """
     run=Vasprun(path+"/vasprun.xml")
     labels_dict=parse_kpoint_labels(path+"/KPOINTS")
+    print labels_dict
     lattice_rec=Lattice(run.to_dict['input']['lattice_rec'])
     #make the labels_dict to work with cartesian
     for c in labels_dict:
         labels_dict[c]=lattice_rec.get_cartesian_coords(6.28*labels_dict[c])
-    
-    
+    print labels_dict
     kpoints=[lattice_rec.get_cartesian_coords(6.28*np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
-    dict_eigen=run.to_dict['output']['eigenvalues']
+    eig=run.to_dict['output']['eigenvalues']
     eigenvals=[]
-    for i in range(len(dict_eigen['1']['up'])):
-        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
+    for i in range(len(eig['1']['up'])):
+        eigenvals.append({'energy':[eig[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
+        eigenvals[i]['occup']=[eig[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
     bands=Bandstructure(kpoints,eigenvals,labels_dict, Lattice(run.to_dict['input']['lattice_rec']), run.final_structure)
     return bands
 
@@ -1679,7 +1807,6 @@ def parse_kpoint_labels(file_kpoints):
     """
     with file_open_zip_aware(file_kpoints, "r") as f:
         lines = f.readlines()
-    print lines
     count=-1
     dict_label_kpoints={}
     for line in lines:
@@ -1694,3 +1821,4 @@ def parse_kpoint_labels(file_kpoints):
         dict_label_kpoints[tokens[5]]=array
         
     return dict_label_kpoints
+
