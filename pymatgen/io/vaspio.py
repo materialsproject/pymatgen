@@ -496,7 +496,7 @@ class Kpoints(VaspInput):
     """
     supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
     
-    def __init__(self, comment = "Default", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = [0,0,0], coord_type = None, labels = None):
+    def __init__(self, comment = "Default", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = (0,0,0), kpts_weights=None, coord_type = None, labels = None):
         """
         Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
         general, it is recommended that you use the default constructor only if you know exactly what you are doing
@@ -517,6 +517,8 @@ class Kpoints(VaspInput):
                 the kpts should still be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
             kpts_shift:
                 Shift for Kpoints.
+            kpts_weights:
+                Optional weights for kpoints.  For explicit kpoints.
             coord_type:
                 In line-mode, this variable specifies whether the Kpoints were given in Cartesian or Reciprocal coordinates
             labels:
@@ -529,6 +531,7 @@ class Kpoints(VaspInput):
         self.style = style
         self.coord_type = coord_type
         self.kpts = kpts
+        self.kpts_weights = kpts_weights
         self.kpts_shift = kpts_shift
         self.labels = labels
         
@@ -565,7 +568,7 @@ class Kpoints(VaspInput):
         return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts = [kpts], kpts_shift = shift)
 
     @staticmethod
-    def monkhorst_automatic(kpts = (2,2,2), shift = [0,0,0]):
+    def monkhorst_automatic(kpts = (2,2,2), shift = (0,0,0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint grid.
         
@@ -599,6 +602,7 @@ class Kpoints(VaspInput):
         kpoints.comment = lines[0].strip()
         kpoints.num_kpts = int(lines[1].split()[0].strip())
         style = lines[2].strip().lower()[0]
+        
         if style == "a":
             kpoints.style = Kpoints.supported_modes.Automatic
             kpoints.kpts = [[int(lines[3].strip())]]
@@ -627,7 +631,13 @@ class Kpoints(VaspInput):
             kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
             kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
         else:
-            raise VaspParserError("Explicit KPOINTS grid not yet supported")
+            kpoints.style = Kpoints.supported_modes.Cartesian if style == "c" else Kpoints.supported_modes.Reciprocal
+            kpoints.kpts = []
+            kpoints.kpts_weights = []
+            for i in xrange(3, 3 + kpoints.num_kpts):
+                toks = re.split("\s+", lines[i].strip())
+                kpoints.kpts.append([float(toks[0]),float(toks[1]),float(toks[2])])
+                kpoints.kpts_weights.append(float(toks[3]))
         return kpoints
         
     def write_file(self, filename):
@@ -652,7 +662,9 @@ class Kpoints(VaspInput):
             lines += [" ".join([str(x) for x in self.kpts[i]])]
             if self.style == "Line-mode":
                 lines[-1] += " ! " + self.labels[i]
-        if self.style[0] not in "Aa":
+            elif self.num_kpts > 0:
+                lines[-1] += " %f" % (self.kpts_weights[i])
+        if self.style[0] not in "Aa" and tuple(self.kpts_shift) != (0,0,0):
             lines += [" ".join([str(x) for x in self.kpts_shift])]
         return "\n".join(lines)
     

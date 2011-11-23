@@ -116,6 +116,10 @@ class  KpointsTest(unittest.TestCase):
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, "Line_mode")
         
+        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.explicit')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertIsNotNone(kpoints.kpts_weights)
+        
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3,3,3], [0,0,0])
         self.assertEqual(kpoints.style, "Gamma")
