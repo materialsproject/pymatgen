@@ -101,8 +101,7 @@ class AbstractVaspInputSet(object):
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k,v in self.get_all_vasp_input(structure).items():
-            v.write_file(os.path.join(output_dir, k))
-    
+            v.write_file(os.path.join(output_dir, k))  
 
 class MITVaspInputSet(AbstractVaspInputSet):
     """
@@ -194,7 +193,21 @@ class MITVaspInputSet(AbstractVaspInputSet):
             style = 'Monk'
         comment = "pymatgen generated Materials Project kpoints with grid density = " + self.kpoints_settings['grid_density'] + ' per atom.'
         num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0,0,0])        
+        return Kpoints(comment, num_kpts, style, [num_div], [0,0,0])    
+    
+    def __str__(self):
+        output = [self.name]
+        output.append("")
+        section_names = ['INCAR settings', 'KPOINTS settings', 'POTCAR settings']
+        count = 0
+        for d in [self.incar_settings, self.kpoints_settings, self.potcar_settings]:
+            output.append(section_names[count])
+            for k, v in d.items():
+                output.append("%s = %s" % (k, str(v)))
+            output.append("")
+            count += 1
+                
+        return "\n".join(output)
 
 class MaterialsProjectVaspInputSet(MITVaspInputSet):
     """
