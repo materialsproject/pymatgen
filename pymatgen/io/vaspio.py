@@ -496,7 +496,8 @@ class Kpoints(VaspInput):
     """
     supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
     
-    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = (0,0,0), 
+    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma, 
+                 kpts = [[1,1,1]], kpts_shift = (0,0,0), 
                  kpts_weights=None, coord_type = None, labels = None, 
                  tet_number = 0, tet_weight = 0, tet_connections = None):
         """
@@ -513,7 +514,7 @@ class Kpoints(VaspInput):
                 Following VASP method of defining the KPOINTS file, this parameter is the number of kpoints specified.
                 If set to 0 (or negative), VASP automatically generates the KPOINTS.
             style:
-                Style for generating KPOINTS.  Must be one of the supported_modes
+                Style for generating KPOINTS.  Use one of the Kpoints.supported_modes enum types.
             kpts:
                 2D array of kpoints.  Even when only a single specification is required, e.g. in the automatic scheme, 
                 the kpts should still be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
@@ -614,60 +615,77 @@ class Kpoints(VaspInput):
             Kpoints object
         """
         with file_open_zip_aware(filename) as f:
-            lines = list(clean_lines(f.readlines(), False))
-        kpoints = Kpoints()
-        kpoints.comment = lines[0].strip()
-        kpoints.num_kpts = int(lines[1].split()[0].strip())
-        style = lines[2].strip().lower()[0]
+            lines = [line.strip() for line in f.readlines()]
+        comment = lines[0]
+        num_kpts = int(lines[1].split()[0].strip())
+        style = lines[2].lower()[0]
         
+        #Fully automatic KPOINTS
         if style == "a":
-            kpoints.style = Kpoints.supported_modes.Automatic
-            kpoints.kpts = [[int(lines[3].strip())]]
-        elif style == "g" or style == "m":
-            kpoints.style = Kpoints.supported_modes.Gamma if style == "g" else Kpoints.supported_modes.Monkhorst
-            kpoints.kpts = [[int(x) for x in lines[3].strip().split()]]
-            if len(lines)>4 and coord_pattern.match(lines[4].strip()):
+            return Kpoints.automatic(int(lines[3]))
+        
+        #Automatic gamma and Monk KPOINTS, with optional shift
+        if style == "g" or style == "m":
+            kpts = [int(x) for x in lines[3].split()]
+            kpts_shift = (0,0,0)
+            if len(lines)>4 and coord_pattern.match(lines[4]):
                 try:
-                    kpoints.kpts_shift = [int(x) for x in lines[4].strip().split()]
+                    kpts_shift = [int(x) for x in lines[4].split()]
                 except:
                     pass
-        elif style == 'l':
-            kpoints.coord_type = 'Cartesian' if lines[3].lower()[0] in 'ck' else 'Reciprocal'
-            kpoints.style = Kpoints.supported_modes.Line_mode
-            kpoints.kpts = []
-            kpoints.labels = []
+            return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" else Kpoints.monkhorst_automatic(kpts, kpts_shift) 
+
+        #Automatic kpoints with basis
+        if num_kpts <= 0:
+            style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
+            kpts = [[float(x) for x in lines[i].split()] for i in xrange(3,6)]
+            kpts_shift = [float(x) for x in lines[6].split()]
+            return Kpoints(comment = comment, num_kpts = num_kpts, style = style, kpts = kpts, kpts_shift = kpts_shift)
+
+        #Line-mode KPOINTS, usually used with band structures
+        if style == 'l':
+            coord_type = 'Cartesian' if lines[3].lower()[0] in 'ck' else 'Reciprocal'
+            style = Kpoints.supported_modes.Line_mode
+            kpts = []
+            labels = []
             patt = re.compile('([0-9\.\-]+)\s+([0-9\.\-]+)\s+([0-9\.\-]+)\s*!\s*(.*)')
             for i in range(4,len(lines)):
-                line = lines[i].strip()
+                line = lines[i]
                 m = patt.match(line)
                 if m:
-                    kpoints.kpts.append([float(m.group(1)),float(m.group(2)),float(m.group(3))])
-                    kpoints.labels.append(m.group(4).strip())
-        elif kpoints.num_kpts <= 0:
-            kpoints.style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
-            kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
-            kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
-        else:
-            kpoints.style = Kpoints.supported_modes.Cartesian if style == "ck" else Kpoints.supported_modes.Reciprocal
-            kpoints.kpts = []
-            kpoints.kpts_weights = []
-            for i in xrange(3, 3 + kpoints.num_kpts):
-                toks = re.split("\s+", lines[i].strip())
-                kpoints.kpts.append([float(toks[0]),float(toks[1]),float(toks[2])])
-                kpoints.kpts_weights.append(float(toks[3]))
-            try:
-                #Deal with tetrahedron method
-                if lines[3 + kpoints.num_kpts].strip().lower()[0] == 't':
-                    toks = lines[4 + kpoints.num_kpts].strip().split()
-                    kpoints.tet_number = int(toks[0])
-                    kpoints.tet_weight = float(toks[1])
-                    kpoints.tet_connections = []
-                    for i in xrange(5 + kpoints.num_kpts, 5 + kpoints.num_kpts + kpoints.tet_number):
-                        toks = lines[i].strip().split()
-                        kpoints.tet_connections.append((int(toks[0]), [int(toks[j]) for j in xrange(1,5)]))
-            except:
-                pass
-        return kpoints
+                    kpts.append([float(m.group(1)),float(m.group(2)),float(m.group(3))])
+                    labels.append(m.group(4).strip())
+            return Kpoints(comment = comment, num_kpts = num_kpts, style = style, 
+                 kpts = kpts, coord_type = coord_type, labels = labels)
+        
+        #Assume explicit KPOINTS if all else fails.
+        style = Kpoints.supported_modes.Cartesian if style == "ck" else Kpoints.supported_modes.Reciprocal
+        kpts = []
+        kpts_weights = []
+        tet_number = 0
+        tet_weight = 0
+        tet_connections = None
+
+        for i in xrange(3, 3 + num_kpts):
+            toks = re.split("\s+", lines[i])
+            kpts.append([float(toks[0]),float(toks[1]),float(toks[2])])
+            kpts_weights.append(float(toks[3]))
+        try:
+            #Deal with tetrahedron method
+            if lines[3 + num_kpts].strip().lower()[0] == 't':
+                toks = lines[4 + num_kpts].split()
+                tet_number = int(toks[0])
+                tet_weight = float(toks[1])
+                tet_connections = []
+                for i in xrange(5 + num_kpts, 5 + num_kpts + tet_number):
+                    toks = lines[i].split()
+                    tet_connections.append((int(toks[0]), [int(toks[j]) for j in xrange(1,5)]))
+        except:
+            pass
+        
+        return Kpoints(comment = comment, num_kpts = num_kpts, style = style, 
+                 kpts = kpts, kpts_weights = kpts_weights, 
+                 tet_number = tet_number, tet_weight = tet_weight, tet_connections = tet_connections)
         
     def write_file(self, filename):
         """
