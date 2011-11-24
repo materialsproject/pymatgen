@@ -166,16 +166,7 @@ class MITVaspInputSet(AbstractVaspInputSet):
         
         Algorithm: 
             Uses a simple approach scaling the number of divisions along each 
-            reciprocal lattice vector proportional to its length. So of N_{grid}
-            grid points are desired, then 
-            N_{grid} = n_{a}*n_{b}*n_{c}
-            n_{b} = l_{b}/l_{a} * n_{a}
-            n_{c} = l_{c}/l_{a} * n_{a}
-            
-            and
-            
-            n_{a} = round( ( (l_{a}**2 / (l_{b}*l_{c}) )*N_{grid} )**(1/3) )
-            n_{a} = (n_{a} == 0 ? 1 : n_{a}) 
+            reciprocal lattice vector proportional to its length. 
         '''
         
         latt = structure.lattice
@@ -190,10 +181,12 @@ class MITVaspInputSet(AbstractVaspInputSet):
         num_div = [i if i > 0 else 1 for i in num_div]
         
         angles = latt.angles
-        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < 5]
-        hex_angles = [i for i in xrange(3) if abs(angles[i] - 60) < 5 or abs(angles[i] - 120) < 5]
+        hex_angle_tol = 5 #in degrees
+        hex_length_tol = 0.01 #in angstroms
+        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+        hex_angles = [i for i in xrange(3) if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
         
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1 and lengths[right_angles[0]] == lengths[right_angles[1]])
+        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1 and abs(lengths[right_angles[0]] == lengths[right_angles[1]]) < hex_length_tol)
         
         style = 'Gamma'
         if not is_hexagonal:
@@ -205,9 +198,11 @@ class MITVaspInputSet(AbstractVaspInputSet):
 
 class MaterialsProjectVaspInputSet(MITVaspInputSet):
     """
-    Class representing a set of Vasp input parameters.
-    The idea is that using a VaspInputSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
-    can be generated in an automated fashion for any structure.
+    Implementation of VaspInputSet utilizing parameters in the public Materials Project.
+    Typically, the psuedopotentials chosen contain more electrons than the MIT parameters,
+    and the k-point grid is ~50% more dense.  The LDAUU parameters are also different 
+    due to the different psps used, which result in different fitted values (even though
+    the methodology of fitting is exactly the same as the MIT scheme).
     """
     def __init__(self):
         self.name = "MaterialsProject"
