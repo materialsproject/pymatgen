@@ -120,6 +120,10 @@ class  KpointsTest(unittest.TestCase):
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.kpts_weights)
         
+        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.explicit_tet')
+        kpoints = Kpoints.from_file(filepath)
+        self.assertEqual(kpoints.tet_connections, [(6, [1,2,3,4])])
+        
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic([3,3,3], [0,0,0])
         self.assertEqual(kpoints.style, "Gamma")
