@@ -496,7 +496,9 @@ class Kpoints(VaspInput):
     """
     supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
     
-    def __init__(self, comment = "Default", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = (0,0,0), kpts_weights=None, coord_type = None, labels = None):
+    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma, kpts = [[1,1,1]], kpts_shift = (0,0,0), 
+                 kpts_weights=None, coord_type = None, labels = None, 
+                 tet_number = 0, tet_weight = 0, tet_connections = None):
         """
         Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
         general, it is recommended that you use the default constructor only if you know exactly what you are doing
@@ -523,9 +525,21 @@ class Kpoints(VaspInput):
                 In line-mode, this variable specifies whether the Kpoints were given in Cartesian or Reciprocal coordinates
             labels:
                 In line-mode, this should provide a list of labels for each kpts.
+            tet_number:
+                For explicit kpoints, specifies the number of tetrahedrons for the tetrahedron method.
+            tet_weight:
+                For explicit kpoints, specifies the weight for each tetrahedron for the tetrahedron method.
+            tet_connections:
+                For explicit kpoints, specifies the connections of the tetrahedrons for the tetrahedron method.
+                Format is a list of tuples, [ (sym_weight, [tet_vertices]), ...]           
         
         The default behavior of the constructor is for a Gamma centered, 1x1x1 KPOINTS with no shift.
         """
+        if num_kpts > 0 and (not labels) and (not kpts_weights):
+            raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
+        if style in (Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst) and len(kpts) > 1:
+            raise ValueError("For fully automatic or automatic gamma or monk kpoints, only a single line for the number of divisions is allowed.")
+        
         self.comment = comment
         self.num_kpts = num_kpts
         self.style = style
@@ -534,6 +548,9 @@ class Kpoints(VaspInput):
         self.kpts_weights = kpts_weights
         self.kpts_shift = kpts_shift
         self.labels = labels
+        self.tet_number = tet_number
+        self.tet_weight = tet_weight
+        self.tet_connections = tet_connections
         
     @staticmethod
     def automatic(subdivisions):
@@ -627,17 +644,29 @@ class Kpoints(VaspInput):
                     kpoints.kpts.append([float(m.group(1)),float(m.group(2)),float(m.group(3))])
                     kpoints.labels.append(m.group(4).strip())
         elif kpoints.num_kpts <= 0:
-            kpoints.style = Kpoints.supported_modes.Cartesian if style == "c" else Kpoints.supported_modes.Reciprocal
+            kpoints.style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
             kpoints.kpts = [[float(x) for x in lines[i].strip().split()] for i in xrange(3,6)]
             kpoints.kpts_shift = [float(x) for x in lines[6].strip().split()]
         else:
-            kpoints.style = Kpoints.supported_modes.Cartesian if style == "c" else Kpoints.supported_modes.Reciprocal
+            kpoints.style = Kpoints.supported_modes.Cartesian if style == "ck" else Kpoints.supported_modes.Reciprocal
             kpoints.kpts = []
             kpoints.kpts_weights = []
             for i in xrange(3, 3 + kpoints.num_kpts):
                 toks = re.split("\s+", lines[i].strip())
                 kpoints.kpts.append([float(toks[0]),float(toks[1]),float(toks[2])])
                 kpoints.kpts_weights.append(float(toks[3]))
+            try:
+                #Deal with tetrahedron method
+                if lines[3 + kpoints.num_kpts].strip().lower()[0] == 't':
+                    toks = lines[4 + kpoints.num_kpts].strip().split()
+                    kpoints.tet_number = int(toks[0])
+                    kpoints.tet_weight = float(toks[1])
+                    kpoints.tet_connections = []
+                    for i in xrange(5 + kpoints.num_kpts, 5 + kpoints.num_kpts + kpoints.tet_number):
+                        toks = lines[i].strip().split()
+                        kpoints.tet_connections.append((int(toks[0]), [int(toks[j]) for j in xrange(1,5)]))
+            except:
+                pass
         return kpoints
         
     def write_file(self, filename):
@@ -653,19 +682,29 @@ class Kpoints(VaspInput):
         
     def __str__(self):
         lines = []
-        lines += [self.comment]
-        lines += [str(self.num_kpts)]
-        lines += [self.style]
-        if self.style == "Line-mode":
-            lines += [self.coord_type]
+        lines.append(self.comment)
+        lines.append(str(self.num_kpts))
+        lines.append(self.style)
+        style = self.style.lower()[0]
+        if style == "Line-mode":
+            lines.append(self.coord_type)
         for i in xrange(len(self.kpts)):
-            lines += [" ".join([str(x) for x in self.kpts[i]])]
-            if self.style == "Line-mode":
+            lines.append(" ".join([str(x) for x in self.kpts[i]]))
+            if style == "l":
                 lines[-1] += " ! " + self.labels[i]
             elif self.num_kpts > 0:
                 lines[-1] += " %f" % (self.kpts_weights[i])
-        if self.style[0] not in "Aa" and tuple(self.kpts_shift) != (0,0,0):
-            lines += [" ".join([str(x) for x in self.kpts_shift])]
+                
+        #Print tetrahedorn parameters if the number of tetrahedrons > 0
+        if style not in "lagm" and self.tet_number > 0:
+            lines.append("Tetrahedron")
+            lines.append("%d %f" % (self.tet_number, self.tet_weight))
+            for sym_weight, vertices in self.tet_connections:
+                lines.append("%d %d %d %d %d" % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3]))
+            
+        #Print shifts for automatic kpoints types if not zero.
+        if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0,0,0):
+            lines.append(" ".join([str(x) for x in self.kpts_shift]))
         return "\n".join(lines)
     
     @property
