@@ -1011,7 +1011,7 @@ class Vasprun(object):
         d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))] 
         d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
         d['input']['parameters'] = {k:v for k,v in self.parameters.items()}
-        d['input']['lattice_rec'] = self.lattice_rec
+        d['input']['lattice_rec'] = self.lattice_rec.to_dict
         
         d['output'] = {}
         d['output']['ionic_steps'] = clean_json(self.ionic_steps)
@@ -1251,8 +1251,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.pos = np.array([float(x) for x in re.split("\s+",self.posstr.getvalue().strip())])
                     self.pos.shape = (len(self.atomic_symbols), 3)
                     self.structures.append(Structure(self.lattice, self.atomic_symbols, self.pos))
-                    self.lattice_rec = np.array([float(x) for x in re.split("\s+",self.latticerec.getvalue().strip())])
-                    self.lattice_rec.shape = (3,3)
+                    self.lattice_rec = Lattice([float(x) for x in re.split("\s+",self.latticerec.getvalue().strip())])
                     self.read_structure = False
             elif self.read_dos:
                 try:
