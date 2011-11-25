@@ -446,9 +446,9 @@ class Incar(dict, VaspInput):
                 return int(val)
             
         except:
-            return val
+            return val.capitalize()
               
-        return val
+        return val.capitalize()
             
     def diff(self, other):
         """
@@ -473,8 +473,8 @@ class Incar(dict, VaspInput):
                 similar_param[k1] = v1
         for k2,v2 in other.items():
             if k2 not in similar_param and k2 not in different_param:
-                if k1 not in self:
-                    different_param[k1] = {"INCAR1": 'Default', "INCAR2": v2}
+                if k2 not in self:
+                    different_param[k2] = {"INCAR1": 'Default', "INCAR2": v2}
         return {'Same' : similar_param, 'Different': different_param}
                 
     def __add__(self, other):
@@ -1398,12 +1398,25 @@ class Outcar(object):
     be very different depending on which "type of run" performed.
 
     Creating the OUTCAR class with a filename reads "regular parameters" that are always present.
-    Presently these are just the magnetization, mag[ion] (magnetization per ion) and magtot (total magnetization)
-
+    
+    Default attributes:
+        magnetization:
+            Magnetization on each ion as a tuple of dict, e.g., ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005}, ... )
+            Note that this data is not always present.  LORBIT must be set to some other value than the default.
+        charge:
+            Charge on each ion as a tuple of dict, e.g., ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, ...)
+            Note that this data is not always present.  LORBIT must be set to some other value than the default.
+        is_stopped:
+            True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+        run_stats:
+            Various useful run stats as a dict including 'System time (sec)', 'Total CPU time used (sec)'
+            'Elapsed time (sec)', 'Maximum memory used (kb)', 'Average memory used (kb)', 'User time (sec)'.
+                
+            
     One can then call a specific reader depending on the type of run being perfromed. These are currently:
-       readIGPAR()
-       readLEPSILON()
-       readLCALCPOL()
+       read_igpar()
+       read_lepsilon()
+       read_lcalcpol()
 
     See the documentation of those methods for more documentation.
     
@@ -1412,40 +1425,46 @@ class Outcar(object):
     """
     def __init__(self, filename):
         self.filename = filename
-        
+        self.is_stopped = False
         with file_open_zip_aware(filename, "r") as f:
             lines = f.readlines()
         
-            read_charge = False
-            read_mag = False
-            charge = []
-            mag = []
-            header = []
-            for line in lines:
-                clean = line.strip()
-                if clean == "total charge":
-                    read_charge = True
-                    charge = []
-                elif clean == "magnetization (x)":
-                    read_mag = True
-                    mag = []
-                elif read_charge or read_mag:
-                    if clean.startswith("# of ion"):
-                        header = re.split("\s{2,}", line.strip())
-                    elif clean.startswith("tot"):
-                        read_charge = False
-                        read_mag = False
-                    else:
-                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                        if m:
-                            to_append = charge if read_charge else mag
-                            data = re.findall("[\d\.\-]+", clean)
-                            to_append.append({header[i]:float(data[i]) for i in xrange(1,len(header))})
-            
+        read_charge = False
+        read_mag = False
+        charge = []
+        mag = []
+        header = []
+        run_stats = {}
+        for line in lines:
+            clean = line.strip()
+            if clean == "total charge":
+                read_charge = True
+                charge = []
+            elif clean == "magnetization (x)":
+                read_mag = True
+                mag = []
+            elif read_charge or read_mag:
+                if clean.startswith("# of ion"):
+                    header = re.split("\s{2,}", line.strip())
+                elif clean.startswith("tot"):
+                    read_charge = False
+                    read_mag = False
+                else:
+                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                    if m:
+                        to_append = charge if read_charge else mag
+                        data = re.findall("[\d\.\-]+", clean)
+                        to_append.append({header[i]:float(data[i]) for i in xrange(1,len(header))})
+            elif line.find('soft stop encountered!  aborting job') != -1:
+                self.is_stopped = True
+            elif re.search("\((sec|kb)\):", line):
+                tok = line.strip().split(":")
+                run_stats[tok[0].strip()] = float(tok[1].strip())
+            self.run_stats = run_stats
             self.magnetization = tuple(mag)
             self.charge = tuple(charge)
 
-    def read_IGPAR(self):
+    def read_igpar(self):
         """ 
         Renders accessible:
             er_ev = e<r>_ev (dictionary with Spin.up/Spin.down as keys)
@@ -1510,7 +1529,7 @@ class Outcar(object):
             self.er_bp_tot = None
             raise Exception("IGPAR OUTCAR could not be parsed.")
 
-    def readLEPSILON(self):
+    def read_lepsilon(self):
         # variables to be filled
         try:
             search = []
@@ -1567,7 +1586,7 @@ class Outcar(object):
         except:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
 
-    def readLCALCPOL(self):
+    def read_lcalcpol(self):
         # variables to be filled
         self.p_elec = None
         self.p_ion = None

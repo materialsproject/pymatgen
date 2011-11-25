@@ -31,9 +31,6 @@ filepath2 = args.incar_file[1]
 incar1 = Incar.from_file(filepath1)
 incar2 = Incar.from_file(filepath2)
 
-print type(incar1['EDIFF'])
-print type(incar2['EDIFF'])
-
 def format_lists(v):
     if isinstance(v, (tuple, list)):
         return " ".join(["%d*%.2f" % (len(tuple(group)), i) for (i,group) in itertools.groupby(v)])
@@ -42,9 +39,9 @@ def format_lists(v):
 d = incar1.diff(incar2)
 output = [['SAME PARAMS','', '']]
 output.append(['---------------','', ''])
-output.extend([(k,format_lists(v),format_lists(v)) for k,v in d['Same'].items() if k != "SYSTEM"])
+output.extend([(k,format_lists(d['Same'][k]),format_lists(d['Same'][k])) for k in sorted(d['Same'].keys()) if k != "SYSTEM"])
 output.append(['','', ''])
-output.append(['DIFFERENT PARAM','', ''])
-output.append(['---------------','', ''])
-output.extend([(k,format_lists(v['INCAR1']),format_lists(v['INCAR2'])) for k, v in d['Different'].items() if k != "SYSTEM"])
+output.append(['DIFFERENT PARAMS','', ''])
+output.append(['----------------','', ''])
+output.extend([(k,format_lists(d['Different'][k]['INCAR1']),format_lists(d['Different'][k]['INCAR2'])) for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
 print str_aligned(output, ['', filepath1, filepath2])
