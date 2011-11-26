@@ -1854,6 +1854,28 @@ class Procar(object):
                     self.data[index] = np.array(linefloatdata) * weight
 
 class Oszicar(object):
+    """
+    A basic parser for an OSZICAR output from VASP.  In general, while the OSZICAR is useful for a quick look
+    at the output from a VASP run, we recommend that you use the Vasprun parser instead, which gives far richer information
+    about a run.
+    
+    Attributes:
+        electronic_steps:
+            All electronic steps as a list of list of dict. e.g., 
+            [[{'rms': 160.0, 'E': 4507.24605593, 'dE': 4507.2, 'N': 1, 'deps': -17777.0, 'ncg': 16576}, ...], [....]
+            where electronic_steps[index] refers the list of electronic steps in one ionic_step, electronic_steps[index][subindex]
+            refers to a particular electronic step at subindex in ionic step at index.  The dict of properties depends on the type
+            of VASP run, but in general, "E", "dE" and "rms" should be present in almost all runs.
+        ionic_steps:
+            All ionic_steps as a list of dict, e.g.,
+            [{'dE': -526.36, 'E0': -526.36024, 'mag': 0.0, 'F': -526.36024}, ...]
+            This is the typical output from VASP at the end of each ionic step.
+
+    Please refer to the vasp manual for the definition for each of the terms.
+            
+    In addition, two convenience properties, all_energies and final_energy are provided for quick access to the commonly used 
+    energetic output from a run.  Please refer to the doc for those two methods for details.    
+    """
     
     def __init__(self, filename):
         electronic_steps = []
@@ -1882,8 +1904,27 @@ class Oszicar(object):
                     header = re.split("\s+", line.strip().replace("d eps", "deps"))
         self.electronic_steps = electronic_steps
         self.ionic_steps = ionic_steps
-    
 
+    @property
+    def all_energies(self):
+        """
+        Compilation of all energies from all electronic steps and ionic steps as a list of list of energies, e.g.,
+        [[4507.24605593, 143.824705755, -512.073149912, -547.713139455, ...], ...]
+        """
+        all_energies = []
+        for i in xrange(len(self.electronic_steps)):
+            energies = [step['E'] for step in self.electronic_steps[i]]
+            energies.append(self.ionic_steps[i]['F'])
+            all_energies.append(energies)
+        return all_energies
+    
+    @property
+    def final_energy(self):
+        """
+        Final energy from run.
+        """
+        return self.ionic_steps[-1]['F']
+    
 class VaspParserError(Exception):
     '''
     Exception class for Structure.
