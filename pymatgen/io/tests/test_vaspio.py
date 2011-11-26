@@ -201,7 +201,8 @@ class OszicarTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','OSZICAR')
         oszicar = Oszicar(filepath)
         self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
-        
+        self.assertEqual(len(oszicar.all_energies), 60)
+        self.assertAlmostEqual(oszicar.final_energy, -526.63928)
         
 if __name__ == '__main__':
     unittest.main()
