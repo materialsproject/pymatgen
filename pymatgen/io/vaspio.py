@@ -1853,6 +1853,36 @@ class Procar(object):
                 else:
                     self.data[index] = np.array(linefloatdata) * weight
 
+class Oszicar(object):
+    
+    def __init__(self, filename):
+        electronic_steps = []
+        ionic_steps = []
+        ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)\s+mag=\s*([\d\-\.E\+]+)")
+        electronic_pattern = re.compile("\s*\w+\s*:(.*)")
+        def smart_convert(header, num):
+            if header == "N" or header == "ncg":
+                return int(num)
+            return float(num)
+        header = []
+        with open(filename, 'r') as fid:
+            for line in fid.readlines():
+                m = electronic_pattern.match(line)
+                if m:
+                    toks = re.split("\s+", m.group(1).strip())
+                    data = {header[i]:smart_convert(header[i], toks[i]) for i in xrange(len(toks))}
+                    if toks[0] == '1':
+                        electronic_steps.append([data])
+                    else:
+                        electronic_steps[-1].append(data)
+                elif ionic_pattern.match(line.strip()):
+                    m = ionic_pattern.match(line.strip())
+                    ionic_steps.append({'F':float(m.group(2)),'E0':float(m.group(3)),'dE':float(m.group(4)),'mag':float(m.group(5))})
+                elif re.match("^\s*N\s+E\s*", line):
+                    header = re.split("\s+", line.strip().replace("d eps", "deps"))
+        self.electronic_steps = electronic_steps
+        self.ionic_steps = ionic_steps
+    
 
 class VaspParserError(Exception):
     '''

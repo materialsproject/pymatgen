@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar
+from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Composition, Structure
 from numpy import array
@@ -173,7 +173,7 @@ class  VasprunTest(unittest.TestCase):
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
             
-class  OutcarTest(unittest.TestCase):
+class OutcarTest(unittest.TestCase):
     
     def test_init(self):
         filepath = os.path.join(module_dir, 'vasp_testfiles','OUTCAR')
@@ -194,6 +194,14 @@ class  OutcarTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
+
+class OszicarTest(unittest.TestCase):
+    
+    def test_init(self):
+        filepath = os.path.join(module_dir, 'vasp_testfiles','OSZICAR')
+        oszicar = Oszicar(filepath)
+        self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
+        
         
 if __name__ == '__main__':
     unittest.main()
