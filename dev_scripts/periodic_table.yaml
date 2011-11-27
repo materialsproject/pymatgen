@@ -11,6 +11,7 @@ Ac:
   Density of solid: 10070 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].6d<sup>1</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 126.0}
   Liquid range: 2250 K
   Melting point: 1323 K
   Mendeleev no: 48
@@ -41,6 +42,7 @@ Ag:
   Density of solid: 10490 kg m<sup>-3</sup>
   Electrical resistivity: 1.63 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>1</sup>'
+  Ionic_radii: {1: 129.0, 2: 108.0, 3: 89.0}
   Liquid range: 1200.07 K
   Melting point: 1234.93 K
   Mendeleev no: 71
@@ -71,6 +73,7 @@ Al:
   Density of solid: 2700 kg m<sup>-3</sup>
   Electrical resistivity: 2.7 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>1</sup>'
+  Ionic_radii: {3: 67.5}
   Liquid range: 1858.53 K
   Melting point: 933.47 K
   Mendeleev no: 80
@@ -101,6 +104,7 @@ Am:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>7</sup>.7s<sup>2</sup>'
+  Ionic_radii: {2: 140.0, 3: 111.5, 4: 99.0}
   Liquid range: 1431 K
   Melting point: 1449 K
   Mendeleev no: 42
@@ -142,6 +146,7 @@ As:
   Density of solid: 5727 kg m<sup>-3</sup>
   Electrical resistivity: 33 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>'
+  Ionic_radii: {3: 72.0, 5: 60.0}
   Liquid range: 203 K
   Melting point: 1090 K
   Mendeleev no: 89
@@ -172,6 +177,7 @@ At:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>'
+  Ionic_radii: {7: 76.0}
   Liquid range: no data K
   Melting point: 575 K
   Mendeleev no: 96
@@ -202,6 +208,7 @@ Au:
   Density of solid: 19300 kg m<sup>-3</sup>
   Electrical resistivity: 2.2 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>'
+  Ionic_radii: {1: 151.0, 3: 99.0, 5: 71.0}
   Liquid range: 1791.67 K
   Melting point: 1337.33 K
   Mendeleev no: 70
@@ -232,6 +239,7 @@ B:
   Density of solid: 2460 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>12</sup>10<sup>-8</sup> &Omega; m'
   Electronic structure: '[He].2s<sup>2</sup>.2p<sup>1</sup>'
+  Ionic_radii: {3: 41.0}
   Liquid range: 1851 K
   Melting point: 2349 K
   Mendeleev no: 86
@@ -262,6 +270,7 @@ Ba:
   Density of solid: 3510 kg m<sup>-3</sup>
   Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].6s<sup>2</sup>'
+  Ionic_radii: {2: 149.0}
   Liquid range: 1143 K
   Melting point: 1000 K
   Mendeleev no: 14
@@ -292,6 +301,7 @@ Be:
   Density of solid: 1848 kg m<sup>-3</sup>
   Electrical resistivity: 3.8 10<sup>-8</sup> &Omega; m
   Electronic structure: '[He].2s<sup>2</sup>'
+  Ionic_radii: {2: 59.0}
   Liquid range: 1182 K
   Melting point: 1560 K
   Mendeleev no: 77
@@ -322,6 +332,7 @@ Bi:
   Density of solid: 9780 kg m<sup>-3</sup>
   Electrical resistivity: 130 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>'
+  Ionic_radii: {3: 117.0, 5: 90.0}
   Liquid range: 1292.6 K
   Melting point: 544.4 K
   Mendeleev no: 87
@@ -352,6 +363,7 @@ Bk:
   Density of solid: 14780 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>9</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 110.0, 4: 97.0}
   Liquid range: no data K
   Melting point: 1259 K
   Mendeleev no: 40
@@ -382,6 +394,7 @@ Br:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>18</sup>10<sup>-8</sup> &Omega; m'
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>'
+  Ionic_radii: {-1: 182.0, 3: 73.0, 5: 45.0, 7: 53.0}
   Liquid range: 66.2 K
   Melting point: 265.8 K
   Mendeleev no: 98
@@ -413,6 +426,7 @@ C:
   Electrical resistivity: about 1000 - direction dependent10<sup>-8</sup> &Omega;
     m
   Electronic structure: '[He].2s<sup>2</sup>.2p<sup>2</sup>'
+  Ionic_radii: {4: 30.0}
   Liquid range: 500 K
   Melting point: 3800 K
   Mendeleev no: 95
@@ -443,6 +457,7 @@ Ca:
   Density of solid: 1550 kg m<sup>-3</sup>
   Electrical resistivity: 3.4 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].4s<sup>2</sup>'
+  Ionic_radii: {2: 114.0}
   Liquid range: 642 K
   Melting point: 1115 K
   Mendeleev no: 16
@@ -473,6 +488,7 @@ Cd:
   Density of solid: 8650 kg m<sup>-3</sup>
   Electrical resistivity: 7 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>'
+  Ionic_radii: {2: 109.0}
   Liquid range: 445.78 K
   Melting point: 594.22 K
   Mendeleev no: 75
@@ -503,6 +519,7 @@ Ce:
   Density of solid: 6689 kg m<sup>-3</sup>
   Electrical resistivity: 74 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 115.0, 4: 101.0}
   Liquid range: 2565 K
   Melting point: 1068 K
   Mendeleev no: 32
@@ -533,6 +550,7 @@ Cf:
   Density of solid: 15100 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>10</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 109.0, 4: 96.1}
   Liquid range: no data K
   Melting point: 1173 K
   Mendeleev no: 39
@@ -563,6 +581,7 @@ Cl:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>10</sup>10<sup>-8</sup> &Omega; m'
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>5</sup>'
+  Ionic_radii: {-1: 167.0, 5: 26.0, 7: 41.0}
   Liquid range: 67.51 K
   Melting point: 171.6 K
   Mendeleev no: 99
@@ -593,6 +612,7 @@ Cm:
   Density of solid: 13510 kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 111.0, 4: 99.0}
   Liquid range: 1770 K
   Melting point: 1613 K
   Mendeleev no: 41
@@ -623,6 +643,9 @@ Co:
   Density of solid: 8900 kg m<sup>-3</sup>
   Electrical resistivity: 6 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>7</sup>.4s<sup>2</sup>'
+  Ionic_radii: &id001 {2: 88.5, 3: 75.0, 4: 67.0}
+  Ionic_radii_hs: *id001
+  Ionic_radii_ls: {2: 79.0, 3: 68.5}
   Liquid range: 1432 K
   Melting point: 1768 K
   Mendeleev no: 64
@@ -653,6 +676,9 @@ Cr:
   Density of solid: 7140 kg m<sup>-3</sup>
   Electrical resistivity: 12.7 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>5</sup>.4s<sup>1</sup>'
+  Ionic_radii: &id002 {2: 94.0}
+  Ionic_radii_hs: *id002
+  Ionic_radii_ls: {2: 87.0, 3: 75.5, 4: 69.0, 5: 63.0, 6: 58.0}
   Liquid range: 764 K
   Melting point: 2180 K
   Mendeleev no: 57
@@ -683,6 +709,7 @@ Cs:
   Density of solid: 1879 kg m<sup>-3</sup>
   Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].6s<sup>1</sup>'
+  Ionic_radii: {1: 181.0}
   Liquid range: 642.41 K
   Melting point: 301.59 K
   Mendeleev no: 8
@@ -713,6 +740,7 @@ Cu:
   Density of solid: 8920 kg m<sup>-3</sup>
   Electrical resistivity: 1.72 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>1</sup>'
+  Ionic_radii: {1: 91.0, 2: 87.0, 3: 68.0}
   Liquid range: 1842.23 K
   Melting point: 1357.77 K
   Mendeleev no: 72
@@ -743,6 +771,7 @@ Dy:
   Density of solid: 8551 kg m<sup>-3</sup>
   Electrical resistivity: 92.6 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>10</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 121.0, 3: 105.2}
   Liquid range: 1160 K
   Melting point: 1680 K
   Mendeleev no: 24
@@ -773,6 +802,7 @@ Er:
   Density of solid: 9066 kg m<sup>-3</sup>
   Electrical resistivity: 86.0 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>12</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 103.0}
   Liquid range: 1371 K
   Melting point: 1802 K
   Mendeleev no: 22
@@ -833,6 +863,7 @@ Eu:
   Density of solid: 5244 kg m<sup>-3</sup>
   Electrical resistivity: 90 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>7</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 131.0, 3: 108.7}
   Liquid range: 701 K
   Melting point: 1099 K
   Mendeleev no: 18
@@ -862,6 +893,7 @@ F:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[He].2s<sup>2</sup>.2p<sup>5</sup>'
+  Ionic_radii: {-1: 119.0, 7: 22.0}
   Liquid range: 31.5 K
   Melting point: 53.53 K
   Mendeleev no: 102
@@ -892,6 +924,9 @@ Fe:
   Density of solid: 7874 kg m<sup>-3</sup>
   Electrical resistivity: 10 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>6</sup>.4s<sup>2</sup>'
+  Ionic_radii: &id003 {2: 92.0, 3: 78.5}
+  Ionic_radii_hs: *id003
+  Ionic_radii_ls: {2: 75.0, 3: 69.0, 4: 72.5, 6: 39.0}
   Liquid range: 1323 K
   Melting point: 1811 K
   Mendeleev no: 61
@@ -952,6 +987,7 @@ Fr:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].7s<sup>1</sup>'
+  Ionic_radii: {1: 194.0}
   Liquid range: no data K
   Melting point: maybe about 300 K
   Mendeleev no: 7
@@ -982,6 +1018,7 @@ Ga:
   Density of solid: 5904 kg m<sup>-3</sup>
   Electrical resistivity: about  14 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>'
+  Ionic_radii: {3: 76.0}
   Liquid range: 2174.09 K
   Melting point: 302.91 K
   Mendeleev no: 81
@@ -1012,6 +1049,7 @@ Gd:
   Density of solid: 7901 kg m<sup>-3</sup>
   Electrical resistivity: 131 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 107.5}
   Liquid range: 1938 K
   Melting point: 1585 K
   Mendeleev no: 27
@@ -1042,6 +1080,7 @@ Ge:
   Density of solid: 5323 kg m<sup>-3</sup>
   Electrical resistivity: about 5000010<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>'
+  Ionic_radii: {2: 87.0, 4: 67.0}
   Liquid range: 1881.6 K
   Melting point: 1211.4 K
   Mendeleev no: 84
@@ -1113,6 +1152,7 @@ Hf:
   Density of solid: 13310 kg m<sup>-3</sup>
   Electrical resistivity: 34 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>'
+  Ionic_radii: {4: 85.0}
   Liquid range: 2370 K
   Melting point: 2506 K
   Mendeleev no: 50
@@ -1143,6 +1183,7 @@ Hg:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: 96 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>'
+  Ionic_radii: {1: 133.0, 2: 116.0}
   Liquid range: 395.56 K
   Melting point: 234.32 K
   Mendeleev no: 74
@@ -1173,6 +1214,7 @@ Ho:
   Density of solid: 8795 kg m<sup>-3</sup>
   Electrical resistivity: 81.4 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>11</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 104.1}
   Liquid range: 1259 K
   Melting point: 1734 K
   Mendeleev no: 23
@@ -1203,6 +1245,7 @@ I:
   Density of solid: 4940 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>15</sup>10<sup>-8</sup> &Omega; m'
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>'
+  Ionic_radii: {-1: 206.0, 5: 109.0, 7: 67.0}
   Liquid range: 70.55 K
   Melting point: 386.85 K
   Mendeleev no: 97
@@ -1233,6 +1276,7 @@ In:
   Density of solid: 7310 kg m<sup>-3</sup>
   Electrical resistivity: 8 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>'
+  Ionic_radii: {3: 94.0}
   Liquid range: 1915.25 K
   Melting point: 429.75 K
   Mendeleev no: 79
@@ -1263,6 +1307,7 @@ Ir:
   Density of solid: 22650 kg m<sup>-3</sup>
   Electrical resistivity: 4.7 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 82.0, 4: 76.5, 5: 71.0}
   Liquid range: 1962 K
   Melting point: 2739 K
   Mendeleev no: 66
@@ -1293,6 +1338,7 @@ K:
   Density of solid: 856 kg m<sup>-3</sup>
   Electrical resistivity: 7.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].4s<sup>1</sup>'
+  Ionic_radii: {1: 152.0}
   Liquid range: 695.47 K
   Melting point: 336.53 K
   Mendeleev no: 10
@@ -1334,6 +1380,7 @@ La:
   Density of solid: 6146 kg m<sup>-3</sup>
   Electrical resistivity: 61.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].5d<sup>1</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 117.2}
   Liquid range: 2550 K
   Melting point: 1193 K
   Mendeleev no: 33
@@ -1364,6 +1411,7 @@ Li:
   Density of solid: 535 kg m<sup>-3</sup>
   Electrical resistivity: 9.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[He].2s<sup>1</sup>'
+  Ionic_radii: {1: 90.0}
   Liquid range: 1161.31 K
   Melting point: 453.69 K
   Mendeleev no: 12
@@ -1423,6 +1471,7 @@ Lu:
   Density of solid: 9841 kg m<sup>-3</sup>
   Electrical resistivity: 58 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 100.1}
   Liquid range: 1750 K
   Melting point: 1925 K
   Mendeleev no: 20
@@ -1483,6 +1532,7 @@ Mg:
   Density of solid: 1738 kg m<sup>-3</sup>
   Electrical resistivity: 4.4 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>2</sup>'
+  Ionic_radii: {2: 86.0}
   Liquid range: 440 K
   Melting point: 923 K
   Mendeleev no: 73
@@ -1513,6 +1563,9 @@ Mn:
   Density of solid: 7470 kg m<sup>-3</sup>
   Electrical resistivity: 144 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>5</sup>.4s<sup>2</sup>'
+  Ionic_radii: &id004 {2: 97.0, 3: 78.5}
+  Ionic_radii_hs: *id004
+  Ionic_radii_ls: {2: 81.0, 3: 72.0, 4: 67.0, 5: 47.0, 6: 39.5, 7: 60.0}
   Liquid range: 815 K
   Melting point: 1519 K
   Mendeleev no: 60
@@ -1543,6 +1596,7 @@ Mo:
   Density of solid: 10280 kg m<sup>-3</sup>
   Electrical resistivity: 5.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>5</sup>.5s<sup>1</sup>'
+  Ionic_radii: {3: 83.0, 4: 79.0, 5: 75.0, 6: 73.0}
   Liquid range: 2016 K
   Melting point: 2896 K
   Mendeleev no: 56
@@ -1573,6 +1627,7 @@ N:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[He].2s<sup>2</sup>.2p<sup>3</sup>'
+  Ionic_radii: {-3: 132.0, 3: 30.0, 5: 27.0}
   Liquid range: 14.31 K
   Melting point: 63.05 K
   Mendeleev no: 100
@@ -1603,6 +1658,7 @@ Na:
   Density of solid: 968 kg m<sup>-3</sup>
   Electrical resistivity: 4.9 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>1</sup>'
+  Ionic_radii: {1: 116.0}
   Liquid range: 785.13 K
   Melting point: 370.87 K
   Mendeleev no: 11
@@ -1633,6 +1689,7 @@ Nb:
   Density of solid: 8570 kg m<sup>-3</sup>
   Electrical resistivity: 15.2 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>4</sup>.5s<sup>1</sup>'
+  Ionic_radii: {3: 86.0, 4: 82.0, 5: 78.0}
   Liquid range: 2267 K
   Melting point: 2750 K
   Mendeleev no: 53
@@ -1663,6 +1720,7 @@ Nd:
   Density of solid: 6800 kg m<sup>-3</sup>
   Electrical resistivity: 64.3 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>4</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 143.0, 3: 112.3}
   Liquid range: 2076 K
   Melting point: 1297 K
   Mendeleev no: 30
@@ -1704,6 +1762,9 @@ Ni:
   Density of solid: 8908 kg m<sup>-3</sup>
   Electrical resistivity: 7.2 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>8</sup>.4s<sup>2</sup>'
+  Ionic_radii: &id005 {3: 74.0}
+  Ionic_radii_hs: *id005
+  Ionic_radii_ls: {2: 83.0, 3: 70.0, 4: 62.0}
   Liquid range: 1458 K
   Melting point: 1728 K
   Mendeleev no: 67
@@ -1764,6 +1825,7 @@ Np:
   Density of solid: 20450 kg m<sup>-3</sup>
   Electrical resistivity: 120 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  Ionic_radii: {2: 124.0, 3: 115.0, 4: 101.0, 5: 89.0, 6: 86.0, 7: 85.0}
   Liquid range: 3363 K
   Melting point: 910 K
   Mendeleev no: 44
@@ -1794,6 +1856,7 @@ O:
   Density of solid: no data kg m<sup>-3</sup>
   Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
   Electronic structure: '[He].2s<sup>2</sup>.2p<sup>4</sup>'
+  Ionic_radii: {-2: 126.0}
   Liquid range: 35.4 K
   Melting point: 54.8 K
   Mendeleev no: 101
@@ -1824,6 +1887,7 @@ Os:
   Density of solid: 22610 kg m<sup>-3</sup>
   Electrical resistivity: 8.1 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>'
+  Ionic_radii: {4: 77.0, 5: 71.5, 6: 68.5, 7: 66.5, 8: 53.0}
   Liquid range: 1979 K
   Melting point: 3306 K
   Mendeleev no: 63
@@ -1854,6 +1918,7 @@ P:
   Density of solid: 1823 kg m<sup>-3</sup>
   Electrical resistivity: about 10 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>3</sup>'
+  Ionic_radii: {3: 58.0, 5: 52.0}
   Liquid range: 232.7 K
   Melting point: (white P) 317.3 K
   Mendeleev no: 90
@@ -1884,6 +1949,7 @@ Pa:
   Density of solid: 15370 kg m<sup>-3</sup>
   Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 116.0, 4: 104.0, 5: 92.0}
   Liquid range: no data K
   Melting point: 1841 K
   Mendeleev no: 46
@@ -1914,6 +1980,7 @@ Pb:
   Density of solid: 11340 kg m<sup>-3</sup>
   Electrical resistivity: 21 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>'
+  Ionic_radii: {2: 133.0, 4: 91.5}
   Liquid range: 1421.39 K
   Melting point: 600.61 K
   Mendeleev no: 82
@@ -1944,6 +2011,7 @@ Pd:
   Density of solid: 12023 kg m<sup>-3</sup>
   Electrical resistivity: 10.8 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>'
+  Ionic_radii: {1: 73.0, 2: 100.0, 3: 90.0, 4: 75.5}
   Liquid range: 1407.95 K
   Melting point: 1828.05 K
   Mendeleev no: 69
@@ -1974,6 +2042,7 @@ Pm:
   Density of solid: 7264 kg m<sup>-3</sup>
   Electrical resistivity: about 75 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>5</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 111.0}
   Liquid range: 1900 K
   Melting point: 1373 K
   Mendeleev no: 29
@@ -2003,6 +2072,7 @@ Po:
   Density of solid: 9196 kg m<sup>-3</sup>
   Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>'
+  Ionic_radii: {4: 108.0, 6: 81.0}
   Liquid range: 708 K
   Melting point: 527 K
   Mendeleev no: 91
@@ -2033,6 +2103,7 @@ Pr:
   Density of solid: 6640 kg m<sup>-3</sup>
   Electrical resistivity: 70 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>3</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 113.0, 4: 99.0}
   Liquid range: 2355 K
   Melting point: 1208 K
   Mendeleev no: 31
@@ -2063,6 +2134,7 @@ Pt:
   Density of solid: 21090 kg m<sup>-3</sup>
   Electrical resistivity: 10.6 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>'
+  Ionic_radii: {2: 94.0, 4: 76.5, 5: 71.0}
   Liquid range: 2056.6 K
   Melting point: 2041.4 K
   Mendeleev no: 68
@@ -2093,6 +2165,7 @@ Pu:
   Density of solid: 19816 kg m<sup>-3</sup>
   Electrical resistivity: 150 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>6</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 114.0, 4: 100.0, 5: 88.0, 6: 85.0}
   Liquid range: 2590.5 K
   Melting point: 912.5 K
   Mendeleev no: 43
@@ -2123,6 +2196,7 @@ Ra:
   Density of solid: 5000 kg m<sup>-3</sup>
   Electrical resistivity: 100 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].7s<sup>2</sup>'
+  Ionic_radii: {2: 162.0}
   Liquid range: 1037 K
   Melting point: 973 K
   Mendeleev no: 13
@@ -2153,6 +2227,7 @@ Rb:
   Density of solid: 1532 kg m<sup>-3</sup>
   Electrical resistivity: 13.3 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].5s<sup>1</sup>'
+  Ionic_radii: {1: 166.0}
   Liquid range: 648.54 K
   Melting point: 312.46 K
   Mendeleev no: 9
@@ -2183,6 +2258,7 @@ Re:
   Density of solid: 21020 kg m<sup>-3</sup>
   Electrical resistivity: 18 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>'
+  Ionic_radii: {4: 77.0, 5: 72.0, 6: 69.0, 7: 67.0}
   Liquid range: 2410 K
   Melting point: 3459 K
   Mendeleev no: 58
@@ -2213,6 +2289,7 @@ Rh:
   Density of solid: 12450 kg m<sup>-3</sup>
   Electrical resistivity: 4.3 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>8</sup>5s<sup>1</sup>'
+  Ionic_radii: {3: 80.5, 4: 74.0, 5: 69.0}
   Liquid range: 1731 K
   Melting point: 2237 K
   Mendeleev no: 65
@@ -2254,6 +2331,7 @@ Ru:
   Density of solid: 12370 kg m<sup>-3</sup>
   Electrical resistivity: 7.1 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>7</sup>5s<sup>1</sup>'
+  Ionic_radii: {3: 82.0, 4: 76.0, 5: 70.5, 7: 52.0, 8: 50.0}
   Liquid range: 1816 K
   Melting point: 2607 K
   Mendeleev no: 62
@@ -2284,6 +2362,7 @@ S:
   Density of solid: 1960 kg m<sup>-3</sup>
   Electrical resistivity: '&gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m'
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>4</sup>'
+  Ionic_radii: {-2: 170.0, 4: 51.0, 6: 43.0}
   Liquid range: 329.51 K
   Melting point: 388.36 K
   Mendeleev no: 94
@@ -2314,6 +2393,7 @@ Sb:
   Density of solid: 6697 kg m<sup>-3</sup>
   Electrical resistivity: 40 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>'
+  Ionic_radii: {3: 90.0, 5: 76.0}
   Liquid range: 956.22 K
   Melting point: 903.78 K
   Mendeleev no: 88
@@ -2344,6 +2424,7 @@ Sc:
   Density of solid: 2985 kg m<sup>-3</sup>
   Electrical resistivity: about 55 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>1</sup>.4s<sup>2</sup>'
+  Ionic_radii: {3: 88.5}
   Liquid range: 1289 K
   Melting point: 1814 K
   Mendeleev no: 19
@@ -2374,6 +2455,7 @@ Se:
   Density of solid: 4819 kg m<sup>-3</sup>
   Electrical resistivity: high10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>'
+  Ionic_radii: {-2: 184.0, 4: 64.0, 6: 56.0}
   Liquid range: 464 K
   Melting point: 494 K
   Mendeleev no: 93
@@ -2404,6 +2486,7 @@ Si:
   Density of solid: 2330 kg m<sup>-3</sup>
   Electrical resistivity: about 10000010<sup>-8</sup> &Omega; m
   Electronic structure: '[Ne].3s<sup>2</sup>.3p<sup>2</sup>'
+  Ionic_radii: {4: 54.0}
   Liquid range: 1486 K
   Melting point: 1687 K
   Mendeleev no: 85
@@ -2434,6 +2517,7 @@ Sm:
   Density of solid: 7353 kg m<sup>-3</sup>
   Electrical resistivity: 94 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>6</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 136.0, 3: 109.8}
   Liquid range: 731 K
   Melting point: 1345 K
   Mendeleev no: 28
@@ -2464,6 +2548,7 @@ Sn:
   Density of solid: 7310 kg m<sup>-3</sup>
   Electrical resistivity: 11.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>'
+  Ionic_radii: {4: 83.0}
   Liquid range: 2369.92 K
   Melting point: 505.08 K
   Mendeleev no: 83
@@ -2494,6 +2579,7 @@ Sr:
   Density of solid: 2630 kg m<sup>-3</sup>
   Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].5s<sup>2</sup>'
+  Ionic_radii: {2: 132.0}
   Liquid range: 605 K
   Melting point: 1050 K
   Mendeleev no: 15
@@ -2524,6 +2610,7 @@ Ta:
   Density of solid: 16650 kg m<sup>-3</sup>
   Electrical resistivity: 13.5 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 86.0, 4: 82.0, 5: 78.0}
   Liquid range: 2441 K
   Melting point: 3290 K
   Mendeleev no: 52
@@ -2554,6 +2641,7 @@ Tb:
   Density of solid: 8219 kg m<sup>-3</sup>
   Electrical resistivity: 115 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>9</sup>.6s<sup>2</sup>'
+  Ionic_radii: {3: 106.3, 4: 90.0}
   Liquid range: 1874 K
   Melting point: 1629 K
   Mendeleev no: 26
@@ -2583,6 +2671,7 @@ Tc:
   Density of solid: 11500 kg m<sup>-3</sup>
   Electrical resistivity: about 22 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>6</sup>.5s<sup>1</sup>'
+  Ionic_radii: {4: 78.5, 5: 74.0, 7: 70.0}
   Liquid range: 2108 K
   Melting point: 2430 K
   Mendeleev no: 59
@@ -2613,6 +2702,7 @@ Te:
   Density of solid: 6240 kg m<sup>-3</sup>
   Electrical resistivity: about 1000010<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>'
+  Ionic_radii: {-2: 207.0, 4: 111.0, 6: 70.0}
   Liquid range: 538.34 K
   Melting point: 722.66 K
   Mendeleev no: 92
@@ -2643,6 +2733,7 @@ Th:
   Density of solid: 11724 kg m<sup>-3</sup>
   Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].6d<sup>2</sup>.7s<sup>2</sup>'
+  Ionic_radii: {4: 108.0}
   Liquid range: 2978 K
   Melting point: 2115 K
   Mendeleev no: 47
@@ -2673,6 +2764,7 @@ Ti:
   Density of solid: 4507 kg m<sup>-3</sup>
   Electrical resistivity: about 40 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>2</sup>.4s<sup>2</sup>'
+  Ionic_radii: {2: 100.0, 3: 81.0, 4: 74.5}
   Liquid range: 1619 K
   Melting point: 1941 K
   Mendeleev no: 51
@@ -2703,6 +2795,7 @@ Tl:
   Density of solid: 11850 kg m<sup>-3</sup>
   Electrical resistivity: 15 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>'
+  Ionic_radii: {1: 164.0, 3: 102.5}
   Liquid range: 1169 K
   Melting point: 577 K
   Mendeleev no: 78
@@ -2733,6 +2826,7 @@ Tm:
   Density of solid: 9321 kg m<sup>-3</sup>
   Electrical resistivity: 67.6 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>13</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 117.0, 3: 102.0}
   Liquid range: 405 K
   Melting point: 1818 K
   Mendeleev no: 21
@@ -2763,6 +2857,7 @@ U:
   Density of solid: 19050 kg m<sup>-3</sup>
   Electrical resistivity: 28 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>'
+  Ionic_radii: {3: 116.5, 4: 103.0, 5: 90.0, 6: 87.0}
   Liquid range: 2794.7 K
   Melting point: 1405.3 K
   Mendeleev no: 45
@@ -2793,6 +2888,7 @@ V:
   Density of solid: 6110 kg m<sup>-3</sup>
   Electrical resistivity: 20 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>3</sup>.4s<sup>2</sup>'
+  Ionic_radii: {2: 93.0, 3: 78.0, 4: 72.0, 5: 68.0}
   Liquid range: 1497 K
   Melting point: 2183 K
   Mendeleev no: 54
@@ -2823,6 +2919,7 @@ W:
   Density of solid: 19250 kg m<sup>-3</sup>
   Electrical resistivity: 5.4 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>'
+  Ionic_radii: {4: 80.0, 5: 76.0, 6: 74.0}
   Liquid range: 2133 K
   Melting point: 3695 K
   Mendeleev no: 55
@@ -2840,17 +2937,37 @@ W:
   Vickers hardness: 3430 MN m<sup>-2</sup>
   X: 2.36
   Youngs modulus: 411 GPa
-Xe: {Atomic mass: 131.293, Atomic no: 54, Atomic radius: 0.986, Boiling point: 165.1
-    K, Brinell hardness: no data MN m<sup>-2</sup>, Bulk modulus: no data GPa, Coefficient of linear thermal expansion: no
-    data x10<sup>-6</sup>K<sup>-1</sup>, Critical temperature: 289.7 K, Density of solid: no
-    data kg m<sup>-3</sup>, Electrical resistivity: no data 10<sup>-8</sup> &Omega;
-    m, Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>',
-  Liquid range: 3.7 K, Max oxidation state: 8.0, Melting point: 161.4 K, Mendeleev no: 5,
-  Min oxidation state: 2.0, Mineral hardness: no data, Molar volume: 35.92 cm<sup>3</sup>,
-  Name: Xenon, Poissons ratio: no data, Reflectivity: no data %, Refractive index: '1.000702',
-  Rigidity modulus: no data GPa, Superconduction temperature: no data K, Thermal conductivity: 0.00565
-    W m<sup>-1</sup> K<sup>-1</sup>, Velocity of sound: 1090 m s<sup>-1</sup>, Vickers hardness: no
-    data MN m<sup>-2</sup>, X: 2.6, Youngs modulus: no data GPa}
+Xe:
+  Atomic mass: 131.293
+  Atomic no: 54
+  Atomic radius: 0.986
+  Boiling point: 165.1 K
+  Brinell hardness: no data MN m<sup>-2</sup>
+  Bulk modulus: no data GPa
+  Coefficient of linear thermal expansion: no data x10<sup>-6</sup>K<sup>-1</sup>
+  Critical temperature: 289.7 K
+  Density of solid: no data kg m<sup>-3</sup>
+  Electrical resistivity: no data 10<sup>-8</sup> &Omega; m
+  Electronic structure: '[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>'
+  Ionic_radii: {8: 62.0}
+  Liquid range: 3.7 K
+  Max oxidation state: 8.0
+  Melting point: 161.4 K
+  Mendeleev no: 5
+  Min oxidation state: 2.0
+  Mineral hardness: no data
+  Molar volume: 35.92 cm<sup>3</sup>
+  Name: Xenon
+  Poissons ratio: no data
+  Reflectivity: no data %
+  Refractive index: '1.000702'
+  Rigidity modulus: no data GPa
+  Superconduction temperature: no data K
+  Thermal conductivity: 0.00565 W m<sup>-1</sup> K<sup>-1</sup>
+  Velocity of sound: 1090 m s<sup>-1</sup>
+  Vickers hardness: no data MN m<sup>-2</sup>
+  X: 2.6
+  Youngs modulus: no data GPa
 Y:
   Atomic mass: 88.90585
   Atomic no: 39
@@ -2864,6 +2981,7 @@ Y:
   Density of solid: 4472 kg m<sup>-3</sup>
   Electrical resistivity: about 60 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>1</sup>.5s<sup>2</sup>'
+  Ionic_radii: {3: 104.0}
   Liquid range: 1810 K
   Melting point: 1799 K
   Mendeleev no: 25
@@ -2894,6 +3012,7 @@ Yb:
   Density of solid: 6570 kg m<sup>-3</sup>
   Electrical resistivity: 25.0 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Xe].4f<sup>14</sup>.6s<sup>2</sup>'
+  Ionic_radii: {2: 116.0, 3: 100.8}
   Liquid range: 372 K
   Melting point: 1097 K
   Mendeleev no: 17
@@ -2923,6 +3042,7 @@ Zn:
   Density of solid: 7140 kg m<sup>-3</sup>
   Electrical resistivity: 6.0 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Ar].3d<sup>10</sup>.4s<sup>2</sup>'
+  Ionic_radii: {2: 88.0}
   Liquid range: 487.32 K
   Melting point: 692.68 K
   Mendeleev no: 76
@@ -2953,6 +3073,7 @@ Zr:
   Density of solid: 6511 kg m<sup>-3</sup>
   Electrical resistivity: 43.3 10<sup>-8</sup> &Omega; m
   Electronic structure: '[Kr].4d<sup>2</sup>.5s<sup>2</sup>'
+  Ionic_radii: {4: 86.0}
   Liquid range: 2554 K
   Melting point: 2128 K
   Mendeleev no: 49

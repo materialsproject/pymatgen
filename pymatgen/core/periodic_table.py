@@ -59,7 +59,29 @@ class Element(object):
         self._symbol = symbol
         
         Element._all_elements[tuple([symbol])] = self
-        
+    
+    @property
+    def average_ionic_radius(self):
+        """
+        Average ionic radius for element in pm.
+        The average is taken over all oxidation states of the element for which data is present.
+        """
+        if 'Ionic_radii' in self._data:
+            return sum(self._data['Ionic_radii'].values())/len(self._data['Ionic_radii'])
+        else:
+            return 0
+    
+    @property
+    def ionic_radii(self):
+        """
+        All ionic radii of the element as a dict of {oxidation state: ionic radii}.
+        Radii are given in pm.
+        """
+        if 'Ionic_radii' in self._data:
+            return {int(k):v for k,v in self._data['Ionic_radii'].items()}
+        else:
+            return {}
+    
     @property
     def Z(self):
         """Atomic number"""
@@ -511,7 +533,14 @@ class Specie(object):
         Sets a default sort order for atomic species by electronegativity, followed by oxidation state. 
         '''
         return (self.X - other.X) * 100 + (self.oxi_state - other.oxi_state)
-        
+    
+    @property
+    def ionic_radius(self):
+        """
+        Ionic radius of specie. Returns None if data is not present.
+        """
+        return self.ionic_radii.get(self._oxi_state, None)
+    
     @property
     def oxi_state(self):
         """

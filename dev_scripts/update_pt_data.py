@@ -19,7 +19,7 @@ import yaml
 import re
 
 def generate_json_from_yaml():
-    with open('periodic_table.yaml', 'r') as f:
+    with open('periodic_table2.yaml', 'r') as f:
         data = yaml.load(f)
     
     with open('periodic_table.json', 'w') as f:
@@ -79,5 +79,38 @@ def parse_oxi_state():
     with open('periodic_table2.yaml', 'w') as f:
         yaml.dump(data, f)
 
+def parse_ionic_radii():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+    f = open('ionic_radii.csv', 'r')
+    radiidata = f.read()
+    f.close()
+    radiidata = radiidata.split("\r")
+    header = radiidata[0].split(",")
+    for i in xrange(1,len(radiidata)):
+        line = radiidata[i]
+        toks = line.strip().split(",")
+        suffix = ""
+        name = toks[1]
+        if len(name.split(" ")) > 1:
+            suffix = "_"+name.split(" ")[1]
+        el = toks[2]
+        
+        ionic_radii = {}
+        for j in xrange(3,len(toks)):
+            m = re.match("^\s*([0-9\.]+)", toks[j])
+            if m:
+                ionic_radii[int(header[j])] = float(m.group(1))
+        
+        if el in data:
+            data[el]['Ionic_radii'+suffix] = ionic_radii
+            if suffix == '_hs':
+                data[el]['Ionic_radii'] = ionic_radii
+        else:
+            print el
+    with open('periodic_table2.yaml', 'w') as f:
+        yaml.dump(data, f)
+
+parse_ionic_radii()
 #parse_oxi_state()
 generate_json_from_yaml()

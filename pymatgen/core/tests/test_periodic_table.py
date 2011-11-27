@@ -45,7 +45,7 @@ class  ElementTestCase(unittest.TestCase):
                         "reflectivity", "refractive_index", "poissons_ratio", "molar_volume", "thermal_conductivity", "melting_point", "boiling_point",
                         "liquid_range", "critical_temperature", "superconduction_temperature", 
                         "bulk_modulus", "youngs_modulus", "brinell_hardness", "rigidity_modulus", "mineral_hardness", 
-                        "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states"]
+                        "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states", 'average_ionic_radius', 'ionic_radii']
         
         #Test all elements up to Uranium
         for i in xrange(1,93):
@@ -67,7 +67,11 @@ class  SpecieTestCase(unittest.TestCase):
     def setUp(self):
         self.specie1 = Specie.from_string("Fe2+")
         self.specie2 = Specie("Fe", 3)
-        self.specie3 = Specie("Fe", 2)      
+        self.specie3 = Specie("Fe", 2)
+        
+    def test_ionic_radius(self):
+        self.assertEqual(self.specie2.ionic_radius, 78.5)
+        self.assertEqual(self.specie3.ionic_radius, 92)
     
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3, "Static and actual constructor for Fe2+_ gives unequal result!")
