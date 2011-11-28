@@ -39,7 +39,7 @@ class StructureVis(object):
         self.ren = vtk.vtkRenderer()
         self.ren_win = vtk.vtkRenderWindow()
         self.ren_win.AddRenderer(self.ren)
-        #self.ren.SetBackground(1,1,1)
+        self.ren.SetBackground(1,1,1)
         self.title = "Structure Visualizer"
         # create a renderwindowinteractor
         self.iren = vtk.vtkRenderWindowInteractor()
@@ -54,7 +54,7 @@ class StructureVis(object):
             self._config.readfp(open(os.path.join(module_dir, "ElementColorSchemes.cfg")))
             
             self.el_color_mapping = {}
-            for (el, color) in self._config.items('Jmol'):
+            for (el, color) in self._config.items('VESTA'):
                 self.el_color_mapping[el] = [int(i) for i in color.split(",")]
 
     def set_structure(self, structure, show_unit_cell = True, show_polyhedron = True, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
@@ -84,17 +84,17 @@ class StructureVis(object):
         
         count = 0
         labels = ['a','b','c']
+        colors = [(1,0,0), (0,1,0), (0,0,1)]
         if show_unit_cell:
-            self.add_text([0,0,0],"O")
+            self.add_text([0,0,0],"o")
             for vec in structure.lattice.matrix:
-                self.add_line((0,0,0), vec)
-                self.add_text(vec,labels[count])
+                self.add_line((0,0,0), vec, colors[count])
+                self.add_text(vec,labels[count], colors[count])
                 count += 1
             for (vec1, vec2) in itertools.permutations(structure.lattice.matrix, 2):
                 self.add_line(vec1, vec1+vec2)
             for (vec1, vec2, vec3) in itertools.permutations(structure.lattice.matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
-        
         
         if show_polyhedron:
             elements = sorted(structure.composition.elements)
@@ -113,7 +113,15 @@ class StructureVis(object):
                     self.add_bonds(nn_coords, site.x, site.y, site.z)
                     color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
                     self.add_polyhedron(nn_coords, color)
-                        
+                    
+        #Adjust the camera for best viewing
+        lattice = structure.lattice
+        matrix = lattice.matrix
+        lengths = lattice.abc
+        pos = (matrix[0] + matrix[1]) * 0.5 + matrix[2] * max(lengths[0], lengths[1]) / lengths[2] * 3
+        camera = self.ren.GetActiveCamera()
+        camera.SetPosition(pos)           
+        camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
         
         self.title = structure.composition.formula
 
@@ -142,42 +150,19 @@ class StructureVis(object):
         actor.GetProperty().SetColor(color)
         self.ren.AddActor(actor)
 
-    def add_text(self, coords, text):
-        pt_source = vtk.vtkPointSource()
-        pt_source.SetNumberOfPoints(1)
-        pt_source.SetRadius(0)
-        pt_source.SetCenter(coords)
-        pt_source.Update()
-        # Add label array.
-        labels = vtk.vtkStringArray()
-        labels.SetNumberOfValues(1)
-        labels.SetName("labels")
-        labels.SetValue(0, text)
-        pt_source.GetOutput().GetPointData().AddArray(labels)
-        
-        # Add priority array.
-        sizes = vtk.vtkIntArray()
-        sizes.SetNumberOfValues(1)
-        sizes.SetName("sizes")
-        sizes.SetValue(0, 20)
-        pt_source.GetOutput().GetPointData().AddArray(sizes)
-        
-        # Generate the label hierarchy.
-        pt_set_to_label = vtk.vtkPointSetToLabelHierarchy()
-        pt_set_to_label.SetInputConnection(pt_source.GetOutputPort())
-        pt_set_to_label.SetLabelArrayName("labels")
-        pt_set_to_label.SetPriorityArrayName("sizes")
-        pt_set_to_label.Update()
-        
-        # Create a mapper and actor for the labels.
-        label_mapper = vtk.vtkLabelPlacementMapper()
-        label_mapper.SetInputConnection(pt_set_to_label.GetOutputPort())
-        
-        label_actor = vtk.vtkActor2D()
-        label_actor.SetMapper(label_mapper)
-        label_actor.GetProperty().SetColor(1,0,0)
-        self.ren.AddActor(label_actor)
-    
+    def add_text(self, coords, text, color = (0,0,0)):
+        source = vtk.vtkVectorText()
+        source.SetText(text)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(source.GetOutputPort())
+        follower = vtk.vtkFollower()
+        follower.SetMapper(mapper)
+        follower.GetProperty().SetColor(color)
+        follower.SetPosition(coords)
+        follower.SetScale(0.5)
+        self.ren.AddActor(follower)
+        follower.SetCamera(self.ren.GetActiveCamera())       
+
     def add_line(self, start, end, color = (0.5,0.5,0.5)):
         source = vtk.vtkLineSource()
         source.SetPoint1(start)
@@ -246,7 +231,7 @@ class StructureVis(object):
 
 if __name__ == "__main__":
     #To be moved to proper unittest in future version
-    from pymatgen.io.vaspio import Poscar
+    from pymatgen.io.vaspio import Poscar, Vasprun
     filepath = os.path.join('..', 'io','tests', 'vasp_testfiles','POSCAR')
     poscar = Poscar.from_file(filepath)
     s = poscar.struct
