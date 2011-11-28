@@ -22,6 +22,34 @@ import vtk
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
 
+class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+ 
+    def __init__(self,parent):
+        self.parent = parent
+        #self.AddObserver("MiddleButtonPressEvent",self.middleButtonPressEvent)
+        #self.AddObserver("MiddleButtonReleaseEvent",self.middleButtonReleaseEvent)
+        self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
+        self.AddObserver("MouseMoveEvent",self.mouseMoveEvent)
+        self.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
+     
+    def leftButtonPressEvent(self,obj,event):
+        self.mouse_motion = 0
+        self.OnLeftButtonDown()
+        return
+    
+    def mouseMoveEvent(self,obj,event):
+        self.mouse_motion = 1
+        self.OnMouseMove()
+        return
+ 
+    def leftButtonReleaseEvent(self,obj,event):
+        if self.mouse_motion == 0:
+            pos = self.parent.iren.GetEventPosition()
+            self.parent.picker.Pick(pos[0], pos[1], 0, self.parent.ren)
+        self.OnLeftButtonUp()
+        return
+ 
+
 class StructureVis(object):
     """
     Provides Structure object visualization using VTK.
@@ -44,7 +72,13 @@ class StructureVis(object):
         # create a renderwindowinteractor
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
-        
+        self.picker = None
+        self.add_picker_fixed()
+        style = StructureInteractorStyle(self)
+        self.iren.SetInteractorStyle(style)
+           
+        self.mapper_map = {}
+        self.structure = None
         if element_color_mapping:
             self.el_color_mapping = element_color_mapping
         else:
@@ -79,7 +113,7 @@ class StructureVis(object):
         
         inc_coords = []
         for site in structure:
-            self.add_atom(site.coords, site.species_and_occu.keys()[0])
+            self.add_site(site)
             inc_coords.append(site.coords)
         
         count = 0
@@ -109,7 +143,7 @@ class StructureVis(object):
                     for nnsite, dist in nn:
                         nn_coords.append(nnsite.coords)
                         if not in_coord_list(inc_coords, nnsite.coords):
-                            self.add_atom(nnsite.coords, nnsite.species_and_occu.keys()[0])
+                            self.add_site(nnsite)
                     self.add_bonds(nn_coords, site.x, site.y, site.z)
                     color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
                     self.add_polyhedron(nn_coords, color)
@@ -123,7 +157,10 @@ class StructureVis(object):
         camera.SetPosition(pos)           
         camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
         
+        self.structure = structure
         self.title = structure.composition.formula
+        
+        
 
     def show(self):
         # enable user interface interactor
@@ -133,15 +170,17 @@ class StructureVis(object):
         self.ren_win.Render()
         self.iren.Start()
         
-    def add_atom(self, coords, specie):
+    def add_site(self, site):
         sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(coords)
+        sphere.SetCenter(site.coords)
+        specie = site.species_and_occu.keys()[0]
         radius = specie.ionic_radius if isinstance(specie, Specie) else specie.average_ionic_radius
         sphere.SetRadius(0.2 + 0.002 * radius)
         sphere.SetThetaResolution(18)
         sphere.SetPhiResolution(18)
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInput(sphere.GetOutput())
+        self.mapper_map[mapper] = site
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         color = (0,0,0)
@@ -161,7 +200,7 @@ class StructureVis(object):
         follower.SetPosition(coords)
         follower.SetScale(0.5)
         self.ren.AddActor(follower)
-        follower.SetCamera(self.ren.GetActiveCamera())       
+        follower.SetCamera(self.ren.GetActiveCamera())
 
     def add_line(self, start, end, color = (0.5,0.5,0.5)):
         source = vtk.vtkLineSource()
@@ -229,6 +268,70 @@ class StructureVis(object):
         actor.SetMapper(mapper)
         self.ren.AddActor(actor)      
 
+    def add_picker_fixed(self):
+        # Create a cell picker.
+        picker = vtk.vtkCellPicker()
+        # Create a Python function to create the text for the text mapper used
+        # to display the results of picking.
+        textMapper = vtk.vtkTextMapper()
+        tprops = textMapper.GetTextProperty()
+        tprops.SetFontSize(20)
+        tprops.BoldOn()
+        tprops.SetColor(0,0,0)
+        textActor = vtk.vtkActor2D()
+        textActor.VisibilityOff()
+        textActor.SetMapper(textMapper)
+        self.ren.AddActor(textActor)
+        def annotate_pick(object, event):
+            if picker.GetCellId() < 0:
+                textActor.VisibilityOff()
+            else:
+                mapper = picker.GetMapper()
+                if mapper in self.mapper_map:
+                    site = self.mapper_map[mapper]
+                    output = [site.species_string]
+                    output.append("%.4f %.4f %.4f" % (site.a, site.b, site.c))
+                    textMapper.SetInput("\n".join(output))
+                    textActor.SetPosition(0, 0)
+                    textActor.VisibilityOn()
+        self.picker = picker
+        picker.AddObserver("EndPickEvent", annotate_pick)
+        self.iren.SetPicker(picker)
+
+    def add_picker(self):
+        # Create a cell picker.
+        picker = vtk.vtkCellPicker()
+        # Create a Python function to create the text for the text mapper used
+        # to display the results of picking.
+        source = vtk.vtkVectorText()
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(source.GetOutputPort())
+        follower = vtk.vtkFollower()
+        follower.SetMapper(mapper)
+        follower.GetProperty().SetColor((0,0,0))
+        follower.SetScale(0.2)
+        self.ren.AddActor(follower)
+        follower.SetCamera(self.ren.GetActiveCamera())
+        follower.VisibilityOff()      
+        
+        def annotate_pick(object, event):
+            if picker.GetCellId() < 0:
+                follower.VisibilityOff()
+            else:
+                pick_pos = picker.GetPickPosition()
+                mapper = picker.GetMapper()
+                if mapper in self.mapper_map:
+                    site = self.mapper_map[mapper]
+                    output = [site.species_string]
+                    output.append("%.4f %.4f %.4f" % (site.a, site.b, site.c))
+                    
+                    source.SetText("\n".join(output))
+                    follower.SetPosition(pick_pos)
+                    follower.VisibilityOn()
+        picker.AddObserver("EndPickEvent", annotate_pick)
+        self.picker = picker
+        self.iren.SetPicker(picker)
+
 if __name__ == "__main__":
     #To be moved to proper unittest in future version
     from pymatgen.io.vaspio import Poscar, Vasprun
@@ -236,5 +339,6 @@ if __name__ == "__main__":
     poscar = Poscar.from_file(filepath)
     s = poscar.struct
     vis = StructureVis()
-    vis.set_structure(s, excluded_bonding_elements=["Li"], poly_radii_tol_factor = 0.2)
+    vis.set_structure(s, show_polyhedron = False, excluded_bonding_elements=["Li"], poly_radii_tol_factor = 0.2)
+    
     vis.show()
