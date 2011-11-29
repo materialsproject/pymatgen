@@ -523,6 +523,3 @@ class StructureVis(object):
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
-
-
-    
