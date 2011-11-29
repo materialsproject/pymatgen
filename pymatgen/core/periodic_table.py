@@ -55,8 +55,10 @@ class Element(object):
                 Element symbol, e.g., "H", "Fe"
         '''
         self._data = _pt_data[symbol]
+        #Store key variables for quick access
         self._z = self._data['Atomic no']
         self._symbol = symbol
+        self._x = self._data.get('X', 0)
         
         Element._all_elements[tuple([symbol])] = self
     
@@ -95,10 +97,7 @@ class Element(object):
     @property
     def X(self):
         """Electronegativity"""
-        if 'X' in self._data:
-            return self._data['X']
-        else:
-            return 0
+        return self._x
         
     @property
     def number(self):
@@ -299,7 +298,15 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is automatically
         sorted in LiFePO4.
         '''
-        return (self.X - other.X)
+        return (self._x - other._x)
+    
+    def __lt__(self, other):
+        '''
+        Sets a default sort order for atomic species by electronegativity.  Very
+        useful for getting correct formulas.  For example, FeO4PLi is automatically
+        sorted in LiFePO4.
+        '''
+        return (self._x < other._x)
 
     @staticmethod       
     def from_Z(z):
