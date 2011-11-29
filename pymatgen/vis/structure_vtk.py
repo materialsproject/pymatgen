@@ -52,6 +52,7 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     def keyPressEvent(self, obj, event):
         parent = self.parent
         sym = parent.iren.GetKeySym()
+        print sym
         if sym in ['A', 'B', 'C']:
             parent.clear()
             if sym == "C":
@@ -63,9 +64,21 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             s = parent.structure
             m = SupercellMaker(s,mat)
             parent.set_structure(m.modified_structure)
-            parent.ren_win.Render()
-        elif sym == 'h':
+            parent.redraw()
+        elif sym == 'numbersign':
             parent.show_polyhedron = not parent.show_polyhedron
+            parent.redraw()
+        elif sym == 'b':
+            parent.show_bonds = not parent.show_bonds
+            parent.redraw()
+        elif sym == 'bracketleft':
+            parent.poly_radii_tol_factor -= 0.05 if parent.poly_radii_tol_factor > 0 else 0
+            parent.redraw()
+        elif sym == 'bracketright':
+            parent.poly_radii_tol_factor += 0.05
+            parent.redraw()
+        elif sym == 'h':
+            parent.show_help = not parent.show_help
             parent.redraw()
             
         self.OnKeyPress()
@@ -76,7 +89,7 @@ class StructureVis(object):
     Provides Structure object visualization using VTK.
     """
     
-    def __init__(self, element_color_mapping = None, show_unit_cell = True, show_polyhedron = True, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
+    def __init__(self, element_color_mapping = None, show_unit_cell = True, show_bonds = False, show_polyhedron = False, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
         """
         Arguments:
             element_color_mapping:
@@ -85,8 +98,10 @@ class StructureVis(object):
                 If None is specified, a default based on Jmol's color scheme is used.
             show_unit_cell:
                 Set to False to not show the unit cell boundaries. Defaults to True.
+            show_bonds:
+                Set to True to show bonds. Defaults to True.
             show_polyhedron:
-                Set to False to not show polyhedrons. Defaults to True.
+                Set to True to show polyhedrons. Defaults to False.
             poly_radii_tol_factor:
                 The polyhedron and bonding code uses the ionic radii of the elements or species to determine if two atoms are bonded.
                 This specifies a tolerance scaling factor such that atoms which are 
@@ -96,10 +111,15 @@ class StructureVis(object):
                 a certain atom type in the framework (e.g., Li in a Li-ion battery cathode material).
                 
         Useful keyboard shortcuts implemented.
+            h : Show help
             A : Double cell in a-direction
             B : Double cell in b-direction
             C : Double cell in c-direction
-            h : Toggle showing of polyhedrons
+            # : Toggle showing of polyhedrons
+            b: Toggle showing of bonds
+            [ : Decrease poly_radii_tol_factor by 0.05
+            ] : Increase poly_radii_tol_factor by 0.05
+            
         """
         # create a rendering window and renderer
         self.ren = vtk.vtkRenderer()
@@ -110,14 +130,9 @@ class StructureVis(object):
         # create a renderwindowinteractor
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
-        self.picker = None
-        self.add_picker_fixed()
-        style = StructureInteractorStyle(self)
-        self.iren.SetInteractorStyle(style)
-        
-        
         self.mapper_map = {}
         self.structure = None
+        
         if element_color_mapping:
             self.el_color_mapping = element_color_mapping
         else:
@@ -130,9 +145,17 @@ class StructureVis(object):
             for (el, color) in self._config.items('VESTA'):
                 self.el_color_mapping[el] = [int(i) for i in color.split(",")]
         self.show_unit_cell = show_unit_cell
+        self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements 
+        self.excluded_bonding_elements = excluded_bonding_elements
+        self.show_help = True
+        
+        self.redraw()
+        
+        style = StructureInteractorStyle(self)
+        self.iren.SetInteractorStyle(style)
+        
 
     def clear(self):
         self.ren.RemoveAllViewProps()
@@ -144,11 +167,33 @@ class StructureVis(object):
         self.ren.RemoveAllViewProps()
         self.picker = None
         self.add_picker_fixed()
+        self.helptxt_mapper = vtk.vtkTextMapper()
+        tprops = self.helptxt_mapper.GetTextProperty()
+        tprops.SetFontSize(16)
+        tprops.SetFontFamilyToCourier()
+        tprops.SetColor(0,0,0)
+        self.helptxt_actor = vtk.vtkActor2D()
+        self.helptxt_actor.VisibilityOff()
+        self.helptxt_actor.SetMapper(self.helptxt_mapper)
+        self.ren.AddActor(self.helptxt_actor)
         if self.structure != None:
-            self.set_structure(self.structure)
+            self.set_structure(self.structure, False)
+        if self.show_help:
+            self.display_help()
+            
         self.ren_win.Render()
-          
-    def set_structure(self, structure):
+    
+    def display_help(self):
+        helptxt = ['h : Show help']
+        helptxt.append('A, B or C : Double cell in a, b or c-directions respectively')
+        helptxt.append('# : Toggle showing of polyhedrons')
+        helptxt.append('b: Toggle showing of bonds')
+        helptxt.append('[ or ]: Decrease or increase poly_radii_tol_factor by 0.05. Value = ' + str(self.poly_radii_tol_factor))
+        self.helptxt_mapper.SetInput("\n".join(helptxt))
+        self.helptxt_actor.SetPosition(10, 10)
+        self.helptxt_actor.VisibilityOn()
+            
+    def set_structure(self, structure, reset_camera = True):
         """
         Add a structure to the visualizer.
         
@@ -176,7 +221,7 @@ class StructureVis(object):
             for (vec1, vec2, vec3) in itertools.permutations(structure.lattice.matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
         
-        if self.show_polyhedron:
+        if self.show_bonds or self.show_polyhedron:
             elements = sorted(structure.composition.elements)
             anion = elements[-1]
             anion_radius = anion.average_ionic_radius
@@ -190,19 +235,22 @@ class StructureVis(object):
                         nn_sites.append(nnsite)
                         if not in_coord_list(inc_coords, nnsite.coords):
                             self.add_site(nnsite)
-                    self.add_bonds(nn_sites, site.x, site.y, site.z)
-                    color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
-                    self.add_polyhedron(nn_sites, site, color)
+                    if self.show_bonds:
+                        self.add_bonds(nn_sites, site.x, site.y, site.z)
+                    if self.show_polyhedron:
+                        color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
+                        self.add_polyhedron(nn_sites, site, color)
                     
-        #Adjust the camera for best viewing
-        lattice = structure.lattice
-        matrix = lattice.matrix
-        lengths = lattice.abc
-        pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5        
-        camera = self.ren.GetActiveCamera()
-        camera.SetPosition(pos)           
-        camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
-        camera.SetViewUp(matrix[2])     
+        if reset_camera:
+            #Adjust the camera for best viewing
+            lattice = structure.lattice
+            matrix = lattice.matrix
+            lengths = lattice.abc
+            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5        
+            camera = self.ren.GetActiveCamera()
+            camera.SetPosition(pos)           
+            camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
+            camera.SetViewUp(matrix[2])
         self.structure = structure
         self.title = structure.composition.formula
 
@@ -320,27 +368,20 @@ class StructureVis(object):
         picker = vtk.vtkCellPicker()
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
-        textMapper = vtk.vtkTextMapper()
-        tprops = textMapper.GetTextProperty()
-        tprops.SetFontSize(16)
-        tprops.SetColor(0,0,0)
-        textActor = vtk.vtkActor2D()
-        textActor.VisibilityOff()
-        textActor.SetMapper(textMapper)
-        self.ren.AddActor(textActor)
+        
         def annotate_pick(object, event):
-            if picker.GetCellId() < 0:
-                textActor.VisibilityOff()
+            if picker.GetCellId() < 0 and not self.show_help:
+                self.helptxt_actor.VisibilityOff()
             else:
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
                     output = []
                     for site in self.mapper_map[mapper]:
                         output.append("%2s : %.3f, %.3f, %.3f (%.3f, %.3f, %.3f)" % (site.species_string, site.a, site.b, site.c, site.x, site.y, site.z))
-                        
-                    textMapper.SetInput("\n".join(output))
-                    textActor.SetPosition(10, 10)
-                    textActor.VisibilityOn()
+                    self.helptxt_mapper.SetInput("\n".join(output))
+                    self.helptxt_actor.SetPosition(10, 10)
+                    self.helptxt_actor.VisibilityOn()
+                    self.show_help = False
         self.picker = picker
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.iren.SetPicker(picker)
