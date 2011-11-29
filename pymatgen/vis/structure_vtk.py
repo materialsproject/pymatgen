@@ -21,16 +21,16 @@ import vtk
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
+from pymatgen.core.structure_modifier import SupercellMaker
 
 class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
  
     def __init__(self,parent):
         self.parent = parent
-        #self.AddObserver("MiddleButtonPressEvent",self.middleButtonPressEvent)
-        #self.AddObserver("MiddleButtonReleaseEvent",self.middleButtonReleaseEvent)
         self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
         self.AddObserver("MouseMoveEvent",self.mouseMoveEvent)
         self.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
+        self.AddObserver("KeyPressEvent",self.keyPressEvent)
      
     def leftButtonPressEvent(self,obj,event):
         self.mouse_motion = 0
@@ -48,6 +48,27 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             self.parent.picker.Pick(pos[0], pos[1], 0, self.parent.ren)
         self.OnLeftButtonUp()
         return
+    
+    def keyPressEvent(self, obj, event):
+        parent = self.parent
+        sym = parent.iren.GetKeySym()
+        if sym in ['A', 'B', 'C']:
+            parent.clear()
+            if sym == "C":
+                mat = [[1,0,0],[0,1,0],[0,0,2]]
+            elif sym == 'A':
+                mat = [[2,0,0],[0,1,0],[0,0,1]]
+            elif sym == 'B':
+                mat = [[1,0,0],[0,2,0],[0,0,1]]
+            s = parent.structure
+            m = SupercellMaker(s,mat)
+            parent.set_structure(m.modified_structure)
+            parent.ren_win.Render()
+        elif sym == 'h':
+            parent.show_polyhedron = not parent.show_polyhedron
+            parent.redraw()
+            
+        self.OnKeyPress()
  
 
 class StructureVis(object):
@@ -55,13 +76,30 @@ class StructureVis(object):
     Provides Structure object visualization using VTK.
     """
     
-    def __init__(self, element_color_mapping = None):
+    def __init__(self, element_color_mapping = None, show_unit_cell = True, show_polyhedron = True, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
         """
         Arguments:
             element_color_mapping:
                 Optional color mapping for the elements, as a dict of {symbol: rgb tuple}
                 For example, {"Fe": (255,123,0), ....}
                 If None is specified, a default based on Jmol's color scheme is used.
+            show_unit_cell:
+                Set to False to not show the unit cell boundaries. Defaults to True.
+            show_polyhedron:
+                Set to False to not show polyhedrons. Defaults to True.
+            poly_radii_tol_factor:
+                The polyhedron and bonding code uses the ionic radii of the elements or species to determine if two atoms are bonded.
+                This specifies a tolerance scaling factor such that atoms which are 
+                (1 + poly_radii_tol_factor) * sum of ionic radii apart are still considered as bonded.
+            excluded_bonding_elements:
+                List of atom types to exclude from bonding determination. Defaults to an empty list. Useful when trying to visualize 
+                a certain atom type in the framework (e.g., Li in a Li-ion battery cathode material).
+                
+        Useful keyboard shortcuts implemented.
+            A : Double cell in a-direction
+            B : Double cell in b-direction
+            C : Double cell in c-direction
+            h : Toggle showing of polyhedrons
         """
         # create a rendering window and renderer
         self.ren = vtk.vtkRenderer()
@@ -76,7 +114,8 @@ class StructureVis(object):
         self.add_picker_fixed()
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
-           
+        
+        
         self.mapper_map = {}
         self.structure = None
         if element_color_mapping:
@@ -90,25 +129,32 @@ class StructureVis(object):
             self.el_color_mapping = {}
             for (el, color) in self._config.items('VESTA'):
                 self.el_color_mapping[el] = [int(i) for i in color.split(",")]
+        self.show_unit_cell = show_unit_cell
+        self.show_polyhedron = show_polyhedron
+        self.poly_radii_tol_factor = poly_radii_tol_factor
+        self.excluded_bonding_elements = excluded_bonding_elements 
 
-    def set_structure(self, structure, show_unit_cell = True, show_polyhedron = True, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
+    def clear(self):
+        self.ren.RemoveAllViewProps()
+        self.picker = None
+        self.add_picker_fixed()
+        self.ren_win.Render()
+    
+    def redraw(self):
+        self.ren.RemoveAllViewProps()
+        self.picker = None
+        self.add_picker_fixed()
+        if self.structure != None:
+            self.set_structure(self.structure)
+        self.ren_win.Render()
+          
+    def set_structure(self, structure):
         """
         Add a structure to the visualizer.
         
         Arguments:
             structure:
                 structure to visualize
-            show_unit_cell:
-                Set to False to not show the unit cell boundaries. Defaults to True.
-            show_polyhedron:
-                Set to False to not show polyhedrons. Defaults to True.
-            poly_radii_tol_factor:
-                The polyhedron and bonding code uses the ionic radii of the elements or species to determine if two atoms are bonded.
-                This specifies a tolerance scaling factor such that atoms which are 
-                (1 + poly_radii_tol_factor) * sum of ionic radii apart are still considered as bonded.
-            excluded_bonding_elements:
-                List of atom types to exclude from bonding determination. Defaults to an empty list. Useful when trying to visualize 
-                a certain atom type in the framework (e.g., Li in a Li-ion battery cathode material).
         """
         
         inc_coords = []
@@ -119,7 +165,7 @@ class StructureVis(object):
         count = 0
         labels = ['a','b','c']
         colors = [(1,0,0), (0,1,0), (0,0,1)]
-        if show_unit_cell:
+        if self.show_unit_cell:
             self.add_text([0,0,0],"o")
             for vec in structure.lattice.matrix:
                 self.add_line((0,0,0), vec, colors[count])
@@ -130,37 +176,35 @@ class StructureVis(object):
             for (vec1, vec2, vec3) in itertools.permutations(structure.lattice.matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
         
-        if show_polyhedron:
+        if self.show_polyhedron:
             elements = sorted(structure.composition.elements)
             anion = elements[-1]
             anion_radius = anion.average_ionic_radius
             for site in structure:
                 sp = site.species_and_occu.keys()[0]
-                if sp != anion and sp.symbol not in excluded_bonding_elements:
-                    max_radius = (1 + poly_radii_tol_factor) * (sp.average_ionic_radius + anion_radius) / 100
+                if sp != anion and sp.symbol not in self.excluded_bonding_elements:
+                    max_radius = (1 + self.poly_radii_tol_factor) * (sp.average_ionic_radius + anion_radius) / 100
                     nn = structure.get_neighbors(site, max_radius)
-                    nn_coords = []
+                    nn_sites = []
                     for nnsite, dist in nn:
-                        nn_coords.append(nnsite.coords)
+                        nn_sites.append(nnsite)
                         if not in_coord_list(inc_coords, nnsite.coords):
                             self.add_site(nnsite)
-                    self.add_bonds(nn_coords, site.x, site.y, site.z)
+                    self.add_bonds(nn_sites, site.x, site.y, site.z)
                     color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
-                    self.add_polyhedron(nn_coords, color)
+                    self.add_polyhedron(nn_sites, site, color)
                     
         #Adjust the camera for best viewing
         lattice = structure.lattice
         matrix = lattice.matrix
         lengths = lattice.abc
-        pos = (matrix[0] + matrix[1]) * 0.5 + matrix[2] * max(lengths[0], lengths[1]) / lengths[2] * 3
+        pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5        
         camera = self.ren.GetActiveCamera()
         camera.SetPosition(pos)           
         camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
-        
+        camera.SetViewUp(matrix[2])     
         self.structure = structure
         self.title = structure.composition.formula
-        
-        
 
     def show(self):
         # enable user interface interactor
@@ -174,13 +218,13 @@ class StructureVis(object):
         sphere = vtk.vtkSphereSource()
         sphere.SetCenter(site.coords)
         specie = site.species_and_occu.keys()[0]
-        radius = specie.ionic_radius if isinstance(specie, Specie) else specie.average_ionic_radius
+        radius = specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius
         sphere.SetRadius(0.2 + 0.002 * radius)
         sphere.SetThetaResolution(18)
         sphere.SetPhiResolution(18)
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInput(sphere.GetOutput())
-        self.mapper_map[mapper] = site
+        self.mapper_map[mapper] = [site]
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         color = (0,0,0)
@@ -222,21 +266,24 @@ class StructureVis(object):
         actor.GetProperty().SetColor(color)
         self.ren.AddActor(actor)
 
-    def add_polyhedron(self, neighbours, color):
+    def add_polyhedron(self, neighbours, center, color):
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
         for i in range(len(neighbours)):
-            x,y,z = neighbours[i]
+            x,y,z = neighbours[i].coords
             points.InsertPoint(i,x,y,z)
             conv.GetPointIds().InsertId(i,i)
-        grid=vtk.vtkUnstructuredGrid()
+        grid = vtk.vtkUnstructuredGrid()
         grid.Allocate(1,1)
         grid.InsertNextCell(conv.GetCellType(),conv.GetPointIds())
         grid.SetPoints(points)
 
-        dsm=vtk.vtkDataSetMapper()
+        dsm = vtk.vtkDataSetMapper()
+        polysites = [center]
+        polysites.extend(neighbours)
+        self.mapper_map[dsm] = polysites
         dsm.SetInput(grid)
-        ac=vtk.vtkActor()
+        ac = vtk.vtkActor()
         #ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
         ac.GetProperty().SetOpacity(0.4)
@@ -249,7 +296,7 @@ class StructureVis(object):
         n = len(neighbours)
         lines = vtk.vtkCellArray()
         for i in range(n):
-            points.InsertPoint(i+1,neighbours[i])
+            points.InsertPoint(i+1,neighbours[i].coords)
             lines.InsertNextCell(2)
             lines.InsertCellPoint(0)
             lines.InsertCellPoint(i+1)
@@ -275,8 +322,7 @@ class StructureVis(object):
         # to display the results of picking.
         textMapper = vtk.vtkTextMapper()
         tprops = textMapper.GetTextProperty()
-        tprops.SetFontSize(20)
-        tprops.BoldOn()
+        tprops.SetFontSize(16)
         tprops.SetColor(0,0,0)
         textActor = vtk.vtkActor2D()
         textActor.VisibilityOff()
@@ -288,11 +334,12 @@ class StructureVis(object):
             else:
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
-                    site = self.mapper_map[mapper]
-                    output = [site.species_string]
-                    output.append("%.4f %.4f %.4f" % (site.a, site.b, site.c))
+                    output = []
+                    for site in self.mapper_map[mapper]:
+                        output.append("%2s : %.3f, %.3f, %.3f (%.3f, %.3f, %.3f)" % (site.species_string, site.a, site.b, site.c, site.x, site.y, site.z))
+                        
                     textMapper.SetInput("\n".join(output))
-                    textActor.SetPosition(0, 0)
+                    textActor.SetPosition(10, 10)
                     textActor.VisibilityOn()
         self.picker = picker
         picker.AddObserver("EndPickEvent", annotate_pick)
@@ -323,8 +370,7 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     site = self.mapper_map[mapper]
                     output = [site.species_string]
-                    output.append("%.4f %.4f %.4f" % (site.a, site.b, site.c))
-                    
+                    output.append("Frac. coords: %.4f %.4f %.4f" % (site.a, site.b, site.c))
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
@@ -334,11 +380,12 @@ class StructureVis(object):
 
 if __name__ == "__main__":
     #To be moved to proper unittest in future version
-    from pymatgen.io.vaspio import Poscar, Vasprun
+    from pymatgen.io.vaspio import Poscar
     filepath = os.path.join('..', 'io','tests', 'vasp_testfiles','POSCAR')
+    
     poscar = Poscar.from_file(filepath)
     s = poscar.struct
-    vis = StructureVis()
-    vis.set_structure(s, show_polyhedron = False, excluded_bonding_elements=["Li"], poly_radii_tol_factor = 0.2)
+    vis = StructureVis(excluded_bonding_elements=["Li"])
+    vis.set_structure(s)
     
     vis.show()
