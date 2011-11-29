@@ -137,16 +137,7 @@ class Lattice(object):
             abc: lattice parameters, e.g. (4,4,5)
             ang: lattice angles in degrees, e.g., (90,90,120)
         '''
-        prim = np.zeros((3,3),float) #
-        prim[0,0] = abc[0]
-        
-        prim[1,0] = cos(pi/180.*ang[2])*abc[1]
-        prim[1,1] = sin(pi/180.*ang[2])*abc[1]
-        
-        prim[2,0] = abc[0]*abc[2]*cos(pi/180.*ang[1])/prim[0,0]
-        prim[2,1] = (abc[1]*abc[2]*cos(pi/180.*ang[0]) - prim[1,0]*prim[2,0])/prim[1,1]
-        prim[2,2] = (abc[2]**2 - prim[2,0]**2 - prim[2,1]**2)**0.5
-        return Lattice(prim)
+        return Lattice.from_parameters(abc[0],abc[1],abc[2],ang[0],ang[1],ang[2])
     
     @staticmethod
     def from_parameters(a,b,c,alpha,beta,gamma):
