@@ -17,6 +17,7 @@ import os
 import ConfigParser
 import itertools
 
+import numpy as np
 import vtk
 
 from pymatgen.util.coord_utils import in_coord_list
@@ -181,6 +182,9 @@ class StructureVis(object):
         self.iren.SetInteractorStyle(style)
     
     def rotate_view(self, axis_ind = 0, angle = 0):
+        """
+        Rotate the camera view.
+        """
         camera = self.ren.GetActiveCamera()
         if axis_ind == 0:
             camera.Roll(angle)
@@ -191,6 +195,13 @@ class StructureVis(object):
         self.ren_win.Render()
             
     def save_image(self, filename = "image.png"):
+        """
+        Save render window to a png image.
+        
+        Arguments:
+            filename:
+                filename to save to. Defaults to image.png.
+        """
         w2i = vtk.vtkWindowToImageFilter()
         writer = vtk.vtkPNGWriter()
         w2i.SetInput(self.ren_win)
@@ -199,14 +210,15 @@ class StructureVis(object):
         writer.SetFileName(filename)
         self.ren_win.Render()
         writer.Write()
-
-    def clear(self):
-        self.ren.RemoveAllViewProps()
-        self.picker = None
-        self.add_picker_fixed()
-        self.ren_win.Render()
     
     def redraw(self, reset_camera = False):
+        """
+        Redraw the render window.
+        
+        Arguments:
+            reset_camera:
+                Set to True to reset the camera to a pre-determined default for each structure.  Defaults to False.
+        """
         self.ren.RemoveAllViewProps()
         self.picker = None
         self.add_picker_fixed()
@@ -226,6 +238,9 @@ class StructureVis(object):
         self.ren_win.Render()
     
     def display_help(self):
+        """
+        Display the help for various keyboard shortcuts.
+        """
         helptxt = ['h : Toggle help']
         helptxt.append('A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector')
         helptxt.append('# : Toggle showing of polyhedrons')
@@ -246,6 +261,8 @@ class StructureVis(object):
         Arguments:
             structure:
                 structure to visualize
+            reset_camera:
+                Set to True to reset the camera to a default determined based on the structure.
         """
         
         m = SupercellMaker(structure, self.supercell)
@@ -273,13 +290,22 @@ class StructureVis(object):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
         
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(s.composition.elements)
+            elements = sorted(s.composition.elements, key = lambda a: a.X)
             anion = elements[-1]
             anion_radius = anion.average_ionic_radius
             for site in s:
-                sp = site.species_and_occu.keys()[0]
-                if sp != anion and sp.symbol not in self.excluded_bonding_elements:
-                    max_radius = (1 + self.poly_radii_tol_factor) * (sp.average_ionic_radius + anion_radius) / 100
+                exclude = False
+                max_radius = 0
+                color = np.array([0,0,0])
+                for sp, occu in site.species_and_occu.items():
+                    if sp.symbol in self.excluded_bonding_elements or sp == anion:
+                        exclude = True
+                        break
+                    max_radius = max(max_radius, sp.average_ionic_radius)
+                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0,0,0]))
+                
+                if not exclude:
+                    max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius) / 100
                     nn = structure.get_neighbors(site, max_radius)
                     nn_sites = []
                     for nnsite, dist in nn:
@@ -289,7 +315,7 @@ class StructureVis(object):
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site.x, site.y, site.z)
                     if self.show_polyhedron:
-                        color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
+                        color = [i/255 for i in color]
                         self.add_polyhedron(nn_sites, site, color)
         
         camera = self.ren.GetActiveCamera() 
@@ -305,7 +331,9 @@ class StructureVis(object):
         self.title = s.composition.formula
 
     def show(self):
-        # enable user interface interactor
+        """
+        Display the visualizer
+        """
         self.iren.Initialize()
         self.ren_win.SetSize(800,800)
         self.ren_win.SetWindowName(self.title)
@@ -313,23 +341,50 @@ class StructureVis(object):
         self.iren.Start()
         
     def add_site(self, site):
-        sphere = vtk.vtkSphereSource()
-        sphere.SetCenter(site.coords)
-        specie = site.species_and_occu.keys()[0]
-        radius = specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius
-        sphere.SetRadius(0.2 + 0.002 * radius)
-        sphere.SetThetaResolution(18)
-        sphere.SetPhiResolution(18)
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInput(sphere.GetOutput())
-        self.mapper_map[mapper] = [site]
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        color = (0,0,0)
-        if specie.symbol in self.el_color_mapping:
-            color = [i/255 for i in self.el_color_mapping[specie.symbol]]
-        actor.GetProperty().SetColor(color)
-        self.ren.AddActor(actor)
+        """
+        Add a site to the render window.
+        The site is displayed as a sphere, the color of which is determined based on the element.
+        Partially occupied sites are displayed as a single element color, though the site info 
+        still shows the partial occupancy.
+        
+        """
+        
+        start_angle = 0
+        radius = 0
+        total_occu = 0
+        
+        for specie, occu in site.species_and_occu.items():
+            radius += occu * specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius
+            total_occu += occu    
+        
+        def add_partial_sphere(start, end, specie):
+            sphere = vtk.vtkSphereSource()
+            sphere.SetCenter(site.coords)
+            sphere.SetRadius(0.2 + 0.002 * radius)
+            sphere.SetThetaResolution(18)
+            sphere.SetPhiResolution(18)
+            sphere.SetStartTheta(start)
+            sphere.SetEndTheta(end)
+            
+            mapper = vtk.vtkPolyDataMapper()
+            mapper.SetInput(sphere.GetOutput())
+            self.mapper_map[mapper] = [site]
+            actor = vtk.vtkActor()
+            actor.SetMapper(mapper)
+            color = (0,0,0)
+            if not specie:
+                color = (1,1,1)
+            elif specie.symbol in self.el_color_mapping:
+                color = [i/255 for i in self.el_color_mapping[specie.symbol]]
+            actor.GetProperty().SetColor(color)
+            self.ren.AddActor(actor)
+
+        for specie, occu in site.species_and_occu.items():
+            add_partial_sphere(start_angle, start_angle + 360 * occu, specie)
+            start_angle = start_angle + 360 * occu
+        
+        if total_occu < 1:
+            add_partial_sphere(start_angle, start_angle + 360 * (1-total_occu), None)
 
     def add_text(self, coords, text, color = (0,0,0)):
         source = vtk.vtkVectorText()
@@ -468,3 +523,6 @@ class StructureVis(object):
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
+
+
+    
