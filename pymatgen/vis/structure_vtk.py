@@ -52,23 +52,25 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     def keyPressEvent(self, obj, event):
         parent = self.parent
         sym = parent.iren.GetKeySym()
-        print sym
-        if sym in ['A', 'B', 'C']:
-            parent.clear()
-            if sym == "C":
-                mat = [[1,0,0],[0,1,0],[0,0,2]]
-            elif sym == 'A':
-                mat = [[2,0,0],[0,1,0],[0,0,1]]
+        #print sym
+        if sym in 'ABCabc':
+            if sym == 'A':
+                parent.supercell[0][0] += 1
             elif sym == 'B':
-                mat = [[1,0,0],[0,2,0],[0,0,1]]
-            s = parent.structure
-            m = SupercellMaker(s,mat)
-            parent.set_structure(m.modified_structure)
+                parent.supercell[1][1] += 1
+            elif sym == "C":
+                parent.supercell[2][2] += 1
+            elif sym == "a":
+                parent.supercell[0][0] = max(parent.supercell[0][0]-1, 1)
+            elif sym == "b":
+                parent.supercell[1][1] = max(parent.supercell[1][1]-1, 1)
+            elif sym == "c":
+                parent.supercell[2][2] = max(parent.supercell[2][2]-1, 1)
             parent.redraw()
         elif sym == 'numbersign':
             parent.show_polyhedron = not parent.show_polyhedron
             parent.redraw()
-        elif sym == 'b':
+        elif sym == 'minus':
             parent.show_bonds = not parent.show_bonds
             parent.redraw()
         elif sym == 'bracketleft':
@@ -80,6 +82,25 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         elif sym == 'h':
             parent.show_help = not parent.show_help
             parent.redraw()
+        elif sym == 'r':
+            parent.redraw(True)
+        elif sym == "s":
+            w2i = vtk.vtkWindowToImageFilter()
+            writer = vtk.vtkPNGWriter()
+            w2i.SetInput(parent.ren_win)
+            w2i.Update()
+            writer.SetInputConnection(w2i.GetOutputPort())
+            writer.SetFileName("image.png")
+            parent.ren_win.Render()
+            writer.Write()
+        elif sym == "Up":
+            parent.rotate_view(1,90)
+        elif sym == "Down":
+            parent.rotate_view(1,-90)
+        elif sym == "Left":
+            parent.rotate_view(0,-90)
+        elif sym == "Right":
+            parent.rotate_view(0,90)
             
         self.OnKeyPress()
  
@@ -112,13 +133,16 @@ class StructureVis(object):
                 
         Useful keyboard shortcuts implemented.
             h : Show help
-            A : Double cell in a-direction
-            B : Double cell in b-direction
-            C : Double cell in c-direction
+            A/a : Increase/decrease cell by one unit vector in a-direction
+            B/b : Increase/decrease cell by one unit vector in b-direction
+            C/c : Increase/decrease cell by one unit vector in c-direction
             # : Toggle showing of polyhedrons
-            b: Toggle showing of bonds
+            -: Toggle showing of bonds
             [ : Decrease poly_radii_tol_factor by 0.05
             ] : Increase poly_radii_tol_factor by 0.05
+            r : Reset camera direction
+            Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise
+            Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise
             
         """
         # create a rendering window and renderer
@@ -150,12 +174,31 @@ class StructureVis(object):
         self.poly_radii_tol_factor = poly_radii_tol_factor
         self.excluded_bonding_elements = excluded_bonding_elements
         self.show_help = True
-        
+        self.supercell = [[1,0,0],[0,1,0],[0,0,1]]
         self.redraw()
         
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
-        
+    
+    def rotate_view(self, axis_ind = 0, angle = 0):
+        camera = self.ren.GetActiveCamera()
+        if axis_ind == 0:
+            camera.Roll(angle)
+        elif axis_ind == 1:
+            camera.Azimuth(angle)
+        else:
+            camera.Pitch(angle)
+        self.ren_win.Render()
+            
+    def save_image(self, filename = "image.png"):
+        w2i = vtk.vtkWindowToImageFilter()
+        writer = vtk.vtkPNGWriter()
+        w2i.SetInput(self.ren_win)
+        w2i.Update()
+        writer.SetInputConnection(w2i.GetOutputPort())
+        writer.SetFileName(filename)
+        self.ren_win.Render()
+        writer.Write()
 
     def clear(self):
         self.ren.RemoveAllViewProps()
@@ -163,7 +206,7 @@ class StructureVis(object):
         self.add_picker_fixed()
         self.ren_win.Render()
     
-    def redraw(self):
+    def redraw(self, reset_camera = False):
         self.ren.RemoveAllViewProps()
         self.picker = None
         self.add_picker_fixed()
@@ -177,18 +220,21 @@ class StructureVis(object):
         self.helptxt_actor.SetMapper(self.helptxt_mapper)
         self.ren.AddActor(self.helptxt_actor)
         if self.structure != None:
-            self.set_structure(self.structure, False)
+            self.set_structure(self.structure, reset_camera)
         if self.show_help:
             self.display_help()
-            
         self.ren_win.Render()
     
     def display_help(self):
-        helptxt = ['h : Show help']
-        helptxt.append('A, B or C : Double cell in a, b or c-directions respectively')
+        helptxt = ['h : Toggle help']
+        helptxt.append('A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector')
         helptxt.append('# : Toggle showing of polyhedrons')
-        helptxt.append('b: Toggle showing of bonds')
-        helptxt.append('[ or ]: Decrease or increase poly_radii_tol_factor by 0.05. Value = ' + str(self.poly_radii_tol_factor))
+        helptxt.append('-: Toggle showing of bonds')
+        helptxt.append('r : Reset camera direction')
+        helptxt.append('[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = ' + str(self.poly_radii_tol_factor))
+        helptxt.append('Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise')
+        helptxt.append('Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise')
+        helptxt.append('i: Save view to image.png')
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -202,30 +248,35 @@ class StructureVis(object):
                 structure to visualize
         """
         
+        m = SupercellMaker(structure, self.supercell)
+        s = m.modified_structure
+        
         inc_coords = []
-        for site in structure:
+        for site in s:
             self.add_site(site)
             inc_coords.append(site.coords)
         
         count = 0
         labels = ['a','b','c']
         colors = [(1,0,0), (0,1,0), (0,0,1)]
+        matrix = s.lattice.matrix
+        
         if self.show_unit_cell:
             self.add_text([0,0,0],"o")
-            for vec in structure.lattice.matrix:
+            for vec in matrix:
                 self.add_line((0,0,0), vec, colors[count])
                 self.add_text(vec,labels[count], colors[count])
                 count += 1
-            for (vec1, vec2) in itertools.permutations(structure.lattice.matrix, 2):
+            for (vec1, vec2) in itertools.permutations(matrix, 2):
                 self.add_line(vec1, vec1+vec2)
-            for (vec1, vec2, vec3) in itertools.permutations(structure.lattice.matrix, 3):
+            for (vec1, vec2, vec3) in itertools.permutations(matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
         
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(structure.composition.elements)
+            elements = sorted(s.composition.elements)
             anion = elements[-1]
             anion_radius = anion.average_ionic_radius
-            for site in structure:
+            for site in s:
                 sp = site.species_and_occu.keys()[0]
                 if sp != anion and sp.symbol not in self.excluded_bonding_elements:
                     max_radius = (1 + self.poly_radii_tol_factor) * (sp.average_ionic_radius + anion_radius) / 100
@@ -240,19 +291,18 @@ class StructureVis(object):
                     if self.show_polyhedron:
                         color = [i/255 for i in self.el_color_mapping.get(sp.symbol, [0,0,0])]
                         self.add_polyhedron(nn_sites, site, color)
-                    
+        
+        camera = self.ren.GetActiveCamera() 
         if reset_camera:
             #Adjust the camera for best viewing
-            lattice = structure.lattice
-            matrix = lattice.matrix
-            lengths = lattice.abc
-            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5        
-            camera = self.ren.GetActiveCamera()
-            camera.SetPosition(pos)           
-            camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
-            camera.SetViewUp(matrix[2])
+            lengths = s.lattice.abc
+            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
+            camera.SetPosition(pos)
+            camera.SetViewUp(matrix[2])        
+        camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)      
+        
         self.structure = structure
-        self.title = structure.composition.formula
+        self.title = s.composition.formula
 
     def show(self):
         # enable user interface interactor
@@ -418,15 +468,3 @@ class StructureVis(object):
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
-
-if __name__ == "__main__":
-    #To be moved to proper unittest in future version
-    from pymatgen.io.vaspio import Poscar
-    filepath = os.path.join('..', 'io','tests', 'vasp_testfiles','POSCAR')
-    
-    poscar = Poscar.from_file(filepath)
-    s = poscar.struct
-    vis = StructureVis(excluded_bonding_elements=["Li"])
-    vis.set_structure(s)
-    
-    vis.show()

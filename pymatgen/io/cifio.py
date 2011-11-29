@@ -17,14 +17,14 @@ __date__ ="Sep 23, 2011"
 import re
 import StringIO
 import math
+import warnings
 from collections import OrderedDict
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.util.io_utils import file_open_zip_aware
 
 import CifFile
-
 import numpy as np
 
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.util.io_utils import file_open_zip_aware
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, Composition
 
@@ -68,7 +68,7 @@ class CifParser:
                 coords.append(coord)
         return coords
     
-    def _get_structure(self,data, primitive):
+    def _get_structure(self, data, primitive):
         """
         Generate structure from part of the cif.
         """
@@ -82,7 +82,14 @@ class CifParser:
         angles = [float_from_string(data['_cell_angle_'+i]) for i in ['alpha','beta','gamma']]
         lattice = Lattice.from_lengths_and_angles(lengths,angles)
         primlattice = lattice.get_primitive_lattice(latt_type)
-        sympos =  data['_symmetry_equiv_pos_as_xyz']
+        try:
+            sympos =  data['_symmetry_equiv_pos_as_xyz']
+        except:
+            try:
+                sympos =  data['_symmetry_equiv_pos_as_xyz_']
+            except:
+                warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1.")
+                sympos
         def parse_symbol(sym):
             m = re.search("([A-Z][a-z]*)",sym)
             if m:
