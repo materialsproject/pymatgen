@@ -224,8 +224,8 @@ class StructureVis(object):
         self.add_picker_fixed()
         self.helptxt_mapper = vtk.vtkTextMapper()
         tprops = self.helptxt_mapper.GetTextProperty()
-        tprops.SetFontSize(16)
-        tprops.SetFontFamilyToCourier()
+        tprops.SetFontSize(14)
+        tprops.SetFontFamilyToTimes()
         tprops.SetColor(0,0,0)
         self.helptxt_actor = vtk.vtkActor2D()
         self.helptxt_actor.VisibilityOff()
@@ -354,7 +354,7 @@ class StructureVis(object):
         total_occu = 0
         
         for specie, occu in site.species_and_occu.items():
-            radius += occu * specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius
+            radius += occu * (specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius)
             total_occu += occu    
         
         def add_partial_sphere(start, end, specie):
@@ -482,7 +482,7 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     output = []
                     for site in self.mapper_map[mapper]:
-                        output.append("%2s : %.3f, %.3f, %.3f (%.3f, %.3f, %.3f)" % (site.species_string, site.a, site.b, site.c, site.x, site.y, site.z))
+                        output.append("%2s - (%.3f, %.3f, %.3f) [%.3f, %.3f, %.3f]" % (site.species_string, site.a, site.b, site.c, site.x, site.y, site.z))
                     self.helptxt_mapper.SetInput("\n".join(output))
                     self.helptxt_actor.SetPosition(10, 10)
                     self.helptxt_actor.VisibilityOn()
