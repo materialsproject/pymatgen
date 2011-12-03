@@ -32,7 +32,6 @@ class AbstractVaspInputSet(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
     def get_poscar(self, structure):
         '''
         Returns Poscar from a structure.
@@ -147,8 +146,7 @@ class MITVaspInputSet(AbstractVaspInputSet):
         
         return incar
     
-    def get_poscar(self, structure):
-        return super(MaterialsProjectVaspInputSet, self).get_poscar(structure)
+    #get_poscar method inherited from AbstractVaspInputSet
 
     def get_potcar(self, structure):               
         p = self.get_poscar(structure)
