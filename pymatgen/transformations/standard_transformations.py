@@ -21,7 +21,7 @@ import warnings
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation
 
@@ -89,7 +89,38 @@ class RotationTransformation(AbstractTransformation):
         output['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
         return output
         
+class SupercellTransformation(AbstractTransformation):
+    """
+    The RotationTransformation applies a rotation to a structure.
+    """
     
+    def __init__(self, scaling_matrix = [[1,0,0],[0,1,0],[0,0,1]]):
+        """
+        Arguments:
+            scaling_matrix - Set to True if angle is supplied in radians. Else degrees are assumed.
+        """
+        self._matrix = scaling_matrix
+        
+    def apply_transformation(self, structure):
+        maker = SupercellMaker(structure, self._matrix)
+        return maker.modified_structure
+    
+    def __str__(self):
+        return "Supercell Transformation with scaling matrix %s" % (str(self._matrix))
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    @property
+    def inverse(self):
+        raise NotImplementedError()
+    
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__}
+        output['init_args'] = {'scaling_matrix': self._matrix}
+        return output
+        
     
 class SubstitutionTransformation(AbstractTransformation):
     """
