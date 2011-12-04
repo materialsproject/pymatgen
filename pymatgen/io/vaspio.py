@@ -79,9 +79,9 @@ class Poscar(VaspInput):
             self._site_symbols = []
             self._natoms = []
             syms = [site.specie.symbol for site in struct]
-            for s in itertools.groupby(syms):
-                self._site_symbols.append(s[0])
-                self._natoms.append(len(tuple(s[1])))
+            for (s, data) in itertools.groupby(syms):
+                self._site_symbols.append(s)
+                self._natoms.append(len(tuple(data)))
             self._true_names = True
             if selective_dynamics:
                 self.set_selective_dynamics(selective_dynamics)

@@ -14,7 +14,7 @@ __date__ = "Sep 23, 2011"
 
 import unittest
 
-from pymatgen.transformations.standard_transformations import transformation_from_json, IdentityTransformation, RotationTransformation, PartialRemoveSpecieTransformation, OrderDisorderedStructureTransformation, RemoveSpeciesTransformation, SubstitutionTransformation
+from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -66,6 +66,20 @@ class SubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice,["Li+", "Li+", "O2-", "O2-"],coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 S2")
+
+class SupercellTransformationTest(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = SupercellTransformation([[2,1,0],[0,2,0],[1,0,2]])
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li+", "Li+", "O2-", "O2-"],coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(s.composition.formula, "Li16 O16")
 
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     
