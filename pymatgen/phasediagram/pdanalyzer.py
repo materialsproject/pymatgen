@@ -56,12 +56,15 @@ class PDAnalyzer(object):
         Note that in reality, the test needs to provide a tolerance (set to 1e-8 by default) for numerical errors.
         """
         dim = len(self._pd.elements)
-        origin = np.array(self._pd.qhull_data[facet[0]][0:dim-1])
-        cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim-1]) - origin for i in xrange(1, len(facet))])
-        row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1,len(self._pd.elements))]
-        compm = np.array(row) - origin
-        coeffs = np.linalg.solve(cm.transpose(), compm)
-        return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
+        if dim > 1:
+            origin = np.array(self._pd.qhull_data[facet[0]][0:dim-1])
+            cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim-1]) - origin for i in xrange(1, len(facet))])
+            row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1,len(self._pd.elements))]
+            compm = np.array(row) - origin
+            coeffs = np.linalg.solve(cm.transpose(), compm)
+            return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
+        else:
+            return True
 
     def _get_facets(self,comp):
         """
@@ -153,6 +156,9 @@ class PDAnalyzer(object):
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
         
+        print element
+        print comp
+        print self._pd.elements
         chempots = self.get_transition_chempots(element)
         stable_entries = self._pd.stable_entries
         gccomp = Composition({el:amt for el, amt in comp.items() if el != element})
