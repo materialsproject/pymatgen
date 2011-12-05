@@ -155,10 +155,6 @@ class PDAnalyzer(object):
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
-        
-        print element
-        print comp
-        print self._pd.elements
         chempots = self.get_transition_chempots(element)
         stable_entries = self._pd.stable_entries
         gccomp = Composition({el:amt for el, amt in comp.items() if el != element})
