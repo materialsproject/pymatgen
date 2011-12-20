@@ -18,7 +18,7 @@ import abc
 import itertools
 
 import numpy as np
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, PeriodicSite
 
@@ -78,6 +78,21 @@ class StructureEditor(StructureModifier):
                     new_atom_occu[sp] = amt 
             return PeriodicSite(new_atom_occu, self._lattice.get_fractional_coords(site.coords), self._lattice)    
         self._sites = map(mod_site, self._sites)
+    
+    def replace_single_site(self, index, species = None, atoms_n_occu = None):
+        """
+        Replace a single site. Takes either a species or a dict of occus
+        
+        Arguments:
+            species: a species object
+            index: the index of the site in the _sites list
+                
+        """
+        if atoms_n_occu == None:
+            atoms_n_occu = dict()
+            atoms_n_occu[species] = 1
+        
+        self._sites[index] = PeriodicSite(atoms_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords), self._lattice)
     
     def remove_species(self, species):
         """
@@ -261,6 +276,32 @@ class OxidationStateDecorator(StructureModifier):
             new_species = [{Specie(el.symbol, oxidation_states[el.symbol]) : occu for el, occu in site.species_and_occu.items()} for site in structure]
         except KeyError as ex:
             raise ValueError("Oxidation state of all elements must be specified in the dictionary.")
+        self._modified_structure = Structure(structure.lattice, new_species, structure.frac_coords, False)
+                        
+    @property
+    def original_structure(self):
+        return self._original_structure
+    
+    @property
+    def modified_structure(self):
+        return self._modified_structure
+    
+class OxidationStateRemover(StructureModifier):
+    """
+    Replace each Specie at a site with an element.
+    Useful for doing structure comparisons after applying higher level functions
+    """
+    
+    def __init__(self, structure):
+        """
+        Removes oxidation states from a structure
+        
+        Args:
+            structure:
+                pymatgen.core.structure Structure object.
+        """
+        self._original_structure = structure
+        new_species = [{Element(el.symbol) : occu for el, occu in site.species_and_occu.items()} for site in structure]
         self._modified_structure = Structure(structure.lattice, new_species, structure.frac_coords, False)
                         
     @property
