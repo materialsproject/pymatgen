@@ -75,6 +75,15 @@ class PDAnalyzer(object):
             if self._in_facet(facet, comp):
                 memberfacets.append(facet)
         return memberfacets
+    
+    def _get_facet(self,comp):
+        """
+        Get the facets that a composition falls into.
+        """
+        for facet in self._pd.facets:
+            if self._in_facet(facet, comp):
+                return facet
+        raise RuntimeError("No facet found for comp = {}".format(comp))
 
     def get_decomposition(self,comp):
         """
@@ -84,8 +93,7 @@ class PDAnalyzer(object):
         Returns:
             Decomposition as a dict of {PDEntry: amount}
         """
-        memberfacets = self._get_facets(comp)
-        facet = memberfacets[0]
+        facet = self._get_facet(comp)
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         m = self._make_comp_matrix(complist)
         compm = self._make_comp_matrix([comp])
