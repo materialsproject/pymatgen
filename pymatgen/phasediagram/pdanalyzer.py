@@ -104,6 +104,22 @@ class PDAnalyzer(object):
             if abs(decompamts[i][0]) > PDAnalyzer.numerical_tol:
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp
+    
+    def get_decomp_and_e_above_hull(self,entry):
+        """
+        Provides the decomposition and energy above convex hull for an entry
+        Arguments:
+            entry - A PDEntry like object
+        Returns:
+            (decomp, energy above convex hull)  Stable entries should have energy above hull of 0.
+        """
+        comp = entry.composition
+        eperatom = entry.energy_per_atom
+        decomp = self.get_decomposition(comp)
+        hullenergy = sum([entry.energy_per_atom*amt for entry, amt in decomp.items()])
+        if abs(eperatom) < PDAnalyzer.numerical_tol:
+            return (decomp, 0)
+        return (decomp, eperatom - hullenergy)
 
     def get_e_above_hull(self,entry):
         """
@@ -113,13 +129,7 @@ class PDAnalyzer(object):
         Returns:
             Energy above convex hull of entry.  Stable entries should have energy above hull of 0.
         """
-        comp = entry.composition
-        eperatom = entry.energy_per_atom
-        decomp = self.get_decomposition(comp)
-        hullenergy = sum([entry.energy_per_atom*amt for entry, amt in decomp.items()])
-        if abs(eperatom) < PDAnalyzer.numerical_tol:
-            return 0
-        return eperatom - hullenergy
+        return self.get_decomp_and_e_above_hull(entry)[1]
     
     def get_transition_chempots(self, element):
         """
