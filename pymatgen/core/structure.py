@@ -916,8 +916,9 @@ class Composition (collections.Mapping, collections.Hashable):
         """
         if any([e < 0 for e in elmap.values()]):
             raise ValueError("Amounts in Composition cannot be negative!")
-        if not any([isinstance(e, (Element,Specie)) for e in elmap.keys()]):
-            raise TypeError("Keys must be instances of Element or Specie!")
+        for e in elmap.keys():
+            if not isinstance(e, (Element,Specie)):
+                raise TypeError("Keys must be instances of Element or Specie!")
         self._elmap = elmap.copy()
         self._natoms = sum(self._elmap.values())
 
