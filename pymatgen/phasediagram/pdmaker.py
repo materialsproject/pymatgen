@@ -13,10 +13,11 @@ __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
 import numpy as np
-import warnings
 
+from pymatgen.command_line.qhull_caller import qconvex
 from entries import GrandPotPDEntry
 from scipy.spatial import Delaunay
+
 
 class PhaseDiagram (object):
     '''
@@ -161,17 +162,10 @@ class PhaseDiagram (object):
                 elif self.el_ref[el].energy_per_atom > e_per_atom:
                     self.el_ref[el] = entry
 
-        # Remove positive formation energy entries and duplicate entries
-        def in_list(entries_list, entry):
-            for test_entry in entries_list:
-                if abs(entry.energy - test_entry.energy) <= self.FORMATION_ENERGY_TOLERANCE and entry.composition == test_entry.composition:
-                    warnings.warn("Duplicate entry found!  Discarding...")
-                    return True
-            return False
-        
+        # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
-            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:# and (not in_list(entries_to_process, entry)):
+            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:
                 entries_to_process.append(entry)
                 
         self._qhull_entries = entries_to_process
@@ -184,15 +178,15 @@ class PhaseDiagram (object):
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            self._facets = Delaunay(self._qhull_data).convex_hull
+            #self._facets = Delaunay(self._qhull_data).convex_hull
+            self._facets = qconvex(self._qhull_data)
+            
             finalfacets = list()
-
-            # Remove vertical facets and elemental facets
             for facet in self._facets:
                 facetmatrix = np.zeros((len(facet),len(facet)))
                 count = 0
                 is_element_facet = True
-
+            
                 for vertex in facet:
                     facetmatrix[count] = np.array(self._qhull_data[vertex])
                     facetmatrix[count, dim-1] = 1

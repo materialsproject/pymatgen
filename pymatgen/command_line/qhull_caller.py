@@ -25,7 +25,7 @@ def run_qhull_command(command, data, proc_command = int, output_skip=1):
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) +"\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])
-    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE, close_fds=True)
     output = p.communicate(input=prep_str)[0]
     output = re.split("\n", output)
     for i in xrange(output_skip):
