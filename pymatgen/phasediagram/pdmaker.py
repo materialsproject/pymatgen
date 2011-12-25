@@ -171,15 +171,18 @@ class PhaseDiagram (object):
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
 
-    def make_phasediagram(self):
+    def make_phasediagram(self, use_external_qconvex = False):
         stable_entries = set()
         dim = len(self._elements)
         self._qhull_data = self._create_convhull_data()
+        print self._qhull_data
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            #self._facets = Delaunay(self._qhull_data).convex_hull
-            self._facets = qconvex(self._qhull_data)
+            if not use_external_qconvex:
+                self._facets = Delaunay(self._qhull_data).convex_hull
+            else:
+                self._facets = qconvex(self._qhull_data)
             
             finalfacets = list()
             for facet in self._facets:
