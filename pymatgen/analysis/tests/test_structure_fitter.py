@@ -33,7 +33,7 @@ class StructureFitterTest(unittest.TestCase):
         coords.append(np.array([0,0,0]))
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.b = Structure(lattice,[fe,si],coords)
-    
+                
     def test_init(self):
         fitter = StructureFitter(self.b,self.a)
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
