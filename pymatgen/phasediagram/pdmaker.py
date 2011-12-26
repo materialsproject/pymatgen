@@ -13,11 +13,13 @@ __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
 import numpy as np
+import logging
 
 from pymatgen.command_line.qhull_caller import qconvex
 from entries import GrandPotPDEntry
 from scipy.spatial import Delaunay
 
+logger = logging.getLogger(__name__)
 
 class PhaseDiagram (object):
     '''
@@ -112,7 +114,6 @@ class PhaseDiagram (object):
         """
         return self._el_refs
 
-
     def get_form_energy(self,entry):
         '''
         Returns the formation energy for an entry (NOT normalized) from the
@@ -138,7 +139,6 @@ class PhaseDiagram (object):
         data = list()
         for entry in entries_to_process:
             comp = entry.composition
-
             energy_per_atom = entry.energy_per_atom
             row = list()
             for i in xrange(1,len(self._elements)):
@@ -151,6 +151,7 @@ class PhaseDiagram (object):
         '''
         Make data suitable for convex hull procedure from the list of entries.
         '''
+        logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
         self.el_ref = dict()
         for entry in self._all_entries:
@@ -167,6 +168,8 @@ class PhaseDiagram (object):
         for entry in self._all_entries:
             if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:
                 entries_to_process.append(entry)
+            else:
+                logger.debug("Removing positive formation energy entry {}".format(entry))
                 
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
@@ -175,21 +178,24 @@ class PhaseDiagram (object):
         stable_entries = set()
         dim = len(self._elements)
         self._qhull_data = self._create_convhull_data()
-        print self._qhull_data
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            if not use_external_qconvex:
-                self._facets = Delaunay(self._qhull_data).convex_hull
+            if not use_external_qconvex and dim < 5:
+                logger.debug("Computing hull using scipy.spatial.delaunay")
+                delau = Delaunay(self._qhull_data)
+                self._facets = delau.convex_hull
             else:
+                logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
                 self._facets = qconvex(self._qhull_data)
+            logger.debug("Final facets are\n{}".format(self._facets))
             
+            logger.debug("Removing vertical facets...")
             finalfacets = list()
             for facet in self._facets:
                 facetmatrix = np.zeros((len(facet),len(facet)))
                 count = 0
                 is_element_facet = True
-            
                 for vertex in facet:
                     facetmatrix[count] = np.array(self._qhull_data[vertex])
                     facetmatrix[count, dim-1] = 1
@@ -198,6 +204,8 @@ class PhaseDiagram (object):
                         is_element_facet = False
                 if abs(np.linalg.det(facetmatrix)) > 1e-8 and (not is_element_facet):
                     finalfacets.append(facet)
+                else:
+                    logger.debug("Removing vertical facet : {}".format(facet))
             self._facets = finalfacets
 
         for facet in self._facets:
