@@ -57,9 +57,10 @@ class StructureFitterTest(unittest.TestCase):
         editor = StructureEditor(self.a)
         site = self.a[0]
         editor.delete_site(0)
-        editor.insert_site(0, site.species_and_occu, site.frac_coords + np.random.randint(0,1000,3), True, False)
+        trans = np.random.randint(0,1000,3)
+        editor.insert_site(0, site.species_and_occu, site.frac_coords + trans, False, False)
         fitter = StructureFitter(self.b,editor.modified_structure)
-        self.assertTrue(fitter.mapping_op != None, "No fit found!")
+        self.assertTrue(fitter.mapping_op != None, "No fit found for translation {}!".format(trans))
         
         parser = CifParser(os.path.join(module_dir,"FePO4a.cif"))
         a = parser.get_structures()[0]
