@@ -17,6 +17,8 @@ __date__ ="$Sep 23, 2011M$"
 import math
 import itertools
 import logging
+import warnings
+import random
 from collections import OrderedDict
 
 import numpy as np
@@ -25,6 +27,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
+
+logger = logging.getLogger(__name__)
 
 class StructureFitter(object):
     """
@@ -36,8 +40,11 @@ class StructureFitter(object):
         structure_a - First structure
         structure_b - Second structure
     """
+    FAST_FIT = 25000
+    NORMAL_FIT = 50000
+    ACCURATE_FIT = 100000
 
-    def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, supercells_allowed = True, anonymized = False):
+    def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, supercells_allowed = True, anonymized = False, fitting_accuracy = FAST_FIT):
         """
         Fits two structures.
         All fitting parameters have been set with defaults that should work in most cases.
@@ -47,21 +54,35 @@ class StructureFitter(object):
         print fitter
         
         Args:
-            structure_a : First structure
-            structure_b : Second structure to try to match with first structure
-            tolerance_cell_misfit : Tolerance for cell misfit. Default = 0.1
-            tolerance_atomic_misfit : Tolerance for atomic misfit. Default = 1.0.
-            supercells_allowed : Whether supercell structures are allowed.  Default = True.
-            anonymized : Whether to attempt matching of different species.  Setting this to true
-                         will allow any two structures with the same framework, but different species
-                         to match to each other. Default = False.
-            el_mapping : Element mapping for anonymized fits.
+            structure_a : 
+                First structure
+            structure_b : 
+                Second structure to try to match with first structure
+            tolerance_cell_misfit : 
+                Tolerance for cell misfit. Default = 0.1
+            tolerance_atomic_misfit : 
+                Tolerance for atomic misfit. Default = 1.0.
+            supercells_allowed : 
+                Whether supercell structures are allowed.  Default = True.
+            anonymized : 
+                Whether to attempt matching of different species.  Setting this to true
+                will allow any two structures with the same framework, but different species
+                to match to each other. Default = False.
+            fitting_accuracy : 
+                An integer setting for the fitting accuracy.  Corresponds to the max number
+                of candidate rotations considered.  Use the static variables, 
+                    StructureFitter.FAST_FIT
+                    StructureFitter.NORMAL_FIT
+                    StructureFitter.ACCURATE_FIT
+                to set the tradeoff between accuracy and speed.  The default, FAST_FIT, should
+                work reasonably well in most instances.
         """
-    
+        
         self._tolerance_cell_misfit = tolerance_cell_misfit
         self._tolerance_atomic_misfit = tolerance_atomic_misfit
         self._supercells_allowed = supercells_allowed
         self._anonymized = anonymized
+        self._max_rotations = fitting_accuracy
         #Sort structures first so that they have the same arrangement of species
         self._structure_a = structure_a.get_sorted_structure()
         self._structure_b = structure_b.get_sorted_structure()
@@ -80,7 +101,7 @@ class StructureFitter(object):
                     # Create mapping of the specie/elements in structure B to that of A.
                     # Then create a modified structure with those elements and try to fit it.
                     el_mapping = dict(zip(comp_b.elements, p))
-                    logging.info("Using specie mapping " + str(el_mapping))
+                    logger.debug("Using specie mapping " + str(el_mapping))
                     mod = StructureEditor(self._structure_b)
                     mod.replace_species(el_mapping)
                     self.fit(self._structure_a, mod.modified_structure)
@@ -89,7 +110,7 @@ class StructureFitter(object):
                         self.el_mapping = {el_a:el_b for el_b, el_a in el_mapping.items()}
                         break                
             else:
-                logging.info("No. of elements in structures are unequal.  Cannot be fitted!")          
+                logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")          
 
     def fit(self, a, b): 
         """
@@ -97,27 +118,26 @@ class StructureFitter(object):
         transforms one into another.
         """
         biggest_dist = 0
-        logging.info("Structure a")
-        logging.info(str(a))
-        logging.info("Structure b")
-        logging.info(str(b))
+        logger.debug("Structure a")
+        logger.debug(str(a))
+        logger.debug("Structure b")
+        logger.debug(str(b))
         
         # Check composition first.  If compositions are not the same, do not need to fit further.
         if a.composition.reduced_formula != b.composition.reduced_formula or ((a.num_sites != b.num_sites) and not self._supercells_allowed):
-            logging.info('Compositions do not match')
+            logger.debug('Compositions do not match')
             return None
         
-        logging.info('Compositions match')
+        logger.debug('Compositions match')
 
         # Fitting is done by matching sites in one structure (to_fit)
         # to the other (fixed).  
         # We set the structure with fewer sites as fixed, 
         # and scale the structures to the same density
-        (fixed, to_fit)  = self._scale_structures(a,b)
-        
+        (fixed, to_fit) = self._scale_structures(a,b)
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * ( 3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
-        logging.info("Atomic misfit tolerance = %.4f" % (tol_atoms) )
+        logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms) )
         
         max_sites = 1e100
         # determine which type of sites to use for the mapping
@@ -125,18 +145,18 @@ class StructureFitter(object):
             sp_sites = [site for site in to_fit if site.species_and_occu == sp]
             if len(sp_sites) < max_sites:
                 fit_sites = sp_sites
-                max_sites = len(sp_sites) 
-       
+                max_sites = len(sp_sites)
+        
         # Set the arbitrary origin
         origin = fit_sites[0]
-        logging.info("Origin = " + str(origin) )
+        logger.debug("Origin = " + str(origin) )
         
         #Get candidate rotations
         cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
         
-        logging.info(" FOUND " + str(len(cand_rot)) + " candidate rotations ")
+        logger.debug(" FOUND " + str(len(cand_rot)) + " candidate rotations ")
         if len(cand_rot) == 0:
-            logging.info("No candidate rotations found, returning null. ")
+            logger.debug("No candidate rotations found, returning null. ")
             return None
         
         # now that candidate rotations have been found, shift origin of to_fit
@@ -153,7 +173,7 @@ class StructureFitter(object):
         
         for rot in sorted_cand_rot:
             for site in fixed:
-                logging.info("Trying candidate rotation : \n" + str(rot))
+                logger.debug("Trying candidate rotation : \n" + str(rot))
                 if site.species_and_occu == origin.species_and_occu:
                     shift = site.coords
                     op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
@@ -165,13 +185,13 @@ class StructureFitter(object):
                     for trans in nstruct:
                         cands = fixed.get_sites_in_sphere(trans.coords, tol_atoms_plus)
                         if len(cands) == 0:
-                            logging.info("No candidates found1")
+                            logger.debug("No candidates found1")
                             all_match = False
                             break
                         cands = sorted(cands, key = lambda a: a[1])
                         (closest, closest_dist) = cands[0]
                         if closest_dist > tol_atoms or closest.species_and_occu != trans.species_and_occu:
-                            logging.info("Closest dist too large! closest dist = " + str(closest_dist))
+                            logger.debug("Closest dist too large! closest dist = " + str(closest_dist))
                             all_match = False
                             break
                         correspondance[trans] = closest
@@ -185,12 +205,12 @@ class StructureFitter(object):
                         all_match = False
                     else:
                         for k,v in correspondance.items():
-                            logging.info(str(k) + " fits on " + str(v))
+                            logger.debug(str(k) + " fits on " + str(v))
                         
                     # now check to see if the converse is true -- do all of the
                     # sites of fixed match up with a site in toFit
                     # this used to not be here. This fixes a bug.
-                    logging.info("Checking inverse mapping")
+                    logger.debug("Checking inverse mapping")
                     inv_correspondance = OrderedDict()
     
                     # it used to be fixed.getNumSites() != nStruct.getNumSites()
@@ -201,7 +221,7 @@ class StructureFitter(object):
                     for fixed_site in fixed:
                         cands = nstruct.get_sites_in_sphere(fixed_site.coords, tol_atoms_plus)
                         if len(cands) == 0: 
-                            logging.info("Rejected because inverse mapping does not fit - Step 1")
+                            logger.debug("Rejected because inverse mapping does not fit - Step 1")
                             all_match = False
                             break
                         
@@ -210,27 +230,27 @@ class StructureFitter(object):
                         
                         if closest_dist > tol_atoms or closest.species_and_occu != fixed_site.species_and_occu:
                             all_match = False
-                            logging.info("Rejected because inverse mapping does not fit - Step 2")
+                            logger.debug("Rejected because inverse mapping does not fit - Step 2")
                             break
                         inv_correspondance[fixed_site] = closest
                     
                     if all_match:
                         if not are_sites_unique(inv_correspondance.values(), False):
                             all_match = False
-                            logging.info("Rejected because two atoms fit to the same site for the inverse")
+                            logger.debug("Rejected because two atoms fit to the same site for the inverse")
                     
                     if all_match:
                         self.inv_correspondance = inv_correspondance
-                        logging.info("Correspondance for the inverse")
+                        logger.debug("Correspondance for the inverse")
                         for k,v in inv_correspondance.items():
-                            logging.info(str(k) + " fits on " + str(v))
+                            logger.debug(str(k) + " fits on " + str(v))
                             
                     # The smallest correspondance array shouldn't have any equivalent sites
                     if fixed.num_sites != to_fit.num_sites:
-                        logging.info("Testing sites unique")
+                        logger.debug("Testing sites unique")
                         if not are_sites_unique(correspondance.values()): 
                             all_match = False
-                            logging.info("Rejected because the smallest correspondance array has equivallent sites")
+                            logger.debug("Rejected because the smallest correspondance array has equivallent sites")
                             break
         
                     if all_match:
@@ -242,7 +262,7 @@ class StructureFitter(object):
             if found_map:
                 break
         
-        logging.info("Done testing all candidate rotations")
+        logger.debug("Done testing all candidate rotations")
         
         self._atomic_misfit = biggest_dist / ((3 * 0.7405 * a.volume / (4 * math.pi * a.num_sites)) ** (1/3))
         if mapping_op != None:
@@ -284,7 +304,8 @@ class StructureFitter(object):
     def _scale_structures(self, a, b):
         # which structure do we want to fit to the other ?
         # assume that structure b has less sites and switch if needed
-        self.fixed_is_a = a.num_sites > b.num_sites
+               
+        self.fixed_is_a = a.num_sites / a.volume > b.num_sites / b.volume
         (fixed, to_fit) = (a, b) if self.fixed_is_a else (b, a)
             
         # scale the structures to the same density
@@ -306,13 +327,32 @@ class StructureFitter(object):
         for i in range(3):
             dr = lengths[i] * math.sqrt(tol_shear / 2)
             shell = to_fit.get_neighbors_in_shell(origin.coords, lengths[i], dr)
-            logging.info("shell " + str(i) + " radius=[" + str(lengths[i]) + "] dr=[" + str(dr) + "]")
+            logger.debug("shell " + str(i) + " radius=[" + str(lengths[i]) + "] dr=[" + str(dr) + "]")
             shells.append([site for (site, dist) in shell if site.species_and_occu == origin.species_and_occu])
-            logging.info("No. in shell = " + str(len(shells[-1])))
+            logger.debug("No. in shell = " + str(len(shells[-1])))
         # now generate candidate rotations
         cand_rot = {} #Dict of SymmOp : float
-        
-        for pool in itertools.product(*shells):
+        a = len(shells[0])
+        b = len(shells[1])
+        c = len(shells[2])
+        total_rots = a * b * c
+        if total_rots < self._max_rotations:
+            logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
+            test_rotations = itertools.product(*shells)
+        else:
+            logger.debug("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
+            def random_rot():
+                considered_rots = []
+                while len(considered_rots) < self._max_rotations:
+                    x = random.randint(0,a-1)
+                    y = random.randint(0,b-1)
+                    z = random.randint(0,c-1)
+                    if (x,y,z) not in considered_rots:
+                        considered_rots.append((x,y,z))
+                        yield (shells[0][x], shells[1][y], shells[2][z])
+            test_rotations = random_rot()
+            
+        for pool in test_rotations:
             if all([nn.species_and_occu == origin.species_and_occu for nn in pool]):
                 # now, can a unitary transformation bring the cell vectors together
                 cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
