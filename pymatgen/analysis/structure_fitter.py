@@ -139,7 +139,7 @@ class StructureFitter(object):
         tol_atoms = self._tolerance_atomic_misfit * ( 3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
         logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms) )
         
-        max_sites = 1e100
+        max_sites = float('inf')
         # determine which type of sites to use for the mapping
         for sp in to_fit.species_and_occu:
             sp_sites = [site for site in to_fit if site.species_and_occu == sp]
