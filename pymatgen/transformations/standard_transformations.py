@@ -17,13 +17,14 @@ __date__ = "Sep 23, 2011"
 import json
 import itertools
 import warnings
+import numpy as np
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.analysis.ewald import EwaldSummation
+from pymatgen.analysis.ewald import EwaldSummation, EwaldSumMatrix
 
 class IdentityTransformation(AbstractTransformation):
     """
@@ -227,6 +228,67 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self.all_structures = all_structures        
         
         return lowestenergy_s
+    
+    def __str__(self):
+        return "Remove Species Transformation :" + ", ".join(self._specie)
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    @property
+    def inverse(self):
+        return None
+    
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__}
+        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac}
+        return output
+    
+class PartialRemoveSpecieTransformation2(AbstractTransformation):
+    """
+    Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
+    This method uses EwaldSumMatrix rather than EwaldSummation to calculate the ewald sums of the potential structures.
+    This is on the order of 4 orders of magnitude faster when there are large numbers of permutations to consider.
+    There are further optimizations possible (doing a smarter search of permutations for example), but this wont make a difference
+    until the number of permutations is on the order of 30,000.
+    """
+    def __init__(self, specie_to_remove, fraction_to_remove):
+        """
+        Arguments:
+            specie_to_remove - Specie to remove. Must have oxidation state E.g., "Li1+"
+            fraction_to_remove - Fraction of specie to remove. E.g., 0.5
+        """
+        self._specie = specie_to_remove
+        self._frac = fraction_to_remove
+    
+    def apply_transformation(self, structure):
+        sp = smart_element_or_specie(self._specie)
+        num_to_remove = structure.composition[sp] * self._frac
+        if abs(num_to_remove - int(num_to_remove)) > 1e-8:
+            raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
+        else:
+            num_to_remove = int(round(num_to_remove))
+        
+        specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
+        
+        ewaldmatrix = EwaldSumMatrix(structure).total_energy
+        lowestewald = float('inf')
+        lowestenergy_indices = None
+        for x in itertools.combinations(specie_indices, num_to_remove):
+            testmatrix = ewaldmatrix
+            indices = list(x)
+            indices.sort()
+            for i in indices:
+                testmatrix = np.delete(testmatrix,i,0)
+                testmatrix = np.delete(testmatrix,i,1)
+            ewaldsum = sum(sum(testmatrix))
+            if ewaldsum < lowestewald:
+                lowestewald = ewaldsum
+                lowestenergy_indices = indices
+        mod = StructureEditor(structure)
+        mod.delete_sites(lowestenergy_indices)
+        return mod.modified_structure.get_sorted_structure()
     
     def __str__(self):
         return "Remove Species Transformation :" + ", ".join(self._specie)
