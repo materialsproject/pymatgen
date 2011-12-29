@@ -17,6 +17,7 @@ import unittest
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.analysis.ewald import EwaldSummation
 
 class TransformationsTest(unittest.TestCase):
     
@@ -84,7 +85,7 @@ class SupercellTransformationTest(unittest.TestCase):
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     
     def test_apply_transformation(self):
-        t = PartialRemoveSpecieTransformation("Li+", 1/3)
+        t = PartialRemoveSpecieTransformation("Li+", 1.0/3)
         coords = list()
         coords.append([0,0,0])
         coords.append([0.75,0.75,0.75])
@@ -94,6 +95,19 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         struct = Structure(lattice,["Li+", "Li+", "Li+", "O2-"],coords)
         t.apply_transformation(struct)
         self.assertEqual(len(t.all_structures), 3)
+        
+class PartialRemoveSpecieTransformation2Test(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = PartialRemoveSpecieTransformation2("Li+", 1.0/3)
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li+", "Li+", "Li+", "O2-"],coords)
+        self.assertAlmostEqual(EwaldSummation(t.apply_transformation(struct)).total_energy, -32.3858881789, 4, 'wrong structure chosen')
         
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
