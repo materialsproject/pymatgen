@@ -305,7 +305,7 @@ class StructureFitter(object):
         # which structure do we want to fit to the other ?
         # assume that structure b has less sites and switch if needed
                
-        self.fixed_is_a = a.num_sites / a.volume > b.num_sites / b.volume
+        self.fixed_is_a = a.num_sites  > b.num_sites 
         (fixed, to_fit) = (a, b) if self.fixed_is_a else (b, a)
             
         # scale the structures to the same density
