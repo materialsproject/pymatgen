@@ -647,7 +647,7 @@ class Structure(collections.Sequence, collections.Hashable):
         """
         return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
     
-    def get_all_neighbors(self, r):
+    def get_all_neighbors(self, r, include_index = False):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -663,9 +663,15 @@ class Structure(collections.Sequence, collections.Hashable):
         Arguments:
             r:
                 radius of sphere.
+            
+            include_index:
+                boolean that determines whether the non-supercell site index is included in the returned data
         
         Returns:
-            A list of a list of nearest neighbors for each site, i.e., [[(site, dist) ...], ..] 
+            A list of a list of nearest neighbors for each site, i.e., [[(site, dist, *index) ...], ..] 
+            *index only supplied if include_index = true
+            The index is the index of the site in the original (non-supercell) structure. This is needed for ewaldmatrix
+            by keeping track of which sites contribute to the ewald sum
         
         """
     
@@ -700,7 +706,9 @@ class Structure(collections.Sequence, collections.Hashable):
         site_coords = np.array(self.cart_coords)
         n = len(self._sites)
         for image in itertools.product(xrange(nxmin, nxmax+1), xrange(nymin, nymax+1), xrange(nzmin, nzmax+1)):
-            for site in unit_cell_sites:
+            for j in range(len(unit_cell_sites)):
+            #for site in unit_cell_sites:
+                site = unit_cell_sites[j]
                 fcoords = site.frac_coords + np.array(image)
                 coords = self.lattice.get_cartesian_coords(fcoords)
                 submat = [coords] * n
@@ -708,7 +716,9 @@ class Structure(collections.Sequence, collections.Hashable):
                 dists = np.sqrt(dists.sum(axis = 1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in xrange(n):
-                    if withindists[i]:
+                    if include_index & withindists[i]:
+                        neighbors[i].append((PeriodicSite(site.species_and_occu,fcoords, site.lattice), dists[i], j))
+                    elif withindists[i]:
                         neighbors[i].append((PeriodicSite(site.species_and_occu,fcoords, site.lattice), dists[i]))
                 
         return neighbors
