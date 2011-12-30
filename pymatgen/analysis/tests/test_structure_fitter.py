@@ -1,6 +1,6 @@
 import unittest
 import os
-
+import logging
 import numpy as np
 
 from pymatgen.analysis.structure_fitter import StructureFitter, shear_invariant, sqrt_matrix
@@ -19,7 +19,7 @@ class StructureFitterTest(unittest.TestCase):
     def setUp(self):
         si = Element("Si")
         fe = Element("Fe")
-        
+        logging.basicConfig(level=logging.DEBUG)
         coords = list()
         
         coords.append(np.array([0.75,0.5,0.2]))

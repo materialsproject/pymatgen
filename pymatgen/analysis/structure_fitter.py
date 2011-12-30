@@ -42,7 +42,7 @@ class StructureFitter(object):
     FAST_FIT = 25000
     NORMAL_FIT = 50000
     ACCURATE_FIT = 100000
-    EXTREME_FIT = 1000000
+    EXTREME_FIT = 10000000
 
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, supercells_allowed = True, anonymized = False, fitting_accuracy = FAST_FIT):
         """
@@ -154,7 +154,7 @@ class StructureFitter(object):
         #Get candidate rotations
         cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
         
-        logger.debug(" FOUND " + str(len(cand_rot)) + " candidate rotations ")
+        logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
         if len(cand_rot) == 0:
             logger.debug("No candidate rotations found, returning null. ")
             return None
@@ -191,7 +191,7 @@ class StructureFitter(object):
                         cands = sorted(cands, key = lambda a: a[1])
                         (closest, closest_dist) = cands[0]
                         if closest_dist > tol_atoms or closest.species_and_occu != trans.species_and_occu:
-                            logger.debug("Closest dist too large! closest dist = " + str(closest_dist))
+                            logger.debug("Closest dist too large! closest dist = {}".format(closest_dist))
                             all_match = False
                             break
                         correspondance[trans] = closest
@@ -243,7 +243,7 @@ class StructureFitter(object):
                         self.inv_correspondance = inv_correspondance
                         logger.debug("Correspondance for the inverse")
                         for k,v in inv_correspondance.items():
-                            logger.debug(str(k) + " fits on " + str(v))
+                            logger.debug("{} fits on {}".format(k,v))
                             
                     # The smallest correspondance array shouldn't have any equivalent sites
                     if fixed.num_sites != to_fit.num_sites:
@@ -327,9 +327,9 @@ class StructureFitter(object):
         for i in range(3):
             dr = lengths[i] * math.sqrt(tol_shear / 2)
             shell = to_fit.get_neighbors_in_shell(origin.coords, lengths[i], dr)
-            logger.debug("shell " + str(i) + " radius=[" + str(lengths[i]) + "] dr=[" + str(dr) + "]")
+            logger.debug("shell {} radius={} dr={}".format(i, lengths[i], dr))
             shells.append([site for (site, dist) in shell if site.species_and_occu == origin.species_and_occu])
-            logger.debug("No. in shell = " + str(len(shells[-1])))
+            logger.debug("No. in shell = {}".format(len(shells[-1])))
         # now generate candidate rotations
         cand_rot = {} #Dict of SymmOp : float
         a = len(shells[0])
@@ -337,7 +337,7 @@ class StructureFitter(object):
         c = len(shells[2])
         total_rots = a * b * c
         if total_rots < self._max_rotations:
-            logger.info("Total rots = {}. Using all rotations.".format(total_rots))
+            logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
             test_rotations = itertools.product(*shells)
         else:
             logger.warning("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
