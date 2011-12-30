@@ -17,7 +17,6 @@ __date__ ="$Sep 23, 2011M$"
 import math
 import itertools
 import logging
-import warnings
 import random
 from collections import OrderedDict
 
@@ -43,6 +42,7 @@ class StructureFitter(object):
     FAST_FIT = 25000
     NORMAL_FIT = 50000
     ACCURATE_FIT = 100000
+    EXTREME_FIT = 1000000
 
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit = 0.1, tolerance_atomic_misfit = 1.0, supercells_allowed = True, anonymized = False, fitting_accuracy = FAST_FIT):
         """
@@ -337,10 +337,10 @@ class StructureFitter(object):
         c = len(shells[2])
         total_rots = a * b * c
         if total_rots < self._max_rotations:
-            logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
+            logger.info("Total rots = {}. Using all rotations.".format(total_rots))
             test_rotations = itertools.product(*shells)
         else:
-            logger.debug("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
+            logger.warning("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
             def random_rot():
                 considered_rots = []
                 while len(considered_rots) < self._max_rotations:
