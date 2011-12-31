@@ -66,7 +66,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction(reactants, products)
         
         self.assertEquals(str(rxn), "1.000 FePO4 -> 1.000 FePO4", "Wrong reaction obtained!")
-                    
+        
     def test_normalize_to(self):
         products = [Composition.from_formula("Fe"), Composition.from_formula("O2")]
         reactants = [Composition.from_formula("Fe2O3")]
