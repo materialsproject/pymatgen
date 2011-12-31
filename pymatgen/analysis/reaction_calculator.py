@@ -265,8 +265,3 @@ class ReactionError(Exception):
     def __str__(self):
         return "Query Error : " + self.msg
 
-reactants = map(Composition.from_formula, ["Al", "NaOH", 'H2O'])
-products = map(Composition.from_formula, ["NaAlO2", "H2"])
-rxn = Reaction(reactants, products)
-print rxn
-print rxn.normalized_repr
