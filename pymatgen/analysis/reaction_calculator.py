@@ -177,8 +177,7 @@ class Reaction(object):
         """Returns coefficient for a particular composition"""
         return self._coeff[self._all_comp.index(comp)]
     
-    @property
-    def normalized_repr(self):
+    def normalized_repr_and_factor(self):
         """
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
@@ -194,10 +193,14 @@ class Reaction(object):
             scaled_coeffs.append(coeff * scale_factor)
             reduced_formulas.append(reduced_formula)
         
-        norm_factor = 1/smart_float_gcd(scaled_coeffs)
-                           
-        scaled_coeffs = [int(round(c / norm_factor)) for c in scaled_coeffs]
-        
+        count = 0
+        while sum([abs(coeff) % 1 for coeff in scaled_coeffs]) > 1e-8:
+            norm_factor = 1/smart_float_gcd(scaled_coeffs)
+            scaled_coeffs = [c / norm_factor for c in scaled_coeffs]
+            count += 1
+            if count > 10: #Prevent an infinite loop
+                break
+            
         for i in range(self._num_comp):  
             if scaled_coeffs[i] == -1:
                 reactant_str.append(reduced_formulas[i])
@@ -207,8 +210,13 @@ class Reaction(object):
                 reactant_str.append("%d %s" % (-scaled_coeffs[i], reduced_formulas[i]))
             elif scaled_coeffs[i] > 0:
                 product_str.append("%d %s" % (scaled_coeffs[i], reduced_formulas[i]))
+        factor = scaled_coeffs[0] / self._coeffs[0]
         
-        return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+        return (" + ".join(reactant_str) + " -> " + " + ".join(product_str), factor)
+    
+    @property
+    def normalized_repr(self):
+        return self.normalized_repr_and_factor()[0]
     
     def __repr__(self):
         return self.__str__()
@@ -257,3 +265,8 @@ class ReactionError(Exception):
     def __str__(self):
         return "Query Error : " + self.msg
 
+reactants = map(Composition.from_formula, ["Al", "NaOH", 'H2O'])
+products = map(Composition.from_formula, ["NaAlO2", "H2"])
+rxn = Reaction(reactants, products)
+print rxn
+print rxn.normalized_repr
