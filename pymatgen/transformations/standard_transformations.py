@@ -278,7 +278,7 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         for x in itertools.combinations(specie_indices, num_to_remove):
             testmatrix = ewaldmatrix
             indices = list(x)
-            indices.sort()
+            indices.sort(reverse = True)
             for i in indices:
                 testmatrix = np.delete(testmatrix,i,0)
                 testmatrix = np.delete(testmatrix,i,1)
