@@ -18,6 +18,7 @@ import json
 
 from pymatgen.core.design_patterns import singleton
 from pymatgen.util.string_utils import formula_double_format
+from pymatgen.util.decorators import cached_class
 
 def _load__pt_data():
     """Loads element data from json file"""
@@ -28,24 +29,14 @@ def _load__pt_data():
 _pt_data  = _load__pt_data()
 _pt_row_sizes = (2,8,8,18,18,32,32)
 
+@cached_class
 class Element(object):
     '''
     Basic immutable element object with all relevant properties.
-    Only one instance of Element for each symbol is stored after creation, 
-    ensuring that a particular element behaves like a singleton.
+    Only one instance of Element for each symbol is stored after creation 
+    (using the cached class decorator), ensuring that a particular element behaves like a singleton.
     '''
     
-    _all_elements = {}
-
-    def __new__(cls, *args):
-        '''
-        Prevents multiple Element objects from being created.  Faster and reduces memory usage.
-        '''
-        if tuple(args) in Element._all_elements:
-            return Element._all_elements[tuple(args)]
-        else:
-            return super(Element, cls).__new__(cls)
-
     def __init__(self,symbol):
         '''
         Create immutable element from a symbol.
@@ -59,9 +50,7 @@ class Element(object):
         self._z = self._data['Atomic no']
         self._symbol = symbol
         self._x = self._data.get('X', 0)
-        
-        Element._all_elements[tuple([symbol])] = self
-    
+            
     @property
     def average_ionic_radius(self):
         """
@@ -485,7 +474,7 @@ class Element(object):
         """
         return self.Z > 88 and self.Z < 104
 
-
+@cached_class
 class Specie(object):
     """
     An extension of Element with an oxidation state.
@@ -506,7 +495,6 @@ class Specie(object):
         """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
-        Element._all_elements[tuple([symbol, oxidation_state])] = self
     
     def __getattr__(self, attr):
         """
