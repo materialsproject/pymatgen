@@ -344,9 +344,7 @@ class StructureFitter(object):
             def random_rot():
                 considered_rots = []
                 while len(considered_rots) < self._max_rotations:
-                    x = random.randint(0,a-1)
-                    y = random.randint(0,b-1)
-                    z = random.randint(0,c-1)
+                    (x, y, z) = [random.randint(0,i-1) for i in [a,b,c]]
                     if (x,y,z) not in considered_rots:
                         considered_rots.append((x,y,z))
                         yield (shells[0][x], shells[1][y], shells[2][z])
