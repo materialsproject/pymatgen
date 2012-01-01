@@ -15,6 +15,19 @@ __date__ = "Dec 31, 2011"
 
 from functools import wraps
 
+def singleton(cls):
+    """
+    This decorator can be used to create a singleton out of a class.
+    """
+    
+    instances = {}
+    
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+    return getinstance
+
 def cached_class(klass):
     """
     Decorator to cache class instances by constructor arguments.
@@ -40,34 +53,25 @@ def cached_class(klass):
         # isn't writable once the class is created
         __doc__ = klass.__doc__
         def __new__(cls, *args, **kwds):
-            key = args + tuple(kwds.iteritems())
-            try:
-                inst = cache.get(key, None)
-            except TypeError:
-                # Can't cache this set of arguments
-                inst = key = None
-            if inst is None:
-                # Technically this is cheating, but it works,
-                # and takes care of initializing the instance
-                # (so we can override __init__ below safely);
-                # calling up to klass.__new__ would be the
-                # "official" way to create the instance, but
-                # that raises DeprecationWarning if there are
-                # args or kwds and klass does not override
-                # __new__ (which most classes don't), because
-                # object.__new__ takes no parameters (and in
-                # Python 3 the warning will become an error)
-                inst = klass(*args, **kwds)
-                # This makes isinstance and issubclass work
-                # properly
-                inst.__class__ = _decorated
-                if key is not None:
-                    cache[key] = inst
-            return inst
+            key = (cls,) + args + tuple(kwds.iteritems())
+            if key not in cache:
+                o = super(klass, cls).__new__(cls, *args, **kwds)
+                cache[key] = o
+            return cache[key]
 
-        def __init__(self, *args, **kwds):
-            # called, so we skip initializing here and do
-            # it only when the instance is created above
-            pass
     
     return _decorated
+
+@cached_class
+class A(object):
+    
+    def __init__(self, val=1):
+        self.val = val
+
+@cached_class
+class B(A):
+    
+    def __init__(self, val, val2):
+        self.val = val
+
+
