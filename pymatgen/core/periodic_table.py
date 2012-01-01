@@ -16,9 +16,8 @@ import os
 import re
 import json
 
-from pymatgen.core.design_patterns import singleton
+from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.util.decorators import cached_class
 
 def _load__pt_data():
     """Loads element data from json file"""
@@ -33,8 +32,8 @@ _pt_row_sizes = (2,8,8,18,18,32,32)
 class Element(object):
     '''
     Basic immutable element object with all relevant properties.
-    Only one instance of Element for each symbol is stored after creation 
-    (using the cached class decorator), ensuring that a particular element behaves like a singleton.
+    Only one instance of Element for each symbol is stored after creation, 
+    ensuring that a particular element behaves like a singleton.
     '''
     
     def __init__(self,symbol):
@@ -50,7 +49,7 @@ class Element(object):
         self._z = self._data['Atomic no']
         self._symbol = symbol
         self._x = self._data.get('X', 0)
-            
+    
     @property
     def average_ionic_radius(self):
         """
