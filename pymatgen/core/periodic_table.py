@@ -474,7 +474,7 @@ class Element(object):
         return self.Z > 88 and self.Z < 104
 
 @cached_class
-class Specie(object):
+class Specie(Element):
     """
     An extension of Element with an oxidation state.
     
@@ -492,16 +492,9 @@ class Specie(object):
             oxidation_state:
                 Oxidation state of element, e.g., 2 or -2
         """
-        self._el = Element(symbol)
+        super(Element, self).__init__(symbol)
         self._oxi_state = oxidation_state
-    
-    def __getattr__(self, attr):
-        """
-        Override getattr to make Specie inherit all Element properties.
-        """
-        if hasattr(self._el, attr):
-            return getattr(self._el,attr) 
-    
+        
     def __eq__(self,other):
         """
         Specie is equal to other only if element and oxidation states are exactly the same.
@@ -522,7 +515,7 @@ class Specie(object):
         """
         return self.Z * 100 + self.oxi_state
     
-    def __cmp__(self, other):
+    def __lt__(self, other):
         '''
         Sets a default sort order for atomic species by electronegativity, followed by oxidation state. 
         '''
