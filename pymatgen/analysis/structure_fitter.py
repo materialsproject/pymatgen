@@ -175,8 +175,6 @@ class StructureFitter(object):
                 logger.debug("No candidate rotations found, returning null. ")
                 return None
             
-           
-            
             # sort the operations, the first ones are the ones with small shear
             # this assures us that we find the smallest cell misfit fits
             sorted_cand_rot = sorted(cand_rot.keys(), key=lambda r: cand_rot[r])
