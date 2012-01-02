@@ -14,9 +14,13 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
+import logging
+import itertools
 import numpy as np
 
 from pymatgen.core.structure import Composition
+
+logger = logging.getLogger(__name__)
 
 class Reaction(object):
     """
@@ -44,6 +48,9 @@ class Reaction(object):
         num_constraints = len(all_comp)
         num_els = len(els)
         dim = max(num_els, num_constraints)
+        logger.debug('num_els = {}'.format(num_els))
+        logger.debug('num_constraints = {}'.format(num_constraints))
+        logger.debug('dim = {}'.format(dim))
         
         if num_constraints < 2:
             raise ReactionError("A reaction cannot be formed with just one composition.")
@@ -82,22 +89,27 @@ class Reaction(object):
                 ans_matrix[num_els:num_constraints] = 1
                 coeffs = np.linalg.solve(comp_matrix, ans_matrix)
             elif num_constraints <= num_els:
-                
                 if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
+                    logger.debug('Linear solution possible. Trying various permutations.')
                     comp_matrix = comp_matrix[0:num_els][:,0:num_constraints]
+                    logger.debug('comp_matrix = {}'.format(comp_matrix))
                     ans_found = False
-                    for m in xrange(num_constraints):
-                        submatrix = [[comp_matrix[i][j] for j in xrange(num_constraints) if j != m] for i in xrange(num_constraints) if i != m]
-                        if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
-                            subansmatrix = [comp_matrix[i][m] for i in xrange(num_constraints) if i != m]
-                            coeffs = - np.linalg.solve(submatrix, subansmatrix)
-                            coeffs = [c for c in coeffs]
-                            coeffs.insert(m,1)
-                            #Check if final coeffs are valid
-                            overall_mat = np.dot(comp_matrix, coeffs)
-                            if (abs(overall_mat) < 1e-8).all():
-                                ans_found = True
-                                break
+                    for perm_matrix in itertools.permutations(comp_matrix):
+                        logger.debug('Testing permuted matrix = {}'.format(perm_matrix))
+                        for m in xrange(num_constraints):
+                            submatrix = [[perm_matrix[i][j] for j in xrange(num_constraints) if j != m] for i in xrange(num_constraints) if i != m]
+                            logger.debug('Testing submatrix = {}'.format(submatrix))
+                            if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
+                                logger.debug('Possible sol')
+                                subansmatrix = [perm_matrix[i][m] for i in xrange(num_constraints) if i != m]
+                                coeffs = - np.linalg.solve(submatrix, subansmatrix)
+                                coeffs = [c for c in coeffs]
+                                coeffs.insert(m,1)
+                                #Check if final coeffs are valid
+                                overall_mat = np.dot(perm_matrix, coeffs)
+                                if (abs(overall_mat) < 1e-8).all():
+                                    ans_found = True
+                                    break
                     if not ans_found:
                         raise ReactionError("Reaction is ill-formed and cannot be balanced.")
                 else:
@@ -264,4 +276,3 @@ class ReactionError(Exception):
 
     def __str__(self):
         return "Query Error : " + self.msg
-
