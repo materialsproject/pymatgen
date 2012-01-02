@@ -112,6 +112,9 @@ class StructureFitter(object):
             else:
                 logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")          
 
+    def identity_fit(self, a, b):
+        pass
+        
     def fit(self, a, b): 
         """
         Compares two structures and give the possible affine mapping that
@@ -138,6 +141,7 @@ class StructureFitter(object):
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * ( 3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
         logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms) )
+        tol_atoms_plus = 1.1 * tol_atoms
         
         max_sites = float('inf')
         # determine which type of sites to use for the mapping
@@ -151,116 +155,39 @@ class StructureFitter(object):
         origin = fit_sites[0]
         logger.debug("Origin = " + str(origin) )
         
-        #Get candidate rotations
-        cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
-        
-        logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
-        if len(cand_rot) == 0:
-            logger.debug("No candidate rotations found, returning null. ")
-            return None
-        
         # now that candidate rotations have been found, shift origin of to_fit
         # because the symmetry operations will be applied from this origin
         oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
-        to_fit = apply_operation(to_fit, oshift)
-        # sort the operations, the first ones are the ones with small shear
-        # this assures us that we find the smallest cell misfit fits
-        sorted_cand_rot = sorted(cand_rot.keys(), key=lambda r: cand_rot[r])
-
-        tol_atoms_plus = 1.1 * tol_atoms
-        found_map = False
-        mapping_op = None
+        shifted_to_fit = apply_operation(to_fit, oshift)
         
-        for rot in sorted_cand_rot:
-            for site in fixed:
-                logger.debug("Trying candidate rotation : \n" + str(rot))
-                if site.species_and_occu == origin.species_and_occu:
-                    shift = site.coords
-                    op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
-                    nstruct = apply_operation(to_fit, op)
-                    correspondance = OrderedDict()
-                    all_match = True
-                    biggest_dist = 0
-                    # check to see if transformed struct matches fixed structure
-                    for trans in nstruct:
-                        cands = fixed.get_sites_in_sphere(trans.coords, tol_atoms_plus)
-                        if len(cands) == 0:
-                            logger.debug("No candidates found1")
-                            all_match = False
-                            break
-                        cands = sorted(cands, key = lambda a: a[1])
-                        (closest, closest_dist) = cands[0]
-                        if closest_dist > tol_atoms or closest.species_and_occu != trans.species_and_occu:
-                            logger.debug("Closest dist too large! closest dist = {}".format(closest_dist))
-                            all_match = False
-                            break
-                        correspondance[trans] = closest
-                        if closest_dist > biggest_dist:
-                            biggest_dist = closest_dist
-                    
-                    if not all_match:
-                        continue
-                    
-                    if not are_sites_unique(correspondance.values(), False):
-                        all_match = False
-                    else:
-                        for k,v in correspondance.items():
-                            logger.debug(str(k) + " fits on " + str(v))
-                        
-                    # now check to see if the converse is true -- do all of the
-                    # sites of fixed match up with a site in toFit
-                    # this used to not be here. This fixes a bug.
-                    logger.debug("Checking inverse mapping")
-                    inv_correspondance = OrderedDict()
-    
-                    # it used to be fixed.getNumSites() != nStruct.getNumSites()
-                    # so only when the number of sites are different but it's
-                    # actually better to allways check the reverse. This
-                    # elimininates weird situations where two atoms fit to one (reduced in the
-                    # unit cell)
-                    for fixed_site in fixed:
-                        cands = nstruct.get_sites_in_sphere(fixed_site.coords, tol_atoms_plus)
-                        if len(cands) == 0: 
-                            logger.debug("Rejected because inverse mapping does not fit - Step 1")
-                            all_match = False
-                            break
-                        
-                        cands = sorted(cands, key = lambda a: a[1])
-                        (closest, closest_dist) = cands[0]
-                        
-                        if closest_dist > tol_atoms or closest.species_and_occu != fixed_site.species_and_occu:
-                            all_match = False
-                            logger.debug("Rejected because inverse mapping does not fit - Step 2")
-                            break
-                        inv_correspondance[fixed_site] = closest
-                    
-                    if all_match:
-                        if not are_sites_unique(inv_correspondance.values(), False):
-                            all_match = False
-                            logger.debug("Rejected because two atoms fit to the same site for the inverse")
-                    
-                    if all_match:
-                        self.inv_correspondance = inv_correspondance
-                        logger.debug("Correspondance for the inverse")
-                        for k,v in inv_correspondance.items():
-                            logger.debug("{} fits on {}".format(k,v))
-                            
-                    # The smallest correspondance array shouldn't have any equivalent sites
-                    if fixed.num_sites != to_fit.num_sites:
-                        logger.debug("Testing sites unique")
-                        if not are_sites_unique(correspondance.values()): 
-                            all_match = False
-                            logger.debug("Rejected because the smallest correspondance array has equivallent sites")
-                            break
-        
-                    if all_match:
-                        found_map = True
-                        mapping_op = op
-                        self.correspondance = correspondance
-                        break
+        # This is cheating, but let's try the identity rotation first.  In many situations,
+        # E.g., when a structure has been topotatically delithiated or substituted, you actually
+        # can get a very fast answer without having to try all rotations.
+        identity_rot = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), np.array([0,0,0]))
+        (found_map, mapping_op) = self._test_rot(identity_rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
+        if not found_map: #If identity matching does not work, we have to search and try all rotations.
+            logger.debug("Identity matching failed. Finding candidate rotations.")
+            #Get candidate rotations
+            cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
             
-            if found_map:
-                break
+            logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
+            if len(cand_rot) == 0:
+                logger.debug("No candidate rotations found, returning null. ")
+                return None
+            
+           
+            
+            # sort the operations, the first ones are the ones with small shear
+            # this assures us that we find the smallest cell misfit fits
+            sorted_cand_rot = sorted(cand_rot.keys(), key=lambda r: cand_rot[r])
+            
+            for rot in sorted_cand_rot:
+                (found_map, mapping_op) = self._test_rot(rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
+                
+                if found_map:
+                    break
+        else:
+            logger.debug("Identity matching found.")
         
         logger.debug("Done testing all candidate rotations")
         
@@ -278,7 +205,98 @@ class StructureFitter(object):
             self._mapping_op = composite_op if self.fixed_is_a else composite_op.inverse
             #self._mapping_op = mapping_op
             self._cell_misfit = shear_invariant(p)
-        
+
+    def _test_rot(self, rot, origin, fixed, to_fit, tol_atoms, tol_atoms_plus):
+        found_map = False
+        mapping_op = None
+        for site in fixed:
+            logger.debug("Trying candidate rotation : \n" + str(rot))
+            if site.species_and_occu == origin.species_and_occu:
+                shift = site.coords
+                op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
+                nstruct = apply_operation(to_fit, op)
+                correspondance = OrderedDict()
+                all_match = True
+                biggest_dist = 0
+                # check to see if transformed struct matches fixed structure
+                for trans in nstruct:
+                    cands = fixed.get_sites_in_sphere(trans.coords, tol_atoms_plus)
+                    if len(cands) == 0:
+                        logger.debug("No candidates found1")
+                        all_match = False
+                        break
+                    cands = sorted(cands, key = lambda a: a[1])
+                    (closest, closest_dist) = cands[0]
+                    if closest_dist > tol_atoms or closest.species_and_occu != trans.species_and_occu:
+                        logger.debug("Closest dist too large! closest dist = {}".format(closest_dist))
+                        all_match = False
+                        break
+                    correspondance[trans] = closest
+                    if closest_dist > biggest_dist:
+                        biggest_dist = closest_dist
+                
+                if not all_match:
+                    continue
+                
+                if not are_sites_unique(correspondance.values(), False):
+                    all_match = False
+                else:
+                    for k,v in correspondance.items():
+                        logger.debug(str(k) + " fits on " + str(v))
+                    
+                # now check to see if the converse is true -- do all of the
+                # sites of fixed match up with a site in toFit
+                # this used to not be here. This fixes a bug.
+                logger.debug("Checking inverse mapping")
+                inv_correspondance = OrderedDict()
+
+                # it used to be fixed.getNumSites() != nStruct.getNumSites()
+                # so only when the number of sites are different but it's
+                # actually better to allways check the reverse. This
+                # elimininates weird situations where two atoms fit to one (reduced in the
+                # unit cell)
+                for fixed_site in fixed:
+                    cands = nstruct.get_sites_in_sphere(fixed_site.coords, tol_atoms_plus)
+                    if len(cands) == 0: 
+                        logger.debug("Rejected because inverse mapping does not fit - Step 1")
+                        all_match = False
+                        break
+                    
+                    cands = sorted(cands, key = lambda a: a[1])
+                    (closest, closest_dist) = cands[0]
+                    
+                    if closest_dist > tol_atoms or closest.species_and_occu != fixed_site.species_and_occu:
+                        all_match = False
+                        logger.debug("Rejected because inverse mapping does not fit - Step 2")
+                        break
+                    inv_correspondance[fixed_site] = closest
+                
+                if all_match:
+                    if not are_sites_unique(inv_correspondance.values(), False):
+                        all_match = False
+                        logger.debug("Rejected because two atoms fit to the same site for the inverse")
+                
+                if all_match:
+                    self.inv_correspondance = inv_correspondance
+                    logger.debug("Correspondance for the inverse")
+                    for k,v in inv_correspondance.items():
+                        logger.debug("{} fits on {}".format(k,v))
+                        
+                # The smallest correspondance array shouldn't have any equivalent sites
+                if fixed.num_sites != to_fit.num_sites:
+                    logger.debug("Testing sites unique")
+                    if not are_sites_unique(correspondance.values()): 
+                        all_match = False
+                        logger.debug("Rejected because the smallest correspondance array has equivallent sites")
+                        break
+    
+                if all_match:
+                    found_map = True
+                    mapping_op = op
+                    self.correspondance = correspondance
+                    break
+                
+        return (found_map, mapping_op)
 
     def __str__(self):
         
@@ -328,7 +346,9 @@ class StructureFitter(object):
             dr = lengths[i] * math.sqrt(tol_shear / 2)
             shell = to_fit.get_neighbors_in_shell(origin.coords, lengths[i], dr)
             logger.debug("shell {} radius={} dr={}".format(i, lengths[i], dr))
-            shells.append([site for (site, dist) in shell if site.species_and_occu == origin.species_and_occu])
+            shell = filter(lambda x: x[0].species_and_occu == origin.species_and_occu, shell)
+            shell = sorted(shell, key = lambda x: x[1])
+            shells.append([site for (site, dist) in shell])
             logger.debug("No. in shell = {}".format(len(shells[-1])))
         # now generate candidate rotations
         cand_rot = {} #Dict of SymmOp : float
@@ -351,23 +371,22 @@ class StructureFitter(object):
             test_rotations = random_rot()
             
         for pool in test_rotations:
-            if all([nn.species_and_occu == origin.species_and_occu for nn in pool]):
-                # now, can a unitary transformation bring the cell vectors together
-                cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
-                det = np.linalg.det(cell_v)
-                if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
-                    continue
-                rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
-                r = SymmOp.from_rotation_matrix_and_translation_vector(rot, np.array([0,0,0]))
+            # now, can a unitary transformation bring the cell vectors together
+            cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
+            det = np.linalg.det(cell_v)
+            if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
+                continue
+            rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
+            r = SymmOp.from_rotation_matrix_and_translation_vector(rot, np.array([0,0,0]))
+
+            if r not in cand_rot:
+                transf = r.rotation_matrix
+                transf = np.dot(transf.transpose(), transf)
+                transf = np.eye(3) if almost_identity(transf) else transf
+                pbis = sqrt_matrix(transf)
+                if shear_invariant(pbis) < tol_shear:
+                    cand_rot[r] = shear_invariant(pbis)
     
-                if r not in cand_rot:
-                    transf = r.rotation_matrix
-                    transf = np.dot(transf.transpose(), transf)
-                    transf = np.eye(3) if almost_identity(transf) else transf
-                    pbis = sqrt_matrix(transf)
-                    if shear_invariant(pbis) < tol_shear:
-                        cand_rot[r] = shear_invariant(pbis)
-        
         return cand_rot
 
     @property
