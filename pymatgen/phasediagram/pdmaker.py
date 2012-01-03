@@ -27,7 +27,7 @@ class PhaseDiagram (object):
     '''
     FORMATION_ENERGY_TOLERANCE = 1e-11
     
-    def __init__(self, entries,elements = None):
+    def __init__(self, entries, elements = None):
         """
         Standard constructor for phase diagram.
         Arguments:

@@ -16,7 +16,7 @@ __date__ ="$Sep 23, 2011M$"
 
 import numpy as np
 from pymatgen.core.structure import Composition
-from pymatgen.phasediagram.pdmaker import GrandPotentialPhaseDiagram
+from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 
 class PDAnalyzer(object):
@@ -85,7 +85,7 @@ class PDAnalyzer(object):
                 return facet
         raise RuntimeError("No facet found for comp = {}".format(comp))
 
-    def get_decomposition(self,comp):
+    def get_decomposition(self, comp):
         """
         Provides the decomposition at a particular composition
         Arguments:
@@ -105,7 +105,7 @@ class PDAnalyzer(object):
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp
     
-    def get_decomp_and_e_above_hull(self,entry):
+    def get_decomp_and_e_above_hull(self, entry):
         """
         Provides the decomposition and energy above convex hull for an entry
         Arguments:
@@ -121,7 +121,7 @@ class PDAnalyzer(object):
             return (decomp, 0)
         return (decomp, eperatom - hullenergy)
 
-    def get_e_above_hull(self,entry):
+    def get_e_above_hull(self, entry):
         """
         Provides the energy above convex hull for an entry
         Arguments:
@@ -130,6 +130,23 @@ class PDAnalyzer(object):
             Energy above convex hull of entry.  Stable entries should have energy above hull of 0.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
+
+
+    def get_equilibrium_reaction_energy(self, entry):
+        """
+        Provides the reaction energy of a stable entry from the neighboring equilibrium stable entries.
+        (also known as the inverse distance to hull).
+        Arguments:
+            entry - A PDEntry like object
+        Returns:
+            Equilibrium reaction energy of entry.  Stable entries should have equilibrium reaction energy <= 0.
+        """
+        if entry not in self._pd.stable_entries:
+            raise ValueError("Equilibrium reaction energy is available only for stable entries.")
+        entries = [e for e in self._pd.all_entries if e != entry]
+        modpd = PhaseDiagram(entries, self._pd.elements)
+        analyzer = PDAnalyzer(modpd)
+        return analyzer.get_decomp_and_e_above_hull(entry)[1]
     
     def get_transition_chempots(self, element):
         """
