@@ -39,22 +39,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
 from pymatgen.core.lattice import Lattice
 
-coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
-
-
-class VaspParameterSet(object):
-    
-    def __init__(self, name = "MaterialsProject"):
-        self.name = name
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspParameterSets.cfg")))
-        self.potcar_settings = dict(self._config.items(name + 'POTCAR'))
-        self.incar_settings = dict(self._config.items(name+'INCAR'))
-        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            self.incar_settings[key] = json.loads(self.incar_settings[key])
-        
+coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")    
 
 class Poscar(VaspInput):
     """
@@ -966,6 +951,27 @@ class Vasprun(object):
             eigenvals.append({'energy':[eig[(j+1, Spin.up)][i][0] for j in range(len(kpoints))], 
                               'occup': [eig[(j+1, Spin.up)][i][1] for j in range(len(kpoints))]})
         return Bandstructure(kpoints,eigenvals,labels_dict, lattice_rec, self.final_structure)
+    
+    @property
+    def eigenvalue_band_properties(self):
+        """
+        Returns band properties from the eigenvalues.
+        Returns:
+            (band gap, cbm, vbm, is_band_gap_direct)
+        """
+        vbm = - float('inf')
+        vbm_kpoint = None
+        cbm = float('inf')
+        cbm_kpoint = None
+        for k, val in self.eigenvalues.items():
+            for (eigenval, occu) in val:
+                if occu > 1e-8 and eigenval > vbm:
+                    vbm = eigenval
+                    vbm_kpoint = k[0]
+                elif occu < 1e-8 and eigenval < cbm:
+                    cbm = eigenval
+                    cbm_kpoint = k[0]
+        return (cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint)
         
     @property
     def to_dict(self):
@@ -1979,4 +1985,3 @@ def parse_kpoint_labels(file_kpoints):
         dict_label_kpoints[tokens[5]]=array
         
     return dict_label_kpoints
-

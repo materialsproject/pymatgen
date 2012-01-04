@@ -151,6 +151,8 @@ class  VasprunTest(unittest.TestCase):
     def test_properties(self):
         
         vasprun = self.vasprun
+        
+        
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
                 
         self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
@@ -165,6 +167,14 @@ class  VasprunTest(unittest.TestCase):
         self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
         self.assertAlmostEqual(vasprun.final_energy,-269.38319884,7, "Wrong final energy")
         self.assertAlmostEqual(vasprun.tdos.get_gap(),2.0589,4,"Wrong gap from dos!")
+        
+        expectedans = (2.539, 4.0906, 1.5516, False)
+        (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
+        self.assertAlmostEqual(gap, expectedans[0]) 
+        self.assertAlmostEqual(cbm, expectedans[1])
+        self.assertAlmostEqual(vbm, expectedans[2])
+        self.assertEqual(direct, expectedans[3])
+        
         self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003', u'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints, "Actual kpoints cannot be read")
