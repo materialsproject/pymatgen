@@ -297,7 +297,9 @@ class PeriodicSite(Site):
         """
         if self.lattice != other.lattice:
             return False
-        return  (abs(self._fcoords - other._fcoords) % 1 < tolerance).all()
+        frac_diff = self._fcoords - other._fcoords
+        frac_diff = [a - math.floor(a) < tolerance for a in frac_diff]
+        return  all(frac_diff)
     
     def __eq__(self, other):
         return self._species == other._species and self._lattice == other._lattice and np.allclose(self._coords, other._coords)
@@ -1207,3 +1209,4 @@ class Composition (collections.Mapping, collections.Hashable):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    
