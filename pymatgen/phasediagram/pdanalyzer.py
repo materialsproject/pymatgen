@@ -193,17 +193,28 @@ class PDAnalyzer(object):
         chempots = self.get_transition_chempots(element)
         stable_entries = self._pd.stable_entries
         gccomp = Composition({el:amt for el, amt in comp.items() if el != element})
-        
+        elref = self._pd.el_refs[element]
         elcomp = Composition.from_formula(element.symbol)
+        prev_decomp = [];
         evolution = []
+        def are_same_decomp(decomp1, decomp2):
+            for comp in decomp2:
+                if comp not in decomp1:
+                    return False
+            return True
+        
         for c in chempots:
             gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c-0.01}, self._pd.elements)
             analyzer = PDAnalyzer(gcpd)
             decomp = [gcentry.original_entry.composition for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
-            if elcomp not in decomp:
-                decomp.insert(0,elcomp)
-            rxn = Reaction([comp], decomp)
-            rxn.normalize_to(comp)
-            evolution.append({'chempot':c, 'evolution' : - rxn.coeffs[rxn.all_comp.index(elcomp)], 'reaction':rxn})
+            decomp_entries = [gcentry.original_entry for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
+
+            if not are_same_decomp(prev_decomp, decomp):
+                if elcomp not in decomp:
+                    decomp.insert(0,elcomp)
+                rxn = Reaction([comp], decomp)
+                rxn.normalize_to(comp)
+                prev_decomp = decomp
+                evolution.append({'chempot':c, 'evolution' : - rxn.coeffs[rxn.all_comp.index(elcomp)], 'element_reference': elref, 'reaction':rxn, 'entries':decomp_entries})
             
         return evolution

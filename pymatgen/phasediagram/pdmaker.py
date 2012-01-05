@@ -45,7 +45,6 @@ class PhaseDiagram (object):
         self._qhull_entries = None
         self._stable_entries = None
         self._all_entries_hulldata = None
-        self._el_refs = None
         self.make_phasediagram()
 
     @property
@@ -124,7 +123,7 @@ class PhaseDiagram (object):
             formation energy from the elementals references.
         '''
         comp = entry.composition
-        energy = entry.energy - sum([comp[el]*self.el_ref[el].energy_per_atom for el in comp.elements])
+        energy = entry.energy - sum([comp[el]*self._el_refs[el].energy_per_atom for el in comp.elements])
         return energy
         
     def get_form_energy_per_atom(self,entry):
@@ -153,15 +152,15 @@ class PhaseDiagram (object):
         '''
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
-        self.el_ref = dict()
+        self._el_refs = dict()
         for entry in self._all_entries:
             if entry.composition.is_element:
                 el = entry.composition.elements[0]
                 e_per_atom = entry.energy_per_atom
-                if el not in self.el_ref:
-                    self.el_ref[el] = entry
-                elif self.el_ref[el].energy_per_atom > e_per_atom:
-                    self.el_ref[el] = entry
+                if el not in self._el_refs:
+                    self._el_refs[el] = entry
+                elif self._el_refs[el].energy_per_atom > e_per_atom:
+                    self._el_refs[el] = entry
 
         # Remove positive formation energy entries
         entries_to_process = list()
