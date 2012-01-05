@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 """
-Module contains classes presenting Element and Specie (Element + oxidation state).
+Module contains classes presenting Element and Specie (Element + oxidation
+state) and PeriodicTable.
 """
 
-__author__="Shyue Ping Ong, Michael Kocher"
+__author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="Sep 23, 2011"
+__date__ = "Sep 23, 2011"
 
 import os
 import re
@@ -19,27 +20,28 @@ import json
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 
+
 def _load__pt_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir,"periodic_table.json")) as f:
+    with open(os.path.join(module_dir, "periodic_table.json")) as f:
         return json.load(f)
 
-_pt_data  = _load__pt_data()
-_pt_row_sizes = (2,8,8,18,18,32,32)
+_pt_data = _load__pt_data()
+_pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
+
 
 @cached_class
 class Element(object):
     '''
     Basic immutable element object with all relevant properties.
-    Only one instance of Element for each symbol is stored after creation, 
+    Only one instance of Element for each symbol is stored after creation,
     ensuring that a particular element behaves like a singleton.
     '''
-    
-    def __init__(self,symbol):
+
+    def __init__(self, symbol):
         '''
         Create immutable element from a symbol.
-        
         Args:
             symbol:
                 Element symbol, e.g., "H", "Fe"
@@ -49,26 +51,27 @@ class Element(object):
         self._z = self._data['Atomic no']
         self._symbol = symbol
         self._x = self._data.get('X', 0)
-    
+
     @property
     def average_ionic_radius(self):
         """
-        Average ionic radius for element in pm.
-        The average is taken over all oxidation states of the element for which data is present.
+        Average ionic radius for element in pm. The average is taken over all
+        oxidation states of the element for which data is present.
         """
         if 'Ionic_radii' in self._data:
-            return sum(self._data['Ionic_radii'].values())/len(self._data['Ionic_radii'])
+            radii = self._data['Ionic_radii']
+            return sum(radii.values()) / len(radii)
         else:
             return 0
-    
+
     @property
     def ionic_radii(self):
         """
-        All ionic radii of the element as a dict of {oxidation state: ionic radii}.
-        Radii are given in pm.
+        All ionic radii of the element as a dict of
+        {oxidation state: ionic radii}. Radii are given in pm.
         """
         if 'Ionic_radii' in self._data:
-            return {int(k):v for k,v in self._data['Ionic_radii'].items()}
+            return {int(k):v for k, v in self._data['Ionic_radii'].items()}
         else:
             return {}
     
@@ -96,46 +99,46 @@ class Element(object):
     def name(self):
         """Full name for element"""
         return self._data['Name']
-    
+
     @property
     def atomic_mass(self):
         """Atomic mass"""
         return self._data['Atomic mass']
-    
+
     @property
     def atomic_radius(self):
         """Atomic radius"""
         return self._data['Atomic radius']
-    
+
     @property
     def max_oxidation_state(self):
         """Maximum oxidation state for element"""
         if 'Oxidation states' in self._data:
             return max(self._data['Oxidation states'])
         return 0
-    
+
     @property
     def min_oxidation_state(self):
         """Minimum oxidation state for element"""
         if 'Oxidation states' in self._data:
             return min(self._data['Oxidation states'])
         return 0
-    
+
     @property
     def oxidation_states(self):
         """Tuple of all known oxidation states"""
         return tuple(self._data.get('Oxidation states', list()))
-    
+
     @property
     def common_oxidation_states(self):
         """Tuple of all known oxidation states"""
         return tuple(self._data.get('Common oxidation states', list()))
-    
+
     @property
     def mendeleev_no(self):
         """Mendeleev number"""
         return self._data['Mendeleev no']
-    
+
     @property
     def electrical_resistivity(self):
         """Electrical resistivity"""
@@ -150,7 +153,7 @@ class Element(object):
     def reflectivity(self):
         """Reflectivity"""
         return self._data['Reflectivity']
-    
+
     @property
     def refractive_index(self):
         """Refractice index"""
@@ -160,12 +163,12 @@ class Element(object):
     def poissons_ratio(self):
         """Poisson's ratio"""
         return self._data['Poissons ratio']
-    
+
     @property
     def molar_volume(self):
         """Molar volume"""
         return self._data['Molar volume']
-    
+
     @property
     def electronic_structure(self):
         """Electronic structure. Simplified form with HTML formatting.
@@ -188,7 +191,7 @@ class Element(object):
             return orbstr
         data = [parse_orbital(s) for s in estr.split(".")]
         if data[0][0] == "[":
-            data = Element(data[0].replace("[", "").replace("]","")).full_electronic_structure + data[1:]
+            data = Element(data[0].replace("[", "").replace("]", "")).full_electronic_structure + data[1:]
         return data
     
     @property
