@@ -13,6 +13,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Dec 31, 2011"
 
+import logging
+import datetime
 from functools import wraps
 
 def singleton(cls):
@@ -62,16 +64,12 @@ def cached_class(klass):
     
     return _decorated
 
-@cached_class
-class A(object):
-    
-    def __init__(self, val=1):
-        self.val = val
-
-@cached_class
-class B(A):
-    
-    def __init__(self, val, val2):
-        self.val = val
-
-
+def logged(logger = logging.getLogger(), level = logging.DEBUG):
+    def wrap(f):
+        def wrapped_f(*args, **kwargs):
+            logger.log(level, "Function called at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+            data = f(*args, **kwargs)
+            logger.log(level, "Function done at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+            return data
+        return wrapped_f
+    return wrap
