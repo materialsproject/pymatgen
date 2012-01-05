@@ -24,7 +24,6 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
-import json
 
 import numpy as np
 from numpy.linalg import det
@@ -968,7 +967,7 @@ class Vasprun(object):
                 if occu > 1e-8 and eigenval > vbm:
                     vbm = eigenval
                     vbm_kpoint = k[0]
-                elif occu < 1e-8 and eigenval < cbm:
+                elif occu <= 1e-8 and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
         return (cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint)
@@ -1033,7 +1032,10 @@ class Vasprun(object):
                 d['output']['eigenvalues'][str(index)] = {str(spin):values}
             else:
                 d['output']['eigenvalues'][str(index)][str(spin)] = values
-                
+        
+        (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+        d['output'].update(dict(bandgap = gap, cbm = cbm, vbm = vbm, is_gap_direct = is_direct))
+        
         return d
 
  
