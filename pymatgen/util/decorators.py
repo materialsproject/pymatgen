@@ -64,12 +64,14 @@ def cached_class(klass):
     
     return _decorated
 
-def logged(logger = logging.getLogger(), level = logging.DEBUG):
+def logged(level = logging.DEBUG):
     def wrap(f):
+        logger= logging.getLogger("%s.%s".format(f.__module__, f.__name__))
         def wrapped_f(*args, **kwargs):
-            logger.log(level, "Function called at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+            
+            logger.log(level, "Called at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
             data = f(*args, **kwargs)
-            logger.log(level, "Function done at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+            logger.log(level, "Done at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
             return data
         return wrapped_f
     return wrap
