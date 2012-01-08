@@ -209,8 +209,6 @@ class StructureVis(object):
             image_format:
                 choose between jpeg, png.  Png is default
         """
-        self.show_help = False
-        self.redraw()
         
         if image_format == "jpeg":
             writer = vtk.vtkJPEGWriter()
