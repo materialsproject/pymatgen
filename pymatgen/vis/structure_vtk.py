@@ -194,20 +194,31 @@ class StructureVis(object):
             camera.Pitch(angle)
         self.ren_win.Render()
             
-    def save_image(self, filename = "image.png"):
+    def write_image(self, filename = "image.png", magnification = 1, image_format = "png"):
         """
-        Save render window to a png image.
+        Save render window to an image.
         
         Arguments:
             filename:
                 filename to save to. Defaults to image.png.
+            magnification:
+                magnification.  Use to render high res images.
+            image_format:
+                choose between jpeg, png.  Png is default
         """
-        w2i = vtk.vtkWindowToImageFilter()
-        writer = vtk.vtkPNGWriter()
-        w2i.SetInput(self.ren_win)
-        w2i.Update()
-        writer.SetInputConnection(w2i.GetOutputPort())
+        self.show_help = False
+        self.redraw()
+        render_large = vtk.vtkRenderLargeImage()
+        render_large.SetInput(self.ren)
+        render_large.SetMagnification(magnification);
+        if image_format == "jpeg":
+            writer = vtk.vtkJPEGWriter()
+        else:
+            writer = vtk.vtkPNGWriter()
+            
         writer.SetFileName(filename)
+
+        writer.SetInputConnection(render_large.GetOutputPort())
         self.ren_win.Render()
         writer.Write()
     
