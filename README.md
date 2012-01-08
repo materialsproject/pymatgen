@@ -30,6 +30,7 @@ Optional python libraries that are required if you need certain features
 Optional non-python libraries (because no good pythonic alternative exists at the moment) required only for certain features.
 
 1. [Qhull](http://www.qhull.org/) : Needed for bond length analysis (structure_analyzer.py).  The executable qconvex and qvoronoi must be in the path.
+2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies (structure_vtk.py).  The executable ffmpeg must be in the path.
 
 ## Basic Setup ##
 
