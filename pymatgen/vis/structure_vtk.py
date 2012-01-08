@@ -213,6 +213,7 @@ class StructureVis(object):
         render_large.SetMagnification(magnification);
         if image_format == "jpeg":
             writer = vtk.vtkJPEGWriter()
+            writer.SetQuality(80)
         else:
             writer = vtk.vtkPNGWriter()
             
