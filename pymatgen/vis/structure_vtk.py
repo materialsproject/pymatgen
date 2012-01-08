@@ -180,6 +180,9 @@ class StructureVis(object):
         
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
+        
+        self.render_large = vtk.vtkRenderLargeImage()
+        self.render_large.SetInput(self.ren)
     
     def rotate_view(self, axis_ind = 0, angle = 0):
         """
@@ -208,18 +211,17 @@ class StructureVis(object):
         """
         self.show_help = False
         self.redraw()
-        render_large = vtk.vtkRenderLargeImage()
-        render_large.SetInput(self.ren)
-        render_large.SetMagnification(magnification);
+        
         if image_format == "jpeg":
             writer = vtk.vtkJPEGWriter()
             writer.SetQuality(80)
         else:
             writer = vtk.vtkPNGWriter()
-            
+        
+        self.render_large.SetMagnification(magnification);
         writer.SetFileName(filename)
 
-        writer.SetInputConnection(render_large.GetOutputPort())
+        writer.SetInputConnection(self.render_large.GetOutputPort())
         self.ren_win.Render()
         writer.Write()
     
@@ -535,3 +537,4 @@ class StructureVis(object):
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
+
