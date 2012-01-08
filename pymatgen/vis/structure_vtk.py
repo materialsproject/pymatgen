@@ -16,6 +16,8 @@ __date__ = "Nov 27, 2011"
 import os
 import ConfigParser
 import itertools
+import math
+import subprocess
 
 import numpy as np
 import vtk
@@ -269,7 +271,7 @@ class StructureVis(object):
             reset_camera:
                 Set to True to reset the camera to a default determined based on the structure.
         """
-        
+        self.ren.RemoveAllViewProps()
         m = SupercellMaker(structure, self.supercell)
         s = m.modified_structure
         
@@ -534,3 +536,16 @@ class StructureVis(object):
         self.picker = picker
         self.iren.SetPicker(picker)
 
+def make_movie(structures, output_filename = "movie.mp4", zoom = 1.0, fps = 20, bitrate = 10000, quality = 5):
+    vis = StructureVis()
+    vis.show_help = False
+    vis.redraw()
+    vis.zoom(zoom)
+    sigfig = int(math.floor(math.log10(len(structures))) + 1)
+    filename = "image{0:0"+str(sigfig)+"d}.png"
+    for i, s in enumerate(structures):
+        vis.set_structure(s)
+        vis.write_image(filename.format(i), 3)
+    filename = "image%0"+str(sigfig)+"d.png"
+    args = ["ffmpeg", "-y", "-qscale", str(quality), "-r", str(fps), "-b", str(bitrate), "-i", filename, output_filename]
+    p = subprocess.Popen(args)
