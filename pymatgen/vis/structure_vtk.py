@@ -198,9 +198,9 @@ class StructureVis(object):
             filename:
                 filename to save to. Defaults to image.png.
             magnification:
-                magnification.  Use to render high res images.
+                magnification.  Use it to render high res images.
             image_format:
-                choose between jpeg, png.  Png is default
+                choose between jpeg, png.  Png is the default.
         """
         render_large = vtk.vtkRenderLargeImage()
         render_large.SetInput(self.ren)
@@ -338,6 +338,9 @@ class StructureVis(object):
         self.title = s.composition.formula
 
     def zoom(self, factor):
+        """
+        Zoom the camera view by a factor.
+        """
         camera = self.ren.GetActiveCamera()
         camera.Zoom(factor)
         self.ren_win.Render()
@@ -537,6 +540,24 @@ class StructureVis(object):
         self.iren.SetPicker(picker)
 
 def make_movie(structures, output_filename = "movie.mp4", zoom = 1.0, fps = 20, bitrate = 10000, quality = 5):
+    """
+    Generate a movie from a sequence of structures using vtk and ffmpeg.
+    
+    Arguments:
+        structures:
+            sequence of structures
+        output_filename:
+            filename for structure output. defaults to movie.mp4
+        zoom:
+            A zoom to be applied to the visulizer. Defaults to 1.0
+        fps:
+            Frames per second for the movie. Defaults to 20.
+        bitrate:
+            Video bitate.  Defaults to 10000 (fairly high quality).
+        quality:
+            A quality scale. Defaults to 5.
+        
+    """
     vis = StructureVis()
     vis.show_help = False
     vis.redraw()
