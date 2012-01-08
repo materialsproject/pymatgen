@@ -806,7 +806,7 @@ class Structure(collections.Sequence, collections.Hashable):
         end_coords = np.array(end_structure.frac_coords)
 
         jimage=-np.array(np.around(end_coords-start_coords),int)
-        vec = end_coords - start_coords + jimage
+        vec = end_coords - start_coords #+ jimage
         intStructs = [Structure(self.lattice,[site.species_and_occu for site in self._sites],start_coords + float(x)/float(nimages) * vec) for x in xrange(0,nimages+1)]
         return intStructs;
     

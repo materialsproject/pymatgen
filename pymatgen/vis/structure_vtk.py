@@ -86,14 +86,7 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         elif sym == 'r':
             parent.redraw(True)
         elif sym == "s":
-            w2i = vtk.vtkWindowToImageFilter()
-            writer = vtk.vtkPNGWriter()
-            w2i.SetInput(parent.ren_win)
-            w2i.Update()
-            writer.SetInputConnection(w2i.GetOutputPort())
-            writer.SetFileName("image.png")
-            parent.ren_win.Render()
-            writer.Write()
+            parent.write_image("image.png")
         elif sym == "Up":
             parent.rotate_view(1,90)
         elif sym == "Down":
@@ -181,8 +174,6 @@ class StructureVis(object):
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
         
-        self.render_large = vtk.vtkRenderLargeImage()
-        self.render_large.SetInput(self.ren)
     
     def rotate_view(self, axis_ind = 0, angle = 0):
         """
@@ -209,19 +200,21 @@ class StructureVis(object):
             image_format:
                 choose between jpeg, png.  Png is default
         """
-        
+        render_large = vtk.vtkRenderLargeImage()
+        render_large.SetInput(self.ren)
         if image_format == "jpeg":
             writer = vtk.vtkJPEGWriter()
             writer.SetQuality(80)
         else:
             writer = vtk.vtkPNGWriter()
         
-        self.render_large.SetMagnification(magnification);
+        render_large.SetMagnification(magnification);
         writer.SetFileName(filename)
 
-        writer.SetInputConnection(self.render_large.GetOutputPort())
+        writer.SetInputConnection(render_large.GetOutputPort())
         self.ren_win.Render()
         writer.Write()
+        del render_large
     
     def redraw(self, reset_camera = False):
         """
@@ -342,6 +335,11 @@ class StructureVis(object):
         self.structure = structure
         self.title = s.composition.formula
 
+    def zoom(self, factor):
+        camera = self.ren.GetActiveCamera()
+        camera.Zoom(factor)
+        self.ren_win.Render()
+        
     def show(self):
         """
         Display the visualizer
