@@ -422,7 +422,7 @@ class StructureVis(object):
         self.ren.AddActor(follower)
         follower.SetCamera(self.ren.GetActiveCamera())
 
-    def add_line(self, start, end, color = (0.5,0.5,0.5)):
+    def add_line(self, start, end, color = (0.5,0.5,0.5), width = 5):
         source = vtk.vtkLineSource()
         source.SetPoint1(start)
         source.SetPoint2(end)
@@ -440,7 +440,22 @@ class StructureVis(object):
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         actor.GetProperty().SetColor(color)
+        actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
+        
+    def add_arrow(self, start, end, color = (0.5,0.5,0.5), width = 5):
+        source = vtk.vtkArrowSource()
+        #source.SetPoint1(start)
+        #source.SetPoint2(end)
+        
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInput(source.GetOutput())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(color)
+        actor.GetProperty().SetLineWidth(width)
+        self.ren.AddActor(actor)
+ 
 
     def add_polyhedron(self, neighbours, center, color):
         points = vtk.vtkPoints()
