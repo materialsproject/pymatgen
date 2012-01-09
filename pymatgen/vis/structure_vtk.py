@@ -296,9 +296,16 @@ class StructureVis(object):
             for (vec1, vec2, vec3) in itertools.permutations(matrix, 3):
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
         
+        
+        
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(s.composition.elements, key = lambda a: a.X)
             anion = elements[-1]
+            def contains_anion(site):
+                for sp, occu in site.species_and_occu.items():
+                    if sp.symbol == anion.symbol:
+                        return True
+                return False
             anion_radius = anion.average_ionic_radius
             for site in s:
                 exclude = False
@@ -316,9 +323,10 @@ class StructureVis(object):
                     nn = structure.get_neighbors(site, max_radius)
                     nn_sites = []
                     for nnsite, dist in nn:
-                        nn_sites.append(nnsite)
-                        if not in_coord_list(inc_coords, nnsite.coords):
-                            self.add_site(nnsite)
+                        if contains_anion(nnsite):
+                            nn_sites.append(nnsite)
+                            if not in_coord_list(inc_coords, nnsite.coords):
+                                self.add_site(nnsite)
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site.x, site.y, site.z)
                     if self.show_polyhedron:
