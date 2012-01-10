@@ -30,7 +30,7 @@ def _load__pt_data():
 _pt_data = _load__pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
-
+@cached_class
 class Element(object):
     '''
     Basic immutable element object with all relevant properties.
@@ -475,6 +475,7 @@ class Element(object):
         """
         return self.Z > 88 and self.Z < 104
 
+
 class Specie(Element):
     """
     An extension of Element with an oxidation state.
@@ -493,7 +494,7 @@ class Specie(Element):
             oxidation_state:
                 Oxidation state of element, e.g., 2 or -2
         """
-        super(Element, self).__init__(symbol)
+        super(Specie, self).__init__(symbol)
         self._oxi_state = oxidation_state
         
     def __eq__(self,other):
