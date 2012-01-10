@@ -173,20 +173,19 @@ class PhaseDiagram (object):
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
 
-    def make_phasediagram(self, use_external_qconvex = False):
+    def make_phasediagram(self):
         stable_entries = set()
         dim = len(self._elements)
         self._qhull_data = self._create_convhull_data()
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            if not use_external_qconvex and dim < 5:
-                logger.debug("Computing hull using scipy.spatial.delaunay")
-                delau = Delaunay(self._qhull_data)
-                self._facets = delau.convex_hull
-            else:
-                logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
-                self._facets = qconvex(self._qhull_data)
+            logger.debug("Computing hull using scipy.spatial.delaunay")
+            delau = Delaunay(self._qhull_data)
+            self._facets = delau.convex_hull
+            #else:
+            #    logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
+            #    self._facets = qconvex(self._qhull_data)
             logger.debug("Final facets are\n{}".format(self._facets))
             
             logger.debug("Removing vertical facets...")

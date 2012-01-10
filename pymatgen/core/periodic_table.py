@@ -31,7 +31,6 @@ _pt_data = _load__pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
-@cached_class
 class Element(object):
     '''
     Basic immutable element object with all relevant properties.
@@ -476,7 +475,6 @@ class Element(object):
         """
         return self.Z > 88 and self.Z < 104
 
-@cached_class
 class Specie(Element):
     """
     An extension of Element with an oxidation state.
