@@ -401,7 +401,7 @@ class StructureVis(object):
                 color = [i/255 for i in self.el_color_mapping[specie.symbol]]
             actor.GetProperty().SetColor(color)
             self.ren.AddActor(actor)
-
+        
         for specie, occu in site.species_and_occu.items():
             add_partial_sphere(start_angle, start_angle + 360 * occu, specie)
             start_angle = start_angle + 360 * occu
