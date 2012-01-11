@@ -27,7 +27,7 @@ class PhaseDiagram (object):
     '''
     FORMATION_ENERGY_TOLERANCE = 1e-11
     
-    def __init__(self, entries, elements = None):
+    def __init__(self, entries, elements = None, use_external_qhull= False):
         """
         Standard constructor for phase diagram.
         Arguments:
@@ -45,6 +45,7 @@ class PhaseDiagram (object):
         self._qhull_entries = None
         self._stable_entries = None
         self._all_entries_hulldata = None
+        self._use_external_qhull = use_external_qhull
         self.make_phasediagram()
 
     @property
@@ -180,12 +181,13 @@ class PhaseDiagram (object):
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            logger.debug("Computing hull using scipy.spatial.delaunay")
-            delau = Delaunay(self._qhull_data)
-            self._facets = delau.convex_hull
-            #else:
-            #    logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
-            #    self._facets = qconvex(self._qhull_data)
+            if self._use_external_qhull:
+                logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
+                self._facets = qconvex(self._qhull_data)
+            else:
+                logger.debug("Computing hull using scipy.spatial.delaunay")
+                delau = Delaunay(self._qhull_data)
+                self._facets = delau.convex_hull
             logger.debug("Final facets are\n{}".format(self._facets))
             
             logger.debug("Removing vertical facets...")
@@ -218,7 +220,7 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
     Grand potential phase diagram class taking in elements and entries as inputs.
     '''
 
-    def __init__(self, entries, chempots, elements):
+    def __init__(self, entries, chempots, elements, use_external_qhull = False):
         """
         Standard constructor for phase diagram.
         Arguments:
@@ -237,6 +239,6 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
             if el not in chempots:
                 filteredels.append(el)
         elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram,self).__init__(allentries, elements)
+        super(GrandPotentialPhaseDiagram,self).__init__(allentries, elements, use_external_qhull)
 
 
