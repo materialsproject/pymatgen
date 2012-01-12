@@ -913,7 +913,6 @@ class Composition (collections.Mapping, collections.Hashable):
     """
     amount_tolerance = 1e-8
     
-    
     """
     Special formula handling for peroxides and certain elements. This is so that 
     formula output does not write LiO instead of Li2O2 for example.
@@ -1028,6 +1027,19 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
         elements = self._elmap.keys()
         elements = sorted(elements,key=lambda el: el.X)
+        formula = []
+        for el in elements:
+            if self[el] != 0:
+                formula.append(el.symbol+formula_double_format(self[el], False))
+        return ' '.join(formula)
+    
+    @property
+    def alphabetical_formula(self):
+        '''
+        Returns a formula string, e.g. Li4 Fe4 P4 O16.
+        '''
+        elements = self._elmap.keys()
+        elements = sorted(elements,key = lambda el: el.symbol)
         formula = []
         for el in elements:
             if self[el] != 0:

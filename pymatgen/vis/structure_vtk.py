@@ -548,7 +548,8 @@ class StructureVis(object):
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
-
+        
+                
 def make_movie(structures, output_filename = "movie.mp4", zoom = 1.0, fps = 20, bitrate = 10000, quality = 5):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
