@@ -1023,7 +1023,7 @@ class Composition (collections.Mapping, collections.Hashable):
     @property
     def formula(self):
         '''
-        Returns a formula string, e.g. Li4 Fe4 P4 O16.
+        Returns a formula string, with elements sorted by electronegativity e.g. Li4 Fe4 P4 O16.
         '''
         elements = self._elmap.keys()
         elements = sorted(elements,key=lambda el: el.X)
@@ -1036,7 +1036,7 @@ class Composition (collections.Mapping, collections.Hashable):
     @property
     def alphabetical_formula(self):
         '''
-        Returns a formula string, e.g. Li4 Fe4 P4 O16.
+        Returns a formula string, with elements sorted by alphabetically e.g. Fe4 Li4 O16 P4.
         '''
         elements = self._elmap.keys()
         elements = sorted(elements,key = lambda el: el.symbol)
