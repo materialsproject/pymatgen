@@ -200,8 +200,18 @@ class CompositionTest(unittest.TestCase):
         self.assertRaises(TypeError, Composition, f)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertRaises(TypeError, Composition, f)
-        
-    def test_reduced_formulas(self):
+    
+    def test_formula(self):
+        correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4', 'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54', 'Li1.5 Si0.5']
+        all_formulas = [c.formula for c in self.comp]
+        self.assertEqual(all_formulas, correct_formulas)
+
+    def test_alphabetical_formula(self):
+        correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
+        all_formulas = [c.alphabetical_formula for c in self.comp]
+        self.assertEqual(all_formulas, correct_formulas)
+    
+    def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
