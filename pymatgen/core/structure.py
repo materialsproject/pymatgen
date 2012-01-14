@@ -1173,6 +1173,8 @@ class Composition (collections.Mapping, collections.Hashable):
                 '''
                 
                 el = m.group(1)
+                if len(el) > 2:
+                    raise ValueError("Invalid element symbol entered! (more than 2 characters)")
                 el = el[0].upper() if len(el) == 1 else el[0].upper() + el[1].lower()
                 amt = float(m.group(2)) if m.group(2).strip() != "" else 1
  
@@ -1273,6 +1275,6 @@ class Composition (collections.Mapping, collections.Hashable):
 
 if __name__ == "__main__":
     #print Composition.from_formula("Li1 Co1 P2 N1 O10", True).formula
-    print Composition.from_formula("liCoo2n (pO4)2", True).formula
+    print Composition.from_formula("Fe#3").formula
     #import doctest
     #doctest.testmod() 
