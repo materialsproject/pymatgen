@@ -1155,7 +1155,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return el.atomic_mass*self[el]/self.weight
    
     @staticmethod
-    def from_formula(formula):
+    def from_formula(formula, allow_fuzzy=False):
         '''
         Arguments:
             formula:
@@ -1163,9 +1163,9 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns:
             Composition with that formula.
         '''
-        def get_sym_dict(f, factor):
+        def get_sym_dict(f, factor, allow_fuzzy):
             
-            def _parse_and_chomp (m, f, sym_dict):
+            def _parse_and_chomp(m, f, sym_dict):
                 '''
                 Takes in a regex match, formula, and existing sym_dict
                 return a tuple of (sym_dict, f) where sym_dict now contains data from the match 
@@ -1184,44 +1184,59 @@ class Composition (collections.Mapping, collections.Hashable):
                     return (sym_dict, f.replace(m.group(), ""))
                 return (sym_dict, f)
             
-            convention_dict = {}
-            convention_dict['MN'] = "Mn"  # might cause problems with Francium ambiguity, e.g. directs "FMN" toward 'Mn1 F1' rather than 'Fm1 N1'
-            convention_dict['MO'] = "Mo"  # might cause problems with Francium ambiguity, e.g. directs "FMO" toward 'Mo1 F1' rather than 'Fm1 O1'
-            for key in convention_dict:
-                f = f.replace(key, convention_dict[key])
-            sym_dict = {}
-            
-            #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
-            #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
-            for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f):
-                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-            for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f[1:]):
-                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+            if allow_fuzzy:
+                #some fuzzy conventions
+                convention_dict = {}
+                convention_dict['MN'] = "Mn"  # might cause problems with Francium ambiguity, e.g. directs "FMN" toward 'Mn1 F1' rather than 'Fm1 N1'
+                convention_dict['MO'] = "Mo"  # might cause problems with Francium ambiguity, e.g. directs "FMO" toward 'Mo1 F1' rather than 'Fm1 O1'
+                for key in convention_dict:
+                    f = f.replace(key, convention_dict[key])
                 
-            #handle two-character elements with improper capitalizations first
-            #this means that 'co' is interpreted as "Co1" rather than "C1 O1"
-            #it also means that 'po4' will be 'Po4' (Polonium 4) rather than 'P1 O4'
-            #Neither convention is 'correct' and both lead to some degree of awkwardness
-            for m in re.finditer(r"([A-z]{2})([\.\d]*)", f):
-                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-            for m in re.finditer(r"([A-z]{2})([\.\d]*)", f[1:]):
-                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                sym_dict = {}
                 
-            #handle one-character elements with improper capitalizations last
-            for m in re.finditer(r"([A-z])([\.\d]*)", f):
-                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
+                #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
+                for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f[1:]):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+           
+                #handle two-character elements with improper capitalizations first
+                #this means that 'co' is interpreted as "Co1" rather than "C1 O1"
+                #it also means that 'po4' will be 'Po4' (Polonium 4) rather than 'P1 O4'
+                #Neither convention is 'correct' and both lead to some degree of awkwardness
+                for m in re.finditer(r"([A-z]{2})([\.\d]*)", f):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                for m in re.finditer(r"([A-z]{2})([\.\d]*)", f[1:]):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                    
+                #handle one-character elements with improper capitalizations last
+                for m in re.finditer(r"([A-z])([\.\d]*)", f):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                
+                if len(f.strip()) > 0:
+                    raise ValueError("Formula parsing has extraneous elements")
+                return sym_dict
             
-            return sym_dict
+            else:
+                sym_dict = {}
+                
+                #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
+                #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
+                for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
+                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                    
+                return sym_dict
         
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
             factor = 1
             if m.group(2) != "":
                 factor = float(m.group(2))
-            unit_sym_dict = get_sym_dict(m.group(1), factor)
+            unit_sym_dict = get_sym_dict(m.group(1), factor, allow_fuzzy)
             expanded_formula = formula.replace(m.group(), "".join([el+str(amt) for el, amt in unit_sym_dict.items()]))
-            return Composition.from_formula(expanded_formula)
-        return Composition.from_dict(get_sym_dict(formula, 1))
+            return Composition.from_formula(expanded_formula, allow_fuzzy)
+        return Composition.from_dict(get_sym_dict(formula, 1, allow_fuzzy))
     
     
     def __repr__(self):
@@ -1257,6 +1272,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
 if __name__ == "__main__":
-    pass
+    #print Composition.from_formula("Li1 Co1 P2 N1 O10", True).formula
+    print Composition.from_formula("liCoo2n (pO4)2", True).formula
     #import doctest
     #doctest.testmod() 
