@@ -1164,17 +1164,55 @@ class Composition (collections.Mapping, collections.Hashable):
             Composition with that formula.
         '''
         def get_sym_dict(f, factor):
-            sym_dict = {}
-            for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
+            
+            def _parse_and_chomp (m, f, sym_dict):
+                '''
+                Takes in a regex match, formula, and existing sym_dict
+                return a tuple of (sym_dict, f) where sym_dict now contains data from the match 
+                and the match has been removed (chomped) from the formula
+                '''
+                
                 el = m.group(1)
-                amt = 1
-                if m.group(2).strip() != "":
-                    amt = float(m.group(2))
-                if el in sym_dict:
-                    sym_dict[el] += amt * factor
-                else:
-                    sym_dict[el] = amt * factor
+                el = el[0].upper() if len(el) == 1 else el[0].upper() + el[1].lower()
+                amt = float(m.group(2)) if m.group(2).strip() != "" else 1
+ 
+                if Element.is_valid_symbol(el):
+                    if el in sym_dict:
+                        sym_dict[el] += amt * factor
+                    else:
+                        sym_dict[el] = amt * factor
+                    return (sym_dict, f.replace(m.group(), ""))
+                return (sym_dict, f)
+            
+            convention_dict = {}
+            convention_dict['MN'] = "Mn"  # might cause problems with Francium ambiguity, e.g. directs "FMN" toward 'Mn1 F1' rather than 'Fm1 N1'
+            convention_dict['MO'] = "Mo"  # might cause problems with Francium ambiguity, e.g. directs "FMO" toward 'Mo1 F1' rather than 'Fm1 O1'
+            for key in convention_dict:
+                f = f.replace(key, convention_dict[key])
+            sym_dict = {}
+            
+            #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
+            #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
+            for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f):
+                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+            for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f[1:]):
+                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                
+            #handle two-character elements with improper capitalizations first
+            #this means that 'co' is interpreted as "Co1" rather than "C1 O1"
+            #it also means that 'po4' will be 'Po4' (Polonium 4) rather than 'P1 O4'
+            #Neither convention is 'correct' and both lead to some degree of awkwardness
+            for m in re.finditer(r"([A-z]{2})([\.\d]*)", f):
+                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+            for m in re.finditer(r"([A-z]{2})([\.\d]*)", f[1:]):
+                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+                
+            #handle one-character elements with improper capitalizations last
+            for m in re.finditer(r"([A-z])([\.\d]*)", f):
+                (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
+            
             return sym_dict
+        
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
             factor = 1
@@ -1219,6 +1257,6 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-    
+    pass
+    #import doctest
+    #doctest.testmod() 
