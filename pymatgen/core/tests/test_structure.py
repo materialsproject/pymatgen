@@ -194,6 +194,14 @@ class CompositionTest(unittest.TestCase):
         self.comp.append(Composition.from_formula("Li3Fe2((PO4)3(CO3)5)2"))
         self.comp.append(Composition.from_formula("Li1.5Si0.5"))
         
+        self.fuzzy_comp = list()
+        self.fuzzy_comp.append(Composition.from_formula("omn"))
+        self.fuzzy_comp.append(Composition.from_formula("FMN"))
+        self.fuzzy_comp.append(Composition.from_formula("MO4"))
+        self.fuzzy_comp.append(Composition.from_formula("CO"))
+        self.fuzzy_comp.append(Composition.from_formula("co"))
+        self.fuzzy_comp.append(Composition.from_formula("liCoo2n (pO4)2"))
+        
     def test_init_(self):
         self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
@@ -206,6 +214,11 @@ class CompositionTest(unittest.TestCase):
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
 
+    def test_fuzzy_formula(self):
+        correct_formulas = ['Mn1 O1', 'Mn1 F1', 'Mo4', 'C1 O1', 'Co1', 'Li1 Co1 P2 N1 O10']
+        all_formulas = [c.formula for c in self.fuzzy_comp]
+        self.assertEqual(all_formulas, correct_formulas)
+        
     def test_alphabetical_formula(self):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
         all_formulas = [c.alphabetical_formula for c in self.comp]
