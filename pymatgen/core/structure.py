@@ -1160,6 +1160,8 @@ class Composition (collections.Mapping, collections.Hashable):
         Arguments:
             formula:
                 A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            allow_fuzzy:
+                Whether to allow formulas where capitalization is not strict, e.g. 'lifeo2'
         Returns:
             Composition with that formula.
         '''
@@ -1274,7 +1276,5 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
 if __name__ == "__main__":
-    #print Composition.from_formula("Li1 Co1 P2 N1 O10", True).formula
-    print Composition.from_formula("Fe#3").formula
-    #import doctest
-    #doctest.testmod() 
+    import doctest
+    doctest.testmod() 
