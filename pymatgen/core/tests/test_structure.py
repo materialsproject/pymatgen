@@ -201,6 +201,8 @@ class CompositionTest(unittest.TestCase):
         self.fuzzy_comp.append(Composition.from_formula("CO", allow_fuzzy=True))
         self.fuzzy_comp.append(Composition.from_formula("co", allow_fuzzy=True))
         self.fuzzy_comp.append(Composition.from_formula("liCoo2n (pO4)2", allow_fuzzy=True))
+        self.fuzzy_comp.append(Composition.from_formula("calun", allow_fuzzy=True))
+        self.fuzzy_comp.append(Composition.from_formula("ncalu", allow_fuzzy=True))
         
     def test_init_(self):
         self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
@@ -215,7 +217,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(all_formulas, correct_formulas)
 
     def test_fuzzy_formula(self):
-        correct_formulas = ['Mn1 O1', 'Mn1 F1', 'Mo4', 'C1 O1', 'Co1', 'Li1 Co1 P2 N1 O10']
+        correct_formulas = ['Mn1 O1', 'Mn1 F1', 'Mo4', 'C1 O1', 'Co1', 'Li1 Co1 P2 N1 O10', 'Ca1 Lu1 N1', 'Ca1 Lu1 N1']
         all_formulas = [c.formula for c in self.fuzzy_comp]
         self.assertEqual(all_formulas, correct_formulas)
         self.assertRaises(ValueError, Composition.from_formula, "Fee3", allow_fuzzy=True)
