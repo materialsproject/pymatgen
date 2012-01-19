@@ -268,7 +268,7 @@ class EwaldSumMatrix:
     def total_energy(self):
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
-            totalenergy[i][i] += self._point[i]
+            totalenergy[i,i] += self._point[i]
         return totalenergy
     
     @property
@@ -301,7 +301,7 @@ class EwaldSumMatrix:
                     sitej = self._s[j]
                     qj = self._oxi_states[j]
                     exparg = np.dot(gvect, sitei.coords-sitej.coords) 
-                    sfactor[i][j] = qi * qj * (cos(exparg) + sin(exparg))
+                    sfactor[i,j] = qi * qj * (cos(exparg) + sin(exparg))
                     
             erecip += expval/gsquare*sfactor
         
@@ -334,7 +334,7 @@ class EwaldSumMatrix:
             for j in range(len(nn)):  #for (nsite, rij)  in nn:
                 qj = compute_average_oxidation_state(nn[j][0])  #nsite 
                 erfcval = erfc(self._sqrt_eta*nn[j][1])
-                ereal[nn[j][2]][i] += erfcval * qi * qj / nn[j][1]
+                ereal[nn[j][2],i] += erfcval * qi * qj / nn[j][1]
                     
         self._real = ereal * 0.5 * EwaldSumMatrix.CONV_FACT
         self._point = epoint * EwaldSumMatrix.CONV_FACT 
