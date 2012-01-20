@@ -106,7 +106,7 @@ class StructureVis(object):
     Provides Structure object visualization using VTK.
     """
     
-    def __init__(self, element_color_mapping = None, show_unit_cell = True, show_bonds = False, show_polyhedron = False, poly_radii_tol_factor = 0.2, excluded_bonding_elements = []):
+    def __init__(self, element_color_mapping = None, show_unit_cell = True, show_bonds = False, show_polyhedron = True, poly_radii_tol_factor = 0.5, excluded_bonding_elements = []):
         """
         Arguments:
             element_color_mapping:
@@ -344,7 +344,7 @@ class StructureVis(object):
         
         self.structure = structure
         self.title = s.composition.formula
-
+        
     def zoom(self, factor):
         """
         Zoom the camera view by a factor.
