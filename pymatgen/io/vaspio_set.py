@@ -71,6 +71,17 @@ class AbstractVaspInputSet(object):
         '''
         return
     
+    @abc.abstractmethod 
+    def get_potcar_symbols(self, structure):
+        '''
+        Returns Potcar from a structure.
+        
+        Arguments:
+            structure:
+                Structure object
+        '''
+        return
+    
     def get_all_vasp_input(self, structure):
         '''
         Returns all input files as a dict of {filename: file_as_string}
@@ -148,13 +159,16 @@ class MITVaspInputSet(AbstractVaspInputSet):
     
     #get_poscar method inherited from AbstractVaspInputSet
 
-    def get_potcar(self, structure):               
+    def get_potcar(self, structure):
+        return Potcar(self.get_potcar_symbols(structure))
+    
+    def get_potcar_symbols(self, structure):               
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
         for el in elements:
             potcar_symbols.append(self.potcar_settings[el] if el in self.potcar_settings else el)
-        return Potcar(potcar_symbols)
+        return potcar_symbols
         
     def get_kpoints(self, structure):
         '''
