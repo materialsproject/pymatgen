@@ -22,6 +22,10 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.struct
+    
+    def test_get_potcar_symbols(self):
+        syms = self.paramset.get_potcar_symbols(self.struct)
+        self.assertEquals(syms, ['Fe_pv', 'P', 'O'])
         
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)

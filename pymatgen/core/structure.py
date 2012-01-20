@@ -1161,7 +1161,12 @@ class Composition (collections.Mapping, collections.Hashable):
             formula:
                 A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
             allow_fuzzy:
-                Whether to allow formulas where capitalization is not strict, e.g. 'lifeo2'
+                Whether to allow formulas where capitalization is not strict, e.g. 'lifeo2'.
+                Please note that fuzzy interpretation can be ambiguous at times. For example,
+                lifepo4 is parsed as LiFePO4, not LiFePo4. It is recommended that developers
+                avoid using fuzzy matching to avoid potential bugs that can be very hard to 
+                diagnose. Fuzzy matching is useful for public-facing applications where an
+                intelligent guess to an input formula is needed.
         Returns:
             Composition with that formula.
         '''
