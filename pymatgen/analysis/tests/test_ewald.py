@@ -23,6 +23,10 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(ham.point_energy, -790.463835033, 4, "Point space energy incorrect!")
         self.assertAlmostEqual(ham.total_energy, -1119.90102291, 2, "Total space energy incorrect!")
         self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4, "Forces incorrect")
+        self.assertAlmostEqual(sum(sum(ham.real_space_energy_matrix)), -354.91294268, 4, "Real space energy matrix incorrect!")
+        self.assertAlmostEqual(sum(sum(ham.reciprocal_space_energy_matrix)), 25.475754801, 4, "Reciprocal space energy matrix incorrect!")
+        self.assertAlmostEqual(sum(ham.point_energy_matrix), -790.463835033, 4, "Point space energy matrix incorrect!")
+        self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)), -1119.90102291, 2, "Total space energy matrix incorrect!")
         #note that forces are not individually tested, but should work fine.
         
 
