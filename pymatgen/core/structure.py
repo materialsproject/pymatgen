@@ -1155,7 +1155,10 @@ class Composition (collections.Mapping, collections.Hashable):
         return el.atomic_mass*self[el]/self.weight
     
     @staticmethod
-    def ranked_compositions_from_fuzzy_formula(fuzzy_formula):
+    def ranked_compositions_from_fuzzy_formula(fuzzy_formula, lock_if_strict = True):
+        if lock_if_strict and Composition.from_formula(fuzzy_formula):
+            return [Composition.from_formula(fuzzy_formula)]
+        
         all_matches = []
         for match in Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula):
             all_matches.append(match)
@@ -1380,4 +1383,4 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
 if __name__ == "__main__":
-    print Composition.ranked_compositions_from_fuzzy_formula('Li(Fe)(PO)4(CO)3')
+    print Composition.ranked_compositions_from_fuzzy_formula('Co')
