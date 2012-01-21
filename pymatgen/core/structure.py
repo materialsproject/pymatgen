@@ -1153,6 +1153,105 @@ class Composition (collections.Mapping, collections.Hashable):
             Weight fraction for element el in Composition
         '''
         return el.atomic_mass*self[el]/self.weight
+    
+    @staticmethod
+    def ranked_compositions_from_fuzzy_formula(fuzzy_formula):
+        all_matches = []
+        for match in Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula):
+            all_matches.append(match)
+        
+        #remove duplicates
+        all_matches = list(set(all_matches))
+        all_matches = sorted(all_matches, key=lambda match:match[1], reverse=True)
+        all_matches = [m[0] for m in all_matches]
+        return all_matches
+        
+    @staticmethod
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict=None, m_points=0, factor=1):
+        def _parse_chomp_and_rank(m, f, m_dict, m_points):
+            '''
+            Takes in an regex match m, formula f, existing m_dict, and old points m_points
+            return a tuple of (f, m_dict, points) where m_dict now contains data from the match 
+            and the match has been removed (chomped) from the formula f
+            The 'goodness' of the match determines the number of points returned
+            '''
+            
+            points = 0
+            points_first_capital = 100
+            points_second_lowercase = 100
+            
+            el = m.group(1)
+            amt = float(m.group(2)) if m.group(2).strip() != "" else 1
+            
+            if len(el) > 2 or len(el) < 1:
+                raise ValueError("Invalid element symbol entered!")
+            
+            #convert the element string to proper [uppercase,lowercase] format and award points if it is already in that format
+            char1 = el[0]
+            char2 = el[1] if len(el) > 1 else ''
+            
+            if char1 == char1.upper():
+                points += points_first_capital
+            if char2 and char2 == char2.lower():
+                points += points_second_lowercase
+                            
+            el = char1.upper() + char2.lower()
+
+            #if it's a valid element, chomp and add to the points
+            if Element.is_valid_symbol(el):
+                if el in m_dict:
+                    m_dict[el] += amt * factor
+                else:
+                    m_dict[el] = amt * factor
+                return (f.replace(m.group(), "", 1), m_dict, m_points + points)
+            #else return None
+            return (None, None, None)
+        
+        if m_dict == None:
+            m_dict = {}
+        
+        if len(fuzzy_formula) == 0:
+            #we made it! yay!
+            yield (Composition.from_dict(m_dict), m_points)
+        
+        #if there is a parenthesis, remove it and match the remaining stuff...
+        mp = re.match(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula)
+        if mp:
+            mp_points = m_points
+            mp_form = fuzzy_formula
+            mp_dict = dict(m_dict)
+            factor = 1 if mp.group(2) == "" else float(mp.group(2))
+            for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor):
+                for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(),"",1), mp_dict, mp_points, factor=1):
+                    yield ((match[0] + match2[0], match[1]+match2[1]))
+            
+            #unit_sym_dict = get_sym_dict(m.group(1), factor, allow_fuzzy)
+            #expanded_formula = formula.replace(m.group(), "".join([el+str(amt) for el, amt in unit_sym_dict.items()]))
+            #return Composition.from_formula(expanded_formula, allow_fuzzy)
+        
+        #try to match the one element stuff
+        m1 = re.match(r"([A-z])([\.\d]*)", fuzzy_formula)
+        if m1:
+            m_points1 = m_points
+            m_form1 = fuzzy_formula
+            m_dict1 = dict(m_dict)
+            (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+            if m_dict1:
+                #there was a real match
+                for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
+                    yield match
+        
+        #try to match the two element stuff
+        m2 = re.match(r"([A-z]{2})([\.\d]*)", fuzzy_formula)
+        if m2:
+            m_points2 = m_points
+            m_form2 = fuzzy_formula
+            m_dict2 = dict(m_dict)
+            (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+            if m_dict2:
+                #there was a real match
+                for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
+                    yield match
    
     @staticmethod
     def from_formula(formula, allow_fuzzy=False):
@@ -1281,5 +1380,4 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod() 
+    print Composition.ranked_compositions_from_fuzzy_formula('Li(Fe)(PO)4(CO)3')
