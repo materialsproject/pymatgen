@@ -25,7 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.analysis.ewald import EwaldSummation, EwaldSumMatrix
+from pymatgen.analysis.ewald import EwaldSummation
 
 class IdentityTransformation(AbstractTransformation):
     """
@@ -249,7 +249,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 class PartialRemoveSpecieTransformation2(AbstractTransformation):
     """
     Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
-    This method uses EwaldSumMatrix rather than EwaldSummation to calculate the ewald sums of the potential structures.
+    This method uses the matrix form of ewaldsum to calculate the ewald sums of the potential structures.
     This is on the order of 4 orders of magnitude faster when there are large numbers of permutations to consider.
     There are further optimizations possible (doing a smarter search of permutations for example), but this wont make a difference
     until the number of permutations is on the order of 30,000.
@@ -362,7 +362,7 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
         
-        ewaldmatrix = EwaldSumMatrix(structure).total_energy
+        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
         
         lowestenergy_indices = self.MinimizeMatrix(ewaldmatrix, specie_indices, num_to_remove, [float('inf')])[1]
         
