@@ -785,7 +785,7 @@ class Potcar(list,VaspInput):
         return potcar
 
     def __str__(self):
-        return "".join([str(potcar) for potcar in self])
+        return "".join([str(potcar) for potcar in self])    #line break not used because there is already one at the end of str(potcar) and it causes VASP issues
 
     def write_file(self, filename):
         """
