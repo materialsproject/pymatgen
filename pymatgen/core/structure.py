@@ -932,14 +932,7 @@ class Composition (collections.Mapping, collections.Hashable):
                 raise TypeError("Keys must be instances of Element or Specie!")
         self._elmap = elmap.copy()
         self._natoms = sum(self._elmap.values())
-
-    @property
-    def is_element(self):
-        '''
-        True if composition is for an element
-        '''
-        return len(self._elmap)==1
-
+    
     def __getitem__(self,el):
         '''
         Get the amount for element.
@@ -1016,6 +1009,13 @@ class Composition (collections.Mapping, collections.Hashable):
     
     def __iter__(self):
         return self._elmap.__iter__()
+    
+    @property
+    def is_element(self):
+        '''
+        True if composition is for an element
+        '''
+        return len(self._elmap)==1
     
     def copy(self):
         return Composition(self._elmap)
@@ -1170,7 +1170,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return all_matches
         
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict=None, m_points=0, factor=1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = None, m_points = 0, factor = 1):
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
             '''
             Takes in an regex match m, formula f, existing m_dict, and old points m_points
