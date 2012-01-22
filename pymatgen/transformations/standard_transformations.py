@@ -263,7 +263,7 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
         
-    def MinimizeMatrix(self, matrix, indices, num_to_remove, CURRENT_MINIMUM): #for whatever reason a default value wont work for CURRENT_MINIMUM
+    def _minimize_matrix(self, matrix, indices, num_to_remove, CURRENT_MINIMUM): #for whatever reason a default value wont work for CURRENT_MINIMUM
                                                                             #must pass [float('inf')] VERY IMPORTANT
                                                                             #current minimum works like a global variable since it is a list
         '''minimize a matrix by removing a specific number of rows and columns (if row 4 is removed, column 4 must also be removed)
@@ -330,7 +330,7 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
                     indices.remove(r_index)
                 for x in ignore_indices:
                     indices.remove(x)
-                output = self.MinimizeMatrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
+                output = self._minimize_matrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
                 output[1] = output[1]+deletion_indices
                 output[1].sort()
                 return output
@@ -343,8 +343,8 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
             r_index = indices.pop()
         matrix2[:,r_index] = 0
         matrix2[r_index,:] = 0
-        sum2 = self.MinimizeMatrix(matrix2, indices, num_to_remove-1, CURRENT_MINIMUM)
-        sum1 = self.MinimizeMatrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
+        sum2 = self._minimize_matrix(matrix2, indices, num_to_remove-1, CURRENT_MINIMUM)
+        sum1 = self._minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
         if sum1[0]<sum2[0]:
             return sum1
         else:
@@ -364,21 +364,8 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
         
-        lowestenergy_indices = self.MinimizeMatrix(ewaldmatrix, specie_indices, num_to_remove, [float('inf')])[1]
+        lowestenergy_indices = self._minimize_matrix(ewaldmatrix, specie_indices, num_to_remove, [float('inf')])[1]
         
-        '''lowestewald = float('inf')
-        lowestenergy_indices = None
-        for x in itertools.combinations(specie_indices, num_to_remove):
-            testmatrix = ewaldmatrix
-            indices = list(x)
-            indices.sort(reverse = True)
-            for i in indices:
-                testmatrix = np.delete(testmatrix,i,0)
-                testmatrix = np.delete(testmatrix,i,1)
-            ewaldsum = sum(sum(testmatrix))
-            if ewaldsum < lowestewald:
-                lowestewald = ewaldsum
-                lowestenergy_indices = indices'''
         mod = StructureEditor(structure)
         mod.delete_sites(lowestenergy_indices)
         return mod.modified_structure.get_sorted_structure()
