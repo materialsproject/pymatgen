@@ -194,16 +194,15 @@ class CompositionTest(unittest.TestCase):
         self.comp.append(Composition.from_formula("Li3Fe2((PO4)3(CO3)5)2"))
         self.comp.append(Composition.from_formula("Li1.5Si0.5"))
         
-        self.fuzzy_comp = list()
-        self.fuzzy_comp.append(Composition.from_formula("omn", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("FMN", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("MO4", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("CO", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("co", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("liCoo2n (pO4)2", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("calun", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("ncalu", allow_fuzzy=True))
-        self.fuzzy_comp.append(Composition.from_formula("lifepo4co3", allow_fuzzy=True))
+        self.indeterminate_comp = list()
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("FMN"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
         
     def test_init_(self):
         self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
@@ -216,12 +215,21 @@ class CompositionTest(unittest.TestCase):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4', 'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54', 'Li1.5 Si0.5']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
+        self.assertRaises(ValueError, Composition.from_formula, "(co2)(po4)2")
 
-    def test_fuzzy_formula(self):
-        correct_formulas = ['Mn1 O1', 'Mn1 F1', 'Mo4', 'C1 O1', 'Co1', 'Li1 Co1 P2 N1 O10', 'Ca1 Lu1 N1', 'Ca1 Lu1 N1', 'Li1 Fe1 C1 P1 O7']
-        all_formulas = [c.formula for c in self.fuzzy_comp]
-        self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(ValueError, Composition.from_formula, "Fee3", allow_fuzzy=True)
+    def test_indeterminate_formula(self):
+        correct_formulas = []
+        correct_formulas.append(["Co1"])
+        correct_formulas.append(["Co1", "C1 O1"])
+        correct_formulas.append(["Co2 O3", "C1 O5"])
+        correct_formulas.append(["Fm1 N1", "F1 Mn1"])
+        correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
+        correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
+        correct_formulas.append(["Li2 Co2 P2 N2 O12", "U1 Al1 C1 N1"])
+        correct_formulas.append([])
+        #for i, c in enumerate(correct_formulas):
+        #    self.assertEqual([Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i])
+        #    print [Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i]
         
     def test_alphabetical_formula(self):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
