@@ -1249,7 +1249,6 @@ class Composition (collections.Mapping, collections.Hashable):
         all_matches = []
         for match in Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula):
             all_matches.append(match)
-        
         #remove duplicates
         all_matches = list(set(all_matches))
         #sort matches by rank descending
@@ -1329,54 +1328,57 @@ class Composition (collections.Mapping, collections.Hashable):
         if m_dict == None:
             m_dict = {}
         
+        fuzzy_formula = fuzzy_formula.strip()
+                
         if len(fuzzy_formula) == 0:
             #the entire formula has been parsed into m_dict. Return the corresponding Composition and number of points
-            yield (Composition.from_dict(m_dict), m_points)
-        
-        fuzzy_formula = fuzzy_formula.strip()
-        print fuzzy_formula, '****'
-        #if there is a parenthesis, remove it and match the remaining stuff with the appropriate factor
-        mp = re.search(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula)
-        if mp:
-            mp_points = m_points
-            mp_form = fuzzy_formula
-            mp_dict = dict(m_dict)
-            mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
+            if m_dict:
+                yield (Composition.from_dict(m_dict), m_points)
+        else:
+            #if there is a parenthesis, remove it and match the remaining stuff with the appropriate factor
+            for mp in re.finditer(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula):
+                mp_points = m_points
+                mp_form = fuzzy_formula
+                mp_dict = dict(m_dict)
+                mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
+                #match the stuff inside the parenthesis with the appropriate factor
+                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
+                    only_me = True
+                    #match the stuff outside the parentheses and return the sum
+                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group()," ",1), mp_dict, mp_points, factor=1): 
+                        only_me = False
+                        yield (match[0] + match2[0], match[1] + match2[1])
+                    #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses
+                    if only_me:
+                        yield match
+                return
             
-            #match the stuff inside the parenthesis with the appropriate factor
-            for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
-                #match the stuff outside the parenthesis with a factor of 1
-                for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group()," ",1), mp_dict, mp_points, factor=1):
-                    #return the sum of the Composition of stuff inside and outside the parenthesis, and the sum of their points amounts
-                    yield (match[0] + match2[0], match[1]+match2[1])
-            #we already matched everything!
-            return
-                    
-        #try to match the single-letter elements
-        m1 = re.match(r"([A-z])([\.\d]*)", fuzzy_formula)
-        if m1:
-            m_points1 = m_points
-            m_form1 = fuzzy_formula
-            m_dict1 = dict(m_dict)
-            (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
-            if m_dict1:
-                #there was a real match
-                for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
-                    yield match
-        
-        #try to match two-letter elements
-        m2 = re.match(r"([A-z]{2})([\.\d]*)", fuzzy_formula)
-        if m2:
-            m_points2 = m_points
-            m_form2 = fuzzy_formula
-            m_dict2 = dict(m_dict)
-            (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
-            if m_dict2:
-                #there was a real match
-                for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
-                    yield match
+            #try to match the single-letter elements
+            m1 = re.match(r"([A-z])([\.\d]*)", fuzzy_formula)
+            if m1:
+                m_points1 = m_points
+                m_form1 = fuzzy_formula
+                m_dict1 = dict(m_dict)
+                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+                if m_dict1:
+                    #there was a real match
+                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
+                        yield match
+            
+            #try to match two-letter elements
+            m2 = re.match(r"([A-z]{2})([\.\d]*)", fuzzy_formula)
+            if m2:
+                m_points2 = m_points
+                m_form2 = fuzzy_formula
+                m_dict2 = dict(m_dict)
+                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+                if m_dict2:
+                    #there was a real match
+                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
+                        yield match
+            
 
 if __name__ == "__main__":
-    print Composition.from_formula("(co)2(pO4)2")
+    print Composition.ranked_compositions_from_indeterminate_formula("li9(v3)(P2O7)3(PO4)2", True)
     # import doctest
     # doctest.testmod()

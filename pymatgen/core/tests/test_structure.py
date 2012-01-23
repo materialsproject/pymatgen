@@ -202,6 +202,7 @@ class CompositionTest(unittest.TestCase):
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
         
     def test_init_(self):
@@ -225,11 +226,12 @@ class CompositionTest(unittest.TestCase):
         correct_formulas.append(["Fm1 N1", "F1 Mn1"])
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
-        correct_formulas.append(["Li2 Co2 P2 N2 O12", "U1 Al1 C1 N1"])
+        correct_formulas.append(["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11", "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"])
+        correct_formulas.append(["Co2 P4 O4", "Co2 Po4", "P4 C2 O6", "Po4 C2 O2"])
         correct_formulas.append([])
-        #for i, c in enumerate(correct_formulas):
-        #    self.assertEqual([Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i])
-        #    print [Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i]
+        for i, c in enumerate(correct_formulas):
+            self.assertEqual([Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i])
+            print [Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i]
         
     def test_alphabetical_formula(self):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
