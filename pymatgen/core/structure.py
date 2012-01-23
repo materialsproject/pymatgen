@@ -1222,7 +1222,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
     
     @staticmethod
-    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict = True):
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
         '''
         Takes in a formula where capitilization might not be correctly entered, and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
@@ -1238,7 +1238,7 @@ class Composition (collections.Mapping, collections.Hashable):
         
         #if we have an exact match and the user specifies lock_if_strict, just return the exact match!
         if lock_if_strict:
-            #the strict composition parsing might throw an error, we need to ignore it
+            #the strict composition parsing might throw an error, we can ignore it and just get on with fuzzy matching
             try:
                 if Composition.from_formula(fuzzy_formula):
                     return [Composition.from_formula(fuzzy_formula)]
@@ -1257,7 +1257,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return all_matches
         
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = None, m_points = 0, factor = 1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict=None, m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
         Author: Anubhav Jain
@@ -1274,6 +1274,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns:
             A list of tuples, with the first element being a Composition and the second element being the number of points awarded that Composition intepretation
         '''
+        
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
             '''
             A helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
@@ -1345,7 +1346,7 @@ class Composition (collections.Mapping, collections.Hashable):
                 for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
                     only_me = True
                     #match the stuff outside the parentheses and return the sum
-                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group()," ",1), mp_dict, mp_points, factor=1): 
+                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor=1): 
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
                     #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses
@@ -1379,6 +1380,5 @@ class Composition (collections.Mapping, collections.Hashable):
             
 
 if __name__ == "__main__":
-    print Composition.ranked_compositions_from_indeterminate_formula("li9(v3)(P2O7)3(PO4)2", True)
-    # import doctest
-    # doctest.testmod()
+    import doctest
+    doctest.testmod()
