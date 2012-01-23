@@ -1153,9 +1153,83 @@ class Composition (collections.Mapping, collections.Hashable):
             Weight fraction for element el in Composition
         '''
         return el.atomic_mass*self[el]/self.weight
+   
+    @staticmethod
+    def from_formula(formula):
+        '''
+        Arguments:
+            formula:
+                A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+        Returns:
+            Composition with that formula.
+        '''
+        def get_sym_dict(f, factor):
+            sym_dict = {}
+            for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
+                el = m.group(1)
+                amt = 1
+                if m.group(2).strip() != "":
+                    amt = float(m.group(2))
+                if el in sym_dict:
+                    sym_dict[el] += amt * factor
+                else:
+                    sym_dict[el] = amt * factor
+            return sym_dict
+        m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
+        if m:
+            factor = 1
+            if m.group(2) != "":
+                factor = float(m.group(2))
+            unit_sym_dict = get_sym_dict(m.group(1), factor)
+            expanded_formula = formula.replace(m.group(), "".join([el+str(amt) for el, amt in unit_sym_dict.items()]))
+            return Composition.from_formula(expanded_formula)
+        return Composition.from_dict(get_sym_dict(formula, 1))
+    
+    
+    def __repr__(self):
+        return "Comp: " + self.formula
+        
+    @staticmethod
+    def from_dict(sym_dict):
+        '''
+        Arguments:
+            sym_dict:
+                A element symbol: amount dict, e.g. {"Fe":2, "O":3}
+        Returns:
+            Composition with that formula.
+        '''
+        return Composition( {Element(sym) : amt for sym, amt in sym_dict.items()})
+    
+    @property
+    def to_dict(self):
+        '''
+        Returns:
+            dict with element symbol and (unreduced) amount e.g. {"Fe": 4.0, "O":6.0}
+        '''
+        return {e.symbol: a for e, a in self.items()}
+    
+    @property
+    def to_reduced_dict(self):
+        '''
+        Returns:
+            dict with element symbol and reduced amount e.g. {"Fe": 2.0, "O":3.0}
+        '''
+        reduced_formula = self.reduced_formula
+        c = Composition.from_formula(reduced_formula)
+        return c.to_dict
     
     @staticmethod
-    def ranked_compositions_from_fuzzy_formula(fuzzy_formula, lock_if_strict = True):
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict = True):
+        '''
+        
+        Arguments:
+            fuzzy_formula:
+                D
+            lock_if_strict:
+                D
+        Returns:
+            D
+        '''
         if lock_if_strict and Composition.from_formula(fuzzy_formula):
             return [Composition.from_formula(fuzzy_formula)]
         
@@ -1255,132 +1329,6 @@ class Composition (collections.Mapping, collections.Hashable):
                 #there was a real match
                 for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
                     yield match
-   
-    @staticmethod
-    def from_formula(formula, allow_fuzzy=False):
-        '''
-        Arguments:
-            formula:
-                A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
-            allow_fuzzy:
-                Whether to allow formulas where capitalization is not strict, e.g. 'lifeo2'.
-                Please note that fuzzy interpretation can be ambiguous at times. For example,
-                lifepo4 is parsed as LiFePO4, not LiFePo4. It is recommended that developers
-                avoid using fuzzy matching to avoid potential bugs that can be very hard to 
-                diagnose. Fuzzy matching is useful for public-facing applications where an
-                intelligent guess to an input formula is needed.
-        Returns:
-            Composition with that formula.
-        '''
-        def get_sym_dict(f, factor, allow_fuzzy):
-            
-            def _parse_and_chomp(m, f, sym_dict):
-                '''
-                Takes in a regex match, formula, and existing sym_dict
-                return a tuple of (sym_dict, f) where sym_dict now contains data from the match 
-                and the match has been removed (chomped) from the formula
-                '''
-                
-                el = m.group(1)
-                if len(el) > 2:
-                    raise ValueError("Invalid element symbol entered! (more than 2 characters)")
-                el = el[0].upper() if len(el) == 1 else el[0].upper() + el[1].lower()
-                amt = float(m.group(2)) if m.group(2).strip() != "" else 1
- 
-                if Element.is_valid_symbol(el):
-                    if el in sym_dict:
-                        sym_dict[el] += amt * factor
-                    else:
-                        sym_dict[el] = amt * factor
-                    return (sym_dict, f.replace(m.group(), ""))
-                return (sym_dict, f)
-            
-            if allow_fuzzy:
-                #some fuzzy conventions
-                convention_dict = {}
-                convention_dict['MN'] = "Mn"  # might cause problems with Francium ambiguity, e.g. directs "FMN" toward 'Mn1 F1' rather than 'Fm1 N1'
-                convention_dict['MO'] = "Mo"  # might cause problems with Francium ambiguity, e.g. directs "FMO" toward 'Mo1 F1' rather than 'Fm1 O1'
-                for key in convention_dict:
-                    f = f.replace(key, convention_dict[key])
-                
-                sym_dict = {}
-                
-                #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
-                #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
-                for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-                for m in re.finditer(r"([A-Z][a-z]{0,1})([\.\d]*)", f[1:]):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-           
-                #handle two-character elements with improper capitalizations first
-                #this means that 'co' is interpreted as "Co1" rather than "C1 O1"
-                #it also means that 'po4' will be 'Po4' (Polonium 4) rather than 'P1 O4'
-                #Neither convention is 'correct' and both lead to some degree of awkwardness
-                for m in re.finditer(r"([A-z]{2})([\.\d]*)", f):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-                for m in re.finditer(r"([A-z]{2})([\.\d]*)", f[1:]):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-                    
-                #handle one-character elements with improper capitalizations last
-                for m in re.finditer(r"([A-z])([\.\d]*)", f):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-                
-                if len(f.strip()) > 0:
-                    raise ValueError("Formula parsing has extraneous elements")
-                return sym_dict
-            
-            else:
-                sym_dict = {}
-                
-                #handle the cases where capitalization is proper first, e.g. Mn2O3, CoO2, or N
-                #Note that this means 'MN' will not be properly parsed, but 'PO' will be P1 O1
-                for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
-                    (sym_dict, f) = _parse_and_chomp(m, f, sym_dict)
-                    
-                return sym_dict
-        
-        m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
-        if m:
-            factor = 1
-            if m.group(2) != "":
-                factor = float(m.group(2))
-            unit_sym_dict = get_sym_dict(m.group(1), factor, allow_fuzzy)
-            expanded_formula = formula.replace(m.group(), "".join([el+str(amt) for el, amt in unit_sym_dict.items()]))
-            return Composition.from_formula(expanded_formula, allow_fuzzy)
-        return Composition.from_dict(get_sym_dict(formula, 1, allow_fuzzy))
-    
-    
-    def __repr__(self):
-        return "Comp: " + self.formula
-        
-    @staticmethod
-    def from_dict(sym_dict):
-        '''
-        Arguments:
-            sym_dict:
-                A element symbol: amount dict, e.g. {"Fe":2, "O":3}
-        Returns:
-            Composition with that formula.
-        '''
-        return Composition( {Element(sym) : amt for sym, amt in sym_dict.items()})
-    
-    @property
-    def to_dict(self):
-        '''
-        Returns:
-            dict with element symbol and (unreduced) amount e.g. {"Fe": 4.0, "O":6.0}
-        '''
-        return {e.symbol: a for e, a in self.items()}
-    
-    @property
-    def to_reduced_dict(self):
-        '''
-        Returns:
-            dict with element symbol and reduced amount e.g. {"Fe": 2.0, "O":3.0}
-        '''
-        reduced_formula = self.reduced_formula
-        c = Composition.from_formula(reduced_formula)
-        return c.to_dict
 
 if __name__ == "__main__":
     print Composition.ranked_compositions_from_fuzzy_formula('Co')
