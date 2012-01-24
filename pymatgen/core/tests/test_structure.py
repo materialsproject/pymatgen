@@ -231,7 +231,6 @@ class CompositionTest(unittest.TestCase):
         correct_formulas.append([])
         for i, c in enumerate(correct_formulas):
             self.assertEqual([Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i])
-            print [Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i]
         
     def test_alphabetical_formula(self):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
