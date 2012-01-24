@@ -1240,15 +1240,12 @@ class Composition (collections.Mapping, collections.Hashable):
         if lock_if_strict:
             #the strict composition parsing might throw an error, we can ignore it and just get on with fuzzy matching
             try:
-                if Composition.from_formula(fuzzy_formula):
-                    return [Composition.from_formula(fuzzy_formula)]
+                comp = Composition.from_formula(fuzzy_formula)
+                return [comp]
             except:
                 pass
         
-        #get all the potential matches
-        all_matches = []
-        for match in Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula):
-            all_matches.append(match)
+        all_matches = Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula)
         #remove duplicates
         all_matches = list(set(all_matches))
         #sort matches by rank descending
@@ -1257,7 +1254,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return all_matches
         
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict=None, m_points=0, factor=1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = {}, m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
         Author: Anubhav Jain
@@ -1326,9 +1323,6 @@ class Composition (collections.Mapping, collections.Hashable):
             #else return None
             return (None, None, None)
         
-        if m_dict == None:
-            m_dict = {}
-        
         fuzzy_formula = fuzzy_formula.strip()
                 
         if len(fuzzy_formula) == 0:
@@ -1376,8 +1370,7 @@ class Composition (collections.Mapping, collections.Hashable):
                 if m_dict2:
                     #there was a real match
                     for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
-                        yield match
-            
+                        yield match   
 
 if __name__ == "__main__":
     import doctest
