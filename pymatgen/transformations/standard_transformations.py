@@ -566,9 +566,12 @@ class PrimitiveCellTransformation(AbstractTransformation):
             #choose the shortest translation vector
             vector_norms = map(np.linalg.norm, symmetry_vectors)
             reduction_vector = symmetry_vectors[vector_norms.index(min(vector_norms))]
+            print reduction_vector
             
             #choose a basis to replace (a, b, or c)
-            basis_to_replace = list(reduction_vector).index(max(reduction_vector))
+            ltc = structure.lattice
+            proj = [abs(reduction_vector[0] * ltc.a), abs(reduction_vector[1] * ltc.b), abs(reduction_vector[2] * ltc.c)]
+            basis_to_replace = list(proj).index(max(proj))
             
             #create a new basis
             new_matrix = structure.lattice.matrix
