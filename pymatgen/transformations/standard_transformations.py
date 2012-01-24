@@ -559,7 +559,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             reduction_vector = min(symmetry_vectors, key = np.linalg.norm)
             
             #choose a basis to replace (a, b, or c)
-            proj = structure.lattice.abc * reduction_vector
+            proj = abs(structure.lattice.abc * reduction_vector)
             basis_to_replace = list(proj).index(max(proj))
             
             #create a new basis
