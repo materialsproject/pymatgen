@@ -132,6 +132,25 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         t.apply_transformation(struct)
         self.assertEqual(len(t.all_structures), 3)
         
+class PrimitiveCellTransformationTest(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = PrimitiveCellTransformation()
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.375,0.375,0.375])
+        coords.append([.5,.5,.5])
+        coords.append([0.875,0.875,0.875])
+        coords.append([0.125,0.125,0.125])
+        coords.append([0.25,0.25,0.25])
+        coords.append([0.625,0.625,0.625])
+        coords.append([0.75,0.75,0.75])
+        
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li+", "Li+","Li+", "Li+", "O2-", "O2-", "O2-", "O2-"],coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(len(s), 4)
+        
 class TransformationJsonTest(unittest.TestCase):
     
     def test_from_json(self):

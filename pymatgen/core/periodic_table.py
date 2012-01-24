@@ -521,7 +521,8 @@ class Specie(Element):
         '''
         Sets a default sort order for atomic species by electronegativity, followed by oxidation state. 
         '''
-        return (self.X - other.X) * 100 + (self.oxi_state - other.oxi_state)
+        other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
     
     @property
     def ionic_radius(self):
