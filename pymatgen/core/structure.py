@@ -85,7 +85,8 @@ class Site(collections.Mapping, collections.Hashable):
         if self._is_ordered:
             return str(self._species.keys()[0])
         else:
-            return ', '.join(["%s:%.3f" % (str(atom),occu) for atom,occu in self._species.items()])
+            sorted_species = sorted(self._species.keys())
+            return ', '.join(["%s:%.3f" % (str(sp),self._species[sp]) for sp in sorted_species])
 
     @property
     def species_and_occu(self):

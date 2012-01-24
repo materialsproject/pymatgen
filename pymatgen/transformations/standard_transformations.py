@@ -503,8 +503,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self):
-        pass
+    def __init__(self, tolerance = 0.2):
+        self._tolerance = tolerance
     
     def _get_more_primitive_structure(self, structure, tolerance):
         '''this finds a smaller unit cell than the input
@@ -525,11 +525,20 @@ class PrimitiveCellTransformation(AbstractTransformation):
         tol_c = tolerance/structure.lattice.c
         
         #get the possible symmetry vectors
+        sites = sorted(structure.sites, key = lambda site: site.species_string)
+        grouped_sites = itertools.groupby(sites, key = lambda site: site.species_string)
+        min_site_list = None
+        min_len = len(structure) + 1
+        for k, g in grouped_sites:
+            site_list = list(g)
+            if len(site_list) < min_len:
+                min_site_list = site_list
+                min_len = len(site_list)
+                
+        x = min_site_list[0]
         possible_vectors = []
-        sites = list(structure.sites)
-        x = sites[0]
-        for y in sites:
-            if x.species_and_occu == y.species_and_occu and not x == y:
+        for y in min_site_list:
+            if not x == y:
                 vector = (x.frac_coords - y.frac_coords)%1
                 possible_vectors.append(vector)
                 
@@ -614,14 +623,13 @@ class PrimitiveCellTransformation(AbstractTransformation):
         else: #if there were no translational symmetry vectors
             return structure
     
-    def apply_transformation(self, structure, tolerance = 0.2):
+    def apply_transformation(self, structure):
         """
-       
         """
-        structure2 = self._get_more_primitive_structure(structure, tolerance)
+        structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         while len(structure2)<len(structure):
             structure = structure2
-            structure2 = self._get_more_primitive_structure(structure, tolerance)
+            structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         return structure2
         
     
