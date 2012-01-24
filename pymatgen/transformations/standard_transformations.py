@@ -540,40 +540,26 @@ class PrimitiveCellTransformation(AbstractTransformation):
         for x in sites:
             for j in range(len(possible_vectors)):
                 p_v = possible_vectors[j]
-                fit1 = False
-                fit2 = False
-                if p_v is not None: #have to test that adding and subtracting vector to a site finds a similar site
-                    test_location1 = x.frac_coords + p_v
-                    test_location2 = x.frac_coords - p_v
-                    possible_sites = [site for site in sites if site.species_and_occu == x.species_and_occu and not x == site]
-                    i = 0
-                    while i < len(possible_sites) and not fit1:
-                        diff = .5 - abs((test_location1 - possible_sites[i].frac_coords)%1-.5)
+                fit = False
+                if p_v is not None: #have to test that adding vector to a site finds a similar site
+                    test_location = x.frac_coords + p_v
+                    possible_locations = [site.frac_coords for site in sites if site.species_and_occu == x.species_and_occu and not x == site]
+                    for p_l in possible_locations:
+                        diff = .5 - abs((test_location-p_l)%1 -.5)
                         if diff[0] < tol_a and diff[1] < tol_b and diff[2] < tol_c:
-                            fit1 = True
-                        i += 1
-                    i = 0
-                    while i < len(possible_sites) and not fit2:
-                        diff = .5 - abs((test_location2 - possible_sites[i].frac_coords)%1-.5)
-                        if diff[0] < tol_a and diff[1] < tol_b and diff[2] < tol_c:
-                            fit2 = True
-                        i += 1
-                    if not (fit1 and fit2):
+                            fit = True
+                            break
+                    if not fit:
                         possible_vectors[j] = None
         
         #vectors that haven't been removed from possible_vectors are symmetry vectors
         #convert these to the shortest representation of the vector           
         symmetry_vectors = [.5-abs((x-.5)%1) for x in possible_vectors if x is not None]
-        print symmetry_vectors
         if symmetry_vectors:
-            #choose the shortest translation vector
-            vector_norms = map(np.linalg.norm, symmetry_vectors)
-            reduction_vector = symmetry_vectors[vector_norms.index(min(vector_norms))]
-            print reduction_vector
+            reduction_vector = min(symmetry_vectors, key = np.linalg.norm)
             
             #choose a basis to replace (a, b, or c)
-            ltc = structure.lattice
-            proj = [abs(reduction_vector[0] * ltc.a), abs(reduction_vector[1] * ltc.b), abs(reduction_vector[2] * ltc.c)]
+            proj = structure.lattice.abc * reduction_vector
             basis_to_replace = list(proj).index(max(proj))
             
             #create a new basis
@@ -597,15 +583,12 @@ class PrimitiveCellTransformation(AbstractTransformation):
             new_sites = []
             for site in sites:
                 fit = False
-                i=0
-                while i<len(new_sites) and not fit:
-                    new_site = new_sites[i]
+                for new_site in new_sites:
                     if site.species_and_occu == new_site.species_and_occu:
                         diff = .5 - abs((site.frac_coords - new_site.frac_coords)%1-.5)
                         if diff[0] < tol_a and diff[1] < tol_b and diff[2] < tol_c:
                             fit = True
-                    i+=1
-                    
+                            break
                 if not fit:
                     new_sites.append(site)
             
