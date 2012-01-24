@@ -1177,7 +1177,7 @@ class Composition (collections.Mapping, collections.Hashable):
                     sym_dict[el] = amt * factor
                 f = f.replace(m.group(),"")
             if f.strip():
-                raise ValueError("Invalid formula!")
+                raise ValueError("{} is an invalid formula!".format(f))
             return sym_dict
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
