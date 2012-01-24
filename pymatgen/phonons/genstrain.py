@@ -44,18 +44,22 @@ class DeformGeometry(object):
 		coords = list()
 		species = []
 		myCIF = CifParser(self._path).get_structures()[0]
-		
+
+#		check this part, cifio-code does this already!
+
+		print myCIF
 		for k in range(len(myCIF._sites)):
 			coords.append(Lattice(np.linalg.inv(myCIF._lattice._mc2d)).get_fractional_coords(myCIF._sites[k]._coords))
 			species.append(myCIF._sites[k]._species.keys()[0])
 
 		lattice = Lattice(myCIF._lattice._matrix)
 		struct = Structure(lattice,species,coords)
-		
+		print struct
+
 		self.base_struct = struct
-		self._coords = coords
-		self._lattice = myCIF._lattice._matrix
-		self._species = species
+#		self._coords = coords
+#		self._lattice = myCIF._lattice._matrix
+#		self._species = species
 
 		return self.base_struct
 
@@ -195,11 +199,11 @@ Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/classes/7048.cif')
 
 ## Calling sequence ##
 Q.CIF2struct()
-Q.deform(0.02, 0.02, 4, 4)
-Q.get_residual_stress()
+#Q.deform(0.02, 0.02, 4, 4)
+#Q.get_residual_stress()
 
 # Perform VASP-calculations in specified paths #
-Q.get_stress_tensors(['/home/MDEJONG1/pythonplayground/pymatgen/classes/vasprun.xml']*24)
+#Q.get_stress_tensors(['/home/MDEJONG1/pythonplayground/pymatgen/classes/vasprun.xml']*24)
 
 
 
