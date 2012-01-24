@@ -506,7 +506,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
     def __init__(self):
         pass
     
-    def _getMorePrimitiveStructure(self, structure, tolerance):
+    def _get_more_primitive_structure(self, structure, tolerance):
         '''this finds a smaller unit cell than the input
         sometimes it doesn't find the smallest possible one, so this method is called until it
         is unable to find a smaller cell
@@ -615,10 +615,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
        
         """
-        structure2 = self._getMorePrimitiveStructure(structure, tolerance)
+        structure2 = self._get_more_primitive_structure(structure, tolerance)
         while len(structure2)<len(structure):
             structure = structure2
-            structure2 = self._getMorePrimitiveStructure(structure, tolerance)
+            structure2 = self._get_more_primitive_structure(structure, tolerance)
         return structure2
         
     
