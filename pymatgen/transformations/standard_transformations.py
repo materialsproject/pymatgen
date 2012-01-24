@@ -526,14 +526,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
         
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key = lambda site: site.species_string)
-        grouped_sites = itertools.groupby(sites, key = lambda site: site.species_string)
-        min_site_list = None
-        min_len = len(structure) + 1
-        for k, g in grouped_sites:
-            site_list = list(g)
-            if len(site_list) < min_len:
-                min_site_list = site_list
-                min_len = len(site_list)
+        grouped_sites = [list(group) for k, group in itertools.groupby(sites, key = lambda site: site.species_string)]
+        min_site_list = min(grouped_sites, key = lambda group: len(group))
                 
         x = min_site_list[0]
         possible_vectors = []
