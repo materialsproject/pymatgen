@@ -1175,7 +1175,7 @@ class Composition (collections.Mapping, collections.Hashable):
                     sym_dict[el] += amt * factor
                 else:
                     sym_dict[el] = amt * factor
-                f = f.replace(m.group(),"")
+                f = f.replace(m.group(),"", 1)
             if f.strip():
                 raise ValueError("{} is an invalid formula!".format(f))
             return sym_dict
