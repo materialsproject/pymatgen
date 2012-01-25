@@ -19,14 +19,14 @@ __date__ ="$Nov 22, 2011M$"
 import subprocess
 import numpy as np
 
-
+from pymatgen.io.vaspio import Poscar 
 
 def run_aconvasp_command(command, structure):
     """
     Helper function for calling aconvasp with different arguments
     """
-    from pymatgen.io.vaspio import Poscar 
-    poscar=Poscar(structure)
+
+    poscar = Poscar(structure)
     p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
     return output
@@ -35,25 +35,24 @@ def get_num_division_kpoints(structure, kppa):
     """
     get kpoint divisions for a given k-point density (per reciprocal-atom): kppa and a given structure  
     """
-    output=run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)], structure)
-    tmp=output[0].rsplit("\n")[6].rsplit(" ")
+    output = run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)], structure)
+    tmp = output[0].rsplit("\n")[6].rsplit(" ")
     return [int(tmp[5]),int(tmp[6]),int(tmp[7])]
 
 def get_minkowski_red(structure):
     """
     get a minkowski reduced structure
     """
-    from pymatgen.io.vaspio import Poscar 
-    output=run_aconvasp_command(['aconvasp', '--kpath'], structure)
-    started=False
-    poscar_string=""
+    output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
+    started = False
+    poscar_string = ""
     for line in output[0].split("\n"):
-        if(started==True or line.find("KPOINTS TO RUN")!=-1):
+        if started or line.find("KPOINTS TO RUN") != -1:
             poscar_string=poscar_string+line+"\n"
-        if(line.find("STRUCTURE TO RUN")!=-1):
-            started=True
-        if(line.find("KPOINTS TO RUN")!=-1):
-            started=False
+        if line.find("STRUCTURE TO RUN") != -1:
+            started = True
+        if line.find("KPOINTS TO RUN") != -1:
+            started = False
     return Poscar.from_string(poscar_string).struct
 
 
@@ -62,16 +61,16 @@ def get_vasp_kpoint_file_sym(structure):
     get a kpoint file ready to be ran in VASP along symmetries of a structure 
     """
     output=run_aconvasp_command(['aconvasp', '--kpath'], structure)
-    started=False
-    kpoints_string=""
+    started = False
+    kpoints_string = ""
     for line in output[0].split("\n"):
         #print line
-        if(started==True or line.find("END")!=-1):
-            kpoints_string=kpoints_string+line+"\n"
-        if(line.find("KPOINTS TO RUN")!=-1):
-            started=True
-        if(line.find("END")!=-1):
-            started=False
+        if started or line.find("END") != -1:
+            kpoints_string = kpoints_string + line + "\n"
+        if line.find("KPOINTS TO RUN") != -1:
+            started = True
+        if line.find("END") != -1:
+            started = False
     return kpoints_string
 
 def get_point_group_rec(structure):
@@ -81,8 +80,8 @@ def get_point_group_rec(structure):
     run_aconvasp_command(['aconvasp', '--pgroupk'], structure)
     listUc=[]
     f = open("aflow.pgroupk.out", 'r')
-    linetmp=[]
-    count=-1000
+    linetmp = []
+    count = -1000
     started = False
     for line in f:
         #print line
@@ -92,11 +91,11 @@ def get_point_group_rec(structure):
             started=True
             continue
         count=count+1
-        if(started==False):
+        if not started:
             continue
-        if(count<=2):
+        if count <= 2 :
             linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
-        if(count==2):
+        if count == 2:
             listUc.append(np.array(linetmp))
     f.close()
     return listUc
