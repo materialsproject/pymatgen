@@ -474,6 +474,9 @@ class Element(object):
         True if element is a actinoid.
         """
         return self.Z > 88 and self.Z < 104
+    
+    def __deepcopy__(self, memo):
+        return Element(self.symbol)
 
 
 class Specie(Element):
@@ -570,6 +573,9 @@ class Specie(Element):
         else:
             output += formula_double_format(- self.oxi_state) + "-"
         return output
+    
+    def __deepcopy__(self, memo):
+        return Specie(self.symbol, self.oxi_state)
 
 @singleton
 class PeriodicTable(object):
