@@ -14,8 +14,10 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="Sep 23, 2011"
 
+import math
 import numpy as np
 import scipy.interpolate as spint
+import pymatgen.command_line.aconvasp_caller
 
 class _SpinImpl(object):
     """
@@ -445,13 +447,13 @@ class Bandstructure(object):
     -add a way to enter k-points in fractional coords too
     -deal better with the need or not to pass a structure (compute the direct lattice from reciprocal?)
     -add spins
-    -add a class taking care of band projections on orbitals
     -...
 
     """
 
-    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure):
+    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure,efermi):
         
+        self._efermi=efermi
         
         self._structure=structure
         
@@ -504,8 +506,8 @@ class Bandstructure(object):
         previous_label=self.get_label(self._kpoints[0]['kpoint'],self._labels_dict)
         for i in range(len(self._kpoints)):
             label=self.get_label(self._kpoints[i]['kpoint'],self._labels_dict)
-            if(label!=None and previous_label!=None and label!=previous_label):
-                self._kpoints[i]['distance']=previous_distance+0.05
+            if(label!=None and previous_label!=None):
+                self._kpoints[i]['distance']=previous_distance
             else:
                 self._kpoints[i]['distance']=np.linalg.norm(self._kpoints[i]['kpoint']-previous_kpoint)+previous_distance
             previous_kpoint=self._kpoints[i]['kpoint']
@@ -514,14 +516,15 @@ class Bandstructure(object):
             self._kpoints[i]['label']=label
             
             if label!=None:
-                if(previous_label!=None and label!=previous_label):
-                    branches.append(one_group)
+                if(previous_label!=None):
+                    if(len(one_group)!=0):
+                        branches.append(one_group)
                     one_group=[]
             previous_label=label
             one_group.append(i)
             
-            
-        branches.append(one_group)
+        if(len(one_group)!=0):
+            branches.append(one_group)
         self._branches=branches
         
         #go through all the branches and assign their branch name to each kpoint
@@ -531,8 +534,8 @@ class Bandstructure(object):
             for c in b:
                 self._kpoints[c]['branch']=label_start+"-"+label_end
                 self._branch_labels.add(self._kpoints[c]['branch'])
-                
-                
+          
+            
     def get_label(self,kpoint,labels_dict):
         """
         simple method giving a label for any kpoint
@@ -545,7 +548,8 @@ class Bandstructure(object):
     def getVBM(self):
         """
         get the valence band minimum (VBM). returns a dictionnary with
-        'band_index': the index of the band containing the VBM (TODO: deal with the case when several bands contain the VBM)
+        'band_index': a list of the indices of the band containing the VBM (please note that you can have several bands 
+        sharing the VBM)
         'kpoint_index': the index in self._kpoints of the kpoint vbm
         'kpoint': the kpoint (in cartesian with 2pi factor)
         'energy': the energy of the VBM
@@ -553,56 +557,376 @@ class Bandstructure(object):
         """
         max_tmp=-1000.0
         index=None
-        index_band=None
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
-                if(self._bands[i]['occup'][j]>0.0):
+                if(self._bands[i]['energy'][j]<self._efermi):
                     if(self._bands[i]['energy'][j]>max_tmp):
                         max_tmp=self._bands[i]['energy'][j]
                         index=j
                         kpointvbm=self._kpoints[j]
-                        index_band=i
-        return {'band_index':index_band,'kpoint_index':index,'kpoint':kpointvbm['kpoint'],'energy':max_tmp,'label':kpointvbm['label']}
+        #get all other bands sharing the vbm
+        list_index_band=[]
+        for i in range(self._nb_bands):
+            if(math.fabs(self._bands[i]['energy'][index]-max_tmp)<0.001):
+                list_index_band.append(i)
+        return {'band_index':list_index_band,'kpoint_index':index,'kpoint':kpointvbm['kpoint'],'energy':max_tmp,'label':kpointvbm['label']}
     
     def getCBM(self):
         """
         get the conduction band minimum (CBM). returns a dictionnary with
-        'band_index': the index of the band containing the CBM (TODO: deal with the case when several bands contain the CBM)
+        'band_index': a list of the indices of the band containing the CBM (please note that you can have several bands 
+        sharing the CBM)
         'kpoint_index': the index in self._kpoints of the kpoint cbm
         'kpoint': the kpoint (in cartesian with 2pi factor)
         'energy': the energy of the CBM
         'label': the label of the cbm kpoint if any
         """
-        min_tmp=1000.0
+        max_tmp=1000.0
         index=None
-        index_band=None
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
-                if(self._bands[i]['occup'][j]==0.0):
-                    if(self._bands[i]['energy'][j]<min_tmp):
-                        min_tmp=self._bands[i]['energy'][j]
+                if(self._bands[i]['energy'][j]>self._efermi):
+                    if(self._bands[i]['energy'][j]<max_tmp):
+                        max_tmp=self._bands[i]['energy'][j]
                         index=j
-                        kpointcbm=self._kpoints[j]
-                        index_band=i
-        return {'band_index':index_band,'band_index':index_band,'kpoint_index':index,'kpoint':kpointcbm['kpoint'],'energy':min_tmp,'label':kpointcbm['label']}
+                        kpointvbm=self._kpoints[j]
+        #get all other bands sharing the vbm
+        list_index_band=[]
+        for i in range(self._nb_bands):
+            if(math.fabs(self._bands[i]['energy'][index]-max_tmp)<0.001):
+                list_index_band.append(i)
+        return {'band_index':list_index_band,'kpoint_index':index,'kpoint':kpointvbm['kpoint'],'energy':max_tmp,'label':kpointvbm['label']}
+    
+    
+    
 
-    def plot_bands(self):
+
+    def get_band_gap(self):
         """
-        plot the band structure.
-        TODO: add more options
+        get the band gap 
+        returns a dictionary with:
+        'energy': the band gap energy in eV
+        'direct': a boolean telling if the gap is direct (True) or not (False)
+        'transition': the kpoint labels of the transition (e.g., \Gamma to X)
+        
+        TODO: not sure if the direct works, to test!
+        
         """
-        import pylab 
+        if(self.is_metal()==True):
+            return {'energy':0.0,'direct':False,'transition':None}
+        cbm=self.getCBM()
+        vbm=self.getVBM()
+        result={}
+        result['energy']=cbm['energy']-vbm['energy']
+        result['direct']=False
+        if(cbm['label']==vbm['label'] or np.linalg.norm(cbm['kpoint']-vbm['kpoint'])<0.01):
+            result['direct']=True
+        result['transition']=str(vbm['label'])+"-"+str(cbm['label'])
+        return result
+    
+    def get_direct_gap(self):
+        """
+        get the direct gap
+        
+        """
+        if(self.is_metal()==True):
+            return 0.0
+        #go through each kpoint and find the vbm and cbm at this kpoint
+        #find the minimum of this difference
+        diffmin=10000
+        for i in range(len(self._kpoints)):
+            diff=0.0
+            for j in range(self._nb_bands):
+                if(self._bands[j]['energy'][i]>self._efermi):
+                    cbm=self._bands[j]['energy'][i]
+                    vbm=self._bands[j-1]['energy'][i]
+                    #print str(i)+" "+str(cbm)+" "+str(vbm)
+                    diff=cbm-vbm
+                    #print str(diff)+" "+str(diffmin)
+                    if(diff<diffmin):
+                        diffmin=diff
+                    break
+        #print diffmin
+        return diffmin
+        
+        
+    def get_pg_matrices_rec(self):
+        """
+            get the point group matrices in the reciprocal lattice of the structure
+            calls aconvasp to get this
+        """
+        return pymatgen.command_line.aconvasp_caller.get_point_group_rec(self._structure)
+    
+    def kpoints_from_label(self,label):
+        """
+            get the kpoint corresponding to a given label
+        """
+        to_return=[]
+        count=0
+        for c in self._kpoints:
+            if(c['label']==label):
+                tmp=c['kpoint_index']=count+1
+                to_return.append(tmp)
+            count=count+1
+        return to_return
+    
+    def plot_kpoints_IBZ(self):
+        """
+        gives the irreducible brillouin zone and the kpoint in the band structure
+        this is a first pass at this
+        """
+        
+        import pylab as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        print self._lattice_rec.abc
+        ax.scatter([self._kpoints[i]['kpoint'][0] for i in range(len(self._kpoints))],[self._kpoints[i]['kpoint'][1] for i in range(len(self._kpoints))],[self._kpoints[i]['kpoint'][2] for i in range(len(self._kpoints))])
+        
+        for i in range(len(self._kpoints)):
+            if(self._kpoints[i]['label']!=None):
+            #ax.text(newkpoint[0],newkpoint[1],newkpoint[2],self._kpoints[i]['label'])
+                ax.text(self._kpoints[i]['kpoint'][0],self._kpoints[i]['kpoint'][1],self._kpoints[i]['kpoint'][2],self._kpoints[i]['label'])
+                
+            
+        plt.show()
+    
+    
+    def get_effective_mass_average(self,target):
+        """
+        this method averages the effective masses of several branches in one average effective mass tensor
+        the average is based on the occupation and heavier bands see a larger occupation
+        the weight factor is based on the occupation of parabolic bands
+        """
+        tensors=self.get_effective_mass_smart(target)
+        #fist we computed the mDOS=(mx*my*mz)^1/3 for each band
+        mDOS=[]
+        tot=0.0
+        for t in tensors:
+            m=(math.fabs(t[0]*t[1]*t[2]))**(1.0/3.0)
+            mDOS.append(m)
+            tot=tot+m**(3.0/2.0)
+        #then we average with the mDOS^3/2 weights
+        result=[0.0,0.0,0.0]
+        for i in range(len(tensors)):
+            result[0]=result[0]+mDOS[i]**(3.0/2.0)*np.float(tensors[i][0])/tot
+            result[1]=result[1]+mDOS[i]**(3.0/2.0)*np.float(tensors[i][1])/tot
+            result[2]=result[2]+mDOS[i]**(3.0/2.0)*np.float(tensors[i][2])/tot
+        return result
+    
+    def get_effective_mass(self,target):
+        """
+        this gives all the effective masses for a given kpoint (even if there are several bands including the point)
+        this gives a list of list of eigenvalues for one given kpoint
+        """
+        for c in target['band_index']:
+            list.append(self.get_effective_mass_smart_one_band(target['kpoint'], target['kpoint_index'], target['label'], c))
+        return list
+    
+    def get_effective_mass_one_band(self, kpoint, kpoint_index, label, band_index):
+        """
+        this gives all the eigenvalues of the effective mass tensor that can be deducted from the band structure and ONE band
+        It uses the symmetry of the Brillouin zone to do so
+        TODO: check more
+        
+        """
+        
+        set_branches_nb=set()
+        #find the sym. operation keeping ko
+        listUc=self.get_pg_matrices_rec()
+        list_return=[]
+        for u in listUc:
+                #print i
+            newkpoint=np.dot(u,kpoint.T)
+            
+                
+            if(np.linalg.norm(newkpoint-kpoint)<0.001):
+                list_return.append(u)
+        
+        #for these S find eigenvectors
+        all_eigenvectors=[]
+        for u in list_return:
+            array=np.linalg.eig(u)
+            for i in range(len(array[0])):
+                if(math.fabs(array[0][i].imag)<0.001):
+                    #print array
+                    all_eigenvectors.append(array[1][i])
+                    #print array[0][i]
+        #print all_eigenvectors
+        #look at all branches containing the point with label
+        branches_of_interest=[]
+        if(label!=None):
+            for i in range(len(self._kpoints)):
+                if(self._kpoints[i]['label']==label):
+                    for j in range(len(self._branches)):
+                        d=self._branches[j]
+                        if i in d:
+                            branches_of_interest.append({'indices':d,'vector':(self._kpoints[d[-1]]['kpoint']-self._kpoints[d[0]]['kpoint']),'index':j})
+        else:
+                for j in range(len(self._branches)):
+                    d=self._branches[j]
+                    if kpoint_index in d:
+                        branches_of_interest.append({'indices':d,'vector':(self._kpoints[d[-1]]['kpoint']-self._kpoints[d[0]]['kpoint']),'index':j})
+        #print branches_of_interest
+        
+        #check if any of the branches are colinear with one of the all_eigenvectors
+        for c in all_eigenvectors:
+            for d in branches_of_interest:
+                if(math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector'])*np.linalg.norm(c))<1.01 or math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector']))*np.linalg.norm(c)))>0.99):
+                    set_branches_nb.add(d['index'])
+        #print set_branches_nb       
+        mass=[]
+        #for the each branch get the mass
+        for b in set_branches_nb:
+            mass.append(self.get_effective_mass_along_line(kpoint_index, band_index, b)[0])
+        
+        return mass
+        
+        #print self._branches
+        #for c in self._branches:
+            #if(target['kpoint_index'] in c):
+                #print c
+            
+    def get_effective_mass_along_line(self, index_k, index_band, index_branch):
+        """
+            this is a very simple method giving the effective mass along a specific branch
+            These do not have to correspond to one of the eigenvalue of the effective mass tensor
+            This is based on a simple fit of a parabola on a few points
+            TODO: change the way the points are picked
+        """
+        nb_sample=4
+        mass=[]
+        #get all points around (from -4 to 4) index_k on the band=
+        x0=self._kpoints[index_k]['distance']
+        y0=self._bands[index_band]['energy'][index_k]
+        
+        #two cases: there a nb_sample points in the branch with higher indices or lower ones
+        forward=False
+        backward=False
+        local_index=None
+        for i in range(len(self._branches[index_branch])):
+            if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']-self._kpoints[index_k]['kpoint'])<0.001):
+                local_index=i 
+                if(len(self._branches[index_branch])>i+4):
+                    forward=True
+                if(i-4>0):
+                    backward=True
+        
+        if(forward):
+            x=[self._kpoints[self._branches[index_branch][local_index+i]]['distance']-x0 for i in range(nb_sample)]
+            y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index+i]]-y0 for i in range(nb_sample)]
+            a=np.polyfit(x,y,2)
+            mass.append(3.77/a[0])
+         
+        if(backward):
+            x=[self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0 for i in range(nb_sample)]
+            y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index-i]]-y0 for i in range(nb_sample)]
+            a=np.polyfit(x,y,2)
+            mass.append(3.77/a[0])
+               
+        return mass
+        
+    
+        
+    def get_stationary_pg_for_kpoints(self,kpoint):
+        listUc=self.get_pg_matrices_rec()
+        list_return=[]
+        for u in listUc:
+                #print i
+            newkpoint=np.dot(u,kpoint.T)
+
+                
+            if(np.linalg.norm(newkpoint-kpoint)<0.001):
+                list_return.append(u)
+        return list_return
+    
+    def get_eigen_vectors_for_pg(self):
+        listUc=self.get_pg_matrices_rec()
+        list_return=[]
+        for u in listUc:
+            print u
+            print np.linalg.eig(u)
+            list_return.append(np.linalg.eig(u))
+        return list_return
+    
+
+    
+    def is_metal(self):
+        """
+        check if the band structure indicates a metal by looking if the fermi level crosses a band
+        
+        """
+        for i in range(self._nb_bands):
+            below=False
+            above=False
+            for j in range(len(self._kpoints)):
+                if(self._bands[i]['energy'][j]<self._efermi):
+                    below=True
+                if(self._bands[i]['energy'][j]>self._efermi):
+                    above=True
+            if(above==True and below==True):
+                return True
+        return False
+                
+    
+    def plot_bands_compare(self, otherbands):
+        """
+        plot two band structure for comparison.
+        TODO: still a lot of work to do that nicely!
+        """
+        import pylab
         for bl in self._branch_labels:
             for i in range(self._nb_bands):
-                pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'o-')
+                pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'-r')
+        
+        for bl in otherbands._branch_labels:
+            for i in range(otherbands._nb_bands):
+                pylab.plot([otherbands._kpoints[j]['distance'] for j in range(len(otherbands._kpoints)) if otherbands._kpoints[j]['branch']==bl],[otherbands._bands[i]['energy'][j] for j in range(len(otherbands._kpoints)) if otherbands._kpoints[j]['branch']==bl],'-k')
+        
         ticks=self.get_ticks()
+        
         pylab.gca().set_xticks(ticks['distance'])
         pylab.gca().set_xticklabels(ticks['label'])
         pylab.xlabel('Kpoints', fontsize = 'large')
         pylab.ylabel('Energy(eV)', fontsize = 'large')
-        vbm=self.getVBM()['energy']
-        cbm=self.getCBM()['energy']
-        pylab.ylim(vbm-4,cbm+4)
+        #pylab.ylim(vbm-4,cbm+4)
+        pylab.show()
+        pylab.legend()
+        
+    def plot_bands(self,band=None,kpoint_index=[]):
+        """
+        plot the band structure.
+        band indicates the index number of the specific band to plot, None plots all bands
+        TODO: add more options
+        """
+        import pylab
+        pylab.figure
+        if(band==None): 
+            for bl in self._branch_labels:
+                for i in range(self._nb_bands):
+                    pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'b-',linewidth=5)
+            for bl in self._branch_labels:
+                for i in range(self._nb_bands):
+                    pylab.plot([self._kpoints[j]['distance'] for j in kpoint_index if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in kpoint_index if self._kpoints[j]['branch']==bl],'r^')
+        else:
+            for bl in self._branch_labels:
+                i=band
+                pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'k-o')
+            for bl in self._branch_labels:
+                pylab.plot([self._kpoints[j]['distance'] for j in kpoint_index if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in kpoint_index if self._kpoints[j]['branch']==bl],'r^')
+        
+        ticks=self.get_ticks()
+        for i in range(len(ticks['label'])):
+            if(ticks['label'][i]!=None):
+                pylab.axvline(ticks['distance'][i],color='k')
+            
+        pylab.gca().set_xticks(ticks['distance'])
+        pylab.gca().set_xticklabels(ticks['label'])
+        pylab.xlabel('Kpoints', fontsize = 'large')
+        pylab.ylabel('Energy(eV)', fontsize = 'large')
+        vbm=self.getVBM()
+        cbm=self.getCBM()
+        if(band==None):
+            pylab.ylim(vbm['energy']-4,cbm['energy']+4)
         pylab.show()
         pylab.legend()
         
@@ -617,4 +941,65 @@ class Bandstructure(object):
             if(c['label']!=None):
                 tick_distance.append(c['distance'])
                 tick_labels.append(c['label'])
-        return {'distance':tick_distance,'label':tick_labels} 
+        return {'distance':tick_distance,'label':tick_labels}
+    
+    def get_difference(self,otherbs):
+        diff=[]
+        for n in range(self._nb_bands):
+            diff.append([self._bands[n]['energy'][i]-otherbs._bands[n]['energy'][i] for i in range(len(self._kpoints))])
+        return diff
+    
+       
+def get_reconstructed_band_structure(list_bs):
+    """
+        this method takes a list of band structure (divided by branches)
+        and reconstruct one band structure object from all of them
+        TODO: check how to assign the fermi level
+    """
+    kpoints=[]
+    eigenvals=[]
+    labels_dict={}
+    rec_lattice=list_bs[0]._lattice_rec
+    structure=list_bs[0]._structure
+    efermi=list_bs[0]._efermi
+    nb_bands=list_bs[0]._nb_bands
+    for bs in list_bs:
+        for k in bs._kpoints:
+            kpoints.append(k['kpoint'])
+        for k, v in bs._labels_dict.iteritems():
+            labels_dict[k]=v
+        #eigenvals.append({'energy':[0,6.0],'occup':[1.0,1.0]})
+    for i in range(nb_bands):
+        eigenvals.append({'energy':[],'occup':[]})
+        for bs in list_bs:
+            for e in bs._bands[i]['energy']:
+                eigenvals[i]['energy'].append(e)
+            for u in bs._bands[i]['occup']:
+                eigenvals[i]['occup'].append(u)
+    return Bandstructure(kpoints,eigenvals,labels_dict,rec_lattice,structure,efermi) 
+
+class PBandstructure(Bandstructure):
+    """
+    Projected Bandstructure for a specific orbital. Extends the Bandstructure object.
+    For simplicity, I tried to follow the structure of the DOS implementation
+    WARNING: I just started this... not really working yet
+    """
+    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure, orbital):
+        Bandstructure.__init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure, orbital)
+        self.orbital = orbital
+       
+class CompleteBandStructure(Bandstructure):
+    """
+    This wrapper class defines a BandStructure, and also provides a list of PBandStructure (one for each site in the structure)
+    WARNING: I just started this... not really working yet
+    """
+    
+    def __init__(self, total_bandstructure, pbandstructure, structure):
+        """
+        """
+        self._bandstructure = total_bandstructure
+        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pbandstructure[i][j] for j in range(len(pbandstructure[i]))} for i in range(structure.num_sites)}
+        self._structure = structure        
+    
+    
+    
