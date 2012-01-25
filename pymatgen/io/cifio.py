@@ -89,13 +89,12 @@ class CifParser:
                 sympos =  data['_symmetry_equiv_pos_as_xyz_']
             except:
                 warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1.")
-                sympos
+                sympos = ['x, y, z']
         def parse_symbol(sym):
             m = re.search("([A-Z][a-z]*)",sym)
             if m:
                 return m.group(1)
             return ''
-        
         #oxi_states = None
         try:
             oxi_states = dict()
