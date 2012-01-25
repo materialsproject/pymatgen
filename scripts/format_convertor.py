@@ -14,9 +14,12 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 14, 2011"
 
 import argparse
+import os
+import re
 
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.io.cssrio import Cssr
 
 parser = argparse.ArgumentParser(description='''Convenient file format convertor. 
 Author: Shyue Ping Ong
@@ -24,20 +27,41 @@ Version: 1.0
 Last updated: Oct 26 2011''')
 parser.add_argument('input_file', metavar='input file', type=str, nargs = 1, help='input file')
 parser.add_argument('output_file', metavar='output file', type=str, nargs = 1, help='output file')
-
-parser.add_argument('-c', '--conversion', dest='conversion', type=str, nargs = 1, choices=['poscar2cif','cif2poscar'], default='poscar2cif', help='Format conversion desired. ')
+parser.add_argument('-i', '--input-format', dest='input_format', type=str, nargs = 1, choices=['poscar','cif'], default='', help='Input file format.')
+parser.add_argument('-o', '--output-format', dest='output_format', type=str, nargs = 1, choices=['poscar', 'cif', 'cssr'], default='', help='Output file format.')
 
 args = parser.parse_args()
+
+def guess_file_format(filename, specified):
+    filename, ext = os.path.splitext(filename)
+    if specified != '':
+        return specified[0]
+    else:
+        if re.match('POSCAR|CONTCAR', filename):
+            return 'poscar'
+        else:
+            return ext.lower().strip(".")
+
+input_format = guess_file_format(args.input_file[0], args.input_format)
+output_format = guess_file_format(args.output_file[0], args.output_format)
+
 try:
-    if args.conversion == 'poscar2cif':
+    if input_format == 'poscar':
         p = Poscar.from_file(args.input_file[0])
-        w = CifWriter(p.struct)
-        w.write_file(args.output_file[0])
+        s = p.struct
     else:
         r = CifParser(args.input_file[0])
-        p = Poscar(r.get_structures()[0])
-        p.write_file(args.output_file[0])
+        s = r.get_structures()[0]
+    
+    
+    if output_format == 'cif':
+        w = CifWriter(s)
+    elif output_format == 'poscar':
+        w = Poscar(s)
+    elif output_format == 'cssr':
+        w = Cssr(s)
+    
+    w.write_file(args.output_file[0])
 except:
     print "Error converting file. Are they in the right format?"
-    
     
