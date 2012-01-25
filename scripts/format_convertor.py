@@ -62,6 +62,7 @@ try:
         w = Cssr(s)
     
     w.write_file(args.output_file[0])
-except:
+except Exception as ex:
+    print str(ex)
     print "Error converting file. Are they in the right format?"
     
