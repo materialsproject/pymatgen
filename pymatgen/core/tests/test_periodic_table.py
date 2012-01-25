@@ -2,6 +2,7 @@
 
 import unittest
 from pymatgen.core.periodic_table import Element, Specie
+from copy import deepcopy
 
 class  ElementTestCase(unittest.TestCase):
 
@@ -61,6 +62,12 @@ class  ElementTestCase(unittest.TestCase):
         el = Element("Fe")
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
         self.assertEqual(el.common_oxidation_states, (2, 3))
+        
+    def test_deepcopy(self):
+        el1 = Element("Fe")
+        el2 = Element("Na")
+        list = [el1, el2]
+        self.assertEqual(list, deepcopy(list), "Deepcopy operation doesn't produce exact copy of Element list")
     
 class  SpecieTestCase(unittest.TestCase):
 
@@ -82,6 +89,12 @@ class  SpecieTestCase(unittest.TestCase):
         
     def test_attr(self):
         self.assertEqual(self.specie1.Z, 26, "Z attribute for Fe2+ should be the same as that for Element Fe.")
+        
+    def test_deepcopy(self):
+        el1 = Specie("Fe", 4)
+        el2 = Specie("Na", 1)
+        list = [el1, el2]
+        self.assertEqual(list, deepcopy(list), "Deepcopy operation doesn't produce exact copy of Specie list")
 
 class  PeriodicTableTestCase(unittest.TestCase):
 
