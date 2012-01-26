@@ -9,10 +9,18 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
+from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
 
-__status__ = "Test"
+__author__="Maarten de Jong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__credits__ = "Mark Asta"
+__version__ = "1.0"
+__maintainer__ = "Maarten de Jong"
+__email__ = "maartendft@gmail.com"
+__status__ = "Development"
+__date__ ="Jan 24, 2012"
 
 class DeformGeometry(object):
 	"""
@@ -44,17 +52,39 @@ class DeformGeometry(object):
 		coords = list()
 		species = []
 		myCIF = CifParser(self._path).get_structures()[0]
+#		print myCIF
+		s = StructureEditor(myCIF)
+		
+
+
+#		S2 = StructureEditor(myCIF).replace_species({'Al', 'O'})
+#		print S2	
+
+
+#		print type(myCIF)
+#		print myCIF.__dict__.keys()
+#		print myCIF._lattice.__dict__.keys()
+#		print myCIF._lattice._mc2d
+#		print myCIF._lattice._md2c
+#		print myCIF._lattice._matrix
+
+		
 
 #		check this part, cifio-code does this already!
 
-		print myCIF
+#		print myCIF
+
+
 		for k in range(len(myCIF._sites)):
 			coords.append(Lattice(np.linalg.inv(myCIF._lattice._mc2d)).get_fractional_coords(myCIF._sites[k]._coords))
 			species.append(myCIF._sites[k]._species.keys()[0])
 
 		lattice = Lattice(myCIF._lattice._matrix)
 		struct = Structure(lattice,species,coords)
-		print struct
+
+		
+
+#		print struct
 
 		self.base_struct = struct
 #		self._coords = coords
@@ -199,6 +229,9 @@ Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/classes/7048.cif')
 
 ## Calling sequence ##
 Q.CIF2struct()
+
+
+
 #Q.deform(0.02, 0.02, 4, 4)
 #Q.get_residual_stress()
 

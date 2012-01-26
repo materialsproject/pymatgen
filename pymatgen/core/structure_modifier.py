@@ -204,6 +204,12 @@ class StructureEditor(StructureModifier):
             new_sites.append(PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(site.coords), self._lattice))
         self._sites = new_sites
     
+    def modify_lattice2(self):
+
+		print "test add module"
+
+
+
     @property
     def original_structure(self):
         return self._original_structure
