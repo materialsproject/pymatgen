@@ -54,7 +54,8 @@ class DeformGeometry(object):
 		myCIF = CifParser(self._path).get_structures()[0]
 #		print myCIF
 		s = StructureEditor(myCIF)
-		
+# 		this works		
+# 		add code
 
 
 #		S2 = StructureEditor(myCIF).replace_species({'Al', 'O'})
