@@ -33,7 +33,7 @@ def file_open_zip_aware(filename, *args):
     """
     if filename.split(".")[-1].upper() == "BZ2":
         return bz2.BZ2File(filename,*args)
-    elif filename.split(".")[-1].upper() == "GZ" or filename.split(".")[-1] == "z" or filename.split(".")[-1] == "Z":
+    elif filename.split(".")[-1].upper() == "GZ" or filename.split(".")[-1] == "z":
         return gzip.GzipFile(filename,*args)
     else:
         return open(filename, *args)
