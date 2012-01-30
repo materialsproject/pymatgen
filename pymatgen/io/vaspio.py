@@ -29,6 +29,7 @@ import numpy as np
 from numpy.linalg import det
 
 import pymatgen
+import pymatgen.command_line.aconvasp_caller
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -37,6 +38,7 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
 from pymatgen.core.lattice import Lattice
+
 
 coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")    
 
@@ -584,7 +586,17 @@ class Kpoints(VaspInput):
             Kpoints object
         """
         return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts = [kpts], kpts_shift = shift)
-
+    
+    @staticmethod
+    def monkhorst_automatic_density(structure, kppa):
+        """
+            The approach we took here is to use aconvasp to get the kpoint divisions
+        """
+        div=pymatgen.command_line.aconvasp_caller.get_num_division_kpoints(structure, kppa)
+        #check if hexagonal!!!!
+        if(Kpoints.isHexagonal(structure)==True):
+            return Kpoints.gamma_automatic(div, shift = (0,0,0))
+    
 
     @staticmethod
     def from_file(filename):
