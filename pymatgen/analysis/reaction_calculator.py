@@ -276,3 +276,4 @@ class ReactionError(Exception):
 
     def __str__(self):
         return "Query Error : " + self.msg
+
