@@ -991,6 +991,19 @@ class Bandstructure(object):
             diff.append([self._bands[n]['energy'][i]-otherbs._bands[n]['energy'][i] for i in range(len(self._kpoints))])
         return diff
     
+    def to_dict(self):
+        dictio={}
+        dictio['lattice_rec']=self._lattice_rec.to_dict
+        dictio['efermi']=self._efermi
+        dictio['kpoints']=self._kpoints
+        dictio['branches']=self._branches
+        dictio['bands']=self._bands
+        dictio['is_metal']=self.is_metal()
+        dictio['VBM']=self.getVBM()
+        dictio['CBM']=self.getCBM()
+        dictio['band_gap']=self.get_band_gap()
+        return dictio
+    
        
 def get_reconstructed_band_structure(list_bs):
     """
