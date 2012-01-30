@@ -28,8 +28,8 @@ import ConfigParser
 import numpy as np
 from numpy.linalg import det
 
-import pymatgen
 import pymatgen.command_line.aconvasp_caller
+import pymatgen.core.electronic_structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -594,9 +594,35 @@ class Kpoints(VaspInput):
         """
         div=pymatgen.command_line.aconvasp_caller.get_num_division_kpoints(structure, kppa)
         #check if hexagonal!!!!
-        if(Kpoints.isHexagonal(structure)==True):
+        if(Kpoints._is_hexagonal(structure)==True):
             return Kpoints.gamma_automatic(div, shift = (0,0,0))
     
+    @staticmethod
+    def _is_hexagonal(structure):
+        proto1=[math.pi/2.0,math.pi/2.0,2.0*math.pi/3.0]
+        proto2=[math.pi/3.0,math.pi/2.0,math.pi/2.0]
+        angCopy=[c for c in structure.lattice.angles]
+        angCopy.sort()
+        anglesCheck=False
+        for i in range(len(angCopy)):
+            if(math.fabs(angCopy[i]-proto1[i])<0.1):
+                anglesCheck=True
+            if(math.fabs(angCopy[i]-proto2[i])<0.1):
+                anglesCheck=True
+
+        num_equals=0
+        if(math.fabs(structure.lattice.abc[0]-structure.lattice.abc[1])<0.001):
+            num_equals=num_equals+1
+        if(math.fabs(structure.lattice.abc[0]-structure.lattice.abc[2])<0.001):
+            num_equals=num_equals+1
+        if(math.fabs(structure.lattice.abc[1]-structure.lattice.abc[2])<0.001):
+            num_equals=num_equals+1
+
+        if(num_equals > 0 and anglesCheck):
+            return True
+
+        return False
+
 
     @staticmethod
     def from_file(filename):
@@ -1961,22 +1987,37 @@ def get_band_structure_from_vasp(path):
     """
     method taking a directory with a band structure vasp run
     and returning the corresponding Bandstructure Object
+    also takes into account runs that have been separated in several branches
     """
+    if(os.path.exists(path+"/branch_0")):
+        #get all branches in a list of BandStructurs
+        list_branches=[]
+        listdir_clean=[]
+        for f in os.listdir(path):
+            if "branch" in f:
+                listdir_clean.append(f)
+        for i in range(len(listdir_clean)):
+            for f in listdir_clean:
+                if(int(f.split("_")[1])==i):
+                    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
+        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches)
+    else:
+        return get_band_structure_from_vasp_individual(path)
+    
+def get_band_structure_from_vasp_individual(path):
     run=Vasprun(path+"/vasprun.xml")
     labels_dict=parse_kpoint_labels(path+"/KPOINTS")
-    print labels_dict
-    lattice_rec=Lattice(run.to_dict['input']['lattice_rec'])
-    #make the labels_dict to work with cartesian
+    lattice_rec=run.final_structure.lattice.reciprocal_lattice
     for c in labels_dict:
-        labels_dict[c]=lattice_rec.get_cartesian_coords(6.28*labels_dict[c])
-    print labels_dict
-    kpoints=[lattice_rec.get_cartesian_coords(6.28*np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
-    eig=run.to_dict['output']['eigenvalues']
+        labels_dict[c]=lattice_rec.get_cartesian_coords(labels_dict[c])
+    kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    dict_eigen=run.to_dict['output']['eigenvalues']
     eigenvals=[]
-    for i in range(len(eig['1']['up'])):
-        eigenvals.append({'energy':[eig[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-        eigenvals[i]['occup']=[eig[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure(kpoints,eigenvals,labels_dict, Lattice(run.to_dict['input']['lattice_rec']), run.final_structure)
+    max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
+    for i in range(max_band):
+        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
+        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
+    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, run.efermi)
     return bands
 
 def parse_kpoint_labels(file_kpoints):
