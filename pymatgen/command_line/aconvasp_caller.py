@@ -82,10 +82,14 @@ def get_point_group_rec(structure):
     listUc=[]
     f = open("aflow.pgroupk.out", 'r')
     linetmp=[]
+    axis=[]
+    type_transf=None
     count=-1000
     started = False
     for line in f:
         #print line
+        if(line.find("type")!=-1):
+            type_transf=line.split()[1]
         if(line.find("Schoenflies")!=-1):
             count=-1
             linetmp=[]
@@ -96,7 +100,9 @@ def get_point_group_rec(structure):
             continue
         if(count<=2):
             linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
-        if(count==2):
-            listUc.append(np.array(linetmp))
+        if(line.find("axis")!=-1):
+            axis=np.array([float(line.split()[0]),float(line.split()[1]),float(line.split()[2])])
+        if(count==11):
+            listUc.append({'matrix':np.array(linetmp),'type':type_transf,'axis':axis})
     f.close()
     return listUc
