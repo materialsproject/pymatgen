@@ -413,8 +413,8 @@ class Bandstructure(object):
     a list of float linked to an 'energy' key and a list of float linked to an 'occupation' key
     the order in which the list is set corresponds to the kpoints given in the kpoints list
     -labels_dict: a dictionnary of label associated with a kpoint
-    -rec_lattice: the reciprocal lattice as a Lattice object
     -the structure as a Structure object
+    -efermi the fermi energy
     
     Here is an example of call for the class (two kpoints, one band):
     
@@ -423,9 +423,10 @@ class Bandstructure(object):
     eigenvals.append({'energy':[0,6.0],'occup':[1.0,1.0]})
     eigenvals.append({'energy':[2.0,7.0],'occup':[0.0,0.0]})
     labels_dict={'Gamma':np.array([0,0,0]),'X':np.array([0.5,0.5,0.5])
-    rec_lattice=Lattice(np.array([[1, 0, 0],[0, 1, 0],[0, 0, 1]]))
+    structure= a structure object
+    fermi=0.2
     
-    bs_example=BandStructure(kpoints,eigenvals,labels_dict,rec_lattice,None)
+    bs_example=BandStructure(kpoints,eigenvals,labels_dict,rec_lattice,fermi)
     
     The kpoints are stored in self._kpoints as list of dictionary
     each element in the list stores 
@@ -451,7 +452,7 @@ class Bandstructure(object):
 
     """
 
-    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure,efermi):
+    def __init__(self,kpoints,eigenvals,labels_dict,structure,efermi):
         
         self._efermi=efermi
         
@@ -461,7 +462,7 @@ class Bandstructure(object):
         the structure as a Structure object
         """
         
-        self._lattice_rec=rec_lattice
+        self._lattice_rec=structure.lattice.reciprocal_lattice
         
         """
         reciprocal lattice as a Lattice object
@@ -482,7 +483,7 @@ class Bandstructure(object):
         
         self._branches=[]
         """
-        list used to know what kpoints are in waht branch
+        list used to know what kpoints are in what branch
         """
         self._bands=eigenvals
         """
@@ -689,7 +690,46 @@ class Bandstructure(object):
                 
             
         plt.show()
-    
+        
+        
+    def get_principal_directions(self,kpoint):
+        """
+        using the point group symmetry figures out what are the principal directions
+        for the effective mass tensor at kpoint
+        of course, in the general case we can't know all principal directions
+        """
+        #find the sym. operation keeping ko
+        listUc=self.get_pg_matrices_rec()
+        list_return=[]
+        list_matrix=[]
+        for u in listUc:
+            #print u
+            newkpoint=np.dot(u['matrix'],kpoint.T)
+            if(np.linalg.norm(newkpoint-kpoint)<0.001):
+                list_matrix.append(u['matrix'])
+                already=False
+                for a in list_return:
+                    if(np.linalg.norm(u['axis']-a)<0.001):
+                        already=True
+                if(already==False):
+                    list_return.append(u['axis'])
+            
+        """    
+        for i in range(len(list_return)):
+            for j in range(len(list_return)):
+                if(i==j):
+                    continue
+                fits=False
+                for u in list_matrix:
+                    newkpoint=np.dot(u,list_return[i].T)
+                    kpoint=list_return[j].T
+                    if(np.linalg.norm(newkpoint-kpoint)<0.001):    
+                        fits=True
+         """                   
+            
+        return list_return
+        
+        
     
     def get_effective_mass_average(self,target):
         """
@@ -718,40 +758,17 @@ class Bandstructure(object):
         this gives all the effective masses for a given kpoint (even if there are several bands including the point)
         this gives a list of list of eigenvalues for one given kpoint
         """
+        list_return=[]
         for c in target['band_index']:
-            list.append(self.get_effective_mass_smart_one_band(target['kpoint'], target['kpoint_index'], target['label'], c))
-        return list
+            list_return.append(self.get_effective_mass_one_band(target['kpoint'], target['kpoint_index'], target['label'], c))
+        return list_return
     
     def get_effective_mass_one_band(self, kpoint, kpoint_index, label, band_index):
         """
         this gives all the eigenvalues of the effective mass tensor that can be deducted from the band structure and ONE band
         It uses the symmetry of the Brillouin zone to do so
-        TODO: check more
-        
         """
-        
         set_branches_nb=set()
-        #find the sym. operation keeping ko
-        listUc=self.get_pg_matrices_rec()
-        list_return=[]
-        for u in listUc:
-                #print i
-            newkpoint=np.dot(u,kpoint.T)
-            
-                
-            if(np.linalg.norm(newkpoint-kpoint)<0.001):
-                list_return.append(u)
-        
-        #for these S find eigenvectors
-        all_eigenvectors=[]
-        for u in list_return:
-            array=np.linalg.eig(u)
-            for i in range(len(array[0])):
-                if(math.fabs(array[0][i].imag)<0.001):
-                    #print array
-                    all_eigenvectors.append(array[1][i])
-                    #print array[0][i]
-        #print all_eigenvectors
         #look at all branches containing the point with label
         branches_of_interest=[]
         if(label!=None):
@@ -768,15 +785,22 @@ class Bandstructure(object):
                         branches_of_interest.append({'indices':d,'vector':(self._kpoints[d[-1]]['kpoint']-self._kpoints[d[0]]['kpoint']),'index':j})
         #print branches_of_interest
         
+        principal_directions=self.get_principal_directions(kpoint)
+        
         #check if any of the branches are colinear with one of the all_eigenvectors
-        for c in all_eigenvectors:
+        for c in principal_directions:
             for d in branches_of_interest:
-                if(math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector'])*np.linalg.norm(c))<1.01 or math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector']))*np.linalg.norm(c)))>0.99):
+                if(math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector'])*np.linalg.norm(c))<1.01 and math.fabs(np.dot(d['vector'],c)/(np.linalg.norm(d['vector']))*np.linalg.norm(c)))>0.99):
+                    #print c
+                    #print d['vector']
+                    #print np.dot(d['vector'],c)/(np.linalg.norm(d['vector'])*np.linalg.norm(c))
                     set_branches_nb.add(d['index'])
         #print set_branches_nb       
         mass=[]
         #for the each branch get the mass
+        
         for b in set_branches_nb:
+            #print str(self._branches[b])+" "+str(self.get_effective_mass_along_line(kpoint_index, band_index, b)[0])
             mass.append(self.get_effective_mass_along_line(kpoint_index, band_index, b)[0])
         
         return mass
@@ -793,11 +817,12 @@ class Bandstructure(object):
             This is based on a simple fit of a parabola on a few points
             TODO: change the way the points are picked
         """
+        import scipy
+
         nb_sample=4
         mass=[]
         #get all points around (from -4 to 4) index_k on the band=
-        x0=self._kpoints[index_k]['distance']
-        y0=self._bands[index_band]['energy'][index_k]
+        
         
         #two cases: there a nb_sample points in the branch with higher indices or lower ones
         forward=False
@@ -810,18 +835,35 @@ class Bandstructure(object):
                     forward=True
                 if(i-4>0):
                     backward=True
-        
+        x0=self._kpoints[self._branches[index_branch][local_index]]['distance']
+        y0=self._bands[index_band]['energy'][index_k]
         if(forward):
             x=[self._kpoints[self._branches[index_branch][local_index+i]]['distance']-x0 for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index+i]]-y0 for i in range(nb_sample)]
-            a=np.polyfit(x,y,2)
-            mass.append(3.77/a[0])
+            tck = scipy.interpolate.splrep(x,y)
+            yder = scipy.interpolate.splev(0,tck,der=2)
+            #import pylab, numpy
+            #pylab.plot(x,y,'x')
+            #xnew=numpy.arange(0,x[3],0.01)
+            #ynew=scipy.interpolate.splev(xnew,tck)
+            #pylab.plot(xnew,ynew)
+            #print yder/2.0
+            #a=np.polyfit(x,y,2)
+            #print a
+            #pylab.plot(xnew,a[0]*xnew**2+a[1]*xnew+a[2])
+            #pylab.show()
+            
+            mass.append(3.77/(yder/2.0))
+            #mass.append(3.77/a[0])
          
         if(backward):
-            x=[self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0 for i in range(nb_sample)]
+            x=[-1.0*(self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0) for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index-i]]-y0 for i in range(nb_sample)]
             a=np.polyfit(x,y,2)
-            mass.append(3.77/a[0])
+            tck = scipy.interpolate.splrep(x,y)
+            yder = scipy.interpolate.splev(0,tck,der=2)
+            mass.append(3.77/(yder/2.0))
+            #mass.append(3.77/a[0])
                
         return mass
         
