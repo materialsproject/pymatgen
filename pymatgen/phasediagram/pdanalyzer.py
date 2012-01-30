@@ -32,6 +32,13 @@ class PDAnalyzer(object):
             pd - Phase Diagram to analyze.
         """
         self._pd = pd
+        
+        '''
+        This caches the grand canonical pds, which are a bit expensive to generate,
+        so that the same set of PD can be used to quickly calculate certain 
+        analyses
+        '''
+        self._gcpd_cache = {}
 
     def _make_comp_matrix(self,complist):
         """
@@ -195,7 +202,7 @@ class PDAnalyzer(object):
         gccomp = Composition({el:amt for el, amt in comp.items() if el != element})
         elref = self._pd.el_refs[element]
         elcomp = Composition.from_formula(element.symbol)
-        prev_decomp = [];
+        prev_decomp = []
         evolution = []
         def are_same_decomp(decomp1, decomp2):
             for comp in decomp2:
@@ -204,7 +211,13 @@ class PDAnalyzer(object):
             return True
         
         for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c-0.01}, self._pd.elements)
+            
+            if (element, c - 0.01) in self._gcpd_cache:
+                gcpd = self._gcpd_cache[(element, c - 0.01)]
+            else:
+                gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01}, self._pd.elements)
+                self._gcpd_cache[(element, c - 0.01)] = gcpd
+                
             analyzer = PDAnalyzer(gcpd)
             decomp = [gcentry.original_entry.composition for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
             decomp_entries = [gcentry.original_entry for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
