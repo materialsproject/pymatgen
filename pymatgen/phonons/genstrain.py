@@ -261,10 +261,10 @@ Q.get_residual_stress()
 
 stress_dict = dict()
 
-for i in range(0, 36):
+#for i in range(0, 36):
 
-	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
-	stress_dict[i] = A.ionic_steps[-1]['stress']
+#	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
+#	stress_dict[i] = A.ionic_steps[-1]['stress']
 
 Q.append_stress_tensors(stress_dict)
 Q.fit_cij()
