@@ -957,7 +957,10 @@ class Bandstructure(object):
         #print m
         #print energy
     
-    def get_effective_mass_boundaries(self,target):
+    def get_effective_mass_boundaries_polycrystal(self,target):
+        """
+        
+        """
         #s3>s2>s1
         em=self.get_effective_mass_average(target)
         list.sort(em)
@@ -966,8 +969,9 @@ class Bandstructure(object):
         s3=1/em[2]
         coeff1=s3*((4*s3**2+8*s3*s2+8*s1*s3+7*s1*s2)/(16*s3**2+5*s3*s2+5*s1*s3+s2*s1))
         coeff2=s1*((4*s1**2+8*s1*s2+8*s1*s3+7*s2*s3)/(16*s1**2+5*s1*s2+5*s1*s3+s2*s3))
-        return {'max':1/coeff1,'min':1/coeff2,'trace_min':1.0/3.0*(em[0]+em[1]+em[2]),'trace_max':1.0/((1.0/3.0)*(s1+s2+s3))}
-        
+        #return {'max':1/coeff1,'min':1/coeff2,'trace_min':1.0/3.0*(em[0]+em[1]+em[2]),'trace_max':1.0/((1.0/3.0)*(s1+s2+s3))}
+        return {'max':1/coeff1,'min':1/coeff2}
+    
     def get_stationary_pg_for_kpoints(self,kpoint):
         listUc=self.get_pg_matrices_rec()
         list_return=[]
@@ -1033,7 +1037,7 @@ class Bandstructure(object):
         pylab.show()
         pylab.legend()
         
-    def plot_bands(self,band=None,kpoint_index=[]):
+    def plot_bands(self,band=None,kpoint_index=[],path_to_save=None):
         """
         plot the band structure.
         band indicates the index number of the specific band to plot, None plots all bands
@@ -1071,10 +1075,28 @@ class Bandstructure(object):
         pylab.ylabel('Energy(eV)', fontsize = 'large')
         vbm=self.getVBM()
         cbm=self.getCBM()
+        if(cbm['label']!=None):
+            for k in self._kpoints:
+                if(k['label']==cbm['label']):
+                    pylab.scatter(k['distance'],cbm['energy'],color='r',marker='o',s=100)
+        else:
+            pylab.scatter(self._kpoints[cbm['kpoint_index']]['distance'],cbm['energy'],color='r',marker='o',s=100)
+            
+        if(vbm['label']!=None):
+            for k in self._kpoints:
+                if(k['label']==vbm['label']):
+                    pylab.scatter(k['distance'],vbm['energy'],color='g',marker='o',s=100)
+        else:
+            pylab.scatter(self._kpoints[vbm['kpoint_index']]['distance'],vbm['energy'],color='g',marker='o',s=100)
         if(band==None):
             pylab.ylim(vbm['energy']-4,cbm['energy']+4)
-        pylab.show()
         pylab.legend()
+        if(path_to_save==None):
+            pylab.show()
+        else:
+            pylab.savefig(path_to_save)
+            pylab.close()
+        
         
         
     def get_ticks(self):
@@ -1087,7 +1109,6 @@ class Bandstructure(object):
         previous_branch=self._kpoints[0]['branch']
         for c in self._kpoints:
             if(c['label']!=None):
-                print c['label']
                 tick_distance.append(c['distance'])
                 if(c['label']!=previous_label and previous_branch!=c['branch']):
                     label1=c['label']
@@ -1155,7 +1176,7 @@ def get_reconstructed_band_structure(list_bs):
                 eigenvals[i]['energy'].append(e)
             for u in bs._bands[i]['occup']:
                 eigenvals[i]['occup'].append(u)
-    return Bandstructure(kpoints,eigenvals,labels_dict,rec_lattice,structure,efermi) 
+    return Bandstructure(kpoints,eigenvals,labels_dict,structure,efermi) 
 
 class PBandstructure(Bandstructure):
     """
