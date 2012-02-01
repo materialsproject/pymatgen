@@ -933,14 +933,7 @@ class Composition (collections.Mapping, collections.Hashable):
                 raise TypeError("Keys must be instances of Element or Specie!")
         self._elmap = elmap.copy()
         self._natoms = sum(self._elmap.values())
-
-    @property
-    def is_element(self):
-        '''
-        True if composition is for an element
-        '''
-        return len(self._elmap)==1
-
+    
     def __getitem__(self,el):
         '''
         Get the amount for element.
@@ -1017,6 +1010,13 @@ class Composition (collections.Mapping, collections.Hashable):
     
     def __iter__(self):
         return self._elmap.__iter__()
+    
+    @property
+    def is_element(self):
+        '''
+        True if composition is for an element
+        '''
+        return len(self._elmap)==1
     
     def copy(self):
         return Composition(self._elmap)
@@ -1175,6 +1175,9 @@ class Composition (collections.Mapping, collections.Hashable):
                     sym_dict[el] += amt * factor
                 else:
                     sym_dict[el] = amt * factor
+                f = f.replace(m.group(),"", 1)
+            if f.strip():
+                raise ValueError("{} is an invalid formula!".format(f))
             return sym_dict
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
@@ -1218,8 +1221,158 @@ class Composition (collections.Mapping, collections.Hashable):
         reduced_formula = self.reduced_formula
         c = Composition.from_formula(reduced_formula)
         return c.to_dict
+    
+    @staticmethod
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
+        '''
+        Takes in a formula where capitilization might not be correctly entered, and suggests a ranked list of potential Composition matches.
+        Author: Anubhav Jain
+        Arguments:
+            fuzzy_formula:
+                A formula string, such as 'co2o3' or 'MN', that may or may not have multiple interpretations
+            lock_if_strict:
+                If true, a properly entered formula will only return the one correct interpretation. For example,
+                'Co1' will only return 'Co1' if true, but will return both 'Co1' and 'C1 O1' if false.
+        Returns:
+            A ranked list of potential Composition matches
+        '''
+        
+        #if we have an exact match and the user specifies lock_if_strict, just return the exact match!
+        if lock_if_strict:
+            #the strict composition parsing might throw an error, we can ignore it and just get on with fuzzy matching
+            try:
+                comp = Composition.from_formula(fuzzy_formula)
+                return [comp]
+            except:
+                pass
+        
+        all_matches = Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula)
+        #remove duplicates
+        all_matches = list(set(all_matches))
+        #sort matches by rank descending
+        all_matches = sorted(all_matches, key=lambda match:match[1], reverse=True)
+        all_matches = [m[0] for m in all_matches]
+        return all_matches
+        
+    @staticmethod
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = {}, m_points=0, factor=1):
+        '''
+        A recursive helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
+        Author: Anubhav Jain
+        
+        Arguments:
+            fuzzy_formula:
+                A formula string, such as 'co2o3' or 'MN', that may or may not have multiple interpretations
+            m_dict:
+                A symbol:amt dictionary from the previously parsed formula
+            m_points:
+                Number of points gained from the previously parsed formula
+            factor:
+                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the fuzzy_formula with a coefficient of 2
+        Returns:
+            A list of tuples, with the first element being a Composition and the second element being the number of points awarded that Composition intepretation
+        '''
+        
+        def _parse_chomp_and_rank(m, f, m_dict, m_points):
+            '''
+            A helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
+            Author: Anubhav Jain
+            
+            Arguments:
+                m:
+                    a regex match, with the first group being the element and the second group being the amount
+                f:
+                    The formula part containing the match
+                m_dict:
+                    A symbol:amt dictionary from the previously parsed formula
+                m_points:
+                    Number of points gained from the previously parsed formula
+            Returns:
+                A tuple of (f, m_dict, points) where m_dict now contains data from the match and the match has been removed (chomped) from the formula f. The 'goodness'
+                of the match determines the number of points returned for chomping. Returns (None, None, None) if no element could be found...
+            '''
+            
+            points = 0
+            points_first_capital = 100  # points awarded if the first element of the element is correctly specified as a capital
+            points_second_lowercase = 100  # points awarded if the second letter of the element is correctly specified as lowercase
+            
+            #get element and amount from regex match
+            el = m.group(1)
+            if len(el) > 2 or len(el) < 1:
+                raise ValueError("Invalid element symbol entered!")
+            amt = float(m.group(2)) if m.group(2).strip() != "" else 1
+            
+            #convert the element string to proper [uppercase,lowercase] format and award points if it is already in that format
+            char1 = el[0]
+            char2 = el[1] if len(el) > 1 else ''
+            
+            if char1 == char1.upper():
+                points += points_first_capital
+            if char2 and char2 == char2.lower():
+                points += points_second_lowercase
+                            
+            el = char1.upper() + char2.lower()
+
+            #if it's a valid element, chomp and add to the points
+            if Element.is_valid_symbol(el):
+                if el in m_dict:
+                    m_dict[el] += amt * factor
+                else:
+                    m_dict[el] = amt * factor
+                return (f.replace(m.group(), "", 1), m_dict, m_points + points)
+            
+            #else return None
+            return (None, None, None)
+        
+        fuzzy_formula = fuzzy_formula.strip()
+                
+        if len(fuzzy_formula) == 0:
+            #the entire formula has been parsed into m_dict. Return the corresponding Composition and number of points
+            if m_dict:
+                yield (Composition.from_dict(m_dict), m_points)
+        else:
+            #if there is a parenthesis, remove it and match the remaining stuff with the appropriate factor
+            for mp in re.finditer(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula):
+                mp_points = m_points
+                mp_form = fuzzy_formula
+                mp_dict = dict(m_dict)
+                mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
+                #match the stuff inside the parenthesis with the appropriate factor
+                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
+                    only_me = True
+                    #match the stuff outside the parentheses and return the sum
+                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor=1): 
+                        only_me = False
+                        yield (match[0] + match2[0], match[1] + match2[1])
+                    #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses
+                    if only_me:
+                        yield match
+                return
+            
+            #try to match the single-letter elements
+            m1 = re.match(r"([A-z])([\.\d]*)", fuzzy_formula)
+            if m1:
+                m_points1 = m_points
+                m_form1 = fuzzy_formula
+                m_dict1 = dict(m_dict)
+                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+                if m_dict1:
+                    #there was a real match
+                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
+                        yield match
+            
+            #try to match two-letter elements
+            m2 = re.match(r"([A-z]{2})([\.\d]*)", fuzzy_formula)
+            if m2:
+                m_points2 = m_points
+                m_form2 = fuzzy_formula
+                m_dict2 = dict(m_dict)
+                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+                if m_dict2:
+                    #there was a real match
+                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
+                        yield match   
 
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    
