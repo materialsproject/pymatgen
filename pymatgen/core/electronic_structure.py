@@ -673,13 +673,23 @@ class Bandstructure(object):
     
     def plot_kpoints_IBZ(self):
         """
-        gives the irreducible brillouin zone and the kpoint in the band structure
-        this is a first pass at this
+        gives the kpoints in the reciprocal space used in the band structure with their labels
+        also plots the reciprocal lattice vectors
+        This is uggly for now!
         """
         
         import pylab as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
         fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        ax=Axes3D(fig)
+        vec1=self._lattice_rec.matrix[0]
+        vec2=self._lattice_rec.matrix[1]
+        vec3=self._lattice_rec.matrix[2]
+        ax.plot([0,vec1[0]],[0,vec1[1]],[0,vec1[2]],color='k')
+        ax.plot([0,vec2[0]],[0,vec2[1]],[0,vec2[2]],color='k')
+        ax.plot([0,vec3[0]],[0,vec3[1]],[0,vec3[2]],color='k')
+        #ax = fig.add_subplot(111, projection='3d')
         print self._lattice_rec.abc
         ax.scatter([self._kpoints[i]['kpoint'][0] for i in range(len(self._kpoints))],[self._kpoints[i]['kpoint'][1] for i in range(len(self._kpoints))],[self._kpoints[i]['kpoint'][2] for i in range(len(self._kpoints))])
         
