@@ -6,5 +6,6 @@ dist
 _templates
 _static
 _build
+build
 .project
 .pydevproject
