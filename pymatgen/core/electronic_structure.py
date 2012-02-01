@@ -737,7 +737,7 @@ class Bandstructure(object):
         the average is based on the occupation and heavier bands see a larger occupation
         the weight factor is based on the occupation of parabolic bands
         """
-        tensors=self.get_effective_mass_smart(target)
+        tensors=self.get_effective_mass(target)
         #fist we computed the mDOS=(mx*my*mz)^1/3 for each band
         mDOS=[]
         tot=0.0
@@ -867,7 +867,96 @@ class Bandstructure(object):
                
         return mass
         
+    def get_effective_mass_fitted(self, target):
+        import numpy
+        #find if there are three branches at the target point
+        #set_branches_nb=set()
+        #look at all branches containing the point with label
+        print target
+        branches_of_interest=[]
+        label=target['label']
+        kpoint_index=target['kpoint_index']
+        #index_branch=target['index_branch']
+        #TODO: change!
+        index_band=target['band_index'][0]
+        if(label!=None):
+            for i in range(len(self._kpoints)):
+                if(self._kpoints[i]['label']==label):
+                    for j in range(len(self._branches)):
+                        d=self._branches[j]
+                        if i in d:
+                            branches_of_interest.append({'indices':d,'vector':(self._kpoints[d[-1]]['kpoint']-self._kpoints[d[0]]['kpoint']),'index':j})
+        else:
+                for j in range(len(self._branches)):
+                    d=self._branches[j]
+                    if kpoint_index in d:
+                        branches_of_interest.append({'indices':d,'vector':(self._kpoints[d[-1]]['kpoint']-self._kpoints[d[0]]['kpoint']),'index':j})
+        #print branches_of_interest
+        m=[]
+        energy=[]
+
+        
+                
+        if(branches_of_interest>=3):
+            for d in branches_of_interest:
+                index_branch=d['index']
+                local_index=None
+                forward=False
+                backward=False
+                local_index=None
+                for i in range(len(self._branches[index_branch])):
+                    if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']-self._kpoints[kpoint_index]['kpoint'])<0.001):
+                        local_index=i
+                        if(len(self._branches[index_branch])>i+4):
+                            forward=True
+                        if(i-4>0):
+                            backward=True
+                x0=self._kpoints[self._branches[index_branch][local_index]]['kpoint']
+                y0=self._bands[index_band]['energy'][kpoint_index]
+                if forward==True:
+                    for j in range(4):
+                        k=self._kpoints[self._branches[index_branch][local_index+j]]['kpoint']-x0
+                        e=self._bands[index_band]['energy'][self._branches[index_branch][local_index+j]]-y0 
+                        if(e==0):
+                            continue
+                        m.append([k[0]**2,k[1]**2,k[2]**2,k[0]*k[1],k[0]*k[2],k[1]*k[2]])
+                        print str([k[0],k[1],k[2]])+" "+str(e)
+                        energy.append(e)
+                else:
+                    for j in range(4):
+                        k=self._kpoints[self._branches[index_branch][local_index-j]]['kpoint']-x0
+                        e=self._bands[index_band]['energy'][self._branches[index_branch][local_index-j]]-y0
+                        if(e==0):
+                            continue 
+                        m.append([k[0]**2,k[1]**2,k[2]**2,k[0]*k[1],k[0]*k[2],k[1]*k[2]])
+                        energy.append(e)
+                        print str([k[0],k[1],k[2]])+" "+str(e)
+        print energy
+        print m 
+        fit=numpy.linalg.lstsq(m,energy)
+        a=fit[0]
+        print a
+        print fit[1]
+        #matrix=[[a[0],a[3],a[4]],[a[3],a[1],a[5]],[a[4],a[5],a[2]]]
+        matrix=[[2*a[0],a[3],a[4]],[a[3],2*a[1],a[5]],[a[4],a[5],2*a[2]]]
+        print matrix
+        m=np.linalg.inv(matrix)*7.54
+                #print m
+        diag=np.linalg.eig(m)
+        print diag
+        #print m
+        #print energy
     
+    def get_effective_mass_boundaries(self,target):
+        #s3>s2>s1
+        em=self.get_effective_mass_average(target)
+        list.sort(em)
+        s1=1/em[0]
+        s2=1/em[1]
+        s3=1/em[2]
+        coeff1=s3*((4*s3**2+8*s3*s2+8*s1*s3+7*s1*s2)/(16*s3**2+5*s3*s2+5*s1*s3+s2*s1))
+        coeff2=s1*((4*s1**2+8*s1*s2+8*s1*s3+7*s2*s3)/(16*s1**2+5*s1*s2+5*s1*s3+s2*s3))
+        return {'max':1/coeff1,'min':1/coeff2,'trace_min':1.0/3.0*(em[0]+em[1]+em[2]),'trace_max':1.0/((1.0/3.0)*(s1+s2+s3))}
         
     def get_stationary_pg_for_kpoints(self,kpoint):
         listUc=self.get_pg_matrices_rec()
@@ -941,6 +1030,9 @@ class Bandstructure(object):
         TODO: add more options
         """
         import pylab
+        from matplotlib import rc
+        rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'],'size':20})
+        rc('text', usetex=True)
         pylab.figure
         if(band==None): 
             for bl in self._branch_labels:
@@ -960,6 +1052,8 @@ class Bandstructure(object):
         for i in range(len(ticks['label'])):
             if(ticks['label'][i]!=None):
                 pylab.axvline(ticks['distance'][i],color='k')
+        
+        #pylab.axhline(self._efermi, color='r')
             
         pylab.gca().set_xticks(ticks['distance'])
         pylab.gca().set_xticklabels(ticks['label'])
@@ -979,10 +1073,30 @@ class Bandstructure(object):
         """
         tick_distance=[]
         tick_labels=[]
+        previous_label=self._kpoints[0]['label']
+        previous_branch=self._kpoints[0]['branch']
         for c in self._kpoints:
             if(c['label']!=None):
+                print c['label']
                 tick_distance.append(c['distance'])
-                tick_labels.append(c['label'])
+                if(c['label']!=previous_label and previous_branch!=c['branch']):
+                    label1=c['label']
+                    if(label1.startswith("\\") or label1.find("_")!=-1):
+                        label1="$"+label1+"$"
+                    label0=previous_label
+                    if(label0.startswith("\\") or label0.find("_")!=-1):
+                        label0="$"+label0+"$"
+                    tick_labels.pop()
+                    tick_distance.pop()
+                    tick_labels.append(label0+"$|$"+label1)
+                    #print label0+","+label1
+                else:
+                    if(c['label'].startswith("\\") or c['label'].find("_")!=-1):
+                        tick_labels.append("$"+c['label']+"$")
+                    else:
+                        tick_labels.append(c['label'])
+                previous_label=c['label']
+                previous_branch=c['branch']
         return {'distance':tick_distance,'label':tick_labels}
     
     def get_difference(self,otherbs):
