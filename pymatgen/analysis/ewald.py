@@ -18,7 +18,10 @@ __date__ ="$Sep 23, 2011M$"
 import numpy as np
 from math import pi, sqrt, log, exp, cos, sin, erfc
 import scipy.constants as sc
+from scipy.misc import comb
 from pymatgen.core.structure import Structure
+from copy import deepcopy, copy
+
 
 def compute_average_oxidation_state(site):
     """
@@ -31,6 +34,96 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
+
+def minimize_matrix( matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #current minimum works like a global variable since it is a list
+    '''minimize a matrix by removing a specific number of rows and columns (if row 4 is removed, column 4 must also be removed)
+    This method looks for short circuits to a brute force search by looking at best and worse case scenarios (which can be computed quickly)
+    It is about 1000 times faster than brute force'''
+    
+    if not CURRENT_MINIMUM:
+        CURRENT_MINIMUM = [float('inf')]
+    
+    if num_to_remove>len(indices):  #if we've kept too many rows
+        return[float('inf'), []]    #abandon the branch
+    
+    if num_to_remove==0:                        #if we don't have to remove any more rows
+        matrix_sum = sum(sum(matrix))
+        if matrix_sum<CURRENT_MINIMUM[0]:
+            CURRENT_MINIMUM[0] = matrix_sum
+        return [matrix_sum, []]                 #return the sum of the matrix
+    
+    indices = list(indices)         #make a copy of the indices so recursion doesn't alter them
+    matrix2=deepcopy(matrix)
+    
+    max_index = None
+    
+    #compute the best case sum for removing rows
+    if num_to_remove>1: #lets not do this if we're finding the minimum in the next step anyway
+        index_sum = [sum(matrix[i,:])+sum(matrix[:,i])-matrix[i,i] for i in indices]    #compute the value associated with an index assuming no other indices are removed
+        max_index = indices[index_sum.index(max(index_sum))]                            #get the index of the maximum value (we'll try removing this row first)
+        index_sum_sorted = list(index_sum)
+        index_sum_sorted.sort(reverse = True)
+        all_interactions = list(matrix[indices,:][:,indices].flatten())                 #get the cells that we could be double counting when removing multiple index
+        all_interactions.sort()
+        
+        #sum the matrix - the rows with maximum 
+        best_case = sum(sum(matrix))-sum(index_sum_sorted[:num_to_remove])+sum(all_interactions[:(num_to_remove*(num_to_remove-1))])
+        
+        if best_case > CURRENT_MINIMUM[0]:
+            return [float('inf'), []]   #if the best case doesn't beat the minimum abandon the branch
+        
+        #try to find rows that should definitely be removed or definitely ignored based on best and worse case performances
+        most_positive = []
+        most_negative = []
+        for i in range(len(indices)):
+            index = indices[i]
+            interactions = [matrix[index,x]+matrix[x,index] for x in indices if not x == index]
+            interactions.sort()
+            most_positive.append(index_sum[i]-sum(interactions[:(num_to_remove-1)]))
+            most_negative.append(index_sum[i]-sum(interactions[-(num_to_remove-1):]))
+            
+        most_positive_sorted = sorted(most_positive, reverse = True)
+        most_negative_sorted = sorted(most_negative, reverse = True)    
+        
+        deletion_indices = []
+        ignore_indices = []
+        for i in range(len(indices)):
+            if most_negative[i] > most_positive_sorted[num_to_remove-1]:
+                deletion_indices.append(indices[i])
+                pass
+            if most_positive[i] < most_negative_sorted[num_to_remove-1]:
+                ignore_indices.append(indices[i])
+                pass
+                
+        if deletion_indices + ignore_indices:
+            for r_index in deletion_indices:
+                matrix2[:,r_index] = 0
+                matrix2[r_index,:] = 0
+                num_to_remove -= 1
+                indices.remove(r_index)
+            for x in ignore_indices:
+                indices.remove(x)
+            output = minimize_matrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
+            output[1] = output[1]+deletion_indices
+            output[1].sort()
+            return output
+    
+    #if no shortcuts could be found, recurse down one level by both removing and ignoring one row
+    if max_index:
+        r_index = max_index
+        indices.remove(max_index)
+    else:    
+        r_index = indices.pop()
+    matrix2[:,r_index] = 0
+    matrix2[r_index,:] = 0
+    sum2 = minimize_matrix(matrix2, indices, num_to_remove-1, CURRENT_MINIMUM)
+    sum1 = minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
+    if sum1[0]<sum2[0]:
+        return sum1
+    else:
+        sum2[1].append(r_index)
+        sum2[1].sort()
+        return sum2
 
 class EwaldSummation:
     """
@@ -223,4 +316,170 @@ class EwaldSummation:
         output.append("Total = " + str(self.total_energy))
         output.append("Forces:\n" + str(self.forces))
         return "\n".join(output)
+    
+class EwaldMinimizer:
+    '''This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
+    This class does not perform the manipulations on a structure, but will return the list of manipulations that should be
+    done on one to produce the minimal structure.
+    Author: Will Richards'''
+    
+    def __init__(self, matrix, m_list, fast = True):
+        '''arguments:
+        matrix      a matrix of the ewald sum interaction energies. This is stored in the class as a diagonally symmetric array
+                    and so self._matrix will not be the same as the input matrix
+        m_list      list of manipulations
+                    each item is of the form (multiplication fraction, number_of_indices, indices, species)
+                    These are sorted such that the first manipulation contains the most permutations. this is actually
+                    evaluated last in the recursion since I'm using pop
+        '''
+        self._matrix = copy(matrix)
+        for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
+            for j in range(i,len(self._matrix)):
+                value = (self._matrix[i,j] + self._matrix[j,i])/2
+                self._matrix[i,j] = value
+                self._matrix[j,i] = value
+        self._m_list = deepcopy(sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True)) #sort the m_list based on number of  permutations
+        self._current_minimum = float('inf')
+        
+        output = self.minimize_matrix(fast)
+        
+        self._best_m_list = output[1]
+        self._minimized_sum = output[0]
+        
+    def best_case(self, matrix, manipulation, indices_left):
+        '''
+        computes a best case given a matrix and manipulation list. This is only used for when there is only one manipulation left
+        calculating a best case when there are multiple fractions remaining is much more complex (as sorting and dot products have to be done
+        on each row and it just generally scales pretty badly.
+        
+        arguments:
+        matrix: the current matrix (with some permutations already performed
+        manipulation: (multiplication fraction, number_of_indices, indices, species) describing the manipulation
+        indices: set of indices which haven't had a permutation performed on them 
+        '''
+        indices = list(indices_left.intersection(manipulation[2])) #only look at the indices that are in the manipulation and haven't been used
+        fraction = manipulation[0]
+        num = manipulation[1]
+        
+        sums = [2*sum(matrix[i,:])-(1-fraction)*matrix[i,i] for i in indices]   #compute the sum of each row. the weird prefactor on the self 
+                                                                                #interaction term is to make the math work out because it actually 
+                                                                                #is multiplied by f**2vrather than f like all the other terms
+        
+        if fraction < 1:    #we want do the thing that we guess will be most minimizing (to get to a lower current minimum faster). Whether 
+                            #we want to use the most positive or negative row depends on whether we're increasing or decreasing that row
+            next_index = indices[sums.index(max(sums))]
+        else:
+            next_index = indices[sums.index(min(sums))]
+
+        interactions = list(matrix[indices,:][:,indices].flatten()) #compute a list of things that we may have double counted
+        
+        if fraction <=1:    #we use the first part of sorted sums. Whether we want highest or lowest depends on the fraction
+            sums.sort(reverse = True)
+        else:    
+            sums.sort()
+        if 2*fraction-fraction**2 <= 1:
+            interactions.sort(reverse = True)
+        else:
+            interactions.sort()
+        
+        #compute a best case using the most minimizing row sums and the most minimizing interactions
+        best_case = sum(sum(matrix))+(fraction-1)*sum(sums[:num])+(2*fraction-fraction**2-1)*sum(interactions[:num*(num-1)])
+        
+        return best_case, next_index
+    
+    def get_next_index(self, matrix, manipulation, indices_left): #returns an index that should have the most negative effect on the matrix sum
+        f = manipulation[0]
+        indices = list(indices_left.intersection(manipulation[2]))
+        sums = [2*sum(matrix[i,:])-(1-f)*matrix[i,i] for i in indices]
+        if f < 1:
+            next_index = indices[sums.index(max(sums))]
+        else:
+            next_index = indices[sums.index(min(sums))]
+        
+        return next_index
+
+    def _recurse(self, matrix, m_list, indices, fast):
+        '''
+        this method recursively finds the minimal permutations using a binary tree search strategy
+        arguments:
+        matrix: the current matrix (with some permutations already performed
+        m_list: the list of permutations still to be performed
+        indices: set of indices which haven't had a permutation performed on them
+        fast: boolean indicating whether shortcuts by looking at the best case are to be used, the default is true
+        
+        returns:
+        
+        [minimal value, [list of replacements]]
+        each replacement is a list [index of replaced specie, specie inserted at that index]
+        '''
+        
+        if m_list[-1][1] == 0:
+            m_list = copy(m_list)
+            m_list.pop()
+            if not m_list:
+                total_sum = sum(sum(matrix))
+                if total_sum < self._current_minimum:
+                    self._current_minimum = total_sum
+                return [total_sum, []]
+            
+        if m_list[-1][1]>len(indices.intersection(m_list[-1][2])):
+            return [float('inf'), []]
+        
+        index = None
+        
+        if fast and len(m_list)==1 and m_list[-1][1]>1:
+            best_case = self.best_case(copy(matrix), m_list[-1], indices)
+            index = best_case[1]
+            if best_case[0] > self._current_minimum:
+                return [float('inf'), []]
+
+        
+        if index is None and fast:
+            index = self.get_next_index(matrix, m_list[-1], indices)
+        elif index is None:
+            index = m_list[-1][2][-1]    
+        
+        m_list[-1][2].remove(index)
+            
+        matrix2 = copy(matrix)
+        m_list2 = deepcopy(m_list)
+        
+        matrix2[index,:] *= m_list[-1][0]
+        matrix2[:,index] *= m_list[-1][0]
+        indices2= copy(indices)
+        m_list2[-1][1] -= 1
+        
+        if index in indices2:
+            indices2.remove(index)
+            output2 = self._recurse(matrix2, m_list2, indices2, fast)
+        else:
+            output2 = [float('inf'), []]
+            
+        output1 = self._recurse(matrix, m_list, indices, fast)
+        
+        if output1[0]<output2[0]:
+            return output1
+        else:
+            output2[1].append([index, m_list[-1][3]])
+            return output2
+        
+    def minimize_matrix(self, fast = True):
+        '''
+        this method finds and returns the permutations that produce the lowest ewald sum
+        calls recursive function to iterate through permutations
+        '''
+        
+        return self._recurse( self._matrix, self._m_list, set(range(len(self._matrix))), fast)
+    
+    @property
+    def best_m_list(self):
+        return self._best_m_list
+    
+    @property
+    def minimized_sum(self):
+        return self._minimized_sum
+        
+    
+    
+    
    
