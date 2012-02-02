@@ -7,7 +7,7 @@ long_description = open(README).read() + '\n\n'
 
 setup (
   name = 'pymatgen',
-  version = '1.2.1',
+  version = '1.2.2',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW'],
 
