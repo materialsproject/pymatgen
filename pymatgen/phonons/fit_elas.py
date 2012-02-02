@@ -1,7 +1,7 @@
 from __future__ import division
 import warnings
 import sys
-#sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo') # (If one does not want to change $PYTHONPATH)
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -24,7 +24,7 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="Jan 29, 2012"
 
-def fit_elas(strain, stress, tol):
+def fit_elas(strain, stress, tol, origin):
 	"""
 	Function for fitting stress-strain. Works correctly, but some additional safety checks should be added.
 	"""
@@ -49,7 +49,14 @@ def fit_elas(strain, stress, tol):
 
 				sig_fit.reverse()
 				
-				lincoeff = np.polyfit(strain[mag], sig_fit, 1)*0.1		# linear fit, convert to GPa
+				if origin == False:
+					
+					lincoeff = np.polyfit(strain[mag], sig_fit, 1)*0.1		# linear fit, convert to GPa
+				
+				else:														# force line through origin
+					
+					lincoeff = np.sum(np.array(strain[mag])*np.array(sig_fit))/np.sum(np.array(strain[mag])*np.array(strain[mag]))*0.1
+				
 				quadcoeff = np.polyfit(strain[mag], sig_fit, 2)*0.1		# quadratic fit, convert to GPa
 
 				if mag == 1 and np.abs(lincoeff[0] - quadcoeff[1]) > tol:
