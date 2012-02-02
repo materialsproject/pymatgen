@@ -1,7 +1,7 @@
 from __future__ import division
 import warnings
 import sys
-#sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo') # (If one does not want to change $PYTHONPATH)
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -132,7 +132,7 @@ class DeformGeometry(object):
 				s = StructureEditor(self.base_struct)
 				F = np.identity(3)
 				F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
-				F = np.matrix(F)						   # Not sure why, but without this statement, calculation of strain tensor gets meesed up...
+				F = np.matrix(F)						   # Not sure why, but without this statement, calculation of strain tensor gets messed up...
 				E = 0.5*(np.transpose(F)*F-np.eye(3))      # Green-Lagrange strain tensor
 				s.apply_strain_transformation(F)           # let deformation gradient tensor act on undistorted lattice
 				defstructures[counter] = [s.modified_structure, F, E, (F_index[j1][0], F_index[j1][1])]
@@ -145,7 +145,7 @@ class DeformGeometry(object):
 	def append_stress_tensors(self, stress_tensor_dict):
 		"""
 		After the ab initio engine is run, call this method to append the stress tensors to the corresponding structures,
-		stored in defstructures.
+		stored in defstructures. Residual stresses are subtracted out for increased accuracy.
 
 		Args:
 			stress_tensor_dict - a dict with  3x3 numpy matrices, containing the stresses. Key should be structure number,
@@ -203,7 +203,7 @@ class DeformGeometry(object):
 				eps_tot.append(eps_array)
 				sig_tot.append(sig_array)
 			
-			Cij_col = fit_elas.fit_elas(eps_tot, sig_tot, tol1)
+			Cij_col = fit_elas.fit_elas(eps_tot, sig_tot, tol1, origin)
 			
 			for Cijn in range(0,6):
 
@@ -233,42 +233,62 @@ class DeformGeometry(object):
 				eps_tot.append(eps_array)
 				sig_tot.append(sig_array)
 
-				Cij_col = fit_elas.fit_elas(eps_tot, sig_tot, tol1)
+				Cij_col = fit_elas.fit_elas(eps_tot, sig_tot, tol1, origin)
 
 				for Cijn in range(0,6):
 
 					Cij[Cijn, n1] = 0.5*Cij_col[Cijn, 0]			# factor 0.5 is required for shear modes only
 
+		if sym == True:
+			Cij = 0.50*(Cij + np.transpose(Cij))
+
 		self.Cij = Cij
+
+	def check_tensor_symmetry(self):
+		"""
+		This method returns the theoretical symmetry of the elastic tensor, based on the space group. 
+		For this, a symmetry analyzer needs to be called, such as phonopy or cctbx.
+		
+		Args:
+			None
+		"""
+
+#		To be implemented		
+
 
 	def born_huang(self):
 		"""
 		This method checks the Born-Huang criterions for the mechanical stability of the crystal.
+		
+		Args:
+			None
 		"""
 
 #		To be implemented
 
 
 
+##### Below shows example how to use this code #####
 
 #Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/classes/7048.cif')
 Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/aluminum.cif')
-
-## Calling sequence ##
 Q.CIF2struct()
 Q.deform(0.015, 0.015, 6, 6)
-Q.get_residual_stress()
-
+Q.get_residual_stress(np.zeros((3,3)), 1)
 stress_dict = dict()
 
-#for i in range(0, 36):
+## run VASP-calculation here ##
 
-#	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
-#	stress_dict[i] = A.ionic_steps[-1]['stress']
+## continue once calculations have finished ##
+
+for i in range(0, 36):
+
+	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
+	stress_dict[i] = A.ionic_steps[-1]['stress']
 
 Q.append_stress_tensors(stress_dict)
-Q.fit_cij()
 
+Q.fit_cij()
 print Q.Cij
 
 #for c in range(0, len(Q.defstructures)):
@@ -277,7 +297,4 @@ print Q.Cij
 #   w.write_file('POSCAR_' + str(c))
 
 #print Q.__dict__.keys()
-
-
-
 
