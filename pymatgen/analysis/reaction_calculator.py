@@ -178,16 +178,17 @@ class Reaction(object):
     @property
     def reactants(self):
         """List of reactants"""
-        return filter(lambda k: self._coeffs[self._all_comp.index(k)] < 0, self._all_comp)
+        
+        return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] < 0]
     
     @property
     def products(self):
         """List of products"""
-        return filter(lambda k: self._coeffs[self._all_comp.index(k)] > 0, self._all_comp)
+        return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] > 0]
     
     def get_coeff(self, comp):
         """Returns coefficient for a particular composition"""
-        return self._coeff[self._all_comp.index(comp)]
+        return self._coeffs[self._all_comp.index(comp)]
     
     def normalized_repr_and_factor(self):
         """
