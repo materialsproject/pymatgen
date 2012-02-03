@@ -120,16 +120,17 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         coords.append([0.5,0.5,0.5])
         coords.append([0.25,0.25,0.25])
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        
         struct = Structure(lattice,[{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] ,coords)
-        t.apply_transformation(struct)
+        t.apply_transformation(struct,50)
         self.assertEqual(len(t.all_structures), 12)
         
         struct = Structure(lattice,[{"Si4+":0.5}, {"Si4+":0.5}, {"P5+":0.5, "O2-": 0.5}, {"P5+":0.5, "O2-": 0.5}] ,coords)
-        t.apply_transformation(struct)
+        t.apply_transformation(struct,50)
         self.assertEqual(len(t.all_structures), 4)
         
         struct = Structure(lattice,[{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] ,coords)
-        t.apply_transformation(struct)
+        t.apply_transformation(struct,50)
         self.assertEqual(len(t.all_structures), 3)
         
 class PrimitiveCellTransformationTest(unittest.TestCase):

@@ -18,6 +18,7 @@ import json
 import itertools
 import warnings
 import numpy as np
+from operator import itemgetter
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
@@ -25,7 +26,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.analysis.ewald import EwaldSummation, minimize_matrix
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer, minimize_matrix
 
 class IdentityTransformation(AbstractTransformation):
     """
@@ -297,8 +298,149 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         output = {'name' : self.__class__.__name__}
         output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac}
         return output
-
+    
+    
 class OrderDisorderedStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure. The disordered structure must be oxidation state decorated for ewald sum to be computed.
+    No attempt is made to perform symmetry determination to reduce the number of combinations.
+    Hence, attempting to performing ordering on a large number of disordered sites may be extremely expensive. The time scales approximately
+    with the number of possible combinations. The algorithm can currently compute approximately 5,000,000 permutations per minute.
+    There is also the initial cost of calculating the ewald sum (typically ~1 minute)
+    
+    Also, simple rounding of the occupancies are performed, with no attempt made to achieve a target composition.  This is usually not a problem
+    for most ordering problems, but there can be times where rounding errors may result in structures that do not have the desired composition.
+    This second step will be implemented in the next iteration of the code.
+    
+    If multiple fractions for a single species are found for different sites, these will be treated separately if the difference is above a
+    threshold tolerance. currently this is .1
+    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites 4,5,6,7 1 site from [0,1,2,3] will be filled
+    and 2 sites from [4,5,6,7] will be filled, even though a lower energy combination might be found by putting all lithium in
+    sites [4,5,6,7]
+    
+    USE WITH CARE.
+    """
+    def __init__(self):
+        self._all_structures = []
+    
+    def apply_transformation(self, structure, num_structures = 1):
+        """
+        For this transformation, the apply_transformation method will return only the ordered
+        structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
+        However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
+        Arguments:
+            structure:
+                Oxidation state decorated disordered structure to order
+            max_iterations:
+                Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
+                and there are too many orderings to enumerate.
+        """
+        ordered_sites = []
+        sites_to_order = {}
+        
+        sites = list(structure.sites)
+        for i in range(len(structure)):
+            site = sites[i]
+            if sum(site.species_and_occu.values()) == 1 and len(site.species_and_occu) == 1:
+                ordered_sites.append(site)
+            else:
+                species = tuple([sp for sp, occu in site.species_and_occu.items()])     #group the sites by the list of species
+                                                                                        #on that site
+                for sp, occu in site.species_and_occu.items():
+                    if species not in sites_to_order:
+                        sites_to_order[species] = {}
+                    if sp not in sites_to_order[species]:
+                        sites_to_order[species][sp] = [[occu, i]]
+                    else:
+                        sites_to_order[species][sp].append([occu,i])
+                        
+                total_occu = sum(site.species_and_occu.values())        #if the total occupancy on a site is less than one, add
+                if total_occu < 1:                                      #a list with None as the species (for removal)
+                    if None not in sites_to_order[species]:
+                        sites_to_order[species][None] = [[1-total_occu, i]]
+                    else:
+                        sites_to_order[species][None].append([1-total_occu,i])
+        
+        m_list = []     #create a list of [multiplication fraction, number of replacements, [indices], replacement species]
+        se = StructureEditor(structure)
+        
+        for species in sites_to_order.values():
+            initial_sp = None
+            for sp in species.keys():
+                if initial_sp is None:
+                    initial_sp = sp
+                    for site in species[sp]:
+                        se.replace_single_site(site[1], species=initial_sp)
+                else:
+                    if sp is None:
+                        oxi = 0
+                    else:
+                        oxi = float(sp.oxi_state)
+                        
+                    manipulation = [oxi/initial_sp.oxi_state, 0, [], sp]
+                    site_list =  species[sp]
+                    site_list.sort(key = itemgetter(0))
+                    
+                    prev_fraction = site_list[0][0]
+                    for site in site_list:
+                        if site[0] - prev_fraction > .1:            #tolerance for creating a new group of sites. 
+                                                                    #if site occupancies are similar, they will be put in a group
+                                                                    #where the fraction has to be consistent over the whole
+                            manipulation[1] = int(round(manipulation[1]))
+                            m_list.append(manipulation)
+                            manipulation = [oxi/initial_sp.oxi_state, 0, [], sp]
+                        prev_fraction = site[0]
+                        manipulation[1] += site[0]
+                        manipulation[2].append(site[1])
+                        
+                    manipulation[1] = int(round(manipulation[1]))
+                    m_list.append(manipulation)
+                
+        structure = se.modified_structure
+        
+        matrix = EwaldSummation(structure).total_energy_matrix
+        
+        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
+        
+        self._all_structures = []
+        
+        for output in ewald_m.output_lists:
+            se = StructureEditor(structure)
+            del_indices = [] #do deletions afterwards because they screw up the indices of the structure
+            
+            for manipulation in output[1]:
+                if manipulation[1] is None:
+                    del_indices.append(manipulation[0])
+                else:
+                    se.replace_single_site(manipulation[0], species = manipulation[1])
+            se.delete_sites(del_indices)
+            self._all_structures.append([output[0], se.modified_structure.get_sorted_structure()])
+
+        return self._all_structures[0][1]
+    
+    def __str__(self):
+        return "Order disordered structure transformation"
+     
+    def __repr__(self):
+        return self.__str__()
+    
+    @property
+    def inverse(self):
+        return None
+    
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__}
+        output['init_args'] = {}
+        return output
+    
+    @property
+    def all_structures(self):
+        return self._all_structures
+    
+    
+
+class OrderDisorderedStructureTransformation_old(AbstractTransformation):
     """
     Order a disordered structure. The disordered structure must be oxidation state decorated for ewald sum to be computed.
     Please note that the current form uses a "dumb" algorithm of completely enumerating all possible combinations of

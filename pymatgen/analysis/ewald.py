@@ -21,6 +21,7 @@ import scipy.constants as sc
 from scipy.misc import comb
 from pymatgen.core.structure import Structure
 from copy import deepcopy, copy
+import bisect
 
 
 def compute_average_oxidation_state(site):
@@ -320,10 +321,14 @@ class EwaldSummation:
 class EwaldMinimizer:
     '''This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
     This class does not perform the manipulations on a structure, but will return the list of manipulations that should be
-    done on one to produce the minimal structure.
+    done on one to produce the minimal structure. It returns the manipulations for the n lowest energy orderings. This
+    class should be used to perform fractional species substitution or fractional species removal to produce a new structure.
+    These manipulations create large numbers of candidate structures, and this class can be used to pick out those with the lowest ewald sum.
+    An alternative (possibly more intuitive) interface to this class is the order disordered structure transformation.
+    
     Author: Will Richards'''
     
-    def __init__(self, matrix, m_list, fast = True):
+    def __init__(self, matrix, m_list, num_to_return = 1, fast = True):
         '''arguments:
         matrix      a matrix of the ewald sum interaction energies. This is stored in the class as a diagonally symmetric array
                     and so self._matrix will not be the same as the input matrix
@@ -331,6 +336,9 @@ class EwaldMinimizer:
                     each item is of the form (multiplication fraction, number_of_indices, indices, species)
                     These are sorted such that the first manipulation contains the most permutations. this is actually
                     evaluated last in the recursion since I'm using pop
+        num_to_return the minimizer will find the number_returned lowest energy structures. This is likely to return a number of
+                    duplicate structures so it may be necessary to overestimate and then remove the duplicates later. (duplicate checking
+                    in this process is extremely expensive)
         '''
         self._matrix = copy(matrix)
         for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -338,13 +346,37 @@ class EwaldMinimizer:
                 value = (self._matrix[i,j] + self._matrix[j,i])/2
                 self._matrix[i,j] = value
                 self._matrix[j,i] = value
-        self._m_list = deepcopy(sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True)) #sort the m_list based on number of  permutations
+        self._m_list = deepcopy(sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True)) #sort the m_list based on number of permutations
         self._current_minimum = float('inf')
         
-        output = self.minimize_matrix(fast)
+        self._output_lists = []
+        self._num_to_return = num_to_return
         
-        self._best_m_list = output[1]
-        self._minimized_sum = output[0]
+        n_combinations = 1  #calculate number of permutations to calculate
+        for m in self._m_list:
+            n_combinations *=comb(len(m[2]), m[1])
+            
+        if n_combinations <= num_to_return:
+            fast = False                    #If we're returning all sums, don't bother with short circuit algorithm
+        
+        self.minimize_matrix(fast)
+        
+        self._best_m_list = self._output_lists[0][1]
+        self._minimized_sum = self._output_lists[0][0]
+        
+    def add_m_list(self, matrix_sum, m_list):
+        '''
+        this adds an m_list to the output_lists and updates the current minimum if the list is full.
+        '''
+        if self._output_lists is None:
+            self._output_lists = [[matrix_sum, m_list]]
+        else:
+            bisect.insort(self._output_lists, [matrix_sum, m_list])
+        if len(self._output_lists)>self._num_to_return:
+            self._current_minimum.pop()
+        if len(self._output_lists) == self._num_to_return:
+            self._current_minimum = self._output_lists[-1][0]
+        
         
     def best_case(self, matrix, manipulation, indices_left):
         '''
@@ -398,7 +430,7 @@ class EwaldMinimizer:
         
         return next_index
 
-    def _recurse(self, matrix, m_list, indices, fast):
+    def _recurse(self, matrix, m_list, indices, fast, output_m_list = []):
         '''
         this method recursively finds the minimal permutations using a binary tree search strategy
         arguments:
@@ -407,6 +439,7 @@ class EwaldMinimizer:
         indices: set of indices which haven't had a permutation performed on them
         fast: boolean indicating whether shortcuts by looking at the best case are to be used, the default is true
         
+
         returns:
         
         [minimal value, [list of replacements]]
@@ -417,13 +450,13 @@ class EwaldMinimizer:
             m_list = copy(m_list)
             m_list.pop()
             if not m_list:
-                total_sum = sum(sum(matrix))
-                if total_sum < self._current_minimum:
-                    self._current_minimum = total_sum
-                return [total_sum, []]
+                matrix_sum = sum(sum(matrix))
+                if matrix_sum < self._current_minimum:
+                    self.add_m_list(matrix_sum, output_m_list)
+                return 
             
         if m_list[-1][1]>len(indices.intersection(m_list[-1][2])):
-            return [float('inf'), []]
+            return
         
         index = None
         
@@ -431,7 +464,7 @@ class EwaldMinimizer:
             best_case = self.best_case(copy(matrix), m_list[-1], indices)
             index = best_case[1]
             if best_case[0] > self._current_minimum:
-                return [float('inf'), []]
+                return
 
         
         if index is None and fast:
@@ -443,25 +476,20 @@ class EwaldMinimizer:
             
         matrix2 = copy(matrix)
         m_list2 = deepcopy(m_list)
+        output_m_list2 = deepcopy(output_m_list)
         
         matrix2[index,:] *= m_list[-1][0]
         matrix2[:,index] *= m_list[-1][0]
+        output_m_list2.append([index, m_list[-1][3]])
         indices2= copy(indices)
         m_list2[-1][1] -= 1
         
         if index in indices2:
             indices2.remove(index)
-            output2 = self._recurse(matrix2, m_list2, indices2, fast)
-        else:
-            output2 = [float('inf'), []]
+            output2 = self._recurse(matrix2, m_list2, indices2, fast, output_m_list2)
             
-        output1 = self._recurse(matrix, m_list, indices, fast)
+        output1 = self._recurse(matrix, m_list, indices, fast, output_m_list)
         
-        if output1[0]<output2[0]:
-            return output1
-        else:
-            output2[1].append([index, m_list[-1][3]])
-            return output2
         
     def minimize_matrix(self, fast = True):
         '''
@@ -478,6 +506,10 @@ class EwaldMinimizer:
     @property
     def minimized_sum(self):
         return self._minimized_sum
+    
+    @property
+    def output_lists(self):
+        return self._output_lists
         
     
     
