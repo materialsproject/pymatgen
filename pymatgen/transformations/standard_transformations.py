@@ -364,9 +364,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         m_list = []     #create a list of [multiplication fraction, number of replacements, [indices], replacement species]
         se = StructureEditor(structure)
         
+        
         for species in sites_to_order.values():
             initial_sp = None
-            for sp in species.keys():
+            sorted_keys =  sorted(species.keys(), key = lambda x: x is not None and -abs(x.oxi_state) or 1000) 
+            for sp in sorted_keys:
                 if initial_sp is None:
                     initial_sp = sp
                     for site in species[sp]:
@@ -395,7 +397,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
-                
+        
+        print m_list
+        
         structure = se.modified_structure
         
         matrix = EwaldSummation(structure).total_energy_matrix
