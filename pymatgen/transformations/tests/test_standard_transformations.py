@@ -129,6 +129,10 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         t.apply_transformation(struct,50)
         self.assertEqual(len(t.all_structures), 4)
         
+        struct = Structure(lattice,[{"Si4+":0.5}, {"Si4+":0.5}, {"O2-": 0.5}, {"O2-": 0.5}] ,coords)
+        t.apply_transformation(struct,50)
+        self.assertEqual(len(t.all_structures), 4)
+        
         struct = Structure(lattice,[{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] ,coords)
         t.apply_transformation(struct,50)
         self.assertEqual(len(t.all_structures), 3)
