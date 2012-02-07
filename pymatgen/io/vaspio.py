@@ -2005,12 +2005,18 @@ def get_band_structure_from_vasp(path):
         return get_band_structure_from_vasp_individual(path)
     
 def get_band_structure_from_vasp_individual(path):
-    run=Vasprun(path+"/vasprun.xml")
-    labels_dict=parse_kpoint_labels(path+"/KPOINTS")
-    lattice_rec=run.final_structure.lattice.reciprocal_lattice
+    run = Vasprun(path+"/vasprun.xml")
+    labels_dict = parse_kpoint_labels(path+"/KPOINTS")
+    lattice_rec = run.final_structure.lattice.reciprocal_lattice
     for c in labels_dict:
-        labels_dict[c]=lattice_rec.get_cartesian_coords(labels_dict[c])
-    kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+        labels_dict[c] = lattice_rec.get_cartesian_coords(labels_dict[c])
+    #kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    kpoints = []
+    for point in run.actual_kpoints:
+        abc = np.array(point)
+        xyz = lattice_rec.get_cartesian_coords(np.array(point))
+        k = {'abc':abc, 'xyz': xyz}
+        kpoints.append(k)
     dict_eigen=run.to_dict['output']['eigenvalues']
     eigenvals=[]
     max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
@@ -2037,6 +2043,6 @@ def parse_kpoint_labels(file_kpoints):
         if len(tokens)<6:
             continue
         array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
-        dict_label_kpoints[tokens[5]]=array
+        dict_label_kpoints[tokens[5].strip()]=array
         
     return dict_label_kpoints

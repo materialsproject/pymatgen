@@ -409,10 +409,10 @@ class Bandstructure(object):
     the constructor takes:
     
     -kpoints: a list of kpoints in a numpy array format
-    -eigenvals: a list of dictionnary (one per band), each dictionary has
+    -eigenvals: a list of dictionary (one per band), each dictionary has
     a list of float linked to an 'energy' key and a list of float linked to an 'occupation' key
     the order in which the list is set corresponds to the kpoints given in the kpoints list
-    -labels_dict: a dictionnary of label associated with a kpoint
+    -labels_dict: a dictionary of label associated with a kpoint
     -the structure as a Structure object
     -efermi the fermi energy
     
@@ -452,35 +452,35 @@ class Bandstructure(object):
 
     """
 
-    def __init__(self,kpoints,eigenvals,labels_dict,structure,efermi):
-        
-        self._efermi=efermi
-        
-        self._structure=structure
-        
+    def __init__(self, kpoints, eigenvals, labels_dict, structure, efermi):
         """
-        the structure as a Structure object
+        Args: 
+            kpoints: (Array) of dicts of {'abc':[0,0,0], 'xyz':[0.0,0,0.0]}
+
+            eigenvals: (Array) of {}
+
+            label_dict: (dict) of {}
+
+            structure: Materials Project Structure object
+
+            efermi: fermi energy in eV
         """
+
         
-        self._lattice_rec=structure.lattice.reciprocal_lattice
+        self._efermi = efermi
         
-        """
-        reciprocal lattice as a Lattice object
-        """
+        self._structure = structure
+        self._lattice_rec = structure.lattice.reciprocal_lattice
         
-        self._kpoints=[]
-        self._kpoints=[{'kpoint':kpoints[i]} for i in range(len(kpoints))]
+        self._kpoints = []
+        # k should have {'abc':[0,0,0], 'xyz':[0,0,0]}
+        self._kpoints = [{'kpoint':k} for k in kpoints]
         """
         all kpoints, (order matter!)
         """
-        
-        
+        # Are these in cart, or fractional ?
         self._labels_dict=labels_dict
-        
-        """
-        the labels to the kpoints
-        """
-        
+
         self._branches=[]
         """
         list used to know what kpoints are in what branch
@@ -497,7 +497,6 @@ class Bandstructure(object):
         """
         all branches labels (ex: Gamma-Z, etc...)
         """ 
-        
         one_group=[]
         branches=[]
         #get labels and distance for each kpoint
@@ -510,7 +509,7 @@ class Bandstructure(object):
             if(label!=None and previous_label!=None):
                 self._kpoints[i]['distance']=previous_distance
             else:
-                self._kpoints[i]['distance']=np.linalg.norm(self._kpoints[i]['kpoint']-previous_kpoint)+previous_distance
+                self._kpoints[i]['distance']=np.linalg.norm(self._kpoints[i]['kpoint']['xyz'] -previous_kpoint['xyz'])+previous_distance
             previous_kpoint=self._kpoints[i]['kpoint']
             previous_distance=self._kpoints[i]['distance']
             label=self.get_label(self._kpoints[i]['kpoint'],self._labels_dict)
@@ -542,7 +541,7 @@ class Bandstructure(object):
         simple method giving a label for any kpoint
         """
         for c in labels_dict:
-            if(np.linalg.norm(kpoint-np.array(labels_dict[c]))<0.0001):
+            if(np.linalg.norm(kpoint['xyz'] -np.array(labels_dict[c]))<0.0001):
                 return c
         return None
                 
@@ -613,7 +612,7 @@ class Bandstructure(object):
         TODO: not sure if the direct works, to test!
         
         """
-        if(self.is_metal()==True):
+        if self.is_metal():
             return {'energy':0.0,'direct':False,'transition':None}
         cbm=self.getCBM()
         vbm=self.getVBM()
@@ -630,7 +629,7 @@ class Bandstructure(object):
         get the direct gap
         
         """
-        if(self.is_metal()==True):
+        if self.is_metal():
             return 0.0
         #go through each kpoint and find the vbm and cbm at this kpoint
         #find the minimum of this difference
@@ -835,19 +834,19 @@ class Bandstructure(object):
         
         
         #two cases: there a nb_sample points in the branch with higher indices or lower ones
-        forward=False
-        backward=False
-        local_index=None
+        is_forward = False
+        is_backward = False
+        local_index = None
         for i in range(len(self._branches[index_branch])):
             if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']-self._kpoints[index_k]['kpoint'])<0.001):
                 local_index=i 
                 if(len(self._branches[index_branch])>i+4):
-                    forward=True
+                    is_forward=True
                 if(i-4>0):
-                    backward=True
+                    is_backward=True
         x0=self._kpoints[self._branches[index_branch][local_index]]['distance']
         y0=self._bands[index_band]['energy'][index_k]
-        if(forward):
+        if is_forward:
             x=[self._kpoints[self._branches[index_branch][local_index+i]]['distance']-x0 for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index+i]]-y0 for i in range(nb_sample)]
             tck = scipy.interpolate.splrep(x,y)
@@ -866,7 +865,7 @@ class Bandstructure(object):
             mass.append(3.77/(yder/2.0))
             #mass.append(3.77/a[0])
          
-        if(backward):
+        if is_backward:
             x=[-1.0*(self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0) for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index-i]]-y0 for i in range(nb_sample)]
             a=np.polyfit(x,y,2)
@@ -910,20 +909,20 @@ class Bandstructure(object):
         if(branches_of_interest>=3):
             for d in branches_of_interest:
                 index_branch=d['index']
-                local_index=None
-                forward=False
-                backward=False
-                local_index=None
+                local_index = None
+                is_forward = False
+                is_backward = False
+                local_index = None
                 for i in range(len(self._branches[index_branch])):
-                    if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']-self._kpoints[kpoint_index]['kpoint'])<0.001):
+                    if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']['xyz'] -self._kpoints[kpoint_index]['kpoint']['xyz'])<0.001):
                         local_index=i
                         if(len(self._branches[index_branch])>i+4):
-                            forward=True
+                            is_forward = True
                         if(i-4>0):
-                            backward=True
+                            is_backward = True
                 x0=self._kpoints[self._branches[index_branch][local_index]]['kpoint']
                 y0=self._bands[index_band]['energy'][kpoint_index]
-                if forward==True:
+                if is_forward:
                     for j in range(4):
                         k=self._kpoints[self._branches[index_branch][local_index+j]]['kpoint']-x0
                         e=self._bands[index_band]['energy'][self._branches[index_branch][local_index+j]]-y0 
@@ -1048,7 +1047,7 @@ class Bandstructure(object):
         rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'],'size':20})
         rc('text', usetex=True)
         pylab.figure
-        if(band==None): 
+        if band is None: 
             for bl in self._branch_labels:
                 for i in range(self._nb_bands):
                     pylab.plot([self._kpoints[j]['distance'] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],[self._bands[i]['energy'][j] for j in range(len(self._kpoints)) if self._kpoints[j]['branch']==bl],'b-',linewidth=5)
@@ -1088,10 +1087,12 @@ class Bandstructure(object):
                     pylab.scatter(k['distance'],vbm['energy'],color='g',marker='o',s=100)
         else:
             pylab.scatter(self._kpoints[vbm['kpoint_index']]['distance'],vbm['energy'],color='g',marker='o',s=100)
-        if(band==None):
+
+        if band is None:
             pylab.ylim(vbm['energy']-4,cbm['energy']+4)
         pylab.legend()
-        if(path_to_save==None):
+
+        if path_to_save is None:
             pylab.show()
         else:
             pylab.savefig(path_to_save)
@@ -1137,17 +1138,30 @@ class Bandstructure(object):
         return diff
     
     def to_dict(self):
-        dictio={}
-        dictio['lattice_rec']=self._lattice_rec.to_dict
-        dictio['efermi']=self._efermi
-        dictio['kpoints']=self._kpoints
-        dictio['branches']=self._branches
-        dictio['bands']=self._bands
-        dictio['is_metal']=self.is_metal()
-        dictio['VBM']=self.getVBM()
-        dictio['CBM']=self.getCBM()
-        dictio['band_gap']=self.get_band_gap()
-        return dictio
+        d ={}
+        d['structure'] = self._structure.to_dict
+        d['structure']['reciprocal_lattice'] = self._lattice_rec.to_dict
+        d['efermi']=self._efermi
+        d['branches']=self._branches
+        d['bands']=self._bands
+        d['is_metal']=self.is_metal()
+        def band_min_to_dict(k):
+            k['kpoint'] = {'abc':list(k['kpoint']['abc']), 'xyz':list(k['kpoint']['xyz'])}
+            return k
+        d['valence_band_max'] = band_min_to_dict(self.getVBM())
+        d['conduction_band_min'] = band_min_to_dict(self.getCBM())
+        d['band_gap'] = self.get_band_gap()
+        d['kpoint_path'] = ' '.join(list(self._branch_labels))
+        def kpoint_to_dict(k):
+            out = {}
+            out['branch'] = k['branch']
+            out['distance'] = k['distance']
+            if k['label'] is not None:
+                out['label'] = k['label']
+            out['kpoint'] = {'abc':list(k['kpoint']['abc']), 'xyz':list(k['kpoint']['xyz'])}
+            return out
+        d['kpoints']=[kpoint_to_dict(k) for k in self._kpoints]
+        return d
     
        
 def get_reconstructed_band_structure(list_bs):
@@ -1184,8 +1198,8 @@ class PBandstructure(Bandstructure):
     For simplicity, I tried to follow the structure of the DOS implementation
     WARNING: I just started this... not really working yet
     """
-    def __init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure, orbital):
-        Bandstructure.__init__(self,kpoints,eigenvals,labels_dict,rec_lattice,structure, orbital)
+    def __init__(self, kpoints, eigenvals,labels_dict, structure, orbital):
+        Bandstructure.__init__(self, kpoints, eigenvals, labels_dict, structure)
         self.orbital = orbital
        
 class CompleteBandStructure(Bandstructure):
