@@ -153,7 +153,17 @@ class Reaction(object):
         """
         scale_factor = abs(1/self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
-            
+    
+    def normalize_to_element(self, element, target_amount = 1):
+        """
+        Normalizes the reaction to one of the elements.
+        By default, normalizes such that the amount of the element is 1.
+        Another factor can be specified.
+        """
+        current_element_amount = sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
+        scale_factor = target_amount / current_element_amount
+        self._coeffs = [c * scale_factor for c in self._coeffs]
+    
     @property
     def elements(self):
         """
@@ -249,7 +259,8 @@ class Reaction(object):
                 product_str.append("%.3f %s" % (scaled_coeff, comp.reduced_formula))
         
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
-            
+
+        
 def smart_float_gcd(list_of_floats):
     """
     Determines the great common denominator (gcd).  Works on floats as well as integers.

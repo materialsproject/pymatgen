@@ -237,6 +237,11 @@ class CompositionTest(unittest.TestCase):
         all_formulas = [c.alphabetical_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
     
+    def test_reduced_composition(self):
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        for i in xrange(len(self.comp)):
+            self.assertEqual(self.comp[i].get_reduced_composition_and_factor()[0], Composition.from_formula(correct_reduced_formulas[i]))
+    
     def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
         all_formulas = [c.reduced_formula for c in self.comp]
