@@ -376,15 +376,18 @@ class StructureFitter(object):
                 continue
             rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
             r = SymmOp.from_rotation_matrix_and_translation_vector(rot, np.array([0,0,0]))
-
+            
             if r not in cand_rot:
                 transf = r.rotation_matrix
                 transf = np.dot(transf.transpose(), transf)
                 transf = np.eye(3) if almost_identity(transf) else transf
                 pbis = sqrt_matrix(transf)
-                if shear_invariant(pbis) < tol_shear:
-                    cand_rot[r] = shear_invariant(pbis)
-    
+                shear_inv = shear_invariant(pbis)
+                if shear_inv < tol_shear:
+                    cand_rot[r] = shear_inv
+                else:
+                    logging.debug("Shear {} exceeds tol of {}".format(shear_inv, tol_shear))
+            
         return cand_rot
 
     @property
