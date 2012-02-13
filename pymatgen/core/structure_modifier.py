@@ -204,7 +204,7 @@ class StructureEditor(StructureModifier):
             new_sites.append(PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(site.coords), self._lattice))
         self._sites = new_sites
         
-    def translate_sites(self, sites, vector, frac_coords = True):
+    def translate_sites(self, indices, vector, frac_coords = True):
         """
         Translate specific sites by some vector, keeping the sites within the unit cell
         
@@ -215,7 +215,7 @@ class StructureEditor(StructureModifier):
             vector: translation vector for sites
             frac_coords: Boolean stating whether the vector corresponds to fractional or cartesian coordinates
         """
-        for i in sites:
+        for i in indices:
             site = self._sites[i]
             if frac_coords == True:
                 coords = site.frac_coords
