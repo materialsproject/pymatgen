@@ -164,6 +164,9 @@ class Reaction(object):
         scale_factor = target_amount / current_element_amount
         self._coeffs = [c * scale_factor for c in self._coeffs]
     
+    def get_el_amount(self, element):
+        return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
+    
     @property
     def elements(self):
         """
