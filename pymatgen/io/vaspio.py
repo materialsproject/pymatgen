@@ -2004,26 +2004,35 @@ def get_band_structure_from_vasp(path):
     else:
         return get_band_structure_from_vasp_individual(path)
     
-def get_band_structure_from_vasp_individual(path):
-    run = Vasprun(path+"/vasprun.xml")
-    labels_dict = parse_kpoint_labels(path+"/KPOINTS")
-    lattice_rec = run.final_structure.lattice.reciprocal_lattice
+def get_band_structure_from_vasp_individual(dir_name):
+    vasp_run = Vasprun(os.path.join(dir_name, 'vasprun.xml'))
+    labels_dict = parse_kpoint_labels(os.path.join(dir_name, 'KPOINTS'))
+    lattice_rec = vasp_run.final_structure.lattice.reciprocal_lattice
+
     for c in labels_dict:
         labels_dict[c] = lattice_rec.get_cartesian_coords(labels_dict[c])
+
     #kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
     kpoints = []
-    for point in run.actual_kpoints:
+    for point in vasp_run.actual_kpoints:
         abc = np.array(point)
         xyz = lattice_rec.get_cartesian_coords(np.array(point))
         k = {'abc':abc, 'xyz': xyz}
         kpoints.append(k)
-    dict_eigen=run.to_dict['output']['eigenvalues']
-    eigenvals=[]
-    max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
+
+    #raw eigenvalues
+    dict_eigen = vasp_run.to_dict['output']['eigenvalues']
+
+    max_band = int(math.floor(len(dict_eigen['1']['up'])*0.9))
+
+    eigenvals = []
     for i in range(max_band):
         eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
         eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, run.efermi)
+
+    #print kpoints
+    #print labels_dict
+    bands = Bandstructure(kpoints, eigenvals, labels_dict, vasp_run.final_structure, vasp_run.efermi)
     return bands
 
 def parse_kpoint_labels(file_kpoints):
