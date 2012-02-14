@@ -15,6 +15,7 @@ __status__ = "Production"
 __date__ ="Sep 23, 2011"
 
 import math
+import logging
 import numpy as np
 import scipy.interpolate as spint
 import pymatgen.command_line.aconvasp_caller
@@ -526,14 +527,18 @@ class Bandstructure(object):
         if(len(one_group)!=0):
             branches.append(one_group)
         self._branches=branches
+
+        self.log = logging.getLogger(self.__class__.__name__)
         
         #go through all the branches and assign their branch name to each kpoint
         for b in branches:
-            label_start=self.get_label(self._kpoints[b[0]]['kpoint'],self._labels_dict)
-            label_end=self.get_label(self._kpoints[b[-1]]['kpoint'],self._labels_dict)
+            label_start = self.get_label(self._kpoints[b[0]]['kpoint'], self._labels_dict)
+            label_end = self.get_label(self._kpoints[b[-1]]['kpoint'], self._labels_dict)
+            #print (label_start, label_end)
             for c in b:
-                self._kpoints[c]['branch']=label_start+"-"+label_end
+                self._kpoints[c]['branch'] = '-'.join([label_start, label_end])
                 self._branch_labels.add(self._kpoints[c]['branch'])
+
           
             
     def get_label(self,kpoint,labels_dict):
@@ -541,9 +546,12 @@ class Bandstructure(object):
         simple method giving a label for any kpoint
         """
         for c in labels_dict:
-            if(np.linalg.norm(kpoint['xyz'] -np.array(labels_dict[c]))<0.0001):
+            if(np.linalg.norm(kpoint['xyz'] - np.array(labels_dict[c])) < 0.0001):
                 return c
-        return None
+        #THIS IS WRONG!!!!
+        #TEMPORARY fix to solve a problem crashing the import/parsing
+        #return None
+        return 'QQ'
                 
     def getVBM(self):
         """
@@ -613,15 +621,15 @@ class Bandstructure(object):
         
         """
         if self.is_metal():
-            return {'energy':0.0,'direct':False,'transition':None}
-        cbm=self.getCBM()
-        vbm=self.getVBM()
-        result={}
-        result['energy']=cbm['energy']-vbm['energy']
-        result['direct']=False
-        if(cbm['label']==vbm['label'] or np.linalg.norm(cbm['kpoint']-vbm['kpoint'])<0.01):
-            result['direct']=True
-        result['transition']=str(vbm['label'])+"-"+str(cbm['label'])
+            return {'energy':0.0, 'direct':False, 'transition':None}
+        cbm = self.getCBM()
+        vbm = self.getVBM()
+        result = {}
+        result['energy'] = cbm['energy']- vbm['energy']
+        result['direct'] = False
+        if (cbm['label'] == vbm['label'] or np.linalg.norm(cbm['kpoint']['xyz'] - vbm['kpoint']['xyz']) < 0.01):
+            result['direct'] = True
+        result['transition'] = '-'.join([str(c['label']) for c in [vbm, cbm]])
         return result
     
     def get_direct_gap(self):
