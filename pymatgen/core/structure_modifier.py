@@ -217,12 +217,11 @@ class StructureEditor(StructureModifier):
         """
         for i in indices:
             site = self._sites[i]
-            if frac_coords == True:
-                coords = site.frac_coords
+            if frac_coords:
+                fcoords = site.frac_coords + vector
             else:
-                coords = site.coords
-            coords = (coords + vector)%1
-            new_site = PeriodicSite(site.species_and_occu, coords, self._lattice, coords_are_cartesian = not frac_coords)
+                fcoords = self._lattice.get_fractional_coords(site.coords + vector)
+            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell = True, coords_are_cartesian = False)
             self._sites[i] = new_site
     
     @property
