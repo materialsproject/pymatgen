@@ -23,8 +23,8 @@ class StructureEditorTest(unittest.TestCase):
         
     def test_modified_structure(self):
         self.modifier.translate_sites([0,1], [0.5,0.5,0.5], frac_coords = True)
-        print self.modifier.modified_structure.frac_coords
-        self.assertEqual(str(self.modifier.modified_structure.frac_coords),"[array([ 0.5,  0.5,  0.5]), array([ 0.25,  0.  ,  0.25])]","Incorrect translation")
+        if not np.array_equal(self.modifier.modified_structure.frac_coords[0],np.array([ 0.5,  0.5,  0.5])):
+            print "Incorrect translation"
         
         self.modifier.append_site(self.si, [0,0.5,0])
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
