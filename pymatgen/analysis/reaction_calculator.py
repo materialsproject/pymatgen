@@ -123,8 +123,8 @@ class Reaction(object):
         #Invert negative solutions and scale to final product
         coeffs = [c/normfactor for c in coeffs]
         self._els = els
-        self._all_comp = all_comp
-        self._coeffs = coeffs
+        self._all_comp = all_comp[0:num_constraints]
+        self._coeffs = coeffs[0:num_constraints]
         self._num_comp = num_constraints
     
     def copy(self):
@@ -287,4 +287,5 @@ class ReactionError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Query Error : " + self.msg
+        return self.msg
+
