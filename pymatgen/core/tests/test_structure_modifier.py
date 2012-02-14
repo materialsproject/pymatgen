@@ -4,7 +4,7 @@ import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, Site
+from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
 import numpy as np
 
@@ -23,8 +23,10 @@ class StructureEditorTest(unittest.TestCase):
         
     def test_modified_structure(self):
         self.modifier.translate_sites([0,1], [0.5,0.5,0.5], frac_coords = True)
-        if not np.array_equal(self.modifier.modified_structure.frac_coords[0],np.array([ 0.5,  0.5,  0.5])):
-            print "Incorrect translation"
+        self.assertTrue(np.array_equal(self.modifier.modified_structure.frac_coords[0],np.array([ 0.5,  0.5,  0.5])))
+        
+        self.modifier.translate_sites([0], [0.5,0.5,0.5], frac_coords = False)
+        self.assertTrue(np.array_equal(self.modifier.modified_structure.cart_coords[0],np.array([ 5.5,  5.5,  5.5])))
         
         self.modifier.append_site(self.si, [0,0.5,0])
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
