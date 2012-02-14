@@ -1046,7 +1046,18 @@ class Composition (collections.Mapping, collections.Hashable):
             if self[el] != 0:
                 formula.append(el.symbol+formula_double_format(self[el], False))
         return ' '.join(formula)
-    
+
+    def get_reduced_composition_and_factor(self):
+        '''
+        Returns a normalized composition and a multiplicative factor, 
+        i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
+        '''
+        
+        (formula, factor) = self.get_reduced_formula_and_factor()
+        
+        return (Composition.from_formula(formula), factor)
+
+  
     def get_reduced_formula_and_factor(self):
         '''
         Returns a pretty normalized formula and a multiplicative factor, i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
