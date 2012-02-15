@@ -42,7 +42,7 @@ direct
 0.750000 0.500000 0.750000"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
-
+        
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
@@ -56,7 +56,7 @@ direct
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
-
+        
     def test_str(self):
         si = 14
         coords = list()
