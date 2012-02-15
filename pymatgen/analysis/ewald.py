@@ -373,7 +373,7 @@ class EwaldMinimizer:
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
         if len(self._output_lists)>self._num_to_return:
-            self._current_minimum.pop()
+            self._output_lists.pop()
         if len(self._output_lists) == self._num_to_return:
             self._current_minimum = self._output_lists[-1][0]
         
