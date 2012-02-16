@@ -335,8 +335,8 @@ class BalancedReaction(Reaction):
                 sum_comp[el] += coeffs[i] * all_comp[i][el]
         
         for v in sum_comp.values():
-            if v != 0:
-                raise ReactionError("Reaction is unbalanced!")
+            if abs(v) > Reaction.TOLERANCE:
+                raise ReactionError("Reaction is unbalanced with {}!".format(v))
         
         self._els = els
         self._all_comp = all_comp
