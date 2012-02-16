@@ -1146,29 +1146,55 @@ class Bandstructure(object):
         return diff
     
     def to_dict(self):
+        #conversion utils
+        def kpoint_to_dict(k):
+            out = {}
+            out['branch'] = k['branch']
+            #out['distance'] = k['distance']
+            if k['label'] is not None:
+                out['label'] = k['label']
+            #out['kpoint'] = {'abc':list(k['kpoint']['abc']), 'xyz':list(k['kpoint']['xyz'])}
+            out['kpoint'] = {'abc':list(k['kpoint']['abc'])}
+            return out
+
+        
+        def kpoints_and_bands_to_dict(ks, bs):
+            # A branch is
+            # - kpoint (abc)
+            # 
+            branches = []
+            for i, k in enumerate(ks):
+                d = kpoint_to_dict(k)
+                eigenvalues = []
+                for j, band in enumerate(bs):
+                    #get all eigenvals at each kpt
+                    e = band['energy'][i]
+                    o = band['occup'][i]
+                    eigenvalues.append([e,o])
+                d['eigenvalues'] = eigenvalues
+                branches.append(d)
+            return branches
+
+        def band_min_to_dict(k):
+                k['kpoint'] = {'abc':list(k['kpoint']['abc'])}
+                return k
+
+        
         d ={}
         d['structure'] = self._structure.to_dict
         d['structure']['reciprocal_lattice'] = self._lattice_rec.to_dict
-        d['efermi']=self._efermi
-        d['branches']=self._branches
-        d['bands']=self._bands
-        d['is_metal']=self.is_metal()
-        def band_min_to_dict(k):
-            k['kpoint'] = {'abc':list(k['kpoint']['abc']), 'xyz':list(k['kpoint']['xyz'])}
-            return k
+        d['efermi'] = self._efermi
+        d['branches'] = kpoints_and_bands_to_dict(self._kpoints, self._bands)
+        d['nbranches'] = len(d['branches'])
+        #d['nbands'] = len(self._branches)
+        #d['bands'] = bands_to_dict(self._bands)
+        d['is_metal'] = self.is_metal()
         d['valence_band_max'] = band_min_to_dict(self.getVBM())
         d['conduction_band_min'] = band_min_to_dict(self.getCBM())
         d['band_gap'] = self.get_band_gap()
         d['kpoint_path'] = ' '.join(list(self._branch_labels))
-        def kpoint_to_dict(k):
-            out = {}
-            out['branch'] = k['branch']
-            out['distance'] = k['distance']
-            if k['label'] is not None:
-                out['label'] = k['label']
-            out['kpoint'] = {'abc':list(k['kpoint']['abc']), 'xyz':list(k['kpoint']['xyz'])}
-            return out
-        d['kpoints']=[kpoint_to_dict(k) for k in self._kpoints]
+        #d['kpoints'] = [kpoint_to_dict(k) for k in self._kpoints]
+        #d['nkpoints'] = len(d['kpoints'])
         return d
     
        
