@@ -211,7 +211,7 @@ class PDAnalyzer(object):
 
             if not are_same_decomp(prev_decomp, decomp):
                 if elcomp not in decomp:
-                    decomp.insert(0,elcomp)
+                    decomp.insert(0, elcomp)
                 rxn = Reaction([comp], decomp)
                 rxn.normalize_to(comp)
                 prev_decomp = decomp

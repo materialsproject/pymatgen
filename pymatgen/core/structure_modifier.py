@@ -277,7 +277,7 @@ class OxidationStateDecorator(StructureModifier):
         except KeyError as ex:
             raise ValueError("Oxidation state of all elements must be specified in the dictionary.")
         self._modified_structure = Structure(structure.lattice, new_species, structure.frac_coords, False)
-                        
+        
     @property
     def original_structure(self):
         return self._original_structure
