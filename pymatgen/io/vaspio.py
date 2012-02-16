@@ -49,7 +49,7 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
     
-    def __init__(self, struct, comment = None, selective_dynamics = None):
+    def __init__(self, struct, comment = None, selective_dynamics = None, true_names = True):
         """        
         Arguments:
             struct:
@@ -68,7 +68,7 @@ class Poscar(VaspInput):
             for (s, data) in itertools.groupby(syms):
                 self._site_symbols.append(s)
                 self._natoms.append(len(tuple(data)))
-            self._true_names = True
+            self._true_names = true_names
             if selective_dynamics:
                 self.set_selective_dynamics(selective_dynamics)
             else:
@@ -198,6 +198,7 @@ class Poscar(VaspInput):
             try: #check if names are appended at the end of the POSCAR coordinates
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
                 [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
+                vasp5_symbols = True
             except:
                 #Defaulting to false names.
                 atomic_symbols = list()
@@ -205,7 +206,7 @@ class Poscar(VaspInput):
                     sym = Element.from_Z(i+1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
-
+                
         # read the atomic coordinates
         coords = []
         selective_dynamics = list() if sdynamics else None
@@ -217,7 +218,11 @@ class Poscar(VaspInput):
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct,comment, selective_dynamics)
+        return Poscar(struct, comment, selective_dynamics, vasp5_symbols)
+    
+    @property
+    def true_names(self):
+        return self._true_names
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """

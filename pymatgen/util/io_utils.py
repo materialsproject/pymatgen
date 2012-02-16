@@ -126,5 +126,7 @@ def clean_json(input_json):
         return input_json
     elif isinstance(input_json, basestring):
         return str(input_json)
+    elif input_json == None:
+        return 'None'
     else:
         return clean_json(input_json.to_dict)
