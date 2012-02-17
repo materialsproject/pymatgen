@@ -223,6 +223,19 @@ class StructureEditor(StructureModifier):
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
             new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell = True, coords_are_cartesian = False)
             self._sites[i] = new_site
+            
+    def perturb_structure(self, distance = 0.1):
+        '''
+        performs a random perturbation of the sites in a structure to break symmetries
+        
+        Args:
+            distance: distance by which to perturb each site
+        '''
+        for i in range(len(self._sites)):
+            vector = np.random.rand(3)
+            vector /= np.linalg.norm(vector)/distance
+            self.translate_sites([i], vector, frac_coords = False)
+        
     
     @property
     def original_structure(self):
