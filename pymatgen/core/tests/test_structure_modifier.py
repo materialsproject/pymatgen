@@ -41,6 +41,16 @@ class StructureEditorTest(unittest.TestCase):
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1 Ge1", "Wrong formula!")
         
         self.assertRaises(ValueError, self.modifier.append_site, self.si, np.array([0,0.5,0]))
+        
+        d = 0.1
+        pre_perturbation_sites = self.modifier.modified_structure.sites
+        self.modifier.perturb_structure(distance = d)
+        post_perturbation_sites = self.modifier.modified_structure.sites
+
+        for x in pre_perturbation_sites:
+            self.assertAlmostEqual(x.distance(post_perturbation_sites.next()), d, 3, "Bad perturbation distance") 
+        
+        
 
 class SupercellMakerTest(unittest.TestCase):
 
