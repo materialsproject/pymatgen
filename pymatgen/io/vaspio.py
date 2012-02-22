@@ -812,10 +812,11 @@ class Potcar(list,VaspInput):
     calculations.
     """
     functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW', 'PW91':'POT_GGA_PAW_PW91'}
+    DEFAULT_FUNCTIONAL = "PBE"
     
-    def __init__(self, symbols = None):
+    def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
         if symbols != None:
-            self.set_symbols(symbols)
+            self.set_symbols(symbols, functional, sym_potcar_map)
 
     @staticmethod
     def from_file(filename):
@@ -826,7 +827,7 @@ class Potcar(list,VaspInput):
         for p in potcar_strings:
             potcar.append(PotcarSingle(p))
         return potcar
-
+    
     def __str__(self):
         return "".join([str(potcar) for potcar in self])    #line break not used because there is already one at the end of str(potcar) and it causes VASP issues
 
@@ -848,15 +849,28 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = 'PBE'):
-        module_dir = os.path.dirname(pymatgen.__file__)
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-        VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
-        del self[:]
-        for el in elements:
-            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
-                self.append(PotcarSingle(f.read()))
+    def set_symbols(self, elements, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
+        '''
+        Initialize the POTCAR from a set of symbols. Currently, the POTCARs can be fetched from a location specified in pymatgen.cfg or specified explicitly in a map (but not both)
+        
+        Arguments:
+            elements: a list of element symbols
+            functional: (optional) the functional to use from the config file
+            sym_potcar_map: (optional) a map of symbol:raw POTCAR string. If sym_potcar_map is specified, POTCARs will be generated from the given map data rather than the config file location.
+        '''
+        if sym_potcar_map:
+            for el in elements:
+                self.append(PotcarSingle(sym_potcar_map[el]))
+        else:
+            module_dir = os.path.dirname(pymatgen.__file__)
+            config = ConfigParser.SafeConfigParser()
+            config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+            VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
+            del self[:]
+            for el in elements:
+                with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+                    self.append(PotcarSingle(f.read()))
+
 
 class Vasprun(object):
     """
