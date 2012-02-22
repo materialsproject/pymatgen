@@ -122,7 +122,7 @@ class Poscar(VaspInput):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         for f in os.listdir(dirname):
-            if re.search("POTCAR.*",f):
+            if f == "POTCAR":
                 try:
                     potcar = Potcar.from_file(os.path.join(dirname, f))
                     names = [sym.split("_")[0] for sym in potcar.symbols]
@@ -190,10 +190,14 @@ class Poscar(VaspInput):
         #If default_names is specified (usually coming from a POTCAR), use them.
         #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
         if default_names:
-            atomic_symbols = list()
-            for i in xrange(len(natoms)):
-                atomic_symbols.extend([default_names[i]] * natoms[i])
-        elif not vasp5_symbols:
+            try:
+                atomic_symbols = list()
+                for i in xrange(len(natoms)):
+                    atomic_symbols.extend([default_names[i]] * natoms[i])
+                vasp5_symbols = True
+            except:
+                pass
+        if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try: #check if names are appended at the end of the POSCAR coordinates
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
