@@ -634,7 +634,7 @@ class Bandstructure(object):
         #THIS IS WRONG!!!!
         #TEMPORARY fix to solve a problem crashing the import/parsing
         #return None
-        return 'QQ'
+        return None
                 
     def getVBM(self):
         """
