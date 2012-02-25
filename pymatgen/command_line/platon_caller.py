@@ -1,6 +1,6 @@
 '''
 Interface with command line platon
-http://aflowlib.org/
+http://www.cryst.chem.uu.nl/spek/xraysoft/
 Only tested on Linux
 inspired by Shyue's qhull_caller
 WARNING: you need to have a platon in your path for this to work
