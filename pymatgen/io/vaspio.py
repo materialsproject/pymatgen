@@ -596,6 +596,8 @@ class Kpoints(VaspInput):
         #check if hexagonal!!!!
         if(Kpoints._is_hexagonal(structure)==True):
             return Kpoints.gamma_automatic(div, shift = (0,0,0))
+        
+        return Kpoints.monkhorst_automatic(div, shift = (0,0,0))
     
     @staticmethod
     def _is_hexagonal(structure):
@@ -850,7 +852,8 @@ class Potcar(list,VaspInput):
         VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
         del self[:]
         for el in elements:
-            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+            #with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, el + "/POTCAR"), 'rb') as f:
                 self.append(PotcarSingle(f.read()))
 
 class Vasprun(object):
@@ -1983,12 +1986,7 @@ class VaspParserError(Exception):
     def __str__(self):
         return "VaspParserError : " + self.msg
     
-def get_band_structure_from_vasp(path):
-    """
-    method taking a directory with a band structure vasp run
-    and returning the corresponding Bandstructure Object
-    also takes into account runs that have been separated in several branches
-    """
+def get_band_structure_from_vasp(path,efermi):
     if(os.path.exists(path+"/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches=[]
@@ -2000,16 +1998,25 @@ def get_band_structure_from_vasp(path):
             for f in listdir_clean:
                 if(int(f.split("_")[1])==i):
                     list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
-        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches)
+                #if(f.split("_")[1]==count):
+                #    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
+                #count=count+1
+                #list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
+        
+        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches,efermi)
     else:
-        return get_band_structure_from_vasp_individual(path)
-    
-def get_band_structure_from_vasp_individual(path):
+        return get_band_structure_from_vasp_individual(path,efermi)
+
+def get_band_structure_from_vasp_individual(path,efermi):
     run=Vasprun(path+"/vasprun.xml")
+    #print run.efermi
     labels_dict=parse_kpoint_labels(path+"/KPOINTS")
     lattice_rec=run.final_structure.lattice.reciprocal_lattice
+    #make the labels_dict to work with cartesian
     for c in labels_dict:
         labels_dict[c]=lattice_rec.get_cartesian_coords(labels_dict[c])
+    
+    
     kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
     dict_eigen=run.to_dict['output']['eigenvalues']
     eigenvals=[]
@@ -2017,26 +2024,26 @@ def get_band_structure_from_vasp_individual(path):
     for i in range(max_band):
         eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
         eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, run.efermi)
+    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, efermi)
     return bands
 
 def parse_kpoint_labels(file_kpoints):
-    """
-    helper method to parse a kpoint file and get the kpoint labels
-    """
     with file_open_zip_aware(file_kpoints, "r") as f:
         lines = f.readlines()
+    #print lines
     count=-1
     dict_label_kpoints={}
     for line in lines:
+        #print line
         count=count+1
         if(count<4):
             continue
         
-        tokens=re.split(" +",line)
-        if len(tokens)<6:
+        #tokens=re.split(" +",line)
+        tokens=line.split()
+        if len(tokens)<5:
             continue
-        array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
-        dict_label_kpoints[tokens[5]]=array
+        array=np.array([float(tokens[0]),float(tokens[1]),float(tokens[2])])
+        dict_label_kpoints[tokens[4]]=array
         
     return dict_label_kpoints

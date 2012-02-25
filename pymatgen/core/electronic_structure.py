@@ -280,7 +280,19 @@ class Dos(object):
             stringarray = ["#%30s %30s" %('Energy','DensityUp')]
             stringarray.extend(["%.5f %.5f" % (self._energies[i], self._dos[Spin.up][i]) for i in range(len(self._energies))])
         return "\n".join(stringarray)
-
+    
+    def to_dict(self):
+        dict_to_return={}
+        if Spin.down in self._dos:
+            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
+            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['DensityDown']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
+        else:
+            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
+            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+        return dict_to_return
+        
+        
 class PDos(Dos):
     """
     Projected DOS for a specific orbital. Extends the Dos object.
@@ -396,6 +408,77 @@ def plot_dos(dos_dict, zero_at_efermi = True):
     pylab.ylabel('Density of states', fontsize = 'large')
     pylab.legend()
     pylab.show()
+    
+class Bandstructure_pocket(object):
+    """
+    Created on Feb 3, 2012
+
+    @author: geoffroy (geoffroy.hautier@uclouvain.be)
+    
+    This stores a band structure pocket around a specific kpoint
+    
+    This is not a full band structure but is instead the result of a finer grid computation around an extrema
+    to get for instance the effective mass tensor
+    
+    """
+    
+    def __init__(self,kpoints,eigenvals,structure,center_kpoint):
+    
+        
+        self._structure=structure
+        
+        """
+        the structure as a Structure object
+        """
+        
+        self._lattice_rec=structure.lattice.reciprocal_lattice
+        
+        """
+        reciprocal lattice as a Lattice object
+        """
+        
+        self._kpoints=[]
+        self._kpoints=[{'kpoint':kpoints[i]} for i in range(len(kpoints))]
+        """
+        all kpoints, (order matter!)
+        """
+        self._bands=eigenvals
+        """
+        all energy values for each band at the different kpoints
+        """
+        self._nb_bands=len(eigenvals)
+        """
+        the number of bands
+        """
+        self._center=center_kpoint
+        
+    def get_effective_mass(self, band_index):
+        #get all kpoints with their energy
+        energy=[]
+        y0=None
+        for i in range(len(self._kpoints)):
+            k=self._kpoints[i]['kpoint']
+            if(np.linalg.norm(k-self._center)<0.001):
+                y0=self._bands[band_index]['energy'][i]
+        m=[]
+        for i in range(len(self._kpoints)):
+            energy.append(self._bands[band_index]['energy'][i]-y0)
+            k=self._kpoints[i]['kpoint']-self._center
+            m.append([k[0]**2,k[1]**2,k[2]**2,k[0]*k[1],k[0]*k[2],k[1]*k[2]])
+            print str(self._kpoints[i]['kpoint']-self._center)+" "+str(self._bands[band_index]['energy'][i]-y0)
+        fit=np.linalg.lstsq(m,energy)
+        a=fit[0]
+        #print a
+        #print fit[1]
+        #matrix=[[a[0],a[3],a[4]],[a[3],a[1],a[5]],[a[4],a[5],a[2]]]
+        matrix=[[2*a[0],a[3],a[4]],[a[3],2*a[1],a[5]],[a[4],a[5],2*a[2]]]
+        #print matrix
+        m=np.linalg.inv(matrix)*7.54
+                #print m
+        diag=np.linalg.eig(m)
+        return {'effective_masses':diag[0],'principal_directions':diag[1]}    
+        
+    
     
 class Bandstructure(object):
     
@@ -841,28 +924,35 @@ class Bandstructure(object):
         for i in range(len(self._branches[index_branch])):
             if(np.linalg.norm(self._kpoints[self._branches[index_branch][i]]['kpoint']-self._kpoints[index_k]['kpoint'])<0.001):
                 local_index=i 
-                if(len(self._branches[index_branch])>i+4):
+                if(len(self._branches[index_branch])>i+nb_sample):
                     forward=True
-                if(i-4>0):
+                if(i-nb_sample>0):
                     backward=True
         x0=self._kpoints[self._branches[index_branch][local_index]]['distance']
         y0=self._bands[index_band]['energy'][index_k]
         if(forward):
             x=[self._kpoints[self._branches[index_branch][local_index+i]]['distance']-x0 for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index+i]]-y0 for i in range(nb_sample)]
-            tck = scipy.interpolate.splrep(x,y)
+            tck = scipy.interpolate.splrep(x,y,s=0)
+            #check if the cubic spline interpolation is reasonable and if it fits well a well-behaved pocket
+            import pylab, numpy
+            for i in numpy.arange(0,x[3],x[3]/10):
+                print str(i)+" "+str(scipy.interpolate.splev(i,tck,der=1))
+                if(scipy.interpolate.splev(i,tck,der=1)<-0.1):
+                    print "problem!"
             yder = scipy.interpolate.splev(0,tck,der=2)
-            #import pylab, numpy
-            #pylab.plot(x,y,'x')
-            #xnew=numpy.arange(0,x[3],0.01)
-            #ynew=scipy.interpolate.splev(xnew,tck)
-            #pylab.plot(xnew,ynew)
-            #print yder/2.0
-            #a=np.polyfit(x,y,2)
-            #print a
-            #pylab.plot(xnew,a[0]*xnew**2+a[1]*xnew+a[2])
-            #pylab.show()
             
+            #pylab.plot(x,y,'x')
+            xnew=np.arange(0,x[3],0.01)
+            ynew=scipy.interpolate.splev(xnew,tck)
+            #pylab.plot(xnew,ynew,color='r')
+            print yder/2.0
+            a=np.polyfit(x,y,2)
+            print a
+            #pylab.plot(xnew,a[0]*xnew**2+a[1]*xnew+a[2],color='b')
+            #print "derivative_1 "+str(scipy.interpolate.splev(0,tck,der=1))
+            print 3.77/(yder/2.0)
+            #pylab.show()
             mass.append(3.77/(yder/2.0))
             #mass.append(3.77/a[0])
          
@@ -870,8 +960,25 @@ class Bandstructure(object):
             x=[-1.0*(self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0) for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index-i]]-y0 for i in range(nb_sample)]
             a=np.polyfit(x,y,2)
-            tck = scipy.interpolate.splrep(x,y)
+            import pylab
+            tck = scipy.interpolate.splrep(x,y,s=0)
+            for i in np.arange(0,x[3],x[3]/10):
+                print str(i)+" "+str(scipy.interpolate.splev(i,tck,der=1))
+                if(scipy.interpolate.splev(i,tck,der=1)<-0.1):
+                    print "problem!"
+            
             yder = scipy.interpolate.splev(0,tck,der=2)
+            #pylab.plot(x,y,'x')
+            xnew=np.arange(0,x[3],0.01)
+            ynew=scipy.interpolate.splev(xnew,tck)
+            #pylab.plot(xnew,ynew,color='r')
+            print yder/2.0
+            a=np.polyfit(x,y,2)
+            print a
+            #pylab.plot(xnew,a[0]*xnew**2+a[1]*xnew+a[2],color='b')
+            #print "derivative_1 "+str(scipy.interpolate.splev(0,tck,der=1))
+            print 3.77/(yder/2.0)
+            #pylab.show()
             mass.append(3.77/(yder/2.0))
             #mass.append(3.77/a[0])
                
@@ -957,20 +1064,7 @@ class Bandstructure(object):
         #print m
         #print energy
     
-    def get_effective_mass_boundaries_polycrystal(self,target):
-        """
-        
-        """
-        #s3>s2>s1
-        em=self.get_effective_mass_average(target)
-        list.sort(em)
-        s1=1/em[0]
-        s2=1/em[1]
-        s3=1/em[2]
-        coeff1=s3*((4*s3**2+8*s3*s2+8*s1*s3+7*s1*s2)/(16*s3**2+5*s3*s2+5*s1*s3+s2*s1))
-        coeff2=s1*((4*s1**2+8*s1*s2+8*s1*s3+7*s2*s3)/(16*s1**2+5*s1*s2+5*s1*s3+s2*s3))
-        #return {'max':1/coeff1,'min':1/coeff2,'trace_min':1.0/3.0*(em[0]+em[1]+em[2]),'trace_max':1.0/((1.0/3.0)*(s1+s2+s3))}
-        return {'max':1/coeff1,'min':1/coeff2}
+
     
     def get_stationary_pg_for_kpoints(self,kpoint):
         listUc=self.get_pg_matrices_rec()
@@ -1148,9 +1242,23 @@ class Bandstructure(object):
         dictio['CBM']=self.getCBM()
         dictio['band_gap']=self.get_band_gap()
         return dictio
-    
+
+def get_effective_mass_boundaries_polycrystal(em):
+        """
+        
+        """
+        #s3>s2>s1
+        #em=self.get_effective_mass_average(target)
+        list.sort(em)
+        s1=1/em[0]
+        s2=1/em[1]
+        s3=1/em[2]
+        coeff1=s3*((4*s3**2+8*s3*s2+8*s1*s3+7*s1*s2)/(16*s3**2+5*s3*s2+5*s1*s3+s2*s1))
+        coeff2=s1*((4*s1**2+8*s1*s2+8*s1*s3+7*s2*s3)/(16*s1**2+5*s1*s2+5*s1*s3+s2*s3))
+        #return {'max':1/coeff1,'min':1/coeff2,'trace_min':1.0/3.0*(em[0]+em[1]+em[2]),'trace_max':1.0/((1.0/3.0)*(s1+s2+s3))}
+        return {'max':1/coeff1,'min':1/coeff2}   
        
-def get_reconstructed_band_structure(list_bs):
+def get_reconstructed_band_structure(list_bs,efermi):
     """
         this method takes a list of band structure (divided by branches)
         and reconstruct one band structure object from all of them
@@ -1161,7 +1269,7 @@ def get_reconstructed_band_structure(list_bs):
     labels_dict={}
     rec_lattice=list_bs[0]._lattice_rec
     structure=list_bs[0]._structure
-    efermi=list_bs[0]._efermi
+    #efermi=list_bs[0]._efermi
     nb_bands=list_bs[0]._nb_bands
     for bs in list_bs:
         for k in bs._kpoints:
