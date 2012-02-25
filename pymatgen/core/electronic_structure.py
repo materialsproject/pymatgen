@@ -558,7 +558,7 @@ class Bandstructure(object):
         
         self._kpoints = []
         # k should have {'abc':[0,0,0], 'xyz':[0,0,0]}
-        self._kpoints = [{'kpoint':k} for k in kpoints]
+        self._kpoints = [{'kpoint':{'xyz':k}} for k in kpoints]
         """
         all kpoints, (order matter!)
         """
