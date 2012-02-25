@@ -1,7 +1,7 @@
 import unittest
 
 from pymatgen.core.structure import Composition
-from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, ReactionError
 
 class ReactionTest(unittest.TestCase):
 
@@ -102,6 +102,19 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(rxn.normalized_repr, "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4", "Wrong normalized reaction obtained!")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.48333333,5)
 
+
+class BalancedReactionTest(unittest.TestCase):
+
+    def test_init(self):
+        rct = {Composition.from_formula('K2SO4'):3, Composition.from_formula('Na2S'):1, Composition.from_formula('Li'):24}
+        prod = {Composition.from_formula('KNaS'): 2, Composition.from_formula('K2S'):2, Composition.from_formula('Li2O'):12}
+        rxn = BalancedReaction(rct, prod)
+        self.assertEquals(str(rxn), "24.000 Li + 1.000 Na2S + 3.000 K2SO4 -> 12.000 Li2O + 2.000 K2S + 2.000 KNaS")
+
+        #Test unbalanced exception
+        rct = {Composition.from_formula('K2SO4'):1, Composition.from_formula('Na2S'):1, Composition.from_formula('Li'):24}
+        prod = {Composition.from_formula('KNaS'): 2, Composition.from_formula('K2S'):2, Composition.from_formula('Li2O'):12}
+        self.assertRaises(ReactionError, BalancedReaction, rct, prod)
         
 if __name__ == '__main__':
     unittest.main()

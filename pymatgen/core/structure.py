@@ -806,7 +806,6 @@ class Structure(collections.Sequence, collections.Hashable):
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
 
-        jimage=-np.array(np.around(end_coords-start_coords),int)
         vec = end_coords - start_coords #+ jimage
         intStructs = [Structure(self.lattice,[site.species_and_occu for site in self._sites],start_coords + float(x)/float(nimages) * vec) for x in xrange(0,nimages+1)]
         return intStructs;
@@ -1000,7 +999,7 @@ class Composition (collections.Mapping, collections.Hashable):
             #Ignore elements with zero amounts.
             if self[el] > self.amount_tolerance:
                 hashcode += el.Z 
-        return hashcode
+        return 7
     
     def __contains__(self,el):
         return el in self._elmap
@@ -1046,7 +1045,18 @@ class Composition (collections.Mapping, collections.Hashable):
             if self[el] != 0:
                 formula.append(el.symbol+formula_double_format(self[el], False))
         return ' '.join(formula)
-    
+
+    def get_reduced_composition_and_factor(self):
+        '''
+        Returns a normalized composition and a multiplicative factor, 
+        i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
+        '''
+        
+        (formula, factor) = self.get_reduced_formula_and_factor()
+        
+        return (Composition.from_formula(formula), factor)
+
+  
     def get_reduced_formula_and_factor(self):
         '''
         Returns a pretty normalized formula and a multiplicative factor, i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
