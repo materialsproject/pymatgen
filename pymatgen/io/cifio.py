@@ -212,23 +212,24 @@ class CifWriter:
             for sp, occu in site.species_and_occu.items():
                 atom_site_type_symbol.append(str(sp))
                 atom_site_symmetry_multiplicity.append('1')
-                atom_site_fract_x.append(str(site.a))
-                atom_site_fract_y.append(str(site.b))
-                atom_site_fract_z.append(str(site.c))
+                atom_site_fract_x.append(str('{0:f}'.format(site.a)))
+                atom_site_fract_y.append(str('{0:f}'.format(site.b)))
+                atom_site_fract_z.append(str('{0:f}'.format(site.c)))
                 atom_site_attached_hydrogens.append('0')
                 atom_site_B_iso_or_equiv.append('.')
                 atom_site_label.append(str(sp.symbol)+str(count))
                 atom_site_occupancy.append(str(occu))
                 count += 1
-                
+        
+        
         block['_atom_site_type_symbol'] = atom_site_type_symbol
+        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_label':atom_site_label})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_symmetry_multiplicity':atom_site_symmetry_multiplicity})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_x':atom_site_fract_x})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_y':atom_site_fract_y})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_z':atom_site_fract_z})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_attached_hydrogens':atom_site_attached_hydrogens})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_B_iso_or_equiv':atom_site_B_iso_or_equiv})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_label':atom_site_label})
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_occupancy':atom_site_occupancy})
         
         self._cf = CifFile.CifFile()
