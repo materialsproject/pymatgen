@@ -49,7 +49,7 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
     
-    def __init__(self, struct, comment = None, selective_dynamics = None):
+    def __init__(self, struct, comment = None, selective_dynamics = None, true_names = True):
         """        
         Arguments:
             struct:
@@ -68,7 +68,7 @@ class Poscar(VaspInput):
             for (s, data) in itertools.groupby(syms):
                 self._site_symbols.append(s)
                 self._natoms.append(len(tuple(data)))
-            self._true_names = True
+            self._true_names = true_names
             if selective_dynamics:
                 self.set_selective_dynamics(selective_dynamics)
             else:
@@ -198,6 +198,7 @@ class Poscar(VaspInput):
             try: #check if names are appended at the end of the POSCAR coordinates
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
                 [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
+                vasp5_symbols = True
             except:
                 #Defaulting to false names.
                 atomic_symbols = list()
@@ -205,7 +206,7 @@ class Poscar(VaspInput):
                     sym = Element.from_Z(i+1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
-
+                
         # read the atomic coordinates
         coords = []
         selective_dynamics = list() if sdynamics else None
@@ -217,7 +218,11 @@ class Poscar(VaspInput):
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct,comment, selective_dynamics)
+        return Poscar(struct, comment, selective_dynamics, vasp5_symbols)
+    
+    @property
+    def true_names(self):
+        return self._true_names
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """
@@ -2005,6 +2010,7 @@ def get_band_structure_from_vasp(path,efermi):
         
         return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches,efermi)
     else:
+<<<<<<< HEAD
         return get_band_structure_from_vasp_individual(path,efermi)
 
 def get_band_structure_from_vasp_individual(path,efermi):
@@ -2025,6 +2031,39 @@ def get_band_structure_from_vasp_individual(path,efermi):
         eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
         eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
     bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, efermi)
+=======
+        return get_band_structure_from_vasp_individual(path)
+    
+def get_band_structure_from_vasp_individual(dir_name):
+    vasp_run = Vasprun(os.path.join(dir_name, 'vasprun.xml'))
+    labels_dict = parse_kpoint_labels(os.path.join(dir_name, 'KPOINTS'))
+    lattice_rec = vasp_run.final_structure.lattice.reciprocal_lattice
+
+    for c in labels_dict:
+        labels_dict[c] = lattice_rec.get_cartesian_coords(labels_dict[c])
+
+    #kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    kpoints = []
+    for point in vasp_run.actual_kpoints:
+        abc = np.array(point)
+        xyz = lattice_rec.get_cartesian_coords(np.array(point))
+        k = {'abc':abc, 'xyz': xyz}
+        kpoints.append(k)
+
+    #raw eigenvalues
+    dict_eigen = vasp_run.to_dict['output']['eigenvalues']
+
+    max_band = int(math.floor(len(dict_eigen['1']['up'])*0.9))
+
+    eigenvals = []
+    for i in range(max_band):
+        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
+        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
+
+    #print kpoints
+    #print labels_dict
+    bands = Bandstructure(kpoints, eigenvals, labels_dict, vasp_run.final_structure, vasp_run.efermi)
+>>>>>>> ee93b588a295611f63255f8d67340b8df0a7943b
     return bands
 
 def parse_kpoint_labels(file_kpoints):
@@ -2043,7 +2082,12 @@ def parse_kpoint_labels(file_kpoints):
         tokens=line.split()
         if len(tokens)<5:
             continue
+<<<<<<< HEAD
         array=np.array([float(tokens[0]),float(tokens[1]),float(tokens[2])])
         dict_label_kpoints[tokens[4]]=array
+=======
+        array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
+        dict_label_kpoints[tokens[5].strip()]=array
+>>>>>>> ee93b588a295611f63255f8d67340b8df0a7943b
         
     return dict_label_kpoints
