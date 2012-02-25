@@ -2010,7 +2010,6 @@ def get_band_structure_from_vasp(path,efermi):
         
         return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches,efermi)
     else:
-<<<<<<< HEAD
         return get_band_structure_from_vasp_individual(path,efermi)
 
 def get_band_structure_from_vasp_individual(path,efermi):
@@ -2031,39 +2030,6 @@ def get_band_structure_from_vasp_individual(path,efermi):
         eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
         eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
     bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, efermi)
-=======
-        return get_band_structure_from_vasp_individual(path)
-    
-def get_band_structure_from_vasp_individual(dir_name):
-    vasp_run = Vasprun(os.path.join(dir_name, 'vasprun.xml'))
-    labels_dict = parse_kpoint_labels(os.path.join(dir_name, 'KPOINTS'))
-    lattice_rec = vasp_run.final_structure.lattice.reciprocal_lattice
-
-    for c in labels_dict:
-        labels_dict[c] = lattice_rec.get_cartesian_coords(labels_dict[c])
-
-    #kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
-    kpoints = []
-    for point in vasp_run.actual_kpoints:
-        abc = np.array(point)
-        xyz = lattice_rec.get_cartesian_coords(np.array(point))
-        k = {'abc':abc, 'xyz': xyz}
-        kpoints.append(k)
-
-    #raw eigenvalues
-    dict_eigen = vasp_run.to_dict['output']['eigenvalues']
-
-    max_band = int(math.floor(len(dict_eigen['1']['up'])*0.9))
-
-    eigenvals = []
-    for i in range(max_band):
-        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-
-    #print kpoints
-    #print labels_dict
-    bands = Bandstructure(kpoints, eigenvals, labels_dict, vasp_run.final_structure, vasp_run.efermi)
->>>>>>> ee93b588a295611f63255f8d67340b8df0a7943b
     return bands
 
 def parse_kpoint_labels(file_kpoints):
@@ -2082,12 +2048,8 @@ def parse_kpoint_labels(file_kpoints):
         tokens=line.split()
         if len(tokens)<5:
             continue
-<<<<<<< HEAD
+
         array=np.array([float(tokens[0]),float(tokens[1]),float(tokens[2])])
         dict_label_kpoints[tokens[4]]=array
-=======
-        array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
-        dict_label_kpoints[tokens[5].strip()]=array
->>>>>>> ee93b588a295611f63255f8d67340b8df0a7943b
         
     return dict_label_kpoints
