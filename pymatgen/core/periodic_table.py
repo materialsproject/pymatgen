@@ -427,7 +427,7 @@ class Element(object):
         """
         True if element is a rare earth metal.
         """
-        return self.is_lanthanid or self.is_actinoid
+        return self.is_lanthanoid or self.is_actinoid
 
     @property
     def is_metalloid(self):

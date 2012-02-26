@@ -358,7 +358,7 @@ class StructureFitter(object):
             logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
             test_rotations = itertools.product(*shells)
         else:
-            logger.warning("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
+            logger.debug("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
             def random_rot():
                 considered_rots = []
                 while len(considered_rots) < self._max_rotations:
@@ -450,3 +450,4 @@ def almost_identity(mat):
     for matrices very very close to the identity matrix.  See test_eig for examples.
     """
     return (abs(mat-np.eye(3)) < 1e-10).all()
+
