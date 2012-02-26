@@ -5,14 +5,14 @@ from setuptools import setup, find_packages
 README = os.path.join(os.path.dirname(__file__), 'README.md')
 long_description = open(README).read() + '\n\n'
 
+print find_packages()
+
 setup (
   name = 'pymatgen',
-  version = '1.2.3',
+  version = '1.2.4',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW'],
-
-  data_files=[('data', ['pymatgen/core/periodic_table.json']),
-              ('config', ['pymatgen/io/VaspInputSets.cfg'])],
+  package_data = {'pymatgen.core': ['*.json'], 'pymatgen.io': ['*.cfg']},
   author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Vincent L Chevrier, Rickard Armiento',
   author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, wrichard@mit.edu, dkgunter@lbl.gov, vincentchevrier@gmail.com, armiento@mit.edu',
   maintainer = 'Shyue Ping Ong',
