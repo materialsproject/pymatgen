@@ -5,8 +5,6 @@ from setuptools import setup, find_packages
 README = os.path.join(os.path.dirname(__file__), 'README.md')
 long_description = open(README).read() + '\n\n'
 
-print find_packages()
-
 setup (
   name = 'pymatgen',
   version = '1.2.4',
