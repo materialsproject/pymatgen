@@ -1199,6 +1199,24 @@ class Composition (collections.Mapping, collections.Hashable):
             return Composition.from_formula(expanded_formula)
         return Composition.from_dict(get_sym_dict(formula, 1))
     
+    @property
+    def anonymized_formula(self):
+        reduced_comp = self.get_reduced_composition_and_factor()[0]
+        els = sorted(reduced_comp.elements, key = lambda e: reduced_comp[e])
+        ascii_code = 65
+        anon_formula = []
+        for e in els:
+            amt = reduced_comp[e]
+            if amt > 0:
+                if amt == 1:
+                    amt_str = ''
+                elif abs(amt % 1) < 1e-8:
+                    amt_str = str(int(amt))
+                else:
+                    amt_str = str(amt)
+                anon_formula.append('{}{}'.format(chr(ascii_code), amt_str))
+                ascii_code += 1
+        return "".join(anon_formula)
     
     def __repr__(self):
         return "Comp: " + self.formula
