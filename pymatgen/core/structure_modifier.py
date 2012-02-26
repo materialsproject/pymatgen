@@ -361,8 +361,8 @@ class BasisChange(StructureModifier):
                 a pymatgen.core.Lattice object
         """
         self._original_structure = structure
-        sp=[site.species_and_occu for site in structure._sites]
-        coords=[site.coords for site in structure._sites]
+        sp = [site.species_and_occu for site in structure._sites]
+        coords = [site.coords for site in structure._sites]
         self._modified_structure = Structure(new_lattice, sp, coords, validate_proximity = False, to_unit_cell = True, coords_are_cartesian = True)
                         
     @property

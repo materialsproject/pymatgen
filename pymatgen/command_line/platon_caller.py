@@ -38,10 +38,10 @@ def get_space_group(structure):
     output=run_platon_command(['platon', '-o', '-c'], structure)
     dictio={}
     for line in output[0].split("\n"):
-     #   print line
+        #   print line
         if(line.find("Space Group")!=-1):
             list_tmp=line.split()
-     #       print list_tmp
+            #       print list_tmp
             for i in range(len(list_tmp)):
                 if(list_tmp[i]=='Group'):
                     dictio['SG_HM']=list_tmp[i+1]
