@@ -22,14 +22,14 @@ class StructureFitterTest(unittest.TestCase):
         coords = list()
         
         coords.append(np.array([0.75,0.5,0.2]))
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.a = Structure(lattice,[fe,si],coords)
         coords = list()
         coords.append(np.array([0.75,0.5,0.2]))
         
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.b = Structure(lattice,[fe,si],coords)
                 
@@ -37,12 +37,6 @@ class StructureFitterTest(unittest.TestCase):
         fitter = StructureFitter(self.b,self.a)
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
         
-        print "rotation fitting"
-        '''
-        [[  2.88675028e-01   1.66666360e-01  -9.42809128e-01]
- [ -4.99999816e-01   8.66025510e-01  -1.50348384e-07]
- [  8.16496731e-01   4.71404434e-01   3.33333088e-01]]
-        '''
         #Now to try with rotated structure
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, np.array([0,0,1]))
         editor = StructureEditor(self.a)

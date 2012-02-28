@@ -112,8 +112,6 @@ class StructureFitter(object):
             else:
                 logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")          
 
-    def identity_fit(self, a, b):
-        pass
         
     def fit(self, a, b): 
         """
@@ -166,9 +164,13 @@ class StructureFitter(object):
         # can get a very fast answer without having to try all rotations.
         simple_rot = self._get_rot_matrix(fixed, to_fit)
         if simple_rot is not None:
+            print "origin = " + str(origin)
+            print "rot fitting"
+            print simple_rot
             rot = SymmOp.from_rotation_matrix_and_translation_vector(simple_rot, np.array([0,0,0]))
             (found_map, mapping_op) = self._test_rot(rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
-
+            print found_map
+            
         if not found_map: #If simple rotation matching does not work, we have to search and try all rotations.
             logger.debug("Identity matching failed. Finding candidate rotations.")
             #Get candidate rotations
