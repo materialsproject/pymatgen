@@ -19,7 +19,6 @@ class StructureFitterTest(unittest.TestCase):
     def setUp(self):
         si = Element("Si")
         fe = Element("Fe")
-        logging.basicConfig(level=logging.DEBUG)
         coords = list()
         
         coords.append(np.array([0.75,0.5,0.2]))
@@ -38,6 +37,12 @@ class StructureFitterTest(unittest.TestCase):
         fitter = StructureFitter(self.b,self.a)
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
         
+        print "rotation fitting"
+        '''
+        [[  2.88675028e-01   1.66666360e-01  -9.42809128e-01]
+ [ -4.99999816e-01   8.66025510e-01  -1.50348384e-07]
+ [  8.16496731e-01   4.71404434e-01   3.33333088e-01]]
+        '''
         #Now to try with rotated structure
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, np.array([0,0,1]))
         editor = StructureEditor(self.a)
@@ -47,6 +52,7 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
         
         #test with a supercell
+        print "Supercell fitting"
         mod = SupercellMaker(self.a,scaling_matrix = [[2,0,0],[0,1,0],[0,0,1]])
         a_super = mod.modified_structure
         fitter = StructureFitter(self.b,a_super)
