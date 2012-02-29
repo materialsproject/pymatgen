@@ -218,6 +218,40 @@ class StructureEditor(StructureModifier):
 		self._lattice = np.matrix(self._lattice._matrix)*F
 	
 
+        
+    def translate_sites(self, indices, vector, frac_coords = True):
+        """
+        Translate specific sites by some vector, keeping the sites within the unit cell
+        
+        TODO: Write nosetests for this method (one for frac_coords, one for cartesian)
+        
+        Args:
+            sites: list of site indices on which to perform the translation
+            vector: translation vector for sites
+            frac_coords: Boolean stating whether the vector corresponds to fractional or cartesian coordinates
+        """
+        for i in indices:
+            site = self._sites[i]
+            if frac_coords:
+                fcoords = site.frac_coords + vector
+            else:
+                fcoords = self._lattice.get_fractional_coords(site.coords + vector)
+            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell = True, coords_are_cartesian = False)
+            self._sites[i] = new_site
+            
+    def perturb_structure(self, distance = 0.1):
+        '''
+        performs a random perturbation of the sites in a structure to break symmetries
+        
+        Args:
+            distance: distance by which to perturb each site
+        '''
+        for i in range(len(self._sites)):
+            vector = np.random.rand(3)
+            vector /= np.linalg.norm(vector)/distance
+            self.translate_sites([i], vector, frac_coords = False)
+        
+    
     @property
     def original_structure(self):
         return self._original_structure
@@ -291,7 +325,7 @@ class OxidationStateDecorator(StructureModifier):
         except KeyError as ex:
             raise ValueError("Oxidation state of all elements must be specified in the dictionary.")
         self._modified_structure = Structure(structure.lattice, new_species, structure.frac_coords, False)
-                        
+        
     @property
     def original_structure(self):
         return self._original_structure
@@ -342,8 +376,8 @@ class BasisChange(StructureModifier):
                 a pymatgen.core.Lattice object
         """
         self._original_structure = structure
-        sp=[site.species_and_occu for site in structure._sites]
-        coords=[site.coords for site in structure._sites]
+        sp = [site.species_and_occu for site in structure._sites]
+        coords = [site.coords for site in structure._sites]
         self._modified_structure = Structure(new_lattice, sp, coords, validate_proximity = False, to_unit_cell = True, coords_are_cartesian = True)
                         
     @property

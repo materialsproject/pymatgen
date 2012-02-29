@@ -47,10 +47,11 @@ class EwaldMinimizerTest(unittest.TestCase):
                            [ -0., 14.,  4.,  3., -1., -5.,  7., -1., -1.,  3.],
                            [  2., -2., 10.,  1.,  6., -5., -3., 12.,  0., 13.]])
         
-        m_list = [[.9,4,[1,2,3,4,6,8],'a'],[-1,2,[5,6,7],'b']]
+        m_list = [[.9,4,[1,2,3,4,8],'a'],[-1,2,[5,6,7],'b']]
         
-        e_min = EwaldMinimizer(matrix, m_list)
+        e_min = EwaldMinimizer(matrix, m_list, 50)
         
+        self.assertEqual(len(e_min.output_lists), 15, "Wrong number of permutations returned")
         self.assertAlmostEqual(e_min.minimized_sum, 111.63, 3, "Returned wrong minimum value")
         self.assertEqual(len(e_min.best_m_list), 6, "Returned wrong number of permutations")
         

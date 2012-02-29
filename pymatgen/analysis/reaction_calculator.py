@@ -17,6 +17,7 @@ __date__ ="$Sep 23, 2011M$"
 import logging
 import itertools
 import numpy as np
+from collections import defaultdict
 
 from pymatgen.core.structure import Composition
 
@@ -84,11 +85,10 @@ class Reaction(object):
                             comp_matrix[i][j] = count
                             count += 1
                         comp_matrix[i][i] = count
-                
                 ans_matrix = np.zeros(num_constraints)
                 ans_matrix[num_els:num_constraints] = 1
                 coeffs = np.linalg.solve(comp_matrix, ans_matrix)
-            elif num_constraints <= num_els:
+            else:
                 if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
                     logger.debug('Linear solution possible. Trying various permutations.')
                     comp_matrix = comp_matrix[0:num_els][:,0:num_constraints]
@@ -114,8 +114,7 @@ class Reaction(object):
                         raise ReactionError("Reaction is ill-formed and cannot be balanced.")
                 else:
                     raise ReactionError("Reaction is ill-formed and cannot be balanced.")
-            else:
-                raise ReactionError("Reaction is ill-formed and cannot be balanced.")
+            
         for i in xrange(len(coeffs)-1,-1,-1):
             if coeffs[i] != 0:
                 normfactor = coeffs[i]
@@ -123,8 +122,8 @@ class Reaction(object):
         #Invert negative solutions and scale to final product
         coeffs = [c/normfactor for c in coeffs]
         self._els = els
-        self._all_comp = all_comp
-        self._coeffs = coeffs
+        self._all_comp = all_comp[0:num_constraints]
+        self._coeffs = coeffs[0:num_constraints]
         self._num_comp = num_constraints
     
     def copy(self):
@@ -153,7 +152,20 @@ class Reaction(object):
         """
         scale_factor = abs(1/self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
-            
+    
+    def normalize_to_element(self, element, target_amount = 1):
+        """
+        Normalizes the reaction to one of the elements.
+        By default, normalizes such that the amount of the element is 1.
+        Another factor can be specified.
+        """
+        current_element_amount = sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
+        scale_factor = target_amount / current_element_amount
+        self._coeffs = [c * scale_factor for c in self._coeffs]
+    
+    def get_el_amount(self, element):
+        return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
+    
     @property
     def elements(self):
         """
@@ -249,7 +261,8 @@ class Reaction(object):
                 product_str.append("%.3f %s" % (scaled_coeff, comp.reduced_formula))
         
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
-            
+
+        
 def smart_float_gcd(list_of_floats):
     """
     Determines the great common denominator (gcd).  Works on floats as well as integers.
@@ -276,4 +289,56 @@ class ReactionError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Query Error : " + self.msg
+        return self.msg
+
+
+class BalancedReaction(Reaction):
+    """
+    An extended version of Reaction to allow coefficients to be specified.
+    """
+    
+    def __init__(self, reactants_coeffs, products_coeffs):
+        """
+        Reactants and products to be specified as dict of 
+        pymatgen.core.structure.Composition : coeff.  
+        
+        Args:
+            reactants : List of reactants.
+            products : List of products.
+        """
+        coeffs = []
+        all_comp = []
+        for comp, c in reactants_coeffs.items():
+            if comp not in all_comp:
+                all_comp.append(comp)
+                coeffs.append(-c)
+            else:
+                ind = all_comp.index(comp)
+                coeffs[ind] += -c
+        
+        for comp, c in products_coeffs.items():
+            if comp not in all_comp:
+                all_comp.append(comp)
+                coeffs.append(c)
+            else:
+                ind = all_comp.index(comp)
+                coeffs[ind] += c
+        els = set()
+        for c in all_comp:
+            els.update(c.elements)
+        els = tuple(els)
+        
+        sum_comp = defaultdict(int)
+        
+        for i in xrange(len(all_comp)):
+            for el in els:
+                sum_comp[el] += coeffs[i] * all_comp[i][el]
+        
+        for v in sum_comp.values():
+            if abs(v) > Reaction.TOLERANCE:
+                raise ReactionError("Reaction is unbalanced with {}!".format(v))
+        
+        self._els = els
+        self._all_comp = all_comp
+        self._coeffs = coeffs
+        self._num_comp = len(self._all_comp)

@@ -49,7 +49,7 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
     
-    def __init__(self, struct, comment = None, selective_dynamics = None):
+    def __init__(self, struct, comment = None, selective_dynamics = None, true_names = True):
         """        
         Arguments:
             struct:
@@ -68,7 +68,7 @@ class Poscar(VaspInput):
             for (s, data) in itertools.groupby(syms):
                 self._site_symbols.append(s)
                 self._natoms.append(len(tuple(data)))
-            self._true_names = True
+            self._true_names = true_names
             if selective_dynamics:
                 self.set_selective_dynamics(selective_dynamics)
             else:
@@ -122,7 +122,7 @@ class Poscar(VaspInput):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         for f in os.listdir(dirname):
-            if re.search("POTCAR.*",f):
+            if f == "POTCAR":
                 try:
                     potcar = Potcar.from_file(os.path.join(dirname, f))
                     names = [sym.split("_")[0] for sym in potcar.symbols]
@@ -190,14 +190,19 @@ class Poscar(VaspInput):
         #If default_names is specified (usually coming from a POTCAR), use them.
         #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
         if default_names:
-            atomic_symbols = list()
-            for i in xrange(len(natoms)):
-                atomic_symbols.extend([default_names[i]] * natoms[i])
-        elif not vasp5_symbols:
+            try:
+                atomic_symbols = list()
+                for i in xrange(len(natoms)):
+                    atomic_symbols.extend([default_names[i]] * natoms[i])
+                vasp5_symbols = True
+            except:
+                pass
+        if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try: #check if names are appended at the end of the POSCAR coordinates
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
                 [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
+                vasp5_symbols = True
             except:
                 #Defaulting to false names.
                 atomic_symbols = list()
@@ -205,7 +210,7 @@ class Poscar(VaspInput):
                     sym = Element.from_Z(i+1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
-
+                
         # read the atomic coordinates
         coords = []
         selective_dynamics = list() if sdynamics else None
@@ -217,7 +222,11 @@ class Poscar(VaspInput):
             
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct,comment, selective_dynamics)
+        return Poscar(struct, comment, selective_dynamics, vasp5_symbols)
+    
+    @property
+    def true_names(self):
+        return self._true_names
     
     def get_string(self, direct = True, vasp4_compatible = False):
         """
@@ -807,10 +816,11 @@ class Potcar(list,VaspInput):
     calculations.
     """
     functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW', 'PW91':'POT_GGA_PAW_PW91'}
+    DEFAULT_FUNCTIONAL = "PBE"
     
-    def __init__(self, symbols = None):
+    def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
         if symbols != None:
-            self.set_symbols(symbols)
+            self.set_symbols(symbols, functional, sym_potcar_map)
 
     @staticmethod
     def from_file(filename):
@@ -821,7 +831,7 @@ class Potcar(list,VaspInput):
         for p in potcar_strings:
             potcar.append(PotcarSingle(p))
         return potcar
-
+    
     def __str__(self):
         return "".join([str(potcar) for potcar in self])    #line break not used because there is already one at the end of str(potcar) and it causes VASP issues
 
@@ -843,15 +853,28 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = 'PBE'):
-        module_dir = os.path.dirname(pymatgen.__file__)
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-        VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
-        del self[:]
-        for el in elements:
-            with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
-                self.append(PotcarSingle(f.read()))
+    def set_symbols(self, elements, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
+        '''
+        Initialize the POTCAR from a set of symbols. Currently, the POTCARs can be fetched from a location specified in pymatgen.cfg or specified explicitly in a map (but not both)
+        
+        Arguments:
+            elements: a list of element symbols
+            functional: (optional) the functional to use from the config file
+            sym_potcar_map: (optional) a map of symbol:raw POTCAR string. If sym_potcar_map is specified, POTCARs will be generated from the given map data rather than the config file location.
+        '''
+        if sym_potcar_map:
+            for el in elements:
+                self.append(PotcarSingle(sym_potcar_map[el]))
+        else:
+            module_dir = os.path.dirname(pymatgen.__file__)
+            config = ConfigParser.SafeConfigParser()
+            config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+            VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
+            del self[:]
+            for el in elements:
+                with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+                    self.append(PotcarSingle(f.read()))
+
 
 class Vasprun(object):
     """

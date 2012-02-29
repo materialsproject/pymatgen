@@ -19,18 +19,17 @@ class StructureFitterTest(unittest.TestCase):
     def setUp(self):
         si = Element("Si")
         fe = Element("Fe")
-        logging.basicConfig(level=logging.DEBUG)
         coords = list()
         
         coords.append(np.array([0.75,0.5,0.2]))
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.a = Structure(lattice,[fe,si],coords)
         coords = list()
         coords.append(np.array([0.75,0.5,0.2]))
         
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.b = Structure(lattice,[fe,si],coords)
                 
@@ -47,6 +46,7 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
         
         #test with a supercell
+        print "Supercell fitting"
         mod = SupercellMaker(self.a,scaling_matrix = [[2,0,0],[0,1,0],[0,0,1]])
         a_super = mod.modified_structure
         fitter = StructureFitter(self.b,a_super)

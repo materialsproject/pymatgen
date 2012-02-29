@@ -42,7 +42,7 @@ direct
 0.750000 0.500000 0.750000"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
-
+        
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
@@ -56,7 +56,7 @@ direct
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
-
+        
     def test_str(self):
         si = 14
         coords = list()
@@ -141,6 +141,12 @@ class  PotcarTest(unittest.TestCase):
         filepath = os.path.join(module_dir, 'vasp_testfiles','POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols,["Fe","P","O"],"Wrong symbols read in for POTCAR")
+        
+    def test_potcar_map(self):
+        fe_potcar = open(os.path.join(module_dir, 'vasp_testfiles','Fe_POTCAR')).read()
+        #specify V instead of Fe - this makes sure the test won't pass if the code just grabs the POTCAR from the config file (the config file would grab the V POTCAR)
+        potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
+        self.assertEqual(potcar.symbols,["Fe"],"Wrong symbols read in for POTCAR")
         
 class  VasprunTest(unittest.TestCase):
     
