@@ -29,7 +29,7 @@ parser.add_argument('-c', '--conversion', dest='conversion', type=str, nargs = 1
 
 args = parser.parse_args()
 try:
-    if args.conversion == 'poscar2cif':
+    if args.conversion[0] == 'poscar2cif':
         p = Poscar.from_file(args.input_file[0])
         w = CifWriter(p.struct)
         w.write_file(args.output_file[0])
@@ -37,7 +37,7 @@ try:
         r = CifParser(args.input_file[0])
         p = Poscar(r.get_structures()[0])
         p.write_file(args.output_file[0])
-except:
+except Exception as ex:
     print "Error converting file. Are they in the right format?"
-    
+    print str(ex)
     

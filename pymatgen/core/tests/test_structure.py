@@ -227,7 +227,7 @@ class CompositionTest(unittest.TestCase):
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
         correct_formulas.append(["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11", "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"])
-        correct_formulas.append(["Co2 P4 O4", "Co2 Po4", "P4 C2 O6", "Po4 C2 O2"])
+        correct_formulas.append(["Co2 P4 O4", "P4 C2 O6", "Co2 Po4", "Po4 C2 O2"])
         correct_formulas.append([])
         for i, c in enumerate(correct_formulas):
             self.assertEqual([Composition.from_formula(comp) for comp in c], self.indeterminate_comp[i])
@@ -236,6 +236,11 @@ class CompositionTest(unittest.TestCase):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4', 'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6', 'Li1.5 Si0.5']
         all_formulas = [c.alphabetical_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
+    
+    def test_reduced_composition(self):
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        for i in xrange(len(self.comp)):
+            self.assertEqual(self.comp[i].get_reduced_composition_and_factor()[0], Composition.from_formula(correct_reduced_formulas[i]))
     
     def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
@@ -257,7 +262,11 @@ class CompositionTest(unittest.TestCase):
         for el in ["Li", "Fe", "P", "O"]:
             self.assertEqual(self.comp[0].get_atomic_fraction(Element(el)), correct_at_frac[el], "Wrong computed atomic fractions") 
         self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0, "Wrong computed atomic fractions") 
-        
+    
+    def test_anonymized_formula(self):
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'AB3']
+        for i in xrange(len(self.comp)):
+            self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
         
     def test_get_wt_fraction(self):
         correct_wt_frac = {"Li" : 0.0498841610868, "Fe" : 0.267567687258, "P" : 0.222604831158, "O" : 0.459943320496}
