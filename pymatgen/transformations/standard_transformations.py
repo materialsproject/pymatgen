@@ -20,11 +20,12 @@ import warnings
 import numpy as np
 from operator import itemgetter
 
+from pymatgen.core.periodic_table import Element
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer, minimize_matrix
 
@@ -91,7 +92,36 @@ class RotationTransformation(AbstractTransformation):
         output = {'name' : self.__class__.__name__}
         output['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
         return output
-        
+
+
+class OxidationStateDecorationTransformation(AbstractTransformation):
+    """
+    This transformation decorates a structure with oxidation states.
+    """
+    
+    def __init__(self, oxidation_states):
+        """
+        Arguments:
+            oxidation_states
+                Oxidation states supplied as a dict, e.g., {'Li':1, 'O':-2}
+        """
+        self.oxi_states = oxidation_states
+
+    def apply_transformation(self, structure):
+        dec = OxidationStateDecorator(structure, self.oxi_states)
+        return dec.modified_structure
+    
+    @property
+    def inverse(self):
+        return None
+    
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__}
+        output['init_args'] = {'oxidation_states': self.oxi_states}
+        return output
+
+
 class SupercellTransformation(AbstractTransformation):
     """
     The RotationTransformation applies a rotation to a structure.
@@ -397,8 +427,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
-        
-        print m_list
         
         structure = se.modified_structure
         

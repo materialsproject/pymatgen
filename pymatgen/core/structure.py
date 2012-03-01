@@ -836,7 +836,7 @@ class Structure(collections.Sequence, collections.Hashable):
         outs.append('angles: ' + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i = len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i+1), site.specie.symbol, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
+            outs.append(" ".join([str(i+1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
         return "\n".join(outs)
     
     @property
