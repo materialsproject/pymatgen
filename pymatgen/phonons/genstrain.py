@@ -17,7 +17,7 @@ import os
 import fit_elas
 
 __author__="Maarten de Jong"
-__copyright__ = "Copyright 2011, The Materials Project"
+__copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
@@ -25,65 +25,13 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="Jan 24, 2012"
 
-np.set_printoptions(precision=3)			# pretty printing of numpy matrices
-np.set_printoptions(suppress=True)			# pretty printing of numpy matrices
-
 class DeformGeometry(object):
-	"""
-	A class which takes a CIF-file, generates a pymatgen core structure 
-	and applies a range of lattice deformations. The deformed lattices 
-	are to be used as inputs to an ab initio code such as VASP to compute 
-	the stress tensor and from this, the full elastic tensor of rank 4
-	"""
-
-	def __init__(self, path_to_cif):
-		"""
-		Constructor to initialize path to CIF-file
-		
-		Args: 
-			path_to_cif - string with full path to CIF-file, e.g.
-			'/home/MDEJONG1/pythonplayground/pymatgen/classes/7048.cif'
-		"""
-		self._path = path_to_cif
-	
-	def CIF2struct(self):
-		"""
-		Parse CIF to pymatgen core structure for easy manipulation
-		
-		Args: 
-			none
-		"""
-		myCIF = CifParser(self._path).get_structures()[0]
-		self.base_struct = myCIF
-
-		return self.base_struct
-
-	def get_residual_stress(self, residual_stress=np.zeros((3,3)), res_tresh_hold=2):
-		"""
-	    Parse the residual stress tensor 
-
-		Args:
-			residual_stress - 3x3 numpy matrix containing residual stresses, 
-			defaults to zero stress tensor
-			res_tresh_hold - what residual stresses (in kB) are acceptable
-		"""		
-		self._residual_stress = residual_stress
-		
-		if (np.abs(residual_stress)>res_tresh_hold).any() == True:	
-			warnings.warn('***Residual stresses are quite large, structural relaxation might not have converged...***')
-	
-		return self._residual_stress
 
 	def deform(self, nd=0.02, ns=0.02, m=6, n=6): # this class still requires some (optional) user input
 		"""
 		Take original geometry (from CIF-file) and apply a range of deformations. 
 		Default values generally work well for metals (in my experience). However, one might need to
 		make changes for material such as oxides.
-
-		Note: deformed structures are stored in a dict, named defstructures. Also stored are
-		deformation gradient tensor, strain tensor, and strain tensor-indices.
-		defstructures[0] contains first deformed structure and its properties, defstructures[1]
-		contains the second etc.
 
 		Args: 
 			nd - maximum amount of normal strain  
@@ -99,17 +47,15 @@ class DeformGeometry(object):
 
 		if n%2!=0:
 			raise ValueError("n has to be even.")
-
+		
 		mystrains = np.zeros((3, 3, np.int(m*3) + np.int(n*3)))
 
 		defs = np.linspace(-nd, nd, num=m+1)
 		defs = np.delete(defs, np.int(m/2), 0)
 		sheardef = np.linspace(-ns, ns, num=n+1)
 		sheardef = np.delete(sheardef, np.int(n/2), 0)
-	
 		defstructures = dict()
 
-		counter = 0
 		# First apply non-shear deformations
 		for i1 in range(0, 3):
 
@@ -117,11 +63,12 @@ class DeformGeometry(object):
 
 				s = StructureEditor(self.base_struct)
 				F = np.identity(3)
-				F[i1, i1] = F[i1, i1] + defs[i2]
+				F[i1, i1] = F[i1, i1] + defs[i2]		   # construct deformation matrix
 				E = 0.5*(np.transpose(F)*F-np.eye(3))      # Green-Lagrange strain tensor
 				s.apply_strain_transformation(F)           # let deformation gradient tensor act on undistorted lattice
-				defstructures[counter] = [s.modified_structure, F, E, (i1, i1)]
-				counter += 1
+				strain_key = '%.5f' % F[i1,i1]
+				tup = (i1, i1, strain_key)				   # key to be used for defstructures dict
+				defstructures[tup] = [s.modified_structure, F, E, (i1, i1)]
 
 		# Now apply shear deformations #		
 		F_index = [[0, 1], [0, 2], [1, 2]]
@@ -135,11 +82,11 @@ class DeformGeometry(object):
 				F = np.matrix(F)						   # Not sure why, but without this statement, calculation of strain tensor gets messed up...
 				E = 0.5*(np.transpose(F)*F-np.eye(3))      # Green-Lagrange strain tensor
 				s.apply_strain_transformation(F)           # let deformation gradient tensor act on undistorted lattice
-				defstructures[counter] = [s.modified_structure, F, E, (F_index[j1][0], F_index[j1][1])]
-				counter += 1
-		
-		self.defstructures = defstructures
+				strain_key = '%.5f' % F[F_index[j1][0], F_index[j1][1]]		
+				tup = (F_index[j1][0], F_index[j1][1], strain_key)
+				defstructures[tup] = [s.modified_structure, F, E, (F_index[j1][0], F_index[j1][1])]
 
+		self.defstructures = defstructures
 		return self.defstructures
 
 	def append_stress_tensors(self, stress_tensor_dict):
@@ -148,7 +95,7 @@ class DeformGeometry(object):
 		stored in defstructures. Residual stresses are subtracted out for increased accuracy.
 
 		Args:
-			stress_tensor_dict - a dict with  3x3 numpy matrices, containing the stresses. Key should be structure number,
+			stress_tensor_dict - a dict with  3x3 numpy matrices, containing the stresses. Key should be as defined above,
 			value should be the computed stress tensor, corresponding to that specific structure.  
 			
 		"""
@@ -270,26 +217,43 @@ class DeformGeometry(object):
 
 ##### Below shows example how to use this code #####
 
-#Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/classes/7048.cif')
-Q = DeformGeometry('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/aluminum.cif')
-Q.CIF2struct()
+struct = CifParser('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/aluminum.cif').get_structures()[0]
+Q = DeformGeometry(struct)
 Q.deform(0.015, 0.015, 6, 6)
-Q.get_residual_stress(np.zeros((3,3)), 1)
-stress_dict = dict()
+
+# append stress tensor like this: #
+tens = np.eye((3))*8.0
+Q.defstructures[(0, 2, '0.00500')].append(tens)
+#                                 #
+
+
+
+#print Q.defstructures[(0, 2, '0.00500')]
+#for key in Q.defstructures.keys():
+#	if key[0]
+
+
+#Q.get_residual_stress(np.zeros((3,3)), 1)
+#stress_dict = dict()
 
 ## run VASP-calculation here ##
 
 ## continue once calculations have finished ##
 
-for i in range(0, 36):
+#for i in range(0, 36):
 
-	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
-	stress_dict[i] = A.ionic_steps[-1]['stress']
+#	A = Vasprun('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo/pymatgen/phonons/test4/F'+str(i)+'/vasprun.xml')
+#	stress_dict[i] = A.ionic_steps[-1]['stress']
 
-Q.append_stress_tensors(stress_dict)
+#Q.append_stress_tensors(stress_dict)
 
-Q.fit_cij()
-print Q.Cij
+#Q.fit_cij()
+#print Q.Cij
+
+#for s in Q.defstructures[3][0].sites: print s.coords, s.frac_coords
+
+#print type(Q.defstructures[3][0])
+
 
 #for c in range(0, len(Q.defstructures)):
 
@@ -297,4 +261,5 @@ print Q.Cij
 #   w.write_file('POSCAR_' + str(c))
 
 #print Q.__dict__.keys()
+
 
