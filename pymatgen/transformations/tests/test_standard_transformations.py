@@ -82,6 +82,22 @@ class SupercellTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Li16 O16")
 
+class OxidationStateDecorationTransformationTest(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = OxidationStateDecorationTransformation({"Li":1, "O":-2})
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li", "Li", "O", "O"],coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(str(s[0].specie), "Li+")
+        self.assertEqual(str(s[2].specie), "O2-")
+
+
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     
     def test_apply_transformation(self):
