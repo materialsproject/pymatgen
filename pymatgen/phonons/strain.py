@@ -66,12 +66,12 @@ class Strain(object):
 class IndependentStrain(Strain):
    #TODO: add polar decomposition method
 
-    def __init__(self, deformation):
+    def __init__(self, deformation,tol=0.00000001):
         
         super(IndependentStrain, self).__init__(deformation)
-        (self._i, self._j) = self.check_F()
+        (self._i, self._j) = self.check_F(tol)
 
-    def check_F(self):
+    def check_F(self, tol=0.00000001):
         df1 = self.deformation_matrix
         sum1 = 0
         sum2 = 0
@@ -79,24 +79,24 @@ class IndependentStrain(Strain):
             for c2 in range(0,3):
                 if c1 != c2:
                     sum1 = sum1 + np.abs(df1[c1,c2])
-                    if np.abs(df1[c1,c2]) > 0.00000001: 
+                    if np.abs(df1[c1,c2]) > tol: 
                         sum2 = sum2 + 1
 
-        if sum1<0.00000001: # if no shear components present
-            if len(np.nonzero(df1-np.diag([1,1,1])>0.00000001)[0])>1: # check hom many diagonal components differ from unity
+        if sum1<tol: # if no shear components present
+            if len(np.nonzero(df1-np.diag([1,1,1])>tol)[0])>1: # check hom many diagonal components differ from unity
                 raise ValueError("More than one normal mode was applied.")
-            elif len(np.nonzero(df1-np.diag([1,1,1])>0.00000001)[0])==0: # if identity transformation
+            elif len(np.nonzero(df1-np.diag([1,1,1])>tol)[0])==0: # if identity transformation
                 return []
             else: # if proper transformation
-                return np.nonzero(df1-np.diag([1,1,1])>0.00000001)[0][0], np.nonzero(df1-np.diag([1,1,1])>0.00000001)[1][0]
+                return np.nonzero(df1-np.diag([1,1,1])>tol)[0][0], np.nonzero(df1-np.diag([1,1,1])>tol)[1][0]
         
         else: # if shear components present
-            if sum2 > 1: # if multiple shear components present
+            if sum2 > tol: # if multiple shear components present
                 raise ValueError("More than one shear mode was applied.")
-            elif len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>0.00000001)[0])>1: # if one shear def. present but also normal modes:
+            elif len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0])>1: # if one shear def. present but also normal modes:
                 raise ValueError("Shear and normal deformations were applied simultaneously.")
             else: # if proper transformation
-                return (np.nonzero(np.abs(df1-np.diag([1,1,1]))>0.00000001)[0][0], np.nonzero(np.abs(df1-np.diag([1,1,1]))>0.00000001)[1][0])
+                return (np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0][0], np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[1][0])
 
     @property
     def i(self):
