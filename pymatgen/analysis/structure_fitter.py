@@ -207,13 +207,9 @@ class StructureFitter(object):
             self._cell_misfit = shear_invariant(p)
 
     def _get_rot_matrix(self, fixed, to_fit):
-        (l1, a1) = fixed.lattice.lengths_and_angles
-        (l2, a2) = to_fit.lattice.lengths_and_angles
-        to_fit_larger = sum(l2) > sum(l1)
+        a1 = fixed.lattice.angles
+        a2 = to_fit.lattice.angles
         for i in xrange(3):
-            ratio = l2[i] / l1[i] if to_fit_larger else l1[i]/l2[i]
-            if abs(ratio % 1) > self._tolerance_atomic_misfit:
-                return None
             if abs(a1[i] - a2[i]) > 5:
                 return None
         to_fit_unit_matrix = np.array([row / np.linalg.norm(row) for row in to_fit.lattice.matrix])
