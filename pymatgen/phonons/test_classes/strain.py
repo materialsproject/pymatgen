@@ -29,7 +29,7 @@ class Strain(object):
     # return Green-Lagrange strain matrix
     @property
     def strain(self):
-        return 0.5 * (np.matrix(self._dfm) * np.transpose(np.matrix(self._dfm)) - np.eye(3))
+        return self._strain
 
     @property
     def deformation_matrix(self):
