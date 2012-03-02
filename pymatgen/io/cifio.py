@@ -14,6 +14,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="Sep 23, 2011"
 
+import json
 import re
 import StringIO
 import math
@@ -152,6 +153,15 @@ class CifParser:
         '''
         return [self._get_structure(v, primitive) for k, v in self._cif.items()]
     
+    @property
+    def to_dict(self):
+        d = {}
+        for k, v in self._cif.items():
+            d[k] = {}
+            for k2, v2 in v.items():
+                d[k][k2] = v2
+        return d
+    
 class CifWriter:
     '''
     A wrapper around PyCifRW to write CIF files from pymatgen structures.
@@ -270,3 +280,4 @@ def float_from_string(text):
     Remove uncertainty brackets from strings and return the float.
     '''
     return float(re.sub('\(\d+\)','',text))
+
