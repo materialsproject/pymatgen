@@ -27,13 +27,15 @@ __date__ ="Jan 24, 2012"
 
 class DeformGeometry(object):
 
-    def deform(self, nd=0.02, ns=0.02, m=6, n=6): # this class still requires some (optional) user input
+    def deform(self, rlxd_str, nd=0.02, ns=0.02, m=6, n=6): # this class still requires some (optional) user input
         """
-        Take original geometry (from CIF-file) and apply a range of deformations. 
+        Take original geometry (as a pymatgen structure file) and apply a range of deformations. 
         Default values generally work well for metals (in my experience). However, one might need to
-        make changes for material such as oxides.
+        make changes for material such as oxides. Also, when using e.g. DFT+U, problems with calculation
+        of stress tensor may occur.
 
         Args: 
+            rlxd_str - pymatgen structure file, containing **relaxed** geometry
             nd - maximum amount of normal strain  
             ns - maximum amount of shear strain
             m - number of normal deformations used for structural deformations, even integer required
@@ -61,7 +63,7 @@ class DeformGeometry(object):
 
             for i2 in range(0, len(defs)):
 
-                s = StructureEditor(self.base_struct)
+                s = StructureEditor(rlxd_str)
                 F = np.identity(3)
                 F[i1, i1] = F[i1, i1] + defs[i2]		   # construct deformation matrix
                 E = 0.5*(np.transpose(F)*F-np.eye(3))      # Green-Lagrange strain tensor
@@ -76,7 +78,7 @@ class DeformGeometry(object):
 		
             for j2 in range(0, len(sheardef)):
 
-                s = StructureEditor(self.base_struct)
+                s = StructureEditor(rlxd_str)
                 F = np.identity(3)
                 F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
                 F = np.matrix(F)						   
