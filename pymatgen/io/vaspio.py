@@ -343,7 +343,12 @@ class Incar(dict, VaspInput):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], list):
+            if k == "MAGMOM" and isinstance(self[k], list):
+                value = []
+                for m, g in itertools.groupby(self[k]):
+                    value.append("{}*{}".format(len(tuple(g)), m))
+                lines.append([k," ".join(value)])
+            elif isinstance(self[k], list):
                 lines.append([k," ".join([str(i) for i in self[k]])])
             else:
                 lines.append([k,self[k]])
