@@ -29,7 +29,6 @@ import numpy as np
 from numpy.linalg import det
 
 import pymatgen.command_line.aconvasp_caller
-import pymatgen.core.electronic_structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -2017,6 +2016,8 @@ def get_band_structure_from_vasp(path):
     and returning the corresponding Bandstructure Object
     also takes into account runs that have been separated in several branches
     """
+    
+    from pymatgen.core.electronic_structure import get_reconstructed_band_structure
     if(os.path.exists(path+"/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches=[]
@@ -2028,7 +2029,7 @@ def get_band_structure_from_vasp(path):
             for f in listdir_clean:
                 if(int(f.split("_")[1])==i):
                     list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
-        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches)
+        return get_reconstructed_band_structure(list_branches)
     else:
         return get_band_structure_from_vasp_individual(path)
     
