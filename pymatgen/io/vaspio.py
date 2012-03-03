@@ -35,7 +35,7 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
+from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 
 
@@ -2017,7 +2017,6 @@ def get_band_structure_from_vasp(path):
     also takes into account runs that have been separated in several branches
     """
     
-    from pymatgen.core.electronic_structure import get_reconstructed_band_structure
     if(os.path.exists(path+"/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches=[]
