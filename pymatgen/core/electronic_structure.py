@@ -16,7 +16,6 @@ __date__ ="Sep 23, 2011"
 
 import math
 import numpy as np
-import scipy.interpolate as spint
 import pymatgen.command_line.aconvasp_caller
 
 class _SpinImpl(object):
@@ -166,6 +165,7 @@ class Dos(object):
 
     def get_interpolated_value(self,energy):
         f = {}
+        import scipy.interpolate as spint
         for spin in self._dos.keys():
             f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
         return f
@@ -197,7 +197,7 @@ class Dos(object):
         above_fermi = [i for i in xrange(len(energies)) if energies[i] > self._efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        
+        import scipy.interpolate as spint
         if vbm_start == cbm_start:
             return 0.0,  self._efermi,self._efermi
         else:
