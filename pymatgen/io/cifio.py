@@ -155,7 +155,7 @@ class CifParser:
     
     @property
     def to_dict(self):
-        d = {}
+        d = OrderedDict()
         for k, v in self._cif.items():
             d[k] = {}
             for k2, v2 in v.items():
