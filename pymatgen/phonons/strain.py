@@ -65,6 +65,7 @@ class Strain(object):
 
 class IndependentStrain(Strain):
    #TODO: add polar decomposition method
+   # 
 
     def __init__(self, deformation,tol=0.00000001):
         
