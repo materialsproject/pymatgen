@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from pymatgen.io.vaspio_set import MITVaspInputSet, MaterialsProjectVaspInputSet
+from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, MaterialsProjectVaspInputSet
 from pymatgen.io.vaspio import Poscar
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -13,16 +13,14 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
     
     def setUp(self):
-        self.mitparamset = MITVaspInputSet()
         filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.struct
         
+        self.mitparamset = MITVaspInputSet()
+        self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MaterialsProjectVaspInputSet()
-        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
-        poscar = Poscar.from_file(filepath)
-        self.struct = poscar.struct
-    
+        
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
         self.assertEquals(syms, ['Fe_pv', 'P', 'O'])
@@ -46,6 +44,10 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         struct = Structure(latt,[si,si],coords)
         incar = incar = self.paramset.get_incar(struct)
         self.assertNotIn("LDAU", incar)
+        
+        incar = self.mithseparamset.get_incar(self.struct)
+        self.assertTrue(incar['LHFCALC'])
+        
         
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
