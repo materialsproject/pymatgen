@@ -11,7 +11,6 @@ class TestPlatonCallerCase(unittest.TestCase):
         name = 'data'
         data_dir_name = os.path.join(dir_name, name, "POSCAR_*")
         for file_name in glob.glob(data_dir_name):
-            #space_group =  platon.get_space_group(s)
             number = int(file_name.split('_')[-1])
             poscar = Poscar.from_file(file_name)
             s = poscar.struct
