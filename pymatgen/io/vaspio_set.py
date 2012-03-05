@@ -82,19 +82,27 @@ class AbstractVaspInputSet(object):
         '''
         return
     
-    def get_all_vasp_input(self, structure):
+    def get_all_vasp_input(self, structure, generate_potcar = True):
         '''
-        Returns all input files as a dict of {filename: file_as_string}
+        Returns all input files as a dict of {filename: vaspio object}
         
         Arguments:
             structure:
                 Structure object
+            generate_potcar:
+                Set to False to generate a POTCAR.spec file instead of a POTCAR,
+                which contains the POTCAR labels but not the actual POTCAR. Defaults
+                to True.
                 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
-        return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
-                'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+        if generate_potcar:
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+                    'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+        else:
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+                    'POSCAR': self.get_poscar(structure), 'POTCAR.spec': "\n".join(self.get_potcar_symbols(structure))}
     
     def write_input(self, structure, output_dir, make_dir_if_not_present = True):
         """
