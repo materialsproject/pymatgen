@@ -436,7 +436,7 @@ class PeriodicSite(Site):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':list(self._coords), 'abc':list(self._fcoords)}
+        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'abc':[float(c) for c in self._fcoords]}
 
 class Structure(collections.Sequence, collections.Hashable):
     """
