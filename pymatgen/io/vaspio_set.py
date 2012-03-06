@@ -154,7 +154,6 @@ class VaspInputSet(AbstractVaspInputSet):
             else:
                 incar[key] = setting
         
-        
         has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if not has_u:
             for key in incar.keys():
@@ -235,9 +234,11 @@ class MITVaspInputSet(VaspInputSet):
     The parameters are chosen specifically for a high-throughput project, 
     which means in general smaller pseudopotentials were chosen.
     
-    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller, K. A. Persson, G. Ceder (2011). 
-    A high-throughput infrastructure for density functional theory calculations. Computational Materials Science, 50(8), 
-    2295-2310. doi:10.1016/j.commatsci.2011.02.023 for more information.
+    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, 
+    T. Mueller, K. A. Persson, G. Ceder (2011). 
+    A high-throughput infrastructure for density functional theory calculations. 
+    Computational Materials Science, 50(8), 2295-2310. 
+    doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
     def __init__(self):
         super(MITVaspInputSet, self).__init__("MITMatgen")
