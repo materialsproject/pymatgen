@@ -377,6 +377,22 @@ class CompleteDos(Dos):
                     el_dos[el] += pdos
         return el_dos
     
+    def to_dict(self):
+        d = {'efermi': self.efermi, "structure": self._structure.to_dict}
+        if Spin.down in self._dos:
+            d['energy']=[self._energies[i] for i in range(len(self._energies))]
+            d['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            d['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
+        else:
+            d['energy']=[self._energies[i] for i in range(len(self._energies))]
+            d['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+        
+        if len(self._pdos) > 0:
+            d['atom_dos'] = {str(at) : dos.to_dict() for at, dos in self.get_element_dos().items()}
+            d['spd_dos'] = {str(orb) : dos.to_dict() for orb, dos in self.get_spd_dos().items()}
+        
+        return d
+    
     def __str__(self):
         return "Complete DOS for "+str(self._structure)
     
