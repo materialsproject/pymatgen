@@ -26,6 +26,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
 
+
 class Site(collections.Mapping, collections.Hashable):
     '''
     A generalized *non-periodic* site. Atoms and occupancies should be a dictionary of element:occupancy
@@ -216,7 +217,8 @@ class Site(collections.Mapping, collections.Hashable):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':list(self._coords)}
+        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords]}
+
 
 class PeriodicSite(Site):
     """
@@ -436,7 +438,8 @@ class PeriodicSite(Site):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':list(self._coords), 'abc':list(self._fcoords)}
+        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'abc':[float(c) for c in self._fcoords]}
+
 
 class Structure(collections.Sequence, collections.Hashable):
     """
@@ -868,8 +871,8 @@ class Structure(collections.Sequence, collections.Hashable):
             coords.append(site_dict['abc'])
         return Structure(lattice, species, coords)
 
+
 class StructureError(Exception):
-    
     '''
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
@@ -880,6 +883,7 @@ class StructureError(Exception):
 
     def __str__(self):
         return "Structure Error : " + self.msg
+
 
 class Composition (collections.Mapping, collections.Hashable):
     """

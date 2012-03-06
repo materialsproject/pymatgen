@@ -298,13 +298,13 @@ class Lattice(object):
         '''dict representation of the Lattice'''
         d = {
         'matrix': self._matrix.tolist(),
-        'a': self.a,
-        'b': self.b,
-        'c': self.c,
-        'alpha': self.alpha,
-        'beta': self.beta,
-        'gamma': self.gamma,
-        'volume': self.volume,
+        'a': float(self.a),
+        'b': float(self.b),
+        'c': float(self.c),
+        'alpha': float(self.alpha),
+        'beta': float(self.beta),
+        'gamma': float(self.gamma),
+        'volume': float(self.volume),
         }
         return d
     

@@ -7,9 +7,9 @@ All transformations should inherit the AbstractTransformation ABC.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__="Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
@@ -27,6 +27,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer, minimize_matrix
+
 
 class IdentityTransformation(AbstractTransformation):
     """
@@ -53,7 +54,8 @@ class IdentityTransformation(AbstractTransformation):
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'init_args': {} }
         return output
-      
+    
+    
 class RotationTransformation(AbstractTransformation):
     """
     The RotationTransformation applies a rotation to a structure.
@@ -219,12 +221,13 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         output = {'name' : self.__class__.__name__}
         output['init_args'] = {'species_to_remove': self._species}
         return output
+    
         
 class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
     Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
     """
-    def __init__(self, specie_to_remove, fraction_to_remove):
+    def __init__(self, specie_to_remove, fraction_to_remove, complete_ranking = False):
         """
         Arguments:
             specie_to_remove - Specie to remove. Must have oxidation state E.g., "Li1+"
@@ -232,19 +235,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
+        self._complete_ranking = complete_ranking
     
-    def apply_transformation(self, structure):
-        sp = smart_element_or_specie(self._specie)
-        num_to_remove = structure.composition[sp] * self._frac
-        if abs(num_to_remove - int(num_to_remove)) > 1e-8:
-            raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-        else:
-            num_to_remove = int(round(num_to_remove))
-        
-        specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
-                
+    def _optimize_ordering_slow_and_complete(self, structure, specie_indices, num_to_remove):
         lowestewald = float('inf')
-        lowestenergy_s = None
+        opt_s = None
         all_structures = list()
         for indices in itertools.combinations(specie_indices, num_to_remove):
             mod = StructureEditor(structure)
@@ -254,47 +249,25 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             ewaldsum = EwaldSummation(s_new)
             if ewaldsum.total_energy < lowestewald:
                 lowestewald = ewaldsum.total_energy
-                lowestenergy_s = s_new
-        
-        self.all_structures = all_structures        
-        
-        return lowestenergy_s
+                opt_s = s_new
+        return (opt_s, all_structures)
     
-    def __str__(self):
-        return "Remove Species Transformation :" + ", ".join(self._specie)
-    
-    def __repr__(self):
-        return self.__str__()
-    
-    @property
-    def inverse(self):
-        return None
-    
-    @property
-    def to_dict(self):
-        output = {'name' : self.__class__.__name__}
-        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac}
-        return output
-    
-class PartialRemoveSpecieTransformation2(AbstractTransformation):
-    """
-    Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
-    This method uses the matrix form of ewaldsum to calculate the ewald sums of the potential structures.
-    This is on the order of 4 orders of magnitude faster when there are large numbers of permutations to consider.
-    There are further optimizations possible (doing a smarter search of permutations for example), but this wont make a difference
-    until the number of permutations is on the order of 30,000.
-    """
-    def __init__(self, specie_to_remove, fraction_to_remove):
+    def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
         """
-        Arguments:
-            specie_to_remove - Specie to remove. Must have oxidation state E.g., "Li1+"
-            fraction_to_remove - Fraction of specie to remove. E.g., 0.5
+        This method uses the matrix form of ewaldsum to calculate the ewald sums 
+        of the potential structures. This is on the order of 4 orders of magnitude 
+        faster when there are large numbers of permutations to consider.
+        There are further optimizations possible (doing a smarter search of 
+        permutations for example), but this wont make a difference
+        until the number of permutations is on the order of 30,000.
         """
-        self._specie = specie_to_remove
-        self._frac = fraction_to_remove
-        
+        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
+        lowestenergy_indices = minimize_matrix(ewaldmatrix, specie_indices, num_to_remove)[1]
+        mod = StructureEditor(structure)
+        mod.delete_sites(lowestenergy_indices)
+        return mod.modified_structure.get_sorted_structure()
     
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure, complete = False):
         sp = smart_element_or_specie(self._specie)
         num_to_remove = structure.composition[sp] * self._frac
         if abs(num_to_remove - int(num_to_remove)) > 1e-8:
@@ -304,13 +277,13 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
         
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
         
-        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
-        
-        lowestenergy_indices = minimize_matrix(ewaldmatrix, specie_indices, num_to_remove)[1]
-        
-        mod = StructureEditor(structure)
-        mod.delete_sites(lowestenergy_indices)
-        return mod.modified_structure.get_sorted_structure()
+        if self._complete_ranking:
+            (opt_s, self.all_structures) = self._optimize_ordering_slow_and_complete(structure, specie_indices, num_to_remove)
+        else:
+            opt_s = self._optimize_ordering_fast(structure, specie_indices, num_to_remove)
+            self.all_structures = [opt_s]
+
+        return opt_s
     
     def __str__(self):
         return "Remove Species Transformation :" + ", ".join(self._specie)
@@ -325,9 +298,9 @@ class PartialRemoveSpecieTransformation2(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__}
-        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac}
+        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac, 'complete_ranking':self._complete_ranking}
         return output
-    
+        
     
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
@@ -724,6 +697,3 @@ def transformation_from_json(json_string):
     jsonobj = json.loads(json_string)
     trans = globals()[jsonobj['name']]
     return trans(**jsonobj['init_args'])
-
-
-    
