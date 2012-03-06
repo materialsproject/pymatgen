@@ -280,6 +280,17 @@ class Dos(object):
             stringarray = ["#%30s %30s" %('Energy','DensityUp')]
             stringarray.extend(["%.5f %.5f" % (self._energies[i], self._dos[Spin.up][i]) for i in range(len(self._energies))])
         return "\n".join(stringarray)
+    
+    def to_dict(self):
+        dict_to_return={}
+        if Spin.down in self._dos:
+            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
+        else:
+            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+        return dict_to_return
 
 class PDos(Dos):
     """
