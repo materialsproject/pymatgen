@@ -14,7 +14,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="Sep 23, 2011"
 
-import json
+
 import re
 import StringIO
 import math
@@ -135,9 +135,9 @@ class CifParser:
             allspecies.extend(len(coords) * [species])
                    
         if primitive:
-            return Structure(primlattice,allspecies,allcoords)
+            return Structure(primlattice,allspecies,allcoords).get_sorted_structure()
         else:
-            return Structure(lattice,allspecies,allcoords)
+            return Structure(lattice,allspecies,allcoords).get_sorted_structure()
     
     def get_structures(self, primitive=True):
         '''

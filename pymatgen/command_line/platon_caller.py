@@ -17,7 +17,9 @@ __date__ ="$February 24, 2012M$"
 import subprocess
 import pymatgen.io.cifio
 import os
+import logging
 
+log = logging.getLogger(__name__)
 
 def run_platon_command(command, structure):
     """
@@ -35,16 +37,16 @@ def run_platon_command(command, structure):
     return output
 
 def get_space_group(structure):
-    output=run_platon_command(['platon', '-o', '-c'], structure)
-    dictio={}
+    output = run_platon_command(['platon', '-o', '-c'], structure)
+    dictio = {}
     for line in output[0].split("\n"):
         #   print line
         if(line.find("Space Group")!=-1):
-            list_tmp=line.split()
+            list_tmp = line.split()
             #       print list_tmp
             for i in range(len(list_tmp)):
                 if(list_tmp[i]=='Group'):
                     dictio['SG_HM']=list_tmp[i+1]
                 if(list_tmp[i]=='No:'):
-                    dictio['SG_NB']=list_tmp[i+1]
+                    dictio['SG_NB']= int(list_tmp[i+1])
     return dictio
