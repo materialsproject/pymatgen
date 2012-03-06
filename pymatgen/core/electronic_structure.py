@@ -323,7 +323,7 @@ class CompleteDos(Dos):
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
         self._dos = total_dos.densities
-        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j] for j in range(len(pdoss[i]))} for i in range(structure.num_sites)}
+        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j] for j in range(len(pdoss[i]))} for i in range(len(pdoss))}
         self._structure = structure
 
     @property
