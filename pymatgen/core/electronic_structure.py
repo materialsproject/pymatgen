@@ -286,11 +286,11 @@ class Dos(object):
         dict_to_return={}
         if Spin.down in self._dos:
             dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-            dict_to_return['DensityDown']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
         else:
             dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
         return dict_to_return
         
         
