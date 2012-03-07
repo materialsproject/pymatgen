@@ -2,7 +2,9 @@
 
 '''
 Interface with command line qhull.
-Right now only tested on Linux systems.
+Needs qhull installed. You can get it from http://www.qhull.org/.
+
+As far as we know, no formal Python extension for higher dim hulls exist.
 '''
 
 from __future__ import division
@@ -25,8 +27,9 @@ def run_qhull_command(command, data, proc_command = int, output_skip=1):
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) +"\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])
-    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE, close_fds=True)
-    output = p.communicate(input=prep_str)[0]
+    p = subprocess.Popen(command, stdout = subprocess.PIPE, 
+                         stdin = subprocess.PIPE, close_fds = True)
+    output = p.communicate(input = prep_str)[0]
     output = re.split("\n", output)
     for i in xrange(output_skip):
         output.pop(0)
@@ -37,6 +40,7 @@ def run_qhull_command(command, data, proc_command = int, output_skip=1):
             results.append([proc_command(i) for i in re.split("\s+",cleanrow)])
     return results
 
+
 def qconvex(data):
     """
     Input data should be in the form of a list of a list of floats.
@@ -44,12 +48,14 @@ def qconvex(data):
     """
     return run_qhull_command(['qconvex','i','Qt'], data, int, 1)
 
+
 def qvoronoi(data):
     """
     Input data should be in the form of a list of a list of floats.
     Returns voronoi results as a list of a list of integers.
     """
     return run_qhull_command(['qvoronoi','Fv'], data, int, 1)
+
 
 def qvertex(data):
     """

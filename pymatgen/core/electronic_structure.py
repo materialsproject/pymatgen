@@ -160,7 +160,7 @@ class Dos(object):
         """
         if not (self.energies == other.energies).all():
             raise ValueError("Energies of both DOS are not compatible!")
-        densities = {spin: self._dos[spin] + other._dos[spin] for spin in self.densities.keys()}
+        densities = {spin: self._dos[spin] + other._dos[spin] for spin in self._dos.keys()}
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self,energy):
@@ -282,16 +282,13 @@ class Dos(object):
         return "\n".join(stringarray)
     
     def to_dict(self):
-        dict_to_return = {'efermi': self.efermi}
-        if Spin.down in self._dos:
-            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-            dict_to_return['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
-        else:
-            dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-        return dict_to_return
-
+        d = {}
+        d['efermi'] = self._efermi
+        d['energies'] = list(self._energies)
+        d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
+        return d
+        
+        
 class PDos(Dos):
     """
     Projected DOS for a specific orbital. Extends the Dos object.
@@ -372,25 +369,28 @@ class CompleteDos(Dos):
             el = site.specie
             for pdos in atom_dos.values():
                 if el not in el_dos:
-                    el_dos[el] = Dos(pdos.efermi, pdos.energies,pdos.densities)
+                    el_dos[el] = Dos(pdos.efermi, pdos.energies, pdos.densities)
                 else:
                     el_dos[el] += pdos
         return el_dos
     
-    def to_dict(self):
-        d = {'efermi': self.efermi, "structure": self._structure.to_dict}
-        if Spin.down in self._dos:
-            d['energy']=[self._energies[i] for i in range(len(self._energies))]
-            d['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-            d['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
-        else:
-            d['energy']=[self._energies[i] for i in range(len(self._energies))]
-            d['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-        
+    def to_dict(self, inc_all_pdos = True):
+        d = {}
+        d['efermi'] = self._efermi
+        d['structure'] = self._structure.to_dict
+        d['energies'] = list(self._energies)
+        d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
+        if inc_all_pdos:
+            d['pdos'] = []
+            pdos = self._pdos
+            for i in range(len(pdos)):
+                dd = dict()
+                for dos in pdos[i]:
+                    dd[str(dos.orbital)] = {'efermi' : dos.efermi, 'energies': list(dos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in dos.densities.items() }}
+                d['pdos'].append(dd)
         if len(self._pdos) > 0:
             d['atom_dos'] = {str(at) : dos.to_dict() for at, dos in self.get_element_dos().items()}
             d['spd_dos'] = {str(orb) : dos.to_dict() for orb, dos in self.get_spd_dos().items()}
-        
         return d
     
     def __str__(self):
