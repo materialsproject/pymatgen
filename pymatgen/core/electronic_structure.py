@@ -961,8 +961,7 @@ class Bandstructure(object):
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index+i]]-y0 for i in range(nb_sample)]
             tck = scipy.interpolate.splrep(x,y,s=0)
             #check if the cubic spline interpolation is reasonable and if it fits well a well-behaved pocket
-            import pylab, numpy
-            for i in numpy.arange(0,x[3],x[3]/10):
+            for i in np.arange(0,x[3],x[3]/10):
                 print str(i)+" "+str(scipy.interpolate.splev(i,tck,der=1))
                 if(scipy.interpolate.splev(i,tck,der=1)<-0.1):
                     print "problem!"
@@ -986,7 +985,6 @@ class Bandstructure(object):
             x=[-1.0*(self._kpoints[self._branches[index_branch][local_index-i]]['distance']-x0) for i in range(nb_sample)]
             y=[self._bands[index_band]['energy'][self._branches[index_branch][local_index-i]]-y0 for i in range(nb_sample)]
             a=np.polyfit(x,y,2)
-            import pylab
             tck = scipy.interpolate.splrep(x,y,s=0)
             for i in np.arange(0,x[3],x[3]/10):
                 print str(i)+" "+str(scipy.interpolate.splev(i,tck,der=1))
@@ -1089,8 +1087,6 @@ class Bandstructure(object):
         print diag
         #print m
         #print energy
-    
-
     
     def get_stationary_pg_for_kpoints(self,kpoint):
         listUc=self.get_pg_matrices_rec()
