@@ -19,12 +19,12 @@ __date__ ="$Nov 22, 2011M$"
 import subprocess
 import numpy as np
 
-from pymatgen.io.vaspio import Poscar 
 
 def run_aconvasp_command(command, structure):
     """
     Helper function for calling aconvasp with different arguments
     """
+    from pymatgen.io.vaspio import Poscar 
     poscar = Poscar(structure)
     p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
@@ -42,6 +42,7 @@ def get_minkowski_red(structure):
     """
     get a minkowski reduced structure
     """
+    from pymatgen.io.vaspio import Poscar 
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
     started = False
     poscar_string = ""
