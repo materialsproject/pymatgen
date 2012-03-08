@@ -128,7 +128,7 @@ class SupercellTransformation(AbstractTransformation):
     The RotationTransformation applies a rotation to a structure.
     """
     
-    def __init__(self, scaling_matrix = [[1,0,0],[0,1,0],[0,0,1]]):
+    def __init__(self, scaling_matrix = ((1,0,0),(0,1,0),(0,0,1))):
         """
         Arguments:
             scaling_matrix - Set to True if angle is supplied in radians. Else degrees are assumed.
@@ -681,6 +681,22 @@ class PrimitiveCellTransformation(AbstractTransformation):
         output['init_args'] = {}
         return output
 
+
+def transformation_from_dict(d):
+    """
+    A helper function that can simply get a transformation from a json representation.
+    
+    Arguments:
+        json_string:
+            A json string representation of a transformation with init args.
+    
+    Returns:
+        A properly initialized Transformation object
+    """
+    trans = globals()[d['name']]
+    return trans(**d['init_args'])
+
+
 def transformation_from_json(json_string):
     """
     A helper function that can simply get a transformation from a json representation.
@@ -693,5 +709,4 @@ def transformation_from_json(json_string):
         A properly initialized Transformation object
     """
     jsonobj = json.loads(json_string)
-    trans = globals()[jsonobj['name']]
-    return trans(**jsonobj['init_args'])
+    return transformation_from_dict(jsonobj)

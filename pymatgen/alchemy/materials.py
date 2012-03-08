@@ -19,8 +19,10 @@ import re
 import datetime
 import json
 
+from pymatgen.core.structure import Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio import Poscar
+from pymatgen.transformations.standard_transformations import transformation_from_dict
 
 class TransformedStructure(object):
     """
@@ -30,23 +32,41 @@ class TransformedStructure(object):
     transformation history.
     """
     
-    def __init__(self, structure, transformations, source_info = None):
-        self.source_info = source_info
-        self.structures = [structure]
-        self.transformations = []
+    def __init__(self, structure, transformations, history = None):
+        history = [] if history == None else history
+        self._source = {}
+        self._structures = []
+        self._transformations = []
+        if len(history) > 0:
+            self._source = history[0]
+            for i in xrange(1, len(history)):
+                self._structures.append(Structure.from_dict(history[i]['input_structure']))
+                self._transformations.append(transformation_from_dict(history[i]))
+        
+        self._structures.append(structure)
         for t in transformations:
             self.append_transformation(t)
     
+    def undo_last_transformation(self):
+        if len(self._transformations) == 0:
+            raise IndexError("Can't undo. Already at oldest change.")
+        self._structures.pop()
+        self._transformations.pop()
+    
     def __getitem__(self, index):
-        return (self.structures[index], self.transformations[0:index])
+        return (self._structures[index], self._transformations[0:index])
     
     def __len__(self):
-        return len(self.structures)
+        return len(self._structures)
     
-    def append_transformation(self, trans):
-        new_s = trans.apply_transformation(self.structures[-1])
-        self.structures.append(new_s)
-        self.transformations.append(trans)
+    def append_transformation(self, transformation):
+        new_s = transformation.apply_transformation(self._structures[-1])
+        self._structures.append(new_s)
+        self._transformations.append(transformation)
+        
+    def extend_transformations(self, transformations):
+        for t in transformations:
+            self.append_transformation(t)
     
     def get_vasp_input(self, vasp_input_set, generate_potcar = True):
         """
@@ -61,7 +81,7 @@ class TransformedStructure(object):
                 which contains the POTCAR labels but not the actual POTCAR. Defaults
                 to True.
         """
-        d = vasp_input_set.get_all_vasp_input(self.structures[-1], generate_potcar)
+        d = vasp_input_set.get_all_vasp_input(self._structures[-1], generate_potcar)
         d['transformations.json'] = json.dumps(self.to_dict)
         return d
     
@@ -76,22 +96,47 @@ class TransformedStructure(object):
             create_directory:
                 Create the directory if not present. Defaults to True.
         """
-        vasp_input_set.write_input(self.structures[-1], output_dir, make_dir_if_not_present = create_directory)
+        vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present = create_directory)
         with open(os.path.join(output_dir, 'transformations.json'), 'w') as fp:
             json.dump(self.to_dict, fp)
-        
+    
+    def __str__(self):
+        output = ["Current structure"]
+        output.append("------------")
+        output.append(str(self._structures[-1]))
+        output.append("\nSource")
+        output.append("------------")
+        output.append(str(self._source))
+        output.append("\nTransformation history")
+        output.append("------------")
+        for t in self._transformations:
+            output.append(str(t.to_dict))
+        return "\n".join(output)
+    
+    @property
+    def structures(self):
+        return [s for s in self._structures]
+    
+    @property
+    def transformations(self):
+        return [t for t in self._transformations]
+    
     @property
     def final_structure(self):
-        return self.structures[-1]
+        return self._structures[-1]
+    
+    @staticmethod
+    def from_dict(d):
+        s = Structure.from_dict(d)
+        return TransformedStructure(s, [], d['history'])
     
     @property
     def to_dict(self):
-        d = self.structures[-1].to_dict
-        history = []
-        history.append(self.source_info)
-        for i, t in enumerate(self.transformations):
+        d = self._structures[-1].to_dict
+        history = [self._source]
+        for i, t in enumerate(self._transformations):
             tdict = t.to_dict
-            tdict['input_structure'] = self.structures[i].to_dict
+            tdict['input_structure'] = self._structures[i].to_dict
             history.append(tdict)
         d['history'] = history
         return d
@@ -99,7 +144,7 @@ class TransformedStructure(object):
 
 class CifTransformedStructure(TransformedStructure):
     """
-    Generates NewMaterials from Cifs.
+    Generates new materials from Cifs.
     """
     
     def __init__(self, cif_string, transformations):
@@ -114,12 +159,12 @@ class CifTransformedStructure(TransformedStructure):
         else:
             source = 'uploaded cif'
         source_info = {'source':source,'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
-        super(CifTransformedStructure, self).__init__(s, transformations, source_info)
+        super(CifTransformedStructure, self).__init__(s, transformations, [source_info])
 
 
 class PoscarTransformedStructure(TransformedStructure):
     """
-    Generates NewMaterials from Cifs.
+    Generates a transformed structure from Poscar.
     """
     
     def __init__(self, poscar_string, transformations):
@@ -129,5 +174,5 @@ class PoscarTransformedStructure(TransformedStructure):
         raw_string = re.sub("'", "\"", poscar_string)
         s = p.struct
         source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string}
-        super(PoscarTransformedStructure, self).__init__(s, transformations, source_info)
+        super(PoscarTransformedStructure, self).__init__(s, transformations, [source_info])
 
