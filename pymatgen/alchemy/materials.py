@@ -49,12 +49,24 @@ class TransformedStructure(object):
             self.append_transformation(t)
     
     def undo_last_transformation(self):
+        """
+        Undo the last transformation in the TransformedStructure.
+        
+        Raises:
+            IndexError if already at the oldest change.
+        """
         if len(self._transformations) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
         self._structures.pop()
         self._redo_trans.append(self._transformations.pop())
         
     def redo_next_transformation(self):
+        """
+        Redo the last undone transformation in the TransformedStructure.
+        
+        Raises:
+            IndexError if already at the latest change.
+        """
         if len(self._redo_trans) == 0:
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
@@ -67,6 +79,18 @@ class TransformedStructure(object):
         return len(self._structures)
     
     def append_transformation(self, transformation, clear_redo = True):
+        """
+        Appends a transformation to the TransformedStructure.
+        
+        Arguments:
+            transformation:
+                Transformation to append
+            clear_redo:
+                Boolean indicating whether to clear the redo list. By default,
+                this is True, meaning any appends clears the history of undoing.
+                However, when using append_transformation to do a redo, the redo
+                list should not be cleared to allow multiple redos.
+        """
         new_s = transformation.apply_transformation(self._structures[-1])
         self._structures.append(new_s)
         self._transformations.append(transformation)
@@ -74,6 +98,13 @@ class TransformedStructure(object):
             self._redo_trans = []
         
     def extend_transformations(self, transformations):
+        """
+        Extends a sequence of transformations to the TransformedStructure.
+        
+        Arguments:
+            transformations:
+                Sequence of Transformations
+        """
         for t in transformations:
             self.append_transformation(t)
     
@@ -124,23 +155,39 @@ class TransformedStructure(object):
     
     @property
     def structures(self):
+        """
+        Returns a copy of all structures in the TransformedStructure. A structure
+        is stored after every single transformation.
+        """
         return [s for s in self._structures]
     
     @property
     def transformations(self):
+        """
+        Returns a copy of all transformations in the TransformedStructure. 
+        """
         return [t for t in self._transformations]
     
     @property
     def final_structure(self):
+        """
+        Returns the final structure in the TransformedStructure.
+        """
         return self._structures[-1]
     
     @staticmethod
     def from_dict(d):
+        """
+        Creates a TransformedStructure from a dict.
+        """
         s = Structure.from_dict(d)
         return TransformedStructure(s, [], d['history'])
     
     @property
     def to_dict(self):
+        """
+        Returns a dict representation of the TransformedStructure.
+        """
         d = self._structures[-1].to_dict
         history = [self._source]
         for i, t in enumerate(self._transformations):
