@@ -37,6 +37,7 @@ class TransformedStructure(object):
         self._source = {}
         self._structures = []
         self._transformations = []
+        self._redo_trans = []
         if len(history) > 0:
             self._source = history[0]
             for i in xrange(1, len(history)):
@@ -51,7 +52,13 @@ class TransformedStructure(object):
         if len(self._transformations) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
         self._structures.pop()
-        self._transformations.pop()
+        self._redo_trans.append(self._transformations.pop())
+        
+    def redo_next_transformation(self):
+        if len(self._redo_trans) == 0:
+            raise IndexError("Can't undo. Already at latest change.")
+        t = self._redo_trans.pop()
+        self.append_transformation(t, False)
     
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
@@ -59,10 +66,12 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
     
-    def append_transformation(self, transformation):
+    def append_transformation(self, transformation, clear_redo = True):
         new_s = transformation.apply_transformation(self._structures[-1])
         self._structures.append(new_s)
         self._transformations.append(transformation)
+        if clear_redo:
+            self._redo_trans = []
         
     def extend_transformations(self, transformations):
         for t in transformations:
