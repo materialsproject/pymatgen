@@ -14,12 +14,16 @@ __email__ = "shyue@mit.edu"
 __date__ = "Mar 5, 2012"
 
 import unittest
+import os
+import json
 
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
 
 from pymatgen.alchemy.materials import TransformedStructure
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
 
 class TransformedStructureTest(unittest.TestCase):
     
@@ -44,6 +48,17 @@ class TransformedStructureTest(unittest.TestCase):
     def test_final_structure(self):
         self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
     
+    def test_from_dict(self):
+        d = json.load(open(os.path.join(module_dir, 'transformations.json'), 'r'))
+        ts = TransformedStructure.from_dict(d)
+        ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
+        self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
+        
+    def test_undo_last_transformation(self):
+        self.trans.undo_last_transformation()
+        self.assertEqual("LiFePO4", self.trans.final_structure.composition.reduced_formula)
+        self.assertRaises(IndexError, self.trans.undo_last_transformation)
+        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
