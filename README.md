@@ -19,11 +19,13 @@ Required for proper functioning of the code.
 
 ## Optional Python Libraries ##
 
-Optional python libraries that are required if you need certain features
+Optional python libraries that are required if you need certain features.
 
-1. matplotlib : For plotting (e.g., Phase Diagrams).
-2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For reading and writing Crystallographic Information Format (CIF) files [more info](http://pycifrw.berlios.de/)
-3. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal structures.
+1. matplotlib : For plotting (e.g., Phase Diagrams) using the pymatgen.phasediagrams package.
+2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For reading and writing Crystallographic Information Format (CIF) files using the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
+3. [Pyspglib](http://spglib.sourceforge.net/) : For symmetry finding [more info](http://spglib.sourceforge.net/) using the pymatgen.spglib package.
+4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal structures using the pymatgen.vis package.
+5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): Required for the usage of the adapters in pymatgen.io.aseio between pymatgen's core Structure object and the Atoms object used by ASE. 
 
 ## Optional non-Python programs ##
 

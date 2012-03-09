@@ -9,6 +9,22 @@ util Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`coord_utils` Module
+-------------------------
+
+.. automodule:: pymatgen.util.coord_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`decorators` Module
+------------------------
+
+.. automodule:: pymatgen.util.decorators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`io_utils` Module
 ----------------------
 
@@ -24,4 +40,11 @@ util Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.util.tests
 
