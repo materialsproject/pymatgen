@@ -15,21 +15,37 @@ __date__ = "Mar 9, 2012"
 
 import re
 
-from pymatgen.core.structure import Structure
-
-import pyspglib._spglib as spg
 import numpy as np
 
 
+from pymatgen.core.structure import Structure
+
+try:
+    import pyspglib._spglib as spg
+    spglib_loaded = True
+except ImportError:
+    spglib_loaded = False
+    
+
 class SymmetryFinder(object):
+    """
+    Takes a pymatgen.core.structure.Structure object and a symprec.
+    Uses pyspglib to perform various symmetry finding operations.
+    """
     
     def __init__(self, structure, symprec = 1e-5):
+        """
+        Args:
+            structure:
+                Structure object
+            symprec:
+                Tolerance for symmetry finding
+        """
         self._symprec = symprec
         self._structure = structure
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
         self._numbers = np.array([site.specie.Z for site in structure])
-        
 
     def get_spacegroup(self):
         """
@@ -111,7 +127,7 @@ class SymmetryFinder(object):
         
     def refine_cell(self):
         """
-        Return refined cell
+        Return refined Structure
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
@@ -127,7 +143,7 @@ class SymmetryFinder(object):
                                            num_atom,
                                            self._symprec)
     
-        return lattice.T.copy(), pos[:num_atom_bravais], numbers[:num_atom_bravais]
+        return Structure(lattice.T.copy(), numbers[:num_atom_bravais], pos[:num_atom_bravais])
     
     
     def find_primitive(self):
@@ -144,12 +160,13 @@ class SymmetryFinder(object):
         # lattice is transposed with respect to the definition of Atoms class
         num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec)
         if num_atom_prim > 0:
-            return Structure(lattice.T, positions[:num_atom_prim], numbers[:num_atom_prim])
+            return Structure(lattice.T, numbers[:num_atom_prim], positions[:num_atom_prim])
         else:
+            #Not sure if we should return None or just return the full structure.
             return None
 
 def get_pointgroup(rotations):
-    """
+    """    
     Return point group in international table symbol and number.
     The symbols are mapped to the numbers as follows:
     1   "1    "
@@ -189,19 +206,12 @@ def get_pointgroup(rotations):
     # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
 
-if __name__ == "__main__":
-    import os
-    from pymatgen.io.vaspio import Poscar
-    module_dir = os.path.dirname(os.path.abspath(__file__))
     
-    p = Poscar.from_file(os.path.join(module_dir, '..', 'io','tests', 'vasp_testfiles', 'POSCAR'))
-    s = SymmetryFinder(p.struct)
-    print s.get_symmetry_dataset()
-    print s.get_symmetry()
-    print s.refine_cell()
-    print s.find_primitive()
 
 '''
+Shyue
+-----
+TODO : The following methods have not yet been ported over.
  
 def get_ir_kpoints(kpoint, bulk, is_time_reversal=True, symprec=1e-5):
     """
