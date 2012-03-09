@@ -41,4 +41,10 @@ phasediagram Package
     :undoc-members:
     :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.phasediagram.tests
 
