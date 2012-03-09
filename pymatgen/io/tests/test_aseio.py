@@ -32,26 +32,11 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(module_dir, 'vasp_testfiles', 'POSCAR'))
         atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
         self.assertEqual(aio.AseAtomsAdaptor.get_structure(atoms).formula, "Fe4 P4 O16")
-
-class SpglibAdaptorTest(unittest.TestCase):
-
-    def setUp(self):
-        p = Poscar.from_file(os.path.join(module_dir, 'vasp_testfiles', 'POSCAR'))
-        self.sg = aio.SpglibAdaptor(p.struct)
-        
-    def test_get_space_group(self):
-        self.assertEqual(self.sg.get_spacegroup(), "Pnma       (62)")
-
-    def test_get_space_symbol(self):
-        self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
-    
-    def test_get_space_number(self):
-        self.assertEqual(self.sg.get_spacegroup_number(), 62)
     
     
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    if aio.ase_loaded and aio.spglib_loaded:
+    if aio.ase_loaded:
         unittest.main()
     else:
         print "Skipping tests"
