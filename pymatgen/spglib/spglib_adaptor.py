@@ -65,19 +65,24 @@ class SymmetryFinder(object):
 
     def get_symmetry_dataset(self):
         """
-        number: International space group number
-        international: International symbol
-        hall: Hall symbol
-        transformation_matrix:
-          Transformation matrix from lattice of input cell to Bravais lattice
-          L^bravais = L^original * Tmat
-        origin shift: Origin shift in the setting of 'Bravais lattice'
-        rotations, translations:
-          Rotation matrices and translation vectors
-          Space group operations are obtained by
-            [(r,t) for r, t in zip(rotations, translations)]
-        wyckoffs:
-          Wyckoff letters
+        Returns a dict with the following:
+            number: 
+                International space group number
+            international: 
+                International symbol
+            hall: 
+                Hall symbol
+            transformation_matrix: 
+                Transformation matrix from lattice of input cell to Bravais lattice
+                L^bravais = L^original * Tmat
+            origin shift: 
+                Origin shift in the setting of 'Bravais lattice'
+            rotations, translations:
+                Rotation matrices and translation vectors. 
+                Space group operations are obtained by
+                [(r,t) for r, t in zip(rotations, translations)]
+            wyckoffs:
+                  Wyckoff letters
         """
         keys = ('number',
                 'international',

@@ -9,6 +9,14 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`aconvasp_caller` Module
+-----------------------------
+
+.. automodule:: pymatgen.command_line.aconvasp_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`qhull_caller` Module
 --------------------------
 

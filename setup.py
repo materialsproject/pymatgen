@@ -1,15 +1,14 @@
 import os
 from setuptools import setup, find_packages
 
-
 README = os.path.join(os.path.dirname(__file__), 'README.md')
 long_description = open(README).read() + '\n\n'
 
 setup (
   name = 'pymatgen',
-  version = '1.4.0',
+  version = '1.5.0',
   packages = find_packages(),
-  install_requires = ['numpy', 'scipy', 'matplotlib', 'PyCIFRW'],
+  install_requires = ['numpy', 'scipy', 'PyCIFRW'],
   package_data = {'pymatgen.core': ['*.json'], 
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},
