@@ -40,7 +40,7 @@ class AseAtomsAdaptor(object):
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
-        return Structure(lattice, symbols, positions)
+        return Structure(lattice, symbols, positions, coords_are_cartesian = True)
 
 
 if __name__ == "__main__":
