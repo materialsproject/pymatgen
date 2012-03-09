@@ -18,9 +18,11 @@ import os
 
 import numpy as np
 
+from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
 from pymatgen.spglib.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
+from pymatgen.core.operations import SymmOp
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,10 +46,27 @@ class SymmetryFinderTest(unittest.TestCase):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
         
-    def test_get_symmetry(self):
+    def test_get_symmetry_operations(self):
+        (rots, trans) = self.sg.get_symmetry()
         symmops = self.sg.get_symmetry_operations()
         self.assertEqual(len(symmops), 8)
-        
+        latt = self.structure.lattice
+        for i in xrange(len(rots)):
+            fop = SymmOp.from_rotation_matrix_and_translation_vector(rots[i], trans[i])
+            op = symmops[i]
+            for site in self.structure:
+                newfrac = fop.operate(site.frac_coords)
+                newcart = op.operate(site.coords)
+                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
+                found = False
+                newsite = PeriodicSite(site.species_and_occu, newcart, latt, coords_are_cartesian = True)
+                for testsite in self.structure:
+                    if newsite.is_periodic_image(testsite, 1e-3):
+                        found = True
+                        break
+                self.assertTrue(found)
+                    
+                    
     def test_refine_cell(self):
         for a in self.sg.refine_cell().lattice.angles:
             self.assertEqual(a, 90)
@@ -66,8 +85,8 @@ class HelperFunctionsTest(unittest.TestCase):
         self.sg = SymmetryFinder(p.struct, 0.1)
         
     def test_get_pointgroup(self):
-        symmops = self.sg.get_symmetry_operations()
-        pg = get_pointgroup(np.array([op.rotation_matrix for op in symmops]))
+        (rots, trans) = self.sg.get_symmetry()
+        pg = get_pointgroup(rots)
         self.assertEqual(pg[0].strip(), "mmm")
 
 if __name__ == "__main__":
