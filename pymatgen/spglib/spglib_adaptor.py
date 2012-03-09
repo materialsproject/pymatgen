@@ -127,7 +127,6 @@ class SymmetryFinder(object):
       
         num_sym = spg.symmetry(rotation, translation, self._lattice,
                                    self._positions, self._numbers, self._symprec)
-        
         return (rotation[:num_sym], translation[:num_sym])
     
     def get_symmetry_operations(self):
@@ -137,7 +136,11 @@ class SymmetryFinder(object):
         (rotation, translation) = self.get_symmetry()
         symmops = []
         for i in xrange(len(rotation)):
-            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rotation[i], translation[i]))
+            # pymatgen's SymmOp uses cartesian coords. Need to translate spglib's
+            # fractional coordinates operations to cartesian.
+            convertedrot = np.dot(self._structure.lattice.md2c, np.dot(rotation[i], self._structure.lattice.mc2d))
+            convertedtrans = np.dot(self._structure.lattice.md2c, translation[i]) 
+            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(convertedrot, convertedtrans))
         return symmops
         
     def refine_cell(self):
