@@ -15,10 +15,22 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 8, 2012"
 
-from pymatgen.core.structure import Structure
-from ase import Atoms
-from pyspglib import spglib
+import re
 
+from pymatgen.core.structure import Structure
+
+try:
+    from ase import Atoms
+    ase_loaded = True
+except ImportError:
+    ase_loaded = False
+
+try:
+    from pyspglib import spglib
+    spglib_loaded = True
+except:
+    spglib_loaded = False
+    
 class AseAtomsAdaptor(object):
     '''
     classdocs
@@ -51,21 +63,15 @@ class SpglibAdaptor(object):
     def __init__(self, structure, symprec = 1e-5):
         self._symprec = symprec
         self._atoms = AseAtomsAdaptor.get_atoms(structure)
-        
+        self._spacegroup = spglib.get_spacegroup(self._atoms, symprec = self._symprec)
         
     def get_spacegroup(self):
-        return spglib.get_spacegroup(self._atoms, symprec = self._symprec)
+        return self._spacegroup
 
-    
-if __name__ == "__main__":
-    from pymatgen.io.vaspio import Poscar
-    p = Poscar.from_file('tests/vasp_testfiles/POSCAR')
-    print p.struct
-    atoms = AseAtomsAdaptor.get_atoms(p.struct)
-    print dir(atoms)
-    print atoms.positions
-    print atoms.get_chemical_symbols()
-    print AseAtomsAdaptor.get_structure(atoms)
-    
-    sg = SpglibAdaptor(p.struct)
-    print sg.get_spacegroup()
+    def get_spacegroup_symbol(self):
+        return re.split("\s+", self._spacegroup)[0]
+
+    def get_spacegroup_number(self):
+        sgnum = re.split("\s+", self._spacegroup)[1]
+        sgnum = int(re.sub("\D", "", sgnum))
+        return sgnum
