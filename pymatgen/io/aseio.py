@@ -29,7 +29,9 @@ class AseAtomsAdaptor(object):
         """
         Returns ASE Atoms object from pymatgen structure
         """
-        symbols = [site.specie.symbol for site in structure]
+        if not structure.is_ordered:
+            raise ValueError('ASE Atoms only supports ordered structures')
+        symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         cell = structure.lattice.matrix
         return Atoms(symbols=symbols, positions=positions, pbc = True, cell=cell)
@@ -49,7 +51,8 @@ class SpglibAdaptor(object):
     def __init__(self, structure, symprec = 1e-5):
         self._symprec = symprec
         self._atoms = AseAtomsAdaptor.get_atoms(structure)
-    
+        
+        
     def get_spacegroup(self):
         return spglib.get_spacegroup(self._atoms, symprec = self._symprec)
 
