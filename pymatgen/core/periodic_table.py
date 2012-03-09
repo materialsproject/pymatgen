@@ -621,13 +621,74 @@ class PeriodicTable(object):
                 else:
                     print "   ",
             print
-
+            
+            
+class DummySpecie(Specie):
+    def __init__(self, oxi_state = 0, symbol = 'X'):
+        self._data = {}
+        #Store key variables for quick access
+        self._z = 0
+        self._symbol = symbol
+        if Element.is_valid_symbol(symbol):
+            raise ValueError(symbol + ' is already taken. Choose a different dummy symbol')
+        self._x = 0
+        self._oxi_state = oxi_state
+        
+    def __getattribute__(self, name):
+        try:
+            return super(DummySpecie, self).__getattribute__(name)
+        except(KeyError, AttributeError):
+            raise ValueError('DummySpecie has no data for ' + str(name))
+        
+    def __deepcopy__(self, memo):
+        x = DummySpecie(self._oxi_state, symbol = self._symbol)
+        for y,z in self._data.items():
+            x.set_attribute(y,z)
+        return x
+    
+    def set_attribute(self, attribute, value):
+        '''
+        method to add data to dummy specie. Get formatting from periodic_table.json
+        '''
+        self._data[attribute] = value
+        if attribute == 'X':
+            self._x = value
+            
+    @staticmethod
+    def from_string(species_string):
+        """
+        Returns a Dummy from a string representation. 
+        
+        Args:
+            species_string: 
+                A string representation of a dummy species, e.g., "X2+", "X3+"
+                
+        Returns:
+            A DummySpecie object.
+            
+        Raises:
+            ValueError if species_string cannot be intepreted.
+        """
+        if species_string == 'X':
+            return DummySpecie()
+        
+        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
+        
+        if m:
+            num = 1 if m.group(2) == "" else float(m.group(2))
+            if m.group(1) == 'X':
+                return DummySpecie(num if m.group(3) == "+" else - num)
+        
+        raise ValueError("Invalid Species String")
+    
+        
 def smart_element_or_specie(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn).
+    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn),
+        failing which DummyElement parsing will be attempted
     
     Args:
         obj:
@@ -640,13 +701,16 @@ def smart_element_or_specie(obj):
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    if isinstance(obj,(Element, Specie)):
+    if isinstance(obj,(Element, Specie, DummySpecie)):
         return obj
     elif isinstance(obj,int):
         return Element.from_Z(obj)
     elif isinstance(obj,basestring):
         try:
             return Specie.from_string(obj)
-        except ValueError:
-            return Element(obj)
+        except (ValueError, KeyError):
+            try:
+                return Element(obj)
+            except (ValueError, KeyError):
+                return DummySpecie.from_string(obj)
     raise ValueError("Can't parse Element or String from "+ str(obj))
