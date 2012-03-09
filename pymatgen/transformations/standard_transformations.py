@@ -164,17 +164,23 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         Arguments:
             species_map - a dict containing the species mapping in string-string pairs. E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
+            the replacement specie can also be a dict of sp and occupancy, eg { "Li": {"Na": .5, "Mg": .5} }. Note that this gives a disordered structure as an output
         """
         self._species_map = species_map
     
     def apply_transformation(self, structure):
-        species_map = {smart_element_or_specie(k): smart_element_or_specie(v) for k, v in self._species_map.items()}
+        species_map = {}
+        for k, v in self._species_map.items():
+            try:
+                species_map[smart_element_or_specie(k)] = smart_element_or_specie(v)
+            except:
+                species_map[smart_element_or_specie(k)] = {smart_element_or_specie(x): y for x, y in v.items()}
         editor = StructureEditor(structure)
         editor.replace_species(species_map)
         return editor.modified_structure
     
     def __str__(self):
-        return "Substitution Transformation :" + ", ".join([k+"->"+v for k, v in self._species_map.items()])
+        return "Substitution Transformation :" + ", ".join([k+"->"+str(v) for k, v in self._species_map.items()])
     
     def __repr__(self):
         return self.__str__()
