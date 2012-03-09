@@ -73,6 +73,19 @@ class SubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice,["Li+", "Li+", "O2-", "O2-"],coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 S2")
+        
+    def test_apply_transformation_dict(self):
+        t = SubstitutionTransformation({"Li+":{"Na+":0.5, "K+":0.5}, "O2-":"S2-"})
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li+", "Li+", "O2-", "O2-"],coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(s.composition.formula, "K1 Na1 S2")
+        
 
 class SupercellTransformationTest(unittest.TestCase):
     
