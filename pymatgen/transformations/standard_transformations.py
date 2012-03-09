@@ -267,7 +267,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         mod.delete_sites(lowestenergy_indices)
         return mod.modified_structure.get_sorted_structure()
     
-    def apply_transformation(self, structure, complete = False):
+    def apply_transformation(self, structure):
         sp = smart_element_or_specie(self._specie)
         num_to_remove = structure.composition[sp] * self._frac
         if abs(num_to_remove - int(num_to_remove)) > 1e-8:
@@ -322,10 +322,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self):
+    def __init__(self, num_structures = 1):
         self._all_structures = []
+        self._num_structures = num_structures
     
-    def apply_transformation(self, structure, num_structures = 1):
+    def apply_transformation(self, structure):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -404,7 +405,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         
         matrix = EwaldSummation(structure).total_energy_matrix
         
-        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
+        ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
         
         self._all_structures = []
         
