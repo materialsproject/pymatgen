@@ -15,8 +15,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 8, 2012"
 
-import re
-
 from pymatgen.core.structure import Structure
 
 try:
@@ -25,15 +23,10 @@ try:
 except ImportError:
     ase_loaded = False
 
-try:
-    from pyspglib import spglib
-    spglib_loaded = True
-except:
-    spglib_loaded = False
-    
+
 class AseAtomsAdaptor(object):
     '''
-    classdocs
+    Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
     '''
     
     @staticmethod
@@ -57,21 +50,4 @@ class AseAtomsAdaptor(object):
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
         return Structure(lattice, symbols, positions, coords_are_cartesian = True)
-
-class SpglibAdaptor(object):
     
-    def __init__(self, structure, symprec = 1e-5):
-        self._symprec = symprec
-        self._atoms = AseAtomsAdaptor.get_atoms(structure)
-        self._spacegroup = spglib.get_spacegroup(self._atoms, symprec = self._symprec)
-        
-    def get_spacegroup(self):
-        return self._spacegroup
-
-    def get_spacegroup_symbol(self):
-        return re.split("\s+", self._spacegroup)[0]
-
-    def get_spacegroup_number(self):
-        sgnum = re.split("\s+", self._spacegroup)[1]
-        sgnum = int(re.sub("\D", "", sgnum))
-        return sgnum
