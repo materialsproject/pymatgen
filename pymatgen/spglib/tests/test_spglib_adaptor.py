@@ -16,6 +16,8 @@ __date__ = "Mar 9, 2012"
 import unittest
 import os
 
+import numpy as np
+
 from pymatgen.io.vaspio import Poscar
 from pymatgen.spglib.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
@@ -26,6 +28,7 @@ class SymmetryFinderTest(unittest.TestCase):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        self.structure = p.struct
         self.sg = SymmetryFinder(p.struct, 0.1)
         
     def test_get_space_group(self):
@@ -42,9 +45,8 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertEqual(ds['international'], 'Pnma')
         
     def test_get_symmetry(self):
-        symm = self.sg.get_symmetry()
-        self.assertEqual(len(symm['translations']), 8)
-        self.assertEqual(len(symm['rotations']), 8)
+        symmops = self.sg.get_symmetry_operations()
+        self.assertEqual(len(symmops), 8)
         
     def test_refine_cell(self):
         for a in self.sg.refine_cell().lattice.angles:
@@ -64,8 +66,9 @@ class HelperFunctionsTest(unittest.TestCase):
         self.sg = SymmetryFinder(p.struct, 0.1)
         
     def test_get_pointgroup(self):
-        symm = self.sg.get_symmetry()
-        self.assertEqual(get_pointgroup(symm['rotations'])[0].strip(), "mmm")
+        symmops = self.sg.get_symmetry_operations()
+        pg = get_pointgroup(np.array([op.rotation_matrix for op in symmops]))
+        self.assertEqual(pg[0].strip(), "mmm")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

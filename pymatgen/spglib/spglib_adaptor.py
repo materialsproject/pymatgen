@@ -19,6 +19,7 @@ import numpy as np
 
 
 from pymatgen.core.structure import Structure
+from pymatgen.core.operations import SymmOp
 
 try:
     import pyspglib._spglib as spg
@@ -126,9 +127,18 @@ class SymmetryFinder(object):
       
         num_sym = spg.symmetry(rotation, translation, self._lattice,
                                    self._positions, self._numbers, self._symprec)
-              
-        return {'rotations': rotation[:num_sym],
-                'translations': translation[:num_sym]}
+        
+        return (rotation[:num_sym], translation[:num_sym])
+    
+    def get_symmetry_operations(self):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        """
+        (rotation, translation) = self.get_symmetry()
+        symmops = []
+        for i in xrange(len(rotation)):
+            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rotation[i], translation[i]))
+        return symmops
         
     def refine_cell(self):
         """
@@ -207,7 +217,8 @@ def get_pointgroup(rotations):
     31  "-43m "
     32  "m-3m "
     """
-
+    if rotations.dtype == 'float64':
+        rotations = np.int_(rotations)
     # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
 
