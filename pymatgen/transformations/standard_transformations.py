@@ -170,18 +170,13 @@ class SubstitutionTransformation(AbstractTransformation):
         self._species_map = species_map
     
     def apply_transformation(self, structure):
-        species_map = {}
-        for k, v in self._species_map.items():
-            try:
-                species_map[smart_element_or_specie(k)] = smart_element_or_specie(v)
-            except:
-                species_map[smart_element_or_specie(k)] = {smart_element_or_specie(x): y for x, y in v.items()}
+        species_map = {smart_element_or_specie(k): smart_element_or_specie(v) for k, v in self._species_map.items()}
         editor = StructureEditor(structure)
         editor.replace_species(species_map)
         return editor.modified_structure
     
     def __str__(self):
-        return "Substitution Transformation :" + ", ".join([k+"->"+str(v) for k, v in self._species_map.items()])
+        return "Substitution Transformation :" + ", ".join([k+"->"+v for k, v in self._species_map.items()])
     
     def __repr__(self):
         return self.__str__()
@@ -233,7 +228,9 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         
 class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
-    Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
+    Remove fraction of specie from a structure. 
+    Requires an oxidation state decorated structure for ewald sum to be 
+    computed.
     """
     def __init__(self, specie_to_remove, fraction_to_remove, complete_ranking = False):
         """
@@ -242,6 +239,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 Specie to remove. Must have oxidation state E.g., "Li1+"
             fraction_to_remove:
                 Fraction of specie to remove. E.g., 0.5
+            complete_ranking:
+                Whether to use the slow algorithm to enumerate all possible
+                symmetrically distinct structures for energies. This populates
+                the all_structures attribute, which provides access to all 
+                structures.
         """
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
@@ -251,15 +253,36 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         lowestewald = float('inf')
         opt_s = None
         all_structures = list()
+        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+        symprec = 0.1
+        s = SymmetryFinder(structure, symprec = symprec)
+        sg = s.get_spacegroup()
+        tested_sites = []
+        ewald_matrix = EwaldSummation(structure).total_energy_matrix
         for indices in itertools.combinations(specie_indices, num_to_remove):
-            mod = StructureEditor(structure)
-            mod.delete_sites(indices)
-            s_new = mod.modified_structure.get_sorted_structure()
-            all_structures.append(s_new)
-            ewaldsum = EwaldSummation(s_new)
-            if ewaldsum.total_energy < lowestewald:
-                lowestewald = ewaldsum.total_energy
-                opt_s = s_new
+            sites_to_remove = [structure[i] for i in indices]
+            already_tested = False
+            for tsites in tested_sites:
+                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec = symprec):
+                    already_tested = True
+            if not already_tested:
+                tested_sites.append(sites_to_remove)
+                mod = StructureEditor(structure)
+                mod.delete_sites(indices)
+                s_new = mod.modified_structure.get_sorted_structure()
+                all_structures.append(s_new)
+                ewaldsum = EwaldSummation(s_new)
+                print ewaldsum.total_energy
+                newmat = ewald_matrix.copy()
+                for i in indices:
+                    newmat[i,:] = 0
+                    newmat[:,i] = 0
+                energy = sum(sum(newmat))
+                print energy
+                if energy < lowestewald:
+                    lowestewald = energy
+                    opt_s = s_new
+        
         return (opt_s, all_structures)
     
     def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
@@ -721,3 +744,18 @@ def transformation_from_json(json_string):
     """
     jsonobj = json.loads(json_string)
     return transformation_from_dict(jsonobj)
+
+import os
+from pymatgen.io.vaspio import Poscar
+p = Poscar.from_file(os.path.join('tests', 'POSCAR.LiFePO4'))
+t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+s = t1.apply_transformation(p.struct)
+
+def test():
+    t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
+    t.apply_transformation(s)
+    
+if __name__ == "__main__":
+    from timeit import Timer
+    t = Timer("test()", "from __main__ import test")
+    print t.timeit(1)
