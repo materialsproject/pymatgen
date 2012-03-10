@@ -41,6 +41,7 @@ class Element(object):
     def __init__(self, symbol):
         '''
         Create immutable element from a symbol.
+        
         Args:
             symbol:
                 Element symbol, e.g., "H", "Fe"
@@ -170,7 +171,8 @@ class Element(object):
 
     @property
     def electronic_structure(self):
-        """Electronic structure. Simplified form with HTML formatting.
+        """
+        Electronic structure. Simplified form with HTML formatting.
         E.g., The electronic structure for Fe is represented as [Ar].3d<sup>6</sup>.4s<sup>2</sup>
         """
         return self._data['Electronic structure']
@@ -322,7 +324,8 @@ class Element(object):
 
     @staticmethod
     def is_valid_symbol(symbol):
-        """Returns true if symbol is a valid element symbol.
+        """
+        Returns true if symbol is a valid element symbol.
         
         Args:
             symbol:

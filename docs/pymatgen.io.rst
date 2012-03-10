@@ -62,5 +62,4 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.io.tests
 

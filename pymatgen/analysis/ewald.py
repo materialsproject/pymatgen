@@ -36,10 +36,12 @@ def compute_average_oxidation_state(site):
     """
     return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
 
-def minimize_matrix( matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #current minimum works like a global variable since it is a list
-    '''minimize a matrix by removing a specific number of rows and columns (if row 4 is removed, column 4 must also be removed)
+def minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #current minimum works like a global variable since it is a list
+    '''
+    Minimize a matrix by removing a specific number of rows and columns (if row 4 is removed, column 4 must also be removed)
     This method looks for short circuits to a brute force search by looking at best and worse case scenarios (which can be computed quickly)
-    It is about 1000 times faster than brute force'''
+    It is about 1000 times faster than brute force.
+    '''
     
     if not CURRENT_MINIMUM:
         CURRENT_MINIMUM = [float('inf')]
@@ -147,17 +149,22 @@ class EwaldSummation:
         specified, but you can override them if you wish.
         
         Args:
-            structure: input structure that must have proper Specie on all sites, i.e.
-                       Element with oxidation state. Use OxidationStateDecorator in 
-                       pymatgen.core.structure_modifier for example.
-            real_space_cut: Real space cutoff radius dictating how many terms are used in the 
-                            real space sum. negative means determine automagically using the
-                            formula given in gulp 3.1 documentation.
-            recip_space_cut: Reciprocal space cutoff radius. negative means determine automagically using
-                             formula given in gulp 3.1 documentation.
-            eta: The screening parameter. negative means determine automatically.
-                 calculate_forces: Set to true if forces are desired
-            acc_factor: No. of significant figures each sum is converged to. See the gulp manual. 
+            structure: 
+                input structure that must have proper Specie on all sites, i.e.
+                Element with oxidation state. Use OxidationStateDecorator in 
+                pymatgen.core.structure_modifier for example.
+            real_space_cut: 
+                Real space cutoff radius dictating how many terms are used in the 
+                real space sum. negative means determine automagically using the
+                formula given in gulp 3.1 documentation.
+            recip_space_cut: 
+                Reciprocal space cutoff radius. negative means determine automagically using
+                formula given in gulp 3.1 documentation.
+            eta: 
+                The screening parameter. negative means determine automatically.
+                calculate_forces: Set to true if forces are desired
+            acc_factor: 
+                No. of significant figures each sum is converged to. See the gulp manual. 
         """
         self._s = structure
         self._vol = structure.volume
@@ -272,14 +279,9 @@ class EwaldSummation:
 
     def _calc_real_and_point(self):
         """
-         * determines the self energy
-         * 
-         * -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
-         * 
-         * if cell is charged a compensating background is added (i.e. a G=0 term)
-         *  
-         * @return
-         */
+        Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
+        
+        If cell is charged a compensating background is added (i.e. a G=0 term)
         """
         
         all_nn = self._s.get_all_neighbors(self._rmax, True)
@@ -319,26 +321,31 @@ class EwaldSummation:
         return "\n".join(output)
     
 class EwaldMinimizer:
-    '''This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
+    '''
+    This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
     This class does not perform the manipulations on a structure, but will return the list of manipulations that should be
     done on one to produce the minimal structure. It returns the manipulations for the n lowest energy orderings. This
     class should be used to perform fractional species substitution or fractional species removal to produce a new structure.
     These manipulations create large numbers of candidate structures, and this class can be used to pick out those with the lowest ewald sum.
     An alternative (possibly more intuitive) interface to this class is the order disordered structure transformation.
     
-    Author: Will Richards'''
+    Author - Will Richards
+    '''
     
     def __init__(self, matrix, m_list, num_to_return = 1, fast = True):
-        '''arguments:
-        matrix      a matrix of the ewald sum interaction energies. This is stored in the class as a diagonally symmetric array
-                    and so self._matrix will not be the same as the input matrix
-        m_list      list of manipulations
-                    each item is of the form (multiplication fraction, number_of_indices, indices, species)
-                    These are sorted such that the first manipulation contains the most permutations. this is actually
-                    evaluated last in the recursion since I'm using pop
-        num_to_return the minimizer will find the number_returned lowest energy structures. This is likely to return a number of
-                    duplicate structures so it may be necessary to overestimate and then remove the duplicates later. (duplicate checking
-                    in this process is extremely expensive)
+        '''
+        Args:
+            matrix:      
+                a matrix of the ewald sum interaction energies. This is stored in the class as a diagonally symmetric array
+                and so self._matrix will not be the same as the input matrix
+            m_list:
+                list of manipulations. each item is of the form (multiplication fraction, number_of_indices, indices, species)
+                These are sorted such that the first manipulation contains the most permutations. this is actually
+                evaluated last in the recursion since I'm using pop
+            num_to_return: 
+                The minimizer will find the number_returned lowest energy structures. This is likely to return a number of
+                duplicate structures so it may be necessary to overestimate and then remove the duplicates later. (duplicate checking
+                in this process is extremely expensive)
         '''
         self._matrix = copy(matrix)
         for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -366,7 +373,7 @@ class EwaldMinimizer:
         
     def add_m_list(self, matrix_sum, m_list):
         '''
-        this adds an m_list to the output_lists and updates the current minimum if the list is full.
+        This adds an m_list to the output_lists and updates the current minimum if the list is full.
         '''
         if self._output_lists is None:
             self._output_lists = [[matrix_sum, m_list]]
@@ -380,14 +387,17 @@ class EwaldMinimizer:
         
     def best_case(self, matrix, manipulation, indices_left):
         '''
-        computes a best case given a matrix and manipulation list. This is only used for when there is only one manipulation left
+        Computes a best case given a matrix and manipulation list. This is only used for when there is only one manipulation left
         calculating a best case when there are multiple fractions remaining is much more complex (as sorting and dot products have to be done
         on each row and it just generally scales pretty badly.
         
-        arguments:
-        matrix: the current matrix (with some permutations already performed
-        manipulation: (multiplication fraction, number_of_indices, indices, species) describing the manipulation
-        indices: set of indices which haven't had a permutation performed on them 
+        Args:
+            matrix: 
+                the current matrix (with some permutations already performed
+            manipulation: 
+                (multiplication fraction, number_of_indices, indices, species) describing the manipulation
+            indices: 
+                set of indices which haven't had a permutation performed on them 
         '''
         indices = list(indices_left.intersection(manipulation[2])) #only look at the indices that are in the manipulation and haven't been used
         fraction = manipulation[0]
@@ -395,8 +405,7 @@ class EwaldMinimizer:
         
         sums = [2*sum(matrix[i,:])-(1-fraction)*matrix[i,i] for i in indices]   #compute the sum of each row. the weird prefactor on the self 
                                                                                 #interaction term is to make the math work out because it actually 
-                                                                                #is multiplied by f**2vrather than f like all the other terms
-        
+                                                                                #is multiplied by f**2vrather than f like all the other te
         if fraction < 1:    #we want do the thing that we guess will be most minimizing (to get to a lower current minimum faster). Whether 
                             #we want to use the most positive or negative row depends on whether we're increasing or decreasing that row
             next_index = indices[sums.index(max(sums))]
@@ -432,18 +441,21 @@ class EwaldMinimizer:
 
     def _recurse(self, matrix, m_list, indices, fast, output_m_list = []):
         '''
-        this method recursively finds the minimal permutations using a binary tree search strategy
-        arguments:
-        matrix: the current matrix (with some permutations already performed
-        m_list: the list of permutations still to be performed
-        indices: set of indices which haven't had a permutation performed on them
-        fast: boolean indicating whether shortcuts by looking at the best case are to be used, the default is true
+        This method recursively finds the minimal permutations using a binary tree search strategy
         
-
-        returns:
+        Args:
+            matrix: 
+                The current matrix (with some permutations already performed
+            m_list: 
+                The list of permutations still to be performed
+            indices: 
+                Set of indices which haven't had a permutation performed on them
+            fast: 
+                boolean indicating whether shortcuts by looking at the best case are to be used, the default is true
         
-        [minimal value, [list of replacements]]
-        each replacement is a list [index of replaced specie, specie inserted at that index]
+        Returns:
+            [minimal value, [list of replacements]]
+                Each replacement is a list [index of replaced specie, specie inserted at that index]
         '''
         
         if m_list[-1][1] == 0:
@@ -493,7 +505,7 @@ class EwaldMinimizer:
         
     def minimize_matrix(self, fast = True):
         '''
-        this method finds and returns the permutations that produce the lowest ewald sum
+        This method finds and returns the permutations that produce the lowest ewald sum
         calls recursive function to iterate through permutations
         '''
         
@@ -511,7 +523,3 @@ class EwaldMinimizer:
     def output_lists(self):
         return self._output_lists
         
-    
-    
-    
-   

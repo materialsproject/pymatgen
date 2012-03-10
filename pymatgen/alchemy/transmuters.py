@@ -42,6 +42,8 @@ class CifTransmuter(object):
         
     def transmute(self, cif_filenames):
         """
+        Transmute a list of cifs defined by cif_filenames.
+        
         Args:
             cif_filenames:
                 Sequence of cif filenames. Each cif may or may not contain multiple 
@@ -76,6 +78,8 @@ class PoscarTransmuter(object):
         
     def transmute(self, poscar_filenames):
         """
+        Transmute a list of poscars defined by poscars_filenames.
+        
         Args:
             poscar_filenames:
                 Sequence of poscar filenames.
