@@ -20,7 +20,7 @@ Subpackages
     pymatgen.core
     pymatgen.io
     pymatgen.phasediagram
-    pymatgen.spglib
+    pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util
     pymatgen.vis
