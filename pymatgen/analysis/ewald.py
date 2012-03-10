@@ -196,19 +196,18 @@ class EwaldSummation:
     def compute_partial_energy(self, removed_indices):
         """
         Gives total ewald energy for certain sites being removed, i.e. zeroed
-        out. Provides a quick way to recompute the energy without performing the
-        very expensive reciprocal space computation again.
+        out. 
         """
-        zeroed_sites = []
         recp = self._recip.copy()
-        oxi_states = [compute_average_oxidation_state(site) for site in self._s]
+        real = self._real.copy()
+        point = self._point.copy()
         for i in removed_indices:
-            oxi_states[i] = 0
-            zeroed_sites.append(self._s[i])
             recp[i, :] = 0
             recp[:, i] = 0
-        
-        (real, point, forces) = self._calc_real_and_point(oxi_states, zeroed_sites)
+            real[i, :] = 0
+            real[:, i] = 0
+            point[i] = 0
+            
         return sum(sum(real)) + sum(point) + sum(sum(recp))
         
     @property
