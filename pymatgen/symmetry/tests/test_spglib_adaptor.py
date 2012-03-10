@@ -32,9 +32,6 @@ class SymmetryFinderTest(unittest.TestCase):
         self.structure = p.struct
         self.sg = SymmetryFinder(self.structure, 0.1)
         
-    def test_get_space_group(self):
-        self.assertEqual(self.sg.get_spacegroup(), "Pnma       (62)")
-
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
     

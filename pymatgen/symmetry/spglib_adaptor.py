@@ -50,6 +50,7 @@ class SymmetryFinder(object):
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
         self._numbers = np.array([site.specie.Z for site in structure])
+        self._spacegroup_data = spg.spacegroup(self._lattice, self._positions, self._numbers, self._symprec)
         
     def get_spacegroup(self):
         """
@@ -57,13 +58,13 @@ class SymmetryFinder(object):
         as a string.
         """
         # Atomic positions have to be specified by scaled positions for spglib.    
-        return spg.spacegroup(self._lattice, self._positions, self._numbers, self._symprec)
+        return Spacegroup(self.get_spacegroup_symbol(), self.get_spacegroup_number(), self.get_symmetry_operations())
     
     def get_spacegroup_symbol(self):
-        return re.split("\s+", self.get_spacegroup())[0]
+        return re.split("\s+", self._spacegroup_data)[0]
     
     def get_spacegroup_number(self):
-        sgnum = re.split("\s+", self.get_spacegroup())[1]
+        sgnum = re.split("\s+", self._spacegroup_data)[1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
