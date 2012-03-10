@@ -258,7 +258,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         s = SymmetryFinder(structure, symprec = symprec)
         sg = s.get_spacegroup()
         tested_sites = []
-        ewald_matrix = EwaldSummation(structure).total_energy_matrix
+        ewaldsum = EwaldSummation(structure)
         for indices in itertools.combinations(specie_indices, num_to_remove):
             sites_to_remove = [structure[i] for i in indices]
             already_tested = False
@@ -269,16 +269,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 tested_sites.append(sites_to_remove)
                 mod = StructureEditor(structure)
                 mod.delete_sites(indices)
-                s_new = mod.modified_structure.get_sorted_structure()
+                s_new = mod.modified_structure
                 all_structures.append(s_new)
-                ewaldsum = EwaldSummation(s_new)
-                print ewaldsum.total_energy
-                newmat = ewald_matrix.copy()
-                for i in indices:
-                    newmat[i,:] = 0
-                    newmat[:,i] = 0
-                energy = sum(sum(newmat))
-                print energy
+                energy = ewaldsum.compute_partial_energy(indices)
                 if energy < lowestewald:
                     lowestewald = energy
                     opt_s = s_new
@@ -744,18 +737,3 @@ def transformation_from_json(json_string):
     """
     jsonobj = json.loads(json_string)
     return transformation_from_dict(jsonobj)
-
-import os
-from pymatgen.io.vaspio import Poscar
-p = Poscar.from_file(os.path.join('tests', 'POSCAR.LiFePO4'))
-t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-s = t1.apply_transformation(p.struct)
-
-def test():
-    t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
-    t.apply_transformation(s)
-    
-if __name__ == "__main__":
-    from timeit import Timer
-    t = Timer("test()", "from __main__ import test")
-    print t.timeit(1)
