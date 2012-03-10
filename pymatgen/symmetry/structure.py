@@ -37,11 +37,19 @@ class SymmetrizedStructure(Structure):
     def equivalent_sites(self):
         return self._equivalent_sites
      
-    def get_equivalent_sites(self, site):
-        if site not in self:
-            raise ValueError("Site not in structure")
+    def find_equivalent_sites(self, site):
+        """
+        Finds all symmetrically equivalent sites for a particular site
         
+        Args:
+            site:
+                A site in the structure
+                
+        Returns:
+            A list of all symmetrically equivalent sites.
+        """
         for sites in self.equivalent_sites:
             if site in sites:
                 return sites
             
+        raise ValueError("Site not in structure")

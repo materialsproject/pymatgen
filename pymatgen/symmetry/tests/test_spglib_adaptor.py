@@ -73,7 +73,6 @@ class SymmetryFinderTest(unittest.TestCase):
             self.assertEqual(a, 90)
         self.assertEqual(len(symm_struct.equivalent_sites), 6)
         
-        
     def test_get_primitive(self):
         #Pnma spacegroup has no primitive cell
         self.assertIsNone(self.sg.find_primitive())

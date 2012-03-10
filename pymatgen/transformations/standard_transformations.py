@@ -336,7 +336,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
         However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
-        Arguments:
+        
+        Args:
             structure:
                 Oxidation state decorated disordered structure to order
             max_iterations:
