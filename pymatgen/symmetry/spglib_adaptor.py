@@ -15,6 +15,7 @@ __date__ = "Mar 9, 2012"
 
 import re
 
+
 import numpy as np
 
 
@@ -47,7 +48,7 @@ class SymmetryFinder(object):
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
         self._numbers = np.array([site.specie.Z for site in structure])
-
+        
     def get_spacegroup(self):
         """
         Return space group in international table symbol and number
@@ -131,20 +132,22 @@ class SymmetryFinder(object):
                                    self._positions, self._numbers, self._symprec)
         return (rotation[:num_sym], translation[:num_sym])
     
-    def get_symmetry_operations(self):
+    def get_symmetry_operations(self, cartesian = False):
         """
         Return symmetry operations as a list of SymmOp objects.
+        By default returns fractional coord symmops.
+        But cartesian can be returned too.
         """
         (rotation, translation) = self.get_symmetry()
         symmops = []
-        for i in xrange(len(rotation)):
-            # pymatgen's SymmOp uses cartesian coords. Need to translate spglib's
-            # fractional coordinates operations to cartesian.
-            convertedrot = np.dot(self._structure.lattice.md2c, np.dot(rotation[i], self._structure.lattice.mc2d))
-            convertedtrans = np.dot(self._structure.lattice.md2c, translation[i]) 
-            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(convertedrot, convertedtrans))
+        for rot, trans in zip(rotation, translation):
+            if cartesian:
+                rot = np.dot(self._structure.lattice.md2c, np.dot(rot, self._structure.lattice.mc2d))
+                trans = np.dot(self._structure.lattice.md2c, trans) 
+            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rot, trans))
         return symmops
-        
+    
+      
     def refine_cell(self):
         """
         Return refined Structure
