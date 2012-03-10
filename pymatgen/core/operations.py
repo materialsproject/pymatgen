@@ -150,7 +150,7 @@ class SymmOp (object):
         return SymmOp(invr)
 
     @staticmethod
-    def from_axis_angle_and_translation(axis, angle, angle_in_radians = False, translation_vec = np.zeros(3)):
+    def from_axis_angle_and_translation(axis, angle, angle_in_radians = False, translation_vec = (0, 0, 0)):
         """
         Generates a SymmOp for a rotation about a given axis plus a translation.
         
@@ -163,6 +163,8 @@ class SymmOp (object):
         """
         if isinstance(axis, (tuple, list)):
             axis = np.array(axis)
+        if isinstance(translation_vec, (tuple, list)):
+            translation_vec = np.array(translation_vec)
         a = angle if angle_in_radians else angle * pi / 180
         cosa = cos(a)
         sina = sin(a) 

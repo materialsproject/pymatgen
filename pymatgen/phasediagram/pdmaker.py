@@ -30,10 +30,13 @@ class PhaseDiagram (object):
     def __init__(self, entries, elements = None, use_external_qhull= False):
         """
         Standard constructor for phase diagram.
-        Arguments:
-            entries - a list of PDEntry-like objects having an energy, energy_per_atom and composition.
-            elements - Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                       the entries themselves.
+        
+        Args:
+            entries:
+                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+            elements:
+                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
+                the entries themselves.
         """
         if elements == None:
             elements = set()
@@ -118,10 +121,13 @@ class PhaseDiagram (object):
         '''
         Returns the formation energy for an entry (NOT normalized) from the
         elemental references.
-        Arguments:
-            entry - A PDEntry
+        
+        Args:
+            entry:
+                A PDEntry
+        
         Returns:
-            formation energy from the elementals references.
+            Formation energy from the elementals references.
         '''
         comp = entry.composition
         energy = entry.energy - sum([comp[el]*self._el_refs[el].energy_per_atom for el in comp.elements])
@@ -223,11 +229,15 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
     def __init__(self, entries, chempots, elements, use_external_qhull = False):
         """
         Standard constructor for phase diagram.
-        Arguments:
-            entries - a list of PDEntry-like objects having an energy, energy_per_atom and composition.
-            chempots - a dict of {element: float} to specify the chemical potentials of the open elements.
-            elements - Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                       the entries themselves.
+        
+        Args:
+            entries:
+                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+            chempots:
+                A dict of {element: float} to specify the chemical potentials of the open elements.
+            elements:
+                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
+                the entries themselves.
         """
         allentries = list()
         for entry in entries:

@@ -290,7 +290,9 @@ class PeriodicSite(Site):
     
     @property
     def to_unit_cell(self):
-        """Copy of PeriodicSite translated to the unit cell."""
+        """
+        Copy of PeriodicSite translated to the unit cell.
+        """
         fcoords = [i - math.floor(i) for i in self._fcoords]
         return PeriodicSite(self._species, fcoords, self._lattice)
     
@@ -406,7 +408,7 @@ class PeriodicSite(Site):
         """
         Get distance between two sites assuming periodic boundary conditions.
         
-        Arguments:
+        Args:
             other:
                 other site to get distance from.
             jimage:   
@@ -666,10 +668,9 @@ class Structure(collections.Sequence, collections.Hashable):
         The return type is a [(site, dist) ...] since most of the time, subsequent 
         processing requires the distance.
         
-        Arguments:
+        Args:
             r:
-                radius of sphere.
-            
+                radius of sphere. 
             include_index:
                 boolean that determines whether the non-supercell site index is included in the returned data
         
@@ -1270,12 +1271,14 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
         Takes in a formula where capitilization might not be correctly entered, and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
-        Arguments:
+        
+        Args:
             fuzzy_formula:
                 A formula string, such as 'co2o3' or 'MN', that may or may not have multiple interpretations
             lock_if_strict:
                 If true, a properly entered formula will only return the one correct interpretation. For example,
                 'Co1' will only return 'Co1' if true, but will return both 'Co1' and 'C1 O1' if false.
+        
         Returns:
             A ranked list of potential Composition matches
         '''

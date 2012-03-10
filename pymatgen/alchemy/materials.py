@@ -127,10 +127,11 @@ class TransformedStructure(object):
     
     def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True):
         """
+        Writes VASP input.
+        
         Args:
             vasp_input_set:
-                pymatgen.io.vaspio_set.VaspInputSet like object that creates
-                vasp input files from structures
+                pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from structures
             output_dir:
                 Directory to output files
             create_directory:
