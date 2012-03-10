@@ -22,5 +22,4 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.alchemy.tests
 

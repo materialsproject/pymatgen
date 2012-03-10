@@ -66,7 +66,9 @@ class SymmetryFinder(object):
 
     def get_symmetry_dataset(self):
         """
-        Returns a dict with the following:
+        Returns the symmetry dataset as a dict.
+        
+        Returns:
             number: 
                 International space group number
             international: 

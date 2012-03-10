@@ -1020,6 +1020,7 @@ class Vasprun(object):
     def eigenvalue_band_properties(self):
         """
         Returns band properties from the eigenvalues.
+        
         Returns:
             (band gap, cbm, vbm, is_band_gap_direct)
         """
