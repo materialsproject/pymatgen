@@ -20,7 +20,7 @@ import numpy as np
 
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
-from pymatgen.spglib.spglib_adaptor import SymmetryFinder, get_pointgroup
+from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.operations import SymmOp
 
@@ -31,7 +31,7 @@ class SymmetryFinderTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
         self.structure = p.struct
-        self.sg = SymmetryFinder(p.struct, 0.1)
+        self.sg = SymmetryFinder(self.structure, 0.1)
         
     def test_get_space_group(self):
         self.assertEqual(self.sg.get_spacegroup(), "Pnma       (62)")
@@ -44,16 +44,15 @@ class SymmetryFinderTest(unittest.TestCase):
         
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
+        print ds
         self.assertEqual(ds['international'], 'Pnma')
         
     def test_get_symmetry_operations(self):
-        (rots, trans) = self.sg.get_symmetry()
-        symmops = self.sg.get_symmetry_operations()
+        fracsymmops = self.sg.get_symmetry_operations()
+        symmops = self.sg.get_symmetry_operations(True)
         self.assertEqual(len(symmops), 8)
         latt = self.structure.lattice
-        for i in xrange(len(rots)):
-            fop = SymmOp.from_rotation_matrix_and_translation_vector(rots[i], trans[i])
-            op = symmops[i]
+        for fop, op in zip(fracsymmops, symmops):
             for site in self.structure:
                 newfrac = fop.operate(site.frac_coords)
                 newcart = op.operate(site.coords)
@@ -65,7 +64,6 @@ class SymmetryFinderTest(unittest.TestCase):
                         found = True
                         break
                 self.assertTrue(found)
-                    
                     
     def test_refine_cell(self):
         for a in self.sg.refine_cell().lattice.angles:
