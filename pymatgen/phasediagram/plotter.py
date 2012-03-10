@@ -24,8 +24,9 @@ class PDPlotter(object):
 
     def __init__(self, phasediagram):
         """
-        Arguments:
-            phasediagram - a PhaseDiagram object.
+        Args:
+            phasediagram:
+                A PhaseDiagram object.
         """
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
@@ -39,6 +40,7 @@ class PDPlotter(object):
         Plot data for phase diagram.
         2-comp - Full hull with energies
         3/4-comp - Projection into 2D or 3D gibbs triangle.
+        
         Returns:
             (lines, stable_entries, unstable_entries) 
                 - lines is a list of list of coordinates for lines in the PD. 
@@ -188,9 +190,12 @@ class PDPlotter(object):
     def write_image(self, stream, image_format = "svg"):
         '''
         Writes the phase diagram to an image in a stream.
-        Arguments:
-            stream - stream to write to. Can be a file stream or a StringIO stream.
-            image_format - format for image. CAn be any of matplotlib supported formats. Defaults to svg for best results for vector graphics.
+        
+        Args:
+            stream:
+                stream to write to. Can be a file stream or a StringIO stream.
+            image_format
+                format for image. Can be any of matplotlib supported formats. Defaults to svg for best results for vector graphics.
         '''
         (lines, labels, unstable) = self.pd_plot_data
         dim = len(self._pd.elements)
@@ -273,10 +278,14 @@ class PDPlotter(object):
 def uniquelines(q):
     '''
     Given all the facets, convert it into a set of unique lines.  Specifically used for converting convex hull facets into line pairs of coordinates.
-    Arguments:
-        q - a 2-dim sequence, where each row represents a facet. E.g., [[1,2,3],[3,6,7],...]
+    
+    Args:
+        q:
+            A 2-dim sequence, where each row represents a facet. E.g., [[1,2,3],[3,6,7],...]
+    
     Returns:
-        setoflines - a set of tuple of lines.  E.g., {(1,2), (1,3), (2,3), ....}
+        setoflines:
+            A set of tuple of lines.  E.g., {(1,2), (1,3), (2,3), ....}
     '''
     setoflines = set()
     for facets in q:
@@ -289,8 +298,11 @@ def triangular_coord(coord):
     '''
     Convert a two component coordinate into a triangle based coordinate system
     for a prettier phase diagram.
-    Arguments:
-        coordinate - coordinate used in the convex hull computation.
+    
+    Args:
+        coordinate:
+            coordinate used in the convex hull computation.
+    
     Returns:
         coordinates in a triangular-based coordinate system. 
     '''
@@ -302,8 +314,11 @@ def tet_coord(coord):
     '''
     Convert a four component coordinate into a tetrahedron based coordinate system
     for a prettier phase diagram.
-    Arguments:
-        coordinate - coordinate used in the convex hull computation.
+    
+    Args:
+        coordinate:
+            coordinate used in the convex hull computation.
+    
     Returns:
         coordinates in a tetrahedron-based coordinate system. 
     '''

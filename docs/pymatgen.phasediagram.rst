@@ -46,5 +46,4 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.phasediagram.tests
 

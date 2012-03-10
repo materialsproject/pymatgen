@@ -14,5 +14,4 @@ Subpackages
 
 .. toctree::
 
-    pymatgen.spglib.tests
 

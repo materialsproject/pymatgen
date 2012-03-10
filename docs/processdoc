@@ -1,5 +1,10 @@
 #!/bin/bash
 
 sphinx-apidoc -o . -f ../pymatgen
-rm *tests*
+rm *tests.rst
+for filename in `ls -d pymatgen.*.rst`
+do
+    sed "/tests/d" $filename > temp.rst
+    mv temp.rst $filename
+done
 make html

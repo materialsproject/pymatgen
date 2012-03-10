@@ -102,7 +102,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     
     def __init__(self, oxidation_states):
         """
-        Arguments:
+        Args:
             oxidation_states
                 Oxidation states supplied as a dict, e.g., {'Li':1, 'O':-2}
         """
@@ -130,8 +130,9 @@ class SupercellTransformation(AbstractTransformation):
     
     def __init__(self, scaling_matrix = ((1,0,0),(0,1,0),(0,0,1))):
         """
-        Arguments:
-            scaling_matrix - Set to True if angle is supplied in radians. Else degrees are assumed.
+        Args:
+            scaling_matrix:
+                Set to True if angle is supplied in radians. Else degrees are assumed.
         """
         self._matrix = scaling_matrix
         
@@ -162,9 +163,9 @@ class SubstitutionTransformation(AbstractTransformation):
     """
     def __init__(self, species_map):
         """
-        Arguments:
-            species_map - a dict containing the species mapping in string-string pairs. E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
-            the replacement specie can also be a dict of sp and occupancy, eg { "Li": {"Na": .5, "Mg": .5} }. Note that this gives a disordered structure as an output
+        Args:
+            species_map:
+                A dict containing the species mapping in string-string pairs. E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
         """
         self._species_map = species_map
     
@@ -202,8 +203,9 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     """
     def __init__(self, species_to_remove):
         """
-        Arguments:
-            species_to_remove - List of species to remove. E.g., ["Li", "Mn"] 
+        Args:
+            species_to_remove:
+                List of species to remove. E.g., ["Li", "Mn"] 
         """
         self._species = species_to_remove
     
@@ -235,9 +237,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
     def __init__(self, specie_to_remove, fraction_to_remove, complete_ranking = False):
         """
-        Arguments:
-            specie_to_remove - Specie to remove. Must have oxidation state E.g., "Li1+"
-            fraction_to_remove - Fraction of specie to remove. E.g., 0.5
+        Args:
+            specie_to_remove:
+                Specie to remove. Must have oxidation state E.g., "Li1+"
+            fraction_to_remove:
+                Fraction of specie to remove. E.g., 0.5
         """
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
@@ -273,7 +277,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         mod.delete_sites(lowestenergy_indices)
         return mod.modified_structure.get_sorted_structure()
     
-    def apply_transformation(self, structure, complete = False):
+    def apply_transformation(self, structure):
         sp = smart_element_or_specie(self._specie)
         num_to_remove = structure.composition[sp] * self._frac
         if abs(num_to_remove - int(num_to_remove)) > 1e-8:
@@ -328,10 +332,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self):
+    def __init__(self, num_structures = 1):
         self._all_structures = []
+        self._num_structures = num_structures
     
-    def apply_transformation(self, structure, num_structures = 1):
+    def apply_transformation(self, structure):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -410,7 +415,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         
         matrix = EwaldSummation(structure).total_energy_matrix
         
-        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
+        ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
         
         self._all_structures = []
         
@@ -458,9 +463,7 @@ class OrderDisorderedStructureTransformation_old(AbstractTransformation):
     Hence, attempting to performing ordering on a large number of disordered sites may be extremely expensive.  Also, simple
     rounding of the occupancies are performed, with no attempt made to achieve a target composition.  This is usually not a problem
     for most ordering problems, but there can be times where rounding errors may result in structures that do not have the desired composition.
-    This second step will be implemented in the next iteration of the code.
-    
-    USE WITH CARE.
+    This second step will be implemented in the next iteration of the code. USE WITH CARE.
     """
     def __init__(self):
         pass
@@ -469,12 +472,13 @@ class OrderDisorderedStructureTransformation_old(AbstractTransformation):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
-        However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
-        Arguments:
+        However, all structures are stored in the all_structures attribute in the transformation object for easy access.
+        
+        Args:
             structure:
-                Oxidation state decorated disordered structure to order
+                Oxidation state-decorated disordered structure to order
             max_iterations:
-                Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
+                Maximum number of structures to consider. Defaults to 100. This is useful if there are a large number of sites 
                 and there are too many orderings to enumerate.
         """
         ordered_sites = []
