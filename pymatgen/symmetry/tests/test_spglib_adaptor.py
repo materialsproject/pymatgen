@@ -20,9 +20,8 @@ import numpy as np
 
 from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
-from pymatgen.spglib.spglib_adaptor import SymmetryFinder, get_pointgroup
+from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
-from pymatgen.core.operations import SymmOp
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,11 +30,8 @@ class SymmetryFinderTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
         self.structure = p.struct
-        self.sg = SymmetryFinder(p.struct, 0.1)
+        self.sg = SymmetryFinder(self.structure, 0.1)
         
-    def test_get_space_group(self):
-        self.assertEqual(self.sg.get_spacegroup(), "Pnma       (62)")
-
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
     
@@ -47,13 +43,11 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertEqual(ds['international'], 'Pnma')
         
     def test_get_symmetry_operations(self):
-        (rots, trans) = self.sg.get_symmetry()
-        symmops = self.sg.get_symmetry_operations()
+        fracsymmops = self.sg.get_symmetry_operations()
+        symmops = self.sg.get_symmetry_operations(True)
         self.assertEqual(len(symmops), 8)
         latt = self.structure.lattice
-        for i in xrange(len(rots)):
-            fop = SymmOp.from_rotation_matrix_and_translation_vector(rots[i], trans[i])
-            op = symmops[i]
+        for fop, op in zip(fracsymmops, symmops):
             for site in self.structure:
                 newfrac = fop.operate(site.frac_coords)
                 newcart = op.operate(site.coords)
@@ -66,11 +60,16 @@ class SymmetryFinderTest(unittest.TestCase):
                         break
                 self.assertTrue(found)
                     
-                    
-    def test_refine_cell(self):
-        for a in self.sg.refine_cell().lattice.angles:
+    def test_get_refined_structure(self):
+        for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
-       
+            
+    def test_get_symmetrized_structure(self):
+        symm_struct = self.sg.get_symmetrized_structure()
+        for a in symm_struct.lattice.angles:
+            self.assertEqual(a, 90)
+        self.assertEqual(len(symm_struct.equivalent_sites), 6)
+        
     def test_get_primitive(self):
         #Pnma spacegroup has no primitive cell
         self.assertIsNone(self.sg.find_primitive())

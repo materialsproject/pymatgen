@@ -663,7 +663,7 @@ class Structure(collections.Sequence, collections.Hashable):
         crystal. If you only want neighbors for a particular site, use the method
         get_neighbors as it may not have to build such a large supercell
         However if you are looping over all sites in the crystal, this method is
-        more efficient since it only performs *one* pass over a large enough 
+        more efficient since it only performs one pass over a large enough 
         supercell to contain all possible atoms out to a distance r.
         The return type is a [(site, dist) ...] since most of the time, subsequent 
         processing requires the distance.
@@ -675,8 +675,8 @@ class Structure(collections.Sequence, collections.Hashable):
                 boolean that determines whether the non-supercell site index is included in the returned data
         
         Returns:
-            A list of a list of nearest neighbors for each site, i.e., [[(site, dist, *index) ...], ..] 
-            *index only supplied if include_index = true
+            A list of a list of nearest neighbors for each site, i.e., [[(site, dist, index) ...], ..] 
+            index only supplied if include_index = true
             The index is the index of the site in the original (non-supercell) structure. This is needed for ewaldmatrix
             by keeping track of which sites contribute to the ewald sum
         
