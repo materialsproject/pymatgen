@@ -503,16 +503,16 @@ class Specie(Element):
         super(Specie, self).__init__(symbol)
         self._oxi_state = oxidation_state
         
-    def __eq__(self,other):
+    def __eq__(self, other):
         """
         Specie is equal to other only if element and oxidation states are exactly the same.
         """
-        if other == None:
+        if not isinstance(other, Specie):
             return False
         return self.Z == other.Z and self.oxi_state == other.oxi_state
     
     def __ne__(self,other):
-        if other == None:
+        if not isinstance(other, Specie):
             return True
         return self.Z != other.Z or self.oxi_state != other.oxi_state
 
@@ -627,13 +627,20 @@ class PeriodicTable(object):
             
             
 class DummySpecie(Specie):
-    def __init__(self, oxi_state = 0, symbol = 'X'):
+    
+    def __init__(self, symbol = 'X', oxi_state = 0):
         self._data = {}
         #Store key variables for quick access
         self._z = 0
         self._symbol = symbol
-        if Element.is_valid_symbol(symbol):
-            raise ValueError(symbol + ' is already taken. Choose a different dummy symbol')
+        #Strictly, the dummy symbol cannot have any part of first two
+        #letters that will constitute an Element symbol. Otherwise, a composition
+        #may be parsed wrongly. E.g., if an element is designated Xec, a compound
+        #XecO may be parsed as Xenon Oxide.
+        for i in xrange(1,min(2,len(symbol))+1):
+            if Element.is_valid_symbol(symbol[:i]):
+                raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
+        
         self._x = 0
         self._oxi_state = oxi_state
         
@@ -680,7 +687,7 @@ class DummySpecie(Specie):
         if m:
             num = 1 if m.group(2) == "" else float(m.group(2))
             if m.group(1) == 'X':
-                return DummySpecie(num if m.group(3) == "+" else - num)
+                return DummySpecie(oxi_state = num if m.group(3) == "+" else - num)
         
         raise ValueError("Invalid Species String")
     
