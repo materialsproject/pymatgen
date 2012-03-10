@@ -22,7 +22,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
-from pymatgen.core.operations import SymmOp
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,7 +43,6 @@ class SymmetryFinderTest(unittest.TestCase):
         
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
-        print ds
         self.assertEqual(ds['international'], 'Pnma')
         
     def test_get_symmetry_operations(self):
@@ -65,10 +63,17 @@ class SymmetryFinderTest(unittest.TestCase):
                         break
                 self.assertTrue(found)
                     
-    def test_refine_cell(self):
-        for a in self.sg.refine_cell().lattice.angles:
+    def test_get_refined_structure(self):
+        for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
-       
+            
+    def test_get_symmetrized_structure(self):
+        symm_struct = self.sg.get_symmetrized_structure()
+        for a in symm_struct.lattice.angles:
+            self.assertEqual(a, 90)
+        self.assertEqual(len(symm_struct.equivalent_sites), 6)
+        
+        
     def test_get_primitive(self):
         #Pnma spacegroup has no primitive cell
         self.assertIsNone(self.sg.find_primitive())

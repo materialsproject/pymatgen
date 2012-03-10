@@ -20,6 +20,8 @@ import numpy as np
 
 
 from pymatgen.core.structure import Structure
+from pymatgen.symmetry.spacegroup import Spacegroup
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 
 try:
@@ -147,8 +149,12 @@ class SymmetryFinder(object):
             symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rot, trans))
         return symmops
     
-      
-    def refine_cell(self):
+    def get_symmetrized_structure(self):
+        ds = self.get_symmetry_dataset()
+        sg = Spacegroup(self.get_spacegroup_symbol(), self.get_spacegroup_number(), self.get_symmetry_operations())
+        return SymmetrizedStructure(self.get_refined_structure(), sg, ds['equivalent_atoms'])
+    
+    def get_refined_structure(self):
         """
         Return refined Structure
         """
