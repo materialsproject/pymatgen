@@ -150,7 +150,6 @@ class Poscar(VaspInput):
         """
         
         lines = tuple(clean_lines(data.split("\n"), False))
-
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
