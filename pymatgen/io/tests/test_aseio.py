@@ -19,17 +19,19 @@ import os
 from pymatgen.io.vaspio import Poscar
 import pymatgen.io.aseio as aio
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class AseAtomsAdaptorTest(unittest.TestCase):
 
     def test_get_atoms(self):
-        p = Poscar.from_file(os.path.join(module_dir, 'vasp_testfiles', 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
         self.assertEqual(atoms.get_name(), "P4Fe4O16")
 
     def test_get_structure(self):
-        p = Poscar.from_file(os.path.join(module_dir, 'vasp_testfiles', 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
         self.assertEqual(aio.AseAtomsAdaptor.get_structure(atoms).formula, "Fe4 P4 O16")
     

@@ -7,12 +7,14 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Composition, Structure
 from numpy import array
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class  PoscarTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','POSCAR')
+        filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         comp = poscar.struct.composition
         self.assertEqual(comp,Composition.from_formula("Fe4P4O16"))
@@ -83,44 +85,44 @@ direct
 class  IncarTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','INCAR')
+        filepath = os.path.join(test_dir, 'INCAR')
         incar = Incar.from_file(filepath)
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"],"Damped","Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]),1e-4,"Wrong EDIFF")        
         
     def test_diff(self):
-        filepath1 = os.path.join(module_dir, 'vasp_testfiles','INCAR')
+        filepath1 = os.path.join(test_dir,'INCAR')
         incar1 = Incar.from_file(filepath1)
-        filepath2 = os.path.join(module_dir, 'vasp_testfiles','INCAR.2')
+        filepath2 = os.path.join(test_dir,'INCAR.2')
         incar2 = Incar.from_file(filepath2)
         self.assertEqual(incar1.diff(incar2), {'Different': {'NELM': {'INCAR1': 'Default', 'INCAR2': 100}, 'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'LDAUPRINT': {'INCAR1': 'Default', 'INCAR2': 1}, 'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NELMIN': {'INCAR1': 'Default', 'INCAR2': 3}, 'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'}, 'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'}, 'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'}, 'ICHARG': {'INCAR1': 'Default', 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]', 'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'}, 'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}}, 'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001, 'LORBIT': '11', 'SIGMA': 0.05}})
     
 class  KpointsTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.auto')
+        filepath = os.path.join(test_dir,'KPOINTS.auto')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[10]],"Wrong kpoint lattice read")
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.cartesian')
+        filepath = os.path.join(test_dir,'KPOINTS.cartesian')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[0.25, 0, 0], [0,0.25,0], [0,0,0.25]],"Wrong kpoint lattice read")
         self.assertEqual(kpoints.kpts_shift,[0.5, 0.5, 0.5],"Wrong kpoint shift read")
         
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS')
+        filepath = os.path.join(test_dir,'KPOINTS')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts,[[2,4,6]],"Wrong kpoint lattice read")
         
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.band')
+        filepath = os.path.join(test_dir,'KPOINTS.band')
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, "Line_mode")
         
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.explicit')
+        filepath = os.path.join(test_dir,'KPOINTS.explicit')
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.kpts_weights)
         
-        filepath = os.path.join(module_dir, 'vasp_testfiles','KPOINTS.explicit_tet')
+        filepath = os.path.join(test_dir,'KPOINTS.explicit_tet')
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.tet_connections, [(6, [1,2,3,4])])
         
@@ -138,12 +140,12 @@ class  KpointsTest(unittest.TestCase):
 class  PotcarTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','POTCAR')
+        filepath = os.path.join(test_dir,'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols,["Fe","P","O"],"Wrong symbols read in for POTCAR")
         
     def test_potcar_map(self):
-        fe_potcar = open(os.path.join(module_dir, 'vasp_testfiles','Fe_POTCAR')).read()
+        fe_potcar = open(os.path.join(test_dir,'Fe_POTCAR')).read()
         #specify V instead of Fe - this makes sure the test won't pass if the code just grabs the POTCAR from the config file (the config file would grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols,["Fe"],"Wrong symbols read in for POTCAR")
@@ -151,7 +153,7 @@ class  PotcarTest(unittest.TestCase):
 class  VasprunTest(unittest.TestCase):
     
     def setUp(self):
-        self.filepath = os.path.join(module_dir, 'vasp_testfiles','vasprun.xml')
+        self.filepath = os.path.join(test_dir,'vasprun.xml')
         self.vasprun = Vasprun(self.filepath)
     
     def test_properties(self):
@@ -192,7 +194,7 @@ class  VasprunTest(unittest.TestCase):
 class OutcarTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','OUTCAR')
+        filepath = os.path.join(test_dir,'OUTCAR')
         outcar = Outcar(filepath)
         expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
  {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
@@ -207,14 +209,14 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.charge, expected_chg, 5, "Wrong charge read from Outcar")
         self.assertFalse(outcar.is_stopped)
         self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938, 'Total CPU time used (sec)': 545.142, 'Elapsed time (sec)': 546.709, 'Maximum memory used (kb)': 0.0, 'Average memory used (kb)': 0.0, 'User time (sec)': 544.204})
-        filepath = os.path.join(module_dir, 'vasp_testfiles','OUTCAR.stopped')
+        filepath = os.path.join(test_dir,'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
 class OszicarTest(unittest.TestCase):
     
     def test_init(self):
-        filepath = os.path.join(module_dir, 'vasp_testfiles','OSZICAR')
+        filepath = os.path.join(test_dir,'OSZICAR')
         oszicar = Oszicar(filepath)
         self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
         self.assertEqual(len(oszicar.all_energies), 60)
