@@ -23,7 +23,9 @@ from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
 
 from pymatgen.alchemy.materials import TransformedStructure
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class TransformedStructureTest(unittest.TestCase):
     
@@ -50,7 +52,7 @@ class TransformedStructureTest(unittest.TestCase):
         self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
     
     def test_from_dict(self):
-        d = json.load(open(os.path.join(module_dir, 'transformations.json'), 'r'))
+        d = json.load(open(os.path.join(test_dir, 'transformations.json'), 'r'))
         ts = TransformedStructure.from_dict(d)
         ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
         self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)

@@ -4,30 +4,30 @@ import os
 
 import numpy as np
 
+import pymatgen
+
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.vaspio import Poscar
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 class  CifIOTest(unittest.TestCase):
-    
-    def setUp(self):
-        self.module_dir = os.path.dirname(os.path.abspath(__file__))
 
     def test_CifParser(self):
-        parser = CifParser(os.path.join(self.module_dir,'vasp_testfiles','LiFePO4.cif'))
+        parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "Li4 Fe4 P4 O16", "Incorrectly parsed cif.")
-            self.assertEqual(s[0].specie.oxi_state, 1, "Incorrectly parsed cif.")
-        
+            
         #test for disordered structures
-        parser = CifParser(os.path.join(self.module_dir,'vasp_testfiles','Li10GeP2S12.cif'))
+        parser = CifParser(os.path.join(test_dir,'Li10GeP2S12.cif'))
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif.")
-      
+            
     def test_CifWriter(self):
-        filepath = os.path.join(self.module_dir, 'vasp_testfiles','POSCAR')
+        filepath = os.path.join(test_dir,'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.struct)
         expected_cif_str = """#\#CIF1.1
