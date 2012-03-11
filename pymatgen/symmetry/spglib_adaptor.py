@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 '''
-Spglib interface for pymatgen
+An interface to the excellent spglib library by Atsushi Togo 
+(http://spglib.sourceforge.net/) for pymatgen.
+
+This is a *beta* version. Not all spglib functions are implemented.
 '''
 
 from __future__ import division
