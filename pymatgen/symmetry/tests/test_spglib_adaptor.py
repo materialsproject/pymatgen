@@ -23,12 +23,14 @@ from pymatgen.io.vaspio import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class SymmetryFinderTest(unittest.TestCase):
 
     def setUp(self):
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.struct
         self.sg = SymmetryFinder(self.structure, 0.1)
         
@@ -41,7 +43,7 @@ class SymmetryFinderTest(unittest.TestCase):
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
-        
+    
     def test_get_symmetry_operations(self):
         fracsymmops = self.sg.get_symmetry_operations()
         symmops = self.sg.get_symmetry_operations(True)
@@ -68,19 +70,19 @@ class SymmetryFinderTest(unittest.TestCase):
         symm_struct = self.sg.get_symmetrized_structure()
         for a in symm_struct.lattice.angles:
             self.assertEqual(a, 90)
-        self.assertEqual(len(symm_struct.equivalent_sites), 6)
+        self.assertEqual(len(symm_struct.equivalent_sites), 5)
         
     def test_get_primitive(self):
         #Pnma spacegroup has no primitive cell
         self.assertIsNone(self.sg.find_primitive())
-        parser = CifParser(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Li2O.cif'))
+        parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         s = SymmetryFinder(parser.get_structures(False)[0])
         self.assertEqual(s.find_primitive().formula, "Li2 O1")
 
 class HelperFunctionsTest(unittest.TestCase):
 
     def setUp(self):
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.sg = SymmetryFinder(p.struct, 0.1)
         
     def test_get_pointgroup(self):
