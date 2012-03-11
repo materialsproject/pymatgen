@@ -1,17 +1,19 @@
 import unittest
 import os
 
-import pymatgen.io.vaspio 
 from pymatgen.core.structure_modifier import OxidationStateDecorator
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.io.vaspio import Poscar
 import numpy as np
 
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 class EwaldSummationTest(unittest.TestCase):
 
     def test_init(self):
-        module_path = os.path.dirname(pymatgen.io.vaspio.__file__)
-        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'POSCAR')
+        filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         s = p.struct
 
