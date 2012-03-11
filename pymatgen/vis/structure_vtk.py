@@ -234,14 +234,10 @@ class StructureVis(object):
         tprops.SetFontSize(14)
         tprops.SetFontFamilyToTimes()
         tprops.SetColor(0,0,0)
-        self.helptxt_actor = vtk.vtkActor2D()
-        self.helptxt_actor.VisibilityOff()
-        self.helptxt_actor.SetMapper(self.helptxt_mapper)
-        self.ren.AddActor(self.helptxt_actor)
+        
         if self.structure != None:
             self.set_structure(self.structure, reset_camera)
-        if self.show_help:
-            self.display_help()
+        
         self.ren_win.Render()
     
     def display_help(self):
@@ -332,6 +328,13 @@ class StructureVis(object):
                     if self.show_polyhedron:
                         color = [i/255 for i in color]
                         self.add_polyhedron(nn_sites, site, color)
+        
+        if self.show_help:
+            self.helptxt_actor = vtk.vtkActor2D()
+            self.helptxt_actor.VisibilityOn()
+            self.helptxt_actor.SetMapper(self.helptxt_mapper)
+            self.ren.AddActor(self.helptxt_actor)
+            self.display_help()
         
         camera = self.ren.GetActiveCamera() 
         if reset_camera:
