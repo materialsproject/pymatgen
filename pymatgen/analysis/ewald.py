@@ -198,17 +198,11 @@ class EwaldSummation:
         Gives total ewald energy for certain sites being removed, i.e. zeroed
         out. 
         """
-        recp = self._recip.copy()
-        real = self._real.copy()
-        point = self._point.copy()
+        total_energy_matrix = self.total_energy_matrix.copy()
         for i in removed_indices:
-            recp[i, :] = 0
-            recp[:, i] = 0
-            real[i, :] = 0
-            real[:, i] = 0
-            point[i] = 0
-            
-        return sum(sum(real)) + sum(point) + sum(sum(recp))
+            total_energy_matrix[i, :] = 0
+            total_energy_matrix[:, i] = 0
+        return sum(sum(total_energy_matrix))
         
     @property
     def reciprocal_space_energy(self):
