@@ -11,7 +11,9 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.cifio import CifParser
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class StructureFitterTest(unittest.TestCase):
     
@@ -60,17 +62,17 @@ class StructureFitterTest(unittest.TestCase):
         fitter = StructureFitter(self.b,editor.modified_structure)
         self.assertTrue(fitter.mapping_op != None, "No fit found for translation {}!".format(trans))
         
-        parser = CifParser(os.path.join(module_dir,"FePO4a.cif"))
+        parser = CifParser(os.path.join(test_dir,"FePO4a.cif"))
         a = parser.get_structures()[0]
-        parser = CifParser(os.path.join(module_dir,"FePO4b.cif"))
+        parser = CifParser(os.path.join(test_dir,"FePO4b.cif"))
         b = parser.get_structures()[0]
         fitter = StructureFitter(b,a)
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
         
     def test_anonymized_fitting(self):
-        parser = CifParser(os.path.join(module_dir,"LiFePO4.cif"))
+        parser = CifParser(os.path.join(test_dir,"LiFePO4.cif"))
         a = parser.get_structures()[0]
-        parser = CifParser(os.path.join(module_dir,"NaFePO4.cif"))
+        parser = CifParser(os.path.join(test_dir,"NaFePO4.cif"))
         b = parser.get_structures()[0]
         fitter = StructureFitter(b,a)
         self.assertTrue(fitter.mapping_op == None, "No fit should be found when NaFePO4 and LiFePo4 are fitted in non-anonymized mode!")
