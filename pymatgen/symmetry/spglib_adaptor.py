@@ -198,6 +198,7 @@ class SymmetryFinder(object):
             #Not sure if we should return None or just return the full structure.
             return None
 
+
 def get_pointgroup(rotations):
     """    
     Return point group in international table symbol and number.
@@ -240,7 +241,7 @@ def get_pointgroup(rotations):
     # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
 
-    
+
 
 '''
 Shyue
