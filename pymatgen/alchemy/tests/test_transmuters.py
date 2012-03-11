@@ -19,7 +19,10 @@ import os
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 
 class CifTransmuterTest(unittest.TestCase):
 
@@ -29,7 +32,7 @@ class CifTransmuterTest(unittest.TestCase):
         self.qep = CifTransmuter(trans)
         
     def test_transmute(self):
-        trans_structures = self.qep.transmute([os.path.join(module_dir, "MultiStructure.cif")])
+        trans_structures = self.qep.transmute([os.path.join(test_dir, "MultiStructure.cif")])
         self.assertEqual(len(trans_structures), 2)
         expected_ans = set(["Mn", "O", "Li", "P"])
         for s in trans_structures:
@@ -44,7 +47,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         self.qep = PoscarTransmuter(trans)
         
     def test_transmute(self):
-        trans_structures = self.qep.transmute([os.path.join(module_dir, "POSCAR"), os.path.join(module_dir, "POSCAR")])
+        trans_structures = self.qep.transmute([os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")])
         self.assertEqual(len(trans_structures), 2)
         expected_ans = set(["Mn", "O", "P"])
         for s in trans_structures:

@@ -2,18 +2,19 @@
 import unittest
 import os
 
+import pymatgen
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, MaterialsProjectVaspInputSet
 from pymatgen.io.vaspio import Poscar
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from numpy import array
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
     
     def setUp(self):
-        filepath = os.path.join(module_dir,'vasp_testfiles','POSCAR')
+        filepath = os.path.join(test_dir,'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.struct
         

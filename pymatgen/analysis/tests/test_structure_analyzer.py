@@ -2,15 +2,18 @@ import unittest
 import os
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, solid_angle
-import pymatgen.io.vaspio 
+from pymatgen.io.vaspio import Vasprun
 from pymatgen.core.periodic_table import Element
+
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class VoronoiCoordFinderTest(unittest.TestCase):
 
     def setUp(self):
-        module_path = os.path.dirname(pymatgen.io.vaspio.__file__)
-        filepath = os.path.join(module_path, 'tests','vasp_testfiles', 'vasprun.xml')
-        reader = pymatgen.io.vaspio.Vasprun(filepath)
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        reader = Vasprun(filepath)
         s = reader.final_structure
         self.finder = VoronoiCoordFinder(s,[Element("O")])
     
