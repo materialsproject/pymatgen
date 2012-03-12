@@ -71,6 +71,14 @@ class SymmetryFinder(object):
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
+    def get_hall(self):
+       ds = self.get_symmetry_dataset()
+       return ds['hall']
+       
+    def get_pointgroup(self):
+        ds = self.get_symmetry_dataset()
+        return get_pointgroup(ds['rotations'])[0].strip()
+       
     def get_symmetry_dataset(self):
         """
         Returns the symmetry dataset as a dict.
