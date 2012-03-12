@@ -78,7 +78,28 @@ class SymmetryFinder(object):
     def get_pointgroup(self):
         ds = self.get_symmetry_dataset()
         return get_pointgroup(ds['rotations'])[0].strip()
-       
+        
+    def get_crystal_system(self):
+        n = self.get_spacegroup_number() 
+        
+        f = lambda i,j: i <= n <= j
+        cs = {}
+        cs['triclinic'] = (1,2)
+        cs['monoclinic'] = (3,15)
+        cs['orthorhombic'] = (16,74)
+        cs['tetragonal'] = (75, 142)
+        cs['trigonal'] = (143, 167)
+        cs['hexagonal'] = (168, 194)
+        cs['cubic'] = (195, 230)
+        
+        crystal_sytem = None
+        
+        for k,v in cs.items():
+            if f(*v) == True:
+                crystal_sytem = k
+                break
+        return crystal_sytem
+
     def get_symmetry_dataset(self):
         """
         Returns the symmetry dataset as a dict.
