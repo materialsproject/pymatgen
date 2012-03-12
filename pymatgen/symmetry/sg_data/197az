@@ -1,0 +1,13 @@
+I23
+x,            y,            z
+x,           -y,           -z
+-x,            y,           -z
+-x,           -y,            z
+z,            x,            y
+-z,           -x,            y
+z,           -x,           -y
+-z,            x,           -y
+y,            z,            x
+-y,            z,           -x
+-y,           -z,            x
+y,           -z,           -x
