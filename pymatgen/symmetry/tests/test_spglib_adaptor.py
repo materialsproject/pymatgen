@@ -51,6 +51,10 @@ class SymmetryFinderTest(unittest.TestCase):
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
+        
+    def test_get_crystal_system(self):
+        crystal_system = self.sg.get_crystal_system()
+        self.assertEqual('orthorhombic', crystal_system)
     
     def test_get_symmetry_operations(self):
         fracsymmops = self.sg.get_symmetry_operations()
