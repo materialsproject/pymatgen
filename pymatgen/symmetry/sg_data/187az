@@ -1,0 +1,13 @@
+P-6m2
+x,            y,            z
+-y,           x-y,           z
+-x+y,          -x,            z
+x,            y,           -z
+-x+y,          -x,           -z
+-y,           x-y,          -z
+-y,           -x,            z
+-x+y,           y,            z
+x,           x-y,           z
+-y,           -x,           -z
+-x+y,           y,           -z
+x,           x-y,          -z
