@@ -32,7 +32,7 @@ class SymmetryFinderTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.struct
-        self.sg = SymmetryFinder(self.structure, 0.1)
+        self.sg = SymmetryFinder(self.structure, 0.001)
         
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
@@ -40,6 +40,14 @@ class SymmetryFinderTest(unittest.TestCase):
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
         
+    def test_get_hall(self):
+        hall = '-P 2ac 2n'
+        self.assertEqual(self.sg.get_hall(), hall)
+        
+    def test_get_pointgroup(self):
+        pg = 'mmm'
+        self.assertEqual(self.sg.get_pointgroup(), pg)
+    
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
@@ -73,11 +81,20 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertEqual(len(symm_struct.equivalent_sites), 5)
         
     def test_get_primitive(self):
-        #Pnma spacegroup has no primitive cell
+        """
+        F m -3 m Li2O testing of converting to primitive cell
+        """
         self.assertIsNone(self.sg.find_primitive())
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
-        s = SymmetryFinder(parser.get_structures(False)[0])
-        self.assertEqual(s.find_primitive().formula, "Li2 O1")
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure)
+        primitive_structure = s.find_primitive()
+        self.assertEqual(primitive_structure.formula, "Li2 O1")
+        # This isn't what is expected. All the angles should be 60
+        self.assertAlmostEqual(primitive_structure.lattice.alpha, 120)
+        self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
+        self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
+        self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume/4.0)
 
 class HelperFunctionsTest(unittest.TestCase):
 
