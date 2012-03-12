@@ -72,8 +72,8 @@ class SymmetryFinder(object):
         return sgnum
 
     def get_hall(self):
-       ds = self.get_symmetry_dataset()
-       return ds['hall']
+        ds = self.get_symmetry_dataset()
+        return ds['hall']
        
     def get_pointgroup(self):
         ds = self.get_symmetry_dataset()
