@@ -1,0 +1,5 @@
+P2mm
+x,            y,            z
+x,           -y,           -z
+x,           -y,            z
+x,            y,           -z
