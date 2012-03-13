@@ -15,11 +15,7 @@ __date__ = "Sep 23, 2011"
 import unittest
 import random
 
-import pymatgen
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.ewald import EwaldSummation
 
 class TransformationsTest(unittest.TestCase):
 
