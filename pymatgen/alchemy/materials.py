@@ -205,12 +205,12 @@ class CifTransformedStructure(TransformedStructure):
     Generates new materials from Cifs.
     """
     
-    def __init__(self, cif_string, transformations):
+    def __init__(self, cif_string, transformations, primitive = True):
         parser = CifParser.from_string(cif_string)
         raw_string = re.sub("'", "\"", cif_string)
         cif_dict = parser.to_dict
         cif_keys = cif_dict.keys()
-        s = parser.get_structures()[0]
+        s = parser.get_structures(primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
         if '_database_code_ICSD' in partial_cif:
             source = partial_cif['_database_code_ICSD'] + "-ICSD"

@@ -7,13 +7,13 @@ All major VASP input files, plus the more common Vasp output files are available
 
 from __future__ import division
 
-__author__="Shyue Ping Ong, Rickard Armiento, Vincent L Chevrier"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Vincent L Chevrier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="Sep 23, 2011"
+__date__ = "Sep 23, 2011"
 
 import os
 import re
@@ -37,9 +37,9 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
+import pymatgen
 
-
-coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")    
+coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
 
 class Poscar(VaspInput):
     """
@@ -47,7 +47,7 @@ class Poscar(VaspInput):
     Please note that this current implementation does not parse selective
     dynamcics POSCAR files.
     """
-    
+
     def __init__(self, struct, comment = None, selective_dynamics = None, true_names = True):
         """        
         Arguments:
@@ -72,15 +72,15 @@ class Poscar(VaspInput):
                 self.set_selective_dynamics(selective_dynamics)
             else:
                 self._selective_dynamics = None
-            self.comment = struct.formula if comment == None else comment    
+            self.comment = struct.formula if comment == None else comment
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
 
     def set_selective_dynamics(self, selective_dynamics):
         if selective_dynamics and len(selective_dynamics) != len(self._struct):
-            raise ValueError("Selective dynamics array must be same length as the structure.")      
+            raise ValueError("Selective dynamics array must be same length as the structure.")
         self._selective_dynamics = selective_dynamics
-    
+
     @property
     def selective_dynamics(self):
         return self._selective_dynamics
@@ -91,7 +91,7 @@ class Poscar(VaspInput):
         Symbols for each site in POSCAR.
         """
         return self._site_symbols
-    
+
     @property
     def struct(self):
         """
@@ -117,7 +117,7 @@ class Poscar(VaspInput):
         Returns:
             Poscar object.
         """
-        
+
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         for f in os.listdir(dirname):
@@ -126,10 +126,10 @@ class Poscar(VaspInput):
                     potcar = Potcar.from_file(os.path.join(dirname, f))
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                 except:
-                    names = None    
+                    names = None
         with file_open_zip_aware(filename, "r") as f:
             return Poscar.from_string(f.read(), names)
-    
+
     @staticmethod
     def from_string(data, default_names = None):
         """
@@ -148,18 +148,18 @@ class Poscar(VaspInput):
         Returns:
             Poscar object.
         """
-        
+
         lines = tuple(clean_lines(data.split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
         if scale < 0:
             vol = abs(det(lattice))
-            lattice = (-scale / vol) ** (1/3) * lattice
+            lattice = (-scale / vol) ** (1 / 3) * lattice
         else:
             lattice = scale * lattice
         lattice = Lattice(lattice)
-        
+
         vasp5_symbols = False
         try:
             natoms = [int(s) for s in lines[5].split()]
@@ -172,16 +172,16 @@ class Poscar(VaspInput):
             for i in xrange(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
             ipos = 7
-        
+
         postype = lines[ipos].split()[0]
-        
+
         sdynamics = False
         # Selective dynamics
         if postype[0] in 'sS':
             sdynamics = True
             ipos += 1
             postype = lines[ipos].split()[0]
-        
+
         cart = postype[0] in 'cCkK'
         nsites = sum(natoms)
 
@@ -205,10 +205,10 @@ class Poscar(VaspInput):
                 #Defaulting to false names.
                 atomic_symbols = list()
                 for i in xrange(len(natoms)):
-                    sym = Element.from_Z(i+1).symbol
+                    sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
-                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols)+".")
-                
+                warnings.warn("Elements in POSCAR cannot be determined. Defaulting to false names, " + " ".join(atomic_symbols) + ".")
+
         # read the atomic coordinates
         coords = []
         selective_dynamics = list() if sdynamics else None
@@ -217,15 +217,15 @@ class Poscar(VaspInput):
             coords.append([float(s) for s in toks[:3]])
             if sdynamics:
                 selective_dynamics.append([True if tok.upper()[0] == 'T' else False for tok in toks[3:6]])
-            
+
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols)
-    
+
     @property
     def true_names(self):
         return self._true_names
-    
+
     def get_string(self, direct = True, vasp4_compatible = False):
         """
         Returns a string to be written as a POSCAR file. By default, site symbols are written
@@ -248,8 +248,8 @@ class Poscar(VaspInput):
         lines.append(" ".join([str(x) for x in self._natoms]))
         if self._selective_dynamics:
             lines.append("Selective dynamics")
-        lines.append('direct' if direct else 'cartesian')         
-        
+        lines.append('direct' if direct else 'cartesian')
+
         for i in xrange(len(self._struct)):
             site = self._struct[i]
             coords = site.frac_coords if direct else site.coords
@@ -260,7 +260,7 @@ class Poscar(VaspInput):
             line += " " + site.species_string
             lines.append(line)
 
-        return "\n".join(lines)    
+        return "\n".join(lines)
 
     def __str__(self):
         """
@@ -274,7 +274,7 @@ class Poscar(VaspInput):
         #update the Structure as well
         elements = list()
         for i in range(len(symbols)):
-            elements.extend([symbols[i]]*self._natoms[i])
+            elements.extend([symbols[i]] * self._natoms[i])
         self._struct = Structure(self._struct.lattice, elements, self._struct.frac_coords)
 
     def write_file(self, filename):
@@ -285,35 +285,35 @@ class Poscar(VaspInput):
 VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS", "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG",
 "PREC", "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM", "NELMIN", "NELMDL", "EDIFF", "EDIFFG", "NSW", "NBLOCK",
 "KBLOCK", "IBRION", "NFREE", "POTIM", "ISIF", "PSTRESS", "IWAVPR", "ISYM", "SYMPREC", "LCORR", "TEBEG", "TEEND", "SMASS",
-"NPACO", "APACO", "POMASS", "ZVAL", "RWIGS", "LORBIT", "NELECT", "NUPDOWN", "EMIN", "EMAX", "NEDOS", "ISMEAR", "SIGMA", 
-"FERWE", "FERDO", "SMEARINGS", "LREAL", "ROPT", "GGA", "VOSKOWN", "LASPH", "ALGO", "IALGO", "LDIAG", "NSIM", "IMIX", "INIMIX", 
+"NPACO", "APACO", "POMASS", "ZVAL", "RWIGS", "LORBIT", "NELECT", "NUPDOWN", "EMIN", "EMAX", "NEDOS", "ISMEAR", "SIGMA",
+"FERWE", "FERDO", "SMEARINGS", "LREAL", "ROPT", "GGA", "VOSKOWN", "LASPH", "ALGO", "IALGO", "LDIAG", "NSIM", "IMIX", "INIMIX",
 "MAXMIX", "AMIX", "BMIX", "AMIX_MAG", "BMIX_MAG", "AMIN", "MIXPRE", "WC", "WEIMIN", "EBREAK", "DEPER", "TIME", "LWAVE", "LCHARG",
-"LVTOT", "LELF", "NPAR", "LPLANE","LASYNC", "LSCALAPACK", "LSCALU", "ISPIND", "HFSCREEN", "LHFCALC", "ENCUTFOCK", "NKRED", "LMAXMIX",
+"LVTOT", "LELF", "NPAR", "LPLANE", "LASYNC", "LSCALAPACK", "LSCALU", "ISPIND", "HFSCREEN", "LHFCALC", "ENCUTFOCK", "NKRED", "LMAXMIX",
 "PRECFOCK", "AEXX", "AGGAX", "AGGAC", "ALDAC", "LMAXFOCK", "LMAXFOCKAE", "LTHOMAS", "NKREDX", "NKREDY", "NKREDZ", "EVENONLY", "ODDONLY", "LDAU", "LDAUJ", "LDAUL", "LDAUPRINT", "LDAUTYPE", "LDAUU", "LPEAD", "LCALCPOL", "LCALCEPS", "LEFG", "EFIELD_PEAD", "LNONCOLLINEAR",
 "LSORBIT", "IDIPOL", "DIPOL", "LMONO", "LDIPOL", "EPSILON", "EFIELD", "LBERRY", "IGPAR", "NPPSTR", "IPEAD", "I_CONSTRAINED_M", "LAMBDA", "M_CONSTR",
 "IMAGES", "SPRING", "LOPTICS", "CSHIFT", "LNABLA", "LEPSILON", "LRPA", "NOMEGA", "NOMEGAR", "LSPECTRAL", "OMEGAMAX", "OMEGATL", "ENCUTGW",
-"ENCUTGWSOFT", "ODDONLYGW", "EVENONLYGW", "LSELFENERGY", 'LRHFATM', 'METAGGA', 'LMAXTAU', 'LCOMPAT','ENMAX', 'LMAXPAW', 'LSPIRAL', 'LZEROZ',
-'LMETAGGA','ENINI', 'NRMM', 'MREMOVE', 'ADDGRID', 'EFERMI', 'LPARD', 'LSCAAWARE', 'IDIOT', 'LMUSIC', 'LREAL_COMPAT', 'GGA_COMPAT', 'ICORELEVEL', 'LHFONE',
+"ENCUTGWSOFT", "ODDONLYGW", "EVENONLYGW", "LSELFENERGY", 'LRHFATM', 'METAGGA', 'LMAXTAU', 'LCOMPAT', 'ENMAX', 'LMAXPAW', 'LSPIRAL', 'LZEROZ',
+'LMETAGGA', 'ENINI', 'NRMM', 'MREMOVE', 'ADDGRID', 'EFERMI', 'LPARD', 'LSCAAWARE', 'IDIOT', 'LMUSIC', 'LREAL_COMPAT', 'GGA_COMPAT', 'ICORELEVEL', 'LHFONE',
 'LRHFCALC', 'LMODELHF', 'ENCUT4O', 'EXXOEP', 'FOURORBIT', 'HFALPHA', 'ALDAX', 'SHIFTRED', 'NMAXFOCKAE', 'HFSCREENC', 'MODEL_GW', 'MODEL_EPS0', 'MODEL_ALPHA',
 'LVEL', 'SAXIS', 'QSPIRAL', 'STM', 'KINTER', 'ORBITALMAG', 'LMAGBLOCH', 'LCHIMAG', 'LGAUGE', 'MAGATOM', 'MAGDIPOL', 'AVECCONST', 'LTCTE', 'LTETE',
 'L2ORDER', 'LGWLF', 'ENCUTLF', 'LMAXMP2', 'SCISSOR', 'NBANDSGW', 'NBANDSLF', 'DIM', 'ANTIRES', 'LUSEW', 'OMEGAGRID', 'SELFENERGY', 'NKREDLFX', 'NKREDLFY',
 'NKREDLFZ', 'MAXMEM', 'TELESCOPE', 'LCRITICAL_MEM', 'GGA2',
-'TURBO', 'QUAD_EFG','IRESTART','NREBOOT','NMIN','EREF','KSPACING','KGAMMA','LSUBROT','SCALEE','LVHAR','LORBITALREAL','DARWINR','DARWINV','LFOCKAEDFT','NUCIND','MAGPOS','LNICSALL','LADDER','LHARTREE','IBSE','NBANDSO','NBANDSV','OPTEMAX')
+'TURBO', 'QUAD_EFG', 'IRESTART', 'NREBOOT', 'NMIN', 'EREF', 'KSPACING', 'KGAMMA', 'LSUBROT', 'SCALEE', 'LVHAR', 'LORBITALREAL', 'DARWINR', 'DARWINV', 'LFOCKAEDFT', 'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE', 'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX')
 
 class Incar(dict, VaspInput):
     """
     INCAR object for reading and writing INCAR files
     essentially consists of a dictionary with some helper functions
     """
-    
-    def __init__(self,params = dict()):
+
+    def __init__(self, params = dict()):
         """
         Creates an Incar object.
         
         Arguments:
             params - A set of input parameters as a dictionary.
         """
-        super(Incar,self).__init__()
+        super(Incar, self).__init__()
         self.update(params)
 
     def __setitem__(self, key, val):
@@ -323,8 +323,8 @@ class Incar(dict, VaspInput):
         """
         if key.strip().upper() not in VALID_INCAR_TAGS:
             warnings.warn(key.strip() + " not in VALID_INCAR_TAGS")
-        super(Incar,self).__setitem__(key.strip(), Incar.proc_val(key.strip(), val.strip()) if isinstance(val,basestring) else val)
-    
+        super(Incar, self).__setitem__(key.strip(), Incar.proc_val(key.strip(), val.strip()) if isinstance(val, basestring) else val)
+
     @property
     def to_dict(self):
         return self
@@ -332,7 +332,7 @@ class Incar(dict, VaspInput):
     @staticmethod
     def from_dict(d):
         i = Incar()
-        for k,v in d.items():
+        for k, v in d.items():
             i[k] = v
         return i
 
@@ -356,17 +356,17 @@ class Incar(dict, VaspInput):
                 value = []
                 for m, g in itertools.groupby(self[k]):
                     value.append("{}*{}".format(len(tuple(g)), m))
-                lines.append([k," ".join(value)])
+                lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
-                lines.append([k," ".join([str(i) for i in self[k]])])
+                lines.append([k, " ".join([str(i) for i in self[k]])])
             else:
-                lines.append([k,self[k]])
-        
+                lines.append([k, self[k]])
+
         if pretty:
             return str_aligned(lines)
         else:
-            return str_delimited(lines, None," = ")
-    
+            return str_delimited(lines, None, " = ")
+
     def __str__(self):
         return self.get_string(sort_keys = True, pretty = False)
 
@@ -380,7 +380,7 @@ class Incar(dict, VaspInput):
         """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
-        
+
     @staticmethod
     def from_file(filename):
         """
@@ -403,7 +403,7 @@ class Incar(dict, VaspInput):
                 val = Incar.proc_val(key, val)
                 params[key] = val
         return Incar(params)
-    
+
     @staticmethod
     def proc_val(key, val):
         """
@@ -415,10 +415,10 @@ class Incar(dict, VaspInput):
             val:
                 Actual value of INCAR parameter.
         """
-        list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE','MAGMOM')
-        boolean_type_keys = ('LDAU', 'LWAVE','LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
-        float_type_keys = ("EDIFF", "SIGMA", 'TIME','ENCUTFOCK', 'HFSCREEN')
-        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG", "NELM", 
+        list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE', 'MAGMOM')
+        boolean_type_keys = ('LDAU', 'LWAVE', 'LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
+        float_type_keys = ("EDIFF", "SIGMA", 'TIME', 'ENCUTFOCK', 'HFSCREEN')
+        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG", "NELM",
                          "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX', 'ENCUT', 'NSIM',
                          'NKRED', 'NUPDOWN', 'ISPIND')
 
@@ -431,7 +431,7 @@ class Incar(dict, VaspInput):
             if key in list_type_keys:
                 output = list()
                 toks = re.split("\s+", val)
-                
+
                 for tok in toks:
                     m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
@@ -447,18 +447,18 @@ class Incar(dict, VaspInput):
                     else:
                         return False
                 raise ValueError(key + " should be a boolean type!")
-            
+
             if key in float_type_keys:
                 return float(val)
-            
+
             if key in int_type_keys:
                 return int(val)
-            
+
         except:
             return val.capitalize()
-              
+
         return val.capitalize()
-            
+
     def diff(self, other):
         """
         Diff function for Incar.  Compares two Incars and indicates which parameters are the same and which are not.
@@ -473,25 +473,25 @@ class Incar(dict, VaspInput):
         """
         similar_param = {}
         different_param = {}
-        for k1,v1 in self.items():
+        for k1, v1 in self.items():
             if k1 not in other:
                 different_param[k1] = {"INCAR1": v1, "INCAR2": 'Default'}
             elif v1 != other[k1]:
                 different_param[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
                 similar_param[k1] = v1
-        for k2,v2 in other.items():
+        for k2, v2 in other.items():
             if k2 not in similar_param and k2 not in different_param:
                 if k2 not in self:
                     different_param[k2] = {"INCAR1": 'Default', "INCAR2": v2}
         return {'Same' : similar_param, 'Different': different_param}
-                
+
     def __add__(self, other):
         """
         Add all the values of another INCAR object to this object
         Facilitates the use of "standard" INCARs
         """
-        params = {k:v for k,v in self.items()}
+        params = {k:v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:
                 raise ValueError("Incars have conflicting values!")
@@ -504,10 +504,10 @@ class Kpoints(VaspInput):
     KPOINT reader/writer.
     """
     supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
-    
-    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma, 
-                 kpts = [[1,1,1]], kpts_shift = (0,0,0), 
-                 kpts_weights=None, coord_type = None, labels = None, 
+
+    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma,
+                 kpts = [[1, 1, 1]], kpts_shift = (0, 0, 0),
+                 kpts_weights = None, coord_type = None, labels = None,
                  tet_number = 0, tet_weight = 0, tet_connections = None):
         """
         Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
@@ -549,7 +549,7 @@ class Kpoints(VaspInput):
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
         if style in (Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst) and len(kpts) > 1:
             raise ValueError("For fully automatic or automatic gamma or monk kpoints, only a single line for the number of divisions is allowed.")
-        
+
         self.comment = comment
         self.num_kpts = num_kpts
         self.style = style
@@ -561,7 +561,7 @@ class Kpoints(VaspInput):
         self.tet_number = tet_number
         self.tet_weight = tet_weight
         self.tet_connections = tet_connections
-        
+
     @staticmethod
     def automatic(subdivisions):
         """
@@ -576,10 +576,10 @@ class Kpoints(VaspInput):
         Returns:
             Kpoints object
         """
-        return Kpoints("Fully automatic kpoint scheme", 0, style = Kpoints.supported_modes.Automatic, kpts=[[subdivisions]])
-    
+        return Kpoints("Fully automatic kpoint scheme", 0, style = Kpoints.supported_modes.Automatic, kpts = [[subdivisions]])
+
     @staticmethod
-    def gamma_automatic(kpts = (1,1,1), shift = (0,0,0)):
+    def gamma_automatic(kpts = (1, 1, 1), shift = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint grid.
         
@@ -595,7 +595,7 @@ class Kpoints(VaspInput):
         return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts = [kpts], kpts_shift = shift)
 
     @staticmethod
-    def monkhorst_automatic(kpts = (2,2,2), shift = (0,0,0)):
+    def monkhorst_automatic(kpts = (2, 2, 2), shift = (0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint grid.
         
@@ -609,46 +609,46 @@ class Kpoints(VaspInput):
             Kpoints object
         """
         return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts = [kpts], kpts_shift = shift)
-    
+
     @staticmethod
     def monkhorst_automatic_density(structure, kppa):
         """
             The approach we took here is to use aconvasp to get the kpoint divisions
         """
         div = aconvasp_caller.get_num_division_kpoints(structure, kppa)
-        
+
         k = None
-        
+
         #FIXME This makes little sense to ask for monkhorst_automatic and it' returns gamma centered mesh
-        
+
         #check if hexagonal!!!!
         if(Kpoints._is_hexagonal(structure) == True):
-            k = Kpoints.gamma_automatic(div, shift = (0,0,0))
+            k = Kpoints.gamma_automatic(div, shift = (0, 0, 0))
         else:
             k = Kpoints.monkhorst_automatic(div)
         return k
-    
+
     @staticmethod
     def _is_hexagonal(structure):
         # Why is this method here?
-        proto1=[math.pi/2.0,math.pi/2.0,2.0*math.pi/3.0]
-        proto2=[math.pi/3.0,math.pi/2.0,math.pi/2.0]
-        angCopy=[c for c in structure.lattice.angles]
+        proto1 = [math.pi / 2.0, math.pi / 2.0, 2.0 * math.pi / 3.0]
+        proto2 = [math.pi / 3.0, math.pi / 2.0, math.pi / 2.0]
+        angCopy = [c for c in structure.lattice.angles]
         angCopy.sort()
-        anglesCheck=False
+        anglesCheck = False
         for i in range(len(angCopy)):
-            if(math.fabs(angCopy[i]-proto1[i])<0.1):
-                anglesCheck=True
-            if(math.fabs(angCopy[i]-proto2[i])<0.1):
-                anglesCheck=True
+            if(math.fabs(angCopy[i] - proto1[i]) < 0.1):
+                anglesCheck = True
+            if(math.fabs(angCopy[i] - proto2[i]) < 0.1):
+                anglesCheck = True
 
-        num_equals=0
-        if(math.fabs(structure.lattice.abc[0]-structure.lattice.abc[1])<0.001):
-            num_equals=num_equals+1
-        if(math.fabs(structure.lattice.abc[0]-structure.lattice.abc[2])<0.001):
-            num_equals=num_equals+1
-        if(math.fabs(structure.lattice.abc[1]-structure.lattice.abc[2])<0.001):
-            num_equals=num_equals+1
+        num_equals = 0
+        if(math.fabs(structure.lattice.abc[0] - structure.lattice.abc[1]) < 0.001):
+            num_equals = num_equals + 1
+        if(math.fabs(structure.lattice.abc[0] - structure.lattice.abc[2]) < 0.001):
+            num_equals = num_equals + 1
+        if(math.fabs(structure.lattice.abc[1] - structure.lattice.abc[2]) < 0.001):
+            num_equals = num_equals + 1
 
         if(num_equals > 0 and anglesCheck):
             return True
@@ -673,26 +673,26 @@ class Kpoints(VaspInput):
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
         style = lines[2].lower()[0]
-        
+
         #Fully automatic KPOINTS
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
-        
+
         #Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
             kpts = [int(x) for x in lines[3].split()]
-            kpts_shift = (0,0,0)
-            if len(lines)>4 and coord_pattern.match(lines[4]):
+            kpts_shift = (0, 0, 0)
+            if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
                     kpts_shift = [int(x) for x in lines[4].split()]
                 except:
                     pass
-            return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" else Kpoints.monkhorst_automatic(kpts, kpts_shift) 
+            return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" else Kpoints.monkhorst_automatic(kpts, kpts_shift)
 
         #Automatic kpoints with basis
         if num_kpts <= 0:
             style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
-            kpts = [[float(x) for x in lines[i].split()] for i in xrange(3,6)]
+            kpts = [[float(x) for x in lines[i].split()] for i in xrange(3, 6)]
             kpts_shift = [float(x) for x in lines[6].split()]
             return Kpoints(comment = comment, num_kpts = num_kpts, style = style, kpts = kpts, kpts_shift = kpts_shift)
 
@@ -703,15 +703,15 @@ class Kpoints(VaspInput):
             kpts = []
             labels = []
             patt = re.compile('([0-9\.\-]+)\s+([0-9\.\-]+)\s+([0-9\.\-]+)\s*!\s*(.*)')
-            for i in range(4,len(lines)):
+            for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
                 if m:
-                    kpts.append([float(m.group(1)),float(m.group(2)),float(m.group(3))])
+                    kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
-            return Kpoints(comment = comment, num_kpts = num_kpts, style = style, 
+            return Kpoints(comment = comment, num_kpts = num_kpts, style = style,
                  kpts = kpts, coord_type = coord_type, labels = labels)
-        
+
         #Assume explicit KPOINTS if all else fails.
         style = Kpoints.supported_modes.Cartesian if style == "ck" else Kpoints.supported_modes.Reciprocal
         kpts = []
@@ -722,7 +722,7 @@ class Kpoints(VaspInput):
 
         for i in xrange(3, 3 + num_kpts):
             toks = re.split("\s+", lines[i])
-            kpts.append([float(toks[0]),float(toks[1]),float(toks[2])])
+            kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
             kpts_weights.append(float(toks[3]))
         try:
             #Deal with tetrahedron method
@@ -733,14 +733,14 @@ class Kpoints(VaspInput):
                 tet_connections = []
                 for i in xrange(5 + num_kpts, 5 + num_kpts + tet_number):
                     toks = lines[i].split()
-                    tet_connections.append((int(toks[0]), [int(toks[j]) for j in xrange(1,5)]))
+                    tet_connections.append((int(toks[0]), [int(toks[j]) for j in xrange(1, 5)]))
         except:
             pass
-        
-        return Kpoints(comment = comment, num_kpts = num_kpts, style = style, 
-                 kpts = kpts, kpts_weights = kpts_weights, 
+
+        return Kpoints(comment = comment, num_kpts = num_kpts, style = style,
+                 kpts = kpts, kpts_weights = kpts_weights,
                  tet_number = tet_number, tet_weight = tet_weight, tet_connections = tet_connections)
-        
+
     def write_file(self, filename):
         """
         Write Kpoints to a file.
@@ -751,7 +751,7 @@ class Kpoints(VaspInput):
         """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
-        
+
     def __str__(self):
         lines = []
         lines.append(self.comment)
@@ -766,19 +766,19 @@ class Kpoints(VaspInput):
                 lines[-1] += " ! " + self.labels[i]
             elif self.num_kpts > 0:
                 lines[-1] += " %f" % (self.kpts_weights[i])
-                
+
         #Print tetrahedorn parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
             lines.append("%d %f" % (self.tet_number, self.tet_weight))
             for sym_weight, vertices in self.tet_connections:
                 lines.append("%d %d %d %d %d" % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3]))
-            
+
         #Print shifts for automatic kpoints types if not zero.
-        if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0,0,0):
+        if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
         return "\n".join(lines)
-    
+
     @property
     def to_dict(self):
         """json friendly dict representation of Kpoints"""
@@ -788,19 +788,19 @@ class Kpoints(VaspInput):
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
         return d
-        
+
     @staticmethod
     def from_dict(d):
         comment = d.get('comment', '')
         generation_style = d.get('generation_style')
         code = "Kpoints.supported_modes." + generation_style
         style = eval(code)
-        kpts = d.get('kpoints',[[1,1,1]])
-        kpts_shift = d.get('usershift', [0,0,0])
+        kpts = d.get('kpoints', [[1, 1, 1]])
+        kpts_shift = d.get('usershift', [0, 0, 0])
         num_kpts = d.get('nkpoints', 0)
         #coord_type = d.get('coord_type', None)
-        return Kpoints(comment= comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
-    
+        return Kpoints(comment = comment, kpts = kpts, style = style, kpts_shift = kpts_shift, num_kpts = num_kpts)
+
 class PotcarSingle(VaspInput):
     """
     Object for a **single** POTCAR.
@@ -829,8 +829,8 @@ class PotcarSingle(VaspInput):
         """
         Full name of POTCAR, e.g., Fe_pv
         """
-        return self.keywords['TITEL'].split(" ")[1].strip()        
-    
+        return self.keywords['TITEL'].split(" ")[1].strip()
+
     @property
     def element(self):
         """
@@ -845,15 +845,15 @@ class PotcarSingle(VaspInput):
         """
         return Element(self.element).Z
 
-class Potcar(list,VaspInput):
+class Potcar(list, VaspInput):
     """
     Object for reading and writing POTCAR files for
     calculations.
     """
     functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW', 'PW91':'POT_GGA_PAW_PW91'}
     DEFAULT_FUNCTIONAL = "PBE"
-    
-    def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
+
+    def __init__(self, symbols = None, functional = DEFAULT_FUNCTIONAL, sym_potcar_map = None):
         if symbols is not None:
             self.functional = functional
             self.set_symbols(symbols, functional, sym_potcar_map)
@@ -861,12 +861,12 @@ class Potcar(list,VaspInput):
     @property
     def to_dict(self):
         return {'functional': self.functional, 'symbols': self.symbols}
-        
+
     @staticmethod
     def from_dict(d):
         functional = d['functional']
         symbols = d['symbols']
-        return Potcar(symbols=symbols, functional=functional)
+        return Potcar(symbols = symbols, functional = functional)
 
     @staticmethod
     def from_file(filename):
@@ -877,7 +877,7 @@ class Potcar(list,VaspInput):
         for p in potcar_strings:
             potcar.append(PotcarSingle(p))
         return potcar
-    
+
     def __str__(self):
         return "".join([str(potcar) for potcar in self])    #line break not used because there is already one at the end of str(potcar) and it causes VASP issues
 
@@ -891,7 +891,7 @@ class Potcar(list,VaspInput):
         """
         with open(filename, 'w') as f:
             f.write(self.__str__() + "\n")
-        
+
     @property
     def symbols(self):
         """
@@ -899,7 +899,7 @@ class Potcar(list,VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
+    def set_symbols(self, elements, functional = DEFAULT_FUNCTIONAL, sym_potcar_map = None):
         '''
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can be fetched from a location specified in pymatgen.cfg or specified explicitly in a map (but not both)
         
@@ -979,52 +979,52 @@ class Vasprun(object):
     
     Author: Shyue Ping Ong
     """
-    supported_properties = ['lattice_rec','vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
+    supported_properties = ['lattice_rec', 'vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
                             'actual_kpoints_weights', 'dos_energies', 'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi', 'ionic_steps', 'dos_has_errors']
-    
+
     def __init__(self, filename):
-        self._filename = filename    
+        self._filename = filename
         with file_open_zip_aware(filename) as f:
             self._handler = VasprunHandler(filename)
             self._parser = xml.sax.parse(f, self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
-    
+
     @property
     def converged(self):
         """
         True if a relaxation run is converged.  Always True for a static run.
         """
         return len(self.structures) - 2 < self.parameters['NSW'] or self.parameters['NSW'] == 0
-    
+
     @property
     def final_energy(self):
         """
         Final energy from the vasp run.
         """
         return self.ionic_steps[-1]['electronic_steps'][-1]['e_wo_entrp']
-    
+
     @property
     def final_structure(self):
         """
         Final structure from vasprun.
         """
         return self.structures[-1]
-    
+
     @property
     def initial_structure(self):
         """
         Initial structure from vasprun.
         """
         return self.structures[0]
-    
+
     @property
     def complete_dos(self):
         """
         A complete dos object which incorporates the total dos and all projected dos.
         """
         return CompleteDos(self.final_structure, self.tdos, self.pdos)
-    
+
     def get_band_structure(self, kpoints_filename = None):
         """
         Returns the band structure.
@@ -1049,15 +1049,15 @@ class Vasprun(object):
         #make the labels_dict to work with cartesian
         if k.coord_type == "Reciprocal":
             for c in labels_dict:
-                labels_dict[c]=lattice_rec.get_cartesian_coords(2 * math.pi * np.array(labels_dict[c]))
+                labels_dict[c] = lattice_rec.get_cartesian_coords(2 * math.pi * np.array(labels_dict[c]))
         kpoints = [lattice_rec.get_cartesian_coords(2 * math.pi * np.array(k)) for k in self.actual_kpoints]
         eig = self.eigenvalues
-        eigenvals=[]
-        for i in range(len(eig[(1,Spin.up)])):
-            eigenvals.append({'energy':[eig[(j+1, Spin.up)][i][0] for j in range(len(kpoints))], 
-                              'occup': [eig[(j+1, Spin.up)][i][1] for j in range(len(kpoints))]})
-        return Bandstructure(kpoints,eigenvals,labels_dict, lattice_rec, self.final_structure)
-    
+        eigenvals = []
+        for i in range(len(eig[(1, Spin.up)])):
+            eigenvals.append({'energy':[eig[(j + 1, Spin.up)][i][0] for j in range(len(kpoints))],
+                              'occup': [eig[(j + 1, Spin.up)][i][1] for j in range(len(kpoints))]})
+        return Bandstructure(kpoints, eigenvals, labels_dict, lattice_rec, self.final_structure)
+
     @property
     def eigenvalue_band_properties(self):
         """
@@ -1066,7 +1066,7 @@ class Vasprun(object):
         Returns:
             (band gap, cbm, vbm, is_band_gap_direct)
         """
-        vbm = - float('inf')
+        vbm = -float('inf')
         vbm_kpoint = None
         cbm = float('inf')
         cbm_kpoint = None
@@ -1079,7 +1079,7 @@ class Vasprun(object):
                     cbm = eigenval
                     cbm_kpoint = k[0]
         return (cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint)
-        
+
     @property
     def to_dict(self):
         """
@@ -1116,16 +1116,16 @@ class Vasprun(object):
             d['run_type'] = "HF"
         else:
             d['run_type'] = "GGA"
-                   
+
         d['input'] = {}
-        d['input']['incar'] = {k:v for k,v in self.incar.items()}
+        d['input']['incar'] = {k:v for k, v in self.incar.items()}
         d['input']['crystal'] = self.initial_structure.to_dict
         d['input']['kpoints'] = self.kpoints.to_dict
-        d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))] 
+        d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
         d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
-        d['input']['parameters'] = {k:v for k,v in self.parameters.items()}
+        d['input']['parameters'] = {k:v for k, v in self.parameters.items()}
         d['input']['lattice_rec'] = self.lattice_rec.to_dict
-        
+
         d['output'] = {}
         d['output']['ionic_steps'] = clean_json(self.ionic_steps)
         d['output']['final_energy'] = self.final_energy
@@ -1133,20 +1133,20 @@ class Vasprun(object):
         d['output']['crystal'] = self.final_structure.to_dict
         d['output']['efermi'] = self.efermi
         #{(kpoint index, Spin.up):array(float)}
-        
+
         d['output']['eigenvalues'] = {}
         for (index, spin), values in self.eigenvalues.items():
             if str(index) not in d['output']['eigenvalues']:
                 d['output']['eigenvalues'][str(index)] = {str(spin):values}
             else:
                 d['output']['eigenvalues'][str(index)][str(spin)] = values
-        
+
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
         d['output'].update(dict(bandgap = gap, cbm = cbm, vbm = vbm, is_gap_direct = is_direct))
-        
+
         return d
 
- 
+
 class VasprunHandler(xml.sax.handler.ContentHandler):
     """
     Sax handler for vasprun.xml.
@@ -1154,7 +1154,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     
     Author: Shyue Ping Ong
     """
-        
+
     def __init__(self, filename):
         self.filename = filename
         # variables to be filled
@@ -1171,18 +1171,18 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.tdos = {}
         self.idos = {}
         self.pdos = {}
-        self.efermi = None 
+        self.efermi = None
         self.ionic_steps = [] # should be a list of dict
         self.structures = []
         self.lattice_rec = []
-        
+
         self.input_read = False
         self.all_calculations_read = False
         self.read_structure = False
         self.read_rec_lattice = False
         self.read_calculation = False
         self.read_eigen = False
-        self.read_dos= False
+        self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
         self.read_lattice = False
@@ -1194,16 +1194,16 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.raw_data = []
         self.dos_has_errors = False #will be set to true if there is an error parsing the Dos.
         self.state = defaultdict(bool)
-        
-    
+
+
     def in_all(self, xml_tags):
-        return all([getattr(self, 'in_'+tag, None) for tag in xml_tags])
-    
+        return all([getattr(self, 'in_' + tag, None) for tag in xml_tags])
+
     def startElement(self, name, attributes):
-        
+
         self.state[name] = True if 'name' not in attributes else attributes['name']
         self.read_val = False
-        
+
         #Nested if loops makes reading much faster.
         if not self.input_read: #reading input parameters
             if (name == "i" or name == "v") and (self.state['incar'] or self.state['parameters']):
@@ -1213,16 +1213,16 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and self.state['kpoints']:
                 self.read_val = True
             elif name == "generation" and self.state['kpoints']:
-                self.kpoints.comment   = "Kpoints from vasprun.xml"
-                self.kpoints.num_kpts  = 0
+                self.kpoints.comment = "Kpoints from vasprun.xml"
+                self.kpoints.num_kpts = 0
                 self.kpoints.style = attributes['param']
                 self.kpoints.kpts = []
-                self.kpoints.kpts_shift = [0,0,0]
+                self.kpoints.kpts_shift = [0, 0, 0]
             elif name == "c" and (self.state['array'] == "atoms" or self.state['array'] == "atomtypes"):
                 self.read_val = True
             elif name == "i" and self.state['i'] == "version" and self.state['generator']:
                 self.read_val = True
-                
+
         else: #reading calculations and structures.
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
@@ -1261,7 +1261,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     if comment.startswith("kpoint"):
                         self.eigen_kpoint = int(comment.split(" ")[1])
             elif self.read_dos:
-                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"] ):
+                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
                     self.read_val = True
                 elif name == "set" and "comment" in attributes:
                     comment = attributes["comment"]
@@ -1276,12 +1276,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.tdos = {}
                 self.idos = {}
                 self.pdos = {}
-                self.efermi = None 
+                self.efermi = None
                 self.read_dos = True
             elif name == "eigenvalues":
                 self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
                 self.read_eigen = True
-            
+
         if self.read_val:
             self.val = StringIO.StringIO()
 
@@ -1295,12 +1295,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         elif self.read_rec_lattice:
             self.latticerec.write(data)
 
-    
+
     #To correct for stupid vasp bug which names Xenon as X!!
     EL_MAPPINGS = {'X':'Xe'}
-    
+
     def endElement(self, name):
-        
+
         if not self.input_read:
             if name == "i":
                 if self.state['incar']:
@@ -1330,16 +1330,16 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.parameters[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                 elif self.state['kpoints']:
                     if self.state['varray'] == 'kpointlist':
-                        self.actual_kpoints.append([float(x) for x in re.split("\s+",self.val.getvalue().strip())])
+                        self.actual_kpoints.append([float(x) for x in re.split("\s+", self.val.getvalue().strip())])
                     if self.state['varray'] == 'weights':
                         self.actual_kpoints_weights.append(float(self.val.getvalue()))
                     if self.state['v'] == "divisions":
-                        self.kpoints.kpts   = [[int(x) for x in re.split("\s+",self.val.getvalue().strip())]]
+                        self.kpoints.kpts = [[int(x) for x in re.split("\s+", self.val.getvalue().strip())]]
                     elif self.state['v'] == "usershift":
-                        self.kpoints.kpts_shift   = [float(x) for x in re.split("\s+",self.val.getvalue().strip())]
+                        self.kpoints.kpts_shift = [float(x) for x in re.split("\s+", self.val.getvalue().strip())]
                     elif self.state['v'] == "genvec1" or self.state['v'] == "genvec2" or self.state['v'] == "genvec3" or self.state['v'] == "shift":
-                        setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+",self.val.getvalue().strip())])
-                        
+                        setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
+
         else:
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
@@ -1347,10 +1347,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 elif name == 'scstep':
                     self.scdata.append(self.scstep)
                 elif name == 'varray' and self.state['varray'] == "forces":
-                    self.forces = np.array([float(x) for x in re.split("\s+",self.posstr.getvalue().strip())])
+                    self.forces = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
                     self.forces.shape = (len(self.atomic_symbols), 3)
                 elif name == 'varray' and self.state['varray'] == "stress":
-                    self.stress = np.array([float(x) for x in re.split("\s+",self.posstr.getvalue().strip())])
+                    self.stress = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
                     self.stress.shape = (3, 3)
                 elif name == "calculation":
                     self.ionic_steps.append({'electronic_steps':self.scdata, 'structure':self.structures[-1], 'forces': self.forces, 'stress':self.stress})
@@ -1362,12 +1362,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.read_lattice_rec = False
                     self.read_rec_lattice = False
                 elif name == "structure":
-                    self.lattice = np.array([float(x) for x in re.split("\s+",self.latticestr.getvalue().strip())])
-                    self.lattice.shape = (3,3)
-                    self.pos = np.array([float(x) for x in re.split("\s+",self.posstr.getvalue().strip())])
+                    self.lattice = np.array([float(x) for x in re.split("\s+", self.latticestr.getvalue().strip())])
+                    self.lattice.shape = (3, 3)
+                    self.pos = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
                     self.pos.shape = (len(self.atomic_symbols), 3)
                     self.structures.append(Structure(self.lattice, self.atomic_symbols, self.pos))
-                    self.lattice_rec = Lattice([float(x) for x in re.split("\s+",self.latticerec.getvalue().strip())])
+                    self.lattice_rec = Lattice([float(x) for x in re.split("\s+", self.latticerec.getvalue().strip())])
                     self.read_structure = False
             elif self.read_dos:
                 try:
@@ -1398,7 +1398,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     elif name == "partial":
                         all_pdos = []
                         natom = len(self.atomic_symbols)
-                        for iatom in xrange(1,natom+1):
+                        for iatom in xrange(1, natom + 1):
                             all_pdos.append(list())
                             for iorbital in xrange(self.norbitals):
                                 updos = self.pdos[(iatom, iorbital, Spin.up)]
@@ -1424,9 +1424,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     self.raw_data = []
                 elif name == "eigenvalues":
                     self.read_eigen = False
-                
+
         self.state[name] = False
-        
+
 def parse_parameters(val_type, val):
     """
     Helper function to convert a Vasprun parameter into the proper type.
@@ -1495,8 +1495,8 @@ def _parse_from_incar(filename, key):
     """
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
-        if re.search("INCAR",f):
-            warnings.warn("INCAR found. Using "+key+" from INCAR.")
+        if re.search("INCAR", f):
+            warnings.warn("INCAR found. Using " + key + " from INCAR.")
             incar = Incar.from_file(os.path.join(dirname, f))
             if key in incar:
                 return incar[key]
@@ -1543,7 +1543,7 @@ class Outcar(object):
         self.is_stopped = False
         with file_open_zip_aware(filename, "r") as f:
             lines = f.readlines()
-        
+
         read_charge = False
         read_mag = False
         charge = []
@@ -1569,7 +1569,7 @@ class Outcar(object):
                     if m:
                         to_append = charge if read_charge else mag
                         data = re.findall("[\d\.\-]+", clean)
-                        to_append.append({header[i]:float(data[i]) for i in xrange(1,len(header))})
+                        to_append.append({header[i]:float(data[i]) for i in xrange(1, len(header))})
             elif line.find('soft stop encountered!  aborting job') != -1:
                 self.is_stopped = True
             elif re.search("\((sec|kb)\):", line):
@@ -1681,10 +1681,10 @@ class Outcar(object):
             def born_section_start(results, match): results.born_ion = -1;
             search.append(['BORN EFFECTIVE CHARGES \(in e, cummulative output\)', None, born_section_start])
 
-            def born_ion(results, match): results.born_ion = int(match.group(1))-1; results.born[results.born_ion] = np.zeros((3, 3));
+            def born_ion(results, match): results.born_ion = int(match.group(1)) - 1; results.born[results.born_ion] = np.zeros((3, 3));
             search.append(['ion +([0-9]+)', lambda results, line: results.born_ion != None, born_ion])
 
-            def born_data(results, match): results.born[results.born_ion][int(match.group(1))-1, :] = np.array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
+            def born_data(results, match): results.born[results.born_ion][int(match.group(1)) - 1, :] = np.array([float(match.group(2)), float(match.group(3)), float(match.group(4))]);
             search.append(['^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$', lambda results, line: results.born_ion >= 0, born_data])
 
             def born_section_stop(results, match): results.born_index = None
@@ -1733,13 +1733,13 @@ class VolumetricData(object):
         ngridpts: Total number of grid points in volumetric data.
     """
     def __init__(self, filename):
-        self.name   = str()
+        self.name = str()
         self.poscar = None
         self.spinpolarized = False
         self.dim = None
         self.data = dict()
         self.ngridpts = 0
-        self._read_file(filename)            
+        self._read_file(filename)
 
     def __add__(self, other):
         return self.linear_add(other, 1.0)
@@ -1747,7 +1747,7 @@ class VolumetricData(object):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def linear_add(self, other, scalefactor=1.0):
+    def linear_add(self, other, scalefactor = 1.0):
         '''
         Method to do a linear sum of volumetric objects.  Use by + and - operators as well.
         '''
@@ -1759,7 +1759,7 @@ class VolumetricData(object):
         summed.dim = self.dim
         summed.numpts = self.ngridpts
         for spin in self.data.keys():
-            summed.data[spin] = self.data[spin] + scalefactor* other.data[spin]
+            summed.data[spin] = self.data[spin] + scalefactor * other.data[spin]
         return summed
 
     def _read_file(self, filename):
@@ -1769,7 +1769,7 @@ class VolumetricData(object):
         reader.close()
 
         self.poscar = Poscar.from_file(filename)
-        
+
         # Skip whitespace between POSCAR and LOCPOT data
         i = 0
         while lines[i].strip() != "":
@@ -1795,7 +1795,7 @@ class VolumetricData(object):
         dimensionexpr = re.compile('([0-9]+) +([0-9]+) +([0-9]+)')
         m = dimensionexpr.match(dimensionline.strip())
         a = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
-        data = (" ".join(lines[i:j-1])).split()
+        data = (" ".join(lines[i:j - 1])).split()
         data = data[:(a[0] * a[1] * a[2])]
 
         self.dim = a
@@ -1812,8 +1812,8 @@ class VolumetricData(object):
             data = data[:(a[0] * a[1] * a[2])]
             downpot = np.zeros((a[0], a[1], a[2]))
             count = 0
-            for (z,y,x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
-                downpot[x, y, z] = float(data[count]) 
+            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                downpot[x, y, z] = float(data[count])
                 count += 1
             self.data = {Spin.up:uppot, Spin.down:downpot}
         else:
@@ -1825,7 +1825,7 @@ class Locpot(VolumetricData):
     Simple object for reading a LOCPOT file
     """
     def __init__(self, filename):
-        super(Locpot,self).__init__(filename)
+        super(Locpot, self).__init__(filename)
 
     def get_avg_potential_along_axis(self, ind):
         """
@@ -1838,7 +1838,7 @@ class Locpot(VolumetricData):
             Average Hatree potential along axis
         """
         m = self.data[Spin.up]
-        
+
         ng = self.dim
         avg = np.zeros((ng[ind], 1))
         for i in xrange(ng[ind]):
@@ -1846,11 +1846,11 @@ class Locpot(VolumetricData):
             for j in xrange(ng[(ind + 1) % 3]):
                 for k in xrange(ng[(ind + 2) % 3]):
                     if ind == 0:
-                        mysum += m[i,j,k]
+                        mysum += m[i, j, k]
                     if ind == 1:
-                        mysum += m[k,i,j]
+                        mysum += m[k, i, j]
                     if ind == 2:
-                        mysum += m[j,k,i]
+                        mysum += m[j, k, i]
 
             avg[i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
         return avg
@@ -1860,7 +1860,7 @@ class Chgcar(VolumetricData):
     Simple object for reading a CHGCAR file
     """
     def __init__(self, filename):
-        super(Chgcar,self).__init__(filename)
+        super(Chgcar, self).__init__(filename)
         #Chgcar format is total density in first set, and moment density in second set.
         # need to split them into up and down.
         updowndata = dict()
@@ -1873,9 +1873,9 @@ class Chgcar(VolumetricData):
         structure = self.poscar.struct
         a = self.dim
         distances = dict()
-        for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            pt = np.array([x / a[0], y / a[1] ,z / a[2]])
-            distances[(x,y,z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
+        for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
+            pt = np.array([x / a[0], y / a[1] , z / a[2]])
+            distances[(x, y, z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
         self._distance_matrix[ind] = distances
 
     def get_diff_int_charge(self, ind, radius):
@@ -1893,11 +1893,11 @@ class Chgcar(VolumetricData):
             self._calculate_distance_matrix(ind)
         a = self.dim
         intchg = 0
-        for (x,y,z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            if self._distance_matrix[ind][(x,y,z)] < radius:
+        for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
+            if self._distance_matrix[ind][(x, y, z)] < radius:
                 intchg += self.data[Spin.up][x, y, z] - self.data[Spin.down][x, y, z]
         return intchg / self.ngridpts
-    
+
     def get_diff_int_charge_slow(self, ind, radius):
         """
         Deprecated.  **Much** slower algorithm for finding differential integrated charge.  Used mainly for testing purposes.
@@ -1913,16 +1913,16 @@ class Chgcar(VolumetricData):
         a = self.dim
         intchg = 0
         ioncoord = st[ind].frac_coords
-        iongridpt = [int(round(ioncoord[i]*a[i])) for i in xrange(3)]
-        max_grid_pts = [min(int(round(radius/st.lattice.abc[i] * a[i]))+1,int(round(a[i]/2))) for i in xrange(3)]
-        
-        for x in xrange(iongridpt[0]-max_grid_pts[0],iongridpt[0]+max_grid_pts[0]):
-            for y in xrange(iongridpt[1]-max_grid_pts[1],iongridpt[1]+max_grid_pts[1]):
-                for z in xrange(iongridpt[2]-max_grid_pts[2],iongridpt[2]+max_grid_pts[2]):
+        iongridpt = [int(round(ioncoord[i] * a[i])) for i in xrange(3)]
+        max_grid_pts = [min(int(round(radius / st.lattice.abc[i] * a[i])) + 1, int(round(a[i] / 2))) for i in xrange(3)]
+
+        for x in xrange(iongridpt[0] - max_grid_pts[0], iongridpt[0] + max_grid_pts[0]):
+            for y in xrange(iongridpt[1] - max_grid_pts[1], iongridpt[1] + max_grid_pts[1]):
+                for z in xrange(iongridpt[2] - max_grid_pts[2], iongridpt[2] + max_grid_pts[2]):
                     modx = x % a[0]
                     mody = y % a[1]
                     modz = z % a[2]
-                    pt = np.array([modx *1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
+                    pt = np.array([modx * 1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
                     dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
                     if dist < radius:
                         intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
@@ -1992,7 +1992,7 @@ class Oszicar(object):
     In addition, two convenience properties, all_energies and final_energy are provided for quick access to the commonly used 
     energetic output from a run.  Please refer to the doc for those two methods for details.    
     """
-    
+
     def __init__(self, filename):
         electronic_steps = []
         ionic_steps = []
@@ -2015,7 +2015,7 @@ class Oszicar(object):
                         electronic_steps[-1].append(data)
                 elif ionic_pattern.match(line.strip()):
                     m = ionic_pattern.match(line.strip())
-                    ionic_steps.append({'F':float(m.group(2)),'E0':float(m.group(3)),'dE':float(m.group(4)),'mag':float(m.group(5))})
+                    ionic_steps.append({'F':float(m.group(2)), 'E0':float(m.group(3)), 'dE':float(m.group(4)), 'mag':float(m.group(5))})
                 elif re.match("^\s*N\s+E\s*", line):
                     header = re.split("\s+", line.strip().replace("d eps", "deps"))
         self.electronic_steps = electronic_steps
@@ -2033,14 +2033,14 @@ class Oszicar(object):
             energies.append(self.ionic_steps[i]['F'])
             all_energies.append(energies)
         return all_energies
-    
+
     @property
     def final_energy(self):
         """
         Final energy from run.
         """
         return self.ionic_steps[-1]['F']
-    
+
 class VaspParserError(Exception):
     '''
     Exception class for Structure.
@@ -2052,43 +2052,43 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
-    
+
 def get_band_structure_from_vasp(path):
     """
     method taking a directory with a band structure vasp run
     and returning the corresponding Bandstructure Object
     also takes into account runs that have been separated in several branches
     """
-    
-    if(os.path.exists(path+"/branch_0")):
+
+    if(os.path.exists(path + "/branch_0")):
         #get all branches in a list of BandStructurs
-        list_branches=[]
-        listdir_clean=[]
+        list_branches = []
+        listdir_clean = []
         for f in os.listdir(path):
             if "branch" in f:
                 listdir_clean.append(f)
         for i in range(len(listdir_clean)):
             for f in listdir_clean:
-                if(int(f.split("_")[1])==i):
-                    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
+                if(int(f.split("_")[1]) == i):
+                    list_branches.append(get_band_structure_from_vasp_individual(path + "/" + f))
         return get_reconstructed_band_structure(list_branches)
     else:
         return get_band_structure_from_vasp_individual(path)
-    
+
 def get_band_structure_from_vasp_individual(path):
-    run=Vasprun(path+"/vasprun.xml")
-    labels_dict=parse_kpoint_labels(path+"/KPOINTS")
-    lattice_rec=run.final_structure.lattice.reciprocal_lattice
+    run = Vasprun(path + "/vasprun.xml")
+    labels_dict = parse_kpoint_labels(path + "/KPOINTS")
+    lattice_rec = run.final_structure.lattice.reciprocal_lattice
     for c in labels_dict:
-        labels_dict[c]=lattice_rec.get_cartesian_coords(labels_dict[c])
-    kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
-    dict_eigen=run.to_dict['output']['eigenvalues']
-    eigenvals=[]
-    max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
+        labels_dict[c] = lattice_rec.get_cartesian_coords(labels_dict[c])
+    kpoints = [lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    dict_eigen = run.to_dict['output']['eigenvalues']
+    eigenvals = []
+    max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
     for i in range(max_band):
-        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, run.efermi)
+        eigenvals.append({'energy':[dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
+        eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+    bands = Bandstructure(kpoints, eigenvals, labels_dict, run.final_structure, run.efermi)
     return bands
 
 def parse_kpoint_labels(file_kpoints):
@@ -2097,17 +2097,17 @@ def parse_kpoint_labels(file_kpoints):
     """
     with file_open_zip_aware(file_kpoints, "r") as f:
         lines = f.readlines()
-    count=-1
-    dict_label_kpoints={}
+    count = -1
+    dict_label_kpoints = {}
     for line in lines:
-        count=count+1
-        if(count<4):
+        count = count + 1
+        if(count < 4):
             continue
-        
-        tokens=re.split(" +",line)
-        if len(tokens)<6:
+
+        tokens = re.split(" +", line)
+        if len(tokens) < 6:
             continue
-        array=np.array([float(tokens[1]),float(tokens[2]),float(tokens[3])])
-        dict_label_kpoints[tokens[5]]=array
-        
+        array = np.array([float(tokens[1]), float(tokens[2]), float(tokens[3])])
+        dict_label_kpoints[tokens[5]] = array
+
     return dict_label_kpoints
