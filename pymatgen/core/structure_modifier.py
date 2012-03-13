@@ -67,16 +67,32 @@ class StructureEditor(StructureModifier):
             species_mapping:
                 dict of species to swap. Species can be elements too.
                 e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution.
+                the second species can be a sp_and_occu dict. For example, a site with 0.5 Si that is passed
+                the mapping {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will have .375 Ge and .125 C
         """
 
         def mod_site(site):
             new_atom_occu = dict()
             for sp, amt in site.species_and_occu.items():
                 if sp in species_mapping:
-                    new_atom_occu[species_mapping[sp]] = amt
+                    if species_mapping[sp].__class__.__name__ in ('Element', 'Specie'):
+                        if species_mapping[sp] in new_atom_occu:
+                            new_atom_occu[species_mapping[sp]] += amt
+                        else:
+                            new_atom_occu[species_mapping[sp]] = amt
+                    elif species_mapping[sp].__class__.__name__ == 'dict':
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            if new_sp in new_atom_occu:
+                                new_atom_occu[new_sp] += amt * new_amt
+                            else:
+                                new_atom_occu[new_sp] = amt * new_amt
                 else:
-                    new_atom_occu[sp] = amt
+                    if sp in new_atom_occu:
+                        new_atom_occu[sp] += amt
+                    else:
+                        new_atom_occu[sp] = amt
             return PeriodicSite(new_atom_occu, self._lattice.get_fractional_coords(site.coords), self._lattice)
+
         self._sites = map(mod_site, self._sites)
 
     def replace_single_site(self, index, species = None, atoms_n_occu = None):

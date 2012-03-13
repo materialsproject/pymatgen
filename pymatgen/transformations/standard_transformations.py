@@ -245,7 +245,9 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
-    Remove fraction of specie from a structure. Requires an oxidation state decorated structure for ewald sum to be computed.
+    Remove fraction of specie from a structure. 
+    Requires an oxidation state decorated structure for ewald sum to be 
+    computed.
     """
     def __init__(self, specie_to_remove, fraction_to_remove, complete_ranking = False):
         """
@@ -254,6 +256,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 Specie to remove. Must have oxidation state E.g., "Li1+"
             fraction_to_remove:
                 Fraction of specie to remove. E.g., 0.5
+            complete_ranking:
+                Whether to use the slow algorithm to enumerate all possible
+                symmetrically distinct structures for energies. This populates
+                the all_structures attribute, which provides access to all 
+                structures.
         """
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
@@ -263,15 +270,29 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         lowestewald = float('inf')
         opt_s = None
         all_structures = list()
+        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+        symprec = 0.1
+        s = SymmetryFinder(structure, symprec = symprec)
+        sg = s.get_spacegroup()
+        tested_sites = []
+        ewaldsum = EwaldSummation(structure)
         for indices in itertools.combinations(specie_indices, num_to_remove):
-            mod = StructureEditor(structure)
-            mod.delete_sites(indices)
-            s_new = mod.modified_structure.get_sorted_structure()
-            all_structures.append(s_new)
-            ewaldsum = EwaldSummation(s_new)
-            if ewaldsum.total_energy < lowestewald:
-                lowestewald = ewaldsum.total_energy
-                opt_s = s_new
+            sites_to_remove = [structure[i] for i in indices]
+            already_tested = False
+            for tsites in tested_sites:
+                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec = symprec):
+                    already_tested = True
+            if not already_tested:
+                tested_sites.append(sites_to_remove)
+                mod = StructureEditor(structure)
+                mod.delete_sites(indices)
+                s_new = mod.modified_structure
+                all_structures.append(s_new)
+                energy = ewaldsum.compute_partial_energy(indices)
+                if energy < lowestewald:
+                    lowestewald = energy
+                    opt_s = s_new
+        
         return (opt_s, all_structures)
 
     def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
