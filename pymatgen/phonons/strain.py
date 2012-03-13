@@ -1,6 +1,6 @@
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen_repo') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -14,6 +14,16 @@ from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
+
+__author__="Maarten de Jong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__credits__ = "Mark Asta, Anubhav Jain"
+__version__ = "1.0"
+__maintainer__ = "Maarten de Jong"
+__email__ = "maartendft@gmail.com"
+__status__ = "Development"
+__date__ ="March 13, 2012"
+
 
 class Strain(object):
  
@@ -64,7 +74,7 @@ class Strain(object):
 
 
 class IndependentStrain(Strain):
-   #TODO: add polar decomposition method
+   # todo: add polar decomposition method
    # 
 
     def __init__(self, deformation,tol=0.00000001):
@@ -82,6 +92,7 @@ class IndependentStrain(Strain):
                     sum1 = sum1 + np.abs(df1[c1,c2])
                     if np.abs(df1[c1,c2]) > tol: 
                         sum2 = sum2 + 1
+                      
 
         if sum1<tol: # if no shear components present
             if len(np.nonzero(df1-np.diag([1,1,1])>tol)[0])>1: # check hom many diagonal components differ from unity
@@ -92,7 +103,7 @@ class IndependentStrain(Strain):
                 return np.nonzero(df1-np.diag([1,1,1])>tol)[0][0], np.nonzero(df1-np.diag([1,1,1])>tol)[1][0]
         
         else: # if shear components present
-            if sum2 > tol: # if multiple shear components present
+            if sum2 > 1+tol: # if multiple shear components present
                 raise ValueError("More than one shear mode was applied.")
             elif len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0])>1: # if one shear def. present but also normal modes:
                 raise ValueError("Shear and normal deformations were applied simultaneously.")
@@ -114,10 +125,16 @@ if __name__ == "__main__":
 
 
     mat = np.eye(3)
-    mat[2,1] = 1.05
-#    mat[0,1] = 1.00001
+    mat[2,1] = 1.000001
+
+
+
+    print mat
+
+#    mat[0,1] = 0.1
 
     my_strain = Strain(mat)
+
 #    print my_strain.deformation_matrix
 #    print my_strain.strain
 
