@@ -6,14 +6,14 @@ This module provides classes for calculating the ewald sum of a structure.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 import numpy as np
 from math import pi, sqrt, log, exp, cos, sin, erfc
@@ -42,86 +42,86 @@ def minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #cu
     This method looks for short circuits to a brute force search by looking at best and worse case scenarios (which can be computed quickly)
     It is about 1000 times faster than brute force.
     '''
-    
+
     if not CURRENT_MINIMUM:
         CURRENT_MINIMUM = [float('inf')]
-    
-    if num_to_remove>len(indices):  #if we've kept too many rows
+
+    if num_to_remove > len(indices):  #if we've kept too many rows
         return[float('inf'), []]    #abandon the branch
-    
-    if num_to_remove==0:                        #if we don't have to remove any more rows
+
+    if num_to_remove == 0:                        #if we don't have to remove any more rows
         matrix_sum = sum(sum(matrix))
-        if matrix_sum<CURRENT_MINIMUM[0]:
+        if matrix_sum < CURRENT_MINIMUM[0]:
             CURRENT_MINIMUM[0] = matrix_sum
         return [matrix_sum, []]                 #return the sum of the matrix
-    
+
     indices = list(indices)         #make a copy of the indices so recursion doesn't alter them
-    matrix2=deepcopy(matrix)
-    
+    matrix2 = deepcopy(matrix)
+
     max_index = None
-    
+
     #compute the best case sum for removing rows
-    if num_to_remove>1: #lets not do this if we're finding the minimum in the next step anyway
-        index_sum = [sum(matrix[i,:])+sum(matrix[:,i])-matrix[i,i] for i in indices]    #compute the value associated with an index assuming no other indices are removed
+    if num_to_remove > 1: #lets not do this if we're finding the minimum in the next step anyway
+        index_sum = [sum(matrix[i, :]) + sum(matrix[:, i]) - matrix[i, i] for i in indices]    #compute the value associated with an index assuming no other indices are removed
         max_index = indices[index_sum.index(max(index_sum))]                            #get the index of the maximum value (we'll try removing this row first)
         index_sum_sorted = list(index_sum)
         index_sum_sorted.sort(reverse = True)
-        all_interactions = list(matrix[indices,:][:,indices].flatten())                 #get the cells that we could be double counting when removing multiple index
+        all_interactions = list(matrix[indices, :][:, indices].flatten())                 #get the cells that we could be double counting when removing multiple index
         all_interactions.sort()
-        
+
         #sum the matrix - the rows with maximum 
-        best_case = sum(sum(matrix))-sum(index_sum_sorted[:num_to_remove])+sum(all_interactions[:(num_to_remove*(num_to_remove-1))])
-        
+        best_case = sum(sum(matrix)) - sum(index_sum_sorted[:num_to_remove]) + sum(all_interactions[:(num_to_remove * (num_to_remove - 1))])
+
         if best_case > CURRENT_MINIMUM[0]:
             return [float('inf'), []]   #if the best case doesn't beat the minimum abandon the branch
-        
+
         #try to find rows that should definitely be removed or definitely ignored based on best and worse case performances
         most_positive = []
         most_negative = []
         for i in range(len(indices)):
             index = indices[i]
-            interactions = [matrix[index,x]+matrix[x,index] for x in indices if not x == index]
+            interactions = [matrix[index, x] + matrix[x, index] for x in indices if not x == index]
             interactions.sort()
-            most_positive.append(index_sum[i]-sum(interactions[:(num_to_remove-1)]))
-            most_negative.append(index_sum[i]-sum(interactions[-(num_to_remove-1):]))
-            
+            most_positive.append(index_sum[i] - sum(interactions[:(num_to_remove - 1)]))
+            most_negative.append(index_sum[i] - sum(interactions[-(num_to_remove - 1):]))
+
         most_positive_sorted = sorted(most_positive, reverse = True)
-        most_negative_sorted = sorted(most_negative, reverse = True)    
-        
+        most_negative_sorted = sorted(most_negative, reverse = True)
+
         deletion_indices = []
         ignore_indices = []
         for i in range(len(indices)):
-            if most_negative[i] > most_positive_sorted[num_to_remove-1]:
+            if most_negative[i] > most_positive_sorted[num_to_remove - 1]:
                 deletion_indices.append(indices[i])
                 pass
-            if most_positive[i] < most_negative_sorted[num_to_remove-1]:
+            if most_positive[i] < most_negative_sorted[num_to_remove - 1]:
                 ignore_indices.append(indices[i])
                 pass
-                
+
         if deletion_indices + ignore_indices:
             for r_index in deletion_indices:
-                matrix2[:,r_index] = 0
-                matrix2[r_index,:] = 0
+                matrix2[:, r_index] = 0
+                matrix2[r_index, :] = 0
                 num_to_remove -= 1
                 indices.remove(r_index)
             for x in ignore_indices:
                 indices.remove(x)
             output = minimize_matrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
-            output[1] = output[1]+deletion_indices
+            output[1] = output[1] + deletion_indices
             output[1].sort()
             return output
-    
+
     #if no shortcuts could be found, recurse down one level by both removing and ignoring one row
     if max_index:
         r_index = max_index
         indices.remove(max_index)
-    else:    
+    else:
         r_index = indices.pop()
-    matrix2[:,r_index] = 0
-    matrix2[r_index,:] = 0
-    sum2 = minimize_matrix(matrix2, indices, num_to_remove-1, CURRENT_MINIMUM)
+    matrix2[:, r_index] = 0
+    matrix2[r_index, :] = 0
+    sum2 = minimize_matrix(matrix2, indices, num_to_remove - 1, CURRENT_MINIMUM)
     sum1 = minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
-    if sum1[0]<sum2[0]:
+    if sum1[0] < sum2[0]:
         return sum1
     else:
         sum2[1].append(r_index)
@@ -142,7 +142,7 @@ class EwaldSummation:
 
     # taken from convasp. converts unit of q*q/r into eV 
     CONV_FACT = 1e10 * sc.e / (4 * pi * sc.epsilon_0)
-    
+
     def __init__(self, structure, real_space_cut = -1.0, recip_space_cut = -1.0, eta = -1.0, acc_factor = 8.0):
         """
         Initializes and calculates the Ewald sum. Default convergence parameters have been
@@ -168,87 +168,81 @@ class EwaldSummation:
         """
         self._s = structure
         self._vol = structure.volume
-        
+
         self._acc_factor = acc_factor
 
         # set screening length
-        self._eta = eta if eta > 0 else (len(structure) * 0.01 / self._vol) ** (1/3) * pi        
+        self._eta = eta if eta > 0 else (len(structure) * 0.01 / self._vol) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
-        
+
         # acc factor used to automatically determine the optimal real and 
         # reciprocal space cutoff radii
-        self._accf = sqrt(log(10 ** acc_factor))  
-        
-        self._rmax = real_space_cut if real_space_cut  > 0 else self._accf/self._sqrt_eta 
-        self._gmax = recip_space_cut if recip_space_cut > 0 else 2* self._sqrt_eta * self._accf
-        
+        self._accf = sqrt(log(10 ** acc_factor))
+
+        self._rmax = real_space_cut if real_space_cut > 0 else self._accf / self._sqrt_eta
+        self._gmax = recip_space_cut if recip_space_cut > 0 else 2 * self._sqrt_eta * self._accf
+
         oxi_states = [compute_average_oxidation_state(site) for site in structure]
         self._total_q = sum(oxi_states)
-        
-        self._forces = np.zeros((len(structure),3))
+
+        self._forces = np.zeros((len(structure), 3))
         self._all_nn = self._s.get_all_neighbors(self._rmax, True)
-        recip = Structure(self._s.lattice.reciprocal_lattice, ["H"], [np.array([0,0,0])])
+        recip = Structure(self._s.lattice.reciprocal_lattice, ["H"], [np.array([0, 0, 0])])
         self._recip_nn = recip.get_neighbors(recip[0], self._gmax)
         (self._recip, recip_forces) = self._calc_recip(oxi_states)
         (self._real, self._point, real_point_forces) = self._calc_real_and_point(oxi_states)
         self._forces = recip_forces + real_point_forces
-    
+
     def compute_partial_energy(self, removed_indices):
         """
         Gives total ewald energy for certain sites being removed, i.e. zeroed
         out. 
         """
-        recp = self._recip.copy()
-        real = self._real.copy()
-        point = self._point.copy()
+        total_energy_matrix = self.total_energy_matrix.copy()
         for i in removed_indices:
-            recp[i, :] = 0
-            recp[:, i] = 0
-            real[i, :] = 0
-            real[:, i] = 0
-            point[i] = 0
-            
-        return sum(sum(real)) + sum(point) + sum(sum(recp))
-        
+            total_energy_matrix[i, :] = 0
+            total_energy_matrix[:, i] = 0
+        return sum(sum(total_energy_matrix))
+
     @property
     def reciprocal_space_energy(self):
         return sum(sum(self._recip))
-    
+
     @property
     def reciprocal_space_energy_matrix(self):
         return self._recip
-    
+
     @property
     def real_space_energy(self):
         return sum(sum(self._real))
-    
+
     @property
     def real_space_energy_matrix(self):
         return self._real
-    
+
     @property
     def point_energy(self):
         return sum(self._point)
-    
+
     @property
     def point_energy_matrix(self):
         return self._point
-    
+
     @property
     def total_energy(self):
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point)
-    
+
     @property
     def total_energy_matrix(self):
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
-            totalenergy[i,i] += self._point[i]
+            totalenergy[i, i] += self._point[i]
         return totalenergy
-    
+
     @property
     def forces(self):
         return self._forces
-    
+
     def _calc_recip(self, oxi_states):
         """
         Perform the reciprocal space summation. Calculates the quantity
@@ -256,49 +250,49 @@ class EwaldSummation:
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
         S(G)S(-G) = |S(G)|**2
         """
-        
+
         prefactor = 2 * pi / self._vol
-        erecip = np.zeros( (self._s.num_sites,self._s.num_sites) )
-        forces = np.zeros((len(self._s),3))
-        
+        erecip = np.zeros((self._s.num_sites, self._s.num_sites))
+        forces = np.zeros((len(self._s), 3))
+
         nn = self._recip_nn
-        for (n,dist) in nn:
+        for (n, dist) in nn:
             gvect = n.coords
             gsquare = np.linalg.norm(gvect) ** 2
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
-                        
+
             #calculate the structure factor
-            sfactor = np.zeros( (self._s.num_sites,self._s.num_sites) )
+            sfactor = np.zeros((self._s.num_sites, self._s.num_sites))
             for i in range(self._s.num_sites):
                 sitei = self._s[i]
                 qi = oxi_states[i]
                 for j in range(self._s.num_sites):
                     sitej = self._s[j]
                     qj = oxi_states[j]
-                    exparg = np.dot(gvect, sitei.coords-sitej.coords) 
-                    sfactor[i,j] = qi * qj * (cos(exparg) + sin(exparg))
-                    
-            erecip += expval/gsquare*sfactor
-            
+                    exparg = np.dot(gvect, sitei.coords - sitej.coords)
+                    sfactor[i, j] = qi * qj * (cos(exparg) + sin(exparg))
+
+            erecip += expval / gsquare * sfactor
+
             #do forces if necessary
             sreal = 0.0
             simag = 0.0
             for i in range(self._s.num_sites):
                 site = self._s[i]
                 exparg = np.dot(gvect, site.coords)
-                qj = oxi_states[i]  
+                qj = oxi_states[i]
                 sreal += qj * cos(exparg)
                 simag += qj * sin(exparg)
-                
-            for i in range(self._s.num_sites):    
+
+            for i in range(self._s.num_sites):
                 site = self._s[i]
-                exparg = np.dot(gvect, site.coords) 
-                qj = oxi_states[i]  
+                exparg = np.dot(gvect, site.coords)
+                qj = oxi_states[i]
                 pref = 2 * expval / gsquare * qj
                 forces[i] += prefactor * pref * gvect * (sreal * sin(exparg) - simag * cos(exparg)) * EwaldSummation.CONV_FACT
-            
+
         return (erecip * prefactor * EwaldSummation.CONV_FACT , forces)
-    
+
 
     def _calc_real_and_point(self, oxi_states, zeroed_sites = ()):
         """
@@ -306,41 +300,41 @@ class EwaldSummation:
         
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
-        
+
         all_nn = self._all_nn
-        forcepf = 2.0 * self._sqrt_eta/sqrt(pi)
-        ereal = np.zeros( (self._s.num_sites,self._s.num_sites) )
-        epoint = np.zeros( (self._s.num_sites) )
-        forces = np.zeros((len(self._s),3))
-        
+        forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
+        ereal = np.zeros((self._s.num_sites, self._s.num_sites))
+        epoint = np.zeros((self._s.num_sites))
+        forces = np.zeros((len(self._s), 3))
+
         for i in range(self._s.num_sites):
             site = self._s[i]
             nn = all_nn[i] #self._s.get_neighbors(site, self._rmax)
             qi = oxi_states[i]
-            epoint[i] = qi*qi
-            epoint[i] *= -1.0 * sqrt(self._eta/pi)
+            epoint[i] = qi * qi
+            epoint[i] *= -1.0 * sqrt(self._eta / pi)
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)   #add jellium term
             for j in range(len(nn)):  #for (nsite, rij)  in nn:
                 nsite = nn[j][0]
                 rij = nn[j][1]
                 qj = compute_average_oxidation_state(nsite)  #nsite 
                 for site in zeroed_sites:
-                    if nsite.is_periodic_image(site,1e-2):
+                    if nsite.is_periodic_image(site, 1e-2):
                         qj = 0
                         break
-                erfcval = erfc(self._sqrt_eta*rij)
-                ereal[nn[j][2],i] += erfcval * qi * qj / rij
-                fijpf = qj / rij / rij / rij* (erfcval + forcepf * rij * exp(-self._eta * rij * rij)) 
+                erfcval = erfc(self._sqrt_eta * rij)
+                ereal[nn[j][2], i] += erfcval * qi * qj / rij
+                fijpf = qj / rij / rij / rij * (erfcval + forcepf * rij * exp(-self._eta * rij * rij))
                 forces[i] += fijpf * (site.coords - nsite.coords) * qi * EwaldSummation.CONV_FACT
-                    
+
         ereal = ereal * 0.5 * EwaldSummation.CONV_FACT
-        epoint = epoint * EwaldSummation.CONV_FACT 
+        epoint = epoint * EwaldSummation.CONV_FACT
         return (ereal, epoint, forces)
-    
+
     @property
     def eta(self):
         return self._eta
-    
+
     def __str__(self):
         output = ["Real = " + str(self.real_space_energy)]
         output.append("Reciprocal = " + str(self.reciprocal_space_energy))
@@ -348,7 +342,7 @@ class EwaldSummation:
         output.append("Total = " + str(self.total_energy))
         output.append("Forces:\n" + str(self.forces))
         return "\n".join(output)
-    
+
 class EwaldMinimizer:
     '''
     This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
@@ -360,7 +354,7 @@ class EwaldMinimizer:
     
     Author - Will Richards
     '''
-    
+
     def __init__(self, matrix, m_list, num_to_return = 1, fast = True):
         '''
         Args:
@@ -378,28 +372,28 @@ class EwaldMinimizer:
         '''
         self._matrix = copy(matrix)
         for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
-            for j in range(i,len(self._matrix)):
-                value = (self._matrix[i,j] + self._matrix[j,i])/2
-                self._matrix[i,j] = value
-                self._matrix[j,i] = value
+            for j in range(i, len(self._matrix)):
+                value = (self._matrix[i, j] + self._matrix[j, i]) / 2
+                self._matrix[i, j] = value
+                self._matrix[j, i] = value
         self._m_list = deepcopy(sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True)) #sort the m_list based on number of permutations
         self._current_minimum = float('inf')
-        
+
         self._output_lists = []
         self._num_to_return = num_to_return
-        
+
         n_combinations = 1  #calculate number of permutations to calculate
         for m in self._m_list:
-            n_combinations *=comb(len(m[2]), m[1])
-            
+            n_combinations *= comb(len(m[2]), m[1])
+
         if n_combinations <= num_to_return:
             fast = False                    #If we're returning all sums, don't bother with short circuit algorithm
-        
+
         self.minimize_matrix(fast)
-        
+
         self._best_m_list = self._output_lists[0][1]
         self._minimized_sum = self._output_lists[0][0]
-        
+
     def add_m_list(self, matrix_sum, m_list):
         '''
         This adds an m_list to the output_lists and updates the current minimum if the list is full.
@@ -408,12 +402,12 @@ class EwaldMinimizer:
             self._output_lists = [[matrix_sum, m_list]]
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
-        if len(self._output_lists)>self._num_to_return:
+        if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
         if len(self._output_lists) == self._num_to_return:
             self._current_minimum = self._output_lists[-1][0]
-        
-        
+
+
     def best_case(self, matrix, manipulation, indices_left):
         '''
         Computes a best case given a matrix and manipulation list. This is only used for when there is only one manipulation left
@@ -431,8 +425,8 @@ class EwaldMinimizer:
         indices = list(indices_left.intersection(manipulation[2])) #only look at the indices that are in the manipulation and haven't been used
         fraction = manipulation[0]
         num = manipulation[1]
-        
-        sums = [2*sum(matrix[i,:])-(1-fraction)*matrix[i,i] for i in indices]   #compute the sum of each row. the weird prefactor on the self 
+
+        sums = [2 * sum(matrix[i, :]) - (1 - fraction) * matrix[i, i] for i in indices]   #compute the sum of each row. the weird prefactor on the self 
                                                                                 #interaction term is to make the math work out because it actually 
                                                                                 #is multiplied by f**2vrather than f like all the other te
         if fraction < 1:    #we want do the thing that we guess will be most minimizing (to get to a lower current minimum faster). Whether 
@@ -441,31 +435,31 @@ class EwaldMinimizer:
         else:
             next_index = indices[sums.index(min(sums))]
 
-        interactions = list(matrix[indices,:][:,indices].flatten()) #compute a list of things that we may have double counted
-        
-        if fraction <=1:    #we use the first part of sorted sums. Whether we want highest or lowest depends on the fraction
+        interactions = list(matrix[indices, :][:, indices].flatten()) #compute a list of things that we may have double counted
+
+        if fraction <= 1:    #we use the first part of sorted sums. Whether we want highest or lowest depends on the fraction
             sums.sort(reverse = True)
-        else:    
+        else:
             sums.sort()
-        if 2*fraction-fraction**2 <= 1:
+        if 2 * fraction - fraction ** 2 <= 1:
             interactions.sort(reverse = True)
         else:
             interactions.sort()
-        
+
         #compute a best case using the most minimizing row sums and the most minimizing interactions
-        best_case = sum(sum(matrix))+(fraction-1)*sum(sums[:num])+(2*fraction-fraction**2-1)*sum(interactions[:num*(num-1)])
-        
+        best_case = sum(sum(matrix)) + (fraction - 1) * sum(sums[:num]) + (2 * fraction - fraction ** 2 - 1) * sum(interactions[:num * (num - 1)])
+
         return best_case, next_index
-    
+
     def get_next_index(self, matrix, manipulation, indices_left): #returns an index that should have the most negative effect on the matrix sum
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
-        sums = [2*sum(matrix[i,:])-(1-f)*matrix[i,i] for i in indices]
+        sums = [2 * sum(matrix[i, :]) - (1 - f) * matrix[i, i] for i in indices]
         if f < 1:
             next_index = indices[sums.index(max(sums))]
         else:
             next_index = indices[sums.index(min(sums))]
-        
+
         return next_index
 
     def _recurse(self, matrix, m_list, indices, fast, output_m_list = []):
@@ -486,7 +480,7 @@ class EwaldMinimizer:
             [minimal value, [list of replacements]]
                 Each replacement is a list [index of replaced specie, specie inserted at that index]
         '''
-        
+
         if m_list[-1][1] == 0:
             m_list = copy(m_list)
             m_list.pop()
@@ -494,61 +488,60 @@ class EwaldMinimizer:
                 matrix_sum = sum(sum(matrix))
                 if matrix_sum < self._current_minimum:
                     self.add_m_list(matrix_sum, output_m_list)
-                return 
-            
-        if m_list[-1][1]>len(indices.intersection(m_list[-1][2])):
+                return
+
+        if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
-        
+
         index = None
-        
-        if fast and len(m_list)==1 and m_list[-1][1]>1:
+
+        if fast and len(m_list) == 1 and m_list[-1][1] > 1:
             best_case = self.best_case(copy(matrix), m_list[-1], indices)
             index = best_case[1]
             if best_case[0] > self._current_minimum:
                 return
 
-        
+
         if index is None and fast:
             index = self.get_next_index(matrix, m_list[-1], indices)
         elif index is None:
-            index = m_list[-1][2][-1]    
-        
+            index = m_list[-1][2][-1]
+
         m_list[-1][2].remove(index)
-            
+
         matrix2 = copy(matrix)
         m_list2 = deepcopy(m_list)
         output_m_list2 = deepcopy(output_m_list)
-        
-        matrix2[index,:] *= m_list[-1][0]
-        matrix2[:,index] *= m_list[-1][0]
+
+        matrix2[index, :] *= m_list[-1][0]
+        matrix2[:, index] *= m_list[-1][0]
         output_m_list2.append([index, m_list[-1][3]])
-        indices2= copy(indices)
+        indices2 = copy(indices)
         m_list2[-1][1] -= 1
-        
+
         if index in indices2:
             indices2.remove(index)
             output2 = self._recurse(matrix2, m_list2, indices2, fast, output_m_list2)
-            
+
         output1 = self._recurse(matrix, m_list, indices, fast, output_m_list)
-        
-        
+
+
     def minimize_matrix(self, fast = True):
         '''
         This method finds and returns the permutations that produce the lowest ewald sum
         calls recursive function to iterate through permutations
         '''
-        
-        return self._recurse( self._matrix, self._m_list, set(range(len(self._matrix))), fast)
-    
+
+        return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))), fast)
+
     @property
     def best_m_list(self):
         return self._best_m_list
-    
+
     @property
     def minimized_sum(self):
         return self._minimized_sum
-    
+
     @property
     def output_lists(self):
         return self._output_lists
-        
