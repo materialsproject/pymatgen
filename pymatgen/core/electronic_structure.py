@@ -445,6 +445,7 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = Non
     keys.reverse()
     alldensities.reverse()
 
+    allpts = []
     for i, key in enumerate(keys):
         x = []
         y = []
@@ -452,16 +453,11 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = Non
             if spin in alldensities[i]:
                 x.extend(allenergies[i])
                 y.extend(int(spin) * alldensities[i][spin])
+        allpts.extend(zip(x, y))
         if stack:
             plt.fill(x, y, color = color_order[i % 4], label = str(key))
         else:
             plt.plot(x, y, color = color_order[i % 4], label = str(key))
-        #for spin in [Spin.up, Spin.down]:
-        #    if spin in alldensities[i]:
-        #        if stack:
-        #            plt.fill(energies, int(spin) * alldensities[i][spin], color = color_order[count % 4], label = '{} {}'.format(key, spin))
-        #        else:
-        #            plt.plot(energies, int(spin) * alldensities[i][spin], color = color_order[count % 4], label = '{} {}'.format(key, spin))
 
     plt.xlabel('Energies (eV)')
     plt.ylabel('Density of states')
@@ -469,6 +465,11 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = Non
         plt.xlim(xlim)
     if ylim:
         plt.ylim(ylim)
+    else:
+        xlim = plt.xlim()
+        relevanty = [p[1] for p in allpts if p[0] > xlim[0] and p[0] < xlim[1]]
+        plt.ylim((min(relevanty), max(relevanty)))
+    #plt.ylim()
     plt.legend()
     leg = plt.gca().get_legend()
     ltext = leg.get_texts()  # all the text.Text instance in the legend
