@@ -74,22 +74,22 @@ class Element(object):
             return {int(k):v for k, v in self._data['Ionic_radii'].items()}
         else:
             return {}
-    
+
     @property
     def Z(self):
         """Atomic number"""
         return self._z
-    
+
     @property
     def symbol(self):
         """Element symbol"""
         return self._symbol
-    
+
     @property
     def X(self):
         """Electronegativity"""
         return self._x
-        
+
     @property
     def number(self):
         """Alternative attribute for atomic number"""
@@ -194,32 +194,32 @@ class Element(object):
         if data[0][0] == "[":
             data = Element(data[0].replace("[", "").replace("]", "")).full_electronic_structure + data[1:]
         return data
-    
+
     @property
     def thermal_conductivity(self):
         """Thermal conductivity"""
         return self._data['Thermal conductivity']
-    
+
     @property
     def boiling_point(self):
         """Boiling point"""
         return self._data['Boiling point']
-    
+
     @property
     def melting_point(self):
         """Melting point"""
         return self._data['Melting point']
-    
+
     @property
     def critical_temperature(self):
         """Critical temperature"""
         return self._data['Critical temperature']
-    
+
     @property
     def superconduction_temperature(self):
         """Superconduction temperature"""
         return self._data['Superconduction temperature']
-    
+
     @property
     def liquid_range(self):
         """Liquid range"""
@@ -229,12 +229,12 @@ class Element(object):
     def bulk_modulus(self):
         """Bulk modulus"""
         return self._data['Bulk modulus']
-    
+
     @property
     def youngs_modulus(self):
         """Young's modulus"""
         return self._data['Youngs modulus']
-    
+
     @property
     def brinell_hardness(self):
         """Brinell hardness"""
@@ -244,17 +244,17 @@ class Element(object):
     def rigidity_modulus(self):
         """Rigidity modulous"""
         return self._data['Rigidity modulus']
-    
+
     @property
     def mineral_hardness(self):
         """Mineral hardness"""
         return self._data['Mineral hardness']
-    
+
     @property
     def vickers_hardness(self):
         """Vicker's hardness"""
         return self._data['Vickers hardness']
-    
+
     @property
     def density_of_solid(self):
         """Density of solid phase"""
@@ -265,19 +265,19 @@ class Element(object):
         """Coefficient of linear thermal expansion"""
         return self._data['Coefficient of linear thermal expansion']
 
-    def __eq__(self,other):
+    def __eq__(self, other):
         if other == None:
             return False
         return self.Z == other.Z
-    
-    def __ne__(self,other):
+
+    def __ne__(self, other):
         if other == None:
             return True
         return self.Z != other.Z
 
     def __hash__(self):
         return self.Z
-    
+
     def __repr__(self):
         return "Element " + self.symbol
 
@@ -291,7 +291,7 @@ class Element(object):
         sorted in LiFePO4.
         '''
         return (self._x - other._x)
-    
+
     def __lt__(self, other):
         '''
         Sets a default sort order for atomic species by electronegativity.  Very
@@ -300,7 +300,7 @@ class Element(object):
         '''
         return (self._x < other._x)
 
-    @staticmethod       
+    @staticmethod
     def from_Z(z):
         '''Get an element from an atomic number'''
         for sym in _pt_data.keys():
@@ -309,7 +309,7 @@ class Element(object):
         raise ValueError("No element with this atomic number")
 
     @staticmethod
-    def from_row_and_group(row,group):
+    def from_row_and_group(row, group):
         """
         Returns an element from a row and group number.  
         
@@ -351,7 +351,7 @@ class Element(object):
         for i in xrange(len(_pt_row_sizes)):
             totalEls += _pt_row_sizes[i]
             if totalEls >= Z:
-                return i+1
+                return i + 1
         return 8
 
     @property
@@ -391,13 +391,13 @@ class Element(object):
         Return the block character 's,p,d,f'
         """
         block = ''
-        if self.group in [1,2]:
+        if self.group in [1, 2]:
             block = 's'
-        elif self.group in xrange(13,19):
+        elif self.group in xrange(13, 19):
             block = 'p'
         elif (self.is_actinoid or self.is_lanthanoid):
             block = 'f'
-        elif self.group in xrange(3,13):
+        elif self.group in xrange(3, 13):
             block = 'd'
         else:
             print("unable to determine block")
@@ -424,7 +424,7 @@ class Element(object):
         ns.append(89)
         ns.extend(xrange(104, 113))
         return self.Z in ns
-            
+
     @property
     def is_rare_earth_metal(self):
         """
@@ -439,15 +439,15 @@ class Element(object):
         """
         ns = ['B', 'Si', 'Ge', 'As', 'Sb', 'Te', 'Po']
         return self.symbol in ns
-    
+
     @property
     def is_alkali(self):
         """
         True if element is an alkali metal.
         """
-        ns = [3,11, 19,37, 55,87]
+        ns = [3, 11, 19, 37, 55, 87]
         return self.Z in ns
-    
+
     @property
     def is_alkaline(self):
         """
@@ -455,7 +455,7 @@ class Element(object):
         """
         ns = [4, 12, 20, 38, 56, 88]
         return self.Z in ns
-    
+
     @property
     def is_halogen(self):
         """
@@ -477,7 +477,7 @@ class Element(object):
         True if element is a actinoid.
         """
         return self.Z > 88 and self.Z < 104
-    
+
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
@@ -491,7 +491,7 @@ class Specie(Element):
         due to the singleton nature of each element), it does inherit all Element attributes and hence 
         function exactly as an Element would.
     """
-           
+
     def __init__(self, symbol, oxidation_state):
         """
         Args:
@@ -502,17 +502,17 @@ class Specie(Element):
         """
         super(Specie, self).__init__(symbol)
         self._oxi_state = oxidation_state
-        
-    def __eq__(self,other):
+
+    def __eq__(self, other):
         """
         Specie is equal to other only if element and oxidation states are exactly the same.
         """
-        if other == None:
+        if not isinstance(other, Specie):
             return False
         return self.Z == other.Z and self.oxi_state == other.oxi_state
-    
-    def __ne__(self,other):
-        if other == None:
+
+    def __ne__(self, other):
+        if not isinstance(other, Specie):
             return True
         return self.Z != other.Z or self.oxi_state != other.oxi_state
 
@@ -522,28 +522,28 @@ class Specie(Element):
         Specie have the same hash.
         """
         return self.Z * 100 + self.oxi_state
-    
+
     def __lt__(self, other):
         '''
         Sets a default sort order for atomic species by electronegativity, followed by oxidation state. 
         '''
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
         return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
-    
+
     @property
     def ionic_radius(self):
         """
         Ionic radius of specie. Returns None if data is not present.
         """
         return self.ionic_radii.get(self._oxi_state, None)
-    
+
     @property
     def oxi_state(self):
         """
         Oxidation state of Specie.
         """
         return self._oxi_state
-    
+
     @staticmethod
     def from_string(species_string):
         """
@@ -562,21 +562,21 @@ class Specie(Element):
         m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
         if m:
             num = 1 if m.group(2) == "" else float(m.group(2))
-            return Specie(m.group(1), num if m.group(3) == "+" else - num)
+            return Specie(m.group(1), num if m.group(3) == "+" else -num)
         else:
             raise ValueError("Invalid Species String")
-    
+
     def __repr__(self):
         return "Specie " + self.__str__()
-    
+
     def __str__(self):
         output = self.symbol
         if self.oxi_state >= 0:
             output += formula_double_format(self.oxi_state) + "+"
         else:
-            output += formula_double_format(- self.oxi_state) + "-"
+            output += formula_double_format(-self.oxi_state) + "-"
         return output
-    
+
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state)
 
@@ -597,7 +597,7 @@ class PeriodicTable(object):
 
     def __getattr__(self, name):
         return self._all_elements[name]
-    
+
     @property
     def all_elements(self):
         """
@@ -616,40 +616,127 @@ class PeriodicTable(object):
                 For example, setting filter_function = lambda el: el.X > 2 will print
                 a periodic table containing only elements with electronegativity > 2.
         """
-        for row in range(1,10):
-            for group in range(1,19):
-                el = Element.from_row_and_group(row,group)
+        for row in range(1, 10):
+            for group in range(1, 19):
+                el = Element.from_row_and_group(row, group)
                 if el != None and ((not filter_function) or filter_function(el)):
                     print "%3s" % (el.symbol),
                 else:
                     print "   ",
             print
 
+
+class DummySpecie(Specie):
+    """
+    A special specie for representing non-traditional elements or species. For
+    example, representation of vacancies (charged or otherwise), or special 
+    sites, etc.
+    """
+
+    def __init__(self, symbol = 'X', oxi_state = 0):
+        """
+        Args:
+            symbol:
+                An assigned symbol for the dummy specie. Strict rules are applied
+                to the choice of the symbol. The dummy symbol cannot have any 
+                part of first two letters that will constitute an Element symbol. 
+                Otherwise, a composition may be parsed wrongly. E.g., "X" is fine,
+                but "Vac" is not because Vac contains V, a valid Element. 
+            oxi_state:
+                Oxidation state for dummy specie. Defaults to zero.
+        """
+        self._data = {}
+        #Store key variables for quick access
+        self._z = 0
+        self._symbol = symbol
+
+        for i in xrange(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:i]):
+                raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
+
+        self._x = 0
+        self._oxi_state = oxi_state
+
+    def __getattribute__(self, name):
+        try:
+            return super(DummySpecie, self).__getattribute__(name)
+        except(KeyError, AttributeError):
+            raise ValueError('DummySpecie has no data for ' + str(name))
+
+    def __deepcopy__(self, memo):
+        x = DummySpecie(self._oxi_state, symbol = self._symbol)
+        for y, z in self._data.items():
+            x.set_attribute(y, z)
+        return x
+
+    def set_attribute(self, attribute, value):
+        '''
+        method to add data to dummy specie. Get formatting from periodic_table.json
+        '''
+        self._data[attribute] = value
+        if attribute == 'X':
+            self._x = value
+
+    @staticmethod
+    def from_string(species_string):
+        """
+        Returns a Dummy from a string representation. 
+        
+        Args:
+            species_string: 
+                A string representation of a dummy species, e.g., "X2+", "X3+"
+                
+        Returns:
+            A DummySpecie object.
+            
+        Raises:
+            ValueError if species_string cannot be intepreted.
+        """
+        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-]*)', species_string)
+
+        if m:
+            if m.group(2) == "" and m.group(3) == "":
+                return DummySpecie(m.group(1))
+            else:
+                num = 1 if m.group(2) == "" else float(m.group(2))
+                return DummySpecie(m.group(1), oxi_state = num if m.group(3) == "+" else -num)
+
+        raise ValueError("Invalid Species String")
+
+
 def smart_element_or_specie(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn).
+    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing 
+    which Element parsing will be attempted (e.g., Mn), failing which 
+    DummyElement parsing will be attempted
     
     Args:
         obj:
-            An arbitrary object.  Supported objects are actual Element/Specie objects, 
-            integers (representing atomic numbers) or strings (element symbols or species strings).
+            An arbitrary object.  Supported objects are actual Element/Specie 
+            objects, integers (representing atomic numbers) or strings (element 
+            symbols or species strings).
             
     Returns:
-        Specie or Element, with a bias for the maximum number of properties that can be determined.
+        Specie or Element, with a bias for the maximum number of properties 
+        that can be determined.
         
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    if isinstance(obj,(Element, Specie)):
+    if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
-    elif isinstance(obj,int):
+    elif isinstance(obj, int):
         return Element.from_Z(obj)
-    elif isinstance(obj,basestring):
+    elif isinstance(obj, basestring):
         try:
             return Specie.from_string(obj)
-        except ValueError:
-            return Element(obj)
-    raise ValueError("Can't parse Element or String from "+ str(obj))
+        except (ValueError, KeyError):
+            try:
+                return Element(obj)
+            except (ValueError, KeyError):
+                return DummySpecie.from_string(obj)
+    raise ValueError("Can't parse Element or String from " + str(obj))
+

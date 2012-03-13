@@ -97,7 +97,14 @@ class  IncarTest(unittest.TestCase):
         filepath2 = os.path.join(test_dir,'INCAR.2')
         incar2 = Incar.from_file(filepath2)
         self.assertEqual(incar1.diff(incar2), {'Different': {'NELM': {'INCAR1': 'Default', 'INCAR2': 100}, 'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'LDAUPRINT': {'INCAR1': 'Default', 'INCAR2': 1}, 'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NELMIN': {'INCAR1': 'Default', 'INCAR2': 3}, 'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'}, 'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'}, 'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'}, 'ICHARG': {'INCAR1': 'Default', 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]', 'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'}, 'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}}, 'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001, 'LORBIT': '11', 'SIGMA': 0.05}})
-    
+
+    def test_to_dict_and_from_dict(self):
+        file_name = os.path.join(test_dir,'INCAR')
+        incar = Incar.from_file(file_name)
+        d = incar.to_dict
+        incar2 = Incar.from_dict(d)
+        self.assertEqual(incar, incar2)
+        
 class  KpointsTest(unittest.TestCase):
     
     def test_init(self):
@@ -136,6 +143,25 @@ class  KpointsTest(unittest.TestCase):
         kpoints = Kpoints.automatic(100)
         self.assertEqual(kpoints.style, "Automatic")
         self.assertEqual(kpoints.kpts, [[100]])
+        
+    def test_to_dict_from_dict(self):
+        k = Kpoints.monkhorst_automatic([2,2,2], [0,0,0])
+        d = k.to_dict
+        k2 = Kpoints.from_dict(d)
+        self.assertEqual(k.kpts, k2.kpts)
+        self.assertEqual(k.style, k2.style)
+        self.assertEqual(k.kpts_shift, k2.kpts_shift)
+    
+    def test_kpt_bands_to_dict_from_dict(self):
+        file_name = os.path.join(test_dir,'KPOINTS.band')
+        k = Kpoints.from_file(file_name)
+        d = k.to_dict
+        #This doesn't work
+        #k2 = Kpoints.from_dict(d)
+        #self.assertEqual(k.kpts, k2.kpts)
+        #self.assertEqual(k.style, k2.style)
+        #self.assertEqual(k.kpts_shift, k2.kpts_shift)
+        #self.assertEqual(k.num_kpts, k2.num_kpts)
         
 class  PotcarTest(unittest.TestCase):
     

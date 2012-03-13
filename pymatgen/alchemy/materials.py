@@ -7,7 +7,7 @@ consistent input vs output interface for transformations on db entries.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -31,8 +31,21 @@ class TransformedStructure(object):
     Each transformed structure is made up of a sequence of structures with associated
     transformation history.
     """
-    
+
     def __init__(self, structure, transformations, history = None):
+        """
+        Standard constructor for a TransformedStructure
+        
+        Args:
+            structure:
+                input structure
+            transformations:
+                sequence of transformations to be applied to the input structure.
+            history:
+                optional history for the input structure, which provides a way
+                to track structures having undergone multiple series of 
+                transformations.
+        """
         history = [] if history == None else history
         self._source = {}
         self._structures = []
@@ -43,11 +56,11 @@ class TransformedStructure(object):
             for i in xrange(1, len(history)):
                 self._structures.append(Structure.from_dict(history[i]['input_structure']))
                 self._transformations.append(transformation_from_dict(history[i]))
-        
+
         self._structures.append(structure)
         for t in transformations:
             self.append_transformation(t)
-    
+
     def undo_last_transformation(self):
         """
         Undo the last transformation in the TransformedStructure.
@@ -59,7 +72,7 @@ class TransformedStructure(object):
             raise IndexError("Can't undo. Already at oldest change.")
         self._structures.pop()
         self._redo_trans.append(self._transformations.pop())
-        
+
     def redo_next_transformation(self):
         """
         Redo the last undone transformation in the TransformedStructure.
@@ -71,13 +84,13 @@ class TransformedStructure(object):
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
         self.append_transformation(t, False)
-    
+
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
-    
+
     def __len__(self):
         return len(self._structures)
-    
+
     def append_transformation(self, transformation, clear_redo = True):
         """
         Appends a transformation to the TransformedStructure.
@@ -96,7 +109,7 @@ class TransformedStructure(object):
         self._transformations.append(transformation)
         if clear_redo:
             self._redo_trans = []
-        
+
     def extend_transformations(self, transformations):
         """
         Extends a sequence of transformations to the TransformedStructure.
@@ -107,7 +120,7 @@ class TransformedStructure(object):
         """
         for t in transformations:
             self.append_transformation(t)
-    
+
     def get_vasp_input(self, vasp_input_set, generate_potcar = True):
         """
         Returns VASP input as a dict of vaspio objects.
@@ -124,10 +137,10 @@ class TransformedStructure(object):
         d = vasp_input_set.get_all_vasp_input(self._structures[-1], generate_potcar)
         d['transformations.json'] = json.dumps(self.to_dict)
         return d
-    
+
     def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True):
         """
-        Writes VASP input.
+        Writes VASP input to an output_dir.
         
         Args:
             vasp_input_set:
@@ -140,7 +153,7 @@ class TransformedStructure(object):
         vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present = create_directory)
         with open(os.path.join(output_dir, 'transformations.json'), 'w') as fp:
             json.dump(self.to_dict, fp)
-    
+
     def __str__(self):
         output = ["Current structure"]
         output.append("------------")
@@ -153,7 +166,7 @@ class TransformedStructure(object):
         for t in self._transformations:
             output.append(str(t.to_dict))
         return "\n".join(output)
-    
+
     @property
     def structures(self):
         """
@@ -161,21 +174,21 @@ class TransformedStructure(object):
         is stored after every single transformation.
         """
         return [s for s in self._structures]
-    
+
     @property
     def transformations(self):
         """
         Returns a copy of all transformations in the TransformedStructure. 
         """
         return [t for t in self._transformations]
-    
+
     @property
     def final_structure(self):
         """
         Returns the final structure in the TransformedStructure.
         """
         return self._structures[-1]
-    
+
     @staticmethod
     def from_dict(d):
         """
@@ -183,7 +196,7 @@ class TransformedStructure(object):
         """
         s = Structure.from_dict(d)
         return TransformedStructure(s, [], d['history'])
-    
+
     @property
     def to_dict(self):
         """
@@ -202,21 +215,35 @@ class TransformedStructure(object):
 
 class CifTransformedStructure(TransformedStructure):
     """
-    Generates new materials from Cifs.
+    Extended version of TransformedStructure to generates new materials from cifs.
     """
-    
-    def __init__(self, cif_string, transformations):
+
+    def __init__(self, cif_string, transformations, primitive = True):
+        """
+        Args:
+            cif_string:
+                Input cif string. Should contain only one structure. For cifs
+                containing multiple structures, please use CifTransmuter.
+            transformations:
+                Sequence of transformations to be applied to the input structure.
+            primitive:
+                Option to set if the primitive cell should be extracted. Defaults
+                to True. However, there are certain instances where you might want
+                to use a non-primitive cell, e.g., if you are trying to generate
+                all possible orderings of partial removals or order a disordered
+                structure.
+        """
         parser = CifParser.from_string(cif_string)
         raw_string = re.sub("'", "\"", cif_string)
         cif_dict = parser.to_dict
         cif_keys = cif_dict.keys()
-        s = parser.get_structures()[0]
+        s = parser.get_structures(primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
         if '_database_code_ICSD' in partial_cif:
             source = partial_cif['_database_code_ICSD'] + "-ICSD"
         else:
             source = 'uploaded cif'
-        source_info = {'source':source,'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
+        source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
         super(CifTransformedStructure, self).__init__(s, transformations, [source_info])
 
 
@@ -224,8 +251,15 @@ class PoscarTransformedStructure(TransformedStructure):
     """
     Generates a transformed structure from Poscar.
     """
-    
+
     def __init__(self, poscar_string, transformations):
+        """
+        Args:
+            poscar_string:
+                Input POSCAR string.
+            transformations:
+                Sequence of transformations to be applied to the input structure.
+        """
         p = Poscar.from_string(poscar_string)
         if not p.true_names:
             raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
