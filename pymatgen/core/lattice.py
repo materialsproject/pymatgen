@@ -16,7 +16,7 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import numpy.linalg as npl
-from numpy import pi, cos, sin
+from numpy import pi
 
 class Lattice(object):
     '''
