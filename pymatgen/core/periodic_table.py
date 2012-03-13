@@ -507,12 +507,12 @@ class Specie(Element):
         """
         Specie is equal to other only if element and oxidation states are exactly the same.
         """
-        if other == None:
+        if not isinstance(other, Specie):
             return False
         return self.Z == other.Z and self.oxi_state == other.oxi_state
 
     def __ne__(self, other):
-        if other == None:
+        if not isinstance(other, Specie):
             return True
         return self.Z != other.Z or self.oxi_state != other.oxi_state
 
@@ -625,12 +625,80 @@ class PeriodicTable(object):
                     print "   ",
             print
 
+
+class DummySpecie(Specie):
+
+    def __init__(self, symbol = 'X', oxi_state = 0):
+        self._data = {}
+        #Store key variables for quick access
+        self._z = 0
+        self._symbol = symbol
+        #Strictly, the dummy symbol cannot have any part of first two
+        #letters that will constitute an Element symbol. Otherwise, a composition
+        #may be parsed wrongly. E.g., if an element is designated Xec, a compound
+        #XecO may be parsed as Xenon Oxide.
+        for i in xrange(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:i]):
+                raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
+
+        self._x = 0
+        self._oxi_state = oxi_state
+
+    def __getattribute__(self, name):
+        try:
+            return super(DummySpecie, self).__getattribute__(name)
+        except(KeyError, AttributeError):
+            raise ValueError('DummySpecie has no data for ' + str(name))
+
+    def __deepcopy__(self, memo):
+        x = DummySpecie(self._oxi_state, symbol = self._symbol)
+        for y, z in self._data.items():
+            x.set_attribute(y, z)
+        return x
+
+    def set_attribute(self, attribute, value):
+        '''
+        method to add data to dummy specie. Get formatting from periodic_table.json
+        '''
+        self._data[attribute] = value
+        if attribute == 'X':
+            self._x = value
+
+    @staticmethod
+    def from_string(species_string):
+        """
+        Returns a Dummy from a string representation. 
+        
+        Args:
+            species_string: 
+                A string representation of a dummy species, e.g., "X2+", "X3+"
+                
+        Returns:
+            A DummySpecie object.
+            
+        Raises:
+            ValueError if species_string cannot be intepreted.
+        """
+        if species_string == 'X':
+            return DummySpecie()
+
+        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
+
+        if m:
+            num = 1 if m.group(2) == "" else float(m.group(2))
+            if m.group(1) == 'X':
+                return DummySpecie(oxi_state = num if m.group(3) == "+" else -num)
+
+        raise ValueError("Invalid Species String")
+
+
 def smart_element_or_specie(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn).
+    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn),
+        failing which DummyElement parsing will be attempted
     
     Args:
         obj:
@@ -643,13 +711,17 @@ def smart_element_or_specie(obj):
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    if isinstance(obj, (Element, Specie)):
+    if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
     elif isinstance(obj, int):
         return Element.from_Z(obj)
     elif isinstance(obj, basestring):
         try:
             return Specie.from_string(obj)
-        except ValueError:
-            return Element(obj)
+        except (ValueError, KeyError):
+            try:
+                return Element(obj)
+            except (ValueError, KeyError):
+                return DummySpecie.from_string(obj)
     raise ValueError("Can't parse Element or String from " + str(obj))
+
