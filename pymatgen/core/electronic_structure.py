@@ -44,6 +44,7 @@ class _SpinImpl(object):
     def __str__(self):
         return self._name
 
+
 class Spin(object):
     """
     Enum type for Spin.  Only up and down.  Design follows somewhat the familiar Java syntax.
@@ -61,6 +62,7 @@ class Spin(object):
             return Spin.down
         else:
             raise ValueError("Spin integers must be 1 or -1")
+
 
 class _OrbitalImpl(object):
     """
@@ -93,6 +95,7 @@ class _OrbitalImpl(object):
     def __str__(self):
         return self._name
 
+
 class Orbital(object):
     """
     Enum type for OrbitalType. Indices are basically the azimutal quantum number, l.
@@ -122,6 +125,7 @@ class Orbital(object):
             if str(orb) == orb_str:
                 return orb
         raise ValueError("Illegal orbital definition!")
+
 
 class Dos(object):
 
@@ -174,7 +178,7 @@ class Dos(object):
         """
         Expects a DOS object and finds the gap
         
-        Arguments:
+        Args:
             tol:
                 tolerance in occupations for determining the gap
             abs_tol:
@@ -300,16 +304,17 @@ class PDos(Dos):
     def __str__(self):
         return "#" + str(self.orbital) + "\n" + super(PDos, self).__str__()
 
+
 class CompleteDos(Dos):
     """
-    This wrapper class defines a total dos, and also provides a list of Pdos.
+    This wrapper class defines a total dos, and also provides a list of PDos.
     Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
     a vasprun.xml file. 
     """
 
     def __init__(self, structure, total_dos, pdoss):
         """
-        Arguments:
+        Args:
             structure:
                 Structure associated with this particular DOS.
             total_dos:
@@ -320,7 +325,8 @@ class CompleteDos(Dos):
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
         self._dos = total_dos.densities
-        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j] for j in range(len(pdoss[i]))} for i in range(len(pdoss))}
+        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j]
+                    for j in range(len(pdoss[i]))} for i in range(len(pdoss))}
         self._structure = structure
 
     @property
@@ -396,7 +402,8 @@ class CompleteDos(Dos):
     def __str__(self):
         return "Complete DOS for " + str(self._structure)
 
-def plot_dos(dos_dict, zero_at_efermi = True):
+
+def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = None, xlim = None, ylim = None):
     """
     Plots a series of Dos using matplotlib.
     
@@ -407,22 +414,67 @@ def plot_dos(dos_dict, zero_at_efermi = True):
             Whether to shift all Dos to have zero energy at the fermi energy.
             Defaults to True.
     """
-    import pylab
-    color_order = ['r', 'b', 'g', 'y']
-    count = 0
-    for key, dos in dos_dict.items():
+    from pymatgen.util.plotting import get_publication_quality_plot
+    plt = get_publication_quality_plot(15)
+    color_order = ['r', 'b', 'g', 'c']
+
+    y = None
+    alldensities = []
+    allenergies = []
+    keys = list(dos_dict.keys())
+    if key_sort_func:
+        keys = sorted(keys, key = key_sort_func)
+    for key in keys:
+        dos = dos_dict[key]
         energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
         densities = dos.densities
-        if Spin.up in densities:
-            pylab.plot(energies, densities[Spin.up], color_order[count % 4], label = str(key) + ' up')
-        if Spin.down in densities:
-            pylab.plot(energies, -densities[Spin.down], color_order[count % 4], label = str(key) + ' down')
-        count += 1
+        if not y:
+            y = {Spin.up: np.zeros(energies.shape), Spin.down: np.zeros(energies.shape)}
+        newdens = {}
+        for spin in [Spin.up, Spin.down]:
+            if spin in dos.densities:
+                if stack:
+                    y[spin] += densities[spin]
+                    newdens[spin] = y[spin].copy()
+                else:
+                    newdens[spin] = densities[spin]
+        allenergies.append(energies)
+        alldensities.append(newdens)
 
-    pylab.xlabel('Energies (eV)', fontsize = 'large')
-    pylab.ylabel('Density of states', fontsize = 'large')
-    pylab.legend()
-    pylab.show()
+    keys = list(keys)
+    keys.reverse()
+    alldensities.reverse()
+
+    for i, key in enumerate(keys):
+        x = []
+        y = []
+        for spin in [Spin.up, Spin.down]:
+            if spin in alldensities[i]:
+                x.extend(allenergies[i])
+                y.extend(int(spin) * alldensities[i][spin])
+        if stack:
+            plt.fill(x, y, color = color_order[i % 4], label = str(key))
+        else:
+            plt.plot(x, y, color = color_order[i % 4], label = str(key))
+        #for spin in [Spin.up, Spin.down]:
+        #    if spin in alldensities[i]:
+        #        if stack:
+        #            plt.fill(energies, int(spin) * alldensities[i][spin], color = color_order[count % 4], label = '{} {}'.format(key, spin))
+        #        else:
+        #            plt.plot(energies, int(spin) * alldensities[i][spin], color = color_order[count % 4], label = '{} {}'.format(key, spin))
+
+    plt.xlabel('Energies (eV)')
+    plt.ylabel('Density of states')
+    if xlim:
+        plt.xlim(xlim)
+    if ylim:
+        plt.ylim(ylim)
+    plt.legend()
+    leg = plt.gca().get_legend()
+    ltext = leg.get_texts()  # all the text.Text instance in the legend
+    plt.setp(ltext, fontsize = 24)
+    plt.savefig('test.eps', format = "eps")
+    plt.show()
 
 class Bandstructure(object):
 
@@ -888,7 +940,6 @@ class Bandstructure(object):
         if(backward):
             x = [-1.0 * (self._kpoints[self._branches[index_branch][local_index - i]]['distance'] - x0) for i in range(nb_sample)]
             y = [self._bands[index_band]['energy'][self._branches[index_branch][local_index - i]] - y0 for i in range(nb_sample)]
-            a = np.polyfit(x, y, 2)
             tck = scipy.interpolate.splrep(x, y)
             yder = scipy.interpolate.splev(0, tck, der = 2)
             mass.append(3.77 / (yder / 2.0))
@@ -1084,5 +1135,4 @@ class CompleteBandStructure(Bandstructure):
         self._bandstructure = total_bandstructure
         self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pbandstructure[i][j] for j in range(len(pbandstructure[i]))} for i in range(structure.num_sites)}
         self._structure = structure
-
 
