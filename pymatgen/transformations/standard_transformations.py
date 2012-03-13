@@ -365,7 +365,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self, num_structures = 1):
+    def __init__(self, num_structures = 1, mev_cutoff = None):
+        '''
+        Args:
+            num_structures: maximum number of structures to return
+            mev_cutoff: maximum mev per atom above the minimum energy ordering for a structure to be returned
+        '''
+        
+        self._mev_cutoff = mev_cutoff
         self._all_structures = []
         self._num_structures = num_structures
 
@@ -378,9 +385,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         Args:
             structure:
                 Oxidation state decorated disordered structure to order
-            max_iterations:
-                Maximum number of structures to consider.  Defaults to 100. This is useful if there are a large number of sites 
-                and there are too many orderings to enumerate.
         """
         ordered_sites = []
         sites_to_order = {}
@@ -464,8 +468,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     se.replace_single_site(manipulation[0], species = manipulation[1])
             se.delete_sites(del_indices)
             self._all_structures.append([output[0], se.modified_structure.get_sorted_structure()])
+        
+        if self._mev_cutoff is not None: #remove structures from all_structures list if they dont meet the mev cutoff requirements
+            self._all_structures = [x for x in self._all_structures if x[0] < self._all_structures[0][0] + len(self._all_structures[0][1]) * self._mev_cutoff/1000 ]
 
-        return self._all_structures[0][1]
+        return [self._all_structures[i][1] for i in range(len(self._all_structures))]
 
     def __str__(self):
         return "Order disordered structure transformation"
@@ -480,7 +487,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {}
+        output['init_args'] = {'num_structures' : self._num_structures, 'mev_cutoff' : self._mev_cutoff}
         return output
 
     @property
