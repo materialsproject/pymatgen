@@ -106,6 +106,8 @@ class TransformedStructure(object):
                 list should not be cleared to allow multiple redos.
         """
         new_s = transformation.apply_transformation(self._structures[-1])
+        if isinstance(new_s, Iterable):
+            new_s = new_s[0]
         self._structures.append(new_s)
         self._transformations.append(transformation)
         if clear_redo:
