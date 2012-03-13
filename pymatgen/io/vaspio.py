@@ -28,7 +28,7 @@ import ConfigParser
 import numpy as np
 from numpy.linalg import det
 
-import pymatgen.command_line.aconvasp_caller
+import pymatgen.command_line.aconvasp_caller as aconvasp_caller
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -324,6 +324,17 @@ class Incar(dict, VaspInput):
         if key.strip().upper() not in VALID_INCAR_TAGS:
             warnings.warn(key.strip() + " not in VALID_INCAR_TAGS")
         super(Incar,self).__setitem__(key.strip(), Incar.proc_val(key.strip(), val.strip()) if isinstance(val,basestring) else val)
+    
+    @property
+    def to_dict(self):
+        return self
+
+    @staticmethod
+    def from_dict(d):
+        i = Incar()
+        for k,v in d.items():
+            i[k] = v
+        return i
 
     def get_string(self, sort_keys = False, pretty = False):
         """
@@ -604,13 +615,22 @@ class Kpoints(VaspInput):
         """
             The approach we took here is to use aconvasp to get the kpoint divisions
         """
-        div=pymatgen.command_line.aconvasp_caller.get_num_division_kpoints(structure, kppa)
+        div = aconvasp_caller.get_num_division_kpoints(structure, kppa)
+        
+        k = None
+        
+        #FIXME This makes little sense to ask for monkhorst_automatic and it' returns gamma centered mesh
+        
         #check if hexagonal!!!!
-        if(Kpoints._is_hexagonal(structure)==True):
-            return Kpoints.gamma_automatic(div, shift = (0,0,0))
+        if(Kpoints._is_hexagonal(structure) == True):
+            k = Kpoints.gamma_automatic(div, shift = (0,0,0))
+        else:
+            k = Kpoints.monkhorst_automatic(div)
+        return k
     
     @staticmethod
     def _is_hexagonal(structure):
+        # Why is this method here?
         proto1=[math.pi/2.0,math.pi/2.0,2.0*math.pi/3.0]
         proto2=[math.pi/3.0,math.pi/2.0,math.pi/2.0]
         angCopy=[c for c in structure.lattice.angles]
@@ -767,7 +787,19 @@ class Kpoints(VaspInput):
         for para in optional_paras:
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
-        return d 
+        return d
+        
+    @staticmethod
+    def from_dict(d):
+        comment = d.get('comment', '')
+        generation_style = d.get('generation_style')
+        code = "Kpoints.supported_modes." + generation_style
+        style = eval(code)
+        kpts = d.get('kpoints',[[1,1,1]])
+        kpts_shift = d.get('usershift', [0,0,0])
+        num_kpts = d.get('nkpoints', 0)
+        #coord_type = d.get('coord_type', None)
+        return Kpoints(comment= comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
     
 class PotcarSingle(VaspInput):
     """
@@ -822,8 +854,19 @@ class Potcar(list,VaspInput):
     DEFAULT_FUNCTIONAL = "PBE"
     
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
-        if symbols != None:
+        if symbols is not None:
+            self.functional = functional
             self.set_symbols(symbols, functional, sym_potcar_map)
+
+    @property
+    def to_dict(self):
+        return {'functional': self.functional, 'symbols': self.symbols}
+        
+    @staticmethod
+    def from_dict(d):
+        functional = d['functional']
+        symbols = d['symbols']
+        return Potcar(symbols=symbols, functional=functional)
 
     @staticmethod
     def from_file(filename):
