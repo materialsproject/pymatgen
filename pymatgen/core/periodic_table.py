@@ -627,16 +627,29 @@ class PeriodicTable(object):
 
 
 class DummySpecie(Specie):
+    """
+    A special specie for representing non-traditional elements or species. For
+    example, representation of vacancies (charged or otherwise), or special 
+    sites, etc.
+    """
 
     def __init__(self, symbol = 'X', oxi_state = 0):
+        """
+        Args:
+            symbol:
+                An assigned symbol for the dummy specie. Strict rules are applied
+                to the choice of the symbol. The dummy symbol cannot have any 
+                part of first two letters that will constitute an Element symbol. 
+                Otherwise, a composition may be parsed wrongly. E.g., "X" is fine,
+                but "Vac" is not because Vac contains V, a valid Element. 
+            oxi_state:
+                Oxidation state for dummy specie. Defaults to zero.
+        """
         self._data = {}
         #Store key variables for quick access
         self._z = 0
         self._symbol = symbol
-        #Strictly, the dummy symbol cannot have any part of first two
-        #letters that will constitute an Element symbol. Otherwise, a composition
-        #may be parsed wrongly. E.g., if an element is designated Xec, a compound
-        #XecO may be parsed as Xenon Oxide.
+
         for i in xrange(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
@@ -679,15 +692,14 @@ class DummySpecie(Specie):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        if species_string == 'X':
-            return DummySpecie()
-
-        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
+        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-]*)', species_string)
 
         if m:
-            num = 1 if m.group(2) == "" else float(m.group(2))
-            if m.group(1) == 'X':
-                return DummySpecie(oxi_state = num if m.group(3) == "+" else -num)
+            if m.group(2) == "" and m.group(3) == "":
+                return DummySpecie(m.group(1))
+            else:
+                num = 1 if m.group(2) == "" else float(m.group(2))
+                return DummySpecie(m.group(1), oxi_state = num if m.group(3) == "+" else -num)
 
         raise ValueError("Invalid Species String")
 
@@ -697,16 +709,19 @@ def smart_element_or_specie(obj):
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing which Element parsing will be attempted (e.g., Mn),
-        failing which DummyElement parsing will be attempted
+    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing 
+    which Element parsing will be attempted (e.g., Mn), failing which 
+    DummyElement parsing will be attempted
     
     Args:
         obj:
-            An arbitrary object.  Supported objects are actual Element/Specie objects, 
-            integers (representing atomic numbers) or strings (element symbols or species strings).
+            An arbitrary object.  Supported objects are actual Element/Specie 
+            objects, integers (representing atomic numbers) or strings (element 
+            symbols or species strings).
             
     Returns:
-        Specie or Element, with a bias for the maximum number of properties that can be determined.
+        Specie or Element, with a bias for the maximum number of properties 
+        that can be determined.
         
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
