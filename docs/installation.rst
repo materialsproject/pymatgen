@@ -75,6 +75,23 @@ Mac OS X 10.7
 
 Typical installation of Xcode with python setup.py install seems to work fine. The pre-compiled binary for OSX 10.6 also seems to work.
 
+Matplotlib (tested on v1.10)
+-------------------------
+
+Mac OS X 10.7
+~~~~~~~~~~~~~
+
+This setup assumes you have the latest version of python (2.7 as of this is written) and numpy already installed. 
+You will need to set the compiler flags to build matplotlib from source.
+
+:: 
+	
+	export CFLAGS="-arch x86_64 -I/usr/X11/include -I/usr/X11/include/freetype2" 
+	export LDFLAGS="-arch x86_64 -L/usr/X11/lib" 
+	python setup.py build 
+	sudo python setup.py install
+
+
 Solaris 10
 ~~~~~~~~~~
 
