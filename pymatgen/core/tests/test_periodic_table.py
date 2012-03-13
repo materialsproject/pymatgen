@@ -66,8 +66,8 @@ class  ElementTestCase(unittest.TestCase):
     def test_deepcopy(self):
         el1 = Element("Fe")
         el2 = Element("Na")
-        list = [el1, el2]
-        self.assertEqual(list, deepcopy(list), "Deepcopy operation doesn't produce exact copy of Element list")
+        ellist = [el1, el2]
+        self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Element list")
 
 class  SpecieTestCase(unittest.TestCase):
 
@@ -93,8 +93,8 @@ class  SpecieTestCase(unittest.TestCase):
     def test_deepcopy(self):
         el1 = Specie("Fe", 4)
         el2 = Specie("Na", 1)
-        list = [el1, el2]
-        self.assertEqual(list, deepcopy(list), "Deepcopy operation doesn't produce exact copy of Specie list")
+        ellist = [el1, el2]
+        self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Specie list")
 
 class  DummySpecieTestCase(unittest.TestCase):
 
