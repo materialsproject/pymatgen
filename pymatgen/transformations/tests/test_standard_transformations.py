@@ -13,6 +13,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
 import unittest
+import random
 
 import pymatgen
 from pymatgen.transformations.standard_transformations import *
@@ -76,17 +77,25 @@ class SubstitutionTransformationTest(unittest.TestCase):
 
 class SupercellTransformationTest(unittest.TestCase):
 
-    def test_apply_transformation(self):
-        t = SupercellTransformation([[2, 1, 0], [0, 2, 0], [1, 0, 2]])
+    def setUp(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct)
+        self.struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+
+    def test_apply_transformation(self):
+        t = SupercellTransformation([[2, 1, 0], [0, 2, 0], [1, 0, 2]])
+        s = t.apply_transformation(self.struct)
         self.assertEqual(s.composition.formula, "Li16 O16")
+
+    def test_from_scaling_factors(self):
+        scale_factors = [random.randint(1, 5) for i in xrange(3)]
+        t = SupercellTransformation.from_scaling_factors(*scale_factors)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.num_sites, 4 * reduce(lambda a, b: a * b, scale_factors))
 
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
 
