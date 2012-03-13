@@ -14,6 +14,7 @@ class StructureEditorTest(unittest.TestCase):
 
         self.si = Element("Si")
         self.fe = Element("Fe")
+        self.ge = Element("Ge")
         coords = list()
         coords.append(np.array([0,0,0]))
         coords.append(np.array([0.75,0.5,0.75]))
@@ -37,8 +38,19 @@ class StructureEditorTest(unittest.TestCase):
         self.modifier.delete_site(0)
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
         
-        self.modifier.replace_single_site(0, Element('Ge'))
+        self.modifier.replace_single_site(0, self.ge)
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1 Ge1", "Wrong formula!")
+        
+        self.modifier.append_site(self.si, [0,0.75,0])
+        self.modifier.replace_species({self.si: self.ge})
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Ge3", "Wrong formula!")
+        
+        self.modifier.replace_species({self.ge: {self.ge:0.5, self.si:0.5}})
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1.5 Ge1.5", "Wrong formula!")
+        
+        #this should change the .5Si .5Ge sites to .75Si .25Ge
+        self.modifier.replace_species({self.ge: {self.ge:0.5, self.si:0.5}})
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2.25 Ge0.75", "Wrong formula!")
         
         self.assertRaises(ValueError, self.modifier.append_site, self.si, np.array([0,0.5,0]))
         

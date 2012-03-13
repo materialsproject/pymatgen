@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie
 from copy import deepcopy
 
 class  ElementTestCase(unittest.TestCase):
@@ -96,6 +96,13 @@ class  SpecieTestCase(unittest.TestCase):
         list = [el1, el2]
         self.assertEqual(list, deepcopy(list), "Deepcopy operation doesn't produce exact copy of Specie list")
 
+class  DummySpecieTestCase(unittest.TestCase):
+
+    def test_init(self):
+        self.specie1 = DummySpecie("X")
+        self.assertRaises(ValueError, DummySpecie, 'Xe')
+        self.assertRaises(ValueError, DummySpecie, 'Xec')
+        
 class  PeriodicTableTestCase(unittest.TestCase):
 
     def test_element(self):
@@ -116,7 +123,8 @@ class  PeriodicTableTestCase(unittest.TestCase):
             
             for a in all_attr:
                 self.assertIsNotNone(el, a)
-            
+
+
 if __name__ == '__main__':
     unittest.main()
     

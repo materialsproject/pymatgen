@@ -771,6 +771,17 @@ class Structure(collections.Sequence, collections.Hashable):
                 else:
                     elmap[species] = occu
         return Composition(elmap)
+    
+    @property
+    def charge(self):
+        '''
+        Returns the net charge of the structure based on oxidation states
+        '''
+        charge = 0
+        for site in self._sites:
+            for specie, amt in site.species_and_occu.items():
+                charge += specie.oxi_state * amt
+        return charge
 
     def get_sorted_structure(self):
         """
