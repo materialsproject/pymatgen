@@ -1108,7 +1108,7 @@ class Composition (collections.Mapping, collections.Hashable):
                 poly_form += el.symbol + formula_double_format(normamt);
 
             if polyfactor != 1:
-                reduced_form += "(" + poly_form + ")" + str(int(polyfactor))
+                reduced_form += "({}){}".format(poly_form, int(polyfactor))
             else:
                 reduced_form += poly_form
 
