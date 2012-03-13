@@ -76,7 +76,7 @@ Mac OS X 10.7
 Typical installation of Xcode with python setup.py install seems to work fine. The pre-compiled binary for OSX 10.6 also seems to work.
 
 Matplotlib (tested on v1.10)
--------------------------
+----------------------------
 
 Mac OS X 10.7
 ~~~~~~~~~~~~~
