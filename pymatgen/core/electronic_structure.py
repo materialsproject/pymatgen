@@ -413,9 +413,17 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = Non
         zero_at_efermi:
             Whether to shift all Dos to have zero energy at the fermi energy.
             Defaults to True.
+        stack:
+            Whether to plot the DOS as a stacked area graph
+        key_sort_func:
+            function used to sort the dos_dict keys.
+        xlim:
+            Specifies the x-axis limits.
+        ylim:
+            Specifies the y-axis limits.
     """
-    from pymatgen.util.plotting import get_publication_quality_plot
-    plt = get_publication_quality_plot(15)
+    from pymatgen.util.plotting_utils import get_publication_quality_plot
+    plt = get_publication_quality_plot(12, 8)
     color_order = ['r', 'b', 'g', 'c']
 
     y = None
@@ -469,13 +477,18 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = Non
         xlim = plt.xlim()
         relevanty = [p[1] for p in allpts if p[0] > xlim[0] and p[0] < xlim[1]]
         plt.ylim((min(relevanty), max(relevanty)))
-    #plt.ylim()
+
+    if zero_at_efermi:
+        ylim = plt.ylim()
+        plt.plot([0, 0], ylim, 'k--', linewidth = 2)
+
     plt.legend()
     leg = plt.gca().get_legend()
     ltext = leg.get_texts()  # all the text.Text instance in the legend
-    plt.setp(ltext, fontsize = 24)
-    plt.savefig('test.eps', format = "eps")
+    plt.setp(ltext, fontsize = 30)
+    plt.tight_layout()
     plt.show()
+
 
 class Bandstructure(object):
 
