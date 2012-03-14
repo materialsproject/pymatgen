@@ -183,11 +183,19 @@ class SubstitutionTransformation(AbstractTransformation):
         Args:
             species_map:
                 A dict containing the species mapping in string-string pairs. E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
+                Overloaded to accept sp_and_occu dictionary as second argument
+                E.g. {'Si: {'Ge':0.75, 'C':0.25} }
         """
         self._species_map = species_map
 
     def apply_transformation(self, structure):
-        species_map = {smart_element_or_specie(k): smart_element_or_specie(v) for k, v in self._species_map.items()}
+        species_map = {}
+        for k, v in self._species_map.items():
+            if isinstance(v, dict):
+                value = {smart_element_or_specie(x):y for x,y in v.items()}
+            else:
+                value = smart_element_or_specie(v)
+            species_map[smart_element_or_specie(k)] = value
         editor = StructureEditor(structure)
         editor.replace_species(species_map)
         return editor.modified_structure
