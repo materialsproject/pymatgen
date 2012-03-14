@@ -255,6 +255,7 @@ class EwaldSummation:
         erecip = np.zeros((self._s.num_sites, self._s.num_sites))
         forces = np.zeros((len(self._s), 3))
         coords = self._coords
+        numsites = self._s.num_sites
         nn = self._recip_nn
         for (n, dist) in nn:
             gvect = n.coords
@@ -262,16 +263,16 @@ class EwaldSummation:
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
             #calculate the structure factor
-            sfactor = np.zeros((self._s.num_sites, self._s.num_sites))
+            sfactor = np.zeros((numsites, numsites))
             sreal = 0.0
             simag = 0.0
-            for i in xrange(self._s.num_sites):
+            for i in xrange(numsites):
                 qi = oxi_states[i]
                 g_dot_i = np.dot(gvect, coords[i])
                 sfactor[i, i] = qi * qi
                 sreal += qi * cos(g_dot_i)
                 simag += qi * sin(g_dot_i)
-                for j in xrange(i + 1, self._s.num_sites):
+                for j in xrange(i + 1, numsites):
                     qj = oxi_states[j]
                     exparg = g_dot_i - np.dot(gvect, coords[j])
                     cosa = cos(exparg)
@@ -305,17 +306,17 @@ class EwaldSummation:
 
         all_nn = self._all_nn
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
-        ereal = np.zeros((self._s.num_sites, self._s.num_sites))
-        epoint = np.zeros((self._s.num_sites))
-        forces = np.zeros((len(self._s), 3))
         coords = self._coords
-        for i in range(self._s.num_sites):
-            site = self._s[i]
+        numsites = self._s.num_sites
+        ereal = np.zeros((numsites, numsites))
+        epoint = np.zeros((numsites))
+        forces = np.zeros((numsites, 3))
+        for i in xrange(numsites):
             nn = all_nn[i] #self._s.get_neighbors(site, self._rmax)
             qi = oxi_states[i]
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
-            epoint[i] += qi * pi / (2.0 * self._vol * self._eta)   #add jellium term
+            epoint[i] += qi * pi / (2.0 * self._vol * self._eta)  #add jellium term
             for j in range(len(nn)):  #for (nsite, rij)  in nn:
                 nsite = nn[j][0]
                 rij = nn[j][1]
@@ -326,7 +327,7 @@ class EwaldSummation:
                         break
                 erfcval = erfc(self._sqrt_eta * rij)
                 ereal[nn[j][2], i] += erfcval * qi * qj / rij
-                fijpf = qj / rij / rij / rij * (erfcval + forcepf * rij * exp(-self._eta * rij * rij))
+                fijpf = qj / pow(rij, 3) * (erfcval + forcepf * rij * exp(-self._eta * pow(rij, 2)))
                 forces[i] += fijpf * (coords[i] - nsite.coords) * qi * EwaldSummation.CONV_FACT
 
         ereal = ereal * 0.5 * EwaldSummation.CONV_FACT
