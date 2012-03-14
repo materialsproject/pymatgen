@@ -16,6 +16,7 @@ __date__ = "Mar 8, 2012"
 import unittest
 import os
 
+from pymatgen.core.structure import Composition
 from pymatgen.io.vaspio import Poscar
 import pymatgen.io.aseio as aio
 
@@ -27,15 +28,17 @@ class AseAtomsAdaptorTest(unittest.TestCase):
 
     def test_get_atoms(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
-        self.assertEqual(atoms.get_name(), "P4Fe4O16")
+        structure = p.struct
+        atoms = aio.AseAtomsAdaptor.get_atoms(structure)
+        ase_composition = Composition.from_formula(atoms.get_name())
+        self.assertEqual(ase_composition, structure.composition)
 
     def test_get_structure(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
         self.assertEqual(aio.AseAtomsAdaptor.get_structure(atoms).formula, "Fe4 P4 O16")
-    
-    
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     if aio.ase_loaded:
