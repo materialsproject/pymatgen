@@ -24,8 +24,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio import Poscar
 from pymatgen.transformations.standard_transformations import transformation_from_dict
-
-
+from copy import deepcopy
 
 class TransformedStructure(object):
     """
@@ -295,6 +294,19 @@ class TransformedStructureCollection(object):
             if new:
                 new_structures.extend(new)
         self._transformed_structures.extend(new_structures)
+        
+    def branch_collection(self, transformations, clear_redo = True):
+        '''
+        copies the structures collection, applying one transformation to each copy
+        '''
+        old_transformed_structures = self._transformed_structures
+        new_trans_structures = []
+        for transformation in transformations:
+            self._transformed_structures = deepcopy(old_transformed_structures)
+            self.append_transformation(transformation, clear_redo)
+            new_trans_structures.extend(self._transformed_structures)
+        self._transformed_structures = new_trans_structures
+            
 
     def extend_transformations(self, transformations):
         """
