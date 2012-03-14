@@ -182,7 +182,8 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         Args:
             species_map:
-                A dict containing the species mapping in string-string pairs. E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
+                A dict containing the species mapping in string-string pairs. 
+                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
                 Overloaded to accept sp_and_occu dictionary as second argument
                 E.g. {'Si: {'Ge':0.75, 'C':0.25} }
         """
@@ -192,7 +193,7 @@ class SubstitutionTransformation(AbstractTransformation):
         species_map = {}
         for k, v in self._species_map.items():
             if isinstance(v, dict):
-                value = {smart_element_or_specie(x):y for x,y in v.items()}
+                value = {smart_element_or_specie(x):y for x, y in v.items()}
             else:
                 value = smart_element_or_specie(v)
             species_map[smart_element_or_specie(k)] = value
@@ -300,7 +301,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 if energy < lowestewald:
                     lowestewald = energy
                     opt_s = s_new
-        
+
         return (opt_s, all_structures)
 
     def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
