@@ -1,6 +1,5 @@
 import unittest
 import os
-import StringIO
 
 from pymatgen.phasediagram.entries import PDEntryIO
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
