@@ -182,15 +182,21 @@ class EwaldSummation:
         self._rmax = real_space_cut if real_space_cut > 0 else self._accf / self._sqrt_eta
         self._gmax = recip_space_cut if recip_space_cut > 0 else 2 * self._sqrt_eta * self._accf
 
-        oxi_states = [compute_average_oxidation_state(site) for site in structure]
-        self._total_q = sum(oxi_states)
+        """
+        The next few lines pre-compute certain quantities and store them. Ewald
+        summation is rather expensive, and these shortcuts are necessary to obtain
+        several factors of improvement in speedup.
+        """
+        self._oxi_states = [compute_average_oxidation_state(site) for site in structure]
         self._coords = self._s.cart_coords
         self._forces = np.zeros((len(structure), 3))
-        self._all_nn = self._s.get_all_neighbors(self._rmax, True)
-        recip = Structure(self._s.lattice.reciprocal_lattice, ["H"], [np.array([0, 0, 0])])
-        self._recip_nn = recip.get_neighbors(recip[0], self._gmax)
-        (self._recip, recip_forces) = self._calc_recip(oxi_states)
-        (self._real, self._point, real_point_forces) = self._calc_real_and_point(oxi_states)
+
+        """
+        Now we call the relevant private methods to calculate the reciprocal
+        and real space terms.
+        """
+        (self._recip, recip_forces) = self._calc_recip()
+        (self._real, self._point, real_point_forces) = self._calc_real_and_point()
         self._forces = recip_forces + real_point_forces
 
     def compute_partial_energy(self, removed_indices):
@@ -243,23 +249,25 @@ class EwaldSummation:
     def forces(self):
         return self._forces
 
-    def _calc_recip(self, oxi_states):
+    def _calc_recip(self):
         """
         Perform the reciprocal space summation. Calculates the quantity
         E_recip = 1/(2PiV) sum_{G < Gmax} exp(-(G.G/4/eta))/(G.G) S(G)S(-G) where
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
         S(G)S(-G) = |S(G)|**2
         """
-
-        prefactor = 2 * pi / self._vol
-        erecip = np.zeros((self._s.num_sites, self._s.num_sites))
-        forces = np.zeros((len(self._s), 3))
-        coords = self._coords
         numsites = self._s.num_sites
-        nn = self._recip_nn
-        for (n, dist) in nn:
+        prefactor = 2 * pi / self._vol
+        erecip = np.zeros((numsites, numsites))
+        forces = np.zeros((numsites, 3))
+        coords = self._coords
+        recip = Structure(self._s.lattice.reciprocal_lattice, ["H"], [np.array([0, 0, 0])])
+        recip_nn = recip.get_neighbors(recip[0], self._gmax)
+
+        for (n, dist) in recip_nn:
             gvect = n.coords
             gsquare = np.linalg.norm(gvect) ** 2
+
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
             #calculate the structure factor
@@ -267,13 +275,13 @@ class EwaldSummation:
             sreal = 0.0
             simag = 0.0
             for i in xrange(numsites):
-                qi = oxi_states[i]
+                qi = self._oxi_states[i]
                 g_dot_i = np.dot(gvect, coords[i])
                 sfactor[i, i] = qi * qi
                 sreal += qi * cos(g_dot_i)
                 simag += qi * sin(g_dot_i)
                 for j in xrange(i + 1, numsites):
-                    qj = oxi_states[j]
+                    qj = self._oxi_states[j]
                     exparg = g_dot_i - np.dot(gvect, coords[j])
                     cosa = cos(exparg)
                     sina = sin(exparg)
@@ -290,21 +298,21 @@ class EwaldSummation:
 
             for i in range(self._s.num_sites):
                 exparg = np.dot(gvect, coords[i])
-                qj = oxi_states[i]
+                qj = self._oxi_states[i]
                 pref = 2 * expval / gsquare * qj
                 forces[i] += prefactor * pref * gvect * (sreal * sin(exparg) - simag * cos(exparg)) * EwaldSummation.CONV_FACT
 
         return (erecip * prefactor * EwaldSummation.CONV_FACT , forces)
 
 
-    def _calc_real_and_point(self, oxi_states, zeroed_sites = ()):
+    def _calc_real_and_point(self):
         """
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
         
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
+        all_nn = self._s.get_all_neighbors(self._rmax, True)
 
-        all_nn = self._all_nn
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
         numsites = self._s.num_sites
@@ -313,18 +321,14 @@ class EwaldSummation:
         forces = np.zeros((numsites, 3))
         for i in xrange(numsites):
             nn = all_nn[i] #self._s.get_neighbors(site, self._rmax)
-            qi = oxi_states[i]
+            qi = self._oxi_states[i]
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)  #add jellium term
             for j in range(len(nn)):  #for (nsite, rij)  in nn:
                 nsite = nn[j][0]
                 rij = nn[j][1]
-                qj = compute_average_oxidation_state(nsite)  #nsite 
-                for site in zeroed_sites:
-                    if nsite.is_periodic_image(site, 1e-2):
-                        qj = 0
-                        break
+                qj = compute_average_oxidation_state(nsite)
                 erfcval = erfc(self._sqrt_eta * rij)
                 ereal[nn[j][2], i] += erfcval * qi * qj / rij
                 fijpf = qj / pow(rij, 3) * (erfcval + forcepf * rij * exp(-self._eta * pow(rij, 2)))
@@ -345,6 +349,7 @@ class EwaldSummation:
         output.append("Total = " + str(self.total_energy))
         output.append("Forces:\n" + str(self.forces))
         return "\n".join(output)
+
 
 class EwaldMinimizer:
     '''
@@ -548,4 +553,3 @@ class EwaldMinimizer:
     @property
     def output_lists(self):
         return self._output_lists
-
