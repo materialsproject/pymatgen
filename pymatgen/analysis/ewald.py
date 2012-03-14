@@ -263,26 +263,21 @@ class EwaldSummation:
 
             #calculate the structure factor
             sfactor = np.zeros((self._s.num_sites, self._s.num_sites))
+            sreal = 0.0
+            simag = 0.0
             for i in range(self._s.num_sites):
                 sitei = self._s[i]
                 qi = oxi_states[i]
-                for j in range(self._s.num_sites):
+                for j in range(i, self._s.num_sites):
                     sitej = self._s[j]
                     qj = oxi_states[j]
                     exparg = np.dot(gvect, sitei.coords - sitej.coords)
                     sfactor[i, j] = qi * qj * (cos(exparg) + sin(exparg))
-
+                    sfactor[j, i] = qi * qj * (cos(exparg) - sin(exparg))
+                exparg = np.dot(gvect, sitei.coords)
+                sreal += qi * cos(exparg)
+                simag += qi * sin(exparg)
             erecip += expval / gsquare * sfactor
-
-            #do forces if necessary
-            sreal = 0.0
-            simag = 0.0
-            for i in range(self._s.num_sites):
-                site = self._s[i]
-                exparg = np.dot(gvect, site.coords)
-                qj = oxi_states[i]
-                sreal += qj * cos(exparg)
-                simag += qj * sin(exparg)
 
             for i in range(self._s.num_sites):
                 site = self._s[i]
