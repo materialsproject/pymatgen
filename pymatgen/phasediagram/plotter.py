@@ -4,13 +4,13 @@
 This module provides classes for plotting PhaseDiagram objects.
 """
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 import math
 import numpy as np
@@ -35,7 +35,7 @@ class PDPlotter(object):
             raise ValueError("Only 2-4 components supported!")
 
     @property
-    def pd_plot_data(self):        
+    def pd_plot_data(self):
         '''
         Plot data for phase diagram.
         2-comp - Full hull with energies
@@ -59,7 +59,7 @@ class PDPlotter(object):
             if self._dim == 2:
                 x = [data[line[0]][0], data[line[1]][0]]
                 y = [pd.get_form_energy_per_atom(entry1), pd.get_form_energy_per_atom(entry2)]
-                coord = [x,y]
+                coord = [x, y]
             elif self._dim == 3:
                 coord = triangular_coord(data[line, 0:2])
             else:
@@ -67,23 +67,23 @@ class PDPlotter(object):
             lines.append(coord)
             labelcoord = list(zip(*coord))
             stable_entries[labelcoord[0]] = entry1
-            stable_entries[labelcoord[1]] = entry2    
+            stable_entries[labelcoord[1]] = entry2
 
         allentries = pd.all_entries
         alldata = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(0,len(allentries)):
+        for i in xrange(0, len(allentries)):
             entry = allentries[i]
             if entry not in stable:
                 if self._dim == 2:
                     x = [alldata[i][0], alldata[i][0]]
                     y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
-                    coord = [x,y]
+                    coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([alldata[i, 0:2],alldata[i, 0:2]])
+                    coord = triangular_coord([alldata[i, 0:2], alldata[i, 0:2]])
                 else:
-                    coord = tet_coord([alldata[i, 0:3],alldata[i, 0:3],alldata[i, 0:3]])
+                    coord = tet_coord([alldata[i, 0:3], alldata[i, 0:3], alldata[i, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
@@ -93,7 +93,7 @@ class PDPlotter(object):
         """
         Draws the plot using Matplotlib.
         """
-        if self._dim <4:
+        if self._dim < 4:
             self._show_2d_plot()
         elif self._dim == 4:
             self._show_3d_plot()
@@ -108,12 +108,12 @@ class PDPlotter(object):
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
+            plt.plot(x, y, 'bo-', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 10)
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
         count = 1
-                    
+
         if len(self._pd.elements) == 3:
             plt.axis('equal')
             plt.xlim((-0.1, 1.2))
@@ -140,15 +140,15 @@ class PDPlotter(object):
                 valign = 'top'
 
             if len(entry.composition.elements) == 1:
-                plt.text(x, coords[1], label, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                plt.text(x, coords[1], label, horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
             else:
-                plt.text(x, coords[1], str(count), horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
-                plt.text(legendstart[0], legendstart[1]-0.05 * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
+                plt.text(x, coords[1], str(count), horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
+                plt.text(legendstart[0], legendstart[1] - 0.05 * count, str(count) + " : " + label, horizontalalignment = 'left', verticalalignment = 'top', fontproperties = font)
                 count += 1
 
-        for entry,coords in unstable.items():
+        for entry, coords in unstable.items():
             label = entry.name
-            plt.plot(coords[0], coords[1], 'bx', linewidth=3, markeredgecolor='b', markerfacecolor='b', markersize=10)
+            plt.plot(coords[0], coords[1], 'bx', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'b', markersize = 10)
 
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
@@ -163,7 +163,7 @@ class PDPlotter(object):
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
-        fig=plt.figure()
+        fig = plt.figure()
         ax = p3.Axes3D(fig)
         font = FontProperties()
         font.set_weight('bold')
@@ -172,7 +172,7 @@ class PDPlotter(object):
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
+            ax.plot(x, y, z, 'bo-', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
@@ -183,7 +183,7 @@ class PDPlotter(object):
                 ax.text(coords[0], coords[1], coords[2], str(count))#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
                 newlabels.append(str(count) + " : " + label)
                 count += 1
-        plt.figtext(0.01,0.01,'\n'.join(newlabels))
+        plt.figtext(0.01, 0.01, '\n'.join(newlabels))
         ax.axis('off')
         plt.show()
 
@@ -203,57 +203,57 @@ class PDPlotter(object):
         count = 1
         import matplotlib as mpl
         from matplotlib.font_manager import FontProperties
-            
+
         # chose a non-GUI backend
-        mpl.use( 'Agg' )
+        mpl.use('Agg')
         import matplotlib.pyplot as plt
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
-        
+
         if dim == 4:
             plt.clf()
             plt.cla()
             import mpl_toolkits.mplot3d.axes3d as p3
-            fig=plt.figure()
+            fig = plt.figure()
             ax = p3.Axes3D(fig)
-            
+
             newlabels = list()
             for x, y, z in lines:
-                ax.plot(x, y, z, 'bo-', linewidth=4, markeredgecolor='b', markerfacecolor='r', markersize=12)
+                ax.plot(x, y, z, 'bo-', linewidth = 4, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 12)
             for coords in sorted(labels.keys()):
                 label = labels[coords].name
                 if elementref.match(label):
-                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
+                    ax.text(coords[0], coords[1], coords[2], label, fontproperties = font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count), fontproperties=font)
+                    ax.text(coords[0], coords[1], coords[2], str(count), fontproperties = font)
                     newlabels.append(str(count) + " : " + label)
                     count += 1
-            plt.figtext(0.01,0.01,'\n'.join(newlabels), fontproperties=font)
-        
+            plt.figtext(0.01, 0.01, '\n'.join(newlabels), fontproperties = font)
+
         elif dim < 4 and dim > 1:
             plt.clf()
             plt.cla()
-            
-            for x,y in lines:
-                plt.plot(x,y,'bo-',linewidth=4,markeredgecolor='b',markerfacecolor='r',markersize=12)
+
+            for x, y in lines:
+                plt.plot(x, y, 'bo-', linewidth = 4, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 12)
             if dim == 3:
                 plt.axis('equal')
-                plt.xlim( (-0.02, 1.18) )
-                plt.ylim( (-0.1, 1.0) )
+                plt.xlim((-0.02, 1.18))
+                plt.ylim((-0.1, 1.0))
                 plt.axis('off')
                 legendstart = [1.0, 1.0]
                 legendspacing = 0.05
             else:
                 plt.xlim((-0.1, 1.4))
                 legendstart = [1.1, 0.0]
-            ymin,ymax = plt.ylim()
-            legendspacing = (ymax - ymin)/len(labels)
-        
+            ymin, ymax = plt.ylim()
+            legendspacing = (ymax - ymin) / len(labels)
+
             for coords in sorted(labels.keys()):
                 label = labels[coords].name
                 x = coords[0]
-                if coords[0] >= math.sqrt(3)/2:
+                if coords[0] >= math.sqrt(3) / 2:
                     halign = 'left'
                     x += 0.02
                 else:
@@ -263,17 +263,17 @@ class PDPlotter(object):
                     valign = 'bottom'
                 else:
                     valign = 'top'
-        
+
                 if elementref.match(label):
-                    plt.text(x, coords[1], label,horizontalalignment=halign,verticalalignment=valign,fontproperties=font)
+                    plt.text(x, coords[1], label, horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
                 else:
-                    plt.text(x, coords[1], str(count),horizontalalignment=halign,verticalalignment=valign,fontproperties=font)
-                    plt.text(legendstart[0], legendstart[1]-legendspacing*count, str(count) + " : "+label,horizontalalignment='left',verticalalignment='top',fontproperties=font)
-                    count +=1
+                    plt.text(x, coords[1], str(count), horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
+                    plt.text(legendstart[0], legendstart[1] - legendspacing * count, str(count) + " : " + label, horizontalalignment = 'left', verticalalignment = 'top', fontproperties = font)
+                    count += 1
         f = plt.gcf()
-        f.set_size_inches( (12, 10) )
-        
-        plt.savefig(stream, format=image_format)
+        f.set_size_inches((12, 10))
+
+        plt.savefig(stream, format = image_format)
 
 def uniquelines(q):
     '''
@@ -289,7 +289,7 @@ def uniquelines(q):
     '''
     setoflines = set()
     for facets in q:
-        for line in itertools.combinations(facets,2):
+        for line in itertools.combinations(facets, 2):
             setoflines.add(tuple(line))
     return setoflines
 
@@ -307,7 +307,7 @@ def triangular_coord(coord):
         coordinates in a triangular-based coordinate system. 
     '''
     unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
-    result = np.dot(np.array(coord),unitvec)
+    result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 
 def tet_coord(coord):
@@ -322,6 +322,6 @@ def tet_coord(coord):
     Returns:
         coordinates in a tetrahedron-based coordinate system. 
     '''
-    unitvec = np.array([[1,0,0],[0.5,math.sqrt(3)/2,0],[0.5,1.0/3.0*math.sqrt(3)/2,math.sqrt(6)/3]])
-    result = np.dot(np.array(coord),unitvec)
+    unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0], [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
+    result = np.dot(np.array(coord), unitvec)
     return result.transpose()
