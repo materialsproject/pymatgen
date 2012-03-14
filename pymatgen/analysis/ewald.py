@@ -184,7 +184,7 @@ class EwaldSummation:
 
         oxi_states = [compute_average_oxidation_state(site) for site in structure]
         self._total_q = sum(oxi_states)
-
+        self._coords = self._s.cart_coords
         self._forces = np.zeros((len(structure), 3))
         self._all_nn = self._s.get_all_neighbors(self._rmax, True)
         recip = Structure(self._s.lattice.reciprocal_lattice, ["H"], [np.array([0, 0, 0])])
@@ -254,7 +254,7 @@ class EwaldSummation:
         prefactor = 2 * pi / self._vol
         erecip = np.zeros((self._s.num_sites, self._s.num_sites))
         forces = np.zeros((len(self._s), 3))
-
+        coords = self._coords
         nn = self._recip_nn
         for (n, dist) in nn:
             gvect = n.coords
@@ -263,30 +263,32 @@ class EwaldSummation:
 
             #calculate the structure factor
             sfactor = np.zeros((self._s.num_sites, self._s.num_sites))
-            for i in range(self._s.num_sites):
-                sitei = self._s[i]
+            sreal = 0.0
+            simag = 0.0
+            for i in xrange(self._s.num_sites):
                 qi = oxi_states[i]
-                for j in range(self._s.num_sites):
-                    sitej = self._s[j]
+                g_dot_i = np.dot(gvect, coords[i])
+                sfactor[i, i] = qi * qi
+                sreal += qi * cos(g_dot_i)
+                simag += qi * sin(g_dot_i)
+                for j in xrange(i + 1, self._s.num_sites):
                     qj = oxi_states[j]
-                    exparg = np.dot(gvect, sitei.coords - sitej.coords)
-                    sfactor[i, j] = qi * qj * (cos(exparg) + sin(exparg))
+                    exparg = g_dot_i - np.dot(gvect, coords[j])
+                    cosa = cos(exparg)
+                    sina = sin(exparg)
+                    sfactor[i, j] = qi * qj * (cosa + sina)
+                    """
+                    Uses the property that when sitei and sitej are switched,
+                    exparg' == - exparg. This implies 
+                    cos (exparg') = cos (exparg) and
+                    sin (exparg') = - sin (exparg)
+                    """
+                    sfactor[j, i] = qi * qj * (cosa - sina)
 
             erecip += expval / gsquare * sfactor
 
-            #do forces if necessary
-            sreal = 0.0
-            simag = 0.0
             for i in range(self._s.num_sites):
-                site = self._s[i]
-                exparg = np.dot(gvect, site.coords)
-                qj = oxi_states[i]
-                sreal += qj * cos(exparg)
-                simag += qj * sin(exparg)
-
-            for i in range(self._s.num_sites):
-                site = self._s[i]
-                exparg = np.dot(gvect, site.coords)
+                exparg = np.dot(gvect, coords[i])
                 qj = oxi_states[i]
                 pref = 2 * expval / gsquare * qj
                 forces[i] += prefactor * pref * gvect * (sreal * sin(exparg) - simag * cos(exparg)) * EwaldSummation.CONV_FACT
@@ -306,7 +308,7 @@ class EwaldSummation:
         ereal = np.zeros((self._s.num_sites, self._s.num_sites))
         epoint = np.zeros((self._s.num_sites))
         forces = np.zeros((len(self._s), 3))
-
+        coords = self._coords
         for i in range(self._s.num_sites):
             site = self._s[i]
             nn = all_nn[i] #self._s.get_neighbors(site, self._rmax)
@@ -325,7 +327,7 @@ class EwaldSummation:
                 erfcval = erfc(self._sqrt_eta * rij)
                 ereal[nn[j][2], i] += erfcval * qi * qj / rij
                 fijpf = qj / rij / rij / rij * (erfcval + forcepf * rij * exp(-self._eta * rij * rij))
-                forces[i] += fijpf * (site.coords - nsite.coords) * qi * EwaldSummation.CONV_FACT
+                forces[i] += fijpf * (coords[i] - nsite.coords) * qi * EwaldSummation.CONV_FACT
 
         ereal = ereal * 0.5 * EwaldSummation.CONV_FACT
         epoint = epoint * EwaldSummation.CONV_FACT
@@ -545,3 +547,4 @@ class EwaldMinimizer:
     @property
     def output_lists(self):
         return self._output_lists
+
