@@ -273,6 +273,12 @@ class EwaldSummation:
                     qj = oxi_states[j]
                     exparg = np.dot(gvect, sitei.coords - sitej.coords)
                     sfactor[i, j] = qi * qj * (cos(exparg) + sin(exparg))
+                    """
+                    Uses the property that when sitei and sitej are switched,
+                    exparg' == - exparg. This implies 
+                    cos (exparg') = cos (exparg) and
+                    sin (exparg') = - sin (exparg)
+                    """
                     sfactor[j, i] = qi * qj * (cos(exparg) - sin(exparg))
                 exparg = np.dot(gvect, sitei.coords)
                 sreal += qi * cos(exparg)
