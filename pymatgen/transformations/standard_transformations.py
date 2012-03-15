@@ -27,7 +27,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator
 from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer, minimize_matrix
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 
 class IdentityTransformation(AbstractTransformation):
