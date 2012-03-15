@@ -188,7 +188,7 @@ class EwaldSummation:
         several factors of improvement in speedup.
         """
         self._oxi_states = [compute_average_oxidation_state(site) for site in structure]
-        self._coords = self._s.cart_coords
+        self._coords = np.array(self._s.cart_coords)
         self._forces = np.zeros((len(structure), 3))
 
         """
@@ -255,6 +255,8 @@ class EwaldSummation:
         E_recip = 1/(2PiV) sum_{G < Gmax} exp(-(G.G/4/eta))/(G.G) S(G)S(-G) where
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
         S(G)S(-G) = |S(G)|**2
+        
+        This method is heavily vectorized to utilize numpy's C backend for speed.
         """
         numsites = self._s.num_sites
         prefactor = 2 * pi / self._vol
@@ -270,19 +272,22 @@ class EwaldSummation:
 
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
+            gvect_tile = np.tile(gvect, (numsites, 1))
+            gvectdot = np.sum(gvect_tile * coords, 1)
             #calculate the structure factor
             sfactor = np.zeros((numsites, numsites))
             sreal = 0.0
             simag = 0.0
             for i in xrange(numsites):
                 qi = self._oxi_states[i]
-                g_dot_i = np.dot(gvect, coords[i])
+                g_dot_i = gvectdot[i]
                 sfactor[i, i] = qi * qi
                 sreal += qi * cos(g_dot_i)
                 simag += qi * sin(g_dot_i)
+
                 for j in xrange(i + 1, numsites):
                     qj = self._oxi_states[j]
-                    exparg = g_dot_i - np.dot(gvect, coords[j])
+                    exparg = g_dot_i - gvectdot[j]
                     cosa = cos(exparg)
                     sina = sin(exparg)
                     sfactor[i, j] = qi * qj * (cosa + sina)
@@ -291,16 +296,15 @@ class EwaldSummation:
                     exparg' == - exparg. This implies 
                     cos (exparg') = cos (exparg) and
                     sin (exparg') = - sin (exparg)
+                    
+                    Halves all computations.
                     """
                     sfactor[j, i] = qi * qj * (cosa - sina)
 
             erecip += expval / gsquare * sfactor
-
-            for i in range(self._s.num_sites):
-                exparg = np.dot(gvect, coords[i])
-                qj = self._oxi_states[i]
-                pref = 2 * expval / gsquare * qj
-                forces[i] += prefactor * pref * gvect * (sreal * sin(exparg) - simag * cos(exparg)) * EwaldSummation.CONV_FACT
+            pref = 2 * expval / gsquare * np.array(self._oxi_states)
+            factor = prefactor * pref * (sreal * np.sin(gvectdot) - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
+            forces += np.tile(factor, (3, 1)).transpose() * gvect_tile
 
         return (erecip * prefactor * EwaldSummation.CONV_FACT , forces)
 
