@@ -416,7 +416,6 @@ class EwaldMinimizer:
             return
 
         index = None
-
         if fast and len(m_list) == 1 and m_list[-1][1] > 1:
             best_case = self.best_case(copy(matrix), m_list[-1], indices)
             index = best_case[1]
@@ -444,7 +443,6 @@ class EwaldMinimizer:
         if index in indices2:
             indices2.remove(index)
             output2 = self._recurse(matrix2, m_list2, indices2, fast, output_m_list2)
-
         output1 = self._recurse(matrix, m_list, indices, fast, output_m_list)
 
 
