@@ -72,7 +72,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 S2")
-        
+
     def test_fractional_substitution(self):
         t = SubstitutionTransformation({"Li+":"Na+", "O2-":{"S2-":0.5, "Se2-":0.5}})
         coords = list()
@@ -134,8 +134,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         coords.append([0.25, 0.25, 0.25])
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "O2-"], coords)
-        t.apply_transformation(struct)
-        self.assertEqual(len(t.all_structures), 2)
+        self.assertEqual(len(t.apply_transformation(struct, True)), 2)
 
     def test_apply_transformation_fast(self):
         t = PartialRemoveSpecieTransformation("Li+", 0.5)
@@ -149,7 +148,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         lattice = Lattice([[ 10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
         self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy, EwaldSummation(slow_opt_s).total_energy, 4)
         self.assertEqual(fast_opt_s, slow_opt_s)
@@ -160,10 +159,26 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
         s = t1.apply_transformation(p.struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
-        t.apply_transformation(s)
-        self.assertEqual(len(t.all_structures), 3)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        self.assertEqual(len(t.apply_transformation(s, True)), 3)
 
+    def test_apply_transformations_best_first(self):
+
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        s = t1.apply_transformation(p.struct)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+        self.assertEqual(len(t.apply_transformation(s)), 26)
+
+    def test_to_from_dict(self):
+        json_str = json.dumps(PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST).to_dict)
+        t = transformation_from_json(json_str)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        s = t1.apply_transformation(p.struct)
+        self.assertEqual(len(t.apply_transformation(s)), 26)
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
@@ -210,29 +225,6 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
-
-
-class TranslateSitesTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = TranslateSitesTransformation([0], [0.1, 0.2, 0.3])
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([.5, .5, .5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
-
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-        inv_t = t.inverse
-        s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
 
 
 class TransformationJsonTest(unittest.TestCase):
