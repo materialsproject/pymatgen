@@ -141,6 +141,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     several algorithms provided with varying degrees of accuracy and speed. The 
     options are as follows:
     
+    ALGO_FAST:
+        This is a highly optimized algorithm to quickly go through the search 
+        tree. It is guaranteed to find the optimal solution, but will return
+        only a single lowest energy structure. Typically, you will want to use
+        this.
+    
     ALGO_COMPLETE:
         The complete algo ensures that you get all symmetrically distinct 
         orderings, ranked by the estimated Ewald energy. But this can be an
@@ -260,8 +266,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return = 1, fast = True)
-
-        minimizer.minimize_matrix(ewaldmatrix)
+        minimizer.minimize_matrix()
         lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
         mod = StructureEditor(structure)
         mod.delete_sites(lowestenergy_indices)
