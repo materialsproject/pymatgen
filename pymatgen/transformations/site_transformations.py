@@ -21,7 +21,7 @@ import itertools
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure_modifier import StructureEditor
-from pymatgen.analysis.ewald import EwaldSummation, minimize_matrix
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
@@ -141,6 +141,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     several algorithms provided with varying degrees of accuracy and speed. The 
     options are as follows:
     
+    ALGO_FAST:
+        This is a highly optimized algorithm to quickly go through the search 
+        tree. It is guaranteed to find the optimal solution, but will return
+        only a single lowest energy structure. Typically, you will want to use
+        this.
+    
     ALGO_COMPLETE:
         The complete algo ensures that you get all symmetrically distinct 
         orderings, ranked by the estimated Ewald energy. But this can be an
@@ -157,6 +163,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         is also likely to be highly inaccurate. 
     """
 
+    ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
@@ -245,7 +252,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return all_structures
 
     @staticmethod
-    def fast_ordering(structure, specie_indices, num_to_remove):
+    def fast_ordering(structure, num_remove_dict):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald sums 
         of the potential structures. This is on the order of 4 orders of magnitude 
@@ -255,10 +262,16 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         until the number of permutations is on the order of 30,000.
         """
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
-        lowestenergy_indices = minimize_matrix(ewaldmatrix, specie_indices, num_to_remove)[1]
+        m_list = []
+        for indices, num in num_remove_dict.items():
+            m_list.append([0, num, list(indices), None])
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return = 1, fast = True)
+        minimizer.minimize_matrix()
+        lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
         mod = StructureEditor(structure)
         mod.delete_sites(lowestenergy_indices)
         return mod.modified_structure.get_sorted_structure()
+
 
     def apply_transformation(self, structure, return_ranked_list = False):
         num_remove_dict = {}
@@ -270,10 +283,10 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
 
-        #if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
-        #    opt_s = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict)
-        #    all_structures = [opt_s]
-        if self._algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
+        if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
+            opt_s = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict)
+            all_structures = [opt_s]
+        elif self._algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
             all_structures = PartialRemoveSitesTransformation.complete_ordering(structure, num_remove_dict)
             opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
