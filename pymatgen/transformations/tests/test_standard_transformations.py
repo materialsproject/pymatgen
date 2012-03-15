@@ -72,7 +72,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 S2")
-        
+
     def test_fractional_substitution(self):
         t = SubstitutionTransformation({"Li+":"Na+", "O2-":{"S2-":0.5, "Se2-":0.5}})
         coords = list()
@@ -149,7 +149,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         lattice = Lattice([[ 10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
         self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy, EwaldSummation(slow_opt_s).total_energy, 4)
         self.assertEqual(fast_opt_s, slow_opt_s)
@@ -160,9 +160,18 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
         s = t1.apply_transformation(p.struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         t.apply_transformation(s)
         self.assertEqual(len(t.all_structures), 3)
+
+    def test_apply_transformations_best_first(self):
+
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        s = t1.apply_transformation(p.struct)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+        t.apply_transformation(s)
 
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
