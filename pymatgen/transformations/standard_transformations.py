@@ -18,7 +18,6 @@ __date__ = "Sep 23, 2011"
 
 import json
 import itertools
-import warnings
 import numpy as np
 from operator import itemgetter
 
