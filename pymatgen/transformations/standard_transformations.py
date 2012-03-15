@@ -415,21 +415,29 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
-    Order a disordered structure. The disordered structure must be oxidation state decorated for ewald sum to be computed.
-    No attempt is made to perform symmetry determination to reduce the number of combinations.
-    Hence, attempting to performing ordering on a large number of disordered sites may be extremely expensive. The time scales approximately
-    with the number of possible combinations. The algorithm can currently compute approximately 5,000,000 permutations per minute.
-    There is also the initial cost of calculating the ewald sum (typically ~1 minute)
+    Order a disordered structure. The disordered structure must be oxidation state 
+    decorated for ewald sum to be computed. No attempt is made to perform 
+    symmetry determination to reduce the number of combinations.
     
-    Also, simple rounding of the occupancies are performed, with no attempt made to achieve a target composition.  This is usually not a problem
-    for most ordering problems, but there can be times where rounding errors may result in structures that do not have the desired composition.
+    Hence, attempting to performing ordering on a large number of disordered 
+    sites may be extremely expensive. The time scales approximately with the 
+    number of possible combinations. The algorithm can currently compute 
+    approximately 5,000,000 permutations per minute.
+    
+    Also, simple rounding of the occupancies are performed, with no attempt 
+    made to achieve a target composition.  This is usually not a problem for
+    most ordering problems, but there can be times where rounding errors may 
+    result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.
     
-    If multiple fractions for a single species are found for different sites, these will be treated separately if the difference is above a
-    threshold tolerance. currently this is .1
-    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites 4,5,6,7 1 site from [0,1,2,3] will be filled
-    and 2 sites from [4,5,6,7] will be filled, even though a lower energy combination might be found by putting all lithium in
-    sites [4,5,6,7]
+    If multiple fractions for a single species are found for different sites, 
+    these will be treated separately if the difference is above a threshold 
+    tolerance. currently this is .1
+    
+    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites 
+    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7] 
+    will be filled, even though a lower energy combination might be found by 
+    putting all lithium in sites [4,5,6,7].
     
     USE WITH CARE.
     """
@@ -554,117 +562,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def all_structures(self):
         return self._all_structures
-
-
-
-class OrderDisorderedStructureTransformation_old(AbstractTransformation):
-    """
-    Order a disordered structure. The disordered structure must be oxidation state decorated for ewald sum to be computed.
-    Please note that the current form uses a "dumb" algorithm of completely enumerating all possible combinations of
-    partially occupied sites.  No attempt is made to perform symmetry determination to reduce the number of combinations.
-    Hence, attempting to performing ordering on a large number of disordered sites may be extremely expensive.  Also, simple
-    rounding of the occupancies are performed, with no attempt made to achieve a target composition.  This is usually not a problem
-    for most ordering problems, but there can be times where rounding errors may result in structures that do not have the desired composition.
-    This second step will be implemented in the next iteration of the code. USE WITH CARE.
-    """
-    def __init__(self):
-        pass
-
-    def apply_transformation(self, structure, max_iterations = 100):
-        """
-        For this transformation, the apply_transformation method will return only the ordered
-        structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
-        However, all structures are stored in the all_structures attribute in the transformation object for easy access.
-        
-        Args:
-            structure:
-                Oxidation state-decorated disordered structure to order
-            max_iterations:
-                Maximum number of structures to consider. Defaults to 100. This is useful if there are a large number of sites 
-                and there are too many orderings to enumerate.
-        """
-        ordered_sites = []
-
-        sites_to_order = {}
-        for site in structure:
-            species_and_occu = site.species_and_occu
-            if sum(species_and_occu.values()) == 1 and len(species_and_occu) == 1:
-                ordered_sites.append(site)
-            else:
-                spec = tuple([(sp, occu) for sp, occu in species_and_occu.items()])
-                if spec not in sites_to_order:
-                    sites_to_order[spec] = [site]
-                else:
-                    sites_to_order[spec].append(site)
-
-        allselections = []
-        species = []
-        for spec, sites in sites_to_order.items():
-            total_sites = len(sites)
-            for (sp, fraction) in spec:
-                num_to_select = int(round(fraction * total_sites))
-                if num_to_select == 0:
-                    raise ValueError("Fraction not consistent with selection of at least a single site.  Make a supercell before proceeding further.")
-                allselections.append(itertools.combinations(sites, num_to_select))
-                species.append(sp)
-
-        all_ordered_s = {}
-        count = 0
-
-        def in_coords(allcoords, coord):
-            for test_coord in allcoords:
-                if all(coord == test_coord):
-                    return True
-            return False
-
-        for selection in itertools.product(*allselections):
-            all_species = [site.species_and_occu for site in ordered_sites]
-            all_coords = [site.frac_coords for site in ordered_sites]
-
-            contains_dupes = False
-            for i in xrange(len(selection)):
-                subsel = selection[i]
-                sp = species[i]
-                for site in subsel:
-                    if not in_coords(all_coords, site.frac_coords):
-                        all_species.append(sp)
-                        all_coords.append(site.frac_coords)
-                    else:
-                        contains_dupes = True
-                        break
-                if contains_dupes:
-                    break
-
-            if not contains_dupes:
-                s = Structure(structure.lattice, all_species, all_coords, False).get_sorted_structure()
-                ewaldsum = EwaldSummation(s)
-                ewald_energy = ewaldsum.total_energy
-                all_ordered_s[s] = ewald_energy
-                count += 1
-                if count == max_iterations:
-                    warnings.warn("Maximum number of iterations reached.  Structures will be ordered based on " + str(max_iterations) + " structures.")
-                    break
-
-        self.all_structures = all_ordered_s
-        sorted_structures = sorted(all_ordered_s.keys(), key = lambda a: all_ordered_s[a])
-
-        return sorted_structures[0]
-
-    def __str__(self):
-        return "Order disordered structure transformation"
-
-    def __repr__(self):
-        return self.__str__()
-
-    @property
-    def inverse(self):
-        return None
-
-    @property
-    def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {}
-        return output
 
 
 class PrimitiveCellTransformation(AbstractTransformation):
