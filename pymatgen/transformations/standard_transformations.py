@@ -18,7 +18,6 @@ __date__ = "Sep 23, 2011"
 
 import json
 import itertools
-import warnings
 import numpy as np
 from operator import itemgetter
 
@@ -28,8 +27,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator
 from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer, minimize_matrix
-
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 
 class IdentityTransformation(AbstractTransformation):
     """
@@ -311,90 +310,12 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self._frac = fraction_to_remove
         self._algo = algo
 
-
-    @staticmethod
-    def best_first_ordering(structure, specie_indices, num_to_remove):
-        ewaldsum = EwaldSummation(structure)
-        ematrix = ewaldsum.total_energy_matrix
-        to_delete = []
-        for i in xrange(num_to_remove):
-            maxindex = None
-            maxe = float('-inf')
-            for ind in specie_indices:
-                energy = sum(ematrix[:, ind]) + sum(ematrix[:, ind]) - ematrix[ind, ind]
-                if energy > maxe:
-                    maxindex = ind
-                    maxe = energy
-            to_delete.append(maxindex)
-            specie_indices.remove(maxindex)
-            ematrix[:, maxindex] = 0
-            ematrix[maxindex, :] = 0
-        mod = StructureEditor(structure)
-        mod.delete_sites(to_delete)
-        return mod.modified_structure
-
-    @staticmethod
-    def complete_ordering(structure, specie_indices, num_to_remove):
-        all_structures = []
-        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
-        symprec = 0.1
-        s = SymmetryFinder(structure, symprec = symprec)
-        sg = s.get_spacegroup()
-        tested_sites = []
-        ewaldsum = EwaldSummation(structure)
-        for indices in itertools.combinations(specie_indices, num_to_remove):
-            sites_to_remove = [structure[i] for i in indices]
-            already_tested = False
-            for tsites in tested_sites:
-                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec = symprec):
-                    already_tested = True
-            if not already_tested:
-                tested_sites.append(sites_to_remove)
-                mod = StructureEditor(structure)
-                mod.delete_sites(indices)
-                s_new = mod.modified_structure
-                energy = ewaldsum.compute_partial_energy(indices)
-                all_structures.append({'structure':s_new, 'energy':energy})
-
-        all_structures = sorted(all_structures, key = lambda s: s['energy'])
-        return all_structures
-
-    @staticmethod
-    def fast_ordering(structure, specie_indices, num_to_remove):
-        """
-        This method uses the matrix form of ewaldsum to calculate the ewald sums 
-        of the potential structures. This is on the order of 4 orders of magnitude 
-        faster when there are large numbers of permutations to consider.
-        There are further optimizations possible (doing a smarter search of 
-        permutations for example), but this wont make a difference
-        until the number of permutations is on the order of 30,000.
-        """
-        ewaldmatrix = EwaldSummation(structure).total_energy_matrix
-        lowestenergy_indices = minimize_matrix(ewaldmatrix, specie_indices, num_to_remove)[1]
-        mod = StructureEditor(structure)
-        mod.delete_sites(lowestenergy_indices)
-        return mod.modified_structure.get_sorted_structure()
-
     def apply_transformation(self, structure, return_ranked_list = False):
         sp = smart_element_or_specie(self._specie)
-        num_to_remove = structure.composition[sp] * self._frac
-        if abs(num_to_remove - int(num_to_remove)) > 1e-8:
-            raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-        else:
-            num_to_remove = int(round(num_to_remove))
 
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
-
-        if self._algo == PartialRemoveSpecieTransformation.ALGO_FAST:
-            opt_s = PartialRemoveSpecieTransformation.fast_ordering(structure, specie_indices, num_to_remove)
-            all_structures = [opt_s]
-        elif self._algo == PartialRemoveSpecieTransformation.ALGO_COMPLETE:
-            all_structures = PartialRemoveSpecieTransformation.complete_ordering(structure, specie_indices, num_to_remove)
-            opt_s = all_structures[0]['structure']
-        elif self._algo == PartialRemoveSpecieTransformation.ALGO_BEST_FIRST:
-            opt_s = PartialRemoveSpecieTransformation.best_first_ordering(structure, specie_indices, num_to_remove)
-            all_structures = [opt_s]
-        return opt_s if not return_ranked_list else all_structures
+        trans = PartialRemoveSitesTransformation([specie_indices], [self._frac], self._algo)
+        return trans.apply_transformation(structure, return_ranked_list)
 
     def __str__(self):
         return "PartialRemoveSpecieTransformation : Species to remove = {}, Fraction to remove = {}, ALGO = {}".format(self._specie, self._frac, self._algo)
