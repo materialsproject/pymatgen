@@ -134,8 +134,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         coords.append([0.25, 0.25, 0.25])
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "O2-"], coords)
-        t.apply_transformation(struct)
-        self.assertEqual(len(t.all_structures), 2)
+        self.assertEqual(len(t.apply_transformation(struct, True)), 2)
 
     def test_apply_transformation_fast(self):
         t = PartialRemoveSpecieTransformation("Li+", 0.5)
@@ -161,8 +160,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
         s = t1.apply_transformation(p.struct)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
-        t.apply_transformation(s)
-        self.assertEqual(len(t.all_structures), 3)
+        self.assertEqual(len(t.apply_transformation(s, True)), 3)
 
     def test_apply_transformations_best_first(self):
 
@@ -171,8 +169,16 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
         s = t1.apply_transformation(p.struct)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
-        t.apply_transformation(s)
+        self.assertEqual(len(t.apply_transformation(s)), 26)
 
+    def test_to_from_dict(self):
+        json_str = json.dumps(PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST).to_dict)
+        t = transformation_from_json(json_str)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        s = t1.apply_transformation(p.struct)
+        self.assertEqual(len(t.apply_transformation(s)), 26)
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
