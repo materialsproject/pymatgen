@@ -24,110 +24,6 @@ from copy import deepcopy, copy
 import bisect
 
 
-def compute_average_oxidation_state(site):
-    """
-    Calculates the average oxidation state of a site
-    
-    Args:
-        Site to compute average oxidation state
-        
-    Returns:
-        Average oxidation state of site.
-    """
-    return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
-
-def minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #current minimum works like a global variable since it is a list
-    '''
-    Minimize a matrix by removing a specific number of rows and columns (if row 4 is removed, column 4 must also be removed)
-    This method looks for short circuits to a brute force search by looking at best and worse case scenarios (which can be computed quickly)
-    It is about 1000 times faster than brute force.
-    '''
-
-    if not CURRENT_MINIMUM:
-        CURRENT_MINIMUM = [float('inf')]
-
-    if num_to_remove > len(indices):  #if we've kept too many rows
-        return[float('inf'), []]    #abandon the branch
-
-    if num_to_remove == 0:                        #if we don't have to remove any more rows
-        matrix_sum = sum(sum(matrix))
-        if matrix_sum < CURRENT_MINIMUM[0]:
-            CURRENT_MINIMUM[0] = matrix_sum
-        return [matrix_sum, []]                 #return the sum of the matrix
-
-    indices = list(indices)         #make a copy of the indices so recursion doesn't alter them
-    matrix2 = deepcopy(matrix)
-
-    max_index = None
-
-    #compute the best case sum for removing rows
-    if num_to_remove > 1: #lets not do this if we're finding the minimum in the next step anyway
-        index_sum = [sum(matrix[i, :]) + sum(matrix[:, i]) - matrix[i, i] for i in indices]    #compute the value associated with an index assuming no other indices are removed
-        max_index = indices[index_sum.index(max(index_sum))]                            #get the index of the maximum value (we'll try removing this row first)
-        index_sum_sorted = list(index_sum)
-        index_sum_sorted.sort(reverse = True)
-        all_interactions = list(matrix[indices, :][:, indices].flatten())                 #get the cells that we could be double counting when removing multiple index
-        all_interactions.sort()
-
-        #sum the matrix - the rows with maximum 
-        best_case = sum(sum(matrix)) - sum(index_sum_sorted[:num_to_remove]) + sum(all_interactions[:(num_to_remove * (num_to_remove - 1))])
-
-        if best_case > CURRENT_MINIMUM[0]:
-            return [float('inf'), []]   #if the best case doesn't beat the minimum abandon the branch
-
-        #try to find rows that should definitely be removed or definitely ignored based on best and worse case performances
-        most_positive = []
-        most_negative = []
-        for i in range(len(indices)):
-            index = indices[i]
-            interactions = [matrix[index, x] + matrix[x, index] for x in indices if not x == index]
-            interactions.sort()
-            most_positive.append(index_sum[i] - sum(interactions[:(num_to_remove - 1)]))
-            most_negative.append(index_sum[i] - sum(interactions[-(num_to_remove - 1):]))
-
-        most_positive_sorted = sorted(most_positive, reverse = True)
-        most_negative_sorted = sorted(most_negative, reverse = True)
-
-        deletion_indices = []
-        ignore_indices = []
-        for i in range(len(indices)):
-            if most_negative[i] > most_positive_sorted[num_to_remove - 1]:
-                deletion_indices.append(indices[i])
-                pass
-            if most_positive[i] < most_negative_sorted[num_to_remove - 1]:
-                ignore_indices.append(indices[i])
-                pass
-
-        if deletion_indices + ignore_indices:
-            for r_index in deletion_indices:
-                matrix2[:, r_index] = 0
-                matrix2[r_index, :] = 0
-                num_to_remove -= 1
-                indices.remove(r_index)
-            for x in ignore_indices:
-                indices.remove(x)
-            output = minimize_matrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
-            output[1] = output[1] + deletion_indices
-            output[1].sort()
-            return output
-
-    #if no shortcuts could be found, recurse down one level by both removing and ignoring one row
-    if max_index:
-        r_index = max_index
-        indices.remove(max_index)
-    else:
-        r_index = indices.pop()
-    matrix2[:, r_index] = 0
-    matrix2[r_index, :] = 0
-    sum2 = minimize_matrix(matrix2, indices, num_to_remove - 1, CURRENT_MINIMUM)
-    sum1 = minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
-    if sum1[0] < sum2[0]:
-        return sum1
-    else:
-        sum2[1].append(r_index)
-        sum2[1].sort()
-        return sum2
-
 class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using the Ewald technique. 
@@ -357,12 +253,18 @@ class EwaldSummation:
 
 class EwaldMinimizer:
     '''
-    This class determines the manipulations that will minimize an ewald matrix, given a list of possible manipulations
-    This class does not perform the manipulations on a structure, but will return the list of manipulations that should be
-    done on one to produce the minimal structure. It returns the manipulations for the n lowest energy orderings. This
-    class should be used to perform fractional species substitution or fractional species removal to produce a new structure.
-    These manipulations create large numbers of candidate structures, and this class can be used to pick out those with the lowest ewald sum.
-    An alternative (possibly more intuitive) interface to this class is the order disordered structure transformation.
+    This class determines the manipulations that will minimize an ewald matrix, 
+    given a list of possible manipulations. This class does not perform the 
+    manipulations on a structure, but will return the list of manipulations that 
+    should be done on one to produce the minimal structure. It returns the 
+    manipulations for the n lowest energy orderings. This class should be used 
+    to perform fractional species substitution or fractional species removal to 
+    produce a new structure. These manipulations create large numbers of 
+    candidate structures, and this class can be used to pick out those with the 
+    lowest ewald sum.
+    
+    An alternative (possibly more intuitive) interface to this class is the 
+    order disordered structure transformation.
     
     Author - Will Richards
     '''
@@ -371,16 +273,21 @@ class EwaldMinimizer:
         '''
         Args:
             matrix:      
-                a matrix of the ewald sum interaction energies. This is stored in the class as a diagonally symmetric array
-                and so self._matrix will not be the same as the input matrix
+                a matrix of the ewald sum interaction energies. This is stored 
+                in the class as a diagonally symmetric array and so self._matrix 
+                will not be the same as the input matrix
             m_list:
-                list of manipulations. each item is of the form (multiplication fraction, number_of_indices, indices, species)
-                These are sorted such that the first manipulation contains the most permutations. this is actually
-                evaluated last in the recursion since I'm using pop
+                list of manipulations. each item is of the form 
+                (multiplication fraction, number_of_indices, indices, species)
+                These are sorted such that the first manipulation contains the 
+                most permutations. this is actually evaluated last in the 
+                recursion since I'm using pop.
             num_to_return: 
-                The minimizer will find the number_returned lowest energy structures. This is likely to return a number of
-                duplicate structures so it may be necessary to overestimate and then remove the duplicates later. (duplicate checking
-                in this process is extremely expensive)
+                The minimizer will find the number_returned lowest energy 
+                structures. This is likely to return a number of duplicate 
+                structures so it may be necessary to overestimate and then 
+                remove the duplicates later. (duplicate checking in this 
+                process is extremely expensive)
         '''
         self._matrix = copy(matrix)
         for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -422,15 +329,18 @@ class EwaldMinimizer:
 
     def best_case(self, matrix, manipulation, indices_left):
         '''
-        Computes a best case given a matrix and manipulation list. This is only used for when there is only one manipulation left
-        calculating a best case when there are multiple fractions remaining is much more complex (as sorting and dot products have to be done
-        on each row and it just generally scales pretty badly.
+        Computes a best case given a matrix and manipulation list. This is only 
+        used for when there is only one manipulation left calculating a best 
+        case when there are multiple fractions remaining is much more complex 
+        (as sorting and dot products have to be done on each row and it just 
+        generally scales pretty badly).
         
         Args:
             matrix: 
                 the current matrix (with some permutations already performed
             manipulation: 
-                (multiplication fraction, number_of_indices, indices, species) describing the manipulation
+                (multiplication fraction, number_of_indices, indices, species) 
+                describing the manipulation
             indices: 
                 set of indices which haven't had a permutation performed on them 
         '''
@@ -557,3 +467,111 @@ class EwaldMinimizer:
     @property
     def output_lists(self):
         return self._output_lists
+
+
+def compute_average_oxidation_state(site):
+    """
+    Calculates the average oxidation state of a site
+    
+    Args:
+        Site to compute average oxidation state
+        
+    Returns:
+        Average oxidation state of site.
+    """
+    return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
+
+
+def minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM = None): #current minimum works like a global variable since it is a list
+    '''
+    Minimize a matrix by removing a specific number of rows and columns (if 
+    row 4 is removed, column 4 must also be removed) This method looks for short 
+    circuits to a brute force search by looking at best and worse case scenarios 
+    (which can be computed quickly)
+    It is about 1000 times faster than brute force.
+    '''
+
+    if not CURRENT_MINIMUM:
+        CURRENT_MINIMUM = [float('inf')]
+
+    if num_to_remove > len(indices):  #if we've kept too many rows
+        return [float('inf'), []]    #abandon the branch
+
+    if num_to_remove == 0:                        #if we don't have to remove any more rows
+        matrix_sum = sum(sum(matrix))
+        if matrix_sum < CURRENT_MINIMUM[0]:
+            CURRENT_MINIMUM[0] = matrix_sum
+        return [matrix_sum, []]                 #return the sum of the matrix
+
+    indices = list(indices)         #make a copy of the indices so recursion doesn't alter them
+    matrix2 = deepcopy(matrix)
+
+    max_index = None
+
+    #compute the best case sum for removing rows
+    if num_to_remove > 1: #lets not do this if we're finding the minimum in the next step anyway
+        index_sum = [sum(matrix[i, :]) + sum(matrix[:, i]) - matrix[i, i] for i in indices]    #compute the value associated with an index assuming no other indices are removed
+        max_index = indices[index_sum.index(max(index_sum))]                            #get the index of the maximum value (we'll try removing this row first)
+        index_sum_sorted = list(index_sum)
+        index_sum_sorted.sort(reverse = True)
+        all_interactions = list(matrix[indices, :][:, indices].flatten())                 #get the cells that we could be double counting when removing multiple index
+        all_interactions.sort()
+
+        #sum the matrix - the rows with maximum 
+        best_case = sum(sum(matrix)) - sum(index_sum_sorted[:num_to_remove]) + sum(all_interactions[:(num_to_remove * (num_to_remove - 1))])
+
+        if best_case > CURRENT_MINIMUM[0]:
+            return [float('inf'), []]   #if the best case doesn't beat the minimum abandon the branch
+
+        #try to find rows that should definitely be removed or definitely ignored based on best and worse case performances
+        most_positive = []
+        most_negative = []
+        for i in range(len(indices)):
+            index = indices[i]
+            interactions = [matrix[index, x] + matrix[x, index] for x in indices if not x == index]
+            interactions.sort()
+            most_positive.append(index_sum[i] - sum(interactions[:(num_to_remove - 1)]))
+            most_negative.append(index_sum[i] - sum(interactions[-(num_to_remove - 1):]))
+
+        most_positive_sorted = sorted(most_positive, reverse = True)
+        most_negative_sorted = sorted(most_negative, reverse = True)
+
+        deletion_indices = []
+        ignore_indices = []
+        for i in range(len(indices)):
+            if most_negative[i] > most_positive_sorted[num_to_remove - 1]:
+                deletion_indices.append(indices[i])
+                pass
+            if most_positive[i] < most_negative_sorted[num_to_remove - 1]:
+                ignore_indices.append(indices[i])
+                pass
+
+        if deletion_indices + ignore_indices:
+            for r_index in deletion_indices:
+                matrix2[:, r_index] = 0
+                matrix2[r_index, :] = 0
+                num_to_remove -= 1
+                indices.remove(r_index)
+            for x in ignore_indices:
+                indices.remove(x)
+            output = minimize_matrix(matrix2, indices, num_to_remove, CURRENT_MINIMUM)
+            output[1] = output[1] + deletion_indices
+            output[1].sort()
+            return output
+
+    #if no shortcuts could be found, recurse down one level by both removing and ignoring one row
+    if max_index:
+        r_index = max_index
+        indices.remove(max_index)
+    else:
+        r_index = indices.pop()
+    matrix2[:, r_index] = 0
+    matrix2[r_index, :] = 0
+    sum2 = minimize_matrix(matrix2, indices, num_to_remove - 1, CURRENT_MINIMUM)
+    sum1 = minimize_matrix(matrix, indices, num_to_remove, CURRENT_MINIMUM)
+    if sum1[0] < sum2[0]:
+        return sum1
+    else:
+        sum2[1].append(r_index)
+        sum2[1].sort()
+        return sum2
