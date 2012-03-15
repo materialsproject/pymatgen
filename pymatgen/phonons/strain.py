@@ -69,7 +69,7 @@ class Strain(object):
         h_sum = 0.0
         for i, row in enumerate(df):
             for j, item in enumerate(row):
-                h_sum += item * (i + 1) * (j + 1) * (j + 1)
+                h_sum += item * (i + 1) * (j + 1) * (j + 1) * (i + 2)**3
         return h_sum
 
 
@@ -93,17 +93,16 @@ class IndependentStrain(Strain):
                     if np.abs(df1[c1,c2]) > tol: 
                         sum2 = sum2 + 1
                       
-
         if sum1<tol: # if no shear components present
-            if len(np.nonzero(df1-np.diag([1,1,1])>tol)[0])>1: # check hom many diagonal components differ from unity
+            if len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0])>1+tol: # check hom many diagonal components differ from unity
                 raise ValueError("More than one normal mode was applied.")
-            elif len(np.nonzero(df1-np.diag([1,1,1])>tol)[0])==0: # if identity transformation
-                return []
+            elif len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0])==0: # if identity transformation
+                raise ValueError("Identity transformation not allowed.")
             else: # if proper transformation
-                return np.nonzero(df1-np.diag([1,1,1])>tol)[0][0], np.nonzero(df1-np.diag([1,1,1])>tol)[1][0]
-        
+                return np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0][0], np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[1][0]
+
         else: # if shear components present
-            if sum2 > 1+tol: # if multiple shear components present
+            if sum2 > 1: # if multiple shear components present
                 raise ValueError("More than one shear mode was applied.")
             elif len(np.nonzero(np.abs(df1-np.diag([1,1,1]))>tol)[0])>1: # if one shear def. present but also normal modes:
                 raise ValueError("Shear and normal deformations were applied simultaneously.")
@@ -119,50 +118,37 @@ class IndependentStrain(Strain):
         return self._j
 
 
-
-
 if __name__ == "__main__":
 
-
     mat = np.eye(3)
-    mat[2,1] = 1.000001
-
-
-
-    print mat
-
-#    mat[0,1] = 0.1
-
+    mat[1,1] = 0.98
     my_strain = Strain(mat)
+
+#    print type(mat)
 
 #    print my_strain.deformation_matrix
 #    print my_strain.strain
 
     my_strain2 = IndependentStrain(mat)
-    print my_strain2._j
+#    print my_strain2.__dict__.keys()
+#    print my_strain2.__hash__()
 
-
+#    print my_strain2._j
 #    print my_strain2.check_F()
-
 #    my_strain2.checkF
-
 #    print my_strain.__dict__.keys()
-#
 #    print my_strain.deformation_matrix
 #    print my_strain.strain
 #    my_strain.index
-
-
 #    my_scaled_strain = my_strain.get_scaled(1.05)
 #    print my_scaled_strain.deformation_matrix
 #    print my_scaled_strain.strain
-#
 #    print my_strain == my_scaled_strain
-#
 #    mat2 = np.eye(3)
 #    mat2[0,0] = 1.01
 #    my_strain2 = Strain(mat)
 #    print my_strain == my_strain2
+
 
 
 
