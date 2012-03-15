@@ -95,20 +95,15 @@ class StructureEditor(StructureModifier):
 
         self._sites = map(mod_site, self._sites)
 
-    def replace_single_site(self, index, species = None, atoms_n_occu = None):
+    def replace_site(self, index, species_n_occu):
         """
         Replace a single site. Takes either a species or a dict of occus
         
         Arguments:
-            species: a species object
             index: the index of the site in the _sites list
-                
+            species: a species object        
         """
-        if atoms_n_occu == None:
-            atoms_n_occu = dict()
-            atoms_n_occu[species] = 1
-
-        self._sites[index] = PeriodicSite(atoms_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords), self._lattice)
+        self._sites[index] = PeriodicSite(species_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords), self._lattice)
 
     def remove_species(self, species):
         """
