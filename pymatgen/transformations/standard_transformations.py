@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 '''
-This module defines standard transformations which transforms a structure into another structure.
+This module defines standard transformations which transforms a structure into 
+another structure. Standard transformations operate in a structure-wide manner, 
+rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 '''
 
@@ -310,16 +312,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self._algo = algo
 
 
-    def _best_first(self, structure, specie_indices, num_to_remove):
-        sp = smart_element_or_specie(self._specie)
-        num_to_remove = structure.composition[sp] * self._frac
-        if abs(num_to_remove - int(num_to_remove)) > 1e-8:
-            raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-        else:
-            num_to_remove = int(round(num_to_remove))
-
-        specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
-
+    @staticmethod
+    def best_first_ordering(structure, specie_indices, num_to_remove):
         ewaldsum = EwaldSummation(structure)
         ematrix = ewaldsum.total_energy_matrix
         to_delete = []
@@ -339,7 +333,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         mod.delete_sites(to_delete)
         return mod.modified_structure
 
-    def _optimize_ordering_slow_and_complete(self, structure, specie_indices, num_to_remove):
+    @staticmethod
+    def complete_ordering(structure, specie_indices, num_to_remove):
         all_structures = []
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
@@ -364,8 +359,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         all_structures = sorted(all_structures, key = lambda s: s['energy'])
         return all_structures
 
-
-    def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
+    @staticmethod
+    def fast_ordering(structure, specie_indices, num_to_remove):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald sums 
         of the potential structures. This is on the order of 4 orders of magnitude 
@@ -391,13 +386,13 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
 
         if self._algo == PartialRemoveSpecieTransformation.ALGO_FAST:
-            opt_s = self._optimize_ordering_fast(structure, specie_indices, num_to_remove)
+            opt_s = PartialRemoveSpecieTransformation.fast_ordering(structure, specie_indices, num_to_remove)
             all_structures = [opt_s]
         elif self._algo == PartialRemoveSpecieTransformation.ALGO_COMPLETE:
-            all_structures = self._optimize_ordering_slow_and_complete(structure, specie_indices, num_to_remove)
+            all_structures = PartialRemoveSpecieTransformation.complete_ordering(structure, specie_indices, num_to_remove)
             opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSpecieTransformation.ALGO_BEST_FIRST:
-            opt_s = self._best_first(structure, specie_indices, num_to_remove)
+            opt_s = PartialRemoveSpecieTransformation.best_first_ordering(structure, specie_indices, num_to_remove)
             all_structures = [opt_s]
         return opt_s if not return_ranked_list else all_structures
 
@@ -492,7 +487,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if initial_sp is None:
                     initial_sp = sp
                     for site in species[sp]:
-                        se.replace_single_site(site[1], species = initial_sp)
+                        se.replace_site(site[1], initial_sp)
                 else:
                     if sp is None:
                         oxi = 0
@@ -534,7 +529,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    se.replace_single_site(manipulation[0], species = manipulation[1])
+                    se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
             self._all_structures.append([output[0], se.modified_structure.get_sorted_structure()])
 
@@ -800,39 +795,6 @@ class PrimitiveCellTransformation(AbstractTransformation):
         return output
 
 
-class TranslateSitesTransformation(AbstractTransformation):
-    """
-    This class translates a set of sites by a certain vector.
-    """
-    def __init__(self, indices_to_move, translation_vector, vector_in_frac_coords = True):
-        self._indices = indices_to_move
-        self._vector = translation_vector
-        self._frac = vector_in_frac_coords
-
-    def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.translate_sites(self._indices, self._vector, self._frac)
-        return editor.modified_structure
-
-    def __str__(self):
-        return "TranslateSitesTransformation for indices {}, vector {} and vector_in_frac_coords = {}".format(self._indices, self._translation_vector, self._frac)
-
-    def __repr__(self):
-        return self.__str__()
-
-    @property
-    def inverse(self):
-        return TranslateSitesTransformation(self._indices, [-c for c in self._vector], self._frac)
-
-    @property
-    def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'indices_to_move': self._indices,
-                               'translation_vector': self._vector,
-                               'vector_in_frac_coords': self._frac}
-        return output
-
-
 def transformation_from_dict(d):
     """
     A helper function that can simply get a transformation from a json representation.
@@ -844,8 +806,12 @@ def transformation_from_dict(d):
     Returns:
         A properly initialized Transformation object
     """
-    trans = globals()[d['name']]
-    return trans(**d['init_args'])
+    for trans_modules in ['standard_transformations', 'site_transformations']:
+        mod = __import__('pymatgen.transformations.' + trans_modules, globals(), locals(), [d['name']], -1)
+        if hasattr(mod, d['name']):
+            trans = getattr(mod, d['name'])
+            return trans(**d['init_args'])
+    raise ValueError("Invalid Transformations Name")
 
 
 def transformation_from_json(json_string):
