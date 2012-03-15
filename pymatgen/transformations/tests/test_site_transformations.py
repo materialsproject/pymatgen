@@ -20,7 +20,7 @@ import json
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.transformations.site_transformations import TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation
+from pymatgen.transformations.site_transformations import TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import transformation_from_json
 
 class TranslateSitesTransformationTest(unittest.TestCase):
@@ -106,6 +106,41 @@ class RemoveSitesTransformationTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         json_str = json.dumps(RemoveSitesTransformation(range(2)).to_dict)
+        t = transformation_from_json(json_str)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li2 O4")
+
+
+class PartialRemoveSitesTransformationTest(unittest.TestCase):
+
+    def setUp(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+
+    def test_apply_transformation(self):
+        t = PartialRemoveSitesTransformation([tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_COMPLETE)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li2 O2")
+        s = t.apply_transformation(self.struct, True)
+        self.assertEqual(len(s), 12)
+
+    def test_apply_transformation_best_first(self):
+        t = PartialRemoveSitesTransformation([tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_BEST_FIRST)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li2 O2")
+
+    def test_to_from_dict(self):
+        json_str = json.dumps(PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict)
         t = transformation_from_json(json_str)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
