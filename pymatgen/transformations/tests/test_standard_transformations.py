@@ -227,29 +227,6 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         self.assertEqual(len(s), 4)
 
 
-class TranslateSitesTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = TranslateSitesTransformation([0], [0.1, 0.2, 0.3])
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([.5, .5, .5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
-
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-        inv_t = t.inverse
-        s = inv_t.apply_transformation(s)
-        self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
-
-
 class TransformationJsonTest(unittest.TestCase):
 
     def test_from_json(self):
