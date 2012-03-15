@@ -240,7 +240,7 @@ class TransformedStructure(object):
     
 class TransformedStructureCollection(object):
     
-    def __init__(self, transformed_structures, transformations, extend_collection = False):
+    def __init__(self, transformed_structures, transformations = [], extend_collection = False):
         self._extend_collection = extend_collection
         self._transformed_structures = transformed_structures
         for trans in transformations:
@@ -354,33 +354,6 @@ class TransformedStructureCollection(object):
         TODO: write this method
         '''
         pass
-
-    @staticmethod
-    def from_structures(structures_list, transformations = [], histories = None, extend_collection = False):
-        """
-        Constructor for a TransformedStructureCollection from list of structures
-        
-        Args:
-            structures_list:
-                input structures (must be a list)
-            transformations:
-                sequence of transformations to be applied to the input structures.
-            histories:
-                optional history list for the input structures, which provides a way
-                to track structures having undergone multiple series of 
-                transformations. Must be the same length as structures_list
-        """
-        transformed_structures = []
-        
-        if histories:
-            if not len(structures_list) == len(histories):
-                raise ValueError("histories must have same length as structures_list")
-            for i in range(len(structures_list)):
-                transformed_structures.append(TransformedStructure(structures_list[i], None, histories[i]))
-        else:
-            for i in range(len(structures_list)):
-                transformed_structures.append(TransformedStructure(structures_list[i], None, None))
-        return TransformedStructureCollection(transformed_structures, transformations, extend_collection)
     
     @staticmethod
     def from_cifs(cif_filenames, transformations = [], primitive = True, extend_collection = False):
