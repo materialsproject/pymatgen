@@ -802,3 +802,76 @@ def transformation_from_json(json_string):
     """
     jsonobj = json.loads(json_string)
     return transformation_from_dict(jsonobj)
+
+
+class PartialRemovalBestFirst(AbstractTransformation):
+
+    """
+    Remove fraction of specie from a structure. 
+    Requires an oxidation state decorated structure for ewald sum to be 
+    computed.
+    """
+    def __init__(self, specie_to_remove, fraction_to_remove, complete_ranking = False):
+        """
+        Args:
+            specie_to_remove:
+                Specie to remove. Must have oxidation state E.g., "Li1+"
+            fraction_to_remove:
+                Fraction of specie to remove. E.g., 0.5
+            complete_ranking:
+                Whether to use the slow algorithm to enumerate all possible
+                symmetrically distinct structures for energies. This populates
+                the all_structures attribute, which provides access to all 
+                structures.
+        """
+        self._specie = specie_to_remove
+        self._frac = fraction_to_remove
+        self._complete_ranking = complete_ranking
+
+    def apply_transformation(self, structure):
+        sp = smart_element_or_specie(self._specie)
+        num_to_remove = structure.composition[sp] * self._frac
+        if abs(num_to_remove - int(num_to_remove)) > 1e-8:
+            raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
+        else:
+            num_to_remove = int(round(num_to_remove))
+
+        specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
+
+        ewaldsum = EwaldSummation(structure)
+        ematrix = ewaldsum.total_energy_matrix
+        to_delete = []
+        for i in xrange(num_to_remove):
+            maxindex = None
+            maxe = float('-inf')
+            for ind in specie_indices:
+                energy = sum(ematrix[:, ind]) + sum(ematrix[:, ind]) - ematrix[ind, ind]
+                if energy > maxe:
+                    maxindex = ind
+                    maxe = energy
+            to_delete.append(maxindex)
+            specie_indices.remove(maxindex)
+            ematrix[:, maxindex] = 0
+            ematrix[maxindex, :] = 0
+
+
+        mod = StructureEditor(structure)
+        mod.delete_sites(to_delete)
+        return mod.modified_structure
+
+    def __str__(self):
+        return "Remove Species Transformation :" + ", ".join(self._specie)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__, 'version': __version__}
+        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac, 'complete_ranking':self._complete_ranking}
+        return output
+
