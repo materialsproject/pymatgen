@@ -252,6 +252,9 @@ class TransformedStructureCollection(object):
     def __getitem__(self, index):
         return self._transformed_structures[index]
     
+    def __getattr__(self, name):
+        return [getattr(x, name) for x in self._transformed_structures]
+    
     def undo_last_transformation(self):
         """
         Undo the last transformation in the TransformedStructure.
