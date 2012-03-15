@@ -132,7 +132,11 @@ class SupercellTransformation(AbstractTransformation):
         """
         Args:
             scaling_matrix:
-                Set to True if angle is supplied in radians. Else degrees are assumed.
+                a matrix of transforming the lattice vectors. Defaults to the 
+                identity matrix.
+                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates 
+                a new structure with lattice vectors a' = 2a + b, b' = 3b, c' = c 
+                where a, b, and c are the lattice vectors of the original structure. 
         """
         self._matrix = scaling_matrix
 
@@ -183,9 +187,10 @@ class SubstitutionTransformation(AbstractTransformation):
         Args:
             species_map:
                 A dict containing the species mapping in string-string pairs. 
-                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can be done.
-                Overloaded to accept sp_and_occu dictionary as second argument
-                E.g. {'Si: {'Ge':0.75, 'C':0.25} }
+                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can 
+                be done. Overloaded to accept sp_and_occu dictionary
+                E.g. {'Si: {'Ge':0.75, 'C':0.25} }, which substitutes a single
+                species with multiple species to generate a disordered structure.
         """
         self._species_map = species_map
 
