@@ -192,6 +192,15 @@ class TransformedStructure(object):
         return "\n".join(output)
 
     @property
+    def was_modified(self):
+        """
+        boolean describing whether the last transformation on the structure made any alterations to it
+        one example of when this would return false is in the case of performing a substitution transformation
+        on the structure when the specie to replace isn't in the structure.
+        """
+        return not self._structures[-1] == self._structures[-2]
+    
+    @property
     def structures(self):
         """
         Returns a copy of all structures in the TransformedStructure. A structure
@@ -292,6 +301,10 @@ class TransformedStructureCollection(object):
                 this is True, meaning any appends clears the history of undoing.
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
+                
+        Returns:
+            list of booleans corresponding to initial transformed structures
+            each boolean describes whether the transformation altered the structure
         """
         new_structures = []
         
@@ -299,19 +312,50 @@ class TransformedStructureCollection(object):
             new = x.append_transformation(transformation, clear_redo, return_alternatives = self._extend_collection)
             if new:
                 new_structures.extend(new)
+        output = [x.was_modified for x in self._transformed_structures]
         self._transformed_structures.extend(new_structures)
+        return output
         
-    def branch_collection(self, transformations, clear_redo = True):
+    def branch_collection(self, transformations, retention_level = 1, clear_redo = True):
         '''
-        copies the structures collection, applying one transformation to each copy
+        copies the structures collection, applying one transformation to each copy.
+        
+        Args:
+            transformations:
+                List of transformations to apply (each structure gets one of these transformations.
+                To append multiple transformations to each structure use extend_transformations)
+            retention_level:
+                specifies which structures will be kept and which will be thrown out
+                0 - throws out all structures that weren't modified by any of the transformations
+                1 - keeps structures that weren't modified by anything.
+                2 - keeps all structures, including the untransformed ones. Note that this may cause issues with undoing transformations
+                    since they will have different transformation histories
+                
+                e.g if you start with 2 structures and apply 2 transformations, and one structure isn't modified
+                    by either of them but the other structure is modified by both, for retention_level = 0, you will have 
+                    2 structures left, for retention_level = 1 you will have 3 structures, and for retention_level 2 you will have 4
+                In most cases retention_level = 1 will provide the desired functionality
         '''
+        any_modification = [False for x in self._transformed_structures]
         old_transformed_structures = self._transformed_structures
+        
         new_trans_structures = []
         for transformation in transformations:
             self._transformed_structures = deepcopy(old_transformed_structures)
-            self.append_transformation(transformation, clear_redo)
-            new_trans_structures.extend(self._transformed_structures)
+            modified = self.append_transformation(transformation, clear_redo)
+            for structure in self._transformed_structures:
+                if structure.was_modified:
+                    new_trans_structures.append(structure)
+            any_modification = map(lambda x:x[0] or x[1], zip(modified,any_modification))
+        
         self._transformed_structures = new_trans_structures
+        
+        if retention_level == 1:
+            for i, structure in enumerate(old_transformed_structures):
+                if not any_modification[i]:
+                    self._transformed_structures.append(structure)
+        elif retention_level == 2:
+            self._transformed_structures.extend(old_transformed_structures)
             
 
     def extend_transformations(self, transformations):
