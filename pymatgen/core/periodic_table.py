@@ -664,7 +664,7 @@ class DummySpecie(Specie):
             raise ValueError('DummySpecie has no data for ' + str(name))
 
     def __deepcopy__(self, memo):
-        x = DummySpecie(self._oxi_state, symbol = self._symbol)
+        x = DummySpecie(self._symbol, self._oxi_state)
         for y, z in self._data.items():
             x.set_attribute(y, z)
         return x
