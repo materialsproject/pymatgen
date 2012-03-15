@@ -89,6 +89,9 @@ class TransformedStructure(object):
 
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
+    
+    def __getattr__(self, name):
+        return getattr(self._structures[-1], name)
 
     def __len__(self):
         return len(self._structures)
