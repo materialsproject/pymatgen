@@ -293,7 +293,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, specie_to_remove, fraction_to_remove, algo = ALGO_BEST_FIRST):
+    def __init__(self, specie_to_remove, fraction_to_remove, algo = ALGO_FAST):
         """
         Args:
             specie_to_remove:
@@ -308,6 +308,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self._specie = specie_to_remove
         self._frac = fraction_to_remove
         self._algo = algo
+
 
     def _best_first(self, structure, specie_indices, num_to_remove):
         sp = smart_element_or_specie(self._specie)
@@ -338,10 +339,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         mod.delete_sites(to_delete)
         return mod.modified_structure
 
-
     def _optimize_ordering_slow_and_complete(self, structure, specie_indices, num_to_remove):
-        lowestewald = float('inf')
-        opt_s = None
         all_structures = []
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
@@ -362,10 +360,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 s_new = mod.modified_structure
                 energy = ewaldsum.compute_partial_energy(indices)
                 all_structures.append({'structure':s_new, 'energy':energy})
-                if energy < lowestewald:
-                    lowestewald = energy
-                    opt_s = s_new
-        return (opt_s, all_structures)
+
+        all_structures = sorted(all_structures, key = lambda s: s['energy'])
+        return all_structures
 
 
     def _optimize_ordering_fast(self, structure, specie_indices, num_to_remove):
@@ -395,16 +392,17 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
         if self._algo == PartialRemoveSpecieTransformation.ALGO_FAST:
             opt_s = self._optimize_ordering_fast(structure, specie_indices, num_to_remove)
-            self.all_structures = [opt_s]
+            all_structures = [opt_s]
         elif self._algo == PartialRemoveSpecieTransformation.ALGO_COMPLETE:
-            (opt_s, self.all_structures) = self._optimize_ordering_slow_and_complete(structure, specie_indices, num_to_remove)
+            all_structures = self._optimize_ordering_slow_and_complete(structure, specie_indices, num_to_remove)
+            opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSpecieTransformation.ALGO_BEST_FIRST:
             opt_s = self._best_first(structure, specie_indices, num_to_remove)
-            self.all_structures = [opt_s]
-        return opt_s if not return_ranked_list else self.all_structures
+            all_structures = [opt_s]
+        return opt_s if not return_ranked_list else all_structures
 
     def __str__(self):
-        return "Remove Species Transformation :" + ", ".join(self._specie)
+        return "PartialRemoveSpecieTransformation : Species to remove = {}, Fraction to remove = {}, ALGO = {}".format(self._specie, self._frac, self._algo)
 
     def __repr__(self):
         return self.__str__()
