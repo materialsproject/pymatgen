@@ -139,6 +139,14 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
 
+    def test_apply_transformation_fast(self):
+        t = PartialRemoveSitesTransformation([tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_FAST)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li2 O2")
+        t = PartialRemoveSitesTransformation([tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li2 O2")
+
     def test_to_from_dict(self):
         json_str = json.dumps(PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict)
         t = transformation_from_json(json_str)
