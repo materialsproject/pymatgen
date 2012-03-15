@@ -209,7 +209,7 @@ class SubstitutionTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "Substitution Transformation :" + ", ".join([k + "->" + v for k, v in self._species_map.items()])
+        return "Substitution Transformation :" + ", ".join([k + "->" + str(v) for k, v in self._species_map.items()])
 
     def __repr__(self):
         return self.__str__()
