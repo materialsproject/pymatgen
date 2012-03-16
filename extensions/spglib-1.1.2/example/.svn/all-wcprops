@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/spglib/!svn/ver/598/trunk/example
+END
+example.f90
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/spglib/!svn/ver/582/trunk/example/example.f90
+END
+example.c
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svnroot/spglib/!svn/ver/598/trunk/example/example.c
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svnroot/spglib/!svn/ver/582/trunk/example/README
+END
