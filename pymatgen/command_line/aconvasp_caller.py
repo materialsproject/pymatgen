@@ -59,7 +59,7 @@ def get_minkowski_red(structure):
 
 def get_vasp_kpoint_file_sym(structure):
     """
-    get a kpoint file ready to be ran in VASP along symmetries of a structure 
+    get a kpoint file ready to be ran in VASP along setries of a structure 
     """
     output=run_aconvasp_command(['aconvasp', '--kpath'], structure)
     started=False
@@ -84,6 +84,7 @@ def get_point_group_rec(structure):
     linetmp=[]
     axis=[]
     type_transf=None
+    schoenflies=None
     count=-1000
     started = False
     for line in f:
@@ -91,6 +92,7 @@ def get_point_group_rec(structure):
         if(line.find("type")!=-1):
             type_transf=line.split()[1]
         if(line.find("Schoenflies")!=-1):
+            schoenflies=line.split()[1]
             count=-1
             linetmp=[]
             started=True
@@ -103,6 +105,6 @@ def get_point_group_rec(structure):
         if(line.find("axis")!=-1):
             axis=np.array([float(line.split()[0]),float(line.split()[1]),float(line.split()[2])])
         if(count==11):
-            listUc.append({'matrix':np.array(linetmp),'type':type_transf,'axis':axis})
+            listUc.append({'matrix':np.array(linetmp),'type':type_transf,'axis':axis,'schoenflies':schoenflies})
     f.close()
     return listUc
