@@ -193,9 +193,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         to_delete = []
 
         totalremovals = sum(num_remove_dict.values())
-        allcombis = []
-        for ind, num in num_remove_dict.items():
-            allcombis.append(tuple(itertools.combinations(ind, num)))
         removed = {k : 0 for k in num_remove_dict.keys()}
         for i in xrange(totalremovals):
             maxindex = None
