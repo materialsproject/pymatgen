@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.dirname('../..'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.viewcode','sphinx.ext.autodoc']
+extensions = ['sphinx.ext.viewcode','sphinx.ext.autodoc', "sphinxtogithub" ]
 exclude_patterns = ['../**/tests*']
 exclude_dirnames = ['../**/tests*']
 autoclass_content = 'both'
