@@ -1,6 +1,5 @@
 import unittest
 import os
-import logging
 import numpy as np
 
 from pymatgen.analysis.structure_fitter import StructureFitter, shear_invariant, sqrt_matrix
@@ -19,18 +18,17 @@ class StructureFitterTest(unittest.TestCase):
     def setUp(self):
         si = Element("Si")
         fe = Element("Fe")
-        logging.basicConfig(level=logging.DEBUG)
         coords = list()
         
         coords.append(np.array([0.75,0.5,0.2]))
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.a = Structure(lattice,[fe,si],coords)
         coords = list()
         coords.append(np.array([0.75,0.5,0.2]))
         
-        coords.append(np.array([0,0,0]))
+        coords.append(np.array([0.5,0.5,0.5]))
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]]))
         self.b = Structure(lattice,[fe,si],coords)
                 

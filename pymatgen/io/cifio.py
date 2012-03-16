@@ -14,6 +14,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="Sep 23, 2011"
 
+
 import re
 import StringIO
 import math
@@ -134,9 +135,9 @@ class CifParser:
             allspecies.extend(len(coords) * [species])
                    
         if primitive:
-            return Structure(primlattice,allspecies,allcoords)
+            return Structure(primlattice,allspecies,allcoords).get_sorted_structure()
         else:
-            return Structure(lattice,allspecies,allcoords)
+            return Structure(lattice,allspecies,allcoords).get_sorted_structure()
     
     def get_structures(self, primitive=True):
         '''
@@ -151,6 +152,15 @@ class CifParser:
             List of Structures.
         '''
         return [self._get_structure(v, primitive) for k, v in self._cif.items()]
+    
+    @property
+    def to_dict(self):
+        d = OrderedDict()
+        for k, v in self._cif.items():
+            d[k] = {}
+            for k2, v2 in v.items():
+                d[k][k2] = v2
+        return d
     
 class CifWriter:
     '''
@@ -270,3 +280,4 @@ def float_from_string(text):
     Remove uncertainty brackets from strings and return the float.
     '''
     return float(re.sub('\(\d+\)','',text))
+

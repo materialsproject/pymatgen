@@ -262,7 +262,11 @@ class CompositionTest(unittest.TestCase):
         for el in ["Li", "Fe", "P", "O"]:
             self.assertEqual(self.comp[0].get_atomic_fraction(Element(el)), correct_at_frac[el], "Wrong computed atomic fractions") 
         self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0, "Wrong computed atomic fractions") 
-        
+    
+    def test_anonymized_formula(self):
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'AB3']
+        for i in xrange(len(self.comp)):
+            self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
         
     def test_get_wt_fraction(self):
         correct_wt_frac = {"Li" : 0.0498841610868, "Fe" : 0.267567687258, "P" : 0.222604831158, "O" : 0.459943320496}

@@ -82,19 +82,27 @@ class AbstractVaspInputSet(object):
         '''
         return
     
-    def get_all_vasp_input(self, structure):
+    def get_all_vasp_input(self, structure, generate_potcar = True):
         '''
-        Returns all input files as a dict of {filename: file_as_string}
+        Returns all input files as a dict of {filename: vaspio object}
         
         Arguments:
             structure:
                 Structure object
+            generate_potcar:
+                Set to False to generate a POTCAR.spec file instead of a POTCAR,
+                which contains the POTCAR labels but not the actual POTCAR. Defaults
+                to True.
                 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
-        return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
-                'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+        if generate_potcar:
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+                    'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+        else:
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+                    'POSCAR': self.get_poscar(structure), 'POTCAR.spec': "\n".join(self.get_potcar_symbols(structure))}
     
     def write_input(self, structure, output_dir, make_dir_if_not_present = True):
         """
@@ -113,19 +121,15 @@ class AbstractVaspInputSet(object):
         for k,v in self.get_all_vasp_input(structure).items():
             v.write_file(os.path.join(output_dir, k))  
 
-class MITVaspInputSet(AbstractVaspInputSet):
+
+class VaspInputSet(AbstractVaspInputSet):
     """
-    Standard implementation of VaspInputSet utilizing parameters in the MIT High-throughput project.
-    The parameters are chosen specifically for a high-throughput project, which means in general smaller
-    pseudopotentials were chosen.
-    
-    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller, K. A. Persson, G. Ceder (2011). 
-    A high-throughput infrastructure for density functional theory calculations. Computational Materials Science, 50(8), 
-    2295-2310. doi:10.1016/j.commatsci.2011.02.023 for more information.
+    Standard implementation of VaspInputSet, which can be extended by specific
+    implementations.
     """
     
-    def __init__(self):
-        self.name = "MITMatgen"
+    def __init__(self, name):
+        self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
@@ -134,7 +138,8 @@ class MITVaspInputSet(AbstractVaspInputSet):
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name+'INCAR'))
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            self.incar_settings[key] = json.loads(self.incar_settings[key])
+            if key in self.incar_settings:
+                self.incar_settings[key] = json.loads(self.incar_settings[key])
 
     def get_incar(self, structure):
         incar = Incar()
@@ -148,8 +153,8 @@ class MITVaspInputSet(AbstractVaspInputSet):
                 incar[key] =  float(setting) * structure.num_sites
             else:
                 incar[key] = setting
-                
-        has_u = sum(incar['LDAUU']) > 0
+        
+        has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if not has_u:
             for key in incar.keys():
                 if key.startswith('LDAU'):
@@ -221,22 +226,40 @@ class MITVaspInputSet(AbstractVaspInputSet):
                 
         return "\n".join(output)
 
-class MaterialsProjectVaspInputSet(MITVaspInputSet):
+
+class MITVaspInputSet(VaspInputSet):
     """
-    Implementation of VaspInputSet utilizing parameters in the public Materials Project.
-    Typically, the psuedopotentials chosen contain more electrons than the MIT parameters,
-    and the k-point grid is ~50% more dense.  The LDAUU parameters are also different 
-    due to the different psps used, which result in different fitted values (even though
-    the methodology of fitting is exactly the same as the MIT scheme).
+    Standard implementation of VaspInputSet utilizing parameters in the MIT 
+    High-throughput project.
+    The parameters are chosen specifically for a high-throughput project, 
+    which means in general smaller pseudopotentials were chosen.
+    
+    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, 
+    T. Mueller, K. A. Persson, G. Ceder (2011). 
+    A high-throughput infrastructure for density functional theory calculations. 
+    Computational Materials Science, 50(8), 2295-2310. 
+    doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
     def __init__(self):
-        self.name = "MaterialsProject"
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
-        self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
-        self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
-        self.incar_settings = dict(self._config.items(self.name+'INCAR'))
-        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            self.incar_settings[key] = json.loads(self.incar_settings[key])
+        super(MITVaspInputSet, self).__init__("MITMatgen")
+
+
+class MITHSEVaspInputSet(VaspInputSet):
+    """
+    Typical implementation of input set for a HSE run.
+    """
+    def __init__(self):
+        super(MITHSEVaspInputSet, self).__init__("MITHSE")
+
+
+class MaterialsProjectVaspInputSet(VaspInputSet):
+    """
+    Implementation of VaspInputSet utilizing parameters in the public 
+    Materials Project. Typically, the psuedopotentials chosen contain more 
+    electrons than the MIT parameters, and the k-point grid is ~50% more dense.  
+    The LDAUU parameters are also different due to the different psps used, 
+    which result in different fitted values (even though the methodology of 
+    fitting is exactly the same as the MIT scheme).
+    """
+    def __init__(self):
+        super(MaterialsProjectVaspInputSet, self).__init__("MaterialsProject")
