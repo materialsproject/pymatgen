@@ -29,14 +29,14 @@ import numpy as np
 from numpy.linalg import det
 
 import pymatgen.command_line.aconvasp_caller
-import pymatgen.core.electronic_structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
+from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
+from pymatgen.band_structure.band_structure import Bandstructure_line
 from pymatgen.core.lattice import Lattice
 
 
@@ -2002,34 +2002,33 @@ def get_band_structure_from_vasp(path,efermi):
         for i in range(len(listdir_clean)):
             for f in listdir_clean:
                 if(int(f.split("_")[1])==i):
-                    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
+                    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f,None))
                 #if(f.split("_")[1]==count):
                 #    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
                 #count=count+1
                 #list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
         
-        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches,efermi)
+        return pymatgen.core.band_structure.get_reconstructed_band_structure(list_branches,efermi)
     else:
         return get_band_structure_from_vasp_individual(path,efermi)
 
 def get_band_structure_from_vasp_individual(path,efermi):
     run=Vasprun(path+"/vasprun.xml")
+    if(efermi==None):
+        efermi=run.efermi
     #print run.efermi
     labels_dict=parse_kpoint_labels(path+"/KPOINTS")
     lattice_rec=run.final_structure.lattice.reciprocal_lattice
-    #make the labels_dict to work with cartesian
-    for c in labels_dict:
-        labels_dict[c]=lattice_rec.get_cartesian_coords(labels_dict[c])
     
     
-    kpoints=[lattice_rec.get_cartesian_coords(np.array(run.actual_kpoints[i])) for i in range(len(run.actual_kpoints))]
+    kpoints=[np.array(run.actual_kpoints[i]) for i in range(len(run.actual_kpoints))]
     dict_eigen=run.to_dict['output']['eigenvalues']
     eigenvals=[]
     max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
     for i in range(max_band):
         eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
         eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure(kpoints,eigenvals,labels_dict, run.final_structure, efermi)
+    bands=Bandstructure_line(kpoints,eigenvals, lattice_rec, efermi, labels_dict)
     return bands
 
 def parse_kpoint_labels(file_kpoints):

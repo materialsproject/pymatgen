@@ -12,7 +12,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ ="$Sep 23, 2011M$"
 
-import gzip
+
 import bz2
 import re
 import numpy
@@ -106,7 +106,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     reader.close()
     return results
 
-def clean_json(input_json):
+def clean_json(input_json, strict = False):
     """
     This method cleans an input json-like dict object, either a list or a dictionary, nested or otherwise,
     by converting all non-string dictionary keys (such as int and float) to strings.
@@ -124,9 +124,13 @@ def clean_json(input_json):
         return {str(k): clean_json(v) for k, v in input_json.items()}
     elif isinstance(input_json, (int, float)):
         return input_json
-    elif isinstance(input_json, basestring):
-        return str(input_json)
-    elif input_json == None:
-        return 'None'
     else:
-        return clean_json(input_json.to_dict)
+        if not strict:
+            return str(input_json)
+        else:
+            if isinstance(input_json, basestring):
+                return str(input_json)
+            elif input_json == None:
+                return 'None'
+            else:
+                return clean_json(input_json.to_dict)
