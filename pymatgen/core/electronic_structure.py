@@ -17,7 +17,6 @@ __date__ ="Sep 23, 2011"
 import math
 import logging
 import numpy as np
-import scipy.interpolate as spint
 import pymatgen.command_line.aconvasp_caller
 
 class _SpinImpl(object):
@@ -162,11 +161,12 @@ class Dos(object):
         """
         if not (self.energies == other.energies).all():
             raise ValueError("Energies of both DOS are not compatible!")
-        densities = {spin: self._dos[spin] + other._dos[spin] for spin in self.densities.keys()}
+        densities = {spin: self._dos[spin] + other._dos[spin] for spin in self._dos.keys()}
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self,energy):
         f = {}
+        import scipy.interpolate as spint
         for spin in self._dos.keys():
             f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
         return f
@@ -198,7 +198,7 @@ class Dos(object):
         above_fermi = [i for i in xrange(len(energies)) if energies[i] > self._efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        
+        import scipy.interpolate as spint
         if vbm_start == cbm_start:
             return 0.0,  self._efermi,self._efermi
         else:
@@ -283,17 +283,17 @@ class Dos(object):
         return "\n".join(stringarray)
     
     def to_dict(self):
-        dict_to_return={}
+        dict_to_return = {'efermi': self.efermi}
         if Spin.down in self._dos:
             dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
-            dict_to_return['DensityDown']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['density_down']=[self._dos[Spin.down][i] for i in range(len(self._energies))]
         else:
             dict_to_return['energy']=[self._energies[i] for i in range(len(self._energies))]
-            dict_to_return['DensityUp']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
+            dict_to_return['density_up']=[self._dos[Spin.up][i] for i in range(len(self._energies))]
         return dict_to_return
-        
-        
+
+
 class PDos(Dos):
     """
     Projected DOS for a specific orbital. Extends the Dos object.
@@ -325,7 +325,7 @@ class CompleteDos(Dos):
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
         self._dos = total_dos.densities
-        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j] for j in range(len(pdoss[i]))} for i in range(structure.num_sites)}
+        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j] for j in range(len(pdoss[i]))} for i in range(len(pdoss))}
         self._structure = structure
 
     @property
@@ -374,10 +374,29 @@ class CompleteDos(Dos):
             el = site.specie
             for pdos in atom_dos.values():
                 if el not in el_dos:
-                    el_dos[el] = Dos(pdos.efermi, pdos.energies,pdos.densities)
+                    el_dos[el] = Dos(pdos.efermi, pdos.energies, pdos.densities)
                 else:
                     el_dos[el] += pdos
         return el_dos
+    
+    def to_dict(self, inc_all_pdos = True):
+        d = {}
+        d['efermi'] = self._efermi
+        d['structure'] = self._structure.to_dict
+        d['energies'] = list(self._energies)
+        d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
+        if inc_all_pdos:
+            d['pdos'] = []
+            pdos = self._pdos
+            for i in range(len(pdos)):
+                dd = dict()
+                for dos in pdos[i]:
+                    dd[str(dos.orbital)] = {'efermi' : dos.efermi, 'energies': list(dos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in dos.densities.items() }}
+                d['pdos'].append(dd)
+        if len(self._pdos) > 0:
+            d['atom_dos'] = {str(at) : dos.to_dict() for at, dos in self.get_element_dos().items()}
+            d['spd_dos'] = {str(orb) : dos.to_dict() for orb, dos in self.get_spd_dos().items()}
+        return d
     
     def __str__(self):
         return "Complete DOS for "+str(self._structure)
@@ -410,7 +429,6 @@ def plot_dos(dos_dict, zero_at_efermi = True):
     pylab.legend()
     pylab.show()
     
-  
     
     
     

@@ -26,6 +26,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
 
+
 class Site(collections.Mapping, collections.Hashable):
     '''
     A generalized *non-periodic* site. Atoms and occupancies should be a dictionary of element:occupancy
@@ -216,7 +217,8 @@ class Site(collections.Mapping, collections.Hashable):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':list(self._coords)}
+        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords]}
+
 
 class PeriodicSite(Site):
     """
@@ -436,7 +438,8 @@ class PeriodicSite(Site):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':list(self._coords), 'abc':list(self._fcoords)}
+        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'abc':[float(c) for c in self._fcoords]}
+
 
 class Structure(collections.Sequence, collections.Hashable):
     """
@@ -836,7 +839,7 @@ class Structure(collections.Sequence, collections.Hashable):
         outs.append('angles: ' + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i = len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i+1), site.specie.symbol, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
+            outs.append(" ".join([str(i+1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
         return "\n".join(outs)
     
     @property
@@ -868,8 +871,8 @@ class Structure(collections.Sequence, collections.Hashable):
             coords.append(site_dict['abc'])
         return Structure(lattice, species, coords)
 
+
 class StructureError(Exception):
-    
     '''
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
@@ -880,6 +883,7 @@ class StructureError(Exception):
 
     def __str__(self):
         return "Structure Error : " + self.msg
+
 
 class Composition (collections.Mapping, collections.Hashable):
     """
@@ -1199,6 +1203,24 @@ class Composition (collections.Mapping, collections.Hashable):
             return Composition.from_formula(expanded_formula)
         return Composition.from_dict(get_sym_dict(formula, 1))
     
+    @property
+    def anonymized_formula(self):
+        reduced_comp = self.get_reduced_composition_and_factor()[0]
+        els = sorted(reduced_comp.elements, key = lambda e: reduced_comp[e])
+        ascii_code = 65
+        anon_formula = []
+        for e in els:
+            amt = reduced_comp[e]
+            if amt > 0:
+                if amt == 1:
+                    amt_str = ''
+                elif abs(amt % 1) < 1e-8:
+                    amt_str = str(int(amt))
+                else:
+                    amt_str = str(amt)
+                anon_formula.append('{}{}'.format(chr(ascii_code), amt_str))
+                ascii_code += 1
+        return "".join(anon_formula)
     
     def __repr__(self):
         return "Comp: " + self.formula

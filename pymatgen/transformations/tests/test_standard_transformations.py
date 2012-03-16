@@ -82,10 +82,26 @@ class SupercellTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Li16 O16")
 
+class OxidationStateDecorationTransformationTest(unittest.TestCase):
+    
+    def test_apply_transformation(self):
+        t = OxidationStateDecorationTransformation({"Li":1, "O":-2})
+        coords = list()
+        coords.append([0,0,0])
+        coords.append([0.75,0.75,0.75])
+        coords.append([0.5,0.5,0.5])
+        coords.append([0.25,0.25,0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
+        struct = Structure(lattice,["Li", "Li", "O", "O"],coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(str(s[0].specie), "Li+")
+        self.assertEqual(str(s[2].specie), "O2-")
+
+
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
     
     def test_apply_transformation(self):
-        t = PartialRemoveSpecieTransformation("Li+", 1.0/3)
+        t = PartialRemoveSpecieTransformation("Li+", 1.0/3, True)
         coords = list()
         coords.append([0,0,0])
         coords.append([0.75,0.75,0.75])
@@ -96,20 +112,24 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         t.apply_transformation(struct)
         self.assertEqual(len(t.all_structures), 3)
         
-class PartialRemoveSpecieTransformation2Test(unittest.TestCase):
-    
-    def test_apply_transformation(self):
-        t = PartialRemoveSpecieTransformation2("Li+", 1.0/3)
+    def test_apply_transformation_fast(self):
+        t = PartialRemoveSpecieTransformation("Li+", 0.5)
         coords = list()
         coords.append([0,0,0])
         coords.append([0.75,0.75,0.75])
         coords.append([0.5,0.5,0.5])
         coords.append([0.25,0.25,0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00],[1.9200989668, 3.3257101909, 0.00],[0.00,-2.2171384943,3.1355090603]])
-        struct = Structure(lattice,["Li+", "Li+", "Li+", "O2-"],coords)
-        self.assertAlmostEqual(EwaldSummation(t.apply_transformation(struct)).total_energy, -32.3858881789, 4, 'wrong structure chosen')
+        coords.append([0.1,0.1,0.1])
+        coords.append([0.3,0.75,0.3])
+        lattice = Lattice([[ 10, 0.00, 0.00],[0, 10, 0.00],[0.00,0,10]])
+        struct = Structure(lattice,["Li+"] * 6,coords)
+        fast_opt_s = t.apply_transformation(struct)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, True)
+        slow_opt_s = t.apply_transformation(struct)
+        self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy, EwaldSummation(slow_opt_s).total_energy, 4)
+        self.assertEqual(fast_opt_s, slow_opt_s)
         
-
+        
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):

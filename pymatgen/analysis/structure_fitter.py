@@ -112,8 +112,6 @@ class StructureFitter(object):
             else:
                 logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")          
 
-    def identity_fit(self, a, b):
-        pass
         
     def fit(self, a, b): 
         """
@@ -154,18 +152,22 @@ class StructureFitter(object):
         # Set the arbitrary origin
         origin = fit_sites[0]
         logger.debug("Origin = " + str(origin) )
-        
         # now that candidate rotations have been found, shift origin of to_fit
         # because the symmetry operations will be applied from this origin
+
         oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
-        shifted_to_fit = apply_operation(to_fit, oshift)
-        
-        # This is cheating, but let's try the identity rotation first.  In many situations,
+        shifted_to_fit = apply_operation(to_fit, oshift)    
+        found_map = False
+
+        # This is cheating, but let's try a simple rotation first.  In many situations,
         # E.g., when a structure has been topotatically delithiated or substituted, you actually
         # can get a very fast answer without having to try all rotations.
-        identity_rot = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), np.array([0,0,0]))
-        (found_map, mapping_op) = self._test_rot(identity_rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
-        if not found_map: #If identity matching does not work, we have to search and try all rotations.
+        simple_rot = self._get_rot_matrix(fixed, to_fit)
+        if simple_rot is not None:
+            rot = SymmOp.from_rotation_matrix_and_translation_vector(simple_rot, np.array([0,0,0]))
+            (found_map, mapping_op) = self._test_rot(rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
+            
+        if not found_map: #If simple rotation matching does not work, we have to search and try all rotations.
             logger.debug("Identity matching failed. Finding candidate rotations.")
             #Get candidate rotations
             cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
@@ -204,6 +206,17 @@ class StructureFitter(object):
             #self._mapping_op = mapping_op
             self._cell_misfit = shear_invariant(p)
 
+    def _get_rot_matrix(self, fixed, to_fit):
+        a1 = fixed.lattice.angles
+        a2 = to_fit.lattice.angles
+        for i in xrange(3):
+            if abs(a1[i] - a2[i]) > 5:
+                return None
+        to_fit_unit_matrix = np.array([row / np.linalg.norm(row) for row in to_fit.lattice.matrix])
+        fixed_unit_matrix = np.array([row / np.linalg.norm(row) for row in fixed.lattice.matrix])
+        return np.dot(to_fit_unit_matrix.transpose(), np.linalg.inv(fixed_unit_matrix.transpose()))
+        
+    
     def _test_rot(self, rot, origin, fixed, to_fit, tol_atoms, tol_atoms_plus):
         found_map = False
         mapping_op = None
@@ -358,7 +371,7 @@ class StructureFitter(object):
             logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
             test_rotations = itertools.product(*shells)
         else:
-            logger.warning("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
+            logger.info("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m = total_rots, n = self._max_rotations))
             def random_rot():
                 considered_rots = []
                 while len(considered_rots) < self._max_rotations:
@@ -450,3 +463,4 @@ def almost_identity(mat):
     for matrices very very close to the identity matrix.  See test_eig for examples.
     """
     return (abs(mat-np.eye(3)) < 1e-10).all()
+

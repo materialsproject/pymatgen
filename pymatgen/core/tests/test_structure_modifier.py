@@ -22,6 +22,12 @@ class StructureEditorTest(unittest.TestCase):
         self.modifier = StructureEditor(s)
         
     def test_modified_structure(self):
+        self.modifier.translate_sites([0,1], [0.5,0.5,0.5], frac_coords = True)
+        self.assertTrue(np.array_equal(self.modifier.modified_structure.frac_coords[0],np.array([ 0.5,  0.5,  0.5])))
+        
+        self.modifier.translate_sites([0], [0.5,0.5,0.5], frac_coords = False)
+        self.assertTrue(np.array_equal(self.modifier.modified_structure.cart_coords[0],np.array([ 5.5,  5.5,  5.5])))
+        
         self.modifier.append_site(self.si, [0,0.5,0])
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
         
@@ -35,6 +41,16 @@ class StructureEditorTest(unittest.TestCase):
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1 Ge1", "Wrong formula!")
         
         self.assertRaises(ValueError, self.modifier.append_site, self.si, np.array([0,0.5,0]))
+        
+        d = 0.1
+        pre_perturbation_sites = self.modifier.modified_structure.sites
+        self.modifier.perturb_structure(distance = d)
+        post_perturbation_sites = self.modifier.modified_structure.sites
+
+        for x in pre_perturbation_sites:
+            self.assertAlmostEqual(x.distance(post_perturbation_sites.next()), d, 3, "Bad perturbation distance") 
+        
+        
 
 class SupercellMakerTest(unittest.TestCase):
 
