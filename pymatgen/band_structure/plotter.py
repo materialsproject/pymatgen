@@ -17,16 +17,30 @@ __date__ ="March 14, 2012"
 
 class BSPlotter(object):
     
+    """
+    class used to plot or get data to facilitate the plot of band structure line objects
+    """
+    
     def __init__(self, bs):
         """
         Arguments:
-            bs - a Bandstructure_line object.
+        bs - a Bandstructure_line object.
         """
         self._bs=bs
         self._nb_bands=bs._nb_bands
     
     @property
-    def bs_plot_data(self):   
+    def bs_plot_data(self):
+        
+        """
+        get the data nicely formatted for a plot
+        returns a dict:
+            'ticks': a dictionnary with the 'distances' at which there is a kpoint (the x axis) and the labels (None if no label)
+            'energy': an array (one element for each band) of energy for each kpoint
+            'occup': similar to energy but giving occupations
+        """
+        
+           
         energy=[]
         occup=[]
         distance=[self._bs._distance[j] for j in range(len(self._bs._kpoints))]
@@ -40,7 +54,7 @@ class BSPlotter(object):
         
     def showplot(self):
         """
-        plot the band structure.
+        plot the band structure.show it on the screen
         """
         import pylab
         from matplotlib import rc

@@ -104,9 +104,9 @@ class Bandstructure(object):
         Args: 
             kpoints: (Array) of kpoint as numpy arrays
 
-            eigenvals: (Array) of {}
+            eigenvals: (Array) of {} with energy and occup keys each element of the array is one "band"
 
-            label_dict: (dict) of {}
+            label_dict: (dict) of {} this link a kpoint (in frac coords) with a label
 
             lattice: Materials Project Structure object
 
