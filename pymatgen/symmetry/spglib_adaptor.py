@@ -50,11 +50,11 @@ class SymmetryFinder(object):
         """
         self._symprec = symprec
         self._structure = structure
-        self._lattice = structure.lattice.matrix.transpose()
+        self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
         self._numbers = np.array([site.specie.Z for site in structure])
 
-        self._spacegroup_data = spg.spacegroup(self._lattice, self._positions, self._numbers, self._symprec)
+        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
 
     def get_spacegroup(self):
         """
