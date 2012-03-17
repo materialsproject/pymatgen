@@ -80,24 +80,29 @@ class BSPlotter(object):
         pylab.gca().set_xticklabels(ticks['label'])
         pylab.xlabel('Kpoints', fontsize = 'large')
         pylab.ylabel('Energy(eV)', fontsize = 'large')
-        vbm=self._bs.getVBM()
-        cbm=self._bs.getCBM()
-        if(cbm['kpoint'].label!=None):
-            for i in range(len(self._bs._kpoints)):
-                if(self._bs._kpoints[i].label==cbm['kpoint'].label):
-                    pylab.scatter(self._bs._distance[i],cbm['energy'],color='r',marker='o',s=100)
-        else:
-            pylab.scatter(self._bs._distance[cbm['kpoint_index']],cbm['energy'],color='r',marker='o',s=100)
+        if(self._bs.is_metal()==False):
+            vbm=self._bs.getVBM()
+            cbm=self._bs.getCBM()
+            if(cbm['kpoint'].label!=None):
+                for i in range(len(self._bs._kpoints)):
+                    if(self._bs._kpoints[i].label==cbm['kpoint'].label):
+                        pylab.scatter(self._bs._distance[i],cbm['energy'],color='r',marker='o',s=100)
+            else:
+                pylab.scatter(self._bs._distance[cbm['kpoint_index']],cbm['energy'],color='r',marker='o',s=100)
+                
+            if(vbm['kpoint'].label!=None):
+                for i in range(len(self._bs._kpoints)):
+                    if(self._bs._kpoints[i].label==vbm['kpoint'].label):
+                        pylab.scatter(self._bs._distance[i],vbm['energy'],color='G',marker='o',s=100)
+            else:
+                pylab.scatter(self._bs._distance[vbm['kpoint_index']],vbm['energy'],color='g',marker='o',s=100)
             
-        if(vbm['kpoint'].label!=None):
-            for i in range(len(self._bs._kpoints)):
-                if(self._bs._kpoints[i].label==vbm['kpoint'].label):
-                    pylab.scatter(self._bs._distance[i],vbm['energy'],color='G',marker='o',s=100)
+            pylab.ylim(vbm['energy']-4,cbm['energy']+4)
+        
         else:
-            pylab.scatter(self._bs._distance[vbm['kpoint_index']],vbm['energy'],color='g',marker='o',s=100)
-
-
-        pylab.ylim(vbm['energy']-4,cbm['energy']+4)
+            pylab.axhline(self._bs._efermi, color='r')
+            pylab.ylim(self._bs._efermi-4,self._bs._efermi+4)
+            
         pylab.legend()
         pylab.show()
         
@@ -134,4 +139,32 @@ class BSPlotter(object):
                         tick_labels.append(c.label)
                 previous_label=c.label
                 previous_branch=self._bs.get_branch_name(i)
-        return {'distance':tick_distance,'label':tick_labels}   
+        return {'distance':tick_distance,'label':tick_labels} 
+    
+    def plot_compare(self,other_plotter):
+        """
+        plot two band structure for comparison.
+        TODO: still a lot of work to do that nicely!
+        """
+        import pylab
+        data=self.bs_plot_data
+        data_other=other_plotter.bs_plot_data
+        for i in range(self._nb_bands):
+            pylab.plot(data['distances'],data['energy'][i],'b-',linewidth=3)
+            
+        for i in range(self._nb_bands):
+            pylab.plot(data['distances'],data_other['energy'][i],'r--',linewidth=3)
+        
+        
+        ticks=self.get_ticks()
+        
+        pylab.gca().set_xticks(ticks['distance'])
+        pylab.gca().set_xticklabels(ticks['label'])
+        pylab.xlabel('Kpoints', fontsize = 'large')
+        pylab.ylabel('Energy(eV)', fontsize = 'large')
+        #pylab.ylim(vbm-4,cbm+4)
+        for i in range(len(ticks['label'])):
+            if(ticks['label'][i]!=None):
+                pylab.axvline(ticks['distance'][i],color='k')
+        pylab.show()
+        pylab.legend()  

@@ -292,6 +292,7 @@ class Bandstructure_line(Bandstructure):
         result['transition'] = '-'.join([str(c.label) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
     
+    
     def is_metal(self):
         """
         check if the band structure indicates a metal by looking if the fermi level crosses a band
