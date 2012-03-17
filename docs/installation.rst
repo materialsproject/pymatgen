@@ -75,7 +75,7 @@ VASP license. The good news is that we have included a setup script to help you 
 Basic Setup for Developers (using github)
 =========================================
 
-1. Clone the repo at http://github.com/CederGroupMIT/pymatgen_repo.
+1. Clone the repo at http://github.com/materialsproject/pymatgen.
 2. Install the necessary python libraries.
 3. (Recommended) Add pymatgen to your PYTHONPATH.
 4. (Recommended) Copy hooks from the example-hooks directory into the .git/hooks/ directory in your local repo.  
