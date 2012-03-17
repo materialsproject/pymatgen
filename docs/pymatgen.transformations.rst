@@ -1,6 +1,14 @@
 transformations Package
 =======================
 
+:mod:`site_transformations` Module
+----------------------------------
+
+.. automodule:: pymatgen.transformations.site_transformations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`standard_transformations` Module
 --------------------------------------
 
