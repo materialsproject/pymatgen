@@ -33,6 +33,14 @@ util Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`plotting_utils` Module
+----------------------------
+
+.. automodule:: pymatgen.util.plotting_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`string_utils` Module
 --------------------------
 
