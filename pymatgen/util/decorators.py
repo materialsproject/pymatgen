@@ -6,7 +6,7 @@ This module contains useful decorators for a variety of functions.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -21,9 +21,9 @@ def singleton(cls):
     """
     This decorator can be used to create a singleton out of a class.
     """
-    
+
     instances = {}
-    
+
     def getinstance():
         if cls not in instances:
             instances[cls] = cls()
@@ -48,27 +48,27 @@ def cached_class(klass):
     is not cached.
     """
     cache = {}
-    
-    @wraps(klass, assigned=('__name__', '__module__'), updated=())
+
+    @wraps(klass, assigned = ('__name__', '__module__'), updated = ())
     class _decorated(klass):
         # The wraps decorator can't do this because __doc__
         # isn't writable once the class is created
         __doc__ = klass.__doc__
         def __new__(cls, *args, **kwds):
-            key = (cls,) + args + tuple(kwds.iteritems())
+            key = (cls,) + args + tuple(kwds.items())
             if key not in cache:
                 o = super(klass, cls).__new__(cls, *args, **kwds)
                 cache[key] = o
             return cache[key]
 
-    
+
     return _decorated
 
 def logged(level = logging.DEBUG):
     def wrap(f):
-        logger= logging.getLogger("{}.{}".format(f.__module__, f.__name__))
+        logger = logging.getLogger("{}.{}".format(f.__module__, f.__name__))
         def wrapped_f(*args, **kwargs):
-            
+
             logger.log(level, "Called at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
             data = f(*args, **kwargs)
             logger.log(level, "Done at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))

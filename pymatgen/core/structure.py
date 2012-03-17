@@ -247,7 +247,7 @@ class PeriodicSite(Site):
         self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            for i in xrange(len(self._fcoords)):
+            for i in range(len(self._fcoords)):
                 self._fcoords[i] = self._fcoords[i] - math.floor(self._fcoords[i])
 
         c_coords = lattice.get_cartesian_coords(self._fcoords)
@@ -373,7 +373,7 @@ class PeriodicSite(Site):
             mindist = float('inf')
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
-            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] for i in xrange(3)]
+            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] for i in range(3)]
             for image in itertools.product(*test_set):
                 dist = np.linalg.norm(self._lattice.get_cartesian_coords(coord2 + image - coord1))
                 if dist < mindist:
@@ -477,7 +477,7 @@ class Structure(collections.Sequence, collections.Hashable):
         else:
             self._lattice = Lattice(lattice)
 
-        self._sites = [PeriodicSite(atomicspecies[i], coords[i], self._lattice, to_unit_cell, coords_are_cartesian) for i in xrange(len(atomicspecies))]
+        self._sites = [PeriodicSite(atomicspecies[i], coords[i], self._lattice, to_unit_cell, coords_are_cartesian) for i in range(len(atomicspecies))]
         if validate_proximity:
             for (s1, s2) in itertools.combinations(self._sites, 2):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
@@ -627,14 +627,14 @@ class Structure(collections.Sequence, collections.Hashable):
         n = len(self._sites)
         site_fcoords = np.array([site.to_unit_cell.frac_coords for site in self._sites])
         pts = [pt] * n
-        for image in itertools.product(xrange(nxmin, nxmax + 1), xrange(nymin, nymax + 1), xrange(nzmin, nzmax + 1)):
+        for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
             submat = [image] * n
             fcoords = site_fcoords + submat
             coords = self._lattice.get_cartesian_coords(fcoords)
             dists = (coords - pts) ** 2
             dists = np.sqrt(dists.sum(axis = 1))
             withindists = (dists <= r)
-            for i in xrange(n):
+            for i in range(n):
                 if withindists[i]:
                     neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice), dists[i]))
 
@@ -712,7 +712,7 @@ class Structure(collections.Sequence, collections.Hashable):
 
         site_coords = np.array(self.cart_coords)
         n = len(self._sites)
-        for image in itertools.product(xrange(nxmin, nxmax + 1), xrange(nymin, nymax + 1), xrange(nzmin, nzmax + 1)):
+        for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
             for j in range(len(unit_cell_sites)):
             #for site in unit_cell_sites:
                 site = unit_cell_sites[j]
@@ -722,7 +722,7 @@ class Structure(collections.Sequence, collections.Hashable):
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis = 1))
                 withindists = (dists <= r) * (dists > 1e-8)
-                for i in xrange(n):
+                for i in range(n):
                     if include_index & withindists[i]:
                         neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice), dists[i], j))
                     elif withindists[i]:
@@ -771,7 +771,7 @@ class Structure(collections.Sequence, collections.Hashable):
                 else:
                     elmap[species] = occu
         return Composition(elmap)
-    
+
     @property
     def charge(self):
         '''
@@ -814,7 +814,7 @@ class Structure(collections.Sequence, collections.Hashable):
             raise ValueError("You are interpolating structures with different lattices!")
 
         #Check that both structures have the same species
-        for i in xrange(0, len(self)):
+        for i in range(0, len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
                 raise ValueError("You are interpolating different structures!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure))
 
@@ -822,7 +822,7 @@ class Structure(collections.Sequence, collections.Hashable):
         end_coords = np.array(end_structure.frac_coords)
 
         vec = end_coords - start_coords #+ jimage
-        intStructs = [Structure(self.lattice, [site.species_and_occu for site in self._sites], start_coords + float(x) / float(nimages) * vec) for x in xrange(0, nimages + 1)]
+        intStructs = [Structure(self.lattice, [site.species_and_occu for site in self._sites], start_coords + float(x) / float(nimages) * vec) for x in range(0, nimages + 1)]
         return intStructs;
 
     @property
@@ -1093,7 +1093,7 @@ class Composition (collections.Mapping, collections.Hashable):
         if contains_polyanion:
             n -= 2
 
-        for i in xrange(0, n):
+        for i in range(0, n):
             el = elements[i]
             normamt = self._elmap[el] * 1.0 / factor
             reduced_form += el.symbol + formula_double_format(normamt)
@@ -1103,7 +1103,7 @@ class Composition (collections.Mapping, collections.Hashable):
             polyamounts.append(self._elmap[elements[num_el - 2]] / factor)
             polyamounts.append(self._elmap[elements[num_el - 1]] / factor)
             polyfactor = reduce(gcd, polyamounts)
-            for i in xrange(n, num_el):
+            for i in range(n, num_el):
                 el = elements[i]
                 normamt = self._elmap[el] / factor / polyfactor
                 if normamt != 1.0:
@@ -1113,7 +1113,7 @@ class Composition (collections.Mapping, collections.Hashable):
 
             poly_form = ""
 
-            for i in xrange(n, num_el):
+            for i in range(n, num_el):
                 el = elements[i]
                 normamt = self._elmap[el] / factor / polyfactor
                 poly_form += el.symbol + formula_double_format(normamt);
