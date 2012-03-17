@@ -343,12 +343,12 @@ class Element(object):
         """
         Z = self.Z
         totalEls = 0;
-        if (Z >= 57 and Z <= 70):
+        if Z >= 57 and Z <= 70:
             return 8
-        elif (Z >= 89 and Z <= 102):
+        elif Z >= 89 and Z <= 102:
             return 9
 
-        for i in xrange(len(_pt_row_sizes)):
+        for i in range(len(_pt_row_sizes)):
             totalEls += _pt_row_sizes[i]
             if totalEls >= Z:
                 return i + 1
@@ -365,22 +365,22 @@ class Element(object):
         if Z == 2:
             return 18
         if Z >= 3 and Z <= 18:
-            if ((Z - 2) % 8 == 0):
+            if (Z - 2) % 8 == 0:
                 return 18
-            elif ((Z - 2) % 8 <= 2):
-                return (Z - 2) % 8;
+            elif (Z - 2) % 8 <= 2:
+                return (Z - 2) % 8
             else:
                 return (10 + (Z - 2) % 8)
 
         if Z >= 19 and Z <= 54:
-            if ((Z - 18) % 18 == 0):
+            if (Z - 18) % 18 == 0:
                 return 18
             else:
                 return (Z - 18) % 18
 
-        if((Z - 54) % 32 == 0):
+        if (Z - 54) % 32 == 0:
             return 18
-        elif ((Z - 54) % 32 >= 17):
+        elif (Z - 54) % 32 >= 17:
             return (Z - 54) % 32 - 14
         else:
             return (Z - 54) % 32
@@ -393,11 +393,11 @@ class Element(object):
         block = ''
         if self.group in [1, 2]:
             block = 's'
-        elif self.group in xrange(13, 19):
+        elif self.group in range(13, 19):
             block = 'p'
         elif (self.is_actinoid or self.is_lanthanoid):
             block = 'f'
-        elif self.group in xrange(3, 13):
+        elif self.group in range(3, 13):
             block = 'd'
         else:
             print("unable to determine block")
@@ -417,12 +417,12 @@ class Element(object):
         True if element is a transition metal.
         """
 
-        ns = range(21, 31)
-        ns.extend(xrange(39, 49))
+        ns = list(range(21, 31))
+        ns.extend(range(39, 49))
         ns.append(57)
-        ns.extend(xrange(72, 81))
+        ns.extend(range(72, 81))
         ns.append(89)
-        ns.extend(xrange(104, 113))
+        ns.extend(range(104, 113))
         return self.Z in ns
 
     @property
@@ -605,8 +605,7 @@ class PeriodicTable(object):
         """
         return self._all_elements.values()
 
-    @staticmethod
-    def print_periodic_table(filter_function = None):
+    def print_periodic_table(self, filter_function = None):
         """
         A pretty ASCII printer for the periodic table, based on some filter_function.
         
@@ -617,13 +616,14 @@ class PeriodicTable(object):
                 a periodic table containing only elements with electronegativity > 2.
         """
         for row in range(1, 10):
+            rowstr = []
             for group in range(1, 19):
                 el = Element.from_row_and_group(row, group)
                 if el != None and ((not filter_function) or filter_function(el)):
-                    print "%3s" % (el.symbol),
+                    rowstr.append("{:3s}".format(el.symbol))
                 else:
-                    print "   ",
-            print
+                    rowstr.append("   ")
+            print(" ".join(rowstr))
 
 
 class DummySpecie(Specie):
@@ -650,7 +650,7 @@ class DummySpecie(Specie):
         self._z = 0
         self._symbol = symbol
 
-        for i in xrange(1, min(2, len(symbol)) + 1):
+        for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
 

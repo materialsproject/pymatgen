@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie, PeriodicTable
 from copy import deepcopy
 
 class  ElementTestCase(unittest.TestCase):
@@ -49,7 +49,7 @@ class  ElementTestCase(unittest.TestCase):
                         "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states", 'average_ionic_radius', 'ionic_radii']
 
         #Test all elements up to Uranium
-        for i in xrange(1, 93):
+        for i in range(1, 93):
             for k in keys:
                 self.assertIsNotNone(getattr(Element.from_Z(i), k))
             el = Element.from_Z(i)
@@ -130,6 +130,9 @@ class  PeriodicTableTestCase(unittest.TestCase):
 
             for a in all_attr:
                 self.assertIsNotNone(el, a)
+
+    def test_print_periodic_table(self):
+        PeriodicTable().print_periodic_table()
 
 
 if __name__ == '__main__':
