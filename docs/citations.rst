@@ -2,7 +2,7 @@ Citing pymatgen
 ===============
 
 Some of pymatgen's functionality is based on scientific advances / principles
-developed by the computational materials scientist in our team. If you 
+developed by the computational materials scientists in our team. If you 
 use some of these functionality in your research, you may wish to consider citing
 the following works:
 
