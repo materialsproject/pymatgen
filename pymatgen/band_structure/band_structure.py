@@ -63,7 +63,7 @@ class Kpoint(object):
         """
         The cartesian coordinates
         """
-        return np.copy(self._fcoords)
+        return np.copy(self._ccoords)
     
     @property
     def a(self):

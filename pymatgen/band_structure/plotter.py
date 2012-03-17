@@ -167,4 +167,45 @@ class BSPlotter(object):
             if(ticks['label'][i]!=None):
                 pylab.axvline(ticks['distance'][i],color='k')
         pylab.show()
-        pylab.legend()  
+        pylab.legend()
+    
+    def plot_brillouin(self):
+        import pylab as plt
+        import pymatgen.command_line.qhull_caller
+        from mpl_toolkits.mplot3d import Axes3D
+
+        fig = plt.figure()
+        ax=Axes3D(fig)
+        vec1=self._bs._lattice_rec.matrix[0]
+        vec2=self._bs._lattice_rec.matrix[1]
+        vec3=self._bs._lattice_rec.matrix[2]
+        ax.plot([0,vec1[0]],[0,vec1[1]],[0,vec1[2]],color='k')
+        ax.plot([0,vec2[0]],[0,vec2[1]],[0,vec2[2]],color='k')
+        ax.plot([0,vec3[0]],[0,vec3[1]],[0,vec3[2]],color='k')
+        
+        #make the grid
+        list_k_points=[]
+        for i in[-1,0,1]:
+            for j in [-1,0,1]:
+                for k in [-1,0,1]:
+                    list_k_points.append(i*vec1+j*vec2+k*vec3)
+                    #ax.scatter([list_k_points[-1][0]],[list_k_points[-1][1]],[list_k_points[-1][2]])
+        #plt.show()
+        vertex=pymatgen.command_line.qhull_caller.qvertex(list_k_points)
+        #print vertex
+        lines=pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
+        #[vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))]+" "+str(vertex[i][2])
+        #ax.scatter([vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))],[vertex[i][2] for i in range(len(vertex))],color='r')
+        for i in range(len(lines)):
+            vertex1=lines[i]['start']
+            vertex2=lines[i]['end']
+            ax.plot([vertex1[0],vertex2[0]],[vertex1[1],vertex2[1]],[vertex1[2],vertex2[2]],color='k')
+            
+        #plot the labelled points    
+        
+        for k in self._bs._kpoints:
+            if(not k.label==None):
+                ax.text(k.cart_coords[0],k.cart_coords[1],k.cart_coords[2],k.label)
+            
+        plt.show()
+        
