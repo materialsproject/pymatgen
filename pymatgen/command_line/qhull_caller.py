@@ -63,6 +63,13 @@ def qvertex(data):
     Input data should be in the form of a list of a list of floats.
     Returns the facets of voronoi construction as a list of a list of float.
     """
+    return run_qhull_command(['qvoronoi','p'], data, float, 2)
+
+def qvertex_target(data):
+    """
+    Input data should be in the form of a list of a list of floats.
+    Returns the facets of voronoi construction as a list of a list of float.
+    """
     return run_qhull_command(['qvoronoi','p QV13'], data, float, 2)
 
 def get_lines_voronoi(data):
@@ -80,8 +87,9 @@ def get_lines_voronoi(data):
     list_points=[]
     for i in range(2,2+nb_points):
         #if(not output[i]==''):
+            print output[i]
             #print [float(c) for c in output[i].strip().split(" ")]
-            list_points.append([float(c) for c in output[i].strip().split(" ")])
+            list_points.append([float(c) for c in output[i].strip().split()])
     #print len(list_points)
     facets=[]
     for i in range(2+nb_points,len(output)):
