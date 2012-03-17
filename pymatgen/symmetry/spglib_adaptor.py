@@ -9,7 +9,7 @@ This is a *beta* version. Not all spglib functions are implemented.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -32,14 +32,14 @@ try:
     spglib_loaded = True
 except ImportError:
     spglib_loaded = False
-    
+
 
 class SymmetryFinder(object):
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
     """
-    
+
     def __init__(self, structure, symprec = 1e-5):
         """
         Args:
@@ -53,8 +53,9 @@ class SymmetryFinder(object):
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
         self._numbers = np.array([site.specie.Z for site in structure])
-        self._spacegroup_data = spg.spacegroup(self._lattice, self._positions, self._numbers, self._symprec)
-        
+
+        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
+
     def get_spacegroup(self):
         """
         Return space group in international table symbol and number
@@ -62,10 +63,10 @@ class SymmetryFinder(object):
         """
         # Atomic positions have to be specified by scaled positions for spglib.    
         return Spacegroup(self.get_spacegroup_symbol(), self.get_spacegroup_number(), self.get_symmetry_operations())
-    
+
     def get_spacegroup_symbol(self):
         return re.split("\s+", self._spacegroup_data)[0]
-    
+
     def get_spacegroup_number(self):
         sgnum = re.split("\s+", self._spacegroup_data)[1]
         sgnum = int(re.sub("\D", "", sgnum))
@@ -74,27 +75,27 @@ class SymmetryFinder(object):
     def get_hall(self):
         ds = self.get_symmetry_dataset()
         return ds['hall']
-       
+
     def get_pointgroup(self):
         ds = self.get_symmetry_dataset()
         return get_pointgroup(ds['rotations'])[0].strip()
-        
+
     def get_crystal_system(self):
-        n = self.get_spacegroup_number() 
-        
-        f = lambda i,j: i <= n <= j
+        n = self.get_spacegroup_number()
+
+        f = lambda i, j: i <= n <= j
         cs = {}
-        cs['triclinic'] = (1,2)
-        cs['monoclinic'] = (3,15)
-        cs['orthorhombic'] = (16,74)
+        cs['triclinic'] = (1, 2)
+        cs['monoclinic'] = (3, 15)
+        cs['orthorhombic'] = (16, 74)
         cs['tetragonal'] = (75, 142)
         cs['trigonal'] = (143, 167)
         cs['hexagonal'] = (168, 194)
         cs['cubic'] = (195, 230)
-        
+
         crystal_sytem = None
-        
-        for k,v in cs.items():
+
+        for k, v in cs.items():
             if f(*v) == True:
                 crystal_sytem = k
                 break
@@ -135,7 +136,7 @@ class SymmetryFinder(object):
         dataset = {}
         for key, data in zip(keys, spg.dataset(self._lattice, self._positions, self._numbers, self._symprec)):
             dataset[key] = data
-    
+
         dataset['international'] = dataset['international'].strip()
         dataset['hall'] = dataset['hall'].strip()
         dataset['transformation_matrix'] = np.array(dataset['transformation_matrix'])
@@ -145,7 +146,7 @@ class SymmetryFinder(object):
         letters = "abcdefghijklmnopqrstuvwxyz"
         dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
         dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'])
-    
+
         return dataset
 
     def get_symmetry(self):
@@ -156,17 +157,17 @@ class SymmetryFinder(object):
         Hash key 'translations' gives the numpy float64 array
         of the translation vectors in scaled positions
         """
-      
+
         # Get number of symmetry operations and allocate symmetry operations
         # multi = spg.multiplicity(cell, positions, numbers, symprec)
         multi = 48 * self._structure.num_sites
-        rotation = np.zeros((multi, 3, 3), dtype=int)
+        rotation = np.zeros((multi, 3, 3), dtype = int)
         translation = np.zeros((multi, 3))
-      
+
         num_sym = spg.symmetry(rotation, translation, self._lattice,
                                    self._positions, self._numbers, self._symprec)
         return (rotation[:num_sym], translation[:num_sym])
-    
+
     def get_symmetry_operations(self, cartesian = False):
         """
         Return symmetry operations as a list of SymmOp objects.
@@ -178,15 +179,15 @@ class SymmetryFinder(object):
         for rot, trans in zip(rotation, translation):
             if cartesian:
                 rot = np.dot(self._structure.lattice.md2c, np.dot(rot, self._structure.lattice.mc2d))
-                trans = np.dot(self._structure.lattice.md2c, trans) 
+                trans = np.dot(self._structure.lattice.md2c, trans)
             symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rot, trans))
         return symmops
-    
+
     def get_symmetrized_structure(self):
         ds = self.get_symmetry_dataset()
         sg = Spacegroup(self.get_spacegroup_symbol(), self.get_spacegroup_number(), self.get_symmetry_operations())
         return SymmetrizedStructure(self.get_refined_structure(), sg, ds['equivalent_atoms'])
-    
+
     def get_refined_structure(self):
         """
         Return refined Structure
@@ -194,27 +195,27 @@ class SymmetryFinder(object):
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
         lattice = self._lattice.T.copy()
-        pos = np.zeros((num_atom * 4, 3), dtype=float)
+        pos = np.zeros((num_atom * 4, 3), dtype = float)
         pos[:num_atom] = self._positions.copy()
-    
-        numbers = np.zeros(num_atom * 4, dtype=int)
+
+        numbers = np.zeros(num_atom * 4, dtype = int)
         numbers[:num_atom] = self._numbers.copy()
         num_atom_bravais = spg.refine_cell(lattice,
                                            pos,
                                            numbers,
                                            num_atom,
                                            self._symprec)
-    
+
         return Structure(lattice.T.copy(), numbers[:num_atom_bravais], pos[:num_atom_bravais])
-    
-    
+
+
     def find_primitive(self):
         """
         A primitive cell in the input cell is searched and returned
         as an Structure object.
         If no primitive cell is found, (None, None, None) is returned.
         """
-    
+
         # Atomic positions have to be specified by scaled positions for spglib.
         positions = self._positions.copy()
         lattice = self._lattice.T.copy()
