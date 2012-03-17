@@ -33,6 +33,8 @@ the moment) required only for certain features.
 
 1. Qhull : Needed for bond length analysis (structure_analyzer.py). The executable 
    qconvex and qvoronoi must be in the path. Get it at http://www.qhull.org/.
+2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
+   ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
 
 Basic Setup for Users
 =====================
@@ -46,7 +48,7 @@ distutils installed, you can now just type:
 	
 to install pymatgen with most of the dependencies set up. Alternatively, you can 
 download the latest source from 
-https://github.com/materialsproject/pymatgen_repo/downloads and run 
+https://github.com/materialsproject/pymatgen/downloads and run 
 
 ::
 
