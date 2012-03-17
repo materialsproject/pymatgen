@@ -183,7 +183,7 @@ class StructureEditor(StructureModifier):
             indices:
                 sequence of indices of sites to delete.
         """
-        self._sites = [self._sites[i] for i in xrange(len(self._sites)) if i not in indices]
+        self._sites = [self._sites[i] for i in range(len(self._sites)) if i not in indices]
 
     def apply_operation(self, symmop):
         """
@@ -281,7 +281,7 @@ class SupercellMaker(StructureModifier):
         new_species = []
         new_fcoords = []
         def range_vec(i):
-            return xrange(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
+            return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
         for site in structure.sites:
             for (i, j, k) in itertools.product(range_vec(0), range_vec(1), range_vec(2)):
                 new_species.append(site.species_and_occu)
