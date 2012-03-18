@@ -25,7 +25,7 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..
 class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def setUp(self):
-        self.drone = VaspToComputedEntryDrone()
+        self.drone = VaspToComputedEntryDrone(parameters = ["incar", "hubbards"], data = ["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
 
 
@@ -35,6 +35,8 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_assimilate_and_convert(self):
         d = self.drone.assimilate(test_dir)
+        self.assertEqual(d["parameters"]["incar"]['ALGO'], "Damped")
+        self.assertAlmostEqual(d["data"]["efermi"], 1.8301027)
         entry = self.drone.convert(d)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
         self.assertAlmostEqual(entry.energy, -269.38319884)
