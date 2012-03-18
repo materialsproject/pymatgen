@@ -73,7 +73,7 @@ class ComputedEntry(PDEntry):
         return super(ComputedEntry, self).energy
 
     def __repr__(self):
-        return "ComputedEntry {}: Energy : {:.4f}, correction {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
+        return "ComputedEntry {} with energy = {:.4f}, correction = {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
 
     def __str__(self):
         outputstr = [self.__repr__()]
@@ -153,3 +153,19 @@ class ComputedStructureEntry(ComputedEntry):
         return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
                              d['correction'], d['parameters'], d['data'])
 
+
+def computed_entries_to_json(all_entries):
+    jsonlist = list()
+    for entry in all_entries:
+        jsonlist.append(entry.to_dict)
+    return json.dumps(jsonlist)
+
+def computed_entries_from_json(jsonstr):
+    json_list = json.loads(jsonstr)
+    entries = list()
+    for d in json_list:
+        if 'structure' in d:
+            entries.append(ComputedStructureEntry.from_dict(d))
+        else:
+            entries.append(ComputedEntry.from_dict(d))
+    return entries
