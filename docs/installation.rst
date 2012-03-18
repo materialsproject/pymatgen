@@ -65,12 +65,27 @@ For the code to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the 
 VASP license. The good news is that we have included a setup script to help you along.
 
-1. cd to the root directory of the repo where a file called run_me_first.sh is 
-   present.
-2. Run the run_me_first.sh file, which will generate a resources directory in a 
-   location of your choosing. Please choose a location *outside* of the repo 
-   itself.  The script will also write a pymatgen.cfg file in the pymatgen subdir.
+If you cloned the repo directly from github, you should have a run_me_first.sh 
+file in the root directory of your local repo. Otherwise, you can get it directly 
+from our github site at http://github.com/materialsproject/pymatgen. Run the 
+shell script and follow the instructions. If you have done it correctly, you 
+should get a resources directory with the following directory structure::
 
+   - psp_resources
+   |- POT_GGA_PAW_PBE
+   ||- POTCAR.Ac_s.gz
+   ||- POTCAR.Ac.gz
+   ||- POTCAR.Ag.gz
+   ...
+   |- POT_GGA_PAW_PW91
+   ...
+   
+After generating the resources directory, you should add a VASP_PSP_DIR 
+environment variable pointing to the generated directory and you should then be 
+able to generate POTCARs.
+
+Alternatively, you can setup the above directly structure manually and set the 
+VASP_PSP_DIR environment variable accordingly.
 
 Basic Setup for Developers (using github)
 =========================================
