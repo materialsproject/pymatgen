@@ -89,7 +89,7 @@ class PDPlotter(object):
 
         return (lines, stable_entries, unstable_entries)
 
-    def showplot(self):
+    def show(self):
         """
         Draws the plot using Matplotlib.
         """
