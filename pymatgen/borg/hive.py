@@ -70,6 +70,14 @@ class AbstractDrone(object):
         Convert a dict generated from assimilate into an actual pymatgen object.
         """
 
+    @abc.abstractproperty
+    def to_dict(self):
+        """
+        All drones must support a json serializable dict representation
+        """
+        return
+
+
 class VaspToComputedEntryDrone(AbstractDrone):
     """
     VaspToEntryDrone assimilates directories containing vasp input to 
@@ -80,17 +88,29 @@ class VaspToComputedEntryDrone(AbstractDrone):
     2. Directories designated "relax1", "relax2" are considered to be 2 parts of
        an aflow style run, and only "relax2" is parsed.
        
-    
     """
 
-    def __init__(self, inc_structure = False):
+    def __init__(self, inc_structure = False, parameters = None, data = None):
         """
         Args:
             inc_structure:
                 Set to True if you want ComputedStructureEntries to be returned
                 instead of ComputedEntries.
+            parameters:
+                Input parameters to include. It has to be one of the properties
+                supported by the Vasprun object. See pymatgen.io.vaspio Vasprun.
+                The parameters have to be one of python's primitive types,
+                i.e. list, dict of strings and integers. Complex objects such as
+                dos are not supported at this point.
+            data:
+                Output data to include. Has to be one of the properties supported
+                by the Vasprun object. The parameters have to be one of python's 
+                primitive types, i.e. list, dict of strings and integers. Complex 
+                objects such as dos are not supported at this point.
         """
         self._inc_structure = inc_structure
+        self._parameters = parameters if parameters else []
+        self._data = data if data else []
 
     def assimilate(self, path):
         files = os.listdir(path)
@@ -112,19 +132,25 @@ class VaspToComputedEntryDrone(AbstractDrone):
         except Exception as ex:
             logger.debug("error in {}: {}".format(filepath, ex))
             return None
+        param = {}
+        for p in self._parameters:
+            param[p] = getattr(vasprun, p)
+        data = {}
+        for d in self._data:
+            data[d] = getattr(vasprun, d)
         if self._inc_structure:
             entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy, parameters = vasprun.incar)
+                                   vasprun.final_energy, parameters = param, data = data)
         else:
             entry = ComputedEntry(vasprun.final_structure.composition,
-                                   vasprun.final_energy, parameters = vasprun.incar)
+                                   vasprun.final_energy, parameters = param, data = data)
         return entry.to_dict
 
     def is_valid_path(self, path):
         (parent, subdirs, files) = path
         if 'relax1' in subdirs and 'relax2' in subdirs:
             return True
-        elif (not parent.endswith('/relax1')) and (not parent.endswith('/relax2')) and len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
+        if (not parent.endswith('/relax1')) and (not parent.endswith('/relax2')) and len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
             return True
         return False
 
@@ -136,3 +162,28 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def __str__(self):
         return "VaspToEntryDrone"
+
+    @property
+    def to_dict(self):
+        init_args = {'inc_structure' : self._inc_structure,
+                     "parameters": self._parameters,
+                     "data": self._data}
+        output = {'name' : self.__class__.__name__, 'init_args': init_args, 'version': __version__ }
+        return output
+
+def drone_from_dict(d):
+    """
+    A helper function that returns a drone from a dict representation.
+    
+    Arguments:
+        d:
+            A dict representation of a drone with init args.
+    
+    Returns:
+        A properly initialized Drone object
+    """
+    mod = __import__('pymatgen.borg.hive', globals(), locals(), [d['name']], -1)
+    if hasattr(mod, d['name']):
+        drone = getattr(mod, d['name'])
+        return drone(**d['init_args'])
+    raise ValueError("Invalid Drone Dict")
