@@ -981,7 +981,11 @@ class Vasprun(object):
             Initial input structure.
         complete_dos: 
             CompleteDos object containing both the total and projected Dos from the run.
-    
+        is_hubbard:
+            Indicates if a run is a GGA+U run.
+        hubbards:
+            Returns the U values, if any, used in the run.
+            
     Author: Shyue Ping Ong
     """
     supported_properties = ['lattice_rec', 'vasp_version', 'incar', 'parameters', 'potcar_symbols', 'atomic_symbols', 'kpoints', 'actual_kpoints', 'structures',
@@ -1029,6 +1033,27 @@ class Vasprun(object):
         A complete dos object which incorporates the total dos and all projected dos.
         """
         return CompleteDos(self.final_structure, self.tdos, self.pdos)
+
+    @property
+    def hubbards(self):
+        symbols = [re.split("\s+", s)[1] for s in self.potcar_symbols]
+        symbols = [re.split("_", s)[0] for s in symbols]
+        if not self.incar.get('LDAU', False):
+            return {}
+        us = self.incar.get('LDAUU', self.parameters.get('LDAUU'))
+        js = self.incar.get('LDAUJ', self.parameters.get('LDAUJ'))
+        if len(us) == len(symbols):
+            return { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
+        elif sum(us) == 0 and sum(js) == 0:
+            return {}
+        else:
+            raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
+
+    @property
+    def is_hubbard(self):
+        if len(self.hubbards) == 0:
+            return False
+        return sum(self.hubbards.values()) > 0
 
     def get_band_structure(self, kpoints_filename = None):
         """
