@@ -63,7 +63,7 @@ div.related {
     background-color: #0066cc;
     line-height: 32px;
     color: #fff;
-    /*text-shadow: 0px 1px 0 #999;*/
+    text-shadow: 0px 1px 0 #333;
     font-size: 0.9em;
 }
  
