@@ -57,16 +57,16 @@ If you cloned the repo directly from github, you should have a run_me_first.sh
 file in the root directory of your local repo. Otherwise, you can get it directly 
 from our github site at http://github.com/materialsproject/pymatgen. Run the 
 shell script and follow the instructions. If you have done it correctly, you 
-should get a resources directory with the following directory structure::
+should get a resources directory with the following directory structure:
 
-   - psp_resources
-   |- POT_GGA_PAW_PBE
-   ||- POTCAR.Ac_s.gz
-   ||- POTCAR.Ac.gz
-   ||- POTCAR.Ag.gz
-   ...
-   |- POT_GGA_PAW_PW91
-   ...
+	- psp_resources
+	|- POT_GGA_PAW_PBE
+	||- POTCAR.Ac_s.gz
+	||- POTCAR.Ac.gz
+	||- POTCAR.Ag.gz
+	...
+	|- POT_GGA_PAW_PW91
+	...
    
 After generating the resources directory, you should add a VASP_PSP_DIR 
 environment variable pointing to the generated directory and you should then be 
