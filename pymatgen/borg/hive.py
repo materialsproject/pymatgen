@@ -118,15 +118,26 @@ class VaspToComputedEntryDrone(AbstractDrone):
             filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
         else:
             vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
-            filepath = ''
+            filepath = None
             if len(vasprun_files) == 1:
                 filepath = vasprun_files[0]
             elif len(vasprun_files) > 1:
-                #This is probably an aflow run. We only do the second relaxtion.
+                """
+                This is a bit confusing, since there maybe be multi-steps. By 
+                default, assimilate will try to find a file simply named 
+                vasprun.xml, vasprun.xml.bz2, or vasprun.xml.gz.  Failing which
+                it will try to get a relax2 from an aflow style run if possible.
+                Or else, a randomly chosen file containing vasprun.xml is chosen.
+                """
                 for fname in vasprun_files:
+                    if os.path.basename(fname) in ["vasprun.xml", "vasprun.xml.gz", "vasprun.xml.bz2"]:
+                        filepath = fname
+                        break
                     if re.search("relax2", fname):
                         filepath = fname
                         break
+                    filepath = fname
+
         try:
             vasprun = Vasprun(filepath)
         except Exception as ex:
