@@ -6,13 +6,13 @@ This module provides classes that operate on points or vectors in 3D space.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="Sep 23, 2011"
+__date__ = "Sep 23, 2011"
 
 import numpy as np
 from math import sin, cos, pi
@@ -24,7 +24,7 @@ class SymmOp (object):
     Implementation is as an affine transformation matrix of rank 4 for efficiency.
     Read: http://en.wikipedia.org/wiki/Affine_transformation
     """
-    
+
     def __init__(self, affine_transformation_matrix, tol = 0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
@@ -36,13 +36,14 @@ class SymmOp (object):
             affine_transformation_matrix: A 4x4 numpy.array representing an affine transformation.
             tol: Tolerance for determining if matrices are equal.
         """
-        if affine_transformation_matrix.shape != (4,4):
+        affine_transformation_matrix = np.array(affine_transformation_matrix)
+        if affine_transformation_matrix.shape != (4, 4):
             raise ValueError("Affine Matrix must be a 4x4 numpy array!")
         self._matrix = affine_transformation_matrix
         self._tol = tol
-    
+
     @staticmethod
-    def from_rotation_matrix_and_translation_vector(rotation_matrix = ((1,0,0), (0,1,0), (0,0,1)), translation_vec = (0,0,0), tol = 0.1):
+    def from_rotation_matrix_and_translation_vector(rotation_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec = (0, 0, 0), tol = 0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation vector.
         
@@ -56,15 +57,15 @@ class SymmOp (object):
         """
         rotation_matrix = np.array(rotation_matrix)
         translation_vec = np.array(translation_vec)
-        if rotation_matrix.shape != (3,3):
+        if rotation_matrix.shape != (3, 3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
         if translation_vec.shape != (3,):
             raise ValueError("Translation vector must be a rank 1 numpy array with 3 elements.")
         affine_matrix = np.eye(4)
-        affine_matrix[0:3][:,0:3] = rotation_matrix
-        affine_matrix[0:3][:,3] = translation_vec
+        affine_matrix[0:3][:, 0:3] = rotation_matrix
+        affine_matrix[0:3][:, 3] = translation_vec
         return SymmOp(affine_matrix, tol)
-               
+
     def __eq__(self, other):
         return (abs(self._matrix - other._matrix) < self._tol).all()
 
@@ -76,11 +77,11 @@ class SymmOp (object):
 
     def __str__(self):
         output = ["Rot:"]
-        output.append(str(self._matrix[0:3][:,0:3]))
+        output.append(str(self._matrix[0:3][:, 0:3]))
         output.append("tau")
-        output.append(str(self._matrix[0:3][:,3]))
+        output.append(str(self._matrix[0:3][:, 3]))
         return "\n".join(output)
-    
+
     def operate(self, point):
         """
         Apply the operation on a point.
@@ -88,7 +89,7 @@ class SymmOp (object):
         Args:
             point - a cartesian coordinate represented as a rank 1 numpy array of 3 elements.
         """
-        affine_point = np.array([point[0],point[1],point[2],1])
+        affine_point = np.array([point[0], point[1], point[2], 1])
         affine_point[0:3] = point
         return np.dot(self._matrix, affine_point)[0:3]
 
@@ -100,7 +101,7 @@ class SymmOp (object):
             vector - a rank 1 numpy array of 3 elements representing a vector.
         """
         return np.dot(self.rotation_matrix, vector)
-    
+
     def are_symmetrically_related(self, point_a, point_b, tol = 0.001):
         """
         Checks if two points are symmetrically related.
@@ -117,28 +118,28 @@ class SymmOp (object):
         if (abs(self.operate(point_b) - point_a) < tol).all():
             return True
         return False
-    
+
     @property
     def affine_matrix(self):
         """
         A 4x4 numpy.array representing the symmetry operation.
         """
         return self._matrix
-    
+
     @property
     def rotation_matrix(self):
         """
         A 3x3 numpy.array representing the rotation matrix
         """
-        return self._matrix[0:3][:,0:3]
-    
+        return self._matrix[0:3][:, 0:3]
+
     @property
     def translation_vector(self):
         """
         A rank 1 numpy.array of dim 3 representing the translation vector.
         """
-        return self._matrix[0:3][:,3]
-    
+        return self._matrix[0:3][:, 3]
+
     def __mul__(self, other):
         """
         Returns a new SymmOp which is equivalent to apply the "other" SymmOp followed by this one.
@@ -172,17 +173,28 @@ class SymmOp (object):
             translation_vec = np.array(translation_vec)
         a = angle if angle_in_radians else angle * pi / 180
         cosa = cos(a)
-        sina = sin(a) 
+        sina = sin(a)
         u = axis / np.linalg.norm(axis)
-        r = np.zeros((3,3)) 
-        r[0,0] = cosa + u[0] ** 2 * (1-cosa)
-        r[0,1] = u[0] * u[1] * (1-cosa) - u[2] * sina
-        r[0,2] = u[0] * u[2] * (1-cosa) + u[1] * sina
-        r[1,0] = u[0] * u[1] * (1-cosa) + u[2] * sina     
-        r[1,1] = cosa + u[1]**2 * (1-cosa)     
-        r[1,2] = u[1] * u[2] * (1-cosa) - u[0] * sina     
-        r[2,0] = u[0] * u[2] * (1-cosa) - u[1] * sina     
-        r[2,1] = u[1] * u[2] * (1-cosa) + u[0] * sina     
-        r[2,2] = cosa + u[2]**2 * (1-cosa)    
-        
+        r = np.zeros((3, 3))
+        r[0, 0] = cosa + u[0] ** 2 * (1 - cosa)
+        r[0, 1] = u[0] * u[1] * (1 - cosa) - u[2] * sina
+        r[0, 2] = u[0] * u[2] * (1 - cosa) + u[1] * sina
+        r[1, 0] = u[0] * u[1] * (1 - cosa) + u[2] * sina
+        r[1, 1] = cosa + u[1] ** 2 * (1 - cosa)
+        r[1, 2] = u[1] * u[2] * (1 - cosa) - u[0] * sina
+        r[2, 0] = u[0] * u[2] * (1 - cosa) - u[1] * sina
+        r[2, 1] = u[1] * u[2] * (1 - cosa) + u[0] * sina
+        r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)
+
         return SymmOp.from_rotation_matrix_and_translation_vector(r, translation_vec)
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['matrix'] = self._matrix.tolist()
+        d['tolerance'] = self._tol
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return SymmOp(d['matrix'], d['tolerance'])
