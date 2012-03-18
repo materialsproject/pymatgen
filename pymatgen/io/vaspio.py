@@ -813,8 +813,8 @@ class PotcarSingle(VaspInput):
         Expects a complete and single potcar file as a string in "data"
         """
         self.data = data # raw POTCAR as a string
-        keyValPairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(data)
-        self.keywords = dict(keyValPairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
+        keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(data)
+        self.keywords = dict(keypairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
 
     def __str__(self):
         return self.data
@@ -912,10 +912,15 @@ class Potcar(list, VaspInput):
             for el in elements:
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
-            module_dir = os.path.dirname(pymatgen.__file__)
-            config = ConfigParser.SafeConfigParser()
-            config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-            VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
+            if 'VASP_PSP_DIR' in os.environ:
+                VASP_PSP_DIR = os.path.join(os.environ['VASP_PSP_DIR'], Potcar.functional_dir[functional])
+            else:
+                module_dir = os.path.dirname(pymatgen.__file__)
+                if not os.path.exists(os.path.join(module_dir, "pymatgen.cfg")):
+                    raise IOError("You have not set your VASP_PSP_DIR environment variable, or have a pymatgen.cfg file.")
+                config = ConfigParser.SafeConfigParser()
+                config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+                VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
             del self[:]
             for el in elements:
                 with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
