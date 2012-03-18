@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Created on Mar 18, 2012
+This module defines the BorgQueen class, which manages drones to assimilate 
+data using Python's multiprocessing. 
 '''
 
 from __future__ import division
@@ -15,9 +16,9 @@ __date__ = "Mar 18, 2012"
 
 
 import os
+import json
 
 from multiprocessing import Manager, Pool
-
 
 class BorgQueen(object):
     """
@@ -25,27 +26,52 @@ class BorgQueen(object):
     substructure. Uses multiprocessing to speed up things considerably.
     """
 
-    def __init__(self, rootpath, drone, number_of_drones = 1):
+    def __init__(self, drone, rootpath = None, number_of_drones = 1):
         """
         Args:
+            drone:
+                The drone to use for assimilation
             rootpath:
                 The root directory to start assimilation.
-            drones:
-                The drones to use for assimilation
+
         """
+        self._drone = drone
+        self._num_drones = number_of_drones
+        if rootpath:
+            self.parallel_assimilate(rootpath)
+
+    def parallel_assimilate(self, rootpath):
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            if drone.is_valid_path((parent, subdirs, files)):
+            if self._drone.is_valid_path((parent, subdirs, files)):
                 valid_paths.append(parent)
         manager = Manager()
         data = manager.list()
 
-        p = Pool(number_of_drones)
-        p.map(order_assimilation, ((path, drone, data) for path in valid_paths))
-        self._data = [drone.convert(d) for d in data]
+        p = Pool(self._num_drones)
+        p.map(order_assimilation, ((path, self._drone, data) for path in valid_paths))
+        self._data = data
 
     def get_data(self):
-        return self._data
+        """
+        Returns an iterator of the assimilated objects
+        """
+        return [self._drone.convert(d) for d in self._data]
+
+    def save_data_to_file(self, filename):
+        """
+        Save the assimilated data to a file
+        """
+        with open(filename, "w") as f:
+            json.dump(list(self._data), f)
+
+    def load_data_from_file(self, filename):
+        """
+        Load assimilated data from a file
+        """
+        with open(filename, "r") as f:
+            self._data = json.load(f)
+
 
 def order_assimilation(args):
     (path, drone, data) = args
