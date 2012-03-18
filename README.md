@@ -8,6 +8,8 @@ Pymatgen is the python library that powers the Materials Project (http://www.mat
 
 The public version of pymatgen is free (as in free beer) to download and to use. However, we would also like you to help us improve this library by making your own contributions as well.  These contributions can be in the form of additional tools or modules you develop, or even simple things such as bug reports.  Please contact the maintainer of this library (shyue@mit.edu) to find out how to include your contributions via github or for bug reports.
 
+For documentation and usage examples, please read the documentation at http://materialsproject.github.com/pymatgen.
+
 ## Requirements ##
 
 Required for proper functioning of the code.
@@ -46,20 +48,29 @@ With these two basic steps, you should be able to use most of the pymatgen code.
 However, some extra functionality do require additional setup, as outlined below.
 
 ### Generating POTCARs ###
-For the code to generate POTCAR files, it needs to know where the VASP pseudopotential files are.  We are not allowed to distribute these under the VASP license. The good news is that we have included a setup script to help you along.
 
-1. cd to the root directory of the repo where a file called run_me_first.sh is present.
-2. Run the run_me_first.sh file, which will generate a resources directory in a location of your choosing. Please choose a location *outside* of the repo itself.  The script will also write a pymatgen.cfg file in the pymatgen subdir.
+For the code to generate POTCAR files, it needs to know where the VASP 
+pseudopotential files are.  We are not allowed to distribute these under the 
+VASP license. The good news is that we have included a setup script to help you along.
 
-## Basic usage ##
+If you cloned the repo directly from github, you should have a run_me_first.sh 
+file in the root directory of your local repo. Otherwise, you can get it directly 
+from our github site at http://github.com/materialsproject/pymatgen. Run the 
+shell script and follow the instructions. If you have done it correctly, you 
+should get a resources directory with the following directory structure:
 
-Some example scripts have been provided in the scripts directory. In general, most file format conversions, manipulations and io can be done with a few quick lines of code. For example, to read a POSCAR and write a cif:
+	- psp_resources
+	|- POT_GGA_PAW_PBE
+	||- POTCAR.Ac_s.gz
+	||- POTCAR.Ac.gz
+	||- POTCAR.Ag.gz
+	...
+	|- POT_GGA_PAW_PW91
+	...
+   
+After generating the resources directory, you should add a VASP_PSP_DIR 
+environment variable pointing to the generated directory and you should then be 
+able to generate POTCARs.
 
-	from pymatgen.io.vaspio import Poscar
-	from pymatgen.io.cifio import CifWriter
-	
-	p = Poscar('POSCAR')
-	w = CifWriter(p.struct)
-	w.write_file('mystructure.cif')
-
-For more examples, please take a look at the wiki (http://github.com/CederGroupMIT/pymatgen_repo/wiki).
+Alternatively, you can setup the above directly structure manually and set the 
+VASP_PSP_DIR environment variable accordingly.
