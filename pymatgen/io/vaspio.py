@@ -1050,6 +1050,20 @@ class Vasprun(object):
             raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
 
     @property
+    def run_type(self):
+        """
+        Returns the run type. Currently supports only GGA and HF calcs. 
+        
+        TODO: Fix for other functional types like LDA, PW91, etc.
+        """
+        if self.is_hubbard:
+            return "GGA+U"
+        elif self.parameters.get('LHFCALC', False):
+            return "HF"
+        else:
+            return "GGA"
+
+    @property
     def is_hubbard(self):
         if len(self.hubbards) == 0:
             return False
