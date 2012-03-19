@@ -30,7 +30,7 @@ class TransformedStructure(object):
     transformation history.
     """
 
-    def __init__(self, structure, transformations, history = None):
+    def __init__(self, structure, transformations, history = None, other_parameters = {}):
         """
         Standard constructor for a TransformedStructure
         
@@ -43,12 +43,17 @@ class TransformedStructure(object):
                 optional history for the input structure, which provides a way
                 to track structures having undergone multiple series of 
                 transformations.
+            other_parameters:
+                optional parameters to store along with the transformedstructure.
+                This can include tags (a list) or author which will be parsed when the structure
+                is uploaded to the database
         """
         history = [] if history == None else history
         self._source = {}
         self._structures = []
         self._transformations = []
         self._redo_trans = []
+        self._other_parameters = {}
         if len(history) > 0:
             self._source = history[0]
             for i in xrange(1, len(history)):
@@ -187,6 +192,13 @@ class TransformedStructure(object):
             output.append(str(t.to_dict))
         return "\n".join(output)
 
+    def set_parameter(self, key, value):
+        self._other_parameters[key] = value
+        
+    @property
+    def other_parameters(self):
+        return self._other_parameters
+
     @property
     def was_modified(self):
         """
@@ -224,7 +236,7 @@ class TransformedStructure(object):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return TransformedStructure(s, [], d['history'])
+        return TransformedStructure(s, [], d['history'], d.get('other_parameters', {}))
     
     @property
     def history(self):
@@ -243,6 +255,7 @@ class TransformedStructure(object):
         d = self._structures[-1].to_dict
         d['history'] = self.history
         d['version'] = __version__
+        d['other_parameters'] = self._other_parameters
         return d
     
     
