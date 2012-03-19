@@ -16,7 +16,7 @@ __date__ = "Mar 5, 2012"
 import unittest
 import os
 from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation
 
 import pymatgen
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
@@ -43,7 +43,16 @@ class TransformedStructureTransmuterTest(unittest.TestCase):
         for s in tsc:
             els = set([el.symbol for el in s.final_structure.composition.elements])
             self.assertEqual(expected_ans, els)
-
+            
+    def test_transmuter(self):
+        tsc = TransformedStructureTransmuter.from_poscars([os.path.join(test_dir, "POSCAR")])
+        tsc.append_transformation(RemoveSpeciesTransformation('O'))
+        self.assertEqual(len(tsc[0].final_structure), 8)
+        
+        tsc.append_transformation(SubstitutionTransformation({"Fe":{"Fe2+":.25, "Mn3+":.75}, "P":"P5+"}))
+        tsc.append_transformation(OrderDisorderedStructureTransformation(num_structures = 50), extend_collection = True)
+        self.assertEqual(len(tsc), 4)
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

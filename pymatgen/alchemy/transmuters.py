@@ -31,7 +31,6 @@ from copy import deepcopy
 class TransformedStructureTransmuter(object):
     
     def __init__(self, transformed_structures, transformations = [], extend_collection = False):
-        self._extend_collection = extend_collection
         self._transformed_structures = transformed_structures
         for trans in transformations:
             self.append_transformation(trans)
@@ -65,7 +64,7 @@ class TransformedStructureTransmuter(object):
     def __len__(self):
         return len(self._transformed_structures)
 
-    def append_transformation(self, transformation, clear_redo = True):
+    def append_transformation(self, transformation, extend_collection = False, clear_redo = True):
         """
         TODO: clean this up a lot
         
@@ -87,8 +86,8 @@ class TransformedStructureTransmuter(object):
         new_structures = []
         
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, clear_redo, return_alternatives = self._extend_collection)
-            if new:
+            new = x.append_transformation(transformation, clear_redo, return_alternatives = extend_collection)
+            if new is not None:
                 new_structures.extend(new)
         output = [x.was_modified for x in self._transformed_structures]
         self._transformed_structures.extend(new_structures)
@@ -181,7 +180,7 @@ class TransformedStructureTransmuter(object):
         pass
     
     @staticmethod
-    def from_cifs(cif_filenames, transformations = [], primitive = True, extend_collection = False):
+    def from_cifs(cif_filenames, transformations = [], primitive = True):
         '''
         Args:
             cif_filenames:
@@ -199,15 +198,15 @@ class TransformedStructureTransmuter(object):
                     if read_data:
                         structure_data[-1].append(line)
                 transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, [], extend_collection)
+        return TransformedStructureTransmuter(transformed_structures, [])
     
     @staticmethod
-    def from_poscars(poscar_filenames, transformations = [], extend_collection = False):
+    def from_poscars(poscar_filenames, transformations = []):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
                 transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), transformations))
-        return TransformedStructureTransmuter(transformed_structures, [], extend_collection)
+        return TransformedStructureTransmuter(transformed_structures, [])
     
         
 
