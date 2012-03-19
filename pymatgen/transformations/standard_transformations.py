@@ -20,7 +20,6 @@ import warnings
 import numpy as np
 from operator import itemgetter
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice

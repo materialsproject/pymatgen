@@ -29,14 +29,13 @@ import numpy as np
 from numpy.linalg import det
 
 import pymatgen.command_line.aconvasp_caller
-import pymatgen.core.electronic_structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure
+from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital, Bandstructure, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 
 
@@ -343,7 +342,12 @@ class Incar(dict, VaspInput):
             keys = sorted(keys)
         lines = []
         for k in keys:
-            if isinstance(self[k], list):
+            if k == "MAGMOM" and isinstance(self[k], list):
+                value = []
+                for m, g in itertools.groupby(self[k]):
+                    value.append("{}*{}".format(len(tuple(g)), m))
+                lines.append([k," ".join(value)])
+            elif isinstance(self[k], list):
                 lines.append([k," ".join([str(i) for i in self[k]])])
             else:
                 lines.append([k,self[k]])
@@ -2012,6 +2016,7 @@ def get_band_structure_from_vasp(path):
     and returning the corresponding Bandstructure Object
     also takes into account runs that have been separated in several branches
     """
+    
     if(os.path.exists(path+"/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches=[]
@@ -2023,7 +2028,7 @@ def get_band_structure_from_vasp(path):
             for f in listdir_clean:
                 if(int(f.split("_")[1])==i):
                     list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
-        return pymatgen.core.electronic_structure.get_reconstructed_band_structure(list_branches)
+        return get_reconstructed_band_structure(list_branches)
     else:
         return get_band_structure_from_vasp_individual(path)
     
