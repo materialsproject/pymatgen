@@ -87,7 +87,7 @@ class Kpoint(object):
         return self._fcoords[2]
     
     def __str__(self):
-        return str(self.cart_coords)+" "+str(self.label)
+        return str(self.frac_coords)+" "+str(self.cart_coords)+" "+str(self.label)
     
     def to_dict(self):
         return {'lattice':self.lattice.to_dict,'fcoords':list(self.frac_coords),'ccoords':list(self.cart_coords),'label':self.label}
@@ -171,7 +171,6 @@ class Bandstructure_line(Bandstructure):
     def __init__(self, kpoints, eigenvals, lattice, efermi,labels_dict):
         Bandstructure.__init__(self,kpoints, eigenvals, lattice, efermi,labels_dict)
         self._distance=[]
-        self._branch_labels=set()
         self._branches=[]
         """
         all branches labels (ex: Gamma-Z, etc...)
@@ -206,7 +205,7 @@ class Bandstructure_line(Bandstructure):
             self._branches.append({'start_index':b[0],'end_index':b[-1],'name':(self._kpoints[b[0]].label+"-"+self._kpoints[b[-1]].label)})
         print self._branches
         
-
+    
         
         
     def get_branch_name(self,index):
@@ -218,7 +217,7 @@ class Bandstructure_line(Bandstructure):
         
     def getVBM(self):
         """
-        get the valence band minimum (VBM). returns a dictionnary with
+        get the valence band minimum (VBM). returns a dictionary with
         'band_index': a list of the indices of the band containing the VBM (please note that you can have several bands 
         sharing the VBM)
         'kpoint_index': the index in self._kpoints of the kpoint vbm
@@ -333,7 +332,7 @@ class Bandstructure_line(Bandstructure):
     
     @staticmethod
     def from_dict(dictio):
-        dictio=dictio['band_structure']
+        #dictio=dictio['band_structure']
         return Bandstructure_line([k['fcoords'] for k in dictio['kpoints']],dictio['bands'],pymatgen.core.lattice.Lattice.from_dict(dictio['lattice_rec']),dictio['efermi'],dictio['labels_dict'])
     
     
