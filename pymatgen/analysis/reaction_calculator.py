@@ -32,12 +32,14 @@ class Reaction(object):
 
     def __init__(self, reactants, products):
         """
-        Reactants and products to be specified as list of pymatgen.core.structure.Composition.  
-        e.g., [comp1, comp2]
+        Reactants and products to be specified as list of 
+        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
         
         Args:
-            reactants : List of reactants.
-            products : List of products.
+            reactants: 
+                List of reactants.
+            products:
+                List of products.
         """
         all_comp = reactants[:]
         all_comp.extend(products[:])
@@ -342,4 +344,39 @@ class BalancedReaction(Reaction):
         self._all_comp = all_comp
         self._coeffs = coeffs
         self._num_comp = len(self._all_comp)
+
+
+class ComputedReaction(Reaction):
+    """
+    Convenience class to generate a reaction from ComputedEntry objects, with
+    some additional attributes, such as a reaction energy based on computed
+    energies.
+    """
+
+    def __init__(self, reactant_entries, product_entries):
+        """
+        Args:
+            reactant_entries: 
+                List of reactant_entries.
+            products: 
+                List of product_entries.
+        """
+        self._reactant_entries = reactant_entries
+        self._product_entries = product_entries
+        reactant_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in reactant_entries])
+        product_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in product_entries])
+        super(ComputedReaction, self).__init__(list(reactant_comp), list(product_comp))
+
+    @property
+    def calculated_reaction_energy(self):
+        calc_energies = {}
+        def update_calc_energies(entry):
+            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            if comp not in calc_energies:
+                calc_energies[comp] = entry.energy / factor
+            else:
+                calc_energies[comp] = min(calc_energies[comp], entry.energy / factor)
+        map(update_calc_energies, self._reactant_entries)
+        map(update_calc_energies, self._product_entries)
+        return self.calculate_energy(calc_energies)
 
