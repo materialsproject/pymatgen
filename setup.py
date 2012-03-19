@@ -8,7 +8,7 @@ long_description = open(README).read() + '\n\n'
 
 setup (
   name = 'pymatgen',
-  version = '1.5.0',
+  version = '1.6.0',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'PyCIFRW'],
   package_data = {'pymatgen.core': ['*.json'], 
