@@ -198,16 +198,16 @@ class TransformedStructureTransmuter(object):
                         read_data = True
                     if read_data:
                         structure_data[-1].append(line)
-                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
+                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
+        return TransformedStructureTransmuter(transformed_structures, [], extend_collection)
     
     @staticmethod
     def from_poscars(poscar_filenames, transformations = [], extend_collection = False):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(TransformedStructure.from_poscar_string(f.read()))
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
+                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), transformations))
+        return TransformedStructureTransmuter(transformed_structures, [], extend_collection)
     
         
 
