@@ -164,6 +164,10 @@ class TransformedStructureTransmuter(object):
         """
         batch_write_vasp_input(self._transformed_structures, vasp_input_set, output_dir, create_directory)
 
+    def set_parameter(self, key, value):
+        for x in self._transformed_structures:
+            x.set_parameter(key, value)
+
     def __str__(self):
         output = ["Current structures"]
         output.append("------------")
