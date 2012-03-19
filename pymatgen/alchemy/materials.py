@@ -97,7 +97,7 @@ class TransformedStructure(object):
 
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
-    
+
     def __getattr__(self, name):
         return getattr(self._structures[-1], name)
 
@@ -112,6 +112,7 @@ class TransformedStructure(object):
             new_structure._transformations.append(transformation)
             yield new_structure
 
+
     def append_transformation(self, transformation, clear_redo = True, return_alternatives = False):
         """
         Appends a transformation to the TransformedStructure.
@@ -125,6 +126,7 @@ class TransformedStructure(object):
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
+
         if return_alternatives:
             structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True)
             alternative_structures = self._alternative_transformed_structures(transformation, structures_dict_list[1:])
@@ -203,7 +205,7 @@ class TransformedStructure(object):
 
     def set_parameter(self, key, value):
         self._other_parameters[key] = value
-        
+
     @property
     def other_parameters(self):
         return self._other_parameters
@@ -216,7 +218,7 @@ class TransformedStructure(object):
         on the structure when the specie to replace isn't in the structure.
         """
         return not self._structures[-1] == self._structures[-2]
-    
+
     @property
     def structures(self):
         """
@@ -246,7 +248,7 @@ class TransformedStructure(object):
         """
         s = Structure.from_dict(d)
         return TransformedStructure(s, [], d['history'], d.get('other_parameters', {}))
-    
+
     @property
     def history(self):
         history = [self._source]
@@ -255,7 +257,7 @@ class TransformedStructure(object):
             tdict['input_structure'] = self._structures[i].to_dict
             history.append(tdict)
         return history
-    
+
     @property
     def to_dict(self):
         """
@@ -266,7 +268,7 @@ class TransformedStructure(object):
         d['version'] = __version__
         d['other_parameters'] = self._other_parameters
         return d
-    
+
     @staticmethod
     def from_cif_string(cif_string, transformations = [], primitive = True):
         """
