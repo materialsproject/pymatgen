@@ -362,18 +362,18 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self, num_structures = 1, mev_cutoff = None):
+    def __init__(self, num_structures = 1, energy_cutoff = None):
         '''
         Args:
             num_structures: maximum number of structures to return
             mev_cutoff: maximum mev per atom above the minimum energy ordering for a structure to be returned
         '''
         
-        self._mev_cutoff = mev_cutoff
+        self._energy_cutoff = energy_cutoff
         self._all_structures = []
         self._num_structures = num_structures
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure, return_ranked_list = False):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -453,6 +453,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
 
         self._all_structures = []
+        
+        lowest_energy = ewald_m.output_lists[0][0]
+        num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
             se = StructureEditor(structure)
@@ -464,12 +467,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append([output[0], se.modified_structure.get_sorted_structure()])
+            self._all_structures.append({'energy':output[0],'energy_above_minimum':(output[0]-lowest_energy)/num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
         
-        if self._mev_cutoff is not None: #remove structures from all_structures list if they dont meet the mev cutoff requirements
-            self._all_structures = [x for x in self._all_structures if x[0] < self._all_structures[0][0] + len(self._all_structures[0][1]) * self._mev_cutoff/1000 ]
-
-        return [self._all_structures[i][1] for i in range(len(self._all_structures))]
+        if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
+            self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
+        
+        if return_ranked_list:
+            return self._all_structures
+        else:
+            return self._all_structures[0]['structure'] 
 
     def __str__(self):
         return "Order disordered structure transformation"
@@ -484,12 +490,16 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'num_structures' : self._num_structures, 'mev_cutoff' : self._mev_cutoff}
+        output['init_args'] = {'num_structures' : self._num_structures, 'energy_cutoff' : self._energy_cutoff}
         return output
 
     @property
     def all_structures(self):
         return self._all_structures
+    
+    @property
+    def lowest_energy_structure(self):
+        return self._all_structures[0]['structure']
 
 
 class PrimitiveCellTransformation(AbstractTransformation):
