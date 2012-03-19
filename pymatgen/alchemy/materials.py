@@ -262,7 +262,7 @@ class TransformedStructure(object):
         return d
     
     @staticmethod
-    def from_cif_string(cif_string, primitive = True):
+    def from_cif_string(cif_string, transformations = [], primitive = True):
         """
         Args:
             cif_string:
@@ -288,10 +288,10 @@ class TransformedStructure(object):
         else:
             source = 'uploaded cif'
         source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
-        return TransformedStructure(s, [], [source_info])
+        return TransformedStructure(s, transformations, [source_info])
         
     @staticmethod
-    def from_poscar_string(poscar_string):
+    def from_poscar_string(poscar_string, transformations = []):
         """
         Args:
             poscar_string:
@@ -303,6 +303,6 @@ class TransformedStructure(object):
         raw_string = re.sub("'", "\"", poscar_string)
         s = p.struct
         source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string}
-        return TransformedStructure(s, [], [source_info])
+        return TransformedStructure(s, transformations, [source_info])
 
 
