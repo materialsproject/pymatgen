@@ -18,6 +18,7 @@ import os
 
 from pymatgen.borg.hive import VaspToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.compatibility import MITCompatibility
 import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
@@ -25,9 +26,8 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..
 class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def setUp(self):
-        self.drone = VaspToComputedEntryDrone(parameters = ["incar", "hubbards"], data = ["efermi"])
+        self.drone = VaspToComputedEntryDrone(data = ["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
-
 
     def test_is_valid_path(self):
         for path in os.walk(test_dir):
@@ -35,7 +35,8 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_assimilate_and_convert(self):
         d = self.drone.assimilate(test_dir)
-        self.assertEqual(d["parameters"]["incar"]['ALGO'], "Damped")
+        for p in ["hubbards", "is_hubbard", "potcar_symbols", "run_type"]:
+            self.assertIn(p, d["parameters"])
         self.assertAlmostEqual(d["data"]["efermi"], 1.8301027)
         entry = self.drone.convert(d)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
@@ -46,6 +47,9 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         self.assertAlmostEqual(entry.energy, -269.38319884)
         self.assertIsInstance(entry, ComputedStructureEntry)
         self.assertIsNotNone(entry.structure)
+        compat = MITCompatibility()
+        self.assertIsNone(compat.process_entry(entry))
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
