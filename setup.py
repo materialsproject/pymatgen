@@ -1,23 +1,43 @@
-import os
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
 
-README = os.path.join(os.path.dirname(__file__), 'README.md')
-long_description = open(README).read() + '\n\n'
+long_description = """
+Pymatgen is the python library that powers the Materials Project 
+(http://www.materialsproject.org). These are some of the key features:
+
+1. Highly flexible classes for the representation of Element, Site, Structure 
+   objects.
+2. Powerful io capabilities to manipulate many VASP input and output files 
+   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information 
+   file format.  This includes generating Structure objects from vasp input and 
+   output.
+3. A comprehensive tool to generate and view compositional and grand canonical 
+   phase diagrams.
+
+The public version of pymatgen is free (as in free beer) to download and to use. 
+However, we would also like you to help us improve this library by making your 
+own contributions as well.  These contributions can be in the form of additional 
+tools or modules you develop, or even simple things such as bug reports.  Please 
+contact the maintainer of this library (shyue@mit.edu) to find out how to include 
+your contributions via github or for bug reports.
+
+For documentation, usage examples and change log, please read the documentation 
+at http://materialsproject.github.com/pymatgen.
+"""
 
 setup (
   name = 'pymatgen',
-  version = '1.5.0',
+  version = '1.6.0',
   packages = find_packages(),
   install_requires = ['numpy', 'scipy', 'PyCIFRW'],
-  package_data = {'pymatgen.core': ['*.json'], 
+  package_data = {'pymatgen.core': ['*.json'],
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},
   author = 'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Vincent L Chevrier, Rickard Armiento',
   author_email = 'shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, wrichard@mit.edu, dkgunter@lbl.gov, vincentchevrier@gmail.com, armiento@mit.edu',
   maintainer = 'Shyue Ping Ong',
-  url = 'https://github.com/CederGroupMIT/pymatgen_repo/',
+  url = 'https://github.com/materialsproject/pymatgen/',
   license = 'MIT',
   description = "pymatgen is the Python library powering the Materials Project (www.materialsproject.org).",
   long_description = long_description,
@@ -33,7 +53,7 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url = "https://github.com/CederGroupMIT/pymatgen_repo/tarball/master",
+  download_url = "https://github.com/materialsproject/pymatgen/tarball/master",
   test_suite = 'nose.collector',
   test_requires = ['nose']
 )

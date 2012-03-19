@@ -67,8 +67,8 @@ choices. JSON is much more efficient as a format, with extremely fast read/write
 speed, but is much less readable. YAML is much slower in terms of io, but is 
 human readable.
 
-Creating Structures
-===================
+Structures
+==========
 
 For most applications, you will be creating and manipulating Structure objects. 
 There are several ways to create these objects:
@@ -82,6 +82,10 @@ crystal is provided below:
 
 ::
 
+   from pymatgen.core.periodic_table import Element
+   from pymatgen.core.lattice import Lattice
+   from pymatgen.core.structure import Structure
+   
    si = Element("Si")
    coords = list()
    coords.append([0,0,0])
@@ -122,7 +126,7 @@ pymatgen.io.vaspio_set provides a powerful way to generate complete sets of VASP
 input files from a Structure.
 
 Things you can do with Structures
-=================================
+---------------------------------
 
 This section is a work in progress.  But just to give an overview of the kind of 
 analysis you can do:
@@ -133,6 +137,77 @@ analysis you can do:
    pymatgen.analysis.ewald package, compare two structures for similarity using 
    pymatgen.analysis.structure_fitter.
 
+pymatgen.borg - High-throughput data assimilation
+=================================================
+
+The borg package is still a work in progress, but a lot can already be done with
+it. The basic concept is to provide a convenient means to
+assimilate large quantities of data in a directory structure. For now, the main
+application is the assimilation of entire directory structures of VASP 
+calculations into usable pymatgen entries, which can then be used for phase 
+diagram and other analyses.  The outline of how it works is as follows:
+
+1. Drones are defined in the pymatgen.borg.hive module. A Drone is essentially
+   an object which defines how a directory is parsed into a pymatgen object. For
+   example, the VaspToComputedEntryDrone defines how a directory containing a 
+   vasp run (with a vasprun.xml file) is converted into ComputedEntry.
+2. The BorgQueen object in pymatgen.borg.queen module uses Drones to assimilate
+   an entire subdirectory structure. Parallel processing is used where possible
+   to speed up the process.
+
+Simple Example
+--------------
+
+Let's say you want to make the Li-O phase diagram. You calculated all
+Li, O, and Li-O compounds you are interested in and the runs are in the directory
+"Li-O_runs". You can then generate the phase diagram using the following few lines
+of code:
+
+::
+   
+   from pymatgen.borg.hive import VaspToComputedEntryDrone
+   from pymatgen.borg.queen import BorgQueen
+   from pymatgen.phasediagram.pdmaker import PhaseDiagram
+   from pymatgen.phasediagram.plotter import PDPlotter
+   
+   # These three lines assimilate the data into ComputedEntries.
+   drone = VaspToComputedEntryDrone()
+   queen = BorgQueen(drone, "Li-O_runs", 2)   
+   entries = queen.get_data()
+   
+   # It's a good idea to perform a save_data, especially if you just assimilated
+   # a large quantity of data which took some time. This allows you to reload the
+   # data using a BorgQueen initialized with only the drone argument and calling
+   # queen.load_data("Li-O_entries.json")
+   queen.save_data("Li-O_entries.json")
+   
+   # These few lines generates the phase diagram using the ComputedEntries. 
+   pd = PhaseDiagram(entries)
+   plotter = PDPlotter(pd)
+   plotter.show()
+
+Another example of a cool thing you can do with the loaded entries is to calculate
+reaction energies. For example, reusing the Li-O data we have saved in the above
+step,
+
+::
+   
+   from pymatgen.borg.hive import VaspToComputedEntryDrone
+   from pymatgen.borg.queen import BorgQueen
+   from pymatgen.analysis.reaction_calculator import ComputedReaction
+   
+   # These three lines assimilate the data into ComputedEntries.
+   drone = VaspToComputedEntryDrone()
+   queen = BorgQueen(drone)
+   queen.load_data("Li-O_entries.json")
+   entries = queen.get_data()
+   
+   #Extract the correct entries and compute the reaction.
+   rcts = filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
+   prods = filter(lambda e: e.composition.reduced_formula == "Li2O", entries)
+   rxn = ComputedReaction(rcts, prods)
+   print rxn
+   print rxn.calculated_reaction_energy
 
 Example scripts
 ===============

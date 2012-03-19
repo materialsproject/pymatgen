@@ -17,6 +17,7 @@ __date__ = "Sep 23, 2011"
 import math
 import numpy as np
 import pymatgen.command_line.aconvasp_caller
+from pymatgen.core.structure import Structure
 
 class _SpinImpl(object):
     """
@@ -285,13 +286,17 @@ class Dos(object):
             stringarray.extend(["%.5f %.5f" % (self._energies[i], self._dos[Spin.up][i]) for i in range(len(self._energies))])
         return "\n".join(stringarray)
 
+    @staticmethod
+    def from_dict(d):
+        return Dos(d['efermi'], d['energies'], { Spin.from_int(int(k)):v for k, v in d['densities'].items()})
+
+    @property
     def to_dict(self):
         d = {}
         d['efermi'] = self._efermi
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
         return d
-
 
 class PDos(Dos):
     """
@@ -325,8 +330,7 @@ class CompleteDos(Dos):
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
         self._dos = total_dos.densities
-        self._pdos = {structure[i]:{Orbital.from_vasp_index(j) : pdoss[i][j]
-                    for j in range(len(pdoss[i]))} for i in range(len(pdoss))}
+        self._pdos = pdoss
         self._structure = structure
 
     @property
@@ -380,23 +384,36 @@ class CompleteDos(Dos):
                     el_dos[el] += pdos
         return el_dos
 
-    def to_dict(self, inc_all_pdos = True):
+    @staticmethod
+    def from_dict(d):
+        tdos = Dos.from_dict(d)
+        struct = Structure.from_dict(d['structure'])
+        pdoss = {}
+        for i in xrange(len(d['pdos'])):
+            at = struct[i]
+            orb_dos = {}
+            for orb_str, odos in d['pdos'][i].items():
+                orb = Orbital.from_string(orb_str)
+                orb_dos[orb] = PDos(odos['efermi'], odos['energies'], { Spin.from_int(int(k)):v for k, v in odos['densities'].items()}, orb)
+            pdoss[at] = orb_dos
+        return CompleteDos(struct, tdos, pdoss)
+
+    @property
+    def to_dict(self):
         d = {}
         d['efermi'] = self._efermi
         d['structure'] = self._structure.to_dict
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
-        if inc_all_pdos:
-            d['pdos'] = []
-            pdos = self._pdos
-            for i in range(len(pdos)):
-                dd = dict()
-                for dos in pdos[i]:
-                    dd[str(dos.orbital)] = {'efermi' : dos.efermi, 'energies': list(dos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in dos.densities.items() }}
-                d['pdos'].append(dd)
+        d['pdos'] = []
+        for at in self._structure:
+            dd = dict()
+            for pdos in self._pdos[at].values():
+                dd[str(pdos.orbital)] = {'efermi' : pdos.efermi, 'energies': list(pdos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in pdos.densities.items() }}
+            d['pdos'].append(dd)
         if len(self._pdos) > 0:
-            d['atom_dos'] = {str(at) : dos.to_dict() for at, dos in self.get_element_dos().items()}
-            d['spd_dos'] = {str(orb) : dos.to_dict() for orb, dos in self.get_spd_dos().items()}
+            d['atom_dos'] = {str(at) : dos.to_dict for at, dos in self.get_element_dos().items()}
+            d['spd_dos'] = {str(orb) : dos.to_dict for orb, dos in self.get_spd_dos().items()}
         return d
 
     def __str__(self):
