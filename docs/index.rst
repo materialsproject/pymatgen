@@ -23,6 +23,14 @@ tools or modules you develop, or even simple things such as bug reports.  Please
 contact the maintainer of this library (shyue@mit.edu) to find out how to include 
 your contributions via github or for bug reports.
 
+Change log
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   changelog
+
 Installation
 ------------
 
