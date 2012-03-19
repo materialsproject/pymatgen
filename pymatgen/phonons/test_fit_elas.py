@@ -193,6 +193,7 @@ if __name__ == "__main__":
             if c.i==0 and c.j==1:
                 eps12.append(c.strain[c.i, c.j])
                 stress12.append(stress_dict[c])
+                print c.strain
 
             if c.i==1 and c.j==2:
                 eps23.append(c.strain[c.i, c.j])
@@ -201,7 +202,7 @@ if __name__ == "__main__":
             if c.i==0 and c.j==2:
                 eps13.append(c.strain[c.i, c.j])
                 stress13.append(stress_dict[c])
-
+                
 
         [epsilon11, sigma11] = sort_stress_strain(eps11,stress11)
         [epsilon22, sigma22] = sort_stress_strain(eps22,stress22)
@@ -226,10 +227,86 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon11)
 
             r2 = rsquared(true_data, f1)
-            print 0.10*p1[0]
+#            print 0.10*p1[0]
 
+        for k in inds:
+
+            true_data = chain_stresses(sigma22, k[0], k[1])
+
+            p1 = np.polyfit(epsilon22, true_data, 1)
+            p2 = np.polyfit(epsilon22, true_data, 2)
+            p3 = np.polyfit(epsilon22, true_data, 3)
+
+            f1 = np.polyval(p1, epsilon22)
+            f2 = np.polyval(p2, epsilon22)
+            f3 = np.polyval(p3, epsilon22)
+
+            r2 = rsquared(true_data, f1)
+#            print 0.10*p1[0]
+
+        for k in inds:
+
+            true_data = chain_stresses(sigma33, k[0], k[1])
+
+            p1 = np.polyfit(epsilon33, true_data, 1)
+            p2 = np.polyfit(epsilon33, true_data, 2)
+            p3 = np.polyfit(epsilon33, true_data, 3)
+
+            f1 = np.polyval(p1, epsilon33)
+            f2 = np.polyval(p2, epsilon33)
+            f3 = np.polyval(p3, epsilon33)
+
+            r2 = rsquared(true_data, f1)
+#            print 0.10*p1[0]
+
+        for k in inds:
+
+            true_data = chain_stresses(sigma23, k[0], k[1])
+
+            p1 = np.polyfit(epsilon23, true_data, 1)
+            p2 = np.polyfit(epsilon23, true_data, 2)
+            p3 = np.polyfit(epsilon23, true_data, 3)
+
+            f1 = np.polyval(p1, epsilon23)
+            f2 = np.polyval(p2, epsilon23)
+            f3 = np.polyval(p3, epsilon23)
+
+            r2 = rsquared(true_data, f1)
+#            print 0.10*p1[0]/2
+
+        for k in inds:
+
+            true_data = chain_stresses(sigma13, k[0], k[1])
+
+            p1 = np.polyfit(epsilon13, true_data, 1)
+            p2 = np.polyfit(epsilon13, true_data, 2)
+            p3 = np.polyfit(epsilon13, true_data, 3)
+
+            f1 = np.polyval(p1, epsilon13)
+            f2 = np.polyval(p2, epsilon13)
+            f3 = np.polyval(p3, epsilon13)
+
+            r2 = rsquared(true_data, f1)
+#            print 0.10*p1[0]/2
+
+        for k in inds:
+
+            true_data = chain_stresses(sigma12, k[0], k[1])
+
+            p1 = np.polyfit(epsilon12, true_data, 1)
+            p2 = np.polyfit(epsilon12, true_data, 2)
+            p3 = np.polyfit(epsilon12, true_data, 3)
+
+            f1 = np.polyval(p1, epsilon12)
+            f2 = np.polyval(p2, epsilon12)
+            f3 = np.polyval(p3, epsilon12)
+
+            r2 = rsquared(true_data, f1)
+ #           print 0.10*p1[0]/2
+#            print epsilon12
 
     fitCij(stress_dict)
+
 
 
 
