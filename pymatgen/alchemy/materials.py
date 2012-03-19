@@ -58,7 +58,7 @@ class TransformedStructure(object):
         self._transformations = []
         self._transformation_parameters = []
         self._redo_trans = []
-        self._other_parameters = {}
+        self._other_parameters = other_parameters
         if len(history) > 0:
             self._source = history[0]
             for i in xrange(1, len(history)):
