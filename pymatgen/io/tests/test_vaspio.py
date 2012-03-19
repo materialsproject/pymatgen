@@ -181,6 +181,9 @@ class  VasprunTest(unittest.TestCase):
     def setUp(self):
         self.filepath = os.path.join(test_dir, 'vasprun.xml')
         self.vasprun = Vasprun(self.filepath)
+        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
+        self.vasprun_ggau = Vasprun(filepath2)
+
 
     def test_properties(self):
 
@@ -208,7 +211,7 @@ class  VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(cbm, expectedans[1])
         self.assertAlmostEqual(vbm, expectedans[2])
         self.assertEqual(direct, expectedans[3])
-
+        self.assertFalse(vasprun.is_hubbard)
         self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003', u'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints, "Actual kpoints cannot be read")
@@ -216,6 +219,9 @@ class  VasprunTest(unittest.TestCase):
         for atomdoses in vasprun.pdos:
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
+
+        self.assertTrue(self.vasprun_ggau.is_hubbard)
+        self.assertEqual(self.vasprun_ggau.hubbards["Fe"], 4.3)
 
 class OutcarTest(unittest.TestCase):
 
