@@ -25,8 +25,7 @@ import collections
 import datetime
 
 from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio import Poscar
+
 from copy import deepcopy
 
 class TransformedStructureTransmuter(object):
@@ -164,6 +163,10 @@ class TransformedStructureTransmuter(object):
         """
         batch_write_vasp_input(self._transformed_structures, vasp_input_set, output_dir, create_directory)
 
+    def set_parameter(self, key, value):
+        for x in self._transformed_structures:
+            x.set_parameter(key, value)
+
     def __str__(self):
         output = ["Current structures"]
         output.append("------------")
@@ -184,35 +187,6 @@ class TransformedStructureTransmuter(object):
             cif_filenames:
                 List of strings of the cif files
         '''
-        
-        def cif_transformed_parser(cif_string, primitive = True):
-            """
-            Args:
-                cif_string:
-                    Input cif string. Should contain only one structure. For cifs
-                    containing multiple structures, please use CifTransmuter.
-                transformations:
-                    Sequence of transformations to be applied to the input structure.
-                primitive:
-                    Option to set if the primitive cell should be extracted. Defaults
-                    to True. However, there are certain instances where you might want
-                    to use a non-primitive cell, e.g., if you are trying to generate
-                    all possible orderings of partial removals or order a disordered
-                    structure.
-            """
-            parser = CifParser.from_string(cif_string)
-            raw_string = re.sub("'", "\"", cif_string)
-            cif_dict = parser.to_dict
-            cif_keys = cif_dict.keys()
-            s = parser.get_structures(primitive)[0]
-            partial_cif = cif_dict[cif_keys[0]]
-            if '_database_code_ICSD' in partial_cif:
-                source = partial_cif['_database_code_ICSD'] + "-ICSD"
-            else:
-                source = 'uploaded cif'
-            source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
-            return TransformedStructure(s, [], [source_info])
-            
         transformed_structures = []
         for filename in cif_filenames:
             with open(filename, "r") as f:
@@ -224,29 +198,15 @@ class TransformedStructureTransmuter(object):
                         read_data = True
                     if read_data:
                         structure_data[-1].append(line)
-                transformed_structures.extend([cif_transformed_parser("".join(data), primitive) for data in structure_data])
+                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), primitive) for data in structure_data])
         return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
     
     @staticmethod
     def from_poscars(poscar_filenames, transformations = [], extend_collection = False):
-        def poscar_transformed_parser(poscar_string):
-            """
-            Args:
-                poscar_string:
-                    Input POSCAR string.
-            """
-            p = Poscar.from_string(poscar_string)
-            if not p.true_names:
-                raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
-            raw_string = re.sub("'", "\"", poscar_string)
-            s = p.struct
-            source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string}
-            return TransformedStructure(s, [], [source_info])
-        
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(poscar_transformed_parser(f.read()))
+                transformed_structures.append(TransformedStructure.from_poscar_string(f.read()))
         return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
     
         
