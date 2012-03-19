@@ -16,8 +16,10 @@ Subpackages
 
     pymatgen.alchemy
     pymatgen.analysis
+    pymatgen.borg
     pymatgen.command_line
     pymatgen.core
+    pymatgen.entries
     pymatgen.io
     pymatgen.phasediagram
     pymatgen.symmetry
