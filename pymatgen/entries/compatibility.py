@@ -88,7 +88,7 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
         Returns:
             An adjusted entry if entry is compatible, otherwise None is returned.
         """
-        if entry.parameters['run_type'] == "HF":
+        if entry.parameters.get('run_type', 'GGA') == "HF":
             return None
 
         ucorr = self._u_corrections
