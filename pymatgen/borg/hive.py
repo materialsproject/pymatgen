@@ -102,6 +102,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 The parameters have to be one of python's primitive types,
                 i.e. list, dict of strings and integers. Complex objects such as
                 dos are not supported at this point.
+                If parameters == None, a default set of parameters that are 
+                necessary for typical post-processing will be set.
             data:
                 Output data to include. Has to be one of the properties supported
                 by the Vasprun object. The parameters have to be one of python's 
@@ -109,7 +111,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 objects such as dos are not supported at this point.
         """
         self._inc_structure = inc_structure
-        self._parameters = parameters if parameters else []
+        self._parameters = parameters if parameters else ["is_hubbard", "hubbards", "potcar_symbols", "run_type"]
         self._data = data if data else []
 
     def assimilate(self, path):
