@@ -1032,7 +1032,10 @@ class Vasprun(object):
         """
         A complete dos object which incorporates the total dos and all projected dos.
         """
-        return CompleteDos(self.final_structure, self.tdos, self.pdos)
+        final_struct = self.final_structure
+        pdoss = {final_struct[i]:{Orbital.from_vasp_index(j) : self.pdos[i][j]
+                    for j in range(len(self.pdos[i]))} for i in range(len(self.pdos))}
+        return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
     def hubbards(self):
@@ -1619,9 +1622,9 @@ class Outcar(object):
             elif re.search("\((sec|kb)\):", line):
                 tok = line.strip().split(":")
                 run_stats[tok[0].strip()] = float(tok[1].strip())
-            self.run_stats = run_stats
-            self.magnetization = tuple(mag)
-            self.charge = tuple(charge)
+        self.run_stats = run_stats
+        self.magnetization = tuple(mag)
+        self.charge = tuple(charge)
 
     def read_igpar(self):
         """ 
