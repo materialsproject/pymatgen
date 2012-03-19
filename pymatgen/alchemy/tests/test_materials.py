@@ -21,7 +21,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
 
-from pymatgen.alchemy.materials import TransformedStructure, TransformedStructureCollection
+from pymatgen.alchemy.materials import TransformedStructure
+
 
 import pymatgen
 
@@ -73,28 +74,6 @@ class TransformedStructureTest(unittest.TestCase):
         ts.redo_next_transformation()
         self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
         self.assertRaises(IndexError, ts.redo_next_transformation)
-        
-class TransformedStructureCollectionTest(unittest.TestCase):
-        
-    def test_cif_transmute(self):
-        trans = []
-        trans.append(SubstitutionTransformation({"Fe":"Mn", "Fe2+":"Mn2+"}))
-        tsc = TransformedStructureCollection.from_cifs([os.path.join(test_dir, "MultiStructure.cif")], trans)
-        self.assertEqual(len(tsc), 2)
-        expected_ans = set(["Mn", "O", "Li", "P"])
-        for s in tsc:
-            els = set([el.symbol for el in s.final_structure.composition.elements])
-            self.assertEqual(expected_ans, els)
-          
-    def test_poscar_transmute(self):
-        trans = []
-        trans.append(SubstitutionTransformation({"Fe":"Mn"}))
-        tsc = TransformedStructureCollection.from_poscars([os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")], trans)
-        self.assertEqual(len(tsc), 2)
-        expected_ans = set(["Mn", "O", "P"])
-        for s in tsc:
-            els = set([el.symbol for el in s.final_structure.composition.elements])
-            self.assertEqual(expected_ans, els)
 
 
 if __name__ == "__main__":
