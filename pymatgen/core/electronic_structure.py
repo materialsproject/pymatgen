@@ -389,10 +389,10 @@ class CompleteDos(Dos):
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d['structure'])
         pdoss = {}
-        for atindex, ados in d['pdos'].items():
-            at = struct[int(atindex)]
+        for i in xrange(len(d['pdos'])):
+            at = struct[i]
             orb_dos = {}
-            for orb_str, odos in ados.items():
+            for orb_str, odos in d['pdos'][i].items():
                 orb = Orbital.from_string(orb_str)
                 orb_dos[orb] = PDos(odos['efermi'], odos['energies'], { Spin.from_int(int(k)):v for k, v in odos['densities'].items()}, orb)
             pdoss[at] = orb_dos
@@ -405,12 +405,12 @@ class CompleteDos(Dos):
         d['structure'] = self._structure.to_dict
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
-        d['pdos'] = {}
-        for at, atom_dos in self._pdos.items():
+        d['pdos'] = []
+        for at in self._structure:
             dd = dict()
-            for pdos in atom_dos.values():
+            for pdos in self._pdos[at].values():
                 dd[str(pdos.orbital)] = {'efermi' : pdos.efermi, 'energies': list(pdos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in pdos.densities.items() }}
-            d['pdos'][self._structure.index(at)] = dd
+            d['pdos'].append(dd)
         if len(self._pdos) > 0:
             d['atom_dos'] = {str(at) : dos.to_dict for at, dos in self.get_element_dos().items()}
             d['spd_dos'] = {str(orb) : dos.to_dict for orb, dos in self.get_spd_dos().items()}
