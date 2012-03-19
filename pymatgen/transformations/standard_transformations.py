@@ -632,11 +632,11 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
 def transformation_from_dict(d):
     """
-    A helper function that can simply get a transformation from a json representation.
+    A helper function that simply returns a transformation from a dict representation.
     
     Arguments:
-        json_string:
-            A json string representation of a transformation with init args.
+        d:
+            A dict representation of a transformation with init args.
     
     Returns:
         A properly initialized Transformation object
@@ -646,7 +646,7 @@ def transformation_from_dict(d):
         if hasattr(mod, d['name']):
             trans = getattr(mod, d['name'])
             return trans(**d['init_args'])
-    raise ValueError("Invalid Transformations Name")
+    raise ValueError("Invalid Transformations dict")
 
 
 def transformation_from_json(json_string):
