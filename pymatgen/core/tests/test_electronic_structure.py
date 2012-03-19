@@ -73,9 +73,6 @@ class CompleteDosTest(unittest.TestCase):
         self.assertRaises(ValueError, self.dos.get_interpolated_value, 1000)
 
 
-    def test_to_from_dict(self):
-        pass
-
 if __name__ == '__main__':
     unittest.main()
 
