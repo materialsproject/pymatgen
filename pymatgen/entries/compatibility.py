@@ -20,7 +20,7 @@ from collections import defaultdict
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
-
+from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet, MITVaspInputSet
 
 class MaterialsProjectCompatibility(EntryPostProcessor):
     """
@@ -51,7 +51,6 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
         u_corrections = dict(self._config.items('AdvancedUCorrections'))
         u_corrections_sulfides = dict(self._config.items('AdvancedUCorrectionsSulfides'))
         cpd_energies = dict(self._config.items('AdvancedCompoundEnergies'))
-        self._valid_potcars = set(dict(self._config.items('POTCAR')).values())
 
         self._u_corrections = dict()
         for key, val in u_corrections.items():
@@ -63,11 +62,9 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
         for key, val in cpd_energies.items():
             self._cpd_energies[key] = float(val)
 
-        self._config.readfp(open(os.path.join(module_dir, "Uvalues.cfg")))
-        oxide_u = dict(self._config.items('Oxides'))
-        self._oxide_u = dict()
-        for key, val in oxide_u.items():
-            self._oxide_u[Element(key)] = float(val)
+        input_set = MaterialsProjectVaspInputSet()
+        self._valid_potcars = set(input_set.potcar_settings.values())
+        self._oxide_u = {Element(k): v for k, v in input_set.incar_settings["LDAUU"].items()}
 
         if compat_type == "GGA":
             self._u_corrections = dict()
@@ -156,7 +153,7 @@ class MITCompatibility(MaterialsProjectCompatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
-    MIT parameters (see pymatgen.io.vaspio_set MITMatgenVaspInputSet). Using 
+    MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using 
     this compatibility scheme on runs with different parameters is not valid.
     """
 
@@ -180,7 +177,6 @@ class MITCompatibility(MaterialsProjectCompatibility):
         u_corrections = dict(self._config.items('AdvancedUCorrections'))
         u_corrections_sulfides = dict(self._config.items('AdvancedUCorrectionsSulfides'))
         cpd_energies = dict(self._config.items('AdvancedCompoundEnergies'))
-        self._valid_potcars = set(dict(self._config.items('POTCAR')).values())
 
         self._u_corrections = dict()
         for key, val in u_corrections.items():
@@ -192,11 +188,9 @@ class MITCompatibility(MaterialsProjectCompatibility):
         for key, val in cpd_energies.items():
             self._cpd_energies[key] = float(val)
 
-        self._config.readfp(open(os.path.join(module_dir, "MITUvalues.cfg")))
-        oxide_u = dict(self._config.items('Oxides'))
-        self._oxide_u = dict()
-        for key, val in oxide_u.items():
-            self._oxide_u[Element(key)] = float(val)
+        input_set = MITVaspInputSet()
+        self._valid_potcars = set(input_set.potcar_settings.values())
+        self._oxide_u = {Element(k): v for k, v in input_set.incar_settings["LDAUU"].items()}
 
         if compat_type == "GGA":
             self._u_corrections = dict()
