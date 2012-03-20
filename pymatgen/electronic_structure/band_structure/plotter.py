@@ -169,8 +169,9 @@ class BSPlotter(object):
         import pymatgen.command_line.qhull_caller
         from mpl_toolkits.mplot3d import Axes3D
 
-        fig = plt.figure()
+        fig = plt.figure(figsize=(8,8))
         ax = Axes3D(fig)
+        print self._bs._lattice_rec
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
         vec3 = self._bs._lattice_rec.matrix[2]
