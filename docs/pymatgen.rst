@@ -19,6 +19,7 @@ Subpackages
     pymatgen.borg
     pymatgen.command_line
     pymatgen.core
+    pymatgen.electronic_structure
     pymatgen.entries
     pymatgen.io
     pymatgen.phasediagram
