@@ -81,8 +81,8 @@ class BSPlotter(object):
         pylab.xlabel('Kpoints', fontsize = 'large')
         pylab.ylabel('Energy(eV)', fontsize = 'large')
         if(self._bs.is_metal()==False):
-            vbm=self._bs.getVBM()
-            cbm=self._bs.getCBM()
+            vbm=self._bs.get_vbm()
+            cbm=self._bs.get_cbm()
             if(cbm['kpoint'].label!=None):
                 for i in range(len(self._bs._kpoints)):
                     if(self._bs._kpoints[i].label==cbm['kpoint'].label):

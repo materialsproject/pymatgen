@@ -36,7 +36,7 @@ from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
-from pymatgen.band_structure.band_structure import Bandstructure_line
+from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
 from pymatgen.core.lattice import Lattice
 
 
@@ -986,9 +986,9 @@ class Vasprun(object):
         """
         return CompleteDos(self.final_structure, self.tdos, self.pdos)
     
-    def get_band_structure(self, kpoints_filename = None):
+    def get_band_structure(self, kpoints_filename = None, efermi=None):
         """
-        Returns the band structure.
+        Returns the band structure as a BandStructureSymmLine object
         
         Arguments:
             kpoints_filename:
@@ -996,28 +996,44 @@ class Vasprun(object):
                 If none is provided, the code will try to intelligently determine the appropriate
                 KPOINTS file by substituting the filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
+            efermi
+                if you want to specify manually the fermi energy this is where you should do it. By default,
+                the None value means the code will get it from the vasprun
                 
         Returns:
-            Band structure object
+            BandStructureSymmLine object
+            
+        TODO:
+        
+        -make a bit more general for non Symm Line band structures
+        -make a decision on the convention with 2*pi or not 
+            
         """
         if not kpoints_filename:
             kpoints_filename = self._filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
+        if not self.incar['ICHARG']==11:
+            raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
+        
+        if(efermi==None):
+            efermi=self.efermi
+        
         k = Kpoints.from_file(kpoints_filename)
         labels_dict = dict(zip(k.labels, k.kpts))
-        lattice_rec = Lattice(self.lattice_rec)
-        #make the labels_dict to work with cartesian
-        if k.coord_type == "Reciprocal":
-            for c in labels_dict:
-                labels_dict[c]=lattice_rec.get_cartesian_coords(2 * math.pi * np.array(labels_dict[c]))
-        kpoints = [lattice_rec.get_cartesian_coords(2 * math.pi * np.array(k)) for k in self.actual_kpoints]
-        eig = self.eigenvalues
+        
+        lattice_new=Lattice(self.lattice_rec.matrix*2*math.pi)
+        #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
+        
+        kpoints=[np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
+        dict_eigen=self.to_dict['output']['eigenvalues']
         eigenvals=[]
-        for i in range(len(eig[(1,Spin.up)])):
-            eigenvals.append({'energy':[eig[(j+1, Spin.up)][i][0] for j in range(len(kpoints))], 
-                              'occup': [eig[(j+1, Spin.up)][i][1] for j in range(len(kpoints))]})
-        return Bandstructure(kpoints,eigenvals,labels_dict, lattice_rec, self.final_structure)
+        max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
+        for i in range(max_band):
+            eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
+            eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
+        return BandStructureSymmLine(kpoints,eigenvals, lattice_new, efermi, labels_dict)
+        
     
     @property
     def eigenvalue_band_properties(self):
@@ -2013,7 +2029,12 @@ class VaspParserError(Exception):
     def __str__(self):
         return "VaspParserError : " + self.msg
     
-def get_band_structure_from_vasp(path,efermi):
+def get_band_structure_from_vasp_multiple_branches(path,efermi=None):
+    """
+    this method is used to get band structure info from a VASP directory. It takes into account that
+    the run can be divided in several branches named "branch_x". If the run has not been divided in branches
+    the method will turn to parsing vasprun.xml directly and call Vasprun(path+"/vasprun.xml").get_band_structure(kpoints_filename=None,efermi=efermi)
+    """
     if(os.path.exists(path+"/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches=[]
@@ -2024,53 +2045,9 @@ def get_band_structure_from_vasp(path,efermi):
         for i in range(len(listdir_clean)):
             for f in listdir_clean:
                 if(int(f.split("_")[1])==i):
-                    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f,None))
-                #if(f.split("_")[1]==count):
-                #    list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
-                #count=count+1
-                #list_branches.append(get_band_structure_from_vasp_individual(path+"/"+f))
-        
-        return pymatgen.core.band_structure.get_reconstructed_band_structure(list_branches,efermi)
+                    list_branches.append(Vasprun(path+"/"+f+"/vasprun.xml").get_band_structure(kpoints_filename=None, efermi=efermi))
+        return pymatgen.electronic_structure.band_structure.band_structure.get_reconstructed_band_structure(list_branches,efermi)
     else:
-        return get_band_structure_from_vasp_individual(path,efermi)
+        return Vasprun(path+"/vasprun.xml").get_band_structure(kpoints_filename=None,efermi=efermi)
 
-def get_band_structure_from_vasp_individual(path,efermi):
-    run=Vasprun(path+"/vasprun.xml")
-    if(efermi==None):
-        efermi=run.efermi
-    #print run.efermi
-    labels_dict=parse_kpoint_labels(path+"/KPOINTS")
-    lattice_rec=run.final_structure.lattice.reciprocal_lattice
-    
-    
-    kpoints=[np.array(run.actual_kpoints[i]) for i in range(len(run.actual_kpoints))]
-    dict_eigen=run.to_dict['output']['eigenvalues']
-    eigenvals=[]
-    max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
-    for i in range(max_band):
-        eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-        eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-    bands=Bandstructure_line(kpoints,eigenvals, lattice_rec, efermi, labels_dict)
-    return bands
 
-def parse_kpoint_labels(file_kpoints):
-    with file_open_zip_aware(file_kpoints, "r") as f:
-        lines = f.readlines()
-    #print lines
-    count=-1
-    dict_label_kpoints={}
-    for line in lines:
-        #print line
-        count=count+1
-        if(count<4):
-            continue
-        
-        #tokens=re.split(" +",line)
-        tokens=line.split()
-        if len(tokens)<5:
-            continue
-
-        array=np.array([float(tokens[0]),float(tokens[1]),float(tokens[2])])
-        dict_label_kpoints[tokens[4]]=array
-        
-    return dict_label_kpoints
