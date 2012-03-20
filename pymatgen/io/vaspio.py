@@ -1073,7 +1073,7 @@ class Vasprun(object):
             return False
         return sum(self.hubbards.values()) > 0
 
-    def get_band_structure(self, kpoints_filename = None):
+    def get_band_structure(self, kpoints_filename = None, efermi = None):
         """
         Returns the band structure as a BandStructureSymmLine object
         
