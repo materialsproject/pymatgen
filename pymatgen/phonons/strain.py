@@ -46,11 +46,11 @@ class Strain(object):
         return self._dfm
 
 #    # construct def. matrix from indices and amount
-    @staticmethod
-    def from_ind_amt_dfm(matrixpos, amt):
-        F = np.identity(3)
-        F[matrixpos] = F[matrixpos] + amt
-        return Strain(F)
+#    @staticmethod
+#    def from_ind_amt_dfm(matrixpos, amt):
+#        F = np.identity(3)
+#        F[matrixpos] = F[matrixpos] + amt
+#        return Strain(F)
 
     def __eq__(self, other):
         df, df2 = self.deformation_matrix, other.deformation_matrix
@@ -81,6 +81,12 @@ class IndependentStrain(Strain):
         
         super(IndependentStrain, self).__init__(deformation)
         (self._i, self._j) = self.check_F(tol)
+
+    @staticmethod
+    def from_ind_amt_dfm(matrixpos, amt):
+        F = np.identity(3)
+        F[matrixpos] = F[matrixpos] + amt
+        return IndependentStrain(F)
 
     def check_F(self, tol=0.00000001):
         df1 = self.deformation_matrix
@@ -121,15 +127,21 @@ class IndependentStrain(Strain):
 if __name__ == "__main__":
 
     mat = np.eye(3)
-    mat[1,1] = 0.98
-    my_strain = Strain(mat)
+    mat[0,1] = 0.001
+    print mat
 
+    my_strain = IndependentStrain(mat)
+    
+    print my_strain._strain
+    
+    
+    
 #    print type(mat)
 
 #    print my_strain.deformation_matrix
 #    print my_strain.strain
 
-    my_strain2 = IndependentStrain(mat)
+#    my_strain2 = IndependentStrain(mat)
 #    print my_strain2.__dict__.keys()
 #    print my_strain2.__hash__()
 
@@ -148,7 +160,5 @@ if __name__ == "__main__":
 #    mat2[0,0] = 1.01
 #    my_strain2 = Strain(mat)
 #    print my_strain == my_strain2
-
-
 
 
