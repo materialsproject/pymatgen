@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+from __future__ import division
+
+'''
+This module implements abstract base classes for post-processing entries.
+Any class which modifies entries should inherit these classes.
+'''
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Oct 6, 2011"
+
+import abc
+
+class EntryPostProcessor(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def process_entry(self, entry):
+        """
+        Process a single entry.
+        
+        Args:
+            entry - An ComputedEntry object.
+        
+        Returns:
+            An processed entry. None if entry is not compatible within the 
+            processing scheme.
+        """
+        return
+
+    @abc.abstractmethod
+    def process_entries(self, entries):
+        """
+        Process a sequence of entries.
+        
+        Args:
+            entries - A sequence of ComputedEntries.
+        
+        Returns:
+            An list of processed entries.  ComputedEntries in the original list which 
+            are not compatible with the processing scheme are excluded.
+        """
+        return
+
+    @abc.abstractproperty
+    def corrected_compound_formulas(self):
+        """
+        List of compound formulas that are corrected.
+        """
+        return
