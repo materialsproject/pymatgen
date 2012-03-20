@@ -12,7 +12,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
-
+import gzip
 import bz2
 import re
 import numpy
