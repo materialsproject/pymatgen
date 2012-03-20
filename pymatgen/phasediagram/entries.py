@@ -7,13 +7,13 @@ phase diagrams.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 import re
 
@@ -26,7 +26,7 @@ class PDEntry (object):
     diagrams.
     Author: Shyue
     """
-    
+
     def __init__(self, comp, finalenergy, name = None):
         """
         Args:
@@ -53,8 +53,8 @@ class PDEntry (object):
         """
         Returns the final energy per atom.
         """
-        return self.energy/self.composition.num_atoms
-    
+        return self.energy / self.composition.num_atoms
+
     @property
     def name(self):
         """
@@ -75,10 +75,10 @@ class PDEntry (object):
         True if the entry is an element.
         """
         return self._composition.is_element
-    
+
     def __repr__(self):
         return "PDEntry with composition %s, energy = %.4f" % (self.composition.__str__(), self.energy)
-    
+
     def __str__(self):
         return "PDEntry : " + self.composition.__str__()
 
@@ -106,7 +106,7 @@ class GrandPotPDEntry (PDEntry):
             if el not in chempots:
                 new_comp_map[el] = comp[el]
         newcomposition = Composition(new_comp_map)
-        super(GrandPotPDEntry,self).__init__(newcomposition,grandpot,entry.name)
+        super(GrandPotPDEntry, self).__init__(newcomposition, grandpot, entry.name)
 
     @property
     def original_entry(self):
@@ -130,10 +130,10 @@ class GrandPotPDEntry (PDEntry):
         return self._original_comp.is_element
 
     def __repr__(self):
-        return "GrandPotPDEntry with original composition %s, energy = %.4f, %s" % (str(self.original_entry.composition), self.original_entry.energy, ' '.join(["mu_%s = %.4f" % (el,mu) for el,mu in self.chempots.items()]))
+        return "GrandPotPDEntry with original composition %s, energy = %.4f, %s" % (str(self.original_entry.composition), self.original_entry.energy, ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]))
 
     def __str__(self):
-        return "GrandPotPDEntry with original composition " + str(self.original_entry.composition) + " and " + ' '.join(["mu_%s = %.4f" % (el,mu) for el,mu in self.chempots.items()])
+        return "GrandPotPDEntry with original composition " + str(self.original_entry.composition) + " and " + ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
 
 class PDEntryIO(object):
     """
@@ -153,9 +153,9 @@ class PDEntryIO(object):
         import csv
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
-        elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, 'wb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Name']+elements+['Energy'])
+        elements = sorted(list(elements), key = lambda a: a.X)
+        writer = csv.writer(open(filename, 'wb'), delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        writer.writerow(['Name'] + elements + ['Energy'])
         for entry in entries:
             row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
             row.extend([entry.composition[el] for el in elements])
@@ -174,20 +174,46 @@ class PDEntryIO(object):
             List of PDEntries
         """
         import csv
-        reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        reader = csv.reader(open(filename, 'rb'), delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
         entries = list()
         header_read = False
         for row in reader:
             if not header_read:
-                elements = row[1:(len(row)-1)]
+                elements = row[1:(len(row) - 1)]
                 header_read = True
             else:
                 name = row[0]
                 finalenergy = float(row[-1])
                 comp = dict()
-                for ind in range(1,len(row)-1):
-                    if float(row[ind]) >0:
-                        comp[Element(elements[ind-1])] = float(row[ind])
-                entries.append(PDEntry(Composition(comp),finalenergy,name))
+                for ind in range(1, len(row) - 1):
+                    if float(row[ind]) > 0:
+                        comp[Element(elements[ind - 1])] = float(row[ind])
+                entries.append(PDEntry(Composition(comp), finalenergy, name))
         elements = [Element(el) for el in elements]
-        return (elements,entries)
+        return (elements, entries)
+
+
+class TransformedPDEntry(PDEntry):
+    """
+    An object encompassing all relevant data for phase
+    diagrams.
+    Author: Shyue
+    """
+
+    def __init__(self, comp, finalenergy, original_entry):
+        """
+        Args:
+            comp - Composition as a pymatgen.core.structure.Composition
+            finalenergy - energy for composition.
+            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+        """
+        super(TransformedPDEntry, self).__init__(comp, finalenergy)
+        self._original_entry = original_entry
+        self._name = self._original_entry.composition.reduced_formula
+
+    @property
+    def original_entry(self):
+        '''
+        Original PDEntry object.
+        '''
+        return self._original_entry
