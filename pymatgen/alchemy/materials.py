@@ -64,7 +64,7 @@ class TransformedStructure(object):
             for i in xrange(1, len(history)):
                 self._structures.append(Structure.from_dict(history[i]['input_structure']))
                 self._transformations.append(transformation_from_dict(history[i]))
-                self._transformation_parameters.append({})
+                self._transformation_parameters.append(history[i].get('output_parameters', {}))
 
         self._structures.append(structure)
         for t in transformations:
@@ -93,7 +93,7 @@ class TransformedStructure(object):
         if len(self._redo_trans) == 0:
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
-        self.append_transformation(t, False)
+        self.append_transformation(t, clear_redo = False)
 
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
@@ -104,16 +104,17 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
     
-    def _alternative_transformed_structures(self, transformation, structure_dicts):
+    @staticmethod
+    def _alternative_transformed_structures(unmodified_transformed_structure, transformation, structure_dicts):
         for x in structure_dicts:
-            new_structure = deepcopy(self)
+            new_structure = deepcopy(unmodified_transformed_structure)
             new_structure._structures.append(x.pop('structure'))
             new_structure._transformation_parameters.append(x)
             new_structure._transformations.append(transformation)
             yield new_structure
 
 
-    def append_transformation(self, transformation, clear_redo = True, return_alternatives = False):
+    def append_transformation(self, transformation, return_alternatives = False, clear_redo = True):
         """
         Appends a transformation to the TransformedStructure.
         
@@ -129,14 +130,14 @@ class TransformedStructure(object):
 
         if return_alternatives:
             structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True)
-            alternative_structures = self._alternative_transformed_structures(transformation, structures_dict_list[1:])
+            alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
             
             new_s = structures_dict_list[0]
             self._structures.append(new_s.pop('structure'))
             self._transformations.append(transformation)
             self._transformation_parameters.append(new_s)
-            
             return alternative_structures
+        
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
@@ -199,8 +200,11 @@ class TransformedStructure(object):
         output.append(str(self._source))
         output.append("\nTransformation history")
         output.append("------------")
-        for t in self._transformations:
-            output.append(str(t.to_dict))
+        for i, t in enumerate(self._transformations):
+            output.append(str(t.to_dict) + ' ' + str(self._transformation_parameters[i]))
+        output.append("\nOther parameters")
+        output.append("------------")
+        output.append(str(self._other_parameters))
         return "\n".join(output)
 
     def set_parameter(self, key, value):
@@ -255,6 +259,7 @@ class TransformedStructure(object):
         for i, t in enumerate(self._transformations):
             tdict = t.to_dict
             tdict['input_structure'] = self._structures[i].to_dict
+            tdict['output_parameters'] = self._transformation_parameters[i]
             history.append(tdict)
         return history
 

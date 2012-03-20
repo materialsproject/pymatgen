@@ -85,14 +85,14 @@ class TransformedStructureTransmuter(object):
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, clear_redo, return_alternatives = extend_collection)
+            new = x.append_transformation(transformation, return_alternatives = extend_collection, clear_redo = clear_redo)
             if new is not None:
                 new_structures.extend(new)
         output = [x.was_modified for x in self._transformed_structures]
         self._transformed_structures.extend(new_structures)
         return output
 
-    def branch_collection(self, transformations, retention_level = 1, clear_redo = True):
+    def branch_collection(self, transformations, retention_level = 1, extend_collection = False, clear_redo = True):
         '''
         copies the structures collection, applying one transformation to each copy.
         
@@ -121,7 +121,7 @@ class TransformedStructureTransmuter(object):
         new_trans_structures = []
         for transformation in transformations:
             self._transformed_structures = deepcopy(old_transformed_structures)
-            modified = self.append_transformation(transformation, clear_redo)
+            modified = self.append_transformation(transformation, extend_collection, clear_redo)
             for structure in self._transformed_structures:
                 if structure.was_modified:
                     new_trans_structures.append(structure)
