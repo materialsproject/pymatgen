@@ -323,7 +323,7 @@ class BandStructureSymmLine(BandStructure):
         #kpoints are not kpoint objects dicts but are frac coords (this makes the dict
         #smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            dictio['kpoints'].append(k.to_dict()['fcoords'])
+            dictio['kpoints'].append(k.to_dict['fcoords'])
         dictio['branches'] = self._branches
         dictio['bands'] = self._bands
         dictio['is_metal'] = self.is_metal()
@@ -361,7 +361,7 @@ def get_reconstructed_band_structure(list_bs, efermi):
             for k in bs._kpoints:
                 kpoints.append(k.frac_coords)
             for k, v in bs._labels_dict.iteritems():
-                labels_dict[k] = v
+                labels_dict[k] = v.frac_coords
             #eigenvals.append({'energy':[0,6.0],'occup':[1.0,1.0]})
         for i in range(nb_bands):
             eigenvals.append({'energy':[], 'occup':[]})
