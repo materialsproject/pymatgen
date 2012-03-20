@@ -36,7 +36,7 @@ from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
-from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
+from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
 
@@ -1100,25 +1100,25 @@ class Vasprun(object):
             kpoints_filename = self._filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
-        if not self.incar['ICHARG']==11:
+        if not self.incar['ICHARG'] == 11:
             raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
-        
-        if(efermi==None):
-            efermi=self.efermi
-        
+
+        if(efermi == None):
+            efermi = self.efermi
+
         k = Kpoints.from_file(kpoints_filename)
         labels_dict = dict(zip(k.labels, k.kpts))
-        lattice_new=Lattice(self.lattice_rec.matrix*2*math.pi)
+        lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
         #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
-        
-        kpoints=[np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
-        dict_eigen=self.to_dict['output']['eigenvalues']
-        eigenvals=[]
-        max_band=int(math.floor(len(dict_eigen['1']['up'])*0.9))
+
+        kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
+        dict_eigen = self.to_dict['output']['eigenvalues']
+        eigenvals = []
+        max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
         for i in range(max_band):
-            eigenvals.append({'energy':[dict_eigen[str(j+1)]['up'][i][0] for j in range(len(kpoints))]})
-            eigenvals[i]['occup']=[dict_eigen[str(j+1)]['up'][i][1] for j in range(len(kpoints))]
-        return BandStructureSymmLine(kpoints,eigenvals, lattice_new, efermi, labels_dict)
+            eigenvals.append({'energy':[dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
+            eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+        return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
 
     @property
     def eigenvalue_band_properties(self):
@@ -2114,15 +2114,15 @@ class VaspParserError(Exception):
 
     def __str__(self):
         return "VaspParserError : " + self.msg
-    
-def get_band_structure_from_vasp_multiple_branches(path,efermi=None):
+
+def get_band_structure_from_vasp_multiple_branches(path, efermi = None):
     """
     this method is used to get band structure info from a VASP directory. It takes into account that
     the run can be divided in several branches named "branch_x". If the run has not been divided in branches
     the method will turn to parsing vasprun.xml directly and call Vasprun(path+"/vasprun.xml").get_band_structure(kpoints_filename=None,efermi=efermi)
     """
 
-    if(os.path.exists(path+"/branch_0")):
+    if(os.path.exists(path + "/branch_0")):
         #get all branches in a list of BandStructurs
         list_branches = []
         listdir_clean = []
@@ -2131,9 +2131,9 @@ def get_band_structure_from_vasp_multiple_branches(path,efermi=None):
                 listdir_clean.append(f)
         for i in range(len(listdir_clean)):
             for f in listdir_clean:
-                if(int(f.split("_")[1])==i):
-                    list_branches.append(Vasprun(path+"/"+f+"/vasprun.xml").get_band_structure(kpoints_filename=None, efermi=efermi))
-        return pymatgen.electronic_structure.band_structure.band_structure.get_reconstructed_band_structure(list_branches,efermi)
+                if(int(f.split("_")[1]) == i):
+                    list_branches.append(Vasprun(path + "/" + f + "/vasprun.xml").get_band_structure(kpoints_filename = None, efermi = efermi))
+        return get_reconstructed_band_structure(list_branches, efermi)
     else:
-        return Vasprun(path+"/vasprun.xml").get_band_structure(kpoints_filename=None,efermi=efermi)
+        return Vasprun(path + "/vasprun.xml").get_band_structure(kpoints_filename = None, efermi = efermi)
 
