@@ -264,6 +264,8 @@ class TransformedStructure(object):
     @staticmethod
     def from_cif_string(cif_string, transformations, primitive = True):
         """
+        Generates TransformedStructure from a cif string.
+
         Args:
             cif_string:
                 Input cif string. Should contain only one structure. For cifs
@@ -293,6 +295,8 @@ class TransformedStructure(object):
     @staticmethod
     def from_poscar_string(poscar_string, transformations):
         """
+        Generates TransformedStructure from a poscar string. 
+
         Args:
             poscar_string:
                 Input POSCAR string.

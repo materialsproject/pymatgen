@@ -23,8 +23,10 @@ class EntryPostProcessor(object):
     def process_entry(self, entry):
         """
         Process a single entry.
-        Arguments:
+        
+        Args:
             entry - An ComputedEntry object.
+        
         Returns:
             An processed entry. None if entry is not compatible within the 
             processing scheme.
@@ -36,8 +38,9 @@ class EntryPostProcessor(object):
         """
         Process a sequence of entries.
         
-        Arguments:
+        Args:
             entries - A sequence of ComputedEntries.
+        
         Returns:
             An list of processed entries.  ComputedEntries in the original list which 
             are not compatible with the processing scheme are excluded.

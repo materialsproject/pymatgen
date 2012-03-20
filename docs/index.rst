@@ -6,8 +6,9 @@
 pymatgen
 ========
 
-Pymatgen is the python library that powers the Materials Project 
-(http://www.materialsproject.org). These are some of the main features:
+Pymatgen (python materials genomics) is the python library that powers the 
+Materials Project (http://www.materialsproject.org). These are some of the main 
+features:
 
 1. Highly flexible classes for the representation of Element, Site, Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files 
