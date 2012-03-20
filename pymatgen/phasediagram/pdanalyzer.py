@@ -28,7 +28,7 @@ class PDAnalyzer(object):
     
     def __init__(self, pd):
         """
-        Arguments:
+        Args:
             pd - Phase Diagram to analyze.
         """
         self._pd = pd
@@ -88,8 +88,10 @@ class PDAnalyzer(object):
     def get_decomposition(self, comp):
         """
         Provides the decomposition at a particular composition
-        Arguments:
+        
+        Args:
             comp - A composition
+        
         Returns:
             Decomposition as a dict of {PDEntry: amount}
         """
@@ -108,8 +110,11 @@ class PDAnalyzer(object):
     def get_decomp_and_e_above_hull(self, entry):
         """
         Provides the decomposition and energy above convex hull for an entry
-        Arguments:
-            entry - A PDEntry like object
+        
+        Args:
+            entry:
+                A PDEntry like object
+        
         Returns:
             (decomp, energy above convex hull)  Stable entries should have energy above hull of 0.
         """
@@ -124,10 +129,12 @@ class PDAnalyzer(object):
     def get_e_above_hull(self, entry):
         """
         Provides the energy above convex hull for an entry
-        Arguments:
+        
+        Args:
             entry - A PDEntry like object
+        
         Returns:
-            Energy above convex hull of entry.  Stable entries should have energy above hull of 0.
+            Energy above convex hull of entry. Stable entries should have energy above hull of 0.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
@@ -136,8 +143,11 @@ class PDAnalyzer(object):
         """
         Provides the reaction energy of a stable entry from the neighboring equilibrium stable entries.
         (also known as the inverse distance to hull).
-        Arguments:
-            entry - A PDEntry like object
+        
+        Args:
+            entry:
+                A PDEntry like object
+        
         Returns:
             Equilibrium reaction energy of entry.  Stable entries should have equilibrium reaction energy <= 0.
         """
@@ -151,8 +161,11 @@ class PDAnalyzer(object):
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase Diagram.
-        Arguments:
-            element - An element.  Has to be in the PD in the first place.
+        
+        Args:
+            element:
+                An element.  Has to be in the PD in the first place.
+        
         Returns:
             A sorted sequence of critical chemical potentials, from less negative to more negative.
         """
@@ -182,9 +195,13 @@ class PDAnalyzer(object):
         Provides the element evolution data for a composition.
         For example, can be used to analyze Li conversion voltages by varying uLi and looking at the phases formed.
         Also can be used to analyze O2 evolution by varying uO2.
-        Arguments:
-            element - An element. Must be in the phase diagram.
-            comp - a Composition
+        
+        Args:
+            element:
+                An element. Must be in the phase diagram.
+            comp:
+                A Composition
+        
         Returns:
             Evolution data as a list of dictionaries of the following format: [ {'chempot': -10.487582010000001, 'evolution': -2.0, 'reaction': Reaction Object], ...]
         """

@@ -24,11 +24,11 @@ class AbstractTransformation(object):
     def apply_transformation(self, structure):
         '''
         Applies the transformation to a structure.
-        Arguments:
-            structure - input structure
-            *params - parameters for applying transformation. parameters should be json type parameters, 
-            i.e. list or dicts of int, float and strings rather than complex objects so that they can be
-            reconstituted easily from json strings.
+        
+        Args:
+            structure:
+                input structure
+                
         Returns:
             Transformed structure
         '''
