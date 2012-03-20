@@ -83,8 +83,10 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
     def process_entry(self, entry):
         """
         Process a single entry with the chosen Compatibility scheme.
-        Arguments:
+        
+        Args:
             entry - An ComputedEntry object.
+        
         Returns:
             An adjusted entry if entry is compatible, otherwise None is returned.
         """
@@ -128,10 +130,13 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
     def process_entries(self, entries):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
-        Arguments:
+        
+        Args:
             entries - A sequence of entries.
+        
         Returns:
-            An list of adjusted entries.  Entries in the original list which are not compatible are excluded.
+            An list of adjusted entries.  Entries in the original list which 
+            are not compatible are excluded.
         """
         proc_entries = list()
         for entry in entries:
