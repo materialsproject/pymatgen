@@ -112,7 +112,15 @@ class Orbital(object):
     dz2 = _OrbitalImpl("dz2", 6)
     dxz = _OrbitalImpl("dxz", 7)
     dx2 = _OrbitalImpl("dx2", 8)
-    all_orbitals = (s, py, pz, px, dxy, dyz, dz2, dxz, dx2)
+    f_3 = _OrbitalImpl("f_3", 9)
+    f_2 = _OrbitalImpl("f_2", 10)
+    f_1 = _OrbitalImpl("f_1", 11)
+    f0 = _OrbitalImpl("f0", 12)
+    f1 = _OrbitalImpl("f1", 13)
+    f2 = _OrbitalImpl("f2", 14)
+    f3 = _OrbitalImpl("f3", 15)
+
+    all_orbitals = (s, py, pz, px, dxy, dyz, dz2, dxz, dx2, f_3, f_2, f_1, f0, f1, f2, f3)
 
     @staticmethod
     def from_vasp_index(i):
@@ -406,12 +414,13 @@ class CompleteDos(Dos):
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
         d['pdos'] = []
-        for at in self._structure:
-            dd = dict()
-            for pdos in self._pdos[at].values():
-                dd[str(pdos.orbital)] = {'efermi' : pdos.efermi, 'energies': list(pdos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in pdos.densities.items() }}
-            d['pdos'].append(dd)
+        print self._pdos.keys()
         if len(self._pdos) > 0:
+            for at in self._structure:
+                dd = dict()
+                for pdos in self._pdos[at].values():
+                    dd[str(pdos.orbital)] = {'efermi' : pdos.efermi, 'energies': list(pdos.energies), 'densities' : { str(int(spin)) : list(dens) for spin , dens in pdos.densities.items() }}
+                d['pdos'].append(dd)
             d['atom_dos'] = {str(at) : dos.to_dict for at, dos in self.get_element_dos().items()}
             d['spd_dos'] = {str(orb) : dos.to_dict for orb, dos in self.get_spd_dos().items()}
         return d
