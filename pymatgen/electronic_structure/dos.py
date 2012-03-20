@@ -19,13 +19,34 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 
 class Dos(object):
+    """
+    Basic DOS object. All other DOS objects are extended versions of this object.
+    """
 
     def __init__(self, efermi, energies, densities):
+        """
+        Args:
+            efermi:
+                Fermi level energy
+            energies:
+                A sequences of energies
+            densities:
+                A dict of {Spin: np.array} representing the density of states 
+                for each Spin.
+        """
         self._efermi = efermi
         self._energies = np.array(energies)
-        self._dos = {k:np.array(d) for k, d in densities.items()} # should be a dict having as keys the Spin.up and Spin.down objects
+        self._dos = {k:np.array(d) for k, d in densities.items()}
 
     def get_densities(self, spin = None):
+        """
+        Returns the density of states for a particular spin. If Spin is None, the
+        sum of both Spin.up and Spin.down (if they exist) is returned.
+        
+        Args:
+            spin:
+                Spin
+        """
         if self._dos == None:
             result = None
         elif spin == None:
@@ -39,19 +60,36 @@ class Dos(object):
 
     @property
     def densities(self):
+        """
+        Dict representation of the densities, {Spin: densities}
+        """
         return self._dos
 
     @property
     def efermi(self):
+        """
+        Fermi energy
+        """
         return self._efermi
 
     @property
     def energies(self):
+        """
+        Energy levels of the DOS.
+        """
         return self._energies
 
     def __add__(self, other):
         """
-        Adds two DOS together. Checks that energy scales are the same. Otherwise, a ValueError is thrown.
+        Adds two DOS together. Checks that energy scales are the same. 
+        Otherwise, a ValueError is thrown.
+        
+        Args:
+            other:
+                Another DOS object.
+                
+        Returns:
+            Sum of the two DOSs.
         """
         if not (self.energies == other.energies).all():
             raise ValueError("Energies of both DOS are not compatible!")
@@ -59,6 +97,13 @@ class Dos(object):
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy):
+        """
+        Returns interpolated density for a particular energy.
+        
+        Args:
+            energy:
+                Energy to return the density for.
+        """
         f = {}
         import scipy.interpolate as spint
         for spin in self._dos.keys():
@@ -166,7 +211,7 @@ class Dos(object):
 
     def __str__(self):
         """
-        Returns a string which can be easily plotted
+        Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self._dos:
             stringarray = ["#%30s %30s %30s" % ('Energy', 'DensityUp', 'DensityDown')]
@@ -193,18 +238,42 @@ class PDos(Dos):
     Projected DOS for a specific orbital. Extends the Dos object.
     """
     def __init__(self, efermi, energies, densities, orbital):
+        """
+        Args:
+            efermi:
+                Fermi level energy
+            energies:
+                A sequences of energies
+            densities:
+                A dict of {Spin: np.array} representing the density of states 
+                for each Spin.
+            orbital:
+                The orbital associated with the projected DOS.
+        """
         Dos.__init__(self, efermi, energies, densities)
         self.orbital = orbital
 
     def __str__(self):
         return "#" + str(self.orbital) + "\n" + super(PDos, self).__str__()
 
+    @staticmethod
+    def from_dict(d):
+        return PDos(d['efermi'], d['energies'], { Spin.from_int(int(k)):v for k, v in d['densities'].items()}, Orbital.from_string(d['orbital']))
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['efermi'] = self._efermi
+        d['energies'] = list(self._energies)
+        d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
+        d['orbital'] = str(self.orbital)
+        return d
 
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
     Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
-    a vasprun.xml file. 
+    a vasprun.xml file. You are unlikely to try to generate this object manually.
     """
 
     def __init__(self, structure, total_dos, pdoss):
@@ -215,7 +284,7 @@ class CompleteDos(Dos):
             total_dos:
                 total Dos for structure
             pdoss:
-                a list of array of Pdos.  pdoss corresponds to site order in structure 
+                The pdoss are supplied as an { Site : {Orbital : Dos.. }}
         """
         self._efermi = total_dos.efermi
         self._energies = total_dos.energies
