@@ -1,0 +1,9 @@
+P-4m2
+x,            y,            z
+-x,           -y,            z
+y,           -x,           -z
+-y,            x,           -z
+-x,            y,            z
+x,           -y,            z
+-y,           -x,           -z
+y,            x,           -z
