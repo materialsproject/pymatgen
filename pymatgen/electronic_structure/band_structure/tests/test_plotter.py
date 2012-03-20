@@ -2,7 +2,7 @@
 
 import unittest
 import os
-import pymatgen.band_structure.band_structure
+import pymatgen.electronic_structure.band_structure
 from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
 from pymatgen.electronic_structure.band_structure.plotter import BSPlotter
 
@@ -18,7 +18,6 @@ class BSPlotterTest(unittest.TestCase):
             self.plotter=BSPlotter(self.bs)
             
     def test_bs_plot_data(self):
-        print self.plotter.bs_plot_data['ticks']['label'][5]
         self.assertEqual(len(self.plotter.bs_plot_data['distances']), 160, "wrong number of distances")
         self.assertEqual(self.plotter.bs_plot_data['ticks']['label'][5], "K", "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data['ticks']['label']), 19, "wrong number of tick labels")

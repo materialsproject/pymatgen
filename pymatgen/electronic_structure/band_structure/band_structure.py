@@ -120,18 +120,23 @@ class BandStructure(object):
         #self._structure = structure
         self._lattice_rec = lattice
         
-        self._kpoints = [] 
-        
+        self._kpoints = []
+        """
+        all kpoints, (order matter!)
+        """ 
+        self._labels_dict={}
+        """
+        label to each kpoint (with kpoint objects.to_dict)
+        """
         for k in kpoints:
             #let see if this kpoint has been assigned a label
             label=None
             for c in labels_dict:
                 if(np.linalg.norm(k - np.array(labels_dict[c])) < 0.0001):
                     label=c
+                    self._labels_dict[label]=Kpoint(k,lattice,label=label,coords_are_cartesian=coords_are_cartesian)
             self._kpoints.append(Kpoint(k,lattice,label=label,coords_are_cartesian=coords_are_cartesian))
-        """
-        all kpoints, (order matter!)
-        """
+
         self._bands=eigenvals
         """
         all energy values for each band at the different kpoints
@@ -140,7 +145,6 @@ class BandStructure(object):
         """
         the number of bands
         """
-        self._labels_dict=labels_dict
         
     @property
     def kpoints(self):
@@ -179,7 +183,7 @@ class BandStructureSymmLine(BandStructure):
         one_group=[]
         branches_tmp=[]
         #get labels and distance for each kpoint
-        previous_kpoint=self._kpoints[0].cart_coords
+        previous_kpoint=self._kpoints[0]
         previous_distance=0.0
         
         previous_label=self._kpoints[0].label
@@ -204,7 +208,6 @@ class BandStructureSymmLine(BandStructure):
         #self._branches=branches
         for b in branches_tmp:
             self._branches.append({'start_index':b[0],'end_index':b[-1],'name':(self._kpoints[b[0]].label+"-"+self._kpoints[b[-1]].label)})
-        print self._branches
         
     
         
@@ -318,8 +321,10 @@ class BandStructureSymmLine(BandStructure):
         dictio['lattice_rec']=self._lattice_rec.to_dict
         dictio['efermi']=self._efermi
         dictio['kpoints']=[]
+        #kpoints are not kpoint objects dicts but are frac coords (this makes the dict
+        #smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            dictio['kpoints'].append(k.to_dict())
+            dictio['kpoints'].append(k.to_dict()['fcoords'])
         dictio['branches']=self._branches
         dictio['bands']=self._bands
         dictio['is_metal']=self.is_metal()
@@ -328,13 +333,14 @@ class BandStructureSymmLine(BandStructure):
         dictio['band_gap']=self.get_band_gap()
         dictio['labels_dict']={}
         for c in self._labels_dict:
-            dictio['labels_dict'][c]=list(self._labels_dict[c])
+            dictio['labels_dict'][c]=self._labels_dict[c].to_dict()['fcoords']
         return dictio
     
     @staticmethod
     def from_dict(dictio):
-        dictio=dictio['band_structure']
-        return BandStructureSymmLine([k['fcoords'] for k in dictio['kpoints']],dictio['bands'],pymatgen.core.lattice.Lattice.from_dict(dictio['lattice_rec']),dictio['efermi'],dictio['labels_dict'])
+        #dictio=dictio['band_structure']
+        labels_dict=dictio['labels_dict']
+        return BandStructureSymmLine(dictio['kpoints'],dictio['bands'],pymatgen.core.lattice.Lattice.from_dict(dictio['lattice_rec']),dictio['efermi'],labels_dict)
     
     
   
