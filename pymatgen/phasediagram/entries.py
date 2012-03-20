@@ -209,6 +209,7 @@ class TransformedPDEntry(PDEntry):
         """
         super(TransformedPDEntry, self).__init__(comp, finalenergy)
         self._original_entry = original_entry
+        self._name = self._original_entry.composition.reduced_formula
 
     @property
     def original_entry(self):
