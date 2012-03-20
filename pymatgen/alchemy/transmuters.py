@@ -12,7 +12,7 @@ directory of vasp input files for running.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -230,7 +230,7 @@ class TransformedStructureTransmuter(object):
                         structure_data[-1].append(line)
                 transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
         return TransformedStructureTransmuter(transformed_structures, [])
-    
+
     @staticmethod
     def from_poscars(poscar_filenames, transformations = []):
         transformed_structures = []
