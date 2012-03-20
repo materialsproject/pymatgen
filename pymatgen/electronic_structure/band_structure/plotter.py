@@ -234,7 +234,7 @@ class BSPlotter(object):
                 if(k.label.startswith("\\") or k.label.find("_")!=-1):
                        label="$"+k.label+"$"
                 off=0.01
-                ax.text(k.cart_coords[0]+off,k.cart_coords[1]+off,k.cart_coords[2]+off,label,color='b')
+                ax.text(k.cart_coords[0]+off,k.cart_coords[1]+off,k.cart_coords[2]+off,label,color='b',size='25')
                 ax.scatter([k.cart_coords[0]],[k.cart_coords[1]],[k.cart_coords[2]],color='b')
         
         # make ticklabels and ticklines invisible
