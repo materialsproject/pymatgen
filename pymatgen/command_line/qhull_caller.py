@@ -65,12 +65,13 @@ def qvertex(data):
     """
     return run_qhull_command(['qvoronoi','p'], data, float, 2)
 
-def qvertex_target(data):
+def qvertex_target(data, index):
     """
     Input data should be in the form of a list of a list of floats.
-    Returns the facets of voronoi construction as a list of a list of float.
+    index is the index of the targeted point
+    Returns the vertices of the voronoi construction around this target point.
     """
-    return run_qhull_command(['qvoronoi','p QV13'], data, float, 2)
+    return run_qhull_command(['qvoronoi','p QV'+str(index)], data, float, 2)
 
 def get_lines_voronoi(data):
     prep_str = str(len(data[0])) + "\n"
