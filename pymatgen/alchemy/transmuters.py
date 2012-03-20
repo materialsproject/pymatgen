@@ -94,7 +94,7 @@ class TransformedStructureTransmuter(object):
 
     def branch_collection(self, transformations, retention_level = 1, extend_collection = False, clear_redo = True):
         '''
-        copies the structures collection, applying one transformation to each copy.
+        Copies the structures collection, applying one transformation to each copy.
         
         Args:
             transformations:
