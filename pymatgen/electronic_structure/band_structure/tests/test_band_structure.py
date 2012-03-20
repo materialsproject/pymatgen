@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import json
 
 from pymatgen.electronic_structure.band_structure.band_structure import Kpoint
 from pymatgen.core.structure import Lattice
@@ -31,10 +32,11 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-        import json
         with open(os.path.join(module_dir, "Cao_2605.json"), "rb") as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
+            #this doesn't really test to_dict -> from_dict very well
+            self.assertEqual(self.bs.to_dict.keys(), d.keys())
             self.one_kpoint = self.bs.kpoints[31]
             self.assertEqual(self.bs._nb_bands, 14)
             self.assertAlmostEqual(self.bs._bands[5]['energy'][10], 0.5608)
