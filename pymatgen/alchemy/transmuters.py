@@ -32,7 +32,7 @@ class TransformedStructureTransmuter(object):
     def __init__(self, transformed_structures, transformations = [], extend_collection = False):
         self._transformed_structures = transformed_structures
         for trans in transformations:
-            self.append_transformation(trans)
+            self.append_transformation(trans, extend_collection = extend_collection)
 
     def __getitem__(self, index):
         return self._transformed_structures[index]
