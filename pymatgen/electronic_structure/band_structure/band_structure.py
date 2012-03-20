@@ -323,7 +323,7 @@ class BandStructureSymmLine(BandStructure):
         #kpoints are not kpoint objects dicts but are frac coords (this makes the dict
         #smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            dictio['kpoints'].append(k.to_dict()['fcoords'])
+            dictio['kpoints'].append(k.to_dict['fcoords'])
         dictio['branches'] = self._branches
         dictio['bands'] = self._bands
         dictio['is_metal'] = self.is_metal()
