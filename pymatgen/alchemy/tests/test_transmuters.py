@@ -15,6 +15,7 @@ __date__ = "Mar 5, 2012"
 
 import unittest
 import os
+from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation
 
@@ -52,6 +53,15 @@ class TransformedStructureTransmuterTest(unittest.TestCase):
         tsc.append_transformation(SubstitutionTransformation({"Fe":{"Fe2+":.25, "Mn3+":.75}, "P":"P5+"}))
         tsc.append_transformation(OrderDisorderedStructureTransformation(num_structures = 50), extend_collection = True)
         self.assertEqual(len(tsc), 4)
+        
+        tsc.branch_collection([SubstitutionTransformation({"Fe2+":"Mg2+"}),SubstitutionTransformation({"Fe2+":"Zn2+"})], retention_level = 1)
+        self.assertEqual(len(tsc), 8)
+        
+        tsc.branch_collection([SubstitutionTransformation({"Zn2+":"Fe2+"})], retention_level = 0)
+        self.assertEqual(len(tsc), 4)
+
+        self.assertEqual(len(tsc[0]), 6)
+        #5 transformations plus initial structure
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
