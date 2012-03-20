@@ -1,0 +1,13 @@
+H-3m1
+x,            y,            z
+-y,           x-y,           z
+-x+y,          -x,            z
+-y,           -x,            z
+-x+y,           y,            z
+x,           x-y,           z
+-x,           -y,           -z
+y,          -x+y,          -z
+x-y,           x,           -z
+y,            x,           -z
+x-y,          -y,           -z
+-x,          -x+y,          -z

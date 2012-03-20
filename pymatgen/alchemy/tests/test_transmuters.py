@@ -15,42 +15,34 @@ __date__ = "Mar 5, 2012"
 
 import unittest
 import os
-
+from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
-class CifTransmuterTest(unittest.TestCase):
 
-    def setUp(self):
+class TransformedStructureTransmuterTest(unittest.TestCase):
+        
+    def test_cif_transmute(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe":"Mn", "Fe2+":"Mn2+"}))
-        self.qep = CifTransmuter(trans)
-        
-    def test_transmute(self):
-        trans_structures = self.qep.transmute([os.path.join(module_dir, "MultiStructure.cif")])
-        self.assertEqual(len(trans_structures), 2)
+        tsc = TransformedStructureTransmuter.from_cifs([os.path.join(test_dir, "MultiStructure.cif")], trans)
+        self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "Li", "P"])
-        for s in trans_structures:
+        for s in tsc:
             els = set([el.symbol for el in s.final_structure.composition.elements])
             self.assertEqual(expected_ans, els)
-
-class PoscarTransmuterTest(unittest.TestCase):
-
-    def setUp(self):
+          
+    def test_poscar_transmute(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe":"Mn"}))
-        self.qep = PoscarTransmuter(trans)
-        
-    def test_transmute(self):
-        trans_structures = self.qep.transmute([os.path.join(module_dir, "POSCAR"), os.path.join(module_dir, "POSCAR")])
-        self.assertEqual(len(trans_structures), 2)
+        tsc = TransformedStructureTransmuter.from_poscars([os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")], trans)
+        self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "P"])
-        for s in trans_structures:
+        for s in tsc:
             els = set([el.symbol for el in s.final_structure.composition.elements])
             self.assertEqual(expected_ans, els)
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
