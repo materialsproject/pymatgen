@@ -1031,7 +1031,8 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
         True if composition is for an element
         '''
-        return len(self._elmap) == 1
+        positive_amts = [amt for amt in self._elmap.values() if amt > self.amount_tolerance]
+        return len(positive_amts) == 1
 
     def copy(self):
         return Composition(self._elmap)
