@@ -99,15 +99,17 @@ class TransformedStructureTransmuter(object):
         
         Args:
             transformations:
-                List of transformations to apply (each structure gets one of these transformations.
-                To append multiple transformations to each structure use extend_transformations)
+                List of transformations to apply (each structure gets one of 
+                these transformations. To append multiple transformations to 
+                each structure use extend_transformations)
             retention_level:
-                specifies which structures will be kept and which will be thrown out
-                0 - throws out all structures that weren't modified by any of the transformations
+                Specifies which structures will be kept and which will be thrown out
+                0 - throws out all structures that weren't modified by any of 
+                the transformations
                 1 - keeps structures that weren't modified by anything.
                 2 - keeps all structures, including the untransformed ones. Note 
-                    that this may cause issues with undoing transformations
-                    since they will have different transformation histories
+                that this may cause issues with undoing transformations
+                since they will have different transformation histories
                 
                 e.g if you start with 2 structures and apply 2 transformations, 
                 and one structure isn't modified by either of them but the other 
@@ -142,7 +144,7 @@ class TransformedStructureTransmuter(object):
         """
         Extends a sequence of transformations to the TransformedStructure.
         
-        Arguments:
+        Args:
             transformations:
                 Sequence of Transformations
         """
@@ -185,6 +187,9 @@ class TransformedStructureTransmuter(object):
     @staticmethod
     def from_cif_string(cif_string, transformations = [], primitive = True, extend_collection = False):
         '''
+        Generates a TransformedStructureCollection from a cif string, possibly
+        containing multiple structures.
+        
         Args:
             cif_filenames:
                 List of strings of the cif files
@@ -206,6 +211,9 @@ class TransformedStructureTransmuter(object):
     @staticmethod
     def from_cifs(cif_filenames, transformations = [], primitive = True, extend_collection = False):
         '''
+        Generates a TransformedStructureCollection from a cif, possibly
+        containing multiple structures.
+        
         Args:
             cif_filenames:
                 List of strings of the cif files
