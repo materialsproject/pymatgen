@@ -44,7 +44,7 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertEqual(self.bs._branches[5]['name'],"L-U")
             self.assertEqual(self.bs._branches[5]['start_index'],80)
             self.assertEqual(self.bs._branches[5]['end_index'],95)
-            self.assertAlmostEqual(self.bs._distance[70], 4.23351281106)
+            self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
             
     def test_properties(self):
         self.assertEqual(self.one_kpoint.frac_coords[0], 0.5)
@@ -76,7 +76,7 @@ class BandStructureSymmLine_test(unittest.TestCase):
     def test_get_vbm(self):
         vbm=self.bs.get_vbm()
         self.assertAlmostEqual(vbm['energy'], 2.2361,"wrong VBM energy")
-        self.assertEqual(len(vbm['band_index'][0]), 3, "wrong VBM number of bands")
+        self.assertEqual(len(vbm['band_index']), 3, "wrong VBM number of bands")
         self.assertEqual(vbm['band_index'][0], 5, "wrong VBM band index")
         self.assertEqual(vbm['kpoint_index'], 0, "wrong VBM kpoint index")
         self.assertEqual(vbm['kpoint'].frac_coords[0],0.0,"wrong VBM kpoint frac coords")
