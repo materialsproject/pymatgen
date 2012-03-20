@@ -9,10 +9,26 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`aseio` Module
+-------------------
+
+.. automodule:: pymatgen.io.aseio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`cifio` Module
 -------------------
 
 .. automodule:: pymatgen.io.cifio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`cssrio` Module
+--------------------
+
+.. automodule:: pymatgen.io.cssrio
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,3 +56,10 @@ io Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+
