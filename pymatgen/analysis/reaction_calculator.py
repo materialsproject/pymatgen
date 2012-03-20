@@ -6,13 +6,13 @@ This module provides classes that define a chemical reaction.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong, Anubhav Jain"
+__author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 import logging
 import itertools
@@ -27,17 +27,19 @@ class Reaction(object):
     """
     A class representing a Reaction.
     """
-    
+
     TOLERANCE = 1e-6 #: Tolerance for determining if a particular component fraction is > 0.
-    
+
     def __init__(self, reactants, products):
         """
-        Reactants and products to be specified as list of pymatgen.core.structure.Composition.  
-        e.g., [comp1, comp2]
+        Reactants and products to be specified as list of 
+        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
         
         Args:
-            reactants : List of reactants.
-            products : List of products.
+            reactants: 
+                List of reactants.
+            products:
+                List of products.
         """
         all_comp = reactants[:]
         all_comp.extend(products[:])
@@ -45,21 +47,21 @@ class Reaction(object):
         for c in all_comp:
             els.update(c.elements)
         els = tuple(els)
-        
+
         num_constraints = len(all_comp)
         num_els = len(els)
         dim = max(num_els, num_constraints)
         logger.debug('num_els = {}'.format(num_els))
         logger.debug('num_constraints = {}'.format(num_constraints))
         logger.debug('dim = {}'.format(dim))
-        
+
         if num_constraints < 2:
             raise ReactionError("A reaction cannot be formed with just one composition.")
         elif num_constraints == 2:
             if all_comp[0].reduced_formula != all_comp[1].reduced_formula:
-                raise ReactionError("%s and %s cannot be matched.  Reaction cannot be balanced. " % (all_comp[0].formula, all_comp[1].formula) )
+                raise ReactionError("%s and %s cannot be matched.  Reaction cannot be balanced. " % (all_comp[0].formula, all_comp[1].formula))
             else:
-                coeffs = [-all_comp[1][els[0]]/all_comp[0][els[0]], 1]
+                coeffs = [-all_comp[1][els[0]] / all_comp[0][els[0]], 1]
         else:
             comp_matrix = np.zeros((dim, dim))
             count = 0
@@ -70,9 +72,9 @@ class Reaction(object):
                 for i in range(num_els):
                     comp_matrix[i][count] = c[els[i]]
                 count += 1
-            
+
             if num_constraints > num_els:
-                
+
                 #Try two schemes for making the comp matrix non-singular.
                 for i in range(num_els, num_constraints):
                     for j in range(num_els):
@@ -91,7 +93,7 @@ class Reaction(object):
             else:
                 if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
                     logger.debug('Linear solution possible. Trying various permutations.')
-                    comp_matrix = comp_matrix[0:num_els][:,0:num_constraints]
+                    comp_matrix = comp_matrix[0:num_els][:, 0:num_constraints]
                     logger.debug('comp_matrix = {}'.format(comp_matrix))
                     ans_found = False
                     for perm_matrix in itertools.permutations(comp_matrix):
@@ -102,9 +104,9 @@ class Reaction(object):
                             if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
                                 logger.debug('Possible sol')
                                 subansmatrix = [perm_matrix[i][m] for i in xrange(num_constraints) if i != m]
-                                coeffs = - np.linalg.solve(submatrix, subansmatrix)
+                                coeffs = -np.linalg.solve(submatrix, subansmatrix)
                                 coeffs = [c for c in coeffs]
-                                coeffs.insert(m,1)
+                                coeffs.insert(m, 1)
                                 #Check if final coeffs are valid
                                 overall_mat = np.dot(perm_matrix, coeffs)
                                 if (abs(overall_mat) < 1e-8).all():
@@ -114,24 +116,24 @@ class Reaction(object):
                         raise ReactionError("Reaction is ill-formed and cannot be balanced.")
                 else:
                     raise ReactionError("Reaction is ill-formed and cannot be balanced.")
-            
-        for i in xrange(len(coeffs)-1,-1,-1):
+
+        for i in xrange(len(coeffs) - 1, -1, -1):
             if coeffs[i] != 0:
                 normfactor = coeffs[i]
                 break
         #Invert negative solutions and scale to final product
-        coeffs = [c/normfactor for c in coeffs]
+        coeffs = [c / normfactor for c in coeffs]
         self._els = els
         self._all_comp = all_comp[0:num_constraints]
         self._coeffs = coeffs[0:num_constraints]
         self._num_comp = num_constraints
-    
+
     def copy(self):
         """
         Returns a copy of the Reaction object.
         """
         return Reaction(self.reactants, self.products)
-    
+
     def calculate_energy(self, energies):
         """
         Calculates the energy of the reaction.
@@ -143,16 +145,16 @@ class Reaction(object):
             reaction energy as a float.
         """
         return sum([self._coeffs[i] * energies[self._all_comp[i]] for i in range(self._num_comp)])
-    
+
     def normalize_to(self, comp, factor = 1):
         """
         Normalizes the reaction to one of the compositions.
         By default, normalizes such that the composition given has a coefficient of 1.
         Another factor can be specified.
         """
-        scale_factor = abs(1/self._coeffs[self._all_comp.index(comp)] * factor)
+        scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
-    
+
     def normalize_to_element(self, element, target_amount = 1):
         """
         Normalizes the reaction to one of the elements.
@@ -162,52 +164,52 @@ class Reaction(object):
         current_element_amount = sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
         scale_factor = target_amount / current_element_amount
         self._coeffs = [c * scale_factor for c in self._coeffs]
-    
+
     def get_el_amount(self, element):
         return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
-    
+
     @property
     def elements(self):
         """
         List of elements in the reaction
         """
         return self._els[:]
-    
+
     @property
     def coeffs(self):
         """
         Final coefficients of the calculated reaction
         """
         return self._coeffs[:]
-    
+
     @property
     def all_comp(self):
         """
         List of all compositions in the reaction.
         """
         return self._all_comp
-    
+
     @property
     def reactants(self):
         """List of reactants"""
-        
+
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] < 0]
-    
+
     @property
     def products(self):
         """List of products"""
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] > 0]
-    
+
     def get_coeff(self, comp):
         """Returns coefficient for a particular composition"""
         return self._coeffs[self._all_comp.index(comp)]
-    
+
     def normalized_repr_and_factor(self):
         """
         Normalized representation for a reaction
         For example, ``4 Li + 2 O -> 2Li2O`` becomes ``2 Li + O -> Li2O``
         """
-        reactant_str= []
+        reactant_str = []
         product_str = []
         scaled_coeffs = []
         reduced_formulas = []
@@ -217,16 +219,16 @@ class Reaction(object):
             (reduced_formula, scale_factor) = comp.get_reduced_formula_and_factor()
             scaled_coeffs.append(coeff * scale_factor)
             reduced_formulas.append(reduced_formula)
-        
+
         count = 0
         while sum([abs(coeff) % 1 for coeff in scaled_coeffs]) > 1e-8:
-            norm_factor = 1/smart_float_gcd(scaled_coeffs)
+            norm_factor = 1 / smart_float_gcd(scaled_coeffs)
             scaled_coeffs = [c / norm_factor for c in scaled_coeffs]
             count += 1
             if count > 10: #Prevent an infinite loop
                 break
-            
-        for i in range(self._num_comp):  
+
+        for i in range(self._num_comp):
             if scaled_coeffs[i] == -1:
                 reactant_str.append(reduced_formulas[i])
             elif scaled_coeffs[i] == 1:
@@ -236,18 +238,18 @@ class Reaction(object):
             elif scaled_coeffs[i] > 0:
                 product_str.append("%d %s" % (scaled_coeffs[i], reduced_formulas[i]))
         factor = scaled_coeffs[0] / self._coeffs[0]
-        
+
         return (" + ".join(reactant_str) + " -> " + " + ".join(product_str), factor)
-    
+
     @property
     def normalized_repr(self):
         return self.normalized_repr_and_factor()[0]
-    
+
     def __repr__(self):
         return self.__str__()
-    
+
     def __str__(self):
-        reactant_str= []
+        reactant_str = []
         product_str = []
         for i in range(self._num_comp):
             comp = self._all_comp[i]
@@ -259,10 +261,10 @@ class Reaction(object):
                 reactant_str.append("%.3f %s" % (-scaled_coeff, comp.reduced_formula))
             elif scaled_coeff > 0:
                 product_str.append("%.3f %s" % (scaled_coeff, comp.reduced_formula))
-        
+
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 
-        
+
 def smart_float_gcd(list_of_floats):
     """
     Determines the great common denominator (gcd).  Works on floats as well as integers.
@@ -276,8 +278,8 @@ def smart_float_gcd(list_of_floats):
         if all_remainders[i] > 1e-5:
             mult_factor *= all_remainders[i]
             all_remainders = [ f2 / all_remainders[i] - int(f2 / all_remainders[i]) for f2 in all_remainders]
-    return 1/mult_factor
-    
+    return 1 / mult_factor
+
 
 class ReactionError(Exception):
     '''
@@ -296,7 +298,7 @@ class BalancedReaction(Reaction):
     """
     An extended version of Reaction to allow coefficients to be specified.
     """
-    
+
     def __init__(self, reactants_coeffs, products_coeffs):
         """
         Reactants and products to be specified as dict of 
@@ -315,7 +317,7 @@ class BalancedReaction(Reaction):
             else:
                 ind = all_comp.index(comp)
                 coeffs[ind] += -c
-        
+
         for comp, c in products_coeffs.items():
             if comp not in all_comp:
                 all_comp.append(comp)
@@ -327,18 +329,54 @@ class BalancedReaction(Reaction):
         for c in all_comp:
             els.update(c.elements)
         els = tuple(els)
-        
+
         sum_comp = defaultdict(int)
-        
+
         for i in xrange(len(all_comp)):
             for el in els:
                 sum_comp[el] += coeffs[i] * all_comp[i][el]
-        
+
         for v in sum_comp.values():
             if abs(v) > Reaction.TOLERANCE:
                 raise ReactionError("Reaction is unbalanced with {}!".format(v))
-        
+
         self._els = els
         self._all_comp = all_comp
         self._coeffs = coeffs
         self._num_comp = len(self._all_comp)
+
+
+class ComputedReaction(Reaction):
+    """
+    Convenience class to generate a reaction from ComputedEntry objects, with
+    some additional attributes, such as a reaction energy based on computed
+    energies.
+    """
+
+    def __init__(self, reactant_entries, product_entries):
+        """
+        Args:
+            reactant_entries: 
+                List of reactant_entries.
+            products: 
+                List of product_entries.
+        """
+        self._reactant_entries = reactant_entries
+        self._product_entries = product_entries
+        reactant_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in reactant_entries])
+        product_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in product_entries])
+        super(ComputedReaction, self).__init__(list(reactant_comp), list(product_comp))
+
+    @property
+    def calculated_reaction_energy(self):
+        calc_energies = {}
+        def update_calc_energies(entry):
+            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            if comp not in calc_energies:
+                calc_energies[comp] = entry.energy / factor
+            else:
+                calc_energies[comp] = min(calc_energies[comp], entry.energy / factor)
+        map(update_calc_energies, self._reactant_entries)
+        map(update_calc_energies, self._product_entries)
+        return self.calculate_energy(calc_energies)
+
