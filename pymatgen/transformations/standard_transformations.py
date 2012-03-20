@@ -628,6 +628,47 @@ class PrimitiveCellTransformation(AbstractTransformation):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {}
         return output
+    
+class ChargeBalanceTransformation(AbstractTransformation):
+    """
+    This is a transformation that disorders a structure to make it charge balanced, given an
+    oxidation state decorated structure
+    """
+
+    def __init__(self, charge_balance_sp):
+        '''
+        Args:
+            charge_balance_sp
+                specie to add or remove. Currently only removal is supported
+        '''
+        self._charge_balance_sp = str(charge_balance_sp)
+
+    def apply_transformation(self, structure):
+        charge = structure.charge
+        specie = smart_element_or_specie(self._charge_balance_sp)
+        num_to_remove = charge/specie.oxi_state
+        num_in_structure = structure.composition[specie]
+        removal_fraction = num_to_remove/num_in_structure
+        if removal_fraction < 0:
+            raise ValueError('addition of specie not yet supported by ChargeBalanceTransformation')
+        mapping = {self._charge_balance_sp : {self._charge_balance_sp : 1-removal_fraction}}
+        return SubstitutionTransformation(mapping).apply_transformation(structure)
+
+    def __str__(self):
+        return "Charge Balance Transformation : Species to remove = {}".format(str(self._charge_balance_sp))
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return self
+
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__, 'version': __version__ }
+        output['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
+        return output
 
 
 def transformation_from_dict(d):
