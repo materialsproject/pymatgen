@@ -4,13 +4,13 @@
 This module provides utility classes for io operations.
 """
 
-__author__="Shyue Ping Ong, Rickard Armiento"
+__author__ = "Shyue Ping Ong, Rickard Armiento"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 
 import bz2
@@ -22,7 +22,7 @@ def file_open_zip_aware(filename, *args):
     This wrapper wraps around the bz2, gzip and standard python's open function 
     to deal intelligently with bzipped, gzipped or standard text files.
     
-    Arguments:
+    Args:
         filename:
             filename 
         args:
@@ -32,9 +32,9 @@ def file_open_zip_aware(filename, *args):
         File handler
     """
     if filename.split(".")[-1].upper() == "BZ2":
-        return bz2.BZ2File(filename,*args)
+        return bz2.BZ2File(filename, *args)
     elif filename.split(".")[-1].upper() == "GZ" or filename.split(".")[-1] == "z":
-        return gzip.GzipFile(filename,*args)
+        return gzip.GzipFile(filename, *args)
     else:
         return open(filename, *args)
 
@@ -42,7 +42,7 @@ def clean_lines(string_list, remove_empty_lines = True):
     """
     Strips whitespace from strings '\n' and '\r' and empty lines from a list (usually obtained with the ".readlines()" method)
     
-    Arguments:
+    Args:
         string_list:
             list of strings
         remove_empty_lines:
@@ -51,7 +51,7 @@ def clean_lines(string_list, remove_empty_lines = True):
     Returns:
         List of clean strings with no whitespaces.
     """
-    
+
     for s in string_list:
         clean_s = s
         if '#' in s:
@@ -60,8 +60,8 @@ def clean_lines(string_list, remove_empty_lines = True):
         clean_s = clean_s.strip()
         if (not remove_empty_lines) or clean_s != '':
             yield clean_s
-    
-def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
+
+def micro_pyawk(filename, search, results = None, debug = None, postdebug = None):
     """
     Small awk-mimicking search routine.
        
@@ -91,17 +91,17 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     for entry in search:
         if isinstance(entry[0], str):
             entry[0] = re.compile(entry[0])
-            
+
     reader = file_open_zip_aware(filename)
     for line in reader:
         for i in range(len(search)):
             match = search[i][0].search(line)
-            if match and (search[i][1] == None or search[i][1](results,line)):
+            if match and (search[i][1] == None or search[i][1](results, line)):
                 if debug != None:
-                    debug(results,match)
-                search[i][2](results,match)
+                    debug(results, match)
+                search[i][2](results, match)
                 if postdebug != None:
-                    postdebug(results,match)
+                    postdebug(results, match)
 
     reader.close()
     return results
@@ -111,7 +111,7 @@ def clean_json(input_json, strict = False):
     This method cleans an input json-like dict object, either a list or a dictionary, nested or otherwise,
     by converting all non-string dictionary keys (such as int and float) to strings.
     
-    Arguments:
+    Args:
         input_dict:
             input dictionary.
     

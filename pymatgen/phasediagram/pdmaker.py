@@ -4,17 +4,18 @@
 This module provides classes to create phase diagrams.
 """
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "$Sep 23, 2011M$"
 
 import numpy as np
 import logging
 
+from pymatgen.core.structure import Composition
 from pymatgen.command_line.qhull_caller import qconvex
 from entries import GrandPotPDEntry
 from scipy.spatial import Delaunay
@@ -26,14 +27,17 @@ class PhaseDiagram (object):
     Simple phase diagram class taking in elements and entries as inputs.
     '''
     FORMATION_ENERGY_TOLERANCE = 1e-11
-    
-    def __init__(self, entries, elements = None, use_external_qhull= False):
+
+    def __init__(self, entries, elements = None, use_external_qhull = False):
         """
         Standard constructor for phase diagram.
-        Arguments:
-            entries - a list of PDEntry-like objects having an energy, energy_per_atom and composition.
-            elements - Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                       the entries themselves.
+        
+        Args:
+            entries:
+                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+            elements:
+                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
+                the entries themselves.
         """
         if elements == None:
             elements = set()
@@ -84,14 +88,14 @@ class PhaseDiagram (object):
         Actual entries used in convex hull. Excludes all positive formation energy entries.
         """
         return self._qhull_entries
-    
+
     @property
     def unstable_entries(self):
         """
         Entries that are unstable in the phase diagram. Includes positive formation energy entries.
         """
         return [e for e in self.all_entries if e not in self.stable_entries]
-    
+
     @property
     def stable_entries(self):
         '''
@@ -114,34 +118,37 @@ class PhaseDiagram (object):
         """
         return self._el_refs
 
-    def get_form_energy(self,entry):
+    def get_form_energy(self, entry):
         '''
         Returns the formation energy for an entry (NOT normalized) from the
         elemental references.
-        Arguments:
-            entry - A PDEntry
+        
+        Args:
+            entry:
+                A PDEntry
+        
         Returns:
-            formation energy from the elementals references.
+            Formation energy from the elementals references.
         '''
         comp = entry.composition
-        energy = entry.energy - sum([comp[el]*self._el_refs[el].energy_per_atom for el in comp.elements])
+        energy = entry.energy - sum([comp[el] * self._el_refs[el].energy_per_atom for el in comp.elements])
         return energy
-        
-    def get_form_energy_per_atom(self,entry):
+
+    def get_form_energy_per_atom(self, entry):
         '''
         Returns the formation energy per atom for an entry from the
         elemental references.
         '''
         comp = entry.composition
-        return self.get_form_energy(entry)/comp.num_atoms
+        return self.get_form_energy(entry) / comp.num_atoms
 
-    def _process_entries_qhulldata(self,entries_to_process):
+    def _process_entries_qhulldata(self, entries_to_process):
         data = list()
         for entry in entries_to_process:
             comp = entry.composition
             energy_per_atom = entry.energy_per_atom
             row = list()
-            for i in xrange(1,len(self._elements)):
+            for i in xrange(1, len(self._elements)):
                 row.append(comp.get_atomic_fraction(self._elements[i]))
             row.append(energy_per_atom)
             data.append(row)
@@ -156,13 +163,14 @@ class PhaseDiagram (object):
         self._el_refs = dict()
         for entry in self._all_entries:
             if entry.composition.is_element:
-                el = entry.composition.elements[0]
+                for el in entry.composition.elements:
+                    if entry.composition[el] > Composition.amount_tolerance:
+                        break
                 e_per_atom = entry.energy_per_atom
                 if el not in self._el_refs:
                     self._el_refs[el] = entry
                 elif self._el_refs[el].energy_per_atom > e_per_atom:
                     self._el_refs[el] = entry
-
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
@@ -170,7 +178,7 @@ class PhaseDiagram (object):
                 entries_to_process.append(entry)
             else:
                 logger.debug("Removing positive formation energy entry {}".format(entry))
-                
+
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
 
@@ -189,16 +197,16 @@ class PhaseDiagram (object):
                 delau = Delaunay(self._qhull_data)
                 self._facets = delau.convex_hull
             logger.debug("Final facets are\n{}".format(self._facets))
-            
+
             logger.debug("Removing vertical facets...")
             finalfacets = list()
             for facet in self._facets:
-                facetmatrix = np.zeros((len(facet),len(facet)))
+                facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
                     facetmatrix[count] = np.array(self._qhull_data[vertex])
-                    facetmatrix[count, dim-1] = 1
+                    facetmatrix[count, dim - 1] = 1
                     count += 1
                     if len(self._qhull_entries[vertex].composition) > 1:
                         is_element_facet = False
@@ -223,22 +231,26 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
     def __init__(self, entries, chempots, elements, use_external_qhull = False):
         """
         Standard constructor for phase diagram.
-        Arguments:
-            entries - a list of PDEntry-like objects having an energy, energy_per_atom and composition.
-            chempots - a dict of {element: float} to specify the chemical potentials of the open elements.
-            elements - Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                       the entries themselves.
+        
+        Args:
+            entries:
+                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+            chempots:
+                A dict of {element: float} to specify the chemical potentials of the open elements.
+            elements:
+                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
+                the entries themselves.
         """
         allentries = list()
         for entry in entries:
             if not (entry.is_element and (entry.composition.elements[0] in chempots)):
-                allentries.append(GrandPotPDEntry(entry,chempots))
+                allentries.append(GrandPotPDEntry(entry, chempots))
         self.chempots = chempots
         filteredels = list()
         for el in elements:
             if el not in chempots:
                 filteredels.append(el)
         elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram,self).__init__(allentries, elements, use_external_qhull)
+        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements, use_external_qhull)
 
 
