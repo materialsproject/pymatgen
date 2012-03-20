@@ -35,7 +35,8 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.electronic_structure import CompleteDos, Dos, PDos, Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.dos import CompleteDos, Dos, PDos
 from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
@@ -1103,9 +1104,6 @@ class Vasprun(object):
         if not self.incar['ICHARG'] == 11:
             raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
 
-        if(efermi == None):
-            efermi = self.efermi
-
         k = Kpoints.from_file(kpoints_filename)
         labels_dict = dict(zip(k.labels, k.kpts))
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
@@ -1118,7 +1116,7 @@ class Vasprun(object):
         for i in range(max_band):
             eigenvals.append({'energy':[dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
             eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
-        return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
+        return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
 
     @property
     def eigenvalue_band_properties(self):
