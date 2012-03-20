@@ -77,18 +77,18 @@ def get_lines_voronoi(data):
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) +"\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])
-    print prep_str
+    #print prep_str
     p = subprocess.Popen(['qconvex', 'o'], stdout = subprocess.PIPE,stdin = subprocess.PIPE, close_fds = True)
     output = p.communicate(input = prep_str)[0]
     output = re.split("\n", output)
-    print output
+    #print output
     nb_points=int(output[1].split(" ")[0])
     points=[]
     list_lines=[]
     list_points=[]
     for i in range(2,2+nb_points):
         #if(not output[i]==''):
-            print output[i]
+            #print output[i]
             #print [float(c) for c in output[i].strip().split(" ")]
             list_points.append([float(c) for c in output[i].strip().split()])
     #print len(list_points)
@@ -112,7 +112,7 @@ def get_lines_voronoi(data):
     
     for i in range(len(facets)):
         #print i
-        print "start"+str(facets[i])
+        #print "start"+str(facets[i])
         #vector1=numpy.array(list_points[facets[i][0]])
         #vector2=numpy.array(list_points[facets[i][1]])
         #n2=numpy.cross(vector1,vector2)
@@ -136,17 +136,17 @@ def get_lines_voronoi(data):
                     n2=numpy.cross(vector1,vector2)
                     
                     dot=math.fabs(numpy.dot(n1,n2)/(numpy.linalg.norm(n1)*numpy.linalg.norm(n2)))
-                    print "common"+str(facets[j])
-                    print n1
-                    print n2
-                    print dot
+                    #print "common"+str(facets[j])
+                    #print n1
+                    #print n2
+                    #print dot
                     if(dot<1.05 and dot>0.95):
                         continue
                     #print j
                    # print facets[j]
                     list_lines.append({'start':list_points[line[0]],'end':list_points[line[1]]})
                     break
-    print list_lines        
+    #print list_lines        
     return list_lines
     #list=run_qhull_command(['qconvex','o'], data, float, 1)
     #print list
