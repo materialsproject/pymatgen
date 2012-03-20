@@ -14,6 +14,7 @@ __date__ = "Sep 23, 2011"
 
 import unittest
 
+import pymatgen
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -32,6 +33,11 @@ class TransformationsTest(unittest.TestCase):
         t = IdentityTransformation()
         self.assertEqual(self.struct, t.apply_transformation(self.struct))
     
+    def test_to_dict(self):
+        t = IdentityTransformation()
+        self.assertIn("version", t.to_dict)
+        self.assertIn("init_args", t.to_dict)
+        
     def test_rotation_transformation(self):
         t = RotationTransformation([0,1,0], 30, False)
         s2 = t.apply_transformation(self.struct)

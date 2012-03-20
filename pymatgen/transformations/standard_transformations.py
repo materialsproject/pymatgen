@@ -9,7 +9,7 @@ from __future__ import division
 
 __author__="Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
@@ -52,7 +52,7 @@ class IdentityTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'init_args': {} }
+        output = {'name' : self.__class__.__name__, 'init_args': {}, 'version': __version__ }
         return output
     
     
@@ -90,7 +90,7 @@ class RotationTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
         return output
 
@@ -118,7 +118,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'oxidation_states': self.oxi_states}
         return output
 
@@ -151,7 +151,7 @@ class SupercellTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'scaling_matrix': self._matrix}
         return output
         
@@ -185,7 +185,7 @@ class SubstitutionTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'species_map': self._species_map}
         return output
         
@@ -218,7 +218,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'species_to_remove': self._species}
         return output
     
@@ -297,7 +297,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac, 'complete_ranking':self._complete_ranking}
         return output
         
@@ -434,7 +434,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {}
         return output
     
@@ -550,7 +550,7 @@ class OrderDisorderedStructureTransformation_old(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {}
         return output
 
@@ -658,8 +658,6 @@ class PrimitiveCellTransformation(AbstractTransformation):
             return structure
     
     def apply_transformation(self, structure):
-        """
-        """
         structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         while len(structure2)<len(structure):
             structure = structure2
@@ -679,7 +677,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
     
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__}
+        output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {}
         return output
 
