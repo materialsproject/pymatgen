@@ -63,6 +63,9 @@ class TransformedStructureTransmuterTest(unittest.TestCase):
         self.assertEqual(len(tsc[0]), 6)
         #5 transformations plus initial structure
         
+        tsc = TransformedStructureTransmuter([tsc[0]],[SubstitutionTransformation({"Mn3+":{"Fe2+":0.333}}), OrderDisorderedStructureTransformation(num_structures = 50)], extend_collection = False)
+        self.assertEqual(len(tsc), 1)
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
