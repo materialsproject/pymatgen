@@ -9,14 +9,6 @@ band_structure Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`effective_mass` Module
-----------------------------
-
-.. automodule:: pymatgen.electronic_structure.band_structure.effective_mass
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`plotter` Module
 ---------------------
 
