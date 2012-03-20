@@ -30,7 +30,6 @@ from copy import deepcopy
 class TransformedStructureTransmuter(object):
 
     def __init__(self, transformed_structures, transformations = [], extend_collection = False):
-        self._extend_collection = extend_collection
         self._transformed_structures = transformed_structures
         for trans in transformations:
             self.append_transformation(trans)
@@ -64,7 +63,7 @@ class TransformedStructureTransmuter(object):
     def __len__(self):
         return len(self._transformed_structures)
 
-    def append_transformation(self, transformation, clear_redo = True):
+    def append_transformation(self, transformation, extend_collection = False, clear_redo = True):
         """
         TODO: clean this up a lot
         
@@ -86,14 +85,14 @@ class TransformedStructureTransmuter(object):
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, clear_redo, return_alternatives = self._extend_collection)
-            if new:
+            new = x.append_transformation(transformation, return_alternatives = extend_collection, clear_redo = clear_redo)
+            if new is not None:
                 new_structures.extend(new)
         output = [x.was_modified for x in self._transformed_structures]
         self._transformed_structures.extend(new_structures)
         return output
 
-    def branch_collection(self, transformations, retention_level = 1, clear_redo = True):
+    def branch_collection(self, transformations, retention_level = 1, extend_collection = False, clear_redo = True):
         '''
         copies the structures collection, applying one transformation to each copy.
         
@@ -124,7 +123,7 @@ class TransformedStructureTransmuter(object):
         new_trans_structures = []
         for transformation in transformations:
             self._transformed_structures = deepcopy(old_transformed_structures)
-            modified = self.append_transformation(transformation, clear_redo)
+            modified = self.append_transformation(transformation, extend_collection, clear_redo)
             for structure in self._transformed_structures:
                 if structure.was_modified:
                     new_trans_structures.append(structure)
@@ -209,7 +208,7 @@ class TransformedStructureTransmuter(object):
 
 
     @staticmethod
-    def from_cifs(cif_filenames, transformations = [], primitive = True, extend_collection = False):
+    def from_cifs(cif_filenames, transformations = [], primitive = True):
         '''
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
@@ -229,17 +228,16 @@ class TransformedStructureTransmuter(object):
                         read_data = True
                     if read_data:
                         structure_data[-1].append(line)
-                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), [], primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
-
+                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
+        return TransformedStructureTransmuter(transformed_structures, [])
+    
     @staticmethod
-    def from_poscars(poscar_filenames, transformations = [], extend_collection = False):
+    def from_poscars(poscar_filenames, transformations = []):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
-
+                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), transformations))
+        return TransformedStructureTransmuter(transformed_structures, [])
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory = True):
