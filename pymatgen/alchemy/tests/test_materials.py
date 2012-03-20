@@ -53,10 +53,13 @@ class TransformedStructureTest(unittest.TestCase):
 
     def test_from_dict(self):
         d = json.load(open(os.path.join(test_dir, 'transformations.json'), 'r'))
+        d['other_parameters'] = {'tags': ['test']}
         ts = TransformedStructure.from_dict(d)
+        ts.set_parameter('author', 'Will')
         ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
         self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
-
+        self.assertEqual(ts.other_parameters, {'author': 'Will', 'tags': ['test']})
+        
     def test_undo_last_transformation_and_redo(self):
         trans = []
         trans.append(SubstitutionTransformation({"Li":"Na"}))

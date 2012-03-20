@@ -192,12 +192,15 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
 
         struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] , coords)
-        t.apply_transformation(struct)
+        output = t.apply_transformation(struct)
         self.assertEqual(len(t.all_structures), 12)
+        self.assertIsInstance(output, Structure)
 
         struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"P5+":0.5, "O2-": 0.5}, {"P5+":0.5, "O2-": 0.5}] , coords)
-        t.apply_transformation(struct)
+        output = t.apply_transformation(struct, return_ranked_list = True)
+        self.assertIsInstance(output, list)
         self.assertEqual(len(t.all_structures), 4)
+        self.assertEqual(t.lowest_energy_structure, output[0]['structure'])
 
         struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"O2-": 0.5}, {"O2-": 0.5}] , coords)
         t.apply_transformation(struct)
