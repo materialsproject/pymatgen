@@ -71,9 +71,9 @@ class StructureFitter(object):
             fitting_accuracy : 
                 An integer setting for the fitting accuracy.  Corresponds to the max number
                 of candidate rotations considered.  Use the static variables, 
-                    StructureFitter.FAST_FIT
-                    StructureFitter.NORMAL_FIT
-                    StructureFitter.ACCURATE_FIT
+                StructureFitter.FAST_FIT
+                StructureFitter.NORMAL_FIT
+                StructureFitter.ACCURATE_FIT
                 to set the tradeoff between accuracy and speed.  The default, FAST_FIT, should
                 work reasonably well in most instances.
         """
@@ -419,12 +419,16 @@ class StructureFitter(object):
 
     @property
     def structure_a(self):
-        """First input structure"""
+        """
+        First input structure
+        """
         return self._structure_a
 
     @property
     def structure_b(self):
-        """Second input structure"""
+        """
+        Second input structure
+        """
         return self._structure_b
 
 def apply_operation(structure, symmop):
