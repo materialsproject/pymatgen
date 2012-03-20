@@ -44,7 +44,7 @@ class _SpinImpl(object):
 
 class Spin(object):
     """
-    Enum type for Spin.  Only up and down.  Design follows somewhat the familiar Java syntax.
+    Enum type for Spin.  Only up and down.
     """
 
     up = _SpinImpl("up")
@@ -53,6 +53,13 @@ class Spin(object):
 
     @staticmethod
     def from_int(i):
+        """
+        Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
+        
+        Args:
+            i:
+                integer representing direction of spin.
+        """
         if i == 1:
             return Spin.up
         elif i == -1:
