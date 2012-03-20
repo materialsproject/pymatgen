@@ -175,7 +175,7 @@ class BandStructureSymmLine(BandStructure):
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian = False):
-        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
+        super(BandStructureSymmLine, self).__init__(kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
         self._distance = []
         self._branches = []
         """
@@ -190,21 +190,21 @@ class BandStructureSymmLine(BandStructure):
         previous_label = self._kpoints[0].label
         for i in range(len(self._kpoints)):
             label = self._kpoints[i].label
-            if(label != None and previous_label != None):
+            if label != None and previous_label != None:
                 self._distance.append(previous_distance)
             else:
                 self._distance.append(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = self._kpoints[i]
             previous_distance = self._distance[i]
             if label != None:
-                if(previous_label != None):
-                    if(len(one_group) != 0):
+                if previous_label != None:
+                    if len(one_group) != 0:
                         branches_tmp.append(one_group)
                     one_group = []
             previous_label = label
             one_group.append(i)
 
-        if(len(one_group) != 0):
+        if len(one_group) != 0:
             branches_tmp.append(one_group)
         #self._branches=branches
         for b in branches_tmp:
@@ -306,11 +306,11 @@ class BandStructureSymmLine(BandStructure):
             below = False
             above = False
             for j in range(len(self._kpoints)):
-                if(self._bands[i]['energy'][j] < self._efermi):
+                if self._bands[i]['energy'][j] < self._efermi:
                     below = True
-                if(self._bands[i]['energy'][j] > self._efermi):
+                if self._bands[i]['energy'][j] > self._efermi:
                     above = True
-            if(above == True and below == True):
+            if above and below:
                 return True
         return False
 
@@ -327,12 +327,12 @@ class BandStructureSymmLine(BandStructure):
         dictio['branches'] = self._branches
         dictio['bands'] = self._bands
         dictio['is_metal'] = self.is_metal()
-        dictio['VBM'] = self.get_cbm()['kpoint'].to_dict()
-        dictio['CBM'] = self.get_vbm()['kpoint'].to_dict()
+        dictio['VBM'] = self.get_cbm()['kpoint'].to_dict
+        dictio['CBM'] = self.get_vbm()['kpoint'].to_dict
         dictio['band_gap'] = self.get_band_gap()
         dictio['labels_dict'] = {}
         for c in self._labels_dict:
-            dictio['labels_dict'][c] = self._labels_dict[c].to_dict()['fcoords']
+            dictio['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
         return dictio
 
     @staticmethod
