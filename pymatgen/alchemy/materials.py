@@ -7,7 +7,7 @@ consistent input vs output interface for transformations on db entries.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -103,7 +103,7 @@ class TransformedStructure(object):
 
     def __len__(self):
         return len(self._structures)
-    
+
     @staticmethod
     def _alternative_transformed_structures(unmodified_transformed_structure, transformation, structure_dicts):
         for x in structure_dicts:
@@ -118,7 +118,7 @@ class TransformedStructure(object):
         """
         Appends a transformation to the TransformedStructure.
         
-        Arguments:
+        Args:
             transformation:
                 Transformation to append
             clear_redo:
@@ -131,18 +131,18 @@ class TransformedStructure(object):
         if return_alternatives:
             structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True)
             alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
-            
+
             new_s = structures_dict_list[0]
             self._structures.append(new_s.pop('structure'))
             self._transformations.append(transformation)
             self._transformation_parameters.append(new_s)
             return alternative_structures
-        
+
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
             self._transformation_parameters.append({})
-            self._transformations.append(transformation)   
+            self._transformations.append(transformation)
 
         if clear_redo:
             self._redo_trans = []
@@ -151,7 +151,7 @@ class TransformedStructure(object):
         """
         Extends a sequence of transformations to the TransformedStructure.
         
-        Arguments:
+        Args:
             transformations:
                 Sequence of Transformations
         """
@@ -304,7 +304,7 @@ class TransformedStructure(object):
             source = 'uploaded cif'
         source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
         return TransformedStructure(s, transformations, [source_info])
-        
+
     @staticmethod
     def from_poscar_string(poscar_string, transformations = []):
         """
