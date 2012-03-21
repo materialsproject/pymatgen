@@ -1399,7 +1399,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                         self.kpoints.kpts_shift = [float(x) for x in re.split("\s+", self.val.getvalue().strip())]
                     elif self.state['v'] == "genvec1" or self.state['v'] == "genvec2" or self.state['v'] == "genvec3" or self.state['v'] == "shift":
                         setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
-
         else:
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
@@ -1458,6 +1457,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     elif name == "partial":
                         all_pdos = []
                         natom = len(self.atomic_symbols)
+                        struct = self.structures[-1]
                         for iatom in xrange(1, natom + 1):
                             all_pdos.append(list())
                             for iorbital in xrange(self.norbitals):
