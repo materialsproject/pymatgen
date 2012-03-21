@@ -54,7 +54,7 @@ class PhaseDiagram (object):
         self._stable_entries = None
         self._all_entries_hulldata = None
         self._use_external_qhull = use_external_qhull
-        self.make_phasediagram()
+        self._make_phasediagram()
 
     @property
     def all_entries(self):
@@ -186,7 +186,10 @@ class PhaseDiagram (object):
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
 
-    def make_phasediagram(self):
+    def _make_phasediagram(self):
+        """
+        Make the phase diagram.
+        """
         stable_entries = set()
         dim = len(self._elements)
         self._qhull_data = self._create_convhull_data()
@@ -274,7 +277,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
 def get_comp_matrix_from_comp(compositions, elements, normalize_row = True):
     """
-    Helper function to generates a normalized composition matrix from a list of composition.
+    Helper function to generates a normalized composition matrix from a list of 
+    composition.
     """
     comp_matrix = np.array([[comp.get_atomic_fraction(el) for el in elements] for comp in compositions])
     if not normalize_row:
@@ -284,7 +288,8 @@ def get_comp_matrix_from_comp(compositions, elements, normalize_row = True):
 
 def get_comp_matrix(entries, elements, normalize_row = True):
     """
-    Helper function to generates a normalized composition matrix from a list of composition.
+    Helper function to generates a normalized composition matrix from a list of 
+    composition.
     """
     return get_comp_matrix_from_comp([entry.composition for entry in entries], elements, normalize_row)
 

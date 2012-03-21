@@ -10,7 +10,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
 import math
 import numpy as np
@@ -91,7 +91,7 @@ class PDPlotter(object):
 
     def show(self):
         """
-        Draws the plot using Matplotlib.
+        Draws the phase diagram using Matplotlib and show it.
         """
         if self._dim < 4:
             self._show_2d_plot()
