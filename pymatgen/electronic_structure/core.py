@@ -6,7 +6,7 @@ This module provides classes to define electronic structure, such as the density
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Vincent L Chevrier, Rickard Armiento, Geoffroy Hautier"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -15,41 +15,38 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-class _SpinImpl(object):
-    """
-    Internal representation of a Spin. 
-    Do not use directly.
-    """
-
-    def __init__(self, name):
-        self._name = name
-
-    def __int__(self):
-        return 1 if self._name == "up" else -1
-
-    def __repr__(self):
-        return self._name
-
-    def __eq__(self, other):
-        if other == None:
-            return False
-        return self._name == other._name
-
-    def __hash__(self):
-        return self.__int__()
-
-    def __str__(self):
-        return self._name
-
+from pymatgen.util.decorators import cached_class
 
 class Spin(object):
     """
     Enum type for Spin.  Only up and down.
     """
 
-    up = _SpinImpl("up")
-    down = _SpinImpl("down")
-    all_spins = (up, down)
+    @cached_class
+    class _SpinImpl(object):
+        """
+        Internal representation for Spin. Not to be instantiated directly.
+        Use Spin enum types.
+        """
+        def __init__(self, name):
+            self._name = name
+
+        def __int__(self):
+            return 1 if self._name == "up" else -1
+
+        def __repr__(self):
+            return self._name
+
+        def __eq__(self, other):
+            if other == None:
+                return False
+            return self._name == other._name
+
+        def __hash__(self):
+            return self.__int__()
+
+        def __str__(self):
+            return self._name
 
     @staticmethod
     def from_int(i):
@@ -67,37 +64,9 @@ class Spin(object):
         else:
             raise ValueError("Spin integers must be 1 or -1")
 
-
-class _OrbitalImpl(object):
-    """
-    Internal representation of an orbital.  Do not use directly. 
-    Use the Orbital class enum types.
-    """
-
-    def __init__(self, name, vasp_index):
-        self._name = name
-        self._vasp_index = vasp_index
-
-    def __int__(self):
-        return self._vasp_index
-
-    def __repr__(self):
-        return self._name
-
-    def __eq__(self, other):
-        if other == None:
-            return False
-        return self._name == other._name
-
-    def __hash__(self):
-        return self.__int__()
-
-    @property
-    def orbital_type(self):
-        return self._name[0].upper()
-
-    def __str__(self):
-        return self._name
+    up = _SpinImpl("up")
+    down = _SpinImpl("down")
+    all_spins = (up, down)
 
 
 class Orbital(object):
@@ -105,6 +74,38 @@ class Orbital(object):
     Enum type for OrbitalType. Indices are basically the azimutal quantum number, l.
     Design follows somewhat the familiar Java syntax.
     """
+
+    @cached_class
+    class _OrbitalImpl(object):
+        """
+        Internal representation of an orbital.  Do not use directly. 
+        Use the Orbital class enum types.
+        """
+
+        def __init__(self, name, vasp_index):
+            self._name = name
+            self._vasp_index = vasp_index
+
+        def __int__(self):
+            return self._vasp_index
+
+        def __repr__(self):
+            return self._name
+
+        def __eq__(self, other):
+            if other == None:
+                return False
+            return self._name == other._name
+
+        def __hash__(self):
+            return self.__int__()
+
+        @property
+        def orbital_type(self):
+            return self._name[0].upper()
+
+        def __str__(self):
+            return self._name
 
     s = _OrbitalImpl("s", 0)
     py = _OrbitalImpl("py", 1)
@@ -130,6 +131,7 @@ class Orbital(object):
         for orb in Orbital.all_orbitals:
             if int(orb) == i:
                 return orb
+        raise IndexError("Illegal exceeds supported orbital set")
 
     @staticmethod
     def from_string(orb_str):
