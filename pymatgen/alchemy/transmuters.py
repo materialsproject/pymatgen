@@ -150,7 +150,7 @@ class TransformedStructureTransmuter(object):
         for t in transformations:
             self.append_transformation(t)
 
-    def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True):
+    def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True, subfolder = None):
         """
         Batch write vasp input for a sequence of transformed structures to output_dir,
         following the format output_dir/{formula}_{number}.
@@ -163,8 +163,11 @@ class TransformedStructureTransmuter(object):
                 Directory to output files
             create_directory:
                 Create the directory if not present. Defaults to True.
+            subfolder:
+                function to create subdirectory name from transformed_structure.
+                eg. lambda x: x.other_parameters['tags'][0] to use the first tag
         """
-        batch_write_vasp_input(self._transformed_structures, vasp_input_set, output_dir, create_directory)
+        batch_write_vasp_input(self._transformed_structures, vasp_input_set, output_dir, create_directory, subfolder)
 
     def set_parameter(self, key, value):
         for x in self._transformed_structures:
@@ -240,10 +243,10 @@ class TransformedStructureTransmuter(object):
         return TransformedStructureTransmuter(transformed_structures, [])
 
 
-def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory = True):
+def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory = True, subfolder = None):
     """
     Batch write vasp input for a sequence of transformed structures to output_dir,
-    following the format output_dir/{formula}_{number}.
+    following the format output_dir/{group}/{formula}_{number}.
     
     Args:
         transformed_structures:
@@ -255,10 +258,17 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, c
             Directory to output files
         create_directory:
             Create the directory if not present. Defaults to True.
+        subfolder:
+            function to create subdirectory name from transformed_structure.
+            eg. lambda x: x.other_parameters['tags'][0] to use the first tag
     """
     dnames_count = collections.defaultdict(int)
     for s in transformed_structures:
         formula = re.sub("\s+", "", s.final_structure.formula)
-        dirname = os.path.join(output_dir, '{}_{}'.format(formula, dnames_count[formula] + 1))
+        if subfolder is not None:
+            subdir = subfolder(s)
+            dirname = os.path.join(output_dir, subdir, '{}_{}'.format(formula, dnames_count[subdir+formula] + 1))
+        else:
+            dirname = os.path.join(output_dir, '{}_{}'.format(formula, dnames_count[formula] + 1))
         s.write_vasp_input(vasp_input_set, dirname, create_directory = True)
         dnames_count[formula] += 1
