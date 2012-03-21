@@ -221,6 +221,17 @@ class Site(collections.Mapping, collections.Hashable):
                 species_list.append({'element': spec.symbol, 'occu': occu})
         return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords]}
 
+    @staticmethod
+    def from_dict(d):
+        """
+        Create Site from dict representation
+        """
+        atoms_n_occu = {}
+        for sp_occu in d['species']:
+            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            atoms_n_occu[sp] = sp_occu['occu']
+        return Site(atoms_n_occu, d['xyz'])
+
 
 class PeriodicSite(Site):
     """
@@ -246,13 +257,13 @@ class PeriodicSite(Site):
                 Set to True if you are providing cartesian coordinates.  Defaults to False.
         """
         self._lattice = lattice
-        self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._fcoords = self._lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
             for i in range(len(self._fcoords)):
                 self._fcoords[i] = self._fcoords[i] - math.floor(self._fcoords[i])
 
-        c_coords = lattice.get_cartesian_coords(self._fcoords)
+        c_coords = self._lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords)
 
     @property
@@ -445,7 +456,21 @@ class PeriodicSite(Site):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'label': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'abc':[float(c) for c in self._fcoords]}
+        return {'label': self.species_string, 'species': species_list,
+                'occu': occu, 'xyz':[float(c) for c in self._coords],
+                'abc':[float(c) for c in self._fcoords],
+                'lattice': self._lattice.to_dict}
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Create PeriodicSite from dict representation
+        """
+        atoms_n_occu = {}
+        for sp_occu in d['species']:
+            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            atoms_n_occu[sp] = sp_occu['occu']
+        return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']))
 
 
 class Structure(collections.Sequence, collections.Hashable):
