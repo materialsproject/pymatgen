@@ -223,10 +223,16 @@ class Dos(object):
 
     @staticmethod
     def from_dict(d):
+        """
+        Returns Dos object from dict representation of Dos.
+        """
         return Dos(d['efermi'], d['energies'], { Spin.from_int(int(k)):v for k, v in d['densities'].items()})
 
     @property
     def to_dict(self):
+        """
+        Json-serializable dict representation of Dos.
+        """
         d = {}
         d['efermi'] = self._efermi
         d['energies'] = list(self._energies)
@@ -258,10 +264,16 @@ class PDos(Dos):
 
     @staticmethod
     def from_dict(d):
+        """
+        Returns PDos object from dict representation.
+        """
         return PDos(d['efermi'], d['energies'], { Spin.from_int(int(k)):v for k, v in d['densities'].items()}, Orbital.from_string(d['orbital']))
 
     @property
     def to_dict(self):
+        """
+        Json-serializable dict representation of PDos.
+        """
         d = {}
         d['efermi'] = self._efermi
         d['energies'] = list(self._energies)
@@ -294,12 +306,37 @@ class CompleteDos(Dos):
 
     @property
     def structure(self):
+        """
+        Structure associated with the CompleteDos.
+        """
         return self._structure
 
     def get_site_orbital_dos(self, site, orbital):
+        """
+        Get the Dos for a particular orbital of a particular site.
+        
+        Args:
+            site:
+                Site in Structure associated with CompleteDos.
+            orbital:
+                Orbital in the site.
+                
+        Returns:
+            Dos containing densities for orbital of site.
+        """
         return self._pdos[site][orbital]
 
     def get_site_dos(self, site):
+        """
+        Get the total Dos for a site (all orbitals).
+        
+        Args:
+            site:
+                Site in Structure associated with CompleteDos.
+                
+        Returns:
+            Dos containing summed orbital densities for site.
+        """
         site_dos = None
         for pdos in self._pdos[site].values():
             if site_dos == None:
@@ -345,6 +382,9 @@ class CompleteDos(Dos):
 
     @staticmethod
     def from_dict(d):
+        """
+        Returns CompleteDos object from dict representation.
+        """
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d['structure'])
         pdoss = {}
@@ -359,13 +399,15 @@ class CompleteDos(Dos):
 
     @property
     def to_dict(self):
+        """
+        Json-serializable dict representation of CompleteDos.
+        """
         d = {}
         d['efermi'] = self._efermi
         d['structure'] = self._structure.to_dict
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
         d['pdos'] = []
-        print self._pdos.keys()
         if len(self._pdos) > 0:
             for at in self._structure:
                 dd = dict()
@@ -380,7 +422,8 @@ class CompleteDos(Dos):
         return "Complete DOS for " + str(self._structure)
 
 
-def plot_dos(dos_dict, zero_at_efermi = True, stack = False, key_sort_func = None, xlim = None, ylim = None):
+def plot_dos(dos_dict, zero_at_efermi = True, stack = False,
+             key_sort_func = None, xlim = None, ylim = None):
     """
     Plots a series of Dos using matplotlib.
     

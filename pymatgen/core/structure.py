@@ -210,7 +210,9 @@ class Site(collections.Mapping, collections.Hashable):
 
     @property
     def to_dict(self):
-        """A dictionary representation for Site that is json serializable."""
+        """
+        Json-serializable dict representation for Site.
+        """
         species_list = []
         for spec, occu in self._species.items():
             if isinstance(spec, Specie):
@@ -354,7 +356,7 @@ class PeriodicSite(Site):
         if the index jimage of atom j is specified it returns the distance between
         the i atom and the specified jimage atom, the given jimage is also returned.
         
-        Arguments:
+        Args:
             fcoords:
                 fcoords to get distance from.
             jimage:
@@ -390,7 +392,7 @@ class PeriodicSite(Site):
         if the index jimage of atom j is specified it returns the distance between
         the i atom and the specified jimage atom, the given jimage is also returned.
         
-        Arguments:
+        Args:
             other:
                 other site to get distance from.
             jimage:
@@ -434,6 +436,9 @@ class PeriodicSite(Site):
 
     @property
     def to_dict(self):
+        """
+        Json-serializable dict representation of PeriodicSite.
+        """
         species_list = []
         for spec, occu in self._species.items():
             if isinstance(spec, Specie):
@@ -445,19 +450,23 @@ class PeriodicSite(Site):
 
 class Structure(collections.Sequence, collections.Hashable):
     """
-    Basic Structure object with periodicity. Essentially a sequence of sites having a common lattice.
-    Structure is made to be immutable so that they can function as keys in a dictionary.  
-    Modifications should be done by making a new Structure using the structure_modifier module or your own methods.
-    Structure extends Sequence and Hashable, which means that in many cases, it can be used like any Python sequence.
+    Basic Structure object with periodicity. Essentially a sequence of sites 
+    having a common lattice. Structure is made to be immutable so that they 
+    can function as keys in a dict. Modifications should be done by making a 
+    new Structure using the structure_modifier module or your own methods.
+    Structure extends Sequence and Hashable, which means that in many cases, 
+    it can be used like any Python sequence. Iterating through a structure is
+    equivalent to going through the sites in sequence.
     """
 
     DISTANCE_TOLERANCE = 0.01
 
-    def __init__(self, lattice, atomicspecies, coords, validate_proximity = False, to_unit_cell = False, coords_are_cartesian = False):
+    def __init__(self, lattice, atomicspecies, coords, validate_proximity = False,
+                 to_unit_cell = False, coords_are_cartesian = False):
         """
         Create a periodic structure.
         
-        Arguments:
+        Argus:
             lattice:
                 pymatgen.core.lattice Lattice object signify the lattice.
             atomicspecies:
@@ -465,9 +474,11 @@ class Structure(collections.Sequence, collections.Hashable):
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang apart. Defaults to false.
+                Whether to check if there are sites that are less than 1 Ang 
+                apart. Defaults to False.
             coords_are_cartesian:
-                Set to True if you are providing coordinates in cartesian coordinates. Defaults to false.
+                Set to True if you are providing coordinates in cartesian 
+                coordinates. Defaults to False.
         """
         if len(atomicspecies) != len(coords):
             raise StructureError("The list of atomic species must be of the same length as the list of fractional coordinates.")
@@ -581,24 +592,39 @@ class Structure(collections.Sequence, collections.Hashable):
 
     def get_distance(self, i, j, jimage = None):
         """
-        get distance between site i and j assuming periodic boundary conditions
-        if the index jimage of two sites atom j is not specified it selects the j image nearest to the i atom
-        and returns the distance and jimage indices in terms of lattice vector translations
-        if the index jimage of atom j is specified it returns the distance between
-        the i atom and the specified jimage atom, the given jimage is also returned.
+        Get distance between site i and j assuming periodic boundary conditions
+        if the index jimage of two sites atom j is not specified it selects the 
+        j image nearest to the i atom and returns the distance and jimage 
+        indices in terms of lattice vector translations if the index jimage of 
+        atom j is specified it returns the distance between the i atom and the 
+        specified jimage atom, the given jimage is also returned.
+        
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+            jimage:
+                Number of lattice translations in each lattice direction. Default
+                is None for nearest image.
+        
+        Returns:
+            (distance, jimage)
         """
         return self[i].distance(self[j], jimage)
 
     def get_sites_in_sphere(self, pt, r):
         '''
-        Find all sites within a sphere from the structure. This includes sites in other periodic images.
+        Find all sites within a sphere from the structure. This includes sites 
+        in other periodic images.
         
         Algorithm: 
         
-        1. place sphere of radius r in crystal and determine minimum supercell (parallelpiped) which would
-           contain a sphere of radius r. for this we need the projection of a_1 on a unit vector perpendicular 
-           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to determine how many a_1's it will
-           take to contain the sphere. 
+        1. place sphere of radius r in crystal and determine minimum supercell 
+           (parallelpiped) which would contain a sphere of radius r. for this 
+           we need the projection of a_1 on a unit vector perpendicular 
+           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to determine 
+           how many a_1's it will take to contain the sphere. 
            
            Nxmax = r * length_of_b_1 / (2 Pi)
         
@@ -642,9 +668,10 @@ class Structure(collections.Sequence, collections.Hashable):
 
     def get_neighbors(self, site, r):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the site itself.
+        Get all neighbors to a site within a sphere of radius r.  Excludes the 
+        site itself.
         
-        Arguments:
+        Args:
             site:
                 site, which is the center of the sphere.
             r:
@@ -856,7 +883,9 @@ class Structure(collections.Sequence, collections.Hashable):
 
     @property
     def to_dict(self):
-        """Json-friendly, dict representation of Structure"""
+        """
+        Json-serializable dict representation of Structure
+        """
         d = {}
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
@@ -864,9 +893,11 @@ class Structure(collections.Sequence, collections.Hashable):
 
     @staticmethod
     def from_dict(structure_dict):
-        """Reconstitute a Structure object from a dict representation of Structure created using to_dict.
+        """
+        Reconstitute a Structure object from a dict representation of Structure 
+        created using to_dict.
         
-        Arguments:
+        Args:
             structure_dict: 
                 dict representation of structure.
         
@@ -902,7 +933,8 @@ class Composition (collections.Mapping, collections.Hashable):
     Represents a Composition, which is essentially a {element:amount} dictionary.
     
     Works almost completely like a standard python dictionary, except that __getitem__
-    is overridden to return 0 when an element is not found.
+    is overridden to return 0 when an element is not found. (somewhat like a 
+    defaultdict, except it is immutable).
     
     Also adds more convenience methods relevant to compositions, e.g., get_fraction.
     
@@ -939,7 +971,8 @@ class Composition (collections.Mapping, collections.Hashable):
         """
         Args:
             elmap: 
-                a dict of {Element/Specie: float} representing amounts of each element or specie.
+                a dict of {Element/Specie: float} representing amounts of each 
+                element or specie.
         """
         if any([e < 0 for e in elmap.values()]):
             raise ValueError("Amounts in Composition cannot be negative!")
@@ -969,8 +1002,8 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def __add__(self, other):
         """
-        Adds two compositions.
-        For example, an Fe2O3 composition + an FeO composition gives a Fe3O4 composition.
+        Adds two compositions. For example, an Fe2O3 composition + an FeO 
+        composition gives a Fe3O4 composition.
         """
         new_el_map = {el:self[el] for el in self}
         for k in other.keys():
@@ -983,10 +1016,12 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def __sub__(self, other):
         """
-        Subtracts two compositions.
-        For example, an Fe2O3 composition - an FeO composition gives an FeO2 composition.
-        raises a ValueError if the subtracted composition is greater than the original composition
-        in any of its elements.
+        Subtracts two compositions. For example, an Fe2O3 composition - an FeO 
+        composition gives an FeO2 composition.
+        
+        Raises:
+            ValueError if the subtracted composition is greater than the 
+            original composition in any of its elements.
         """
         new_el_map = {el:self[el] for el in self}
         for k in other.keys():
@@ -1008,7 +1043,8 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def __hash__(self):
         '''
-        Minimally effective hash function that just distinguishes between Compositions with different elements.
+        Minimally effective hash function that just distinguishes between 
+        Compositions with different elements.
         '''
         hashcode = 0
         for el in self._elmap.keys():
@@ -1029,7 +1065,7 @@ class Composition (collections.Mapping, collections.Hashable):
     @property
     def is_element(self):
         '''
-        True if composition is for an element
+        True if composition is for an element.
         '''
         positive_amts = [amt for amt in self._elmap.values() if amt > self.amount_tolerance]
         return len(positive_amts) == 1
@@ -1040,7 +1076,8 @@ class Composition (collections.Mapping, collections.Hashable):
     @property
     def formula(self):
         '''
-        Returns a formula string, with elements sorted by electronegativity e.g. Li4 Fe4 P4 O16.
+        Returns a formula string, with elements sorted by electronegativity,
+        e.g., Li4 Fe4 P4 O16.
         '''
         elements = self._elmap.keys()
         elements = sorted(elements, key = lambda el: el.X)
@@ -1053,7 +1090,8 @@ class Composition (collections.Mapping, collections.Hashable):
     @property
     def alphabetical_formula(self):
         '''
-        Returns a formula string, with elements sorted by alphabetically e.g. Fe4 Li4 O16 P4.
+        Returns a formula string, with elements sorted by alphabetically 
+        e.g. Fe4 Li4 O16 P4.
         '''
         elements = self._elmap.keys()
         elements = sorted(elements, key = lambda el: el.symbol)
@@ -1076,7 +1114,8 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def get_reduced_formula_and_factor(self):
         '''
-        Returns a pretty normalized formula and a multiplicative factor, i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
+        Returns a pretty normalized formula and a multiplicative factor, i.e., 
+        Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
 
         elements = self._elmap.keys()
@@ -1167,6 +1206,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Arguments:
             el:
                 Element
+        
         Returns:
             Atomic fraction for element el in Composition
         '''
@@ -1177,6 +1217,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Arguments:
             el:
                 Element
+        
         Returns:
             Weight fraction for element el in Composition
         '''
@@ -1188,6 +1229,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Arguments:
             formula:
                 A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+        
         Returns:
             Composition with that formula.
         '''
@@ -1218,6 +1260,12 @@ class Composition (collections.Mapping, collections.Hashable):
 
     @property
     def anonymized_formula(self):
+        """
+        An anonymized formula. Unique species are arranged in ordering of 
+        increasing amounts and assigned ascending alphabets. Useful for 
+        prototyping formulas. For example, all stoichiometric perovskites have
+        anonymized_formula ABC3.
+        """
         reduced_comp = self.get_reduced_composition_and_factor()[0]
         els = sorted(reduced_comp.elements, key = lambda e: reduced_comp[e])
         ascii_code = 65
@@ -1244,6 +1292,7 @@ class Composition (collections.Mapping, collections.Hashable):
         Arguments:
             sym_dict:
                 A element symbol: amount dict, e.g. {"Fe":2, "O":3}
+        
         Returns:
             Composition with that formula.
         '''
@@ -1270,15 +1319,18 @@ class Composition (collections.Mapping, collections.Hashable):
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict = True):
         '''
-        Takes in a formula where capitilization might not be correctly entered, and suggests a ranked list of potential Composition matches.
+        Takes in a formula where capitilization might not be correctly entered, 
+        and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
         
         Args:
             fuzzy_formula:
-                A formula string, such as 'co2o3' or 'MN', that may or may not have multiple interpretations
+                A formula string, such as 'co2o3' or 'MN', that may or may not 
+                have multiple interpretations
             lock_if_strict:
-                If true, a properly entered formula will only return the one correct interpretation. For example,
-                'Co1' will only return 'Co1' if true, but will return both 'Co1' and 'C1 O1' if false.
+                If true, a properly entered formula will only return the one 
+                correct interpretation. For example, 'Co1' will only return 
+                'Co1' if true, but will return both 'Co1' and 'C1 O1' if false.
         
         Returns:
             A ranked list of potential Composition matches
@@ -1304,20 +1356,25 @@ class Composition (collections.Mapping, collections.Hashable):
     @staticmethod
     def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = {}, m_points = 0, factor = 1):
         '''
-        A recursive helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
+        A recursive helper method for formula parsing that helps in interpreting 
+        and ranking indeterminate formulas.
         Author: Anubhav Jain
         
         Arguments:
             fuzzy_formula:
-                A formula string, such as 'co2o3' or 'MN', that may or may not have multiple interpretations
+                A formula string, such as 'co2o3' or 'MN', that may or may not 
+                have multiple interpretations.
             m_dict:
                 A symbol:amt dictionary from the previously parsed formula
             m_points:
                 Number of points gained from the previously parsed formula
             factor:
-                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the fuzzy_formula with a coefficient of 2
+                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the 
+                fuzzy_formula with a coefficient of 2
+        
         Returns:
-            A list of tuples, with the first element being a Composition and the second element being the number of points awarded that Composition intepretation
+            A list of tuples, with the first element being a Composition and 
+            the second element being the number of points awarded that Composition intepretation
         '''
 
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
