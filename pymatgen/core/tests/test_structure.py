@@ -18,6 +18,12 @@ class SiteTest(unittest.TestCase):
         self.assertRaises(AttributeError, getattr, self.disordered_site, 'specie')
         self.assertIsInstance(self.ordered_site.specie, Element)
 
+    def test_to_from_dict(self):
+        d = self.disordered_site.to_dict
+        site = Site.from_dict(d)
+        self.assertEqual(site, self.disordered_site)
+        self.assertNotEqual(site, self.ordered_site)
+
 class PeriodicSiteTest(unittest.TestCase):
 
     def setUp(self):
@@ -84,6 +90,12 @@ class PeriodicSiteTest(unittest.TestCase):
         self.assertFalse(other_site.__eq__(self.site))
         self.assertFalse(self.site.__ne__(self.site))
         self.assertTrue(other_site.__ne__(self.site))
+
+    def test_to_from_dict(self):
+        d = self.site2.to_dict
+        site = PeriodicSite.from_dict(d)
+        self.assertEqual(site, self.site2)
+        self.assertNotEqual(site, self.site)
 
 class StructureTest(unittest.TestCase):
 
