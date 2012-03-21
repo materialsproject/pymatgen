@@ -16,7 +16,7 @@ __date__ = "Mar 20, 2012"
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, PeriodicSite
 
 class Dos(object):
     """
@@ -239,6 +239,7 @@ class Dos(object):
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
         return d
 
+
 class PDos(Dos):
     """
     Projected DOS for a specific orbital. Extends the Dos object.
@@ -253,6 +254,8 @@ class PDos(Dos):
             densities:
                 A dict of {Spin: np.array} representing the density of states 
                 for each Spin.
+            site:
+                Site associated with the projected DOS.
             orbital:
                 The orbital associated with the projected DOS.
         """
