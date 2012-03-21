@@ -39,16 +39,22 @@ the moment) required only for certain features.
 Basic Setup for Users
 =====================
 
-pymatgen is now on PyPI (http://pypi.python.org/pypi/pymatgen).  If you have 
-distutils installed, you can now just type: 
+pymatgen is now on PyPI (http://pypi.python.org/pypi/pymatgen). The version on
+PyPI is always the latest stable release that will be hopefully, be relatively 
+bug-free. If you have  distutils installed, you can just type: 
 
 ::
 
 	easy_install pymatgen
 	
-to install pymatgen with most of the dependencies set up. Alternatively, you can 
-download the latest source from 
-https://github.com/materialsproject/pymatgen/downloads and run 
+to install pymatgen with most of the dependencies set up. 
+
+Alternatively, the bleeding edge developmental version is at the public
+pymatgen github repo at https://github.com/materialsproject/pymatgen, including
+options to download the source in various formats. These developmental versions
+are likely to be more buggy, but may contain new features.
+
+From the source, you can type:
 
 ::
 
@@ -56,7 +62,6 @@ https://github.com/materialsproject/pymatgen/downloads and run
 
 With these basic steps, you should be able to use most of the pymatgen code. 
 However, some extra functionality do require additional setup, as outlined below.
-
 
 Generating POTCARs
 ------------------
