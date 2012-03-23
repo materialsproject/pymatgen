@@ -25,6 +25,14 @@ transformations Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`transmuter_transformations` Module
+----------------------------------------
+
+.. automodule:: pymatgen.transformations.transmuter_transformations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
