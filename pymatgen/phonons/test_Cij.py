@@ -125,7 +125,9 @@ if __name__ == "__main__":
 
 
 #    CijTensor(stress_dict).fitCij()
-    CijTensor(stress_dict).fitCij()
+    Cij = CijTensor(stress_dict).fitCij()
+    print Cij
+
 
 #    print stress_dict
 
