@@ -4,9 +4,10 @@ import unittest
 import os
 import json
 
+import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, CompleteDos
+from pymatgen.electronic_structure.dos import Dos, PDos, CompleteDos
 
 import pymatgen
 
@@ -27,6 +28,16 @@ class DosTest(unittest.TestCase):
         self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.up], 1.744588888888891, 7)
         self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
         self.assertRaises(ValueError, self.dos.get_interpolated_value, 1000)
+
+class PDosTest(unittest.TestCase):
+
+    def setUp(self):
+        self.pdos = PDos(5, [0, 5, 10], {Spin.up: [10, 20, 30]}, Orbital.s)
+
+    def test_to_from_dict(self):
+        d = self.pdos.to_dict
+        pdos = PDos.from_dict(d)
+        self.assertTrue(np.allclose(pdos.energies, [0, 5, 10]))
 
 class CompleteDosTest(unittest.TestCase):
 

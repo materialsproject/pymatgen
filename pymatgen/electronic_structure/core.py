@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-This module provides classes to define electronic structure, such as the density of states, etc.
+This module provides core classes needed by all define electronic structure, 
+such as the Spin, Orbital, etc.
 """
 
 from __future__ import division
@@ -20,13 +21,15 @@ from pymatgen.util.decorators import cached_class
 class Spin(object):
     """
     Enum type for Spin.  Only up and down.
+    Usage: Spin.up, Spin.down.
     """
 
     @cached_class
     class _SpinImpl(object):
         """
         Internal representation for Spin. Not to be instantiated directly.
-        Use Spin enum types.
+        Use Spin enum types. Class is implemented as a cached class for 
+        memory efficiency.
         """
         def __init__(self, name):
             self._name = name
@@ -79,7 +82,8 @@ class Orbital(object):
     class _OrbitalImpl(object):
         """
         Internal representation of an orbital.  Do not use directly. 
-        Use the Orbital class enum types.
+        Use the Orbital class enum types.  Class is implemented as a cached 
+        class for memory efficiency.
         """
 
         def __init__(self, name, vasp_index):
