@@ -34,7 +34,7 @@ class TransformedStructure(object):
     transformation history.
     """
 
-    def __init__(self, structure, transformations, history = None, other_parameters = {}):
+    def __init__(self, structure, transformations, history = None, other_parameters = None):
         """
         Standard constructor for a TransformedStructure
         
@@ -58,7 +58,7 @@ class TransformedStructure(object):
         self._transformations = []
         self._transformation_parameters = []
         self._redo_trans = []
-        self._other_parameters = other_parameters
+        self._other_parameters = {} if other_parameters == None else deepcopy(other_parameters)
         if len(history) > 0:
             self._source = history[0]
             for i in xrange(1, len(history)):
@@ -251,7 +251,7 @@ class TransformedStructure(object):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return TransformedStructure(s, [], d['history'], d.get('other_parameters', {}))
+        return TransformedStructure(s, [], d['history'], d.get('other_parameters', None))
 
     @property
     def history(self):
