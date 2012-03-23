@@ -210,7 +210,6 @@ class CompositionTest(unittest.TestCase):
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("FMN"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
@@ -220,9 +219,12 @@ class CompositionTest(unittest.TestCase):
     def test_init_(self):
         self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
-        self.assertRaises(TypeError, Composition, f)
+        self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
-        self.assertRaises(TypeError, Composition, f)
+        self.assertRaises(ValueError, Composition, f)
+        f = {1:2, 8:1}
+        self.assertEqual("H2 O1", Composition(f).formula)
+        self.assertEqual("Na2 O1", Composition(Na = 2, O = 1).formula)
 
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4', 'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54', 'Li1.5 Si0.5']
@@ -235,7 +237,6 @@ class CompositionTest(unittest.TestCase):
         correct_formulas.append(["Co1"])
         correct_formulas.append(["Co1", "C1 O1"])
         correct_formulas.append(["Co2 O3", "C1 O5"])
-        correct_formulas.append(["Fm1 N1", "F1 Mn1"])
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
         correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
         correct_formulas.append(["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11", "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"])
@@ -286,11 +287,11 @@ class CompositionTest(unittest.TestCase):
             self.assertAlmostEqual(correct_wt_frac[el], self.comp[0].get_wt_fraction(Element(el)), 5, "Wrong computed weight fraction")
         self.assertEqual(self.comp[0].get_wt_fraction(Element("S")), 0, "Wrong computed weight fractions")
 
-    def test_from_sym_amount_dict(self):
+    def test_from_dict(self):
         sym_dict = {"Fe":6, "O" :8}
         self.assertEqual(Composition.from_dict(sym_dict).reduced_formula, "Fe3O4", "Creation form sym_amount dictionary failed!")
 
-    def test_to_symbol_amount_dict(self):
+    def test_to_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
         d = c.to_dict
         correct_dict = {'Fe': 4.0, 'O': 6.0}
