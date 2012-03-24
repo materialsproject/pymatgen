@@ -53,11 +53,11 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2,4,6]])
-        self.assertEquals(kpoints.style, 'Monk')
+        self.assertEquals(kpoints.style, 'Monkhorst')
         
         kpoints = self.mitparamset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2,4,4]])
-        self.assertEquals(kpoints.style, 'Monk')
+        self.assertEquals(kpoints.style, 'Monkhorst')
         
 if __name__ == '__main__':
     unittest.main()
