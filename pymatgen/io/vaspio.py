@@ -16,6 +16,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import os
+import glob
 import re
 import math
 import itertools
@@ -1112,9 +1113,19 @@ class Vasprun(object):
         kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
         eigenvals = []
-        max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
-        for i in range(max_band):
-            eigenvals.append({'energy':[dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
+
+        # eigenvalues has a structure of:
+        # {'12':{'up':[[-4.0, 1.0][-3.0, 1.0]]}
+        # we use string version of integer as a keys because of mongoDB
+
+        # Prune off a few eigenvalues to make each kpoint have
+        # the same number of eigenvalues.
+        neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
+        min_eigenvalues = min(neigenvalues)
+        #max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
+
+        for i in range(min_eigenvalues):
+            eigenvals.append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
             eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
         return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
 
@@ -2113,25 +2124,40 @@ class VaspParserError(Exception):
     def __str__(self):
         return "VaspParserError : " + self.msg
 
-def get_band_structure_from_vasp_multiple_branches(path, efermi = None):
+
+def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
     """
     this method is used to get band structure info from a VASP directory. It takes into account that
     the run can be divided in several branches named "branch_x". If the run has not been divided in branches
-    the method will turn to parsing vasprun.xml directly and call Vasprun(path+"/vasprun.xml").get_band_structure(kpoints_filename=None,efermi=efermi)
+    the method will turn to parsing vasprun.xml directly.
+
+    The method returns None is there's a parsing error
     """
+    #ToDo: Add better error handling!!!
+    if os.path.exists(os.path.join(dir_name, "branch_0")):
+        #get all branch dir names
+        branch_dir_names = [os.path.abspath(d) for d in glob.glob("{i}/branch_*".format(i=dir_name)) if os.path.isdir(d)]
 
-    if(os.path.exists(path + "/branch_0")):
-        #get all branches in a list of BandStructurs
-        list_branches = []
-        listdir_clean = []
-        for f in os.listdir(path):
-            if "branch" in f:
-                listdir_clean.append(f)
-        for i in range(len(listdir_clean)):
-            for f in listdir_clean:
-                if(int(f.split("_")[1]) == i):
-                    list_branches.append(Vasprun(path + "/" + f + "/vasprun.xml").get_band_structure(kpoints_filename = None, efermi = efermi))
-        return get_reconstructed_band_structure(list_branches, efermi)
+        #sort by the directory name (e.g, branch_10)
+        sort_by = lambda x: int(x.split('_')[-1])
+        sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
+
+        # populate branches with Bandstructure instances
+        branches = []
+        for dir_name in sorted_branch_dir_names:
+            xml_file = os.path.join(dir_name, 'vasprun.xml')
+            if os.path.exists(xml_file):
+                run = Vasprun(xml_file)
+                # why are these keyword args?
+                branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
+            else:
+                # It might be better to throw an exception
+                warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
+        return get_reconstructed_band_structure(branches, efermi)
     else:
-        return Vasprun(path + "/vasprun.xml").get_band_structure(kpoints_filename = None, efermi = efermi)
-
+        xml_file = os.path.join(dir_name, 'vasprun.xml')
+        #Better handling of Errors
+        if os.path.exists(xml_file):
+            return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
+        else:
+            return None
