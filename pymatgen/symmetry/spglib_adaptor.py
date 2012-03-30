@@ -18,9 +18,7 @@ __date__ = "Mar 9, 2012"
 
 import re
 
-
 import numpy as np
-
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
@@ -40,7 +38,7 @@ class SymmetryFinder(object):
     Uses pyspglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure, symprec = 1e-5):
+    def __init__(self, structure, symprec=1e-5):
         """
         Args:
             structure:
@@ -161,14 +159,14 @@ class SymmetryFinder(object):
         # Get number of symmetry operations and allocate symmetry operations
         # multi = spg.multiplicity(cell, positions, numbers, symprec)
         multi = 48 * self._structure.num_sites
-        rotation = np.zeros((multi, 3, 3), dtype = int)
+        rotation = np.zeros((multi, 3, 3), dtype=int)
         translation = np.zeros((multi, 3))
 
         num_sym = spg.symmetry(rotation, translation, self._lattice,
                                    self._positions, self._numbers, self._symprec)
         return (rotation[:num_sym], translation[:num_sym])
 
-    def get_symmetry_operations(self, cartesian = False):
+    def get_symmetry_operations(self, cartesian=False):
         """
         Return symmetry operations as a list of SymmOp objects.
         By default returns fractional coord symmops.
@@ -195,10 +193,10 @@ class SymmetryFinder(object):
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
         lattice = self._lattice.T.copy()
-        pos = np.zeros((num_atom * 4, 3), dtype = float)
+        pos = np.zeros((num_atom * 4, 3), dtype=float)
         pos[:num_atom] = self._positions.copy()
 
-        numbers = np.zeros(num_atom * 4, dtype = int)
+        numbers = np.zeros(num_atom * 4, dtype=int)
         numbers[:num_atom] = self._numbers.copy()
         num_atom_bravais = spg.refine_cell(lattice,
                                            pos,
