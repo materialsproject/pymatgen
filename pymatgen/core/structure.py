@@ -239,7 +239,7 @@ class PeriodicSite(Site):
     PeriodicSite includes a lattice system.
     """
 
-    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell = False, coords_are_cartesian = False):
+    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell=False, coords_are_cartesian=False):
         """
         Create a periodic site.
         
@@ -309,7 +309,7 @@ class PeriodicSite(Site):
         fcoords = [i - math.floor(i) for i in self._fcoords]
         return PeriodicSite(self._species, fcoords, self._lattice)
 
-    def is_periodic_image(self, other, tolerance = 1e-8):
+    def is_periodic_image(self, other, tolerance=1e-8):
         """
         Returns True if sites are periodic images of each other.
         """
@@ -325,7 +325,7 @@ class PeriodicSite(Site):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def distance_and_image_old(self, other, jimage = None):
+    def distance_and_image_old(self, other, jimage=None):
         """
         .. deprecated:: 1.0
             Use :func:`distance_and_image` instead. This code is kept for information reasons. 
@@ -359,7 +359,7 @@ class PeriodicSite(Site):
             jimage = -np.array(np.around(other._fcoords - self._fcoords), int)
         return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + other._fcoords - self._fcoords)), jimage
 
-    def distance_and_image_from_frac_coords(self, fcoords, jimage = None):
+    def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
         """
         Gets distance between site and a fractional coordinate assuming periodic boundary conditions.
         If the index jimage of two sites atom j is not specified it selects the j image nearest to the i atom
@@ -395,7 +395,7 @@ class PeriodicSite(Site):
             return mindist, jimage
         return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + fcoords - self._fcoords)), jimage
 
-    def distance_and_image(self, other, jimage = None):
+    def distance_and_image(self, other, jimage=None):
         """
         Gets distance and instance between two sites assuming periodic boundary conditions.
         If the index jimage of two sites atom j is not specified it selects the j image nearest to the i atom
@@ -417,7 +417,7 @@ class PeriodicSite(Site):
         """
         return self.distance_and_image_from_frac_coords(other._fcoords, jimage)
 
-    def distance(self, other, jimage = None):
+    def distance(self, other, jimage=None):
         """
         Get distance between two sites assuming periodic boundary conditions.
         
@@ -486,8 +486,8 @@ class Structure(collections.Sequence, collections.Hashable):
 
     DISTANCE_TOLERANCE = 0.01
 
-    def __init__(self, lattice, atomicspecies, coords, validate_proximity = False,
-                 to_unit_cell = False, coords_are_cartesian = False):
+    def __init__(self, lattice, atomicspecies, coords, validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False):
         """
         Create a periodic structure.
         
@@ -615,7 +615,7 @@ class Structure(collections.Sequence, collections.Hashable):
         constant = 1.660468
         return self.composition.weight / self.volume * constant
 
-    def get_distance(self, i, j, jimage = None):
+    def get_distance(self, i, j, jimage=None):
         """
         Get distance between site i and j assuming periodic boundary conditions
         if the index jimage of two sites atom j is not specified it selects the 
@@ -683,7 +683,7 @@ class Structure(collections.Sequence, collections.Hashable):
             fcoords = site_fcoords + submat
             coords = self._lattice.get_cartesian_coords(fcoords)
             dists = (coords - pts) ** 2
-            dists = np.sqrt(dists.sum(axis = 1))
+            dists = np.sqrt(dists.sum(axis=1))
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
@@ -707,7 +707,7 @@ class Structure(collections.Sequence, collections.Hashable):
         """
         return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
 
-    def get_all_neighbors(self, r, include_index = False):
+    def get_all_neighbors(self, r, include_index=False):
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -772,7 +772,7 @@ class Structure(collections.Sequence, collections.Hashable):
                 coords = self.lattice.get_cartesian_coords(fcoords)
                 submat = [coords] * n
                 dists = (site_coords - submat) ** 2
-                dists = np.sqrt(dists.sum(axis = 1))
+                dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in range(n):
                     if include_index & withindists[i]:
@@ -843,7 +843,7 @@ class Structure(collections.Sequence, collections.Hashable):
         sortedsites = sorted(self.sites)
         return Structure(self._lattice, [site.species_and_occu for site in sortedsites], [site.frac_coords for site in sortedsites])
 
-    def interpolate(self, end_structure, nimages = 10):
+    def interpolate(self, end_structure, nimages=10):
         '''
         Interpolate between this structure and end_structure. Useful for construction
         NEB inputs.
@@ -896,12 +896,12 @@ class Structure(collections.Sequence, collections.Hashable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s = str(self.composition))]
+        outs = ["Structure Summary ({s})".format(s=str(self.composition))]
         outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
         to_s = lambda x : "%0.6f" % x
         outs.append('abc   : ' + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
         outs.append('angles: ' + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
-        outs.append("Sites ({i})".format(i = len(self)))
+        outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
             outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
         return "\n".join(outs)
@@ -1116,7 +1116,7 @@ class Composition (collections.Mapping, collections.Hashable):
         e.g., Li4 Fe4 P4 O16.
         '''
         elements = self._elmap.keys()
-        elements = sorted(elements, key = lambda el: el.X)
+        elements = sorted(elements, key=lambda el: el.X)
         formula = []
         for el in elements:
             if self[el] != 0:
@@ -1130,7 +1130,7 @@ class Composition (collections.Mapping, collections.Hashable):
         e.g. Fe4 Li4 O16 P4.
         '''
         elements = self._elmap.keys()
-        elements = sorted(elements, key = lambda el: el.symbol)
+        elements = sorted(elements, key=lambda el: el.symbol)
         formula = []
         for el in elements:
             if self[el] != 0:
@@ -1155,7 +1155,7 @@ class Composition (collections.Mapping, collections.Hashable):
         '''
 
         elements = self._elmap.keys()
-        elements = sorted(elements, key = lambda el: el.X)
+        elements = sorted(elements, key=lambda el: el.X)
         elements = filter(lambda el: self[el] != 0, elements)
         num_el = len(elements)
         contains_polyanion = False
@@ -1312,7 +1312,7 @@ class Composition (collections.Mapping, collections.Hashable):
         anonymized_formula ABC3.
         """
         reduced_comp = self.get_reduced_composition_and_factor()[0]
-        els = sorted(reduced_comp.elements, key = lambda e: reduced_comp[e])
+        els = sorted(reduced_comp.elements, key=lambda e: reduced_comp[e])
         ascii_code = 65
         anon_formula = []
         for e in els:
@@ -1365,7 +1365,7 @@ class Composition (collections.Mapping, collections.Hashable):
         return c.to_dict
 
     @staticmethod
-    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict = True):
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
         '''
         Takes in a formula where capitilization might not be correctly entered, 
         and suggests a ranked list of potential Composition matches.
@@ -1397,12 +1397,12 @@ class Composition (collections.Mapping, collections.Hashable):
         #remove duplicates
         all_matches = list(set(all_matches))
         #sort matches by rank descending
-        all_matches = sorted(all_matches, key = lambda match:match[1], reverse = True)
+        all_matches = sorted(all_matches, key=lambda match:match[1], reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict = {}, m_points = 0, factor = 1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={}, m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting 
         and ranking indeterminate formulas.
@@ -1490,10 +1490,10 @@ class Composition (collections.Mapping, collections.Hashable):
                 mp_dict = dict(m_dict)
                 mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
                 #match the stuff inside the parenthesis with the appropriate factor
-                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor = mp_factor):
+                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
                     only_me = True
                     #match the stuff outside the parentheses and return the sum
-                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor = 1):
+                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
                     #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses

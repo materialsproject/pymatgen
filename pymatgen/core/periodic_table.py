@@ -605,7 +605,7 @@ class PeriodicTable(object):
         """
         return self._all_elements.values()
 
-    def print_periodic_table(self, filter_function = None):
+    def print_periodic_table(self, filter_function=None):
         """
         A pretty ASCII printer for the periodic table, based on some filter_function.
         
@@ -633,7 +633,7 @@ class DummySpecie(Specie):
     sites, etc.
     """
 
-    def __init__(self, symbol = 'X', oxi_state = 0):
+    def __init__(self, symbol='X', oxi_state=0):
         """
         Args:
             symbol:
@@ -699,7 +699,7 @@ class DummySpecie(Specie):
                 return DummySpecie(m.group(1))
             else:
                 num = 1 if m.group(2) == "" else float(m.group(2))
-                return DummySpecie(m.group(1), oxi_state = num if m.group(3) == "+" else -num)
+                return DummySpecie(m.group(1), oxi_state=num if m.group(3) == "+" else -num)
 
         raise ValueError("Invalid Species String")
 
