@@ -120,7 +120,7 @@ class StructureEditor(StructureModifier):
                 new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords, self._lattice))
         self._sites = new_sites
 
-    def append_site(self, species, coords, coords_are_cartesian = False, validate_proximity = True):
+    def append_site(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
         Append a site to the structure at the end.
         
@@ -137,7 +137,7 @@ class StructureEditor(StructureModifier):
         """
         self.insert_site(len(self._sites), species, coords, coords_are_cartesian, validate_proximity)
 
-    def insert_site(self, i, species, coords, coords_are_cartesian = False, validate_proximity = True):
+    def insert_site(self, i, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
         Insert a site to the structure.
         
@@ -215,7 +215,7 @@ class StructureEditor(StructureModifier):
             new_sites.append(PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(site.coords), self._lattice))
         self._sites = new_sites
 
-    def translate_sites(self, indices, vector, frac_coords = True):
+    def translate_sites(self, indices, vector, frac_coords=True):
         """
         Translate specific sites by some vector, keeping the sites within the unit cell
         
@@ -232,10 +232,10 @@ class StructureEditor(StructureModifier):
                 fcoords = site.frac_coords + vector
             else:
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
-            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell = True, coords_are_cartesian = False)
+            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell=True, coords_are_cartesian=False)
             self._sites[i] = new_site
 
-    def perturb_structure(self, distance = 0.1):
+    def perturb_structure(self, distance=0.1):
         '''
         performs a random perturbation of the sites in a structure to break symmetries
         
@@ -245,7 +245,7 @@ class StructureEditor(StructureModifier):
         for i in range(len(self._sites)):
             vector = np.random.rand(3)
             vector /= np.linalg.norm(vector) / distance
-            self.translate_sites([i], vector, frac_coords = False)
+            self.translate_sites([i], vector, frac_coords=False)
 
 
     @property
@@ -261,7 +261,7 @@ class SupercellMaker(StructureModifier):
     Makes a supercell
     """
 
-    def __init__(self, structure, scaling_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+    def __init__(self, structure, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
         """
         Create a supercell.
         
@@ -377,7 +377,7 @@ class BasisChange(StructureModifier):
         self._original_structure = structure
         sp = [site.species_and_occu for site in structure._sites]
         coords = [site.coords for site in structure._sites]
-        self._modified_structure = Structure(new_lattice, sp, coords, validate_proximity = False, to_unit_cell = True, coords_are_cartesian = True)
+        self._modified_structure = Structure(new_lattice, sp, coords, validate_proximity=False, to_unit_cell=True, coords_are_cartesian=True)
 
     @property
     def original_structure(self):
