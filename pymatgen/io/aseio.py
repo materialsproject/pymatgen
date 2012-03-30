@@ -45,7 +45,7 @@ class AseAtomsAdaptor(object):
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         cell = structure.lattice.matrix
-        return Atoms(symbols = symbols, positions = positions, pbc = True, cell = cell)
+        return Atoms(symbols=symbols, positions=positions, pbc=True, cell=cell)
 
     @staticmethod
     def get_structure(atoms):
@@ -62,4 +62,4 @@ class AseAtomsAdaptor(object):
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
-        return Structure(lattice, symbols, positions, coords_are_cartesian = True)
+        return Structure(lattice, symbols, positions, coords_are_cartesian=True)
