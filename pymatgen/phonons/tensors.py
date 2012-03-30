@@ -24,9 +24,10 @@ __date__ ="March 22, 2012"
 
 
 class Cij(object):
+    "Class for doing useful operation on square matrices such as 3x3 stress matrices and 6x6 elasticity matrices in Voigt's notation"
  
-    def __init__(self, stress_matrix):
-        self._sigma = stress_matrix
+    def __init__(self, matrix):
+        self._matrix = matrix
 
 
 
