@@ -39,7 +39,7 @@ class Spacegroup(object):
     def international_number(self):
         return self._number
 
-    def are_symmetrically_equivalent(self, sites1, sites2, symprec = 1e-8):
+    def are_symmetrically_equivalent(self, sites1, sites2, symprec=1e-8):
         """
         Given two sets of PeriodicSites, test if they are actually symmetrically
         equivalent under this spacegroup.  Useful, for example, if you want to

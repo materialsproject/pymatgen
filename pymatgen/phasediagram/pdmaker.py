@@ -32,7 +32,7 @@ class PhaseDiagram (object):
     '''
     FORMATION_ENERGY_TOLERANCE = 1e-11
 
-    def __init__(self, entries, elements = None, use_external_qhull = False):
+    def __init__(self, entries, elements=None, use_external_qhull=False):
         """
         Standard constructor for phase diagram.
         
@@ -235,7 +235,7 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
     Grand potential phase diagram class taking in elements and entries as inputs.
     '''
 
-    def __init__(self, entries, chempots, elements, use_external_qhull = False):
+    def __init__(self, entries, chempots, elements, use_external_qhull=False):
         """
         Standard constructor for phase diagram.
         
@@ -267,15 +267,15 @@ class CompoundPhaseDiagram(PhaseDiagram):
     instead of elements.
     """
 
-    def __init__(self, entries, terminal_compositions, use_external_qhull = False):
+    def __init__(self, entries, terminal_compositions, use_external_qhull=False):
         entries = get_entries_within_compositional_space(entries, terminal_compositions)
         elset = get_non_coplanar_element_set(entries)
         els = list(elset)
         pentries = get_transformed_entries(entries, els)
-        super(CompoundPhaseDiagram, self).__init__(pentries, use_external_qhull = use_external_qhull)
+        super(CompoundPhaseDiagram, self).__init__(pentries, use_external_qhull=use_external_qhull)
 
 
-def get_comp_matrix_from_comp(compositions, elements, normalize_row = True):
+def get_comp_matrix_from_comp(compositions, elements, normalize_row=True):
     """
     Helper function to generates a normalized composition matrix from a list of 
     composition.
@@ -286,7 +286,7 @@ def get_comp_matrix_from_comp(compositions, elements, normalize_row = True):
     factor = np.tile(np.sum(comp_matrix, 1), (len(elements), 1)).transpose()
     return comp_matrix / factor
 
-def get_comp_matrix(entries, elements, normalize_row = True):
+def get_comp_matrix(entries, elements, normalize_row=True):
     """
     Helper function to generates a normalized composition matrix from a list of 
     composition.
