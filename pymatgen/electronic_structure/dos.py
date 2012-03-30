@@ -16,7 +16,7 @@ __date__ = "Mar 20, 2012"
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import Structure
 
 class Dos(object):
     """
@@ -38,7 +38,7 @@ class Dos(object):
         self._energies = np.array(energies)
         self._dos = {k:np.array(d) for k, d in densities.items()}
 
-    def get_densities(self, spin = None):
+    def get_densities(self, spin=None):
         """
         Returns the density of states for a particular spin. If Spin is None, the
         sum of both Spin.up and Spin.down (if they exist) is returned.
@@ -110,7 +110,7 @@ class Dos(object):
             f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
         return f
 
-    def get_interpolated_gap(self, tol = 0.001, abs_tol = False, spin = None):
+    def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
         """
         Expects a DOS object and finds the gap
         
@@ -148,7 +148,7 @@ class Dos(object):
             end = f(tol)
             return end - start, end, start
 
-    def get_cbm_vbm(self, tol = 0.001, abs_tol = False, spin = None):
+    def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):
         """
         Expects a DOS object and finds the cbm and vbm.
         
@@ -188,7 +188,7 @@ class Dos(object):
         i_gap_end -= 1
         return (self._energies[i_gap_end], self._energies[i_gap_start])
 
-    def get_gap(self, tol = 0.001, abs_tol = False, spin = None):
+    def get_gap(self, tol=0.001, abs_tol=False, spin=None):
         """
         Expects a DOS object and finds the gap.
         
@@ -425,8 +425,8 @@ class CompleteDos(Dos):
         return "Complete DOS for " + str(self._structure)
 
 
-def plot_dos(dos_dict, zero_at_efermi = True, stack = False,
-             key_sort_func = None, xlim = None, ylim = None):
+def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
+             xlim=None, ylim=None):
     """
     Plots a series of Dos using matplotlib.
     
@@ -454,7 +454,7 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False,
     allenergies = []
     keys = list(dos_dict.keys())
     if key_sort_func:
-        keys = sorted(keys, key = key_sort_func)
+        keys = sorted(keys, key=key_sort_func)
     for key in keys:
         dos = dos_dict[key]
         energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
@@ -486,9 +486,9 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False,
                 y.extend(int(spin) * alldensities[i][spin])
         allpts.extend(zip(x, y))
         if stack:
-            plt.fill(x, y, color = color_order[i % 4], label = str(key))
+            plt.fill(x, y, color=color_order[i % 4], label=str(key))
         else:
-            plt.plot(x, y, color = color_order[i % 4], label = str(key))
+            plt.plot(x, y, color=color_order[i % 4], label=str(key))
 
     plt.xlabel('Energies (eV)')
     plt.ylabel('Density of states')
@@ -503,12 +503,12 @@ def plot_dos(dos_dict, zero_at_efermi = True, stack = False,
 
     if zero_at_efermi:
         ylim = plt.ylim()
-        plt.plot([0, 0], ylim, 'k--', linewidth = 2)
+        plt.plot([0, 0], ylim, 'k--', linewidth=2)
 
     plt.legend()
     leg = plt.gca().get_legend()
     ltext = leg.get_texts()  # all the text.Text instance in the legend
-    plt.setp(ltext, fontsize = 30)
+    plt.setp(ltext, fontsize=30)
     plt.tight_layout()
     plt.show()
 
