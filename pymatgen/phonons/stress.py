@@ -30,7 +30,7 @@ class Stress(object):
 
     # return a scaled version of this matrix
     def get_scaled(self, scale_factor):
-        deformation_matrix = self._dfm * scale_factor
+        stress_matrix = self._sigma * scale_factor
         return Stress(deformation_matrix)
 
     @property
@@ -48,7 +48,7 @@ class Stress(object):
         return self._sigma
 
     @property
-    def stress(self, i, j):         # put value in matrix method
+    def value(self, i, j):         # put value in matrix method
         return self._sigma[i, j]
 
     
@@ -56,7 +56,9 @@ if __name__ == "__main__":
 
     mat = np.eye(3)
     mat[0,2] = 0.1
-#    mat[2,0] = 0.1
+    mat[2,0] = 0.1
     s = Stress(mat)
     print s.issymmetric
-          
+    
+
+
