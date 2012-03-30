@@ -252,7 +252,7 @@ class Lattice(object):
         Returns (lattice lengths, lattice angles)
         '''
         prim = self._matrix
-        lengths = np.sum(prim ** 2, axis = 1) ** 0.5
+        lengths = np.sum(prim ** 2, axis=1) ** 0.5
         angles = np.zeros((3), float)
         angles[0] = np.arccos(np.dot(prim[1], prim[2]) / (lengths[1] * lengths[2])) * 180. / pi
         angles[1] = np.arccos(np.dot(prim[2], prim[0]) / (lengths[2] * lengths[0])) * 180. / pi
