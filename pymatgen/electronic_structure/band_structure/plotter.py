@@ -54,7 +54,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
-    def show(self, file_name = None, zero_to_efermi = True):
+    def show(self, file_name=None, zero_to_efermi=True):
         """
         Args:
             file_name:
@@ -66,7 +66,7 @@ class BSPlotter(object):
         from matplotlib import rc
 
         #rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'], 'size': 20})
-        rc('text', usetex = True)
+        rc('text', usetex=True)
 
         #main internal config options
         e_min = -8
@@ -78,27 +78,27 @@ class BSPlotter(object):
 
         for i in range(self._nb_bands):
             if zero_to_efermi:
-                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][i]], 'b-', linewidth = band_linewidth)
+                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][i]], 'b-', linewidth=band_linewidth)
             else:
-                pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth = band_linewidth)
+                pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=band_linewidth)
 
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
-        log.debug("ticks {t}".format(t = ticks))
-        log.debug("ticks has {n} distances and {m} labels".format(n = len(ticks['distance']), m = len(ticks['label'])))
+        log.debug("ticks {t}".format(t=ticks))
+        log.debug("ticks has {n} distances and {m} labels".format(n=len(ticks['distance']), m=len(ticks['label'])))
         # Draw lines for BZ boundries
         for i in range(len(ticks['label'])):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
                     if (ticks['label'][i] == ticks['label'][i - 1]):
-                        log.debug("already print label... skipping label {i}".format(i = ticks['label'][i]))
+                        log.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
                     else:
-                        log.debug("Adding a line at {d} for label {l}".format(d = ticks['distance'][i], l = ticks['label'][i]))
-                        pylab.axvline(ticks['distance'][i], color = 'k')
+                        log.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                        pylab.axvline(ticks['distance'][i], color='k')
                 else:
-                    log.debug("Adding a line at {d} for label {l}".format(d = ticks['distance'][i], l = ticks['label'][i]))
-                    pylab.axvline(ticks['distance'][i], color = 'k')
+                    log.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                    pylab.axvline(ticks['distance'][i], color='k')
 
         #Sanitize only plot the uniq values
         uniq_d = []
@@ -108,29 +108,29 @@ class BSPlotter(object):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
-                log.debug("Adding label {l} at {d}".format(l = temp_ticks[i][0], d = temp_ticks[i][1]))
+                log.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
             else:
                 if temp_ticks[i][1] == temp_ticks[i - 1][1]:
-                    log.debug("Skipping label {i}".format(i = temp_ticks[i][1]))
+                    log.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
                 else:
-                    log.debug("Adding label {l} at {d}".format(l = temp_ticks[i][0], d = temp_ticks[i][1]))
+                    log.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
-        log.debug("Unique labels are {i}".format(i = zip(uniq_d, uniq_l)))
+        log.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
         #pylab.gca().set_xticks(ticks['distance'])
         #pylab.gca().set_xticklabels(ticks['label'])
         pylab.gca().set_xticks(uniq_d)
         pylab.gca().set_xticklabels(uniq_l)
 
         #Main X and Y Labels
-        pylab.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize = 'large')
+        pylab.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize='large')
         ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
-        pylab.ylabel(ylabel, fontsize = 'large')
+        pylab.ylabel(ylabel, fontsize='large')
 
         # Draw Fermi energy
         ef = 0.0 if zero_to_efermi else self._bs.efermi
-        pylab.axhline(ef, linewidth = 2, color = 'k')
+        pylab.axhline(ef, linewidth=2, color='k')
 
         # X range (K)
         #last distance point
@@ -153,21 +153,21 @@ class BSPlotter(object):
             if cbm['kpoint'].label is not None:
                 for i in range(len(self._bs._kpoints)):
                     if(self._bs._kpoints[i].label == cbm['kpoint'].label):
-                        pylab.scatter(self._bs._distance[i], e_cbm, color = 'r', marker = 'o', s = 100)
+                        pylab.scatter(self._bs._distance[i], e_cbm, color='r', marker='o', s=100)
                         #only draw one point
                         break
             else:
-                pylab.scatter(self._bs._distance[cbm['kpoint_index']], e_cbm, color = 'r', marker = 'o', s = 100)
+                pylab.scatter(self._bs._distance[cbm['kpoint_index']], e_cbm, color='r', marker='o', s=100)
 
             if vbm['kpoint'].label is not None:
                 for i in range(len(self._bs._kpoints)):
                     if(self._bs._kpoints[i].label == vbm['kpoint'].label):
                         e_vbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
-                        pylab.scatter(self._bs._distance[i], e_vbm, color = 'G', marker = 'o', s = 100)
+                        pylab.scatter(self._bs._distance[i], e_vbm, color='G', marker='o', s=100)
                         #only draw one point
                         break
             else:
-                pylab.scatter(self._bs._distance[vbm['kpoint_index']], e_vbm, color = 'g', marker = 'o', s = 100)
+                pylab.scatter(self._bs._distance[vbm['kpoint_index']], e_vbm, color='g', marker='o', s=100)
 
             pylab.ylim(e_vbm + e_min, e_cbm + e_max)
 
@@ -219,22 +219,22 @@ class BSPlotter(object):
         data = self.bs_plot_data
         data_other = other_plotter.bs_plot_data
         for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth = 3)
+            pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=3)
 
         for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data_other['energy'][i], 'r--', linewidth = 3)
+            pylab.plot(data['distances'], data_other['energy'][i], 'r--', linewidth=3)
 
 
         ticks = self.get_ticks()
 
         pylab.gca().set_xticks(ticks['distance'])
         pylab.gca().set_xticklabels(ticks['label'])
-        pylab.xlabel('Kpoints', fontsize = 'large')
-        pylab.ylabel('Energy(eV)', fontsize = 'large')
+        pylab.xlabel('Kpoints', fontsize='large')
+        pylab.ylabel('Energy(eV)', fontsize='large')
         #pylab.ylim(vbm-4,cbm+4)
         for i in range(len(ticks['label'])):
             if(ticks['label'][i] != None):
-                pylab.axvline(ticks['distance'][i], color = 'k')
+                pylab.axvline(ticks['distance'][i], color='k')
         pylab.show()
         pylab.legend()
 
@@ -243,7 +243,7 @@ class BSPlotter(object):
         import pymatgen.command_line.qhull_caller
         from mpl_toolkits.mplot3d import Axes3D
 
-        fig = plt.figure(figsize = (8, 8))
+        fig = plt.figure(figsize=(8, 8))
         ax = Axes3D(fig)
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
@@ -288,13 +288,13 @@ class BSPlotter(object):
         for i in range(len(lines)):
             vertex1 = lines[i]['start']
             vertex2 = lines[i]['end']
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color = 'k')
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
 
 
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
             vertex2 = self._bs._kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color = 'r', linewidth = 3)
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3)
         #plot the labelled points    
 
         for k in self._bs._kpoints:
@@ -303,8 +303,8 @@ class BSPlotter(object):
                 if k.label.startswith("\\") or k.label.find("_") != -1:
                     label = "$" + k.label + "$"
                 off = 0.01
-                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off, k.cart_coords[2] + off, label, color = 'b', size = '25')
-                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]], [k.cart_coords[2]], color = 'b')
+                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off, k.cart_coords[2] + off, label, color='b', size='25')
+                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]], [k.cart_coords[2]], color='b')
 
         # make ticklabels and ticklines invisible
         for a in ax.w_xaxis.get_ticklines() + ax.w_xaxis.get_ticklabels():

@@ -25,7 +25,7 @@ class SymmOp (object):
     Read: http://en.wikipedia.org/wiki/Affine_transformation
     """
 
-    def __init__(self, affine_transformation_matrix, tol = 0.01):
+    def __init__(self, affine_transformation_matrix, tol=0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are 
@@ -43,7 +43,7 @@ class SymmOp (object):
         self._tol = tol
 
     @staticmethod
-    def from_rotation_matrix_and_translation_vector(rotation_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec = (0, 0, 0), tol = 0.1):
+    def from_rotation_matrix_and_translation_vector(rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec=(0, 0, 0), tol=0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation vector.
         
@@ -102,7 +102,7 @@ class SymmOp (object):
         """
         return np.dot(self.rotation_matrix, vector)
 
-    def are_symmetrically_related(self, point_a, point_b, tol = 0.001):
+    def are_symmetrically_related(self, point_a, point_b, tol=0.001):
         """
         Checks if two points are symmetrically related.
         
@@ -156,7 +156,7 @@ class SymmOp (object):
         return SymmOp(invr)
 
     @staticmethod
-    def from_axis_angle_and_translation(axis, angle, angle_in_radians = False, translation_vec = (0, 0, 0)):
+    def from_axis_angle_and_translation(axis, angle, angle_in_radians=False, translation_vec=(0, 0, 0)):
         """
         Generates a SymmOp for a rotation about a given axis plus a translation.
         
