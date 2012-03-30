@@ -51,7 +51,7 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
 
-    def __init__(self, struct, comment = None, selective_dynamics = None, true_names = True):
+    def __init__(self, struct, comment=None, selective_dynamics=None, true_names=True):
         """        
         Arguments:
             struct:
@@ -134,7 +134,7 @@ class Poscar(VaspInput):
             return Poscar.from_string(f.read(), names)
 
     @staticmethod
-    def from_string(data, default_names = None):
+    def from_string(data, default_names=None):
         """
         Reads a Poscar from a string.
         The code will try its best to determine the elements in the POSCAR in the following order:
@@ -229,7 +229,7 @@ class Poscar(VaspInput):
     def true_names(self):
         return self._true_names
 
-    def get_string(self, direct = True, vasp4_compatible = False):
+    def get_string(self, direct=True, vasp4_compatible=False):
         """
         Returns a string to be written as a POSCAR file. By default, site symbols are written
         which means compatibilty is for vasp >= 5.
@@ -309,7 +309,7 @@ class Incar(dict, VaspInput):
     essentially consists of a dictionary with some helper functions
     """
 
-    def __init__(self, params = dict()):
+    def __init__(self, params=dict()):
         """
         Creates an Incar object.
         
@@ -339,7 +339,7 @@ class Incar(dict, VaspInput):
             i[k] = v
         return i
 
-    def get_string(self, sort_keys = False, pretty = False):
+    def get_string(self, sort_keys=False, pretty=False):
         """
         Returns a string representation of the INCAR.  The reason why this method is
         different from the __str__ method is to provide options for pretty printing.
@@ -371,7 +371,7 @@ class Incar(dict, VaspInput):
             return str_delimited(lines, None, " = ")
 
     def __str__(self):
-        return self.get_string(sort_keys = True, pretty = False)
+        return self.get_string(sort_keys=True, pretty=False)
 
     def write_file(self, filename):
         """
@@ -508,10 +508,10 @@ class Kpoints(VaspInput):
     """
     supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
 
-    def __init__(self, comment = "Default gamma", num_kpts = 0, style = supported_modes.Gamma,
-                 kpts = [[1, 1, 1]], kpts_shift = (0, 0, 0),
-                 kpts_weights = None, coord_type = None, labels = None,
-                 tet_number = 0, tet_weight = 0, tet_connections = None):
+    def __init__(self, comment="Default gamma", num_kpts=0, style=supported_modes.Gamma,
+                 kpts=[[1, 1, 1]], kpts_shift=(0, 0, 0),
+                 kpts_weights=None, coord_type=None, labels=None,
+                 tet_number=0, tet_weight=0, tet_connections=None):
         """
         Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
         general, it is recommended that you use the default constructor only if you know exactly what you are doing
@@ -579,10 +579,10 @@ class Kpoints(VaspInput):
         Returns:
             Kpoints object
         """
-        return Kpoints("Fully automatic kpoint scheme", 0, style = Kpoints.supported_modes.Automatic, kpts = [[subdivisions]])
+        return Kpoints("Fully automatic kpoint scheme", 0, style=Kpoints.supported_modes.Automatic, kpts=[[subdivisions]])
 
     @staticmethod
-    def gamma_automatic(kpts = (1, 1, 1), shift = (0, 0, 0)):
+    def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint grid.
         
@@ -595,10 +595,10 @@ class Kpoints(VaspInput):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts = [kpts], kpts_shift = shift)
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
-    def monkhorst_automatic(kpts = (2, 2, 2), shift = (0, 0, 0)):
+    def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint grid.
         
@@ -611,7 +611,7 @@ class Kpoints(VaspInput):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts = [kpts], kpts_shift = shift)
+        return Kpoints("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @staticmethod
     def automatic_density(structure, kppa):
@@ -626,7 +626,7 @@ class Kpoints(VaspInput):
 
         #check if hexagonal!!!!
         if(Kpoints._is_hexagonal(structure) == True):
-            k = Kpoints.gamma_automatic(div, shift = (0, 0, 0))
+            k = Kpoints.gamma_automatic(div, shift=(0, 0, 0))
         else:
             k = Kpoints.monkhorst_automatic(div)
         return k
@@ -697,7 +697,7 @@ class Kpoints(VaspInput):
             style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
             kpts = [[float(x) for x in lines[i].split()] for i in xrange(3, 6)]
             kpts_shift = [float(x) for x in lines[6].split()]
-            return Kpoints(comment = comment, num_kpts = num_kpts, style = style, kpts = kpts, kpts_shift = kpts_shift)
+            return Kpoints(comment=comment, num_kpts=num_kpts, style=style, kpts=kpts, kpts_shift=kpts_shift)
 
         #Line-mode KPOINTS, usually used with band structures
         if style == 'l':
@@ -712,8 +712,8 @@ class Kpoints(VaspInput):
                 if m:
                     kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
-            return Kpoints(comment = comment, num_kpts = num_kpts, style = style,
-                 kpts = kpts, coord_type = coord_type, labels = labels)
+            return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
+                 kpts=kpts, coord_type=coord_type, labels=labels)
 
         #Assume explicit KPOINTS if all else fails.
         style = Kpoints.supported_modes.Cartesian if style == "ck" else Kpoints.supported_modes.Reciprocal
@@ -740,9 +740,9 @@ class Kpoints(VaspInput):
         except:
             pass
 
-        return Kpoints(comment = comment, num_kpts = num_kpts, style = style,
-                 kpts = kpts, kpts_weights = kpts_weights,
-                 tet_number = tet_number, tet_weight = tet_weight, tet_connections = tet_connections)
+        return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
+                 kpts=kpts, kpts_weights=kpts_weights,
+                 tet_number=tet_number, tet_weight=tet_weight, tet_connections=tet_connections)
 
     def write_file(self, filename):
         """
@@ -802,7 +802,7 @@ class Kpoints(VaspInput):
         kpts_shift = d.get('usershift', [0, 0, 0])
         num_kpts = d.get('nkpoints', 0)
         #coord_type = d.get('coord_type', None)
-        return Kpoints(comment = comment, kpts = kpts, style = style, kpts_shift = kpts_shift, num_kpts = num_kpts)
+        return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 class PotcarSingle(VaspInput):
     """
@@ -856,7 +856,7 @@ class Potcar(list, VaspInput):
     functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW', 'PW91':'POT_GGA_PAW_PW91'}
     DEFAULT_FUNCTIONAL = "PBE"
 
-    def __init__(self, symbols = None, functional = DEFAULT_FUNCTIONAL, sym_potcar_map = None):
+    def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
         if symbols is not None:
             self.functional = functional
             self.set_symbols(symbols, functional, sym_potcar_map)
@@ -869,7 +869,7 @@ class Potcar(list, VaspInput):
     def from_dict(d):
         functional = d['functional']
         symbols = d['symbols']
-        return Potcar(symbols = symbols, functional = functional)
+        return Potcar(symbols=symbols, functional=functional)
 
     @staticmethod
     def from_file(filename):
@@ -902,7 +902,7 @@ class Potcar(list, VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional = DEFAULT_FUNCTIONAL, sym_potcar_map = None):
+    def set_symbols(self, elements, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
         '''
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can be fetched from a location specified in pymatgen.cfg or specified explicitly in a map (but not both)
         
@@ -1075,7 +1075,7 @@ class Vasprun(object):
             return False
         return sum(self.hubbards.values()) > 0
 
-    def get_band_structure(self, kpoints_filename = None, efermi = None):
+    def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructureSymmLine object
         
@@ -1213,7 +1213,7 @@ class Vasprun(object):
                 d['output']['eigenvalues'][str(index)][str(spin)] = values
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        d['output'].update(dict(bandgap = gap, cbm = cbm, vbm = vbm, is_gap_direct = is_direct))
+        d['output'].update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
 
         return d
 
@@ -1468,7 +1468,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                     elif name == "partial":
                         all_pdos = []
                         natom = len(self.atomic_symbols)
-                        struct = self.structures[-1]
                         for iatom in xrange(1, natom + 1):
                             all_pdos.append(list())
                             for iorbital in xrange(self.norbitals):
@@ -1818,7 +1817,7 @@ class VolumetricData(object):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def linear_add(self, other, scalefactor = 1.0):
+    def linear_add(self, other, scalefactor=1.0):
         '''
         Method to do a linear sum of volumetric objects.  Use by + and - operators as well.
         '''
