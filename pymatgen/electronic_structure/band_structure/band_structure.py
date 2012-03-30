@@ -4,11 +4,6 @@
 This module provides classes to define everything related to band structures.
 """
 
-import numpy as np
-import math
-import pymatgen.core.lattice
-
-
 __author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
@@ -18,15 +13,20 @@ __status__ = "Development"
 __date__ = "March 14, 2012"
 
 
+import numpy as np
+import math
+from pymatgen.core.lattice import Lattice
+
+
 class Kpoint(object):
-
     """
-    class to store kpoint objects
-    a kpoint is defined with a lattice and frac or cartesian coordinates
-    syntax similar than the site object in pymatgen.core.structure
+    Class to store kpoint objects. A kpoint is defined with a lattice and frac 
+    or cartesian coordinates syntax similar than the site object in 
+    pymatgen.core.structure.
     """
 
-    def __init__(self, coords, lattice, to_unit_cell = False, coords_are_cartesian = False, label = None):
+    def __init__(self, coords, lattice, to_unit_cell=False,
+                 coords_are_cartesian=False, label=None):
         self._lattice = lattice
         self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
         self._label = label
@@ -94,25 +94,30 @@ class Kpoint(object):
         return {'lattice':self.lattice.to_dict, 'fcoords':list(self.frac_coords), 'ccoords':list(self.cart_coords), 'label':self.label}
 
 class BandStructure(object):
-
     """
     This is the most generic band structure data possible
     it's defined by a list of kpoints + energy and occupancies for each of them
     """
 
-    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict = {}, coords_are_cartesian = False):
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict={},
+                 coords_are_cartesian=False):
         """
         Args: 
-            kpoints: (Array) of kpoint as numpy arrays, in frac_coords of the lattice given by default
-
-            eigenvals: (Array) of {} with energy and occup keys each element of the array is one "band"
-
-            label_dict: (dict) of {} this link a kpoint (in frac coords or cartesian coordinates depending on the coords
-            are cartesian tag) with a label
-
-            lattice: Materials Project Structure object
-
-            efermi: fermi energy in eV
+            kpoints:
+                Sequence of kpoint as numpy arrays, in frac_coords of the 
+                lattice given by default
+            eigenvals: 
+                Sequence of {} with energy and occup keys each element of the 
+                array is one "band"
+            lattice: 
+                The reciprocal lattice
+            label_dict:
+                (dict) of {} this link a kpoint (in frac coords or cartesian 
+                coordinates depending on the coords).
+            coords_are_cartesian:
+                Whether coordinates are cartesian.
+            efermi: 
+                fermi energy in eV
         """
 
 
@@ -135,8 +140,8 @@ class BandStructure(object):
             for c in labels_dict:
                 if(np.linalg.norm(k - np.array(labels_dict[c])) < 0.0001):
                     label = c
-                    self._labels_dict[label] = Kpoint(k, lattice, label = label, coords_are_cartesian = coords_are_cartesian)
-            self._kpoints.append(Kpoint(k, lattice, label = label, coords_are_cartesian = coords_are_cartesian))
+                    self._labels_dict[label] = Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian)
+            self._kpoints.append(Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
 
         self._bands = eigenvals
         """
@@ -174,7 +179,7 @@ class BandStructureSymmLine(BandStructure):
     This object stores band structures along selected (symmetry) lines in the Brillouin zone
     """
 
-    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian = False):
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian=False):
         super(BandStructureSymmLine, self).__init__(kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
         self._distance = []
         self._branches = []
@@ -316,30 +321,30 @@ class BandStructureSymmLine(BandStructure):
 
     @property
     def to_dict(self):
-        dictio = {}
-        dictio['lattice_rec'] = self._lattice_rec.to_dict
-        dictio['efermi'] = self._efermi
-        dictio['kpoints'] = []
+        d = {}
+        d['lattice_rec'] = self._lattice_rec.to_dict
+        d['efermi'] = self._efermi
+        d['kpoints'] = []
         #kpoints are not kpoint objects dicts but are frac coords (this makes the dict
         #smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            dictio['kpoints'].append(k.to_dict['fcoords'])
-        dictio['branches'] = self._branches
-        dictio['bands'] = self._bands
-        dictio['is_metal'] = self.is_metal()
-        dictio['VBM'] = self.get_cbm()['kpoint'].to_dict
-        dictio['CBM'] = self.get_vbm()['kpoint'].to_dict
-        dictio['band_gap'] = self.get_band_gap()
-        dictio['labels_dict'] = {}
+            d['kpoints'].append(k.to_dict['fcoords'])
+        d['branches'] = self._branches
+        d['bands'] = self._bands
+        d['is_metal'] = self.is_metal()
+        d['VBM'] = self.get_cbm()['kpoint'].to_dict
+        d['CBM'] = self.get_vbm()['kpoint'].to_dict
+        d['band_gap'] = self.get_band_gap()
+        d['labels_dict'] = {}
         for c in self._labels_dict:
-            dictio['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
-        return dictio
+            d['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
+        return d
 
     @staticmethod
-    def from_dict(dictio):
-        #dictio=dictio['band_structure']
-        labels_dict = dictio['labels_dict']
-        return BandStructureSymmLine(dictio['kpoints'], dictio['bands'], pymatgen.core.lattice.Lattice.from_dict(dictio['lattice_rec']), dictio['efermi'], labels_dict)
+    def from_dict(d):
+        #d=d['band_structure']
+        labels_dict = d['labels_dict']
+        return BandStructureSymmLine(d['kpoints'], d['bands'], Lattice.from_dict(d['lattice_rec']), d['efermi'], labels_dict)
 
 
 
