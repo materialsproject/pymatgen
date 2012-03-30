@@ -108,7 +108,7 @@ class PDPlotter(object):
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'bo-', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 10)
+            plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
@@ -140,15 +140,15 @@ class PDPlotter(object):
                 valign = 'top'
 
             if len(entry.composition.elements) == 1:
-                plt.text(x, coords[1], label, horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
+                plt.text(x, coords[1], label, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
             else:
-                plt.text(x, coords[1], str(count), horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
-                plt.text(legendstart[0], legendstart[1] - 0.05 * count, str(count) + " : " + label, horizontalalignment = 'left', verticalalignment = 'top', fontproperties = font)
+                plt.text(x, coords[1], str(count), horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                plt.text(legendstart[0], legendstart[1] - 0.05 * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
                 count += 1
 
         for entry, coords in unstable.items():
             label = entry.name
-            plt.plot(coords[0], coords[1], 'bx', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'b', markersize = 10)
+            plt.plot(coords[0], coords[1], 'bx', linewidth=3, markeredgecolor='b', markerfacecolor='b', markersize=10)
 
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
@@ -172,7 +172,7 @@ class PDPlotter(object):
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(x, y, z, 'bo-', linewidth = 3, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 10)
+            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
@@ -187,7 +187,7 @@ class PDPlotter(object):
         ax.axis('off')
         plt.show()
 
-    def write_image(self, stream, image_format = "svg"):
+    def write_image(self, stream, image_format="svg"):
         '''
         Writes the phase diagram to an image in a stream.
         
@@ -220,23 +220,23 @@ class PDPlotter(object):
 
             newlabels = list()
             for x, y, z in lines:
-                ax.plot(x, y, z, 'bo-', linewidth = 4, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 12)
+                ax.plot(x, y, z, 'bo-', linewidth=4, markeredgecolor='b', markerfacecolor='r', markersize=12)
             for coords in sorted(labels.keys()):
                 label = labels[coords].name
                 if elementref.match(label):
-                    ax.text(coords[0], coords[1], coords[2], label, fontproperties = font)
+                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count), fontproperties = font)
+                    ax.text(coords[0], coords[1], coords[2], str(count), fontproperties=font)
                     newlabels.append(str(count) + " : " + label)
                     count += 1
-            plt.figtext(0.01, 0.01, '\n'.join(newlabels), fontproperties = font)
+            plt.figtext(0.01, 0.01, '\n'.join(newlabels), fontproperties=font)
 
         elif dim < 4 and dim > 1:
             plt.clf()
             plt.cla()
 
             for x, y in lines:
-                plt.plot(x, y, 'bo-', linewidth = 4, markeredgecolor = 'b', markerfacecolor = 'r', markersize = 12)
+                plt.plot(x, y, 'bo-', linewidth=4, markeredgecolor='b', markerfacecolor='r', markersize=12)
             if dim == 3:
                 plt.axis('equal')
                 plt.xlim((-0.02, 1.18))
@@ -265,15 +265,15 @@ class PDPlotter(object):
                     valign = 'top'
 
                 if elementref.match(label):
-                    plt.text(x, coords[1], label, horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
+                    plt.text(x, coords[1], label, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
                 else:
-                    plt.text(x, coords[1], str(count), horizontalalignment = halign, verticalalignment = valign, fontproperties = font)
-                    plt.text(legendstart[0], legendstart[1] - legendspacing * count, str(count) + " : " + label, horizontalalignment = 'left', verticalalignment = 'top', fontproperties = font)
+                    plt.text(x, coords[1], str(count), horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                    plt.text(legendstart[0], legendstart[1] - legendspacing * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
                     count += 1
         f = plt.gcf()
         f.set_size_inches((12, 10))
 
-        plt.savefig(stream, format = image_format)
+        plt.savefig(stream, format=image_format)
 
 def uniquelines(q):
     '''

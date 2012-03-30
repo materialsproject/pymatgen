@@ -10,7 +10,7 @@ user intervention. This ensures comparability across runs.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -37,8 +37,8 @@ class AbstractVaspInputSet(object):
         Returns Poscar from a structure.
         '''
         return Poscar(structure)
-    
-    @abc.abstractmethod 
+
+    @abc.abstractmethod
     def get_kpoints(self, structure):
         '''
         Returns Kpoints from a structure.
@@ -48,8 +48,8 @@ class AbstractVaspInputSet(object):
                 Structure object
         '''
         return
-    
-    @abc.abstractmethod 
+
+    @abc.abstractmethod
     def get_incar(self, structure):
         '''
         Returns Incar from a structure.
@@ -59,8 +59,8 @@ class AbstractVaspInputSet(object):
                 Structure object
         '''
         return
-    
-    @abc.abstractmethod 
+
+    @abc.abstractmethod
     def get_potcar(self, structure):
         '''
         Returns Potcar from a structure.
@@ -70,8 +70,8 @@ class AbstractVaspInputSet(object):
                 Structure object
         '''
         return
-    
-    @abc.abstractmethod 
+
+    @abc.abstractmethod
     def get_potcar_symbols(self, structure):
         '''
         Returns Potcar from a structure.
@@ -81,8 +81,8 @@ class AbstractVaspInputSet(object):
                 Structure object
         '''
         return
-    
-    def get_all_vasp_input(self, structure, generate_potcar = True):
+
+    def get_all_vasp_input(self, structure, generate_potcar=True):
         '''
         Returns all input files as a dict of {filename: vaspio object}
         
@@ -98,13 +98,13 @@ class AbstractVaspInputSet(object):
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
         if generate_potcar:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
                     'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
         else:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure), 
+            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
                     'POSCAR': self.get_poscar(structure), 'POTCAR.spec': "\n".join(self.get_potcar_symbols(structure))}
-    
-    def write_input(self, structure, output_dir, make_dir_if_not_present = True):
+
+    def write_input(self, structure, output_dir, make_dir_if_not_present=True):
         """
         Writes a set of VASP input to a directory.
         
@@ -118,8 +118,8 @@ class AbstractVaspInputSet(object):
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        for k,v in self.get_all_vasp_input(structure).items():
-            v.write_file(os.path.join(output_dir, k))  
+        for k, v in self.get_all_vasp_input(structure).items():
+            v.write_file(os.path.join(output_dir, k))
 
 
 class VaspInputSet(AbstractVaspInputSet):
@@ -127,7 +127,7 @@ class VaspInputSet(AbstractVaspInputSet):
     Standard implementation of VaspInputSet, which can be extended by specific
     implementations.
     """
-    
+
     def __init__(self, name):
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -136,7 +136,7 @@ class VaspInputSet(AbstractVaspInputSet):
         self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
-        self.incar_settings = dict(self._config.items(self.name+'INCAR'))
+        self.incar_settings = dict(self._config.items(self.name + 'INCAR'))
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             if key in self.incar_settings:
                 self.incar_settings[key] = json.loads(self.incar_settings[key])
@@ -146,35 +146,35 @@ class VaspInputSet(AbstractVaspInputSet):
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
-                incar[key] =  [setting.get(site.specie.symbol, 0.6) for site in structure]
+                incar[key] = [setting.get(site.specie.symbol, 0.6) for site in structure]
             elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                incar[key] =  [setting.get(sym, 0) for sym in poscar.site_symbols]
+                incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
             elif key == "EDIFF":
-                incar[key] =  float(setting) * structure.num_sites
+                incar[key] = float(setting) * structure.num_sites
             else:
                 incar[key] = setting
-        
+
         has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if not has_u:
             for key in incar.keys():
                 if key.startswith('LDAU'):
                     del incar[key]
-        
+
         return incar
-    
+
     #get_poscar method inherited from AbstractVaspInputSet
 
     def get_potcar(self, structure):
         return Potcar(self.get_potcar_symbols(structure))
-    
-    def get_potcar_symbols(self, structure):               
+
+    def get_potcar_symbols(self, structure):
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
         for el in elements:
             potcar_symbols.append(self.potcar_settings[el] if el in self.potcar_settings else el)
         return potcar_symbols
-        
+
     def get_kpoints(self, structure):
         '''
         Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
@@ -184,34 +184,34 @@ class VaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each 
             reciprocal lattice vector proportional to its length. 
         '''
-        
+
         latt = structure.lattice
         lengths = latt.abc
         ngrid = int(self.kpoints_settings['grid_density']) / structure.num_sites
-        
-        mult = (ngrid*lengths[0]*lengths[1] * lengths[2]) ** (1/3)
-        
-        num_div = [int(round(1/lengths[i] * mult)) for i in xrange(3)]
+
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+
+        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
         #ensure that numDiv[i] > 0
 
         num_div = [i if i > 0 else 1 for i in num_div]
-        
+
         angles = latt.angles
         hex_angle_tol = 5 #in degrees
         hex_length_tol = 0.01 #in angstroms
         right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
         hex_angles = [i for i in xrange(3) if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
-        
+
         is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1 and abs(lengths[right_angles[0]] == lengths[right_angles[1]]) < hex_length_tol)
-        
+
         style = Kpoints.supported_modes.Gamma
         if not is_hexagonal:
             num_div = [i + i % 2 for i in num_div]
             style = Kpoints.supported_modes.Monkhorst
         comment = "pymatgen generated Materials Project kpoints with grid density = " + self.kpoints_settings['grid_density'] + ' per atom.'
         num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0,0,0])    
-    
+        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+
     def __str__(self):
         output = [self.name]
         output.append("")
@@ -223,7 +223,7 @@ class VaspInputSet(AbstractVaspInputSet):
                 output.append("%s = %s" % (k, str(v)))
             output.append("")
             count += 1
-                
+
         return "\n".join(output)
 
 

@@ -27,7 +27,7 @@ class PDEntry (object):
     Author: Shyue
     """
 
-    def __init__(self, comp, finalenergy, name = None):
+    def __init__(self, comp, finalenergy, name=None):
         """
         Args:
             comp - Composition as a pymatgen.core.structure.Composition
@@ -89,7 +89,7 @@ class GrandPotPDEntry (PDEntry):
     diagrams.  Chemical potentials are given as a element-chemical potential dict.
     Author: Shyue
     """
-    def __init__(self, entry, chempots, name = None):
+    def __init__(self, entry, chempots, name=None):
         """
         Args:
             entry - A PDEntry object containing the composition entry.
@@ -141,7 +141,7 @@ class PDEntryIO(object):
     """
 
     @staticmethod
-    def to_csv(filename, entries, latexify_names = False):
+    def to_csv(filename, entries, latexify_names=False):
         """
         Exports PDEntries to a csv
         
@@ -153,8 +153,8 @@ class PDEntryIO(object):
         import csv
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
-        elements = sorted(list(elements), key = lambda a: a.X)
-        writer = csv.writer(open(filename, 'wb'), delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        elements = sorted(list(elements), key=lambda a: a.X)
+        writer = csv.writer(open(filename, 'wb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Name'] + elements + ['Energy'])
         for entry in entries:
             row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
@@ -174,7 +174,7 @@ class PDEntryIO(object):
             List of PDEntries
         """
         import csv
-        reader = csv.reader(open(filename, 'rb'), delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         entries = list()
         header_read = False
         for row in reader:
