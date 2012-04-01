@@ -31,8 +31,8 @@ provided a quick summary of the various modules here:
    simply a list of Sites having the same Lattice. Finally, a Composition is 
    mapping of Element/Specie to amounts.
 
-Side-note : to_dict/from_dict
-=============================
+Side-note : to_dict / from_dict
+===============================
 
 As you explore the code, you may notice that many of the objects have a to_dict 
 property and a from_dict static method implemented.  For most of the non-basic

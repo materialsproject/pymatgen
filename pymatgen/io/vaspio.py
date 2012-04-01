@@ -29,7 +29,6 @@ import ConfigParser
 import numpy as np
 from numpy.linalg import det
 
-import pymatgen.command_line.aconvasp_caller as aconvasp_caller
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -615,21 +614,41 @@ class Kpoints(VaspInput):
 
     @staticmethod
     def automatic_density(structure, kppa):
-        """
-            This is the approach taken in the MIT HT project. As much as possible using
-            MP but if hexgonal we use gamma centered for the kpoint grid
-            We use aconvasp to get the kpoint divisions
-        """
-        div = aconvasp_caller.get_num_division_kpoints(structure, kppa)
+        '''
+        Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
+        for hexagonal cells and Monkhorst-Pack grids otherwise.
+        
+        Algorithm: 
+            Uses a simple approach scaling the number of divisions along each 
+            reciprocal lattice vector proportional to its length. 
+        '''
 
-        k = None
+        latt = structure.lattice
+        lengths = latt.abc
+        ngrid = kppa / structure.num_sites
 
-        #check if hexagonal!!!!
-        if(Kpoints._is_hexagonal(structure) == True):
-            k = Kpoints.gamma_automatic(div, shift=(0, 0, 0))
-        else:
-            k = Kpoints.monkhorst_automatic(div)
-        return k
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+
+        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
+        #ensure that numDiv[i] > 0
+
+        num_div = [i if i > 0 else 1 for i in num_div]
+
+        angles = latt.angles
+        hex_angle_tol = 5 #in degrees
+        hex_length_tol = 0.01 #in angstroms
+        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+        hex_angles = [i for i in xrange(3) if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
+
+        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1 and abs(lengths[right_angles[0]] == lengths[right_angles[1]]) < hex_length_tol)
+
+        style = Kpoints.supported_modes.Gamma
+        if not is_hexagonal:
+            num_div = [i + i % 2 for i in num_div]
+            style = Kpoints.supported_modes.Monkhorst
+        comment = "pymatgen generated Materials Project kpoints with grid density = " + str(kppa) + ' per atom.'
+        num_kpts = 0
+        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
     @staticmethod
     def _is_hexagonal(structure):
