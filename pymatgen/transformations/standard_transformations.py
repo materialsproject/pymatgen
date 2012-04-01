@@ -30,6 +30,7 @@ from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 
+
 class IdentityTransformation(AbstractTransformation):
     """
     This is a demo transformation which does nothing, i.e. just return the same structure.
@@ -62,7 +63,7 @@ class RotationTransformation(AbstractTransformation):
     The RotationTransformation applies a rotation to a structure.
     """
 
-    def __init__(self, axis, angle, angle_in_radians = False):
+    def __init__(self, axis, angle, angle_in_radians=False):
         """
         Arguments:
             axis - Axis of rotation, e.g., [1, 0, 0]
@@ -129,7 +130,7 @@ class SupercellTransformation(AbstractTransformation):
     The RotationTransformation applies a rotation to a structure.
     """
 
-    def __init__(self, scaling_matrix = ((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+    def __init__(self, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
         """
         Args:
             scaling_matrix:
@@ -286,15 +287,15 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         remove 16 of them, the number of possible orderings is around 2 x 10^12.
         ALGO_BEST_FIRST shortcircuits the entire search tree by removing the 
         highest energy site first, then followed by the next highest energy site,
-        and so on.  It is guaranteed to find a solution in a reasonable time, but it
-        is also likely to be highly inaccurate. 
+        and so on.  It is guaranteed to find a solution in a reasonable time, but 
+        it is also likely to be highly inaccurate. 
     """
 
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, specie_to_remove, fraction_to_remove, algo = ALGO_FAST):
+    def __init__(self, specie_to_remove, fraction_to_remove, algo=ALGO_FAST):
         """
         Args:
             specie_to_remove:
@@ -310,7 +311,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self._frac = fraction_to_remove
         self._algo = algo
 
-    def apply_transformation(self, structure, return_ranked_list = False):
+    def apply_transformation(self, structure, return_ranked_list=False):
         sp = smart_element_or_specie(self._specie)
 
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
@@ -362,18 +363,18 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self, num_structures = 1, energy_cutoff = None):
+    def __init__(self, num_structures=1, energy_cutoff=None):
         '''
         Args:
             num_structures: maximum number of structures to return
             mev_cutoff: maximum mev per atom above the minimum energy ordering for a structure to be returned
         '''
-        
+
         self._energy_cutoff = energy_cutoff
         self._all_structures = []
         self._num_structures = num_structures
 
-    def apply_transformation(self, structure, return_ranked_list = False):
+    def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -415,7 +416,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         for species in sites_to_order.values():
             initial_sp = None
-            sorted_keys = sorted(species.keys(), key = lambda x: x is not None and -abs(x.oxi_state) or 1000)
+            sorted_keys = sorted(species.keys(), key=lambda x: x is not None and -abs(x.oxi_state) or 1000)
             for sp in sorted_keys:
                 if initial_sp is None:
                     initial_sp = sp
@@ -429,7 +430,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
                     manipulation = [oxi / initial_sp.oxi_state, 0, [], sp]
                     site_list = species[sp]
-                    site_list.sort(key = itemgetter(0))
+                    site_list.sort(key=itemgetter(0))
 
                     prev_fraction = site_list[0][0]
                     for site in site_list:
@@ -453,7 +454,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
 
         self._all_structures = []
-        
+
         lowest_energy = ewald_m.output_lists[0][0]
         num_atoms = sum(structure.composition.values())
 
@@ -467,15 +468,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append({'energy':output[0],'energy_above_minimum':(output[0]-lowest_energy)/num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
-        
+            self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+
         if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
             self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
-        
+
         if return_ranked_list:
             return self._all_structures
         else:
-            return self._all_structures[0]['structure'] 
+            return self._all_structures[0]['structure']
 
     def __str__(self):
         return "Order disordered structure transformation"
@@ -496,7 +497,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def all_structures(self):
         return self._all_structures
-    
+
     @property
     def lowest_energy_structure(self):
         return self._all_structures[0]['structure']
@@ -508,7 +509,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self, tolerance = 0.2):
+    def __init__(self, tolerance=0.2):
         self._tolerance = tolerance
 
     def _get_more_primitive_structure(self, structure, tolerance):
@@ -530,9 +531,9 @@ class PrimitiveCellTransformation(AbstractTransformation):
         tol_c = tolerance / structure.lattice.c
 
         #get the possible symmetry vectors
-        sites = sorted(structure.sites, key = lambda site: site.species_string)
-        grouped_sites = [list(group) for k, group in itertools.groupby(sites, key = lambda site: site.species_string)]
-        min_site_list = min(grouped_sites, key = lambda group: len(group))
+        sites = sorted(structure.sites, key=lambda site: site.species_string)
+        grouped_sites = [list(group) for k, group in itertools.groupby(sites, key=lambda site: site.species_string)]
+        min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         x = min_site_list[0]
         possible_vectors = []
@@ -561,7 +562,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         #convert these to the shortest representation of the vector           
         symmetry_vectors = [.5 - abs((x - .5) % 1) for x in possible_vectors if x is not None]
         if symmetry_vectors:
-            reduction_vector = min(symmetry_vectors, key = np.linalg.norm)
+            reduction_vector = min(symmetry_vectors, key=np.linalg.norm)
 
             #choose a basis to replace (a, b, or c)
             proj = abs(structure.lattice.abc * reduction_vector)
@@ -575,7 +576,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
             #create a structure with the new lattice
             new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords, coords_are_cartesian = True)
+                                      structure.cart_coords, coords_are_cartesian=True)
 
             #update sites and tolerances for new structure
             sites = list(new_structure.sites)
@@ -628,7 +629,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {}
         return output
-    
+
 class ChargeBalanceTransformation(AbstractTransformation):
     """
     This is a transformation that disorders a structure to make it charge balanced, given an
@@ -646,12 +647,12 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         charge = structure.charge
         specie = smart_element_or_specie(self._charge_balance_sp)
-        num_to_remove = charge/specie.oxi_state
+        num_to_remove = charge / specie.oxi_state
         num_in_structure = structure.composition[specie]
-        removal_fraction = num_to_remove/num_in_structure
+        removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
             raise ValueError('addition of specie not yet supported by ChargeBalanceTransformation')
-        mapping = {self._charge_balance_sp : {self._charge_balance_sp : 1-removal_fraction}}
+        mapping = {self._charge_balance_sp : {self._charge_balance_sp : 1 - removal_fraction}}
         return SubstitutionTransformation(mapping).apply_transformation(structure)
 
     def __str__(self):
