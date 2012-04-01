@@ -4,23 +4,25 @@
 Defines an abstract base class contract for Transformation object.
 '''
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
+
 import abc
 import json
+
 
 class AbstractTransformation(object):
     """
     Abstract transformation class.    
     """
     __metaclass__ = abc.ABCMeta
-    
-    @abc.abstractmethod 
+
+    @abc.abstractmethod
     def apply_transformation(self, structure):
         '''
         Applies the transformation to a structure.
@@ -33,7 +35,7 @@ class AbstractTransformation(object):
             Transformed structure
         '''
         return
-    
+
     @abc.abstractproperty
     def inverse(self):
         '''
@@ -41,12 +43,12 @@ class AbstractTransformation(object):
         Otherwise, should return None.
         '''
         return
-    
+
     def to_json(self):
         return json.dumps(self.to_dict)
-    
-    
-    @abc.abstractproperty 
+
+
+    @abc.abstractproperty
     def to_dict(self):
         '''
         Creates a json representation of the transformation, which must contain
@@ -55,4 +57,3 @@ class AbstractTransformation(object):
         {'name' : transformation_class_name, 'init_arguments' : (init arguments)}
         '''
         return
-    

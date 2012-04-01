@@ -56,6 +56,8 @@ class BSPlotter(object):
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
+        Show the bandstrucure plot.
+        
         Args:
             file_name:
                 File name to write image to (e.g., plot.eps). If None no image is created
