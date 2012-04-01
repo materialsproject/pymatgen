@@ -173,7 +173,7 @@ class  PotcarTest(unittest.TestCase):
     def test_potcar_map(self):
         fe_potcar = open(os.path.join(test_dir, 'Fe_POTCAR')).read()
         #specify V instead of Fe - this makes sure the test won't pass if the code just grabs the POTCAR from the config file (the config file would grab the V POTCAR)
-        potcar = Potcar(["V"], sym_potcar_map = {"V": fe_potcar})
+        potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
 class  VasprunTest(unittest.TestCase):
