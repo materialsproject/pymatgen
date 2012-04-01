@@ -184,33 +184,7 @@ class VaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each 
             reciprocal lattice vector proportional to its length. 
         '''
-
-        latt = structure.lattice
-        lengths = latt.abc
-        ngrid = int(self.kpoints_settings['grid_density']) / structure.num_sites
-
-        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-
-        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
-        #ensure that numDiv[i] > 0
-
-        num_div = [i if i > 0 else 1 for i in num_div]
-
-        angles = latt.angles
-        hex_angle_tol = 5 #in degrees
-        hex_length_tol = 0.01 #in angstroms
-        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
-        hex_angles = [i for i in xrange(3) if abs(angles[i] - 60) < hex_angle_tol or abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1 and abs(lengths[right_angles[0]] == lengths[right_angles[1]]) < hex_length_tol)
-
-        style = Kpoints.supported_modes.Gamma
-        if not is_hexagonal:
-            num_div = [i + i % 2 for i in num_div]
-            style = Kpoints.supported_modes.Monkhorst
-        comment = "pymatgen generated Materials Project kpoints with grid density = " + self.kpoints_settings['grid_density'] + ' per atom.'
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints.automatic_density(structure, int(self.kpoints_settings['grid_density']))
 
     def __str__(self):
         output = [self.name]
