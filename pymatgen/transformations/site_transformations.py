@@ -7,7 +7,6 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 '''
 
-
 from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
@@ -101,7 +100,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     """
     This class translates a set of sites by a certain vector.
     """
-    def __init__(self, indices_to_move, translation_vector, vector_in_frac_coords = True):
+    def __init__(self, indices_to_move, translation_vector, vector_in_frac_coords=True):
         self._indices = indices_to_move
         self._vector = translation_vector
         self._frac = vector_in_frac_coords
@@ -167,7 +166,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, indices, fractions, algo = ALGO_COMPLETE):
+    def __init__(self, indices, fractions, algo=ALGO_COMPLETE):
         """
         Args:
             indices:
@@ -220,7 +219,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         all_structures = []
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
-        s = SymmetryFinder(structure, symprec = symprec)
+        s = SymmetryFinder(structure, symprec=symprec)
         sg = s.get_spacegroup()
         tested_sites = []
         ewaldsum = EwaldSummation(structure)
@@ -235,7 +234,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 indices_list.extend(indices)
             already_tested = False
             for tsites in tested_sites:
-                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec = symprec):
+                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
                     already_tested = True
             if not already_tested:
                 tested_sites.append(sites_to_remove)
@@ -245,7 +244,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 energy = ewaldsum.compute_partial_energy(indices_list)
                 all_structures.append({'structure':s_new, 'energy':energy})
 
-        all_structures = sorted(all_structures, key = lambda s: s['energy'])
+        all_structures = sorted(all_structures, key=lambda s: s['energy'])
         return all_structures
 
     @staticmethod
@@ -262,7 +261,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return = 1, fast = True)
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return=1, fast=True)
         minimizer.minimize_matrix()
         lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
         mod = StructureEditor(structure)
@@ -270,7 +269,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return mod.modified_structure.get_sorted_structure()
 
 
-    def apply_transformation(self, structure, return_ranked_list = False):
+    def apply_transformation(self, structure, return_ranked_list=False):
         num_remove_dict = {}
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
