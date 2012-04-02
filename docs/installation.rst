@@ -4,9 +4,12 @@ Requirements
 Required for proper functioning of the code
 -------------------------------------------
 
-1. Python 2.7+ required.  New default modules such as json are used, as well as new unittest features in Python 2.7.
-2. numpy - For array, matrix and other numerical manipulations. Used extensively by all core modules.
-3. scipy 0.9+ - For interpolation, physical constants and other functions. In particular, scipy.spatial.Delaunay is used for phase diagram construction.
+1. Python 2.7+ required.  New default modules such as json are used, as well as 
+   new unittest features in Python 2.7.
+2. numpy - For array, matrix and other numerical manipulations. Used extensively 
+   by all core modules.
+3. scipy 0.9+ - For interpolation, physical constants and other functions. In 
+   particular, scipy.spatial.Delaunay is used for phase diagram construction.
 
 Optional Python Libraries
 -------------------------
@@ -98,7 +101,8 @@ Basic Setup for Developers (using github)
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
 2. Install the necessary python libraries.
 3. (Recommended) Add pymatgen to your PYTHONPATH.
-4. (Recommended) Copy hooks from the example-hooks directory into the .git/hooks/ directory in your local repo.  
+4. (Recommended) Copy hooks from the example-hooks directory into the .git/hooks/ 
+   directory in your local repo.  
 
 I recommend that you start by reading some of the unittests in the tests 
 subdirectory for each package.  The unittests demonstrate the expected behavior 
