@@ -31,3 +31,15 @@ analysis, is based on the work of Ong et al. and are used in following works:
    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first 
    principles calculations. Electrochemistry Communications, 2010, 12(3), 
    427-430. doi:10.1016/j.elecom.2010.01.010
+
+pymatgen.entries.compatibility module
+-------------------------------------
+
+The compatibility processing, which allows mixing of GGA and GGA+U runs that 
+have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
+is based on the following work:
+      
+   A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and 
+   G. Ceder. Formation enthalpies by mixing GGA and GGA + U calculations. 
+   Physical Review B, 2011, 84(4), 045115. doi:10.1103/PhysRevB.84.045115
+    
