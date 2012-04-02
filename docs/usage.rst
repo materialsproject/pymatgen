@@ -155,10 +155,10 @@ diagram and other analyses.  The outline of how it works is as follows:
    an entire subdirectory structure. Parallel processing is used where possible
    to speed up the process.
 
-Simple Example
---------------
+Simple Example - Making a phase diagram
+---------------------------------------
 
-Let's say you want to make the Li-O phase diagram. You calculated all
+Let's say you want to make the Li-O phase diagram. You have calculated all
 Li, O, and Li-O compounds you are interested in and the runs are in the directory
 "Li-O_runs". You can then generate the phase diagram using the following few lines
 of code:
@@ -185,6 +185,9 @@ of code:
    pd = PhaseDiagram(entries)
    plotter = PDPlotter(pd)
    plotter.show()
+
+Another example - Calculating reaction energies
+-----------------------------------------------
 
 Another example of a cool thing you can do with the loaded entries is to calculate
 reaction energies. For example, reusing the Li-O data we have saved in the above
