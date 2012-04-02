@@ -137,6 +137,57 @@ analysis you can do:
    pymatgen.analysis.ewald package, compare two structures for similarity using 
    pymatgen.analysis.structure_fitter.
 
+.. _entries:
+
+Entries - Basic analysis unit
+=============================
+
+Beyond the core Element, Site and Structure objects, most analyses within in
+pymatgen (e.g., creating a PhaseDiagram) is performed using Entry objects. An 
+Entry in its most basic form contains a calculated energy and a composition, 
+and may optionally contain other input or calculated data. In most instances, 
+you will use the ComputedEntry or ComputedStructureEntry objects defined in the 
+pymatgen.entries.computed_entries module. ComputedEntry objects can be created 
+by either manually parsing calculated data calculations, or by using the 
+pymatgen.borg package.
+
+.. _compatibility:
+
+Compatibility - Mixing GGA and GGA+U runs
+-----------------------------------------
+
+The Ceder group has developed a scheme where by GGA and GGA+U calculations can
+be "mixed" such that analyses may be performed using the type of calculation
+most appropriate for each entry. For instance, to generate a Fe-P-O phase diagram,
+metallic phases such as Fe and FexPy are most appropriately modelled using 
+standard GGA, while a hubbard U should be applied for the oxides such as FexOy 
+and FexPyOz.
+
+In the pymatgen.io.vaspio_set module, pre-defined parameter sets have been coded
+to allow users to generate VASP input files that are consistent with input 
+parameters that are compatible with the Materials Project data. Users who wish to 
+perform analysis using runs calculated using these parameters should post-process 
+entries generated from these runs using the appropriate compatibility. For 
+example, if a user wants to generate a phase diagram from a list of entries 
+generated from Fe-P-O vasp runs, he should use the following procedure:
+
+::
+
+   from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+   from pymatgen.phasediagram.pdmaker import PhaseDiagram
+   from pymatgen.phasediagram.plotter import PDPlotter
+   
+   # Get unprocessed_entries using pymatgen.borg or other means.
+   
+   # Process the entries for compatibility
+   compat = MaterialsProjectCompatibility()
+   processed_entries = compat.process_entries(unprocessed_entries)
+     
+   # These few lines generates the phase diagram using the ComputedEntries. 
+   pd = PhaseDiagram(processed_entries)
+   plotter = PDPlotter(pd)
+   plotter.show()
+
 pymatgen.borg - High-throughput data assimilation
 =================================================
 
@@ -155,7 +206,7 @@ diagram and other analyses.  The outline of how it works is as follows:
    an entire subdirectory structure. Parallel processing is used where possible
    to speed up the process.
 
-Simple Example - Making a phase diagram
+Simple example - Making a phase diagram
 ---------------------------------------
 
 Let's say you want to make the Li-O phase diagram. You have calculated all
@@ -185,6 +236,11 @@ of code:
    pd = PhaseDiagram(entries)
    plotter = PDPlotter(pd)
    plotter.show()
+
+In this example, neither Li nor O requires a Hubbard U. However, if you are making
+a phase diagram from a mix of GGA and GGA+U entries, you may need to post-process
+the assimilated entries with a Compatibility object before running the phase
+diagram code. See earlier section on entries_ and compatibility_.
 
 Another example - Calculating reaction energies
 -----------------------------------------------
