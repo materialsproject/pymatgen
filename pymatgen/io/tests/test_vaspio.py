@@ -143,6 +143,10 @@ class  KpointsTest(unittest.TestCase):
         kpoints = Kpoints.automatic(100)
         self.assertEqual(kpoints.style, "Automatic")
         self.assertEqual(kpoints.kpts, [[100]])
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        kpoints = Kpoints.automatic_density(poscar.struct, 500)
+        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
 
     def test_to_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
