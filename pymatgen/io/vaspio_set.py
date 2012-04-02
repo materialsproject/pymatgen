@@ -151,13 +151,20 @@ class VaspInputSet(AbstractVaspInputSet):
                 incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
             elif key == "EDIFF":
                 incar[key] = float(setting) * structure.num_sites
+            elif key == "LMAXMIX":
+                lmaxmix = 2  # default
+                if any([el.Z > 20 for el in structure.composition]):  # contains d-electrons
+                    lmaxmix = 4
+                if any([el.Z > 56 for el in structure.composition]):  # contains f-electrons
+                    lmaxmix = 6
+                incar[key] = lmaxmix
             else:
                 incar[key] = setting
 
         has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if not has_u:
             for key in incar.keys():
-                if key.startswith('LDAU'):
+                if key.startswith('LDAU') or key.startswith('LMAXMIX'):
                     del incar[key]
 
         return incar
