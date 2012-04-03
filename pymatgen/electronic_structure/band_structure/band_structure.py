@@ -249,6 +249,8 @@ class BandStructureSymmLine(BandStructure):
             for i in range(len(self._kpoints)):
                 if(self._kpoints[i].label==kpointvbm.label):
                     list_index_kpoints.append(i)
+        else:
+            list_index_kpoints.append(index)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
@@ -281,6 +283,8 @@ class BandStructureSymmLine(BandStructure):
             for i in range(len(self._kpoints)):
                 if(self._kpoints[i].label==kpointcbm.label):
                     list_index_kpoints.append(i)
+        else:
+            list_index_kpoints.append(index)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
@@ -308,7 +312,7 @@ class BandStructureSymmLine(BandStructure):
         result['direct'] = False
         if (cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01):
             result['direct'] = True
-        result['transition'] = '-'.join([str(c.label) for c in [vbm['kpoint'], cbm['kpoint']]])
+        result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
 
 
