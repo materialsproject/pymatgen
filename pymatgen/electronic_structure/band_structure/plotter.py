@@ -151,23 +151,11 @@ class BSPlotter(object):
             e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
             e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
 
-            print cbm['kpoint']
-            if cbm['kpoint'].label is not None:
-                for i in range(len(self._bs._kpoints)):
-                    if(self._bs._kpoints[i].label == cbm['kpoint'].label):
-                        pylab.scatter(self._bs._distance[i], e_cbm, color='r', marker='o', s=100)
-
-            else:
-                pylab.scatter(self._bs._distance[cbm['kpoint_index']], e_cbm, color='r', marker='o', s=100)
-                
-            print e_vbm
-            if vbm['kpoint'].label is not None:
-                for i in range(len(self._bs._kpoints)):
-                    if(self._bs._kpoints[i].label == vbm['kpoint'].label):
-                        pylab.scatter(self._bs._distance[i], e_vbm, color='G', marker='o', s=100)
-
-            else:
-                pylab.scatter(self._bs._distance[vbm['kpoint_index']], e_vbm, color='g', marker='o', s=100)
+            for index in cbm['kpoint_index']:
+                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)    
+            
+            for index in vbm['kpoint_index']:
+                pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
 
             pylab.ylim(e_vbm + e_min, e_cbm + e_max)
 
@@ -318,5 +306,15 @@ class BSPlotter(object):
         #ax.set_ylim3d(0.5*min_y, 0.5*max_y) 
         #ax.set_zlim3d(0.5*min_z, 0.5*max_z) 
         ax.grid(False)
+        
         #plt.tight_layout()
+        #fig.patch.set_facecolor('blue')
+        #fig.patch.set_alpha(0.7)
+
+
+        #fig.savefig('temp.png', facecolor=fig.get_facecolor(), edgecolor='none')
+
         plt.show()
+        ax.axis("off")
+        #
+
