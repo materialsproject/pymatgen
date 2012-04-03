@@ -12,6 +12,7 @@ __status__ = "Development"
 __date__ = "March 14, 2012"
 
 import logging
+import math
 
 log = logging.getLogger('BSPlotter')
 
@@ -29,7 +30,9 @@ class BSPlotter(object):
                 A Bandstructure_line object.
         """
         self._bs = bs
-        self._nb_bands = bs._nb_bands
+        #Many ab initio codes do not give good results for the highest occupied bands, we therefore only
+        #give 90% of the bands for plotting
+        self._nb_bands = int(math.floor(self._bs._nb_bands*0.9))
 
     @property
     def bs_plot_data(self):
@@ -150,7 +153,7 @@ class BSPlotter(object):
 
             e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
             e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
-
+ 
             for index in cbm['kpoint_index']:
                 pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)    
             
