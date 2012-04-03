@@ -230,10 +230,10 @@ class BandStructureSymmLine(BandStructure):
         get the valence band minimum (VBM). returns a dictionary with
         'band_index': a list of the indices of the band containing the VBM (please note that you can have several bands 
         sharing the VBM)
-        'kpoint_index': the index in self._kpoints of the kpoint vbm
+        'kpoint_index': the list of indices in self._kpoints for the kpoint vbm. Please note that there can be several
+        kpoint_indices relating to the same kpoint (e.g., Gamma can occur at different spots in the band structure line plot)
         'kpoint': the kpoint (as a kpoint object)
         'energy': the energy of the VBM
-        'label': the label of the vbm kpoint if any
         """
         max_tmp = -1000.0
         index = None
@@ -244,12 +244,17 @@ class BandStructureSymmLine(BandStructure):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointvbm = self._kpoints[j]
+        list_index_kpoints=[]
+        if kpointvbm.label != None:
+            for i in range(len(self._kpoints)):
+                if(self._kpoints[i].label==kpointvbm.label):
+                    list_index_kpoints.append(i)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
             if(math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001):
                 list_index_band.append(i)
-        return {'band_index':list_index_band, 'kpoint_index':index, 'kpoint':kpointvbm, 'energy':max_tmp}
+        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointvbm, 'energy':max_tmp}
 
 
     def get_cbm(self):
@@ -257,10 +262,10 @@ class BandStructureSymmLine(BandStructure):
         get the conduction band minimum (CBM). returns a dictionnary with
         'band_index': a list of the indices of the band containing the CBM (please note that you can have several bands 
         sharing the CBM)
-        'kpoint_index': the index in self._kpoints of the kpoint cbm
+        'kpoint_index': the list of indices in self._kpoints for the kpoint cbm. Please note that there can be several
+        kpoint_indices relating to the same kpoint (e.g., Gamma can occur at different spots in the band structure line plot)
         'kpoint': the kpoint (as kpoint object)
         'energy': the energy of the CBM
-        'label': the label of the cbm kpoint if any
         """
         max_tmp = 1000.0
         index = None
@@ -270,13 +275,18 @@ class BandStructureSymmLine(BandStructure):
                     if(self._bands[i]['energy'][j] < max_tmp):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
-                        kpointvbm = self._kpoints[j]
+                        kpointcbm = self._kpoints[j]
+        list_index_kpoints=[]
+        if kpointcbm.label != None:
+            for i in range(len(self._kpoints)):
+                if(self._kpoints[i].label==kpointcbm.label):
+                    list_index_kpoints.append(i)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
             if(math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001):
                 list_index_band.append(i)
-        return {'band_index':list_index_band, 'kpoint_index':index, 'kpoint':kpointvbm, 'energy':max_tmp}
+        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
 
     def get_band_gap(self):
         """
