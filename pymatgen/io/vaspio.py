@@ -615,12 +615,19 @@ class Kpoints(VaspInput):
     @staticmethod
     def automatic_density(structure, kppa):
         '''
-        Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
-        for hexagonal cells and Monkhorst-Pack grids otherwise.
+        Returns an automatic Kpoint object based on a structure and a kpoint 
+        density. Uses Gamma centered meshes for hexagonal cells and 
+        Monkhorst-Pack grids otherwise.
         
         Algorithm: 
             Uses a simple approach scaling the number of divisions along each 
             reciprocal lattice vector proportional to its length. 
+            
+        Args:
+            structure:
+                Input structure
+            kppa:
+                Grid density
         '''
 
         latt = structure.lattice
