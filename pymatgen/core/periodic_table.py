@@ -30,6 +30,7 @@ def _load__pt_data():
 _pt_data = _load__pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+
 @cached_class
 class Element(object):
     '''
@@ -41,7 +42,7 @@ class Element(object):
     def __init__(self, symbol):
         '''
         Create immutable element from a symbol.
-        
+
         Args:
             symbol:
                 Element symbol, e.g., "H", "Fe"
@@ -71,7 +72,7 @@ class Element(object):
         {oxidation state: ionic radii}. Radii are given in pm.
         """
         if 'Ionic_radii' in self._data:
-            return {int(k):v for k, v in self._data['Ionic_radii'].items()}
+            return {int(k): v for k, v in self._data['Ionic_radii'].items()}
         else:
             return {}
 
@@ -173,7 +174,8 @@ class Element(object):
     def electronic_structure(self):
         """
         Electronic structure. Simplified form with HTML formatting.
-        E.g., The electronic structure for Fe is represented as [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+        E.g., The electronic structure for Fe is represented as
+        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
         """
         return self._data['Electronic structure']
 
@@ -182,17 +184,21 @@ class Element(object):
         """
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
-        [(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6), (3, 'd', 6), (4, 's', 2)]
+        [(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6),
+        (3, 'd', 6), (4, 's', 2)]
         """
         estr = self._data['Electronic structure']
+
         def parse_orbital(orbstr):
             m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
             if m:
                 return (int(m.group(1)), m.group(2), int(m.group(3)))
             return orbstr
+
         data = [parse_orbital(s) for s in estr.split(".")]
         if data[0][0] == "[":
-            data = Element(data[0].replace("[", "").replace("]", "")).full_electronic_structure + data[1:]
+            sym = data[0].replace("[", "").replace("]", "")
+            data = Element(sym).full_electronic_structure + data[1:]
         return data
 
     @property
@@ -286,17 +292,17 @@ class Element(object):
 
     def __cmp__(self, other):
         '''
-        Sets a default sort order for atomic species by electronegativity.  Very
-        useful for getting correct formulas.  For example, FeO4PLi is automatically
-        sorted in LiFePO4.
+        Sets a default sort order for atomic species by electronegativity. Very
+        useful for getting correct formulas.  For example, FeO4PLi is
+        automatically sorted into LiFePO4.
         '''
         return (self._x - other._x)
 
     def __lt__(self, other):
         '''
-        Sets a default sort order for atomic species by electronegativity.  Very
-        useful for getting correct formulas.  For example, FeO4PLi is automatically
-        sorted in LiFePO4.
+        Sets a default sort order for atomic species by electronegativity. Very
+        useful for getting correct formulas.  For example, FeO4PLi is
+        automatically sorted into LiFePO4.
         '''
         return (self._x < other._x)
 
@@ -311,8 +317,8 @@ class Element(object):
     @staticmethod
     def from_row_and_group(row, group):
         """
-        Returns an element from a row and group number.  
-        
+        Returns an element from a row and group number.
+
         .. note::
             The 18 group number system is used, i.e., Noble gases are group 18.
         """
@@ -326,13 +332,14 @@ class Element(object):
     def is_valid_symbol(symbol):
         """
         Returns true if symbol is a valid element symbol.
-        
+
         Args:
             symbol:
                 Element symbol
-        
+
         Returns:
-            True if symbol is a valid element (e.g., "H"). False otherwise (e.g., "Zebra").
+            True if symbol is a valid element (e.g., "H"). False otherwise
+            (e.g., "Zebra").
         """
         return symbol in _pt_data
 
@@ -342,7 +349,7 @@ class Element(object):
         Returns the periodic table row of the element.
         """
         Z = self.Z
-        totalEls = 0;
+        totalEls = 0
         if Z >= 57 and Z <= 70:
             return 8
         elif Z >= 89 and Z <= 102:
@@ -485,11 +492,12 @@ class Element(object):
 class Specie(Element):
     """
     An extension of Element with an oxidation state.
-    
+
     .. note::
-        While Specie does not directly inherit from Element  (because of certain implementation concerns 
-        due to the singleton nature of each element), it does inherit all Element attributes and hence 
-        function exactly as an Element would.
+        While Specie does not directly inherit from Element  (because of
+        certain implementation concerns due to the singleton nature of each
+        element), it does inherit all Element attributes and hence function
+        exactly as an Element would.
     """
 
     def __init__(self, symbol, oxidation_state):
@@ -505,7 +513,8 @@ class Specie(Element):
 
     def __eq__(self, other):
         """
-        Specie is equal to other only if element and oxidation states are exactly the same.
+        Specie is equal to other only if element and oxidation states are
+        exactly the same.
         """
         if not isinstance(other, Specie):
             return False
@@ -518,14 +527,16 @@ class Specie(Element):
 
     def __hash__(self):
         """
-        Given that all oxidation states are below 100 in absolute value, this should effectively ensure that no two unequal 
-        Specie have the same hash.
+        Given that all oxidation states are below 100 in absolute value, this
+        should effectively ensure that no two unequal Specie have the same
+        hash.
         """
         return self.Z * 100 + self.oxi_state
 
     def __lt__(self, other):
         '''
-        Sets a default sort order for atomic species by electronegativity, followed by oxidation state. 
+        Sets a default sort order for atomic species by electronegativity,
+        followed by oxidation state.
         '''
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
         return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
@@ -548,14 +559,15 @@ class Specie(Element):
     def from_string(species_string):
         """
         Returns a Specie from a string representation. 
-        
+
         Args:
             species_string: 
-                A typical string representation of a species, e.g., "Mn2+", "Fe3+", "O2-".
-                
+                A typical string representation of a species, e.g., "Mn2+", 
+                "Fe3+", "O2-".
+
         Returns:
             A Specie object.
-            
+    
         Raises:
             ValueError if species_string cannot be intepreted.
         """
@@ -607,13 +619,16 @@ class PeriodicTable(object):
 
     def print_periodic_table(self, filter_function=None):
         """
-        A pretty ASCII printer for the periodic table, based on some filter_function.
+        A pretty ASCII printer for the periodic table, based on some 
+        filter_function.
         
         Args:
             filter_function:
-                A filtering function taking an Element as input and returning a boolean.
-                For example, setting filter_function = lambda el: el.X > 2 will print
-                a periodic table containing only elements with electronegativity > 2.
+                A filtering function taking an Element as input and returning 
+                a boolean. For example, setting 
+                filter_function = lambda el: el.X > 2 will print
+                a periodic table containing only elements with 
+                electronegativity > 2.
         """
         for row in range(1, 10):
             rowstr = []
