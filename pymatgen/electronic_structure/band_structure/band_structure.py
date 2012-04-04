@@ -180,7 +180,7 @@ class BandStructureSymmLine(BandStructure):
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian=False):
-        super(BandStructureSymmLine, self).__init__(kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
+        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
         self._distance = []
         self._branches = []
         """
@@ -201,8 +201,8 @@ class BandStructureSymmLine(BandStructure):
                 self._distance.append(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = self._kpoints[i]
             previous_distance = self._distance[i]
-            if label != None:
-                if previous_label != None:
+            if label:
+                if previous_label:
                     if len(one_group) != 0:
                         branches_tmp.append(one_group)
                     one_group = []
@@ -214,9 +214,6 @@ class BandStructureSymmLine(BandStructure):
         #self._branches=branches
         for b in branches_tmp:
             self._branches.append({'start_index':b[0], 'end_index':b[-1], 'name':(self._kpoints[b[0]].label + "-" + self._kpoints[b[-1]].label)})
-
-
-
 
     def get_branch_name(self, index):
         to_return = []
@@ -244,17 +241,17 @@ class BandStructureSymmLine(BandStructure):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointvbm = self._kpoints[j]
-        list_index_kpoints=[]
+        list_index_kpoints = []
         if kpointvbm.label != None:
             for i in range(len(self._kpoints)):
-                if(self._kpoints[i].label==kpointvbm.label):
+                if self._kpoints[i].label == kpointvbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
-            if(math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001):
+            if math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001:
                 list_index_band.append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointvbm, 'energy':max_tmp}
 
@@ -273,22 +270,22 @@ class BandStructureSymmLine(BandStructure):
         index = None
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
-                if(self._bands[i]['energy'][j] > self._efermi):
-                    if(self._bands[i]['energy'][j] < max_tmp):
+                if self._bands[i]['energy'][j] > self._efermi:
+                    if self._bands[i]['energy'][j] < max_tmp:
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointcbm = self._kpoints[j]
-        list_index_kpoints=[]
+        list_index_kpoints = []
         if kpointcbm.label != None:
             for i in range(len(self._kpoints)):
-                if(self._kpoints[i].label==kpointcbm.label):
+                if self._kpoints[i].label == kpointcbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
         #get all other bands sharing the vbm
         list_index_band = []
         for i in range(self._nb_bands):
-            if(math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001):
+            if math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001:
                 list_index_band.append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
 
@@ -310,7 +307,7 @@ class BandStructureSymmLine(BandStructure):
         result = {}
         result['energy'] = cbm['energy'] - vbm['energy']
         result['direct'] = False
-        if (cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01):
+        if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
         result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
@@ -381,7 +378,6 @@ def get_reconstructed_band_structure(list_bs, efermi):
                 kpoints.append(k.frac_coords)
             for k, v in bs._labels_dict.iteritems():
                 labels_dict[k] = v.frac_coords
-            #eigenvals.append({'energy':[0,6.0],'occup':[1.0,1.0]})
         for i in range(nb_bands):
             eigenvals.append({'energy':[], 'occup':[]})
             for bs in list_bs:
