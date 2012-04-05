@@ -558,16 +558,16 @@ class Specie(Element):
     @staticmethod
     def from_string(species_string):
         """
-        Returns a Specie from a string representation. 
+        Returns a Specie from a string representation.
 
         Args:
-            species_string: 
-                A typical string representation of a species, e.g., "Mn2+", 
+            species_string:
+                A typical string representation of a species, e.g., "Mn2+",
                 "Fe3+", "O2-".
 
         Returns:
             A Specie object.
-    
+
         Raises:
             ValueError if species_string cannot be intepreted.
         """
@@ -592,12 +592,12 @@ class Specie(Element):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state)
 
+
 @singleton
 class PeriodicTable(object):
     '''
-    A Periodic table singleton class.
-    This class contains methods on the collection of all known elements.  
-    For example, printing all elements, etc.
+    A Periodic table singleton class. This class contains methods on the
+    collection of all known elements. For example, printing all elements, etc.
     '''
 
     def __init__(self):
@@ -619,22 +619,22 @@ class PeriodicTable(object):
 
     def print_periodic_table(self, filter_function=None):
         """
-        A pretty ASCII printer for the periodic table, based on some 
+        A pretty ASCII printer for the periodic table, based on some
         filter_function.
-        
+
         Args:
             filter_function:
-                A filtering function taking an Element as input and returning 
-                a boolean. For example, setting 
+                A filtering function taking an Element as input and returning
+                a boolean. For example, setting
                 filter_function = lambda el: el.X > 2 will print
-                a periodic table containing only elements with 
+                a periodic table containing only elements with
                 electronegativity > 2.
         """
         for row in range(1, 10):
             rowstr = []
             for group in range(1, 19):
                 el = Element.from_row_and_group(row, group)
-                if el != None and ((not filter_function) or filter_function(el)):
+                if el and ((not filter_function) or filter_function(el)):
                     rowstr.append("{:3s}".format(el.symbol))
                 else:
                     rowstr.append("   ")
@@ -644,7 +644,7 @@ class PeriodicTable(object):
 class DummySpecie(Specie):
     """
     A special specie for representing non-traditional elements or species. For
-    example, representation of vacancies (charged or otherwise), or special 
+    example, representation of vacancies (charged or otherwise), or special
     sites, etc.
     """
 
@@ -652,11 +652,12 @@ class DummySpecie(Specie):
         """
         Args:
             symbol:
-                An assigned symbol for the dummy specie. Strict rules are applied
-                to the choice of the symbol. The dummy symbol cannot have any 
-                part of first two letters that will constitute an Element symbol. 
-                Otherwise, a composition may be parsed wrongly. E.g., "X" is fine,
-                but "Vac" is not because Vac contains V, a valid Element. 
+                An assigned symbol for the dummy specie. Strict rules are
+                applied to the choice of the symbol. The dummy symbol cannot
+                have any part of first two letters that will constitute an
+                Element symbol. Otherwise, a composition may be parsed wrongly.
+                E.g., "X" is fine, but "Vac" is not because Vac contains V, a
+                valid Element.
             oxi_state:
                 Oxidation state for dummy specie. Defaults to zero.
         """
@@ -667,7 +668,10 @@ class DummySpecie(Specie):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError('{} contains {} which is a valid element symbol. Choose a different dummy symbol'.format(symbol, symbol[:i]))
+                msg = "{} contains {}".format(symbol, symbol[:i])
+                msg += " which is a valid element symbol."
+                msg += " Choose a different dummy symbol."
+                raise ValueError(msg)
 
         self._x = 0
         self._oxi_state = oxi_state
@@ -686,7 +690,7 @@ class DummySpecie(Specie):
 
     def set_attribute(self, attribute, value):
         '''
-        method to add data to dummy specie. Get formatting from periodic_table.json
+        Method to add data to dummy specie.
         '''
         self._data[attribute] = value
         if attribute == 'X':
@@ -695,15 +699,15 @@ class DummySpecie(Specie):
     @staticmethod
     def from_string(species_string):
         """
-        Returns a Dummy from a string representation. 
-        
+        Returns a Dummy from a string representation.
+
         Args:
-            species_string: 
+            species_string:
                 A string representation of a dummy species, e.g., "X2+", "X3+"
-                
+
         Returns:
             A DummySpecie object.
-            
+
         Raises:
             ValueError if species_string cannot be intepreted.
         """
@@ -714,7 +718,8 @@ class DummySpecie(Specie):
                 return DummySpecie(m.group(1))
             else:
                 num = 1 if m.group(2) == "" else float(m.group(2))
-                return DummySpecie(m.group(1), oxi_state=num if m.group(3) == "+" else -num)
+                oxi = num if m.group(3) == "+" else -num
+                return DummySpecie(m.group(1), oxi_state=oxi)
 
         raise ValueError("Invalid Species String")
 
@@ -724,20 +729,20 @@ def smart_element_or_specie(obj):
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int, the Element with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing 
-    which Element parsing will be attempted (e.g., Mn), failing which 
-    DummyElement parsing will be attempted
-    
+    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
+    which Element parsing will be attempted (e.g., Mn), failing which
+    DummyElement parsing will be attempted.
+
     Args:
         obj:
-            An arbitrary object.  Supported objects are actual Element/Specie 
-            objects, integers (representing atomic numbers) or strings (element 
+            An arbitrary object.  Supported objects are actual Element/Specie
+            objects, integers (representing atomic numbers) or strings (element
             symbols or species strings).
-            
+
     Returns:
-        Specie or Element, with a bias for the maximum number of properties 
+        Specie or Element, with a bias for the maximum number of properties
         that can be determined.
-        
+
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
@@ -754,4 +759,3 @@ def smart_element_or_specie(obj):
             except (ValueError, KeyError):
                 return DummySpecie.from_string(obj)
     raise ValueError("Can't parse Element or String from " + str(obj))
-
