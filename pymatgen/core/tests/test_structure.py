@@ -224,7 +224,7 @@ class CompositionTest(unittest.TestCase):
         self.assertRaises(ValueError, Composition, f)
         f = {1:2, 8:1}
         self.assertEqual("H2 O1", Composition(f).formula)
-        self.assertEqual("Na2 O1", Composition(Na = 2, O = 1).formula)
+        self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4', 'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54', 'Li1.5 Si0.5']
@@ -251,12 +251,12 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(all_formulas, correct_formulas)
 
     def test_reduced_composition(self):
-        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i].get_reduced_composition_and_factor()[0], Composition.from_formula(correct_reduced_formulas[i]))
 
     def test_reduced_formula(self):
-        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
@@ -277,7 +277,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0, "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
-        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'AB3']
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
 
