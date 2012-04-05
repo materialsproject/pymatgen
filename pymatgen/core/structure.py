@@ -1153,6 +1153,10 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns a pretty normalized formula and a multiplicative factor, i.e., 
         Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
+        is_int = lambda x: x == int(x)
+        all_int = all([is_int(x) for x in self._elmap.values()])
+        if not all_int:
+            return (re.sub("\s", "", self.formula), 1)
 
         elements = self._elmap.keys()
         elements = sorted(elements, key=lambda el: el.X)
@@ -1163,7 +1167,6 @@ class Composition (collections.Mapping, collections.Hashable):
             contains_polyanion = (elements[num_el - 1].X - elements[num_el - 2].X < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
-
         reduced_form = ''
         n = num_el
         if contains_polyanion:
@@ -1526,5 +1529,7 @@ class Composition (collections.Mapping, collections.Hashable):
                         yield match
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
+    c = Composition.from_dict({"Li":1, "Co":0.3, "Ni":0.7, "O":2})
+    print c.reduced_formula
