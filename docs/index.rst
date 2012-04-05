@@ -27,8 +27,8 @@ your contributions via github or for bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward 
-incompatible changes, sometimes those are unavoidable and tough decisions have 
-to be made for the long term health of the code. 
+incompatible changes, they are sometimes unavoidable, and tough decisions have 
+to be made for the long term health of the code.
 
 Change log
 ----------
