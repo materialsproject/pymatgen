@@ -22,6 +22,7 @@ import abc
 import ConfigParser
 import json
 
+from pymatgen.core.periodic_table import Element
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
 class AbstractVaspInputSet(object):
@@ -143,12 +144,16 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_incar(self, structure):
         incar = Incar()
+        comp = structure.composition
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
                 incar[key] = [setting.get(site.specie.symbol, 0.6) for site in structure]
             elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
+                if comp[Element("O")] > 0 or comp[Element("F")] > 0:
+                    incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
+                else:
+                    incar[key] = [0 for sym in poscar.site_symbols]
             elif key == "EDIFF":
                 incar[key] = float(setting) * structure.num_sites
             else:
