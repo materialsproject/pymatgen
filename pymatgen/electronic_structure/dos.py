@@ -13,10 +13,13 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 20, 2012"
 
+import math
+
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
+from pymatgen.util.plotting_utils import get_publication_quality_plot, gaussian_smear
 
 class Dos(object):
     """
@@ -64,6 +67,21 @@ class Dos(object):
         Dict representation of the densities, {Spin: densities}
         """
         return self._dos
+
+    def get_smeared_densities(self, sigma):
+        """
+        Returns the Dict representation of the densities, {Spin: densities}, 
+        but with a Gaussian smearing of std dev sigma applied about the fermi
+        level.
+        
+        Args:
+            sigma:
+                Std dev of Gaussian smearing function.
+        """
+        smeared_dens = {}
+        for spin, dens in self._dos.items():
+            smeared_dens[spin] = gaussian_smear(self._energies, dens, self._efermi, sigma)
+        return smeared_dens
 
     @property
     def efermi(self):
@@ -426,7 +444,7 @@ class CompleteDos(Dos):
 
 
 def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
-             xlim=None, ylim=None):
+             xlim=None, ylim=None, sigma=None):
     """
     Plots a series of Dos using matplotlib.
     
@@ -444,8 +462,11 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
             Specifies the x-axis limits.
         ylim:
             Specifies the y-axis limits.
+        sigma:
+            A float specifying a standard deviation for Gaussian smearing the 
+            DOS for nicer looking plots. Defaults to None for no smearing.
     """
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
+
     plt = get_publication_quality_plot(12, 8)
     color_order = ['r', 'b', 'g', 'c']
 
@@ -458,7 +479,7 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     for key in keys:
         dos = dos_dict[key]
         energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
-        densities = dos.densities
+        densities = dos.get_smeared_densities(sigma) if sigma else dos.densities
         if not y:
             y = {Spin.up: np.zeros(energies.shape), Spin.down: np.zeros(energies.shape)}
         newdens = {}
@@ -475,15 +496,19 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     keys = list(keys)
     keys.reverse()
     alldensities.reverse()
-
     allpts = []
     for i, key in enumerate(keys):
         x = []
         y = []
         for spin in [Spin.up, Spin.down]:
             if spin in alldensities[i]:
-                x.extend(allenergies[i])
-                y.extend(int(spin) * alldensities[i][spin])
+                densities = list(int(spin) * alldensities[i][spin])
+                energies = list(allenergies[i])
+                if spin == Spin.down:
+                    energies.reverse()
+                    densities.reverse()
+                x.extend(energies)
+                y.extend(densities)
         allpts.extend(zip(x, y))
         if stack:
             plt.fill(x, y, color=color_order[i % 4], label=str(key))
@@ -511,4 +536,3 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     plt.setp(ltext, fontsize=30)
     plt.tight_layout()
     plt.show()
-
