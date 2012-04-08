@@ -6,8 +6,8 @@ Transmuters are essentially classes that generate TransformedStructures from
 various data sources. They enable the high-throughput generation of new
 structures and input files.
 
-It also includes the helper function, batch_write_vasp_input to generate an entire
-directory of vasp input files for running.
+It also includes the helper function, batch_write_vasp_input to generate an 
+entire directory of vasp input files for running.
 '''
 
 from __future__ import division
@@ -29,10 +29,11 @@ from copy import deepcopy
 
 class TransformedStructureTransmuter(object):
 
-    def __init__(self, transformed_structures, transformations = [], extend_collection = False):
+    def __init__(self, transformed_structures, transformations=[],
+                 extend_collection=False):
         self._transformed_structures = transformed_structures
         for trans in transformations:
-            self.append_transformation(trans, extend_collection = extend_collection)
+            self.append_transformation(trans, extend_collection=extend_collection)
 
     def __getitem__(self, index):
         return self._transformed_structures[index]
@@ -63,38 +64,43 @@ class TransformedStructureTransmuter(object):
     def __len__(self):
         return len(self._transformed_structures)
 
-    def append_transformation(self, transformation, extend_collection = False, clear_redo = True):
+    def append_transformation(self, transformation, extend_collection=False,
+                              clear_redo=True):
         """
-        TODO: clean this up a lot
-        
         Appends a transformation to the TransformedStructure.
         
-        Arguments:
+        Args:
             transformation:
                 Transformation to append
+            extend_collection:
+                Whether to generate multiple structures for transformations 
+                that result in possible multiple structures.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
-                However, when using append_transformation to do a redo, the redo
-                list should not be cleared to allow multiple redos.
+                However, when using append_transformation to do a redo, the 
+                redo list should not be cleared to allow multiple redos.
                 
         Returns:
-            list of booleans corresponding to initial transformed structures
-            each boolean describes whether the transformation altered the structure
+            List of booleans corresponding to initial transformed structures
+            each boolean describes whether the transformation altered the 
+            structure
         """
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, return_alternatives = extend_collection, clear_redo = clear_redo)
+            new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo)
             if new is not None:
                 new_structures.extend(new)
         output = [x.was_modified for x in self._transformed_structures]
         self._transformed_structures.extend(new_structures)
         return output
 
-    def branch_collection(self, transformations, retention_level = 1, extend_collection = False, clear_redo = True):
+    def branch_collection(self, transformations, retention_level=1,
+                          extend_collection=False, clear_redo=True):
         '''
-        Copies the structures collection, applying one transformation to each copy.
+        Copies the structures collection, applying one transformation to each 
+        copy.
         
         Args:
             transformations:
@@ -102,20 +108,30 @@ class TransformedStructureTransmuter(object):
                 these transformations. To append multiple transformations to 
                 each structure use extend_transformations)
             retention_level:
-                Specifies which structures will be kept and which will be thrown out
+                Specifies which structures will be kept and which will be 
+                thrown out.
                 0 - throws out all structures that weren't modified by any of 
                 the transformations
                 1 - keeps structures that weren't modified by anything.
-                2 - keeps all structures, including the untransformed ones. Note 
-                that this may cause issues with undoing transformations
+                2 - keeps all structures, including the untransformed ones. 
+                Note that this may cause issues with undoing transformations
                 since they will have different transformation histories
                 
-                e.g if you start with 2 structures and apply 2 transformations, 
-                and one structure isn't modified by either of them but the other 
-                structure is modified by both, for retention_level = 0, you will have 
-                2 structures left, for retention_level = 1 you will have 3 structures, 
-                and for retention_level 2, you will have 4. In most cases,
-                retention_level = 1 will provide the desired functionality.
+                E.g if you start with 2 structures and apply 2 transformations, 
+                and one structure isn't modified by either of them but the 
+                other structure is modified by both, for retention_level = 0, 
+                you will have 2 structures left, for retention_level = 1 you 
+                will have 3 structures, and for retention_level 2, you will 
+                have 4. In most cases, retention_level = 1 will provide the 
+                desired functionality.
+            extend_collection:
+                Whether to generate multiple structures for transformations 
+                that result in possible multiple structures.
+            clear_redo:
+                Boolean indicating whether to clear the redo list. By default,
+                this is True, meaning any appends clears the history of undoing.
+                However, when using append_transformation to do a redo, the 
+                redo list should not be cleared to allow multiple redos.
         '''
         any_modification = [False] * len(self._transformed_structures)
         old_transformed_structures = self._transformed_structures
@@ -150,7 +166,8 @@ class TransformedStructureTransmuter(object):
         for t in transformations:
             self.append_transformation(t)
 
-    def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True, subfolder = None):
+    def write_vasp_input(self, vasp_input_set, output_dir,
+                         create_directory=True, subfolder=None):
         """
         Batch write vasp input for a sequence of transformed structures to output_dir,
         following the format output_dir/{formula}_{number}.
@@ -187,7 +204,8 @@ class TransformedStructureTransmuter(object):
         pass
 
     @staticmethod
-    def from_cif_string(cif_string, transformations = [], primitive = True, extend_collection = False):
+    def from_cif_string(cif_string, transformations=[], primitive=True,
+                        extend_collection=False):
         '''
         Generates a TransformedStructureCollection from a cif string, possibly
         containing multiple structures.
@@ -211,7 +229,7 @@ class TransformedStructureTransmuter(object):
 
 
     @staticmethod
-    def from_cifs(cif_filenames, transformations = [], primitive = True):
+    def from_cifs(cif_filenames, transformations=[], primitive=True):
         '''
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
@@ -235,7 +253,7 @@ class TransformedStructureTransmuter(object):
         return TransformedStructureTransmuter(transformed_structures, [])
 
     @staticmethod
-    def from_poscars(poscar_filenames, transformations = []):
+    def from_poscars(poscar_filenames, transformations=[]):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
@@ -243,7 +261,7 @@ class TransformedStructureTransmuter(object):
         return TransformedStructureTransmuter(transformed_structures, [])
 
 
-def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory = True, subfolder = None):
+def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory=True, subfolder=None):
     """
     Batch write vasp input for a sequence of transformed structures to output_dir,
     following the format output_dir/{group}/{formula}_{number}.
@@ -267,8 +285,8 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, c
         formula = re.sub("\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir, '{}_{}'.format(formula, dnames_count[subdir+formula] + 1))
+            dirname = os.path.join(output_dir, subdir, '{}_{}'.format(formula, dnames_count[subdir + formula] + 1))
         else:
             dirname = os.path.join(output_dir, '{}_{}'.format(formula, dnames_count[formula] + 1))
-        s.write_vasp_input(vasp_input_set, dirname, create_directory = True)
+        s.write_vasp_input(vasp_input_set, dirname, create_directory=True)
         dnames_count[formula] += 1
