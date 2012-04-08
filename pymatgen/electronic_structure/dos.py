@@ -13,13 +13,11 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 20, 2012"
 
-import math
-
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
-from pymatgen.util.plotting_utils import get_publication_quality_plot, gaussian_smear
+from pymatgen.util.plotting_utils import get_publication_quality_plot
 
 class Dos(object):
     """
@@ -78,9 +76,12 @@ class Dos(object):
             sigma:
                 Std dev of Gaussian smearing function.
         """
+        from scipy.ndimage.filters import gaussian_filter1d
         smeared_dens = {}
+        diff = [self._energies[i + 1] - self._energies[i] for i in xrange(len(self.energies) - 1)]
+        avgdiff = sum(diff) / len(diff)
         for spin, dens in self._dos.items():
-            smeared_dens[spin] = gaussian_smear(self._energies, dens, self._efermi, sigma)
+            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
         return smeared_dens
 
     @property
@@ -536,3 +537,15 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     plt.setp(ltext, fontsize=30)
     plt.tight_layout()
     plt.show()
+
+
+import os
+import json
+
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
+with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+    dos = Dos.from_dict(json.load(f))
+    plot_dos({'t':dos}, sigma=0.2)
