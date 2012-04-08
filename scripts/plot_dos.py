@@ -17,7 +17,7 @@ import argparse
 from collections import OrderedDict
 
 from pymatgen.io.vaspio import Vasprun
-from pymatgen.electronic_structure.dos import plot_dos
+from pymatgen.electronic_structure.dos import DosPlotter
 
 parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for vasp runs.
 Author: Shyue Ping Ong
@@ -46,4 +46,6 @@ if args.element:
 if args.orbital:
     all_dos.update(dos.get_spd_dos())
 
-plot_dos(all_dos)
+plotter = DosPlotter()
+plotter.add_dos_dict(all_dos)
+plotter.show()
