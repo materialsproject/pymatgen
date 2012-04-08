@@ -7,7 +7,7 @@ import json
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, PDos, CompleteDos
+from pymatgen.electronic_structure.dos import Dos, PDos, CompleteDos, DosPlotter
 
 import pymatgen
 
@@ -80,6 +80,26 @@ class CompleteDosTest(unittest.TestCase):
         self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
         self.assertRaises(ValueError, self.dos.get_interpolated_value, 1000)
 
+
+class DosPlotterTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+            self.dos = CompleteDos.from_dict(json.load(f))
+            self.plotter = DosPlotter(sigma=0.2, stack=True)
+
+    def test_add_dos_dict(self):
+        d = self.plotter.get_dos_dict()
+        self.assertEqual(len(d), 0)
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x:x.X)
+        d = self.plotter.get_dos_dict()
+        self.assertEqual(len(d), 4)
+
+    def test_get_dos_dict(self):
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x:x.X)
+        d = self.plotter.get_dos_dict()
+        for el in ["Li", "Fe", "P", "O"]:
+            self.assertIn(el, d)
 
 if __name__ == '__main__':
     unittest.main()
