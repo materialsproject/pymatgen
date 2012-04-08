@@ -17,7 +17,6 @@ __date__ = "Mar 2, 2012"
 import os
 import re
 import json
-import collections
 import datetime
 
 from pymatgen.core.structure import Structure
@@ -34,7 +33,8 @@ class TransformedStructure(object):
     transformation history.
     """
 
-    def __init__(self, structure, transformations, history = None, other_parameters = None):
+    def __init__(self, structure, transformations, history=None,
+                 other_parameters=None):
         """
         Standard constructor for a TransformedStructure
         
@@ -42,15 +42,16 @@ class TransformedStructure(object):
             structure:
                 input structure
             transformations:
-                sequence of transformations to be applied to the input structure.
+                Sequence of transformations to be applied to the input 
+                structure.
             history:
                 optional history for the input structure, which provides a way
                 to track structures having undergone multiple series of 
                 transformations.
             other_parameters:
-                optional parameters to store along with the transformedstructure.
-                This can include tags (a list) or author which will be parsed when the structure
-                is uploaded to the database
+                optional parameters to store along with the 
+                TransformedStructure. This can include tags (a list) or author 
+                which will be parsed.
         """
         history = [] if history == None else history
         self._source = {}
@@ -93,7 +94,7 @@ class TransformedStructure(object):
         if len(self._redo_trans) == 0:
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
-        self.append_transformation(t, clear_redo = False)
+        self.append_transformation(t, clear_redo=False)
 
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
@@ -114,7 +115,7 @@ class TransformedStructure(object):
             yield new_structure
 
 
-    def append_transformation(self, transformation, return_alternatives = False, clear_redo = True):
+    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.
         
@@ -129,7 +130,7 @@ class TransformedStructure(object):
         """
 
         if return_alternatives:
-            structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True)
+            structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True)
             alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
 
             new_s = structures_dict_list[0]
@@ -158,7 +159,7 @@ class TransformedStructure(object):
         for t in transformations:
             self.append_transformation(t)
 
-    def get_vasp_input(self, vasp_input_set, generate_potcar = True):
+    def get_vasp_input(self, vasp_input_set, generate_potcar=True):
         """
         Returns VASP input as a dict of vaspio objects.
         
@@ -175,7 +176,7 @@ class TransformedStructure(object):
         d['transformations.json'] = json.dumps(self.to_dict)
         return d
 
-    def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True):
+    def write_vasp_input(self, vasp_input_set, output_dir, create_directory=True):
         """
         Writes VASP input to an output_dir.
         
@@ -187,7 +188,7 @@ class TransformedStructure(object):
             create_directory:
                 Create the directory if not present. Defaults to True.
         """
-        vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present = create_directory)
+        vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, 'transformations.json'), 'w') as fp:
             json.dump(self.to_dict, fp)
 
@@ -275,7 +276,7 @@ class TransformedStructure(object):
         return d
 
     @staticmethod
-    def from_cif_string(cif_string, transformations = [], primitive = True):
+    def from_cif_string(cif_string, transformations=[], primitive=True):
         """
         Generates TransformedStructure from a cif string.
 
@@ -306,7 +307,7 @@ class TransformedStructure(object):
         return TransformedStructure(s, transformations, [source_info])
 
     @staticmethod
-    def from_poscar_string(poscar_string, transformations = []):
+    def from_poscar_string(poscar_string, transformations=[]):
         """
         Generates TransformedStructure from a poscar string. 
 
