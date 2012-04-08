@@ -473,6 +473,15 @@ class DosPlotter(object):
         self._doses = OrderedDict()
 
     def add_dos(self, label, dos):
+        """
+        Adds a dos for plotting.
+        
+        Args:
+            label:
+                label for the DOS. Must be unique.
+            dos:
+                Dos object
+        """
         energies = dos.energies - dos.efermi if self.zero_at_efermi else dos.energies
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
         efermi = dos.efermi
@@ -480,6 +489,9 @@ class DosPlotter(object):
 
     def add_dos_dict(self, dos_dict, key_sort_func=None):
         """
+        Add a dictionary of doses, with an optional sorting function for the 
+        keys.
+        
         Args:
             dos_dict:
                 dict of {label: Dos}
@@ -494,9 +506,18 @@ class DosPlotter(object):
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self):
+        """
+        Returns the added doses as a json-serializable dict. Note that if you
+        have specified smearing for the DOS plot, the densities returned will
+        be the smeared densities, not the original densities.
+        
+        Returns:
+            Dict of dos data. Generally of the form, {label: {'energies':..,
+            'densities': {'up':...}, 'efermi':efermi}}
+        """
         return clean_json(self._doses)
 
-    def show(self, xlim=None, ylim=None,):
+    def show(self, xlim=None, ylim=None):
         """
         Show the plot using matplotlib.
         
