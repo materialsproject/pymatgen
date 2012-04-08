@@ -537,15 +537,3 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     plt.setp(ltext, fontsize=30)
     plt.tight_layout()
     plt.show()
-
-
-import os
-import json
-
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
-
-with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
-    dos = Dos.from_dict(json.load(f))
-    plot_dos({'t':dos}, sigma=0.2)
