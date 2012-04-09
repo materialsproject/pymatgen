@@ -229,18 +229,17 @@ class BSPlotter(object):
         pylab.legend()
 
     def plot_brillouin(self):
-        import pylab as plt
         import pymatgen.command_line.qhull_caller
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
+        mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure(figsize=(8, 8))
-        ax = Axes3D(fig)
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
         vec3 = self._bs._lattice_rec.matrix[2]
-        #ax.plot([0,vec1[0]],[0,vec1[1]],[0,vec1[2]],color='k')
-        #ax.plot([0,vec2[0]],[0,vec2[1]],[0,vec2[2]],color='k')
-        #ax.plot([0,vec3[0]],[0,vec3[1]],[0,vec3[2]],color='k')
 
         #make the grid
         max_x = -1000
@@ -302,19 +301,8 @@ class BSPlotter(object):
         for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
             a.set_visible(False)
 
-        #ax.set_xlim3d(0.5*min_x, 0.5*max_x) 
-        #ax.set_ylim3d(0.5*min_y, 0.5*max_y) 
-        #ax.set_zlim3d(0.5*min_z, 0.5*max_z) 
         ax.grid(False)
-
-        #plt.tight_layout()
-        #fig.patch.set_facecolor('blue')
-        #fig.patch.set_alpha(0.7)
-
-
-        #fig.savefig('temp.png', facecolor=fig.get_facecolor(), edgecolor='none')
 
         plt.show()
         ax.axis("off")
-        #
 
