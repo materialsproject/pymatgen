@@ -47,7 +47,7 @@ class PhaseDiagram (object):
             elements = set()
             map(elements.update, [entry.composition.elements for entry in entries])
         self._all_entries = entries
-        self._elements = sorted(tuple(elements))
+        self._elements = tuple(elements)
         self._qhull_data = None
         self._facets = None
         self._qhull_entries = None
