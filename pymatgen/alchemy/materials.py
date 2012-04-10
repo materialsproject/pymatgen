@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 '''
-This module performs list of transformations on list of entries, and provides a 
-consistent input vs output interface for transformations on db entries.
+This module provides various representations of transformed structures. A
+TransformedStructure is a structure that has been modified by undergoing a
+series of transformations. 
 '''
 
 from __future__ import division
