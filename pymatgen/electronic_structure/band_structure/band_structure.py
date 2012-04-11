@@ -236,7 +236,7 @@ class BandStructureSymmLine(BandStructure):
         index = None
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
-                if(self._bands[i]['energy'][j] < self._efermi):
+                if self._bands[i]['occup'][j] != 0.0:
                     if(self._bands[i]['energy'][j] > max_tmp):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
@@ -259,7 +259,7 @@ class BandStructureSymmLine(BandStructure):
     def get_cbm(self):
         """
         get the conduction band minimum (CBM). returns a dictionnary with
-        'band_index': a list of the indices of the band containing the CBM (please note that you can have several bands 
+        'band_index': a list of the indices of the band containing the CBM (please note that you can have several bands
         sharing the CBM)
         'kpoint_index': the list of indices in self._kpoints for the kpoint cbm. Please note that there can be several
         kpoint_indices relating to the same kpoint (e.g., Gamma can occur at different spots in the band structure line plot)
@@ -270,12 +270,14 @@ class BandStructureSymmLine(BandStructure):
         index = None
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
-                if self._bands[i]['energy'][j] > self._efermi:
+                if self._bands[i]['occup'][j] == 0.0:
                     if self._bands[i]['energy'][j] < max_tmp:
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointcbm = self._kpoints[j]
+
         list_index_kpoints = []
+
         if kpointcbm.label != None:
             for i in range(len(self._kpoints)):
                 if self._kpoints[i].label == kpointcbm.label:
@@ -287,7 +289,7 @@ class BandStructureSymmLine(BandStructure):
         for i in range(self._nb_bands):
             if math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001:
                 list_index_band.append(i)
-        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
+        return {'band_index': list_index_band, 'kpoint_index': list_index_kpoints, 'kpoint': kpointcbm, 'energy': max_tmp}
 
     def get_band_gap(self):
         """
@@ -300,13 +302,15 @@ class BandStructureSymmLine(BandStructure):
         TODO: not sure if the direct works, to test!
         
         """
-        if self.is_metal():
-            return {'energy':0.0, 'direct':False, 'transition':None}
+        # this is wrong because of how Fermi level is defined
+        #if self.is_metal():
+        #    return {'energy':0.0, 'direct':False, 'transition':None}
         cbm = self.get_cbm()
         vbm = self.get_vbm()
-        result = {}
+        result = dict(direct=False, energy=0.0, transition=None)
+
         result['energy'] = cbm['energy'] - vbm['energy']
-        result['direct'] = False
+
         if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
         result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
@@ -316,19 +320,11 @@ class BandStructureSymmLine(BandStructure):
     def is_metal(self):
         """
         check if the band structure indicates a metal by looking if the fermi level crosses a band
-        
         """
-        for i in range(self._nb_bands):
-            below = False
-            above = False
-            for j in range(len(self._kpoints)):
-                if self._bands[i]['energy'][j] < self._efermi:
-                    below = True
-                if self._bands[i]['energy'][j] > self._efermi:
-                    above = True
-            if above and below:
-                return True
-        return False
+        # 25meV (kT)
+        threshold = 0.025
+        gap = self.get_band_gap()
+        return True if gap['energy'] < threshold else False
 
     @property
     def to_dict(self):
