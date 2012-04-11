@@ -1101,6 +1101,11 @@ class Vasprun(object):
             return False
         return sum(self.hubbards.values()) > 0
 
+    @property
+    def is_spin(self):
+        return True if self.incar.get('ISPIN', 1) == 2 else False
+
+
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructureSymmLine object
@@ -1116,8 +1121,9 @@ class Vasprun(object):
                 the None value means the code will get it from the vasprun
                 
         Returns:
-            BandStructureSymmLine object
-            
+            a tuple of 'up' and 'down' BandStructureSymmLine objects
+            (BandStructureSymmLine object, BandStructureSymmLine object)
+            if the system in Non-spin polarized, the 'down' states are None
         TODO:
         
         -make a bit more general for non Symm Line band structures
@@ -1138,7 +1144,6 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
-        eigenvals = []
 
         # eigenvalues has a structure of:
         # {'12':{'up':[[-4.0, 1.0][-3.0, 1.0]]}
@@ -1150,10 +1155,24 @@ class Vasprun(object):
         min_eigenvalues = min(neigenvalues)
         #max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
 
+        up_eigenvals = []
+        down_eigenvals = []
+
         for i in range(min_eigenvalues):
-            eigenvals.append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
-            eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
-        return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
+            up_eigenvals.append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
+            up_eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+
+            if self.is_spin:
+                down_eigenvals.append({'energy': [dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]})
+                down_eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['down'][i][1] for j in range(len(kpoints))]
+
+        up_bs = BandStructureSymmLine(kpoints, up_eigenvals, lattice_new, self.efermi, labels_dict)
+
+        if self.is_spin:
+            down_bs = BandStructureSymmLine(kpoints, down_eigenvals, lattice_new, self.efermi, labels_dict)
+        else:
+            down_bs = None
+        return (up_bs, down_bs)
 
     @property
     def eigenvalue_band_properties(self):
@@ -2157,6 +2176,9 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
     the method will turn to parsing vasprun.xml directly.
 
     The method returns None is there's a parsing error
+
+    Return tuple (bandstructure_up, bandstructure_down)
+
     """
     #ToDo: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
@@ -2168,13 +2190,19 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
         # populate branches with Bandstructure instances
-        branches = []
+        up_branches = []
+        down_branches = []
+
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, 'vasprun.xml')
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file)
                 # why are these keyword args?
-                branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
+                if run.is_spin:
+                    up_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
+                else:
+                    up_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
+                    down_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi, spin='down'))
             else:
                 # It might be better to throw an exception
                 warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
