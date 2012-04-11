@@ -132,7 +132,7 @@ class SymmetryFinder(object):
                 'wyckoffs',
                 'equivalent_atoms')
         dataset = {}
-        for key, data in zip(keys, spg.dataset(self._lattice, self._positions, self._numbers, self._symprec)):
+        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec)):
             dataset[key] = data
 
         dataset['international'] = dataset['international'].strip()
