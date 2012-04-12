@@ -59,7 +59,7 @@ class TransformedStructureTest(unittest.TestCase):
         ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
         self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
         self.assertEqual(ts.other_parameters, {'author': 'Will', 'tags': ['test']})
-        
+
     def test_undo_last_transformation_and_redo(self):
         trans = []
         trans.append(SubstitutionTransformation({"Li":"Na"}))
@@ -77,6 +77,12 @@ class TransformedStructureTest(unittest.TestCase):
         self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
         self.assertRaises(IndexError, ts.redo_next_transformation)
 
+    def test_to_dict(self):
+        d = self.trans.to_dict
+        self.assertIn('last_modified', d)
+        self.assertIn('history', d)
+        self.assertIn('version', d)
+        self.assertEqual(Structure.from_dict(d).formula, 'Na4 Fe4 P4 O16')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

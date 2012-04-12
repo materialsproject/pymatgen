@@ -133,13 +133,11 @@ class TransformedStructure(object):
         if return_alternatives:
             structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True)
             alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
-
             new_s = structures_dict_list[0]
             self._structures.append(new_s.pop('structure'))
             self._transformations.append(transformation)
             self._transformation_parameters.append(new_s)
             return alternative_structures
-
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
@@ -273,6 +271,7 @@ class TransformedStructure(object):
         d = self._structures[-1].to_dict
         d['history'] = self.history
         d['version'] = __version__
+        d['last_modified'] = str(datetime.datetime.utcnow())
         d['other_parameters'] = self._other_parameters
         return d
 
@@ -304,7 +303,7 @@ class TransformedStructure(object):
             source = partial_cif['_database_code_ICSD'] + "-ICSD"
         else:
             source = 'uploaded cif'
-        source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
+        source_info = {'source':source, 'datetime':str(datetime.datetime.now()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
         return TransformedStructure(s, transformations, [source_info])
 
     @staticmethod
@@ -321,7 +320,7 @@ class TransformedStructure(object):
             raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
         raw_string = re.sub("'", "\"", poscar_string)
         s = p.struct
-        source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string}
+        source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.now()), 'original_file':raw_string}
         return TransformedStructure(s, transformations, [source_info])
 
 
