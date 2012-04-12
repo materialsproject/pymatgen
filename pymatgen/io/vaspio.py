@@ -1110,13 +1110,13 @@ class Vasprun(object):
         """
         Returns the band structure as a BandStructureSymmLine object
         
-        Arguments:
+        Args:
             kpoints_filename:
                 Full path of the KPOINTS file from which the band structure is generated.
                 If none is provided, the code will try to intelligently determine the appropriate
                 KPOINTS file by substituting the filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-            efermi
+            efermi:
                 if you want to specify manually the fermi energy this is where you should do it. By default,
                 the None value means the code will get it from the vasprun
                 
@@ -1124,10 +1124,10 @@ class Vasprun(object):
             a tuple of 'up' and 'down' BandStructureSymmLine objects
             (BandStructureSymmLine object, BandStructureSymmLine object)
             if the system in Non-spin polarized, the 'down' states are None
-        TODO:
         
-        -make a bit more general for non Symm Line band structures
-        -make a decision on the convention with 2*pi or not 
+        TODO:
+            - make a bit more general for non Symm Line band structures
+            - make a decision on the convention with 2*pi or not 
             
         """
         if not kpoints_filename:

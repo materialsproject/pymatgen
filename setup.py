@@ -55,8 +55,6 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-  test_suite='nose.collector',
-  test_requires=['nose']
+  download_url="https://github.com/materialsproject/pymatgen/tarball/master"
 )
 
