@@ -71,7 +71,7 @@ class CijTensor(object):
             for c in stress_dict:
                 if c.i == inds[n1][0] and c.j== inds[n1][1]:
                     strain.append(c.strain[c.i, c.j])
-                    stress.append(stress_dict[c])
+                    stress.append(stress_dict[c].stress_matrix)
 
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
