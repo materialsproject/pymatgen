@@ -53,6 +53,10 @@ class IdentityTransformation(AbstractTransformation):
         return self
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'init_args': {}, 'version': __version__ }
         return output
@@ -91,6 +95,10 @@ class RotationTransformation(AbstractTransformation):
         return RotationTransformation(self._axis, -self._angle, self._angle_in_radians)
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
@@ -117,6 +125,10 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
@@ -174,6 +186,10 @@ class SupercellTransformation(AbstractTransformation):
         raise NotImplementedError()
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'scaling_matrix': self._matrix}
@@ -219,6 +235,10 @@ class SubstitutionTransformation(AbstractTransformation):
         return SubstitutionTransformation({v:k for k, v in self._species_map.items()})
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'species_map': self._species_map}
@@ -251,6 +271,10 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
@@ -317,6 +341,10 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
         trans = PartialRemoveSitesTransformation([specie_indices], [self._frac], self._algo)
         return trans.apply_transformation(structure, return_ranked_list)
+
+    @property
+    def is_one_to_many(self):
+        return True
 
     def __str__(self):
         return "PartialRemoveSpecieTransformation : Species to remove = {}, Fraction to remove = {}, ALGO = {}".format(self._specie, self._frac, self._algo)
@@ -489,14 +517,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return None
 
     @property
+    def is_one_to_many(self):
+        return True
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'num_structures' : self._num_structures, 'energy_cutoff' : self._energy_cutoff}
         return output
-
-    @property
-    def all_structures(self):
-        return self._all_structures
 
     @property
     def lowest_energy_structure(self):
@@ -613,7 +641,6 @@ class PrimitiveCellTransformation(AbstractTransformation):
             structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         return structure2
 
-
     def __str__(self):
         return "Primitive cell transformation"
 
@@ -623,6 +650,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
@@ -663,7 +694,11 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        return self
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
