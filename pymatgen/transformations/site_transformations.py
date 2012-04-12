@@ -32,7 +32,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         Args:
             indices_species_map:
                 A dict containing the species mapping in int-string pairs. 
-                E.g., { 1:"Na"} or {2,"Mn2+"}. Multiple substitutions can 
+                E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple substitutions can 
                 be done. Overloaded to accept sp_and_occu dictionary
                 E.g. {'Si: {'Ge':0.75, 'C':0.25} }, which substitutes a single
                 species with multiple species to generate a disordered structure.
@@ -54,6 +54,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
@@ -90,6 +94,10 @@ class RemoveSitesTransformation(AbstractTransformation):
         return None
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'indices_to_remove': self._indices}
@@ -121,13 +129,16 @@ class TranslateSitesTransformation(AbstractTransformation):
         return TranslateSitesTransformation(self._indices, [-c for c in self._vector], self._frac)
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'indices_to_move': self._indices,
                                'translation_vector': self._vector,
                                'vector_in_frac_coords': self._frac}
         return output
-
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
@@ -268,7 +279,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         mod.delete_sites(lowestenergy_indices)
         return mod.modified_structure.get_sorted_structure()
 
-
     def apply_transformation(self, structure, return_ranked_list=False):
         num_remove_dict = {}
         for indices, frac in zip(self._indices, self._fractions):
@@ -299,6 +309,10 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return True
 
     @property
     def to_dict(self):
