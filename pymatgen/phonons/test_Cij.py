@@ -84,11 +84,6 @@ if __name__ == "__main__":
     strain_array4 = sorted(strain_array4)
     strain_array5 = sorted(strain_array5)
     strain_array6 = sorted(strain_array6)
-    
-#    print np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3]))))
-#    mat = np.zeros((3,3))
-#    for c in D:
-#        stress_dict[c] = Stress(mat)
 
     for n in strain_array1:
         for c in D:
@@ -127,14 +122,16 @@ if __name__ == "__main__":
                 count+=1
 
 
-for c in D:
-    print stress_dict[c]
+#for c in D:
 
-"""
+#    print c
+#    print stress_dict[c].stress_matrix
+
+
     Cij = CijTensor(stress_dict).fitCij()
     print Cij
 
-"""
+
 
 
 
