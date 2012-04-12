@@ -44,6 +44,16 @@ class AbstractTransformation(object):
         '''
         return
 
+    @abc.abstractproperty
+    def is_one_to_many(self):
+        '''
+        Determines if a Transformation is a one-to-many transformation. If a
+        Transformation is a one-to-many transformation, the apply_transformation
+        method should have a keyword arg "return_ranked_list" which allows for
+        the transformed structures to be returned as a ranked list.
+        '''
+        return False
+
     def to_json(self):
         return json.dumps(self.to_dict)
 
