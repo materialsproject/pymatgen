@@ -67,7 +67,7 @@ def DeformGeometry(rlxd_str, nd=0.02, ns=0.02, m=4, n=4):
             s = StructureEditor(rlxd_str)
             F = np.identity(3)
             F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
-#           F = np.matrix(F)   # this needs to be checked carefully
+#           F = np.matrix(F)   # this needs to be checked carefully, might give problems in certain cases
             StrainObject = IndependentStrain(F)
             s.apply_strain_transformation(F)   
             defstructures[StrainObject] = s.modified_structure          
