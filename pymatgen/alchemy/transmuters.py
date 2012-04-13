@@ -169,8 +169,8 @@ class TransformedStructureTransmuter(object):
     def write_vasp_input(self, vasp_input_set, output_dir,
                          create_directory=True, subfolder=None):
         """
-        Batch write vasp input for a sequence of transformed structures to output_dir,
-        following the format output_dir/{formula}_{number}.
+        Batch write vasp input for a sequence of transformed structures to 
+        output_dir, following the format output_dir/{formula}_{number}.
         
         Args:
             vasp_input_set:
