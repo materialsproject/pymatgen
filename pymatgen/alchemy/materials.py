@@ -30,14 +30,14 @@ class TransformedStructure(object):
     """
     Container object for new structures that include history of transformations.
     
-    Each transformed structure is made up of a sequence of structures with associated
-    transformation history.
+    Each transformed structure is made up of a sequence of structures with
+    associated transformation history.
     """
 
     def __init__(self, structure, transformations, history=None,
                  other_parameters=None):
         """
-        Standard constructor for a TransformedStructure
+        Standard constructor for a TransformedStructure.
         
         Args:
             structure:
@@ -181,7 +181,8 @@ class TransformedStructure(object):
         
         Args:
             vasp_input_set:
-                pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from structures
+                pymatgen.io.vaspio_set.VaspInputSet like object that creates 
+                vasp input files from structures
             output_dir:
                 Directory to output files
             create_directory:
@@ -217,17 +218,18 @@ class TransformedStructure(object):
     @property
     def was_modified(self):
         """
-        boolean describing whether the last transformation on the structure made any alterations to it
-        one example of when this would return false is in the case of performing a substitution transformation
-        on the structure when the specie to replace isn't in the structure.
+        Boolean describing whether the last transformation on the structure 
+        made any alterations to it one example of when this would return false
+        is in the case of performing a substitution transformation on the
+        structure when the specie to replace isn't in the structure.
         """
         return not self._structures[-1] == self._structures[-2]
 
     @property
     def structures(self):
         """
-        Returns a copy of all structures in the TransformedStructure. A structure
-        is stored after every single transformation.
+        Returns a copy of all structures in the TransformedStructure. A 
+        structure is stored after every single transformation.
         """
         return [s for s in self._structures]
 
