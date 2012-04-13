@@ -27,7 +27,7 @@ class BorgQueen(object):
     contains convenience methods to save and load data between sessions.
     """
 
-    def __init__(self, drone, rootpath = None, number_of_drones = 1):
+    def __init__(self, drone, rootpath=None, number_of_drones=1):
         """
         Args:
             drone:
@@ -64,6 +64,20 @@ class BorgQueen(object):
 
         p = Pool(self._num_drones)
         p.map(order_assimilation, ((path, self._drone, data) for path in valid_paths))
+        self._data.extend(data)
+
+    def serial_assimilate(self, rootpath):
+        """
+        Assimilate the entire subdirectory structure in rootpath serially.
+        """
+        valid_paths = []
+        for (parent, subdirs, files) in os.walk(rootpath):
+            if self._drone.is_valid_path((parent, subdirs, files)):
+                valid_paths.append(parent)
+        print len(valid_paths)
+        data = []
+        for path in valid_paths:
+            order_assimilation((path, self._drone, data))
         self._data.extend(data)
 
     def get_data(self):
