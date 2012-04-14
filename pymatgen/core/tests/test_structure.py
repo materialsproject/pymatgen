@@ -232,6 +232,12 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(all_formulas, correct_formulas)
         self.assertRaises(ValueError, Composition.from_formula, "(co2)(po4)2")
 
+    def test_mixed_valence(self):
+        comp = Composition({"Fe2+":2, "Fe3+":4, "Li+":8})
+        self.assertEqual(comp.reduced_formula, "Li4Fe3")
+        self.assertEqual(comp.alphabetical_formula, "Fe6 Li8")
+        self.assertEqual(comp.formula, "Li8 Fe6")
+
     def test_indeterminate_formula(self):
         correct_formulas = []
         correct_formulas.append(["Co1"])

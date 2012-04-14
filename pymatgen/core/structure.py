@@ -1115,12 +1115,12 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         '''
-        elements = self._elmap.keys()
-        elements = sorted(elements, key=lambda el: el.X)
+        sym_amt = self.to_dict
+        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
         formula = []
-        for el in elements:
-            if self[el] != 0:
-                formula.append(el.symbol + formula_double_format(self[el], False))
+        for s in syms:
+            if sym_amt[s] != 0:
+                formula.append(s + formula_double_format(sym_amt[s], False))
         return ' '.join(formula)
 
     @property
@@ -1129,12 +1129,12 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns a formula string, with elements sorted by alphabetically 
         e.g. Fe4 Li4 O16 P4.
         '''
-        elements = self._elmap.keys()
-        elements = sorted(elements, key=lambda el: el.symbol)
+        sym_amt = self.to_dict
+        syms = sorted(sym_amt.keys())
         formula = []
-        for el in elements:
-            if self[el] != 0:
-                formula.append(el.symbol + formula_double_format(self[el], False))
+        for s in syms:
+            if sym_amt[s] != 0:
+                formula.append(s + formula_double_format(sym_amt[s], False))
         return ' '.join(formula)
 
     def get_reduced_composition_and_factor(self):
@@ -1158,13 +1158,14 @@ class Composition (collections.Mapping, collections.Hashable):
         if not all_int:
             return (re.sub("\s", "", self.formula), 1)
 
-        elements = self._elmap.keys()
-        elements = sorted(elements, key=lambda el: el.X)
-        elements = filter(lambda el: self[el] != 0, elements)
-        num_el = len(elements)
+        sym_amt = self.to_dict
+        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+
+        syms = filter(lambda s: sym_amt[s] != 0, syms)
+        num_el = len(syms)
         contains_polyanion = False
         if num_el >= 3:
-            contains_polyanion = (elements[num_el - 1].X - elements[num_el - 2].X < 1.65)
+            contains_polyanion = (Element(syms[num_el - 1]).X - Element(syms[num_el - 2]).X < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
         reduced_form = ''
@@ -1173,18 +1174,18 @@ class Composition (collections.Mapping, collections.Hashable):
             n -= 2
 
         for i in range(0, n):
-            el = elements[i]
-            normamt = self._elmap[el] * 1.0 / factor
-            reduced_form += el.symbol + formula_double_format(normamt)
+            s = syms[i]
+            normamt = sym_amt[s] * 1.0 / factor
+            reduced_form += s + formula_double_format(normamt)
 
         if contains_polyanion:
             polyamounts = list()
-            polyamounts.append(self._elmap[elements[num_el - 2]] / factor)
-            polyamounts.append(self._elmap[elements[num_el - 1]] / factor)
+            polyamounts.append(sym_amt[syms[num_el - 2]] / factor)
+            polyamounts.append(sym_amt[syms[num_el - 1]] / factor)
             polyfactor = reduce(gcd, polyamounts)
             for i in range(n, num_el):
-                el = elements[i]
-                normamt = self._elmap[el] / factor / polyfactor
+                s = syms[i]
+                normamt = sym_amt[s] / factor / polyfactor
                 if normamt != 1.0:
                     if normamt != int(normamt):
                         polyfactor = 1;
@@ -1193,15 +1194,14 @@ class Composition (collections.Mapping, collections.Hashable):
             poly_form = ""
 
             for i in range(n, num_el):
-                el = elements[i]
-                normamt = self._elmap[el] / factor / polyfactor
-                poly_form += el.symbol + formula_double_format(normamt);
+                s = syms[i]
+                normamt = sym_amt[s] / factor / polyfactor
+                poly_form += s + formula_double_format(normamt);
 
             if polyfactor != 1:
                 reduced_form += "({}){}".format(poly_form, int(polyfactor))
             else:
                 reduced_form += poly_form
-
 
         if reduced_form in Composition.special_formulas:
             reduced_form = Composition.special_formulas[reduced_form]
@@ -1355,7 +1355,13 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns:
             dict with element symbol and (unreduced) amount e.g. {"Fe": 4.0, "O":6.0}
         '''
-        return {e.symbol: a for e, a in self.items()}
+        d = {}
+        for e, a in self.items():
+            if e.symbol in d:
+                d[e.symbol] += a
+            else:
+                d[e.symbol] = a
+        return d
 
     @property
     def to_reduced_dict(self):

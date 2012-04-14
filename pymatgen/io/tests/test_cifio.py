@@ -182,7 +182,7 @@ loop_
 #  http://www.iucr.org
 ##########################################################################
 
-data_Si0.5Si1N1.5
+data_Si1.5N1.5
 _symmetry_space_group_name_H-M          'P 1'
 _cell_length_a                          3.8401979337
 _cell_length_b                          3.84019899434
@@ -222,8 +222,6 @@ loop_
    N3-  N2  1  0.750000  0.500000  0.750000  0  .  0.5
    Si3+  Si3  1  0.750000  0.500000  0.750000  0  .  0.5
    N3-  N4  1  0.500000  0.500000  0.500000  0  .  1
- 
-
 """
         self.assertEqual(str(writer).strip(), ans.strip())
 
