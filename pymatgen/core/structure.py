@@ -68,6 +68,13 @@ class Site(collections.Mapping, collections.Hashable):
             if k not in Site.supported_properties:
                 raise ValueError("{} is not a supported Specie property".format(k))
 
+    @property
+    def properties(self):
+        """
+        Returns a view of properties as a dict.
+        """
+        return {k:v for k, v in self._properties.items()}
+
     def __getattr__(self, a):
         if a in self._properties:
             return self._properties[a]
@@ -242,7 +249,7 @@ class Site(collections.Mapping, collections.Hashable):
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
             elif isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords]}
+        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
 
     @staticmethod
     def from_dict(d):
@@ -253,7 +260,8 @@ class Site(collections.Mapping, collections.Hashable):
         for sp_occu in d['species']:
             sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
-        return Site(atoms_n_occu, d['xyz'])
+        props = d.get('properties', None)
+        return Site(atoms_n_occu, d['xyz'], properties=props)
 
 
 class PeriodicSite(Site):
@@ -499,7 +507,8 @@ class PeriodicSite(Site):
         return {'label': self.species_string, 'species': species_list,
                 'occu': occu, 'xyz':[float(c) for c in self._coords],
                 'abc':[float(c) for c in self._fcoords],
-                'lattice': self._lattice.to_dict}
+                'lattice': self._lattice.to_dict,
+                'properties': self._properties}
 
     @staticmethod
     def from_dict(d):
@@ -510,7 +519,8 @@ class PeriodicSite(Site):
         for sp_occu in d['species']:
             sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
-        return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']))
+        props = d.get('properties', None)
+        return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']), properties=props)
 
 
 class Structure(collections.Sequence, collections.Hashable):
