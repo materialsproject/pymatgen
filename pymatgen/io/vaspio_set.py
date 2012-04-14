@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 '''
-This module defines the VaspInputSet abstract base class and
-a concrete implementation for the Materials Project.  The basic
-concept behind an input set is to specify a scheme to generate
-a consistent set of Vasp inputs from a structure without further
-user intervention. This ensures comparability across runs.
+This module defines the VaspInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Vasp inputs from a
+structure without further user intervention. This ensures comparability across
+runs.
 '''
 
 from __future__ import division
@@ -28,8 +28,9 @@ from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 class AbstractVaspInputSet(object):
     """
     Abstract base class representing a set of Vasp input parameters.
-    The idea is that using a VaspInputSet, a complete set of input files (INPUT, KPOINTS, POSCAR and POTCAR)
-    can be generated in an automated fashion for any structure.
+    The idea is that using a VaspInputSet, a complete set of input files
+    (INPUT, KPOINTS, POSCAR and POTCAR) can be generated in an automated
+    fashion for any structure.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -92,8 +93,8 @@ class AbstractVaspInputSet(object):
                 Structure object
             generate_potcar:
                 Set to False to generate a POTCAR.spec file instead of a POTCAR,
-                which contains the POTCAR labels but not the actual POTCAR. Defaults
-                to True.
+                which contains the POTCAR labels but not the actual POTCAR.
+                Defaults to True.
                 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
@@ -144,13 +145,13 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_incar(self, structure):
         incar = Incar()
-        comp = structure.composition
+        symamt = structure.composition.to_dict
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
-                incar[key] = [setting.get(site.specie.symbol, 0.6) for site in structure]
+                incar[key] = [getattr(site, 'magmom', setting.get(site.specie.symbol, 0.6)) for site in structure]
             elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                if comp[Element("O")] > 0 or comp[Element("F")] > 0:
+                if symamt.get("O", 0) > 0 or symamt.get("F", 0) > 0:
                     incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
                 else:
                     incar[key] = [0 for sym in poscar.site_symbols]

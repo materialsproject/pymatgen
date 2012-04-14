@@ -648,7 +648,7 @@ class DummySpecie(Specie):
     sites, etc.
     """
 
-    def __init__(self, symbol='X', oxi_state=0):
+    def __init__(self, symbol='X', oxidation_state=0):
         """
         Args:
             symbol:
@@ -658,14 +658,9 @@ class DummySpecie(Specie):
                 Element symbol. Otherwise, a composition may be parsed wrongly.
                 E.g., "X" is fine, but "Vac" is not because Vac contains V, a
                 valid Element.
-            oxi_state:
+            oxidation_state:
                 Oxidation state for dummy specie. Defaults to zero.
         """
-        self._data = {}
-        #Store key variables for quick access
-        self._z = 0
-        self._symbol = symbol
-
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 msg = "{} contains {}".format(symbol, symbol[:i])
@@ -673,28 +668,31 @@ class DummySpecie(Specie):
                 msg += " Choose a different dummy symbol."
                 raise ValueError(msg)
 
-        self._x = 0
-        self._oxi_state = oxi_state
+        """
+        Set required attributes for DummySpecie to function like a Specie in
+        most instances.
+        """
+        self._symbol = symbol
+        self._oxi_state = oxidation_state
 
-    def __getattribute__(self, name):
-        try:
-            return super(DummySpecie, self).__getattribute__(name)
-        except(KeyError, AttributeError):
-            raise ValueError('DummySpecie has no data for ' + str(name))
+    @property
+    def Z(self):
+        return 0
+
+    @property
+    def oxi_state(self):
+        return self._oxi_state
+
+    @property
+    def X(self):
+        return 0
+
+    @property
+    def symbol(self):
+        return self._symbol
 
     def __deepcopy__(self, memo):
-        x = DummySpecie(self._symbol, self._oxi_state)
-        for y, z in self._data.items():
-            x.set_attribute(y, z)
-        return x
-
-    def set_attribute(self, attribute, value):
-        '''
-        Method to add data to dummy specie.
-        '''
-        self._data[attribute] = value
-        if attribute == 'X':
-            self._x = value
+        return DummySpecie(self._symbol, self._oxi_state)
 
     @staticmethod
     def from_string(species_string):
@@ -719,7 +717,7 @@ class DummySpecie(Specie):
             else:
                 num = 1 if m.group(2) == "" else float(m.group(2))
                 oxi = num if m.group(3) == "+" else -num
-                return DummySpecie(m.group(1), oxi_state=oxi)
+                return DummySpecie(m.group(1), oxidation_state=oxi)
 
         raise ValueError("Invalid Species String")
 

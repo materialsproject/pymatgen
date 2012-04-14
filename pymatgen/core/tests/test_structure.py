@@ -13,10 +13,13 @@ class SiteTest(unittest.TestCase):
     def setUp(self):
         self.ordered_site = Site(Element("Fe"), [0.25, 0.35, 0.45])
         self.disordered_site = Site({Element("Fe"):0.5, Element("Mn"):0.5}, [0.25, 0.35, 0.45])
+        self.propertied_site = Site(Specie("Fe", 2), [0.25, 0.35, 0.45], {'magmom':5.1, 'charge':4.2})
 
     def test_properties(self):
         self.assertRaises(AttributeError, getattr, self.disordered_site, 'specie')
         self.assertIsInstance(self.ordered_site.specie, Element)
+        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_to_from_dict(self):
         d = self.disordered_site.to_dict
@@ -32,6 +35,7 @@ class PeriodicSiteTest(unittest.TestCase):
         self.site = PeriodicSite("Fe", np.array([0.25, 0.35, 0.45]), self.lattice)
         self.site2 = PeriodicSite({"Si":0.5}, np.array([0, 0, 0]), self.lattice)
         self.assertEquals(self.site2.species_and_occu, {Element('Si'): 0.5}, "Inconsistent site created!")
+        self.propertied_site = PeriodicSite(Specie("Fe", 2), [0.25, 0.35, 0.45], self.lattice, properties={'magmom':5.1, 'charge':4.2})
 
     def test_properties(self):
         """
@@ -45,6 +49,8 @@ class PeriodicSiteTest(unittest.TestCase):
         self.assertEquals(self.site.z, 4.5)
         self.assertTrue(self.site.is_ordered)
         self.assertFalse(self.site2.is_ordered)
+        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
@@ -112,6 +118,7 @@ class StructureTest(unittest.TestCase):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, Structure, self.lattice, [self.si, self.si], coords, True)
+        self.propertied_structure = Structure(self.lattice, [self.si, self.si], coords, site_properties={'magmom':[5, -5]})
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
@@ -161,6 +168,9 @@ class StructureTest(unittest.TestCase):
         s = Structure.from_dict(test_dict)
         self.assertEqual(s.composition.formula, 'Mn0.5 Si0.5 Ge0.5')
 
+    def test_site_properties(self):
+        self.assertEqual(self.propertied_structure[0].magmom, 5)
+        self.assertEqual(self.propertied_structure[1].magmom, -5)
 
     def test_interpolate(self):
         coords = list()
