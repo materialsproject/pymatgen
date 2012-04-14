@@ -57,7 +57,6 @@ class  ElementTestCase(unittest.TestCase):
                 self.assertEqual(max(el.oxidation_states), el.max_oxidation_state)
                 self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
 
-
     def test_oxidation_states(self):
         el = Element("Fe")
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
@@ -75,6 +74,10 @@ class  SpecieTestCase(unittest.TestCase):
         self.specie1 = Specie.from_string("Fe2+")
         self.specie2 = Specie("Fe", 3)
         self.specie3 = Specie("Fe", 2)
+        self.specie4 = Specie("Fe", 2, {'spin':5})
+
+    def test_init(self):
+        self.assertRaises(ValueError, Specie, "Fe", 2, {'magmom':5})
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5)
@@ -83,12 +86,14 @@ class  SpecieTestCase(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3, "Static and actual constructor for Fe2+_ gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2, "Fe2+ should not be equal to Fe3+")
+        self.assertEqual(self.specie4, self.specie3, "Species with same oxi state and element should be equal!")
 
     def test_cmp(self):
         self.assertTrue(self.specie1 < self.specie2, "Fe2+ should be < Fe3+")
 
     def test_attr(self):
         self.assertEqual(self.specie1.Z, 26, "Z attribute for Fe2+ should be the same as that for Element Fe.")
+        self.assertEqual(self.specie4.spin, 5)
 
     def test_deepcopy(self):
         el1 = Specie("Fe", 4)
@@ -103,6 +108,8 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, DummySpecie, 'Xe')
         self.assertRaises(ValueError, DummySpecie, 'Xec')
         self.assertRaises(ValueError, DummySpecie, 'Vac')
+        self.specie2 = DummySpecie("X", 2, {'spin':3})
+        self.assertEqual(self.specie2.spin, 3)
 
     def test_from_string(self):
         sp = DummySpecie.from_string("X")

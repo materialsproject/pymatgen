@@ -489,27 +489,46 @@ class Element(object):
         return Element(self.symbol)
 
 
-class Specie(Element):
+class Specie(object):
     """
-    An extension of Element with an oxidation state.
-
-    .. note::
-        While Specie does not directly inherit from Element  (because of
-        certain implementation concerns due to the singleton nature of each
-        element), it does inherit all Element attributes and hence function
-        exactly as an Element would.
+    An extension of Element with an oxidation state and other optional
+    properties. Note that optional properties are not checked when comparing
+    two Species for equality; only the element and oxidation state is checked.
+    Properties associated with Specie should be "idealized" values, not
+    calculated values. For example, high-spin Fe2+ may be assigned an idealized
+    spin of +5, but an actual Fe2+ site may be calculated to have a magmom of
+    +4.5. Calculated properties should be assigned to Site objects, and not 
+    Specie.
     """
 
-    def __init__(self, symbol, oxidation_state):
+    supported_properties = ("spin",)
+
+    def __init__(self, symbol, oxidation_state, properties=None):
         """
         Args:
             symbol:
                 Element symbol, e.g., Fe
             oxidation_state:
                 Oxidation state of element, e.g., 2 or -2
+            properties:
+                Properties associated with the Specie, e.g. 
+                {'spin':5}. Defaults to None. Properties must be one of the 
+                Specie supported_properties.
         """
-        super(Specie, self).__init__(symbol)
+        self._el = Element(symbol)
         self._oxi_state = oxidation_state
+        self._properties = properties if properties else {}
+        for k in self._properties.keys():
+            if k not in Specie.supported_properties:
+                raise ValueError("{} is not a supported Specie property".format(k))
+
+    def __getattr__(self, a):
+        if a in self._properties:
+            return self._properties[a]
+        try:
+            return getattr(self._el, a)
+        except:
+            raise AttributeError(a)
 
     def __eq__(self, other):
         """
@@ -521,9 +540,7 @@ class Specie(Element):
         return self.Z == other.Z and self.oxi_state == other.oxi_state
 
     def __ne__(self, other):
-        if not isinstance(other, Specie):
-            return True
-        return self.Z != other.Z or self.oxi_state != other.oxi_state
+        return not self.__eq__(other)
 
     def __hash__(self):
         """
@@ -590,7 +607,91 @@ class Specie(Element):
         return output
 
     def __deepcopy__(self, memo):
-        return Specie(self.symbol, self.oxi_state)
+        return Specie(self.symbol, self.oxi_state, self._properties)
+
+
+class DummySpecie(Specie):
+    """
+    A special specie for representing non-traditional elements or species. For
+    example, representation of vacancies (charged or otherwise), or special
+    sites, etc.
+    """
+
+    def __init__(self, symbol='X', oxidation_state=0, properties=None):
+        """
+        Args:
+            symbol:
+                An assigned symbol for the dummy specie. Strict rules are
+                applied to the choice of the symbol. The dummy symbol cannot
+                have any part of first two letters that will constitute an
+                Element symbol. Otherwise, a composition may be parsed wrongly.
+                E.g., "X" is fine, but "Vac" is not because Vac contains V, a
+                valid Element.
+            oxidation_state:
+                Oxidation state for dummy specie. Defaults to zero.
+        """
+        for i in range(1, min(2, len(symbol)) + 1):
+            if Element.is_valid_symbol(symbol[:i]):
+                msg = "{} contains {}".format(symbol, symbol[:i])
+                msg += " which is a valid element symbol."
+                msg += " Choose a different dummy symbol."
+                raise ValueError(msg)
+
+        """
+        Set required attributes for DummySpecie to function like a Specie in
+        most instances.
+        """
+        self._symbol = symbol
+        self._oxi_state = oxidation_state
+        self._properties = properties if properties else {}
+        for k in self._properties.keys():
+            if k not in Specie.supported_properties:
+                raise ValueError("{} is not a supported Specie property".format(k))
+
+    @property
+    def Z(self):
+        return 0
+
+    @property
+    def oxi_state(self):
+        return self._oxi_state
+
+    @property
+    def X(self):
+        return 0
+
+    @property
+    def symbol(self):
+        return self._symbol
+
+    def __deepcopy__(self, memo):
+        return DummySpecie(self._symbol, self._oxi_state)
+
+    @staticmethod
+    def from_string(species_string):
+        """
+        Returns a Dummy from a string representation.
+
+        Args:
+            species_string:
+                A string representation of a dummy species, e.g., "X2+", "X3+"
+
+        Returns:
+            A DummySpecie object.
+
+        Raises:
+            ValueError if species_string cannot be intepreted.
+        """
+        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-]*)', species_string)
+
+        if m:
+            if m.group(2) == "" and m.group(3) == "":
+                return DummySpecie(m.group(1))
+            else:
+                num = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = num if m.group(3) == "+" else -num
+                return DummySpecie(m.group(1), oxidation_state=oxi)
+        raise ValueError("Invalid Species String")
 
 
 @singleton
@@ -639,87 +740,6 @@ class PeriodicTable(object):
                 else:
                     rowstr.append("   ")
             print(" ".join(rowstr))
-
-
-class DummySpecie(Specie):
-    """
-    A special specie for representing non-traditional elements or species. For
-    example, representation of vacancies (charged or otherwise), or special
-    sites, etc.
-    """
-
-    def __init__(self, symbol='X', oxidation_state=0):
-        """
-        Args:
-            symbol:
-                An assigned symbol for the dummy specie. Strict rules are
-                applied to the choice of the symbol. The dummy symbol cannot
-                have any part of first two letters that will constitute an
-                Element symbol. Otherwise, a composition may be parsed wrongly.
-                E.g., "X" is fine, but "Vac" is not because Vac contains V, a
-                valid Element.
-            oxidation_state:
-                Oxidation state for dummy specie. Defaults to zero.
-        """
-        for i in range(1, min(2, len(symbol)) + 1):
-            if Element.is_valid_symbol(symbol[:i]):
-                msg = "{} contains {}".format(symbol, symbol[:i])
-                msg += " which is a valid element symbol."
-                msg += " Choose a different dummy symbol."
-                raise ValueError(msg)
-
-        """
-        Set required attributes for DummySpecie to function like a Specie in
-        most instances.
-        """
-        self._symbol = symbol
-        self._oxi_state = oxidation_state
-
-    @property
-    def Z(self):
-        return 0
-
-    @property
-    def oxi_state(self):
-        return self._oxi_state
-
-    @property
-    def X(self):
-        return 0
-
-    @property
-    def symbol(self):
-        return self._symbol
-
-    def __deepcopy__(self, memo):
-        return DummySpecie(self._symbol, self._oxi_state)
-
-    @staticmethod
-    def from_string(species_string):
-        """
-        Returns a Dummy from a string representation.
-
-        Args:
-            species_string:
-                A string representation of a dummy species, e.g., "X2+", "X3+"
-
-        Returns:
-            A DummySpecie object.
-
-        Raises:
-            ValueError if species_string cannot be intepreted.
-        """
-        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-]*)', species_string)
-
-        if m:
-            if m.group(2) == "" and m.group(3) == "":
-                return DummySpecie(m.group(1))
-            else:
-                num = 1 if m.group(2) == "" else float(m.group(2))
-                oxi = num if m.group(3) == "+" else -num
-                return DummySpecie(m.group(1), oxidation_state=oxi)
-
-        raise ValueError("Invalid Species String")
 
 
 def smart_element_or_specie(obj):

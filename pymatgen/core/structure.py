@@ -29,9 +29,9 @@ from pymatgen.util.string_utils import formula_double_format
 
 class Site(collections.Mapping, collections.Hashable):
     '''
-    A generalized *non-periodic* site. Atoms and occupancies should be a dictionary of element:occupancy
-    or an element, in which case the occupancy default to 1.
-    Coords are given in standard cartesian coordinates, NOT fractional coords.
+    A generalized *non-periodic* site. Atoms and occupancies should be a dict
+    of element:occupancy or an element, in which case the occupancy default to 
+    1. Coords are given in standard cartesian coordinates.
     '''
 
     supported_properties = ('magmom', 'charge')
@@ -66,7 +66,7 @@ class Site(collections.Mapping, collections.Hashable):
         self._properties = properties if properties else {}
         for k in self._properties.keys():
             if k not in Site.supported_properties:
-                raise ValueError("{} is not a supported Specie property".format(k))
+                raise ValueError("{} is not a supported Site property".format(k))
 
     @property
     def properties(self):
