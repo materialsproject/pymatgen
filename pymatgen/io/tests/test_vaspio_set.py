@@ -59,9 +59,18 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertNotIn('LDAU', incar)
 
         struct = Structure(lattice, ["Fe", "F"], coords)
-
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['LDAUU'], [5.3, 0])
+        self.assertEqual(incar['MAGMOM'], [5, 0.6])
+
+        #Make sure this works with species.
+        struct = Structure(lattice, ["Fe2+", "O2-"], coords)
+        incar = self.paramset.get_incar(struct)
+        self.assertEqual(incar['LDAUU'], [5.3, 0])
+
+        struct = Structure(lattice, ["Fe", "Mn"], coords, site_properties={'magmom':(5.2, -4.5)})
+        incar = self.paramset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
