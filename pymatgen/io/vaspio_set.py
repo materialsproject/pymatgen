@@ -149,7 +149,15 @@ class VaspInputSet(AbstractVaspInputSet):
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
-                incar[key] = [getattr(site, 'magmom', setting.get(site.specie.symbol, 0.6)) for site in structure]
+                mag = []
+                for site in structure:
+                    if hasattr(site, 'magmom'):
+                        mag.append(site.magmom)
+                    elif hasattr(site.specie, 'spin'):
+                        mag.append(site.specie.spin)
+                    else:
+                        mag.append(setting.get(site.specie.symbol, 0.6))
+                incar[key] = mag
             elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
                 if symamt.get("O", 0) > 0 or symamt.get("F", 0) > 0:
                     incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]

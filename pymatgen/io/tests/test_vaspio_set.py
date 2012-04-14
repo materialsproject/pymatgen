@@ -3,6 +3,7 @@ import unittest
 import os
 
 import pymatgen
+from pymatgen.core.periodic_table import Specie
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, MaterialsProjectVaspInputSet
 from pymatgen.io.vaspio import Poscar
 from pymatgen.core.lattice import Lattice
@@ -71,6 +72,11 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         struct = Structure(lattice, ["Fe", "Mn"], coords, site_properties={'magmom':(5.2, -4.5)})
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
+
+        struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"], coords)
+        incar = self.paramset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [4.1, 5])
+
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
