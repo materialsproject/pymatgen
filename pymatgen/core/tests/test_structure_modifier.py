@@ -23,10 +23,10 @@ class StructureEditorTest(unittest.TestCase):
         self.modifier = StructureEditor(s)
 
     def test_modified_structure(self):
-        self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords = True)
+        self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
         self.assertTrue(np.array_equal(self.modifier.modified_structure.frac_coords[0], np.array([ 0.5, 0.5, 0.5])))
 
-        self.modifier.translate_sites([0], [0.5, 0.5, 0.5], frac_coords = False)
+        self.modifier.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=False)
         self.assertTrue(np.array_equal(self.modifier.modified_structure.cart_coords[0], np.array([ 5.5, 5.5, 5.5])))
 
         self.modifier.append_site(self.si, [0, 0.5, 0])
@@ -56,13 +56,24 @@ class StructureEditorTest(unittest.TestCase):
 
         d = 0.1
         pre_perturbation_sites = self.modifier.modified_structure.sites
-        self.modifier.perturb_structure(distance = d)
+        self.modifier.perturb_structure(distance=d)
         post_perturbation_sites = self.modifier.modified_structure.sites
 
         for x in pre_perturbation_sites:
             self.assertAlmostEqual(x.distance(post_perturbation_sites.next()), d, 3, "Bad perturbation distance")
 
+    def test_add_site_property(self):
+        self.modifier.add_site_property("charge", [4.1, 5])
+        s = self.modifier.modified_structure
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[1].charge, 5)
 
+        #test adding multiple properties.
+        mod2 = StructureEditor(s)
+        mod2.add_site_property("magmom", [3, 2])
+        s = mod2.modified_structure
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[0].magmom, 3)
 
 class SupercellMakerTest(unittest.TestCase):
 
