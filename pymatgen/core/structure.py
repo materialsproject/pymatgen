@@ -99,7 +99,7 @@ class Site(collections.Mapping, collections.Hashable):
             pt:
                 cartesian coordinates of point.
         """
-        return np.linalg.norm(pt - self._coords)
+        return np.linalg.norm(np.array(pt) - np.array(self._coords))
 
     @property
     def species_string(self):
@@ -663,7 +663,10 @@ class Structure(SiteCollection):
             lattice:
                 pymatgen.core.lattice Lattice object signify the lattice.
             atomicspecies:
-                list of atomic species.  dict of elements and occupancies.
+                list of atomic species. Possible kinds of input include a list 
+                of dict of elements/species and occupancies, a List of 
+                elements/specie specified as actual Element/Specie, Strings 
+                ("Fe", "Fe2+") or atomic numbers (1,56).
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
@@ -769,7 +772,7 @@ class Structure(SiteCollection):
 
     def get_sites_in_sphere(self, pt, r):
         '''
-        Find all sites within a sphere from the structure. This includes sites 
+        Find all sites within a sphere from the point. This includes sites 
         in other periodic images.
         
         Algorithm: 
@@ -784,14 +787,15 @@ class Structure(SiteCollection):
         
         2. keep points falling within r.
         
-        Arguments:
+        Args:
             pt:
                 cartesian coordinates of center of sphere.
             r:
                 radius of sphere.
         
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing requires the distance.
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
         '''
         recp_len = self._lattice.reciprocal_lattice.abc
         sr = r + 0.15
@@ -816,7 +820,7 @@ class Structure(SiteCollection):
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
-                    neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice), dists[i]))
+                    neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice, properties=self._sites[i].properties), dists[i]))
 
         return neighbors
 
@@ -832,7 +836,8 @@ class Structure(SiteCollection):
                 radius of sphere.
         
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing requires the distance.
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
         """
         return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
 
@@ -841,26 +846,28 @@ class Structure(SiteCollection):
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
         Use this method if you are planning on looping over all sites in the
-        crystal. If you only want neighbors for a particular site, use the method
-        get_neighbors as it may not have to build such a large supercell
-        However if you are looping over all sites in the crystal, this method is
-        more efficient since it only performs one pass over a large enough 
+        crystal. If you only want neighbors for a particular site, use the 
+        method get_neighbors as it may not have to build such a large supercell
+        However if you are looping over all sites in the crystal, this method
+        is more efficient since it only performs one pass over a large enough 
         supercell to contain all possible atoms out to a distance r.
-        The return type is a [(site, dist) ...] since most of the time, subsequent 
-        processing requires the distance.
+        The return type is a [(site, dist) ...] since most of the time,
+        subsequent processing requires the distance.
         
         Args:
             r:
                 radius of sphere. 
             include_index:
-                boolean that determines whether the non-supercell site index is included in the returned data
+                boolean that determines whether the non-supercell site index
+                is included in the returned data
         
         Returns:
-            A list of a list of nearest neighbors for each site, i.e., [[(site, dist, index) ...], ..] 
-            index only supplied if include_index = true
-            The index is the index of the site in the original (non-supercell) structure. This is needed for ewaldmatrix
-            by keeping track of which sites contribute to the ewald sum
-        
+            A list of a list of nearest neighbors for each site, i.e.,
+            [[(site, dist, index) ...], ..] 
+            Index only supplied if include_index = true
+            The index is the index of the site in the original (non-supercell)
+            structure. This is needed for ewaldmatrix by keeping track of which
+            sites contribute to the ewald sum.
         """
 
         #use same algorithm as getAtomsInSphere to determine supercell but
@@ -905,18 +912,17 @@ class Structure(SiteCollection):
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in range(n):
                     if include_index & withindists[i]:
-                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice), dists[i], j))
+                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice, properties=site.properties), dists[i], j))
                     elif withindists[i]:
-                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice), dists[i]))
-
+                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice, properties=site.properties), dists[i]))
         return neighbors
-
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
-        Returns all sites in a shell centered on origin (coords) between radii r-dr and r+dr.
+        Returns all sites in a shell centered on origin (coords) between radii 
+        r-dr and r+dr.
         
-        Arguments:
+        Args:
             origin:
                 cartesian coordinates of center of sphere.
             r:
@@ -925,8 +931,8 @@ class Structure(SiteCollection):
                 width of shell.
         
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing requires the distance.
-        
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -942,8 +948,8 @@ class Structure(SiteCollection):
 
     def interpolate(self, end_structure, nimages=10):
         '''
-        Interpolate between this structure and end_structure. Useful for construction
-        NEB inputs.
+        Interpolate between this structure and end_structure. Useful for
+        construction of NEB inputs.
         
         Args:
             end_structure:
@@ -1046,11 +1052,14 @@ class Molecule(SiteCollection):
     def __init__(self, atomicspecies, coords, validate_proximity=False,
                  site_properties=None):
         """
-        Create a periodic structure.
+        Creates a Molecule.
         
         Args:
             atomicspecies:
-                list of atomic species.  dict of elements and occupancies.
+                list of atomic species. Possible kinds of input include a list
+                of dict of elements/species and occupancies, a List of 
+                elements/specie specified as actual Element/Specie, Strings 
+                ("Fe", "Fe2+") or atomic numbers (1,56).
             coords:
                 list of cartesian coordinates of each species.
             validate_proximity:
@@ -1096,7 +1105,7 @@ class Molecule(SiteCollection):
     @property
     def to_dict(self):
         """
-        Json-serializable dict representation of Structure
+        Json-serializable dict representation of Molecule
         """
         d = {}
         d['sites'] = [site.to_dict for site in self]
@@ -1130,6 +1139,80 @@ class Molecule(SiteCollection):
                 else:
                     props[k].append(v)
         return Molecule(species, coords, site_properties=props)
+
+    def get_distance(self, i, j):
+        """
+        Get distance between site i and j.
+        
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+        
+        Returns:
+            Distance between the two sites.
+        """
+        return self[i].distance(self[j])
+
+    def get_sites_in_sphere(self, pt, r):
+        '''
+        Find all sites within a sphere from a point.
+                
+        Args:
+            pt:
+                cartesian coordinates of center of sphere.
+            r:
+                radius of sphere.
+        
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
+        '''
+        neighbors = []
+        for site in self._sites:
+            dist = site.distance_from_point(pt)
+            if dist <= r:
+                neighbors.append((site, dist))
+        return neighbors
+
+    def get_neighbors(self, site, r):
+        """
+        Get all neighbors to a site within a sphere of radius r.  Excludes the 
+        site itself.
+        
+        Args:
+            site:
+                site, which is the center of the sphere.
+            r:
+                radius of sphere.
+        
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
+        """
+        return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
+
+    def get_neighbors_in_shell(self, origin, r, dr):
+        """
+        Returns all sites in a shell centered on origin (coords) between radii 
+        r-dr and r+dr.
+        
+        Args:
+            origin:
+                cartesian coordinates of center of sphere.
+            r:
+                inner radius of shell.
+            dr: 
+                width of shell.
+        
+        Returns:
+            [(site, dist) ...] since most of the time, subsequent processing
+            requires the distance.
+        """
+        outer = self.get_sites_in_sphere(origin, r + dr)
+        inner = r - dr
+        return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c):
         """
