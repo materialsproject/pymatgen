@@ -541,16 +541,16 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        return [site.specie for site in self._sites]
+        return [site.specie for site in self.sites]
 
     @property
     def species_and_occu(self):
         """
         List of species and occupancies at each site of the structure.
         """
-        return [site.species_and_occu for site in self._sites]
+        return [site.species_and_occu for site in self.sites]
 
-    @property
+    @abc.abstractproperty
     def sites(self):
         """
         Returns an iterator for the sites in the Structure. 
@@ -565,22 +565,22 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         {'magmom': (5,-5), 'charge': (-4,4)}.
         """
         props = collections.defaultdict(list)
-        for site in self._sites:
+        for site in self.sites:
             for k, v in site.properties.items():
                 props[k].append(v)
         return props
 
     def __contains__(self, site):
-        return site in self._sites
+        return site in self.sites
 
     def __iter__(self):
-        return self._sites.__iter__()
+        return self.sites.__iter__()
 
     def __getitem__(self, ind):
-        return self._sites[ind]
+        return self.sites[ind]
 
     def __len__(self):
-        return len(self._sites)
+        return len(tuple(self.sites))
 
     def __hash__(self):
         #for now, just use the composition hash code.
@@ -591,14 +591,14 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         """
         Number of sites.
         """
-        return len(self._sites)
+        return len(self.sites)
 
     @property
     def cart_coords(self):
         '''
         Returns a list of the cartesian coordinates of sites in the structure.
         '''
-        return [site.coords for site in self._sites]
+        return [site.coords for site in self.sites]
 
     @property
     def formula(self):
@@ -613,7 +613,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Returns the composition
         """
         elmap = collections.defaultdict(float)
-        for site in self._sites:
+        for site in self.sites:
             for species, occu in site.species_and_occu.items():
                 elmap[species] += occu
         return Composition(elmap)
@@ -625,7 +625,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Elements are found, a charge of 0 is assumed.
         '''
         charge = 0
-        for site in self._sites:
+        for site in self.sites:
             for specie, amt in site.species_and_occu.items():
                 charge += getattr(specie, 'oxi_state', 0) * amt
         return charge
@@ -636,7 +636,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Checks if structure is ordered, meaning no partial occupancies in any 
         of the sites. 
         """
-        for site in self._sites:
+        for site in self.sites:
             if not site.is_ordered:
                 return False
         return True
@@ -700,6 +700,13 @@ class Structure(SiteCollection):
             for (s1, s2) in itertools.combinations(self._sites, 2):
                 if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
                     raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
+
+    @property
+    def sites(self):
+        """
+        Returns an iterator for the sites in the Structure. 
+        """
+        return tuple(self._sites)
 
     @property
     def lattice(self):
@@ -1085,6 +1092,13 @@ class Molecule(SiteCollection):
             for (s1, s2) in itertools.combinations(self._sites, 2):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
                     raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
+
+    @property
+    def sites(self):
+        """
+        Returns an iterator for the sites in the Structure. 
+        """
+        return tuple(self._sites)
 
     def __repr__(self):
         outs = []
