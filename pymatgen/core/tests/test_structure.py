@@ -267,6 +267,7 @@ occupation : 1.00"""
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
         self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.166667]))
+        self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
 
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.5)
