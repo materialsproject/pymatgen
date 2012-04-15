@@ -268,6 +268,24 @@ occupation : 1.00"""
         s = self.mol.get_boxed_structure(9, 9, 9)
         self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.166667]))
 
+    def test_get_distance(self):
+        self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.5)
+
+    def test_get_neighbors(self):
+        nn = self.mol.get_neighbors(self.mol[0], 1)
+        self.assertEqual(len(nn), 0)
+        nn = self.mol.get_neighbors(self.mol[0], 2)
+        self.assertEqual(len(nn), 1)
+
+    def test_get_neighbors_in_shell(self):
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 1)
+        self.assertEqual(len(nn), 1)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 1)
+        self.assertEqual(len(nn), 1)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 2)
+        self.assertEqual(len(nn), 2)
+
+
 class CompositionTest(unittest.TestCase):
 
     def setUp(self):
