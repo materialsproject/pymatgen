@@ -535,7 +535,7 @@ class Specie(object):
         """
         if not isinstance(other, Specie):
             return False
-        return self.Z == other.Z and self.oxi_state == other.oxi_state
+        return self.symbol == other.symbol and self._oxi_state == other._oxi_state
 
     def __ne__(self, other):
         return not self.__eq__(other)
