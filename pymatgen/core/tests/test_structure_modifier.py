@@ -60,8 +60,8 @@ class StructureEditorTest(unittest.TestCase):
         self.modifier.perturb_structure(distance=d)
         post_perturbation_sites = self.modifier.modified_structure.sites
 
-        for x in pre_perturbation_sites:
-            self.assertAlmostEqual(x.distance(post_perturbation_sites.next()), d, 3, "Bad perturbation distance")
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d, 3, "Bad perturbation distance")
 
     def test_add_site_property(self):
         self.modifier.add_site_property("charge", [4.1, 5])
