@@ -3,7 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Site, PeriodicSite, Structure, Composition, StructureError
+from pymatgen.core.structure import Site, PeriodicSite, Structure, Molecule, Composition, StructureError
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random
@@ -181,6 +181,9 @@ class StructureTest(unittest.TestCase):
         test_dict = {'lattice': {'a': 3.8401979336999998, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.8401989943442438, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.99999086398419, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'occu': 0.5, 'abc': [0, 0, 0], 'xyz': [0.0, 0.0, 0.0], 'species': [{'occu': 0.5, 'element': 'Mn'}, {'occu': 0.5, 'oxidation_state': 4, 'element': 'Si'}], 'label': 'Mn: 0.5000, Si4+: 0.5000'}, {'occu': 0.5, 'abc': [0.75, 0.5, 0.75], 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.3516317952249999], 'species': [{'occu': 0.5, 'oxidation_state': 4, 'element': 'Ge'}], 'label': 'Ge4+: 0.5000'}]}
         s = Structure.from_dict(test_dict)
         self.assertEqual(s.composition.formula, 'Mn0.5 Si0.5 Ge0.5')
+        d = self.propertied_structure.to_dict
+        s = Structure.from_dict(d)
+        self.assertEqual(s[0].magmom, 5)
 
     def test_site_properties(self):
         self.assertEqual(self.propertied_structure[0].magmom, 5)
@@ -210,13 +213,60 @@ class StructureTest(unittest.TestCase):
         struct2 = Structure(self.struct.lattice, [self.si, Element("Fe")], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
-
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r)
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+class MoleculeTest(unittest.TestCase):
+
+    def setUp(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0, 0, 1.5])
+        self.coords = coords
+        self.mol = Molecule(["C", "O"], coords)
+
+    def test_properties(self):
+        self.assertEqual(len(self.mol), 2)
+        self.assertTrue(self.mol.is_ordered)
+        self.assertEqual(self.mol.formula, "C1 O1")
+
+    def test_repr_str(self):
+        ans = """Molecule Summary (C1 O1)
+Reduced Formula: CO
+Sites (2)
+1 C     0.000000     0.000000     0.000000
+2 O     0.000000     0.000000     1.500000"""
+        self.assertEqual(str(self.mol), ans)
+        ans = """Molecule Summary
+Non-periodic Site
+xyz        : (0.0000, 0.0000, 0.0000)
+element    : C
+occupation : 1.00
+Non-periodic Site
+xyz        : (0.0000, 0.0000, 1.5000)
+element    : O
+occupation : 1.00"""
+        self.assertEqual(repr(self.mol), ans)
+
+    def test_site_properties(self):
+        propertied_mol = Molecule(["C", "O"], self.coords, site_properties={'magmom':[0.5, -0.5]})
+        self.assertEqual(propertied_mol[0].magmom, 0.5)
+        self.assertEqual(propertied_mol[1].magmom, -0.5)
+
+    def test_to_from_dict(self):
+        propertied_mol = Molecule(["C", "O"], self.coords, site_properties={'magmom':[0.5, -0.5]})
+        d = propertied_mol.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
+        mol = Molecule.from_dict(d)
+        self.assertEqual(mol[0].magmom, 0.5)
+
+    def test_get_boxed_structure(self):
+        s = self.mol.get_boxed_structure(9, 9, 9)
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.166667]))
 
 class CompositionTest(unittest.TestCase):
 

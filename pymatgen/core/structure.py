@@ -16,6 +16,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import re
+import abc
 import math
 import collections
 import itertools
@@ -522,19 +523,135 @@ class PeriodicSite(Site):
         props = d.get('properties', None)
         return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']), properties=props)
 
-
-class Structure(collections.Sequence, collections.Hashable):
+class SiteCollection(collections.Sequence, collections.Hashable):
+    __metaclass__ = abc.ABCMeta
     """
-    Basic Structure object with periodicity. Essentially a sequence of sites 
-    having a common lattice. Structure is made to be immutable so that they 
-    can function as keys in a dict. Modifications should be done by making a 
-    new Structure using the structure_modifier module or your own methods.
-    Structure extends Sequence and Hashable, which means that in many cases, 
-    it can be used like any Python sequence. Iterating through a structure is
-    equivalent to going through the sites in sequence.
+    Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
+    This serves as a base class for Molecule (a collection of Site, i.e., no
+    periodicity) and Structure (a collection of PeriodicSites, i.e., 
+    periodicity). Not meant to be instantiated directly.
     """
 
     DISTANCE_TOLERANCE = 0.01
+
+    @property
+    def species(self):
+        """
+        List of species at each site of the structure.
+        Only works for ordered structures.
+        Disordered structures will raise an AttributeError.
+        """
+        return [site.specie for site in self._sites]
+
+    @property
+    def species_and_occu(self):
+        """
+        List of species and occupancies at each site of the structure.
+        """
+        return [site.species_and_occu for site in self._sites]
+
+    @property
+    def sites(self):
+        """
+        Returns an iterator for the sites in the Structure. 
+        """
+        for site in self._sites:
+            yield site
+
+    @property
+    def site_properties(self):
+        """
+        Returns the site properties as a dict of sequences. E.g., 
+        {'magmom': (5,-5), 'charge': (-4,4)}.
+        """
+        props = collections.defaultdict(list)
+        for site in self._sites:
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return props
+
+    def __contains__(self, site):
+        return site in self._sites
+
+    def __iter__(self):
+        return self._sites.__iter__()
+
+    def __getitem__(self, ind):
+        return self._sites[ind]
+
+    def __len__(self):
+        return len(self._sites)
+
+    def __hash__(self):
+        #for now, just use the composition hash code.
+        return self.composition.__hash__()
+
+    @property
+    def num_sites(self):
+        """
+        Number of sites.
+        """
+        return len(self._sites)
+
+    @property
+    def cart_coords(self):
+        '''
+        Returns a list of the cartesian coordinates of sites in the structure.
+        '''
+        return [site.coords for site in self._sites]
+
+    @property
+    def formula(self):
+        """
+        Returns the formula.
+        """
+        return self.composition.formula
+
+    @property
+    def composition(self):
+        """
+        Returns the composition
+        """
+        elmap = collections.defaultdict(float)
+        for site in self._sites:
+            for species, occu in site.species_and_occu.items():
+                elmap[species] += occu
+        return Composition(elmap)
+
+    @property
+    def charge(self):
+        '''
+        Returns the net charge of the structure based on oxidation states. If
+        Elements are found, a charge of 0 is assumed.
+        '''
+        charge = 0
+        for site in self._sites:
+            for specie, amt in site.species_and_occu.items():
+                charge += getattr(specie, 'oxi_state', 0) * amt
+        return charge
+
+    @property
+    def is_ordered(self):
+        """
+        Checks if structure is ordered, meaning no partial occupancies in any 
+        of the sites. 
+        """
+        for site in self._sites:
+            if not site.is_ordered:
+                return False
+        return True
+
+
+class Structure(SiteCollection):
+    """
+    Basic Structure object with periodicity. Essentially a sequence of 
+    PeriodicSites having a common lattice. Structure is made to be immutable 
+    so that they can function as keys in a dict. Modifications should be done 
+    by making a new Structure using the structure_modifier module or your own 
+    methods. Structure extends Sequence and Hashable, which means that in many 
+    cases, it can be used like any Python sequence. Iterating through a 
+    structure is equivalent to going through the sites in sequence.
+    """
 
     def __init__(self, lattice, atomicspecies, coords, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
@@ -578,7 +695,7 @@ class Structure(collections.Sequence, collections.Hashable):
 
         if validate_proximity:
             for (s1, s2) in itertools.combinations(self._sites, 2):
-                if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
+                if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
                     raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
 
     @property
@@ -589,40 +706,12 @@ class Structure(collections.Sequence, collections.Hashable):
         return self._lattice
 
     @property
-    def species(self):
-        """
-        List of species at each site of the structure.
-        Only works for ordered structures.
-        Disordered structures will raise an AttributeError.
-        """
-        return [site.specie for site in self._sites]
-
-    @property
-    def species_and_occu(self):
-        """
-        List of species and occupancies at each site of the structure.
-        """
-        return [site.species_and_occu for site in self._sites]
-
-    @property
-    def sites(self):
-        """
-        Returns an iterator for the sites in the Structure. 
-        """
-        for site in self._sites:
-            yield site
-
-    def __contains__(self, site):
-        return site in self._sites
-
-    def __iter__(self):
-        return self._sites.__iter__()
-
-    def __getitem__(self, ind):
-        return self._sites[ind]
-
-    def __len__(self):
-        return len(self._sites)
+    def density(self):
+        '''
+        Returns the density in units of g/cc
+        '''
+        constant = 1.660468
+        return self.composition.weight / self.volume * constant
 
     def __eq__(self, other):
         if other == None:
@@ -642,13 +731,6 @@ class Structure(collections.Sequence, collections.Hashable):
         return self.composition.__hash__()
 
     @property
-    def num_sites(self):
-        """
-        Number of sites in the structure.
-        """
-        return len(self._sites)
-
-    @property
     def frac_coords(self):
         '''
         Returns the fractional coordinates.
@@ -656,26 +738,11 @@ class Structure(collections.Sequence, collections.Hashable):
         return [site.frac_coords for site in self._sites]
 
     @property
-    def cart_coords(self):
-        '''
-        Returns a list of the cartesian coordinates of sites in the structure.
-        '''
-        return [site.coords for site in self._sites]
-
-    @property
     def volume(self):
         '''
         Returns the volume of the structure.
         '''
         return self._lattice.volume
-
-    @property
-    def density(self):
-        '''
-        Returns the density in units of g/cc
-        '''
-        constant = 1.660468
-        return self.composition.weight / self.volume * constant
 
     def get_distance(self, i, j, jimage=None):
         """
@@ -865,38 +932,6 @@ class Structure(collections.Sequence, collections.Hashable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    @property
-    def formula(self):
-        """
-        Returns the formula.
-        """
-        return self.composition.formula
-
-    @property
-    def composition(self):
-        """
-        Returns the composition
-        """
-        elmap = dict()
-        for site in self._sites:
-            for species, occu in site.species_and_occu.items():
-                if species in elmap:
-                    elmap[species] += occu
-                else:
-                    elmap[species] = occu
-        return Composition(elmap)
-
-    @property
-    def charge(self):
-        '''
-        Returns the net charge of the structure based on oxidation states
-        '''
-        charge = 0
-        for site in self._sites:
-            for specie, amt in site.species_and_occu.items():
-                charge += specie.oxi_state * amt
-        return charge
-
     def get_sorted_structure(self):
         """
         Get a sorted copy of the structure.
@@ -937,17 +972,7 @@ class Structure(collections.Sequence, collections.Hashable):
 
         vec = end_coords - start_coords #+ jimage
         intStructs = [Structure(self.lattice, [site.species_and_occu for site in self._sites], start_coords + float(x) / float(nimages) * vec) for x in range(0, nimages + 1)]
-        return intStructs;
-
-    @property
-    def is_ordered(self):
-        """
-        Checks if structure is ordered, meaning no partial occupancies in any of the sites. 
-        """
-        for site in self._sites:
-            if not site.is_ordered:
-                return False
-        return True
+        return intStructs
 
     def __repr__(self):
         outs = []
@@ -979,28 +1004,152 @@ class Structure(collections.Sequence, collections.Hashable):
         return d
 
     @staticmethod
-    def from_dict(structure_dict):
+    def from_dict(d):
         """
         Reconstitute a Structure object from a dict representation of Structure 
         created using to_dict.
         
         Args:
-            structure_dict: 
+            d: 
                 dict representation of structure.
         
         Returns:
             Structure object
         """
-        lattice = Lattice(structure_dict['lattice']['matrix'])
+        lattice = Lattice(d['lattice']['matrix'])
         species = []
         coords = []
+        props = {}
 
-        for site_dict in structure_dict['sites']:
+        for site_dict in d['sites']:
             sp = site_dict['species']
             species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
             coords.append(site_dict['abc'])
-        return Structure(lattice, species, coords)
+            siteprops = site_dict.get('properties', {})
+            for k, v in siteprops.items():
+                if k not in props:
+                    props[k] = [v]
+                else:
+                    props[k].append(v)
+        return Structure(lattice, species, coords, site_properties=props)
 
+
+class Molecule(SiteCollection):
+    """
+    Basic Molecule object without periodicity. Essentially a sequence of sites. 
+    Molecule is made to be immutable so that they can function as keys in a 
+    dict. Modifications should be done by making a new Molecule.
+    Molecule extends Sequence and Hashable, which means that in many cases, 
+    it can be used like any Python sequence. Iterating through a molecule is
+    equivalent to going through the sites in sequence.
+    """
+    def __init__(self, atomicspecies, coords, validate_proximity=False,
+                 site_properties=None):
+        """
+        Create a periodic structure.
+        
+        Args:
+            atomicspecies:
+                list of atomic species.  dict of elements and occupancies.
+            coords:
+                list of cartesian coordinates of each species.
+            validate_proximity:
+                Whether to check if there are sites that are less than 1 Ang 
+                apart. Defaults to False.
+            site_properties:
+                Properties associated with the sites as a dict of sequences, 
+                e.g., {'magmom':[5,5,5,5]}. The sequences have to be the same
+                length as the atomic species and fractional_coords.
+                Defaults to None for no properties.
+        """
+        if len(atomicspecies) != len(coords):
+            raise StructureError("The list of atomic species must be of the same length as the list of fractional coordinates.")
+
+        self._sites = []
+        for i in xrange(len(atomicspecies)):
+            prop = None
+            if site_properties:
+                prop = {k:v[i] for k, v in site_properties.items()}
+            self._sites.append(Site(atomicspecies[i], coords[i], properties=prop))
+
+        if validate_proximity:
+            for (s1, s2) in itertools.combinations(self._sites, 2):
+                if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
+                    raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
+
+    def __repr__(self):
+        outs = []
+        outs.append("Molecule Summary")
+        for s in self.sites:
+            outs.append(repr(s))
+        return "\n".join(outs)
+
+    def __str__(self):
+        outs = ["Molecule Summary ({s})".format(s=str(self.composition))]
+        outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
+        to_s = lambda x : "%0.6f" % x
+        outs.append("Sites ({i})".format(i=len(self)))
+        for i, site in enumerate(self):
+            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.coords])]))
+        return "\n".join(outs)
+
+    @property
+    def to_dict(self):
+        """
+        Json-serializable dict representation of Structure
+        """
+        d = {}
+        d['sites'] = [site.to_dict for site in self]
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Reconstitute a Molecule object from a dict representation created using
+        to_dict.
+        
+        Args:
+            d: 
+                dict representation of Molecule.
+        
+        Returns:
+            Molecule object
+        """
+        species = []
+        coords = []
+        props = {}
+
+        for site_dict in d['sites']:
+            sp = site_dict['species']
+            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
+            coords.append(site_dict['xyz'])
+            siteprops = site_dict.get('properties', {})
+            for k, v in siteprops.items():
+                if k not in props:
+                    props[k] = [v]
+                else:
+                    props[k].append(v)
+        return Molecule(species, coords, site_properties=props)
+
+    def get_boxed_structure(self, a, b, c):
+        """
+        Creates a Structure from a Molecule by putting the Molecule in a box.
+        Useful for creating Structure for calculating molecules using periodic
+        codes.
+        
+        Args:
+            a:
+                a-lattice parameter.
+            b:
+                b-lattice parameter.
+            c:
+                c-lattice parameter.
+                
+        Returns:
+            Structure containing molecule in a box.
+        """
+        lattice = Lattice.from_parameters(a, b, c, 90, 90, 90)
+        return Structure(lattice, self.species, self.cart_coords, coords_are_cartesian=True, site_properties=self.site_properties)
 
 class StructureError(Exception):
     '''
