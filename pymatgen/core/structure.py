@@ -1267,13 +1267,18 @@ class StructureError(Exception):
 
 class Composition (collections.Mapping, collections.Hashable):
     """
-    Represents a Composition, which is essentially a {element:amount} dictionary.
+    Represents a Composition, which is essentially a {element:amount} dict. 
+    Note that the key can be either an Element or a Specie. Elements and Specie
+    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
+    would be put in separate keys. This differentiation is deliberate to
+    support using Composition to determine the fraction of a particular Specie.
     
-    Works almost completely like a standard python dictionary, except that __getitem__
-    is overridden to return 0 when an element is not found. (somewhat like a 
-    defaultdict, except it is immutable).
+    Works almost completely like a standard python dictionary, except that
+    __getitem__ is overridden to return 0 when an element is not found 
+    (somewhat like a defaultdict, except it is immutable).
     
-    Also adds more convenience methods relevant to compositions, e.g., get_fraction.
+    Also adds more convenience methods relevant to compositions, e.g., 
+    get_fraction.
     
     >>> comp = Composition("LiFePO4")
     >>> comp.get_atomic_fraction(Element("Li"))
@@ -1318,8 +1323,7 @@ class Composition (collections.Mapping, collections.Hashable):
                Compostion(Li = 2, O = 1)
                
             In addition, the Composition constructor also allows a single string
-            as an input formula. E.g., Composition("Li2O")
-        
+            as an input formula. E.g., Composition("Li2O").
         """
         if len(args) == 1 and isinstance(args[0], basestring):
             elmap = self._parse_formula(args[0])
@@ -1454,11 +1458,8 @@ class Composition (collections.Mapping, collections.Hashable):
         Returns a normalized composition and a multiplicative factor, 
         i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
-
         (formula, factor) = self.get_reduced_formula_and_factor()
-
         return (Composition.from_formula(formula), factor)
-
 
     def get_reduced_formula_and_factor(self):
         '''
@@ -1554,7 +1555,7 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def get_atomic_fraction(self, el):
         '''
-        Arguments:
+        Args:
             el:
                 Element
         
@@ -1565,7 +1566,7 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def get_wt_fraction(self, el):
         '''
-        Arguments:
+        Args:
             el:
                 Element
         
@@ -1576,7 +1577,7 @@ class Composition (collections.Mapping, collections.Hashable):
 
     def _parse_formula(self, formula):
         '''
-        Arguments:
+        Args:
             formula:
                 A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
         

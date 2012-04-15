@@ -87,6 +87,8 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertEqual(self.specie1, self.specie3, "Static and actual constructor for Fe2+_ gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2, "Fe2+ should not be equal to Fe3+")
         self.assertEqual(self.specie4, self.specie3, "Species with same oxi state and element should be equal!")
+        self.assertFalse(self.specie1 == Element("Fe"))
+        self.assertFalse(Element("Fe") == self.specie1)
 
     def test_cmp(self):
         self.assertTrue(self.specie1 < self.specie2, "Fe2+ should be < Fe3+")
