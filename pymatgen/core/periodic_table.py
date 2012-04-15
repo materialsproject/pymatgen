@@ -272,14 +272,12 @@ class Element(object):
         return self._data['Coefficient of linear thermal expansion']
 
     def __eq__(self, other):
-        if other == None:
+        if not isinstance(other, Element):
             return False
         return self.Z == other.Z
 
     def __ne__(self, other):
-        if other == None:
-            return True
-        return self.Z != other.Z
+        return not self.__eq__(other)
 
     def __hash__(self):
         return self.Z
