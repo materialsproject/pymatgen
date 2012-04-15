@@ -701,12 +701,14 @@ class Structure(SiteCollection):
                 if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
                     raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
 
+        self._sites = tuple(self._sites)
+
     @property
     def sites(self):
         """
-        Returns an iterator for the sites in the Structure. 
+        Returns the sites in the Structure. 
         """
-        return tuple(self._sites)
+        return self._sites
 
     @property
     def lattice(self):
@@ -1093,12 +1095,14 @@ class Molecule(SiteCollection):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
                     raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
 
+        self._sites = tuple(self._sites)
+
     @property
     def sites(self):
         """
-        Returns an iterator for the sites in the Structure. 
+        Returns the sites in the Molecule. 
         """
-        return tuple(self._sites)
+        return self._sites
 
     def __repr__(self):
         outs = []
