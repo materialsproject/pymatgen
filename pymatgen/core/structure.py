@@ -1249,6 +1249,12 @@ class Molecule(SiteCollection):
         Returns:
             Structure containing molecule in a box.
         """
+        coords = np.array(self.cart_coords)
+        x_range = max(coords[:, 0]) - min(coords[:, 0])
+        y_range = max(coords[:, 1]) - min(coords[:, 1])
+        z_range = max(coords[:, 2]) - min(coords[:, 2])
+        if a <= x_range or b <= y_range or c <= z_range:
+            raise ValueError("Box is not big enough to contain Molecule.")
         lattice = Lattice.from_parameters(a, b, c, 90, 90, 90)
         return Structure(lattice, self.species, self.cart_coords, coords_are_cartesian=True, site_properties=self.site_properties)
 
