@@ -268,6 +268,59 @@ step,
    print rxn
    print rxn.calculated_reaction_energy
 
+
+pymatgen.transformations
+========================
+
+The pymatgen.transformations package is the standard package for performing
+transformations on structures. Many transformations are already supported today,
+from simple transformations such as adding and removing sites, and replacing
+species in a structure to more advanced one-to-many transformations such as
+partially removing a fraction of a certain species from a structure using an
+electrostatic energy criterion. The Transformation classes follow a strict API.
+A typical usage is as follows:
+
+::
+
+   from pymatgen.io.cifio import CifParser
+   from pymatgen.transformations.standard_transformations import RemoveSpecieTransformations
+   
+   # Read in a LiFePO4 structure from a cif.
+   parser = CifParser('LiFePO4.cif')
+   struct = parser.get_structures()[0]
+   
+   t = RemoveSpeciesTransformation(["Li"])
+   modified_structure = t.apply_transformation(struct)
+
+pymatgen.alchemy - High-throughput transformations
+==================================================
+
+The pymatgen.alchemy package is a framework for performing high-throughput (HT)
+structure transformations. For example, it allows a user to define a series of
+transformations to be applied to a set of structures, generating new structures
+in the process. The framework is also designed to provide proper logging of all
+changes performed on structures, with infinite undo. The main classes are:
+
+1. pymatgen.alchemy.materials.TransformedStructure - Standard object
+   representing a TransformedStructure. Takes in an input structure and a list
+   of transformations as an input. Can also be generated from cifs and POSCARs.
+2. pymatgen.alchemy.transmuters.TransformedStructureTransmuter - An example of
+   a Transmuter class, which takes a list of structures, and apply a sequence
+   of transformations on all of them.
+   
+Usage example - replace Fe with Mn and remove all Li in all structures:
+
+::
+
+   from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
+   from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
+
+   trans = []
+   trans.append(SubstitutionTransformation({"Fe":"Mn"}))
+   trans.append(RemoveSpecieTransformation(["Lu"]))
+   transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
+   structures = transmuter.get_transformed_structures()
+
 Example scripts
 ===============
 

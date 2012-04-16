@@ -28,12 +28,32 @@ from pymatgen.alchemy.materials import TransformedStructure
 from copy import deepcopy
 
 class TransformedStructureTransmuter(object):
+    """
+    An example of a Transmuter object, which performs a sequence of
+    transformations on many structures to generate TransformedStructures.
+    """
 
     def __init__(self, transformed_structures, transformations=[],
                  extend_collection=False):
+        """
+        Args:
+            transformed_structures:
+                Input transformed structures
+            transformations:
+                New transformations to be applied to all structures
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
+        """
         self._transformed_structures = transformed_structures
         for trans in transformations:
             self.append_transformation(trans, extend_collection=extend_collection)
+
+    def get_transformed_structures(self):
+        """
+        Returns all TransformedStructures.
+        """
+        return self._transformed_structures
 
     def __getitem__(self, index):
         return self._transformed_structures[index]
@@ -67,7 +87,7 @@ class TransformedStructureTransmuter(object):
     def append_transformation(self, transformation, extend_collection=False,
                               clear_redo=True):
         """
-        Appends a transformation to the TransformedStructure.
+        Appends a transformation to all TransformedStructures.
         
         Args:
             transformation:
@@ -154,7 +174,6 @@ class TransformedStructureTransmuter(object):
         elif retention_level == 2:
             self._transformed_structures.extend(old_transformed_structures)
 
-
     def extend_transformations(self, transformations):
         """
         Extends a sequence of transformations to the TransformedStructure.
@@ -197,12 +216,6 @@ class TransformedStructureTransmuter(object):
             output.append(str(x._structures[-1]))
         return "\n".join(output)
 
-    def remove_duplicates(self):
-        '''
-        TODO: write this method
-        '''
-        pass
-
     @staticmethod
     def from_cif_string(cif_string, transformations=[], primitive=True,
                         extend_collection=False):
@@ -211,8 +224,15 @@ class TransformedStructureTransmuter(object):
         containing multiple structures.
         
         Args:
-            cif_filenames:
-                List of strings of the cif files
+            cif_string:
+                A string containing a cif
+            transformations:
+                New transformations to be applied to all structures
+            primitive:
+                Whether to generate the primitive cell from the cif.
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
         '''
         transformed_structures = []
         lines = cif_string.split("\n")
@@ -237,6 +257,10 @@ class TransformedStructureTransmuter(object):
         Args:
             cif_filenames:
                 List of strings of the cif files
+            transformations:
+                New transformations to be applied to all structures
+            primitive:
+                Whether to generate the primitive cell from the cif.
         '''
         transformed_structures = []
         for filename in cif_filenames:

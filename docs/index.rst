@@ -32,11 +32,12 @@ to be made for the long term health of the code.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.7.2)
+Latest Change Log (v1.7.3)
 --------------------------
 
-1. Bug fixes for vaspio_set and compatibility classes.
-
+1. Beta support for additional properties on Specie (Spin) and Site 
+   (magmom, charge).
+2. Beta Molecule class to support molecules without periodicity.
 
 .. toctree::
    :maxdepth: 2
