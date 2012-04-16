@@ -22,7 +22,6 @@ import abc
 import ConfigParser
 import json
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
 class AbstractVaspInputSet(object):
@@ -183,8 +182,6 @@ class VaspInputSet(AbstractVaspInputSet):
                     del incar[key]
 
         return incar
-
-    #get_poscar method inherited from AbstractVaspInputSet
 
     def get_potcar(self, structure):
         return Potcar(self.get_potcar_symbols(structure))
