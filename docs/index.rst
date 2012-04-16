@@ -30,6 +30,8 @@ progress. While the development team will always strive to avoid backward
 incompatible changes, they are sometimes unavoidable, and tough decisions have 
 to be made for the long term health of the code.
 
+   *The code is mightier than the pen.*
+
 Latest Change Log (v1.7.2)
 --------------------------
 
