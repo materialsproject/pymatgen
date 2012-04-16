@@ -1,6 +1,11 @@
 Older versions
 ==============
 
+Version 1.7.2
+-------------
+
+1. Bug fixes for vaspio_set and compatibility classes.
+
 Version 1.7.0
 -------------
 
