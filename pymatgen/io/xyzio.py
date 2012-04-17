@@ -17,9 +17,16 @@ import re
 
 from pymatgen.core.structure import Molecule
 
+
 class XYZ(object):
     """
-    Basic class for importing and exporting Molecules in XYZ format.
+    Basic class for importing and exporting Molecules or Structures in XYZ
+    format.
+    
+    .. note::
+        Exporting periodic structures in the XYZ format will lose information
+        about the periodicity. Essentially, only cartesian coordinates are
+        written in this format and no information is retained about the lattice.
     """
     def __init__(self, mol, coord_precision=6):
         """
