@@ -27,6 +27,7 @@ class Cij(object):
     Class for doing useful general operation on *square* matrices, without 
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
+    TODO: change class names, move methods around
     """
     def __init__(self, matrix):
         self._matrix = matrix
