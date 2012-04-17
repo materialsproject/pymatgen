@@ -31,7 +31,7 @@ class Stress(object):
     # return a scaled version of this matrix
     def get_scaled(self, scale_factor):
         stress_matrix = self._sigma * scale_factor
-        return Stress(deformation_matrix)
+        return Stress(stress_matrix)
 
     @property
     def issymmetric(self, tol=0.001):
