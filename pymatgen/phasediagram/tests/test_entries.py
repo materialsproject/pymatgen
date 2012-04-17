@@ -4,7 +4,7 @@ import os
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry, GrandPotPDEntry
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
-import json
+
 
 class PDEntryTestCase (unittest.TestCase):
     '''

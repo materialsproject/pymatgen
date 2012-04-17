@@ -16,16 +16,17 @@ __date__ = "Jan 24, 2012"
 import unittest
 import os
 
+import pymatgen
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.vaspio import Poscar
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class CssrTest(unittest.TestCase):
     
     def setUp(self):
         
-        filepath = os.path.join(module_dir, 'vasp_testfiles','POSCAR')
+        filepath = os.path.join(test_dir,'POSCAR')
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.struct)
     

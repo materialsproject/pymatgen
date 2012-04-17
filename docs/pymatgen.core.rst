@@ -17,14 +17,6 @@ core Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`electronic_structure` Module
-----------------------------------
-
-.. automodule:: pymatgen.core.electronic_structure
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`lattice` Module
 ---------------------
 
@@ -72,5 +64,10 @@ core Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
 
 

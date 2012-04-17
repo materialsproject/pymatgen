@@ -31,7 +31,14 @@ parser.add_argument('-e', '--exclude_bonding', dest='exclude_bonding', type=str,
 args = parser.parse_args()
 excluded_bonding_elements = args.exclude_bonding[0].split(',') if args.exclude_bonding else []
 
-if args.format == 'poscar':
+file_format = args.format
+
+if args.input_file[0].endswith(".cif"):
+    file_format = "cif"
+elif args.input_file[0].startswith("POSCAR"):
+    file_format = "poscar"
+
+if file_format == 'poscar':
     p = Poscar.from_file(args.input_file[0])
     s = p.struct
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
