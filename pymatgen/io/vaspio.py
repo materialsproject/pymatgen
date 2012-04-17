@@ -945,7 +945,7 @@ class Potcar(list, VaspInput):
                 VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
             del self[:]
             for el in elements:
-                with file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb') as f:
+                with file_open_zip_aware(os.path.join(VASP_PSP_DIR, el+"/POTCAR"), 'rb') as f:
                     self.append(PotcarSingle(f.read()))
 
 
@@ -1131,8 +1131,11 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
-        eigenvals = []
-
+        eigenvals={}
+        if dict_eigen['1'].has_key('up') and dict_eigen['1'].has_key('down') and self.incar['ISPIN'] == 2:
+            eigenvals = {Spin.up:[],Spin.down:[]}
+        else:
+            eigenvals = {Spin.up:[]}
         # eigenvalues has a structure of:
         # {'12':{'up':[[-4.0, 1.0][-3.0, 1.0]]}
         # we use string version of integer as a keys because of mongoDB
@@ -1142,10 +1145,13 @@ class Vasprun(object):
         neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
         min_eigenvalues = min(neigenvalues)
         #max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
-
         for i in range(min_eigenvalues):
-            eigenvals.append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
-            eigenvals[i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+            eigenvals[Spin.up].append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
+            eigenvals[Spin.up][i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+        if eigenvals.has_key(Spin.down):
+            for i in range(min_eigenvalues):
+                eigenvals[Spin.down].append({'energy': [dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]})
+                eigenvals[Spin.down][i]['occup'] = [dict_eigen[str(j + 1)]['down'][i][1] for j in range(len(kpoints))]
         return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
 
     @property
