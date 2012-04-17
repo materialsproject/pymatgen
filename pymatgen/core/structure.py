@@ -9,7 +9,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
@@ -523,8 +523,10 @@ class PeriodicSite(Site):
         props = d.get('properties', None)
         return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']), properties=props)
 
+
 class SiteCollection(collections.Sequence, collections.Hashable):
     __metaclass__ = abc.ABCMeta
+
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -640,6 +642,58 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             if not site.is_ordered:
                 return False
         return True
+
+    def get_angle(self, i, j, k):
+        """
+        Returns angle specified by three sites.
+         
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+            k:
+                Index of third site
+        
+        Returns:
+            Angle in degrees.
+        """
+        v1 = self.sites[i].coords - self.sites[j].coords
+        v2 = self.sites[k].coords - self.sites[j].coords
+        ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
+        """
+        Corrects for stupid numerical error which may result in acos being
+        operated on a number with absolute value larger than 1
+        """
+        if ans > 1:
+            ans = 1
+        elif ans < -1:
+            ans = -1
+        return math.acos(ans) * 180 / math.pi
+
+    def get_dihedral(self, i, j, k, l):
+        """
+        Returns angle specified by three sites.
+         
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+            k:
+                Index of third site
+            l:
+                Index of fourth site
+                
+        Returns:
+            Dihedral angle in degrees.
+        """
+        v1 = self.sites[k].coords - self.sites[l].coords
+        v2 = self.sites[j].coords - self.sites[k].coords
+        v3 = self.sites[i].coords - self.sites[j].coords
+        v23 = np.cross(v2, v3)
+        v12 = np.cross(v1, v2)
+        return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23), np.dot(v12, v23)) * 180 / math.pi
 
 
 class Structure(SiteCollection):
@@ -1854,7 +1908,5 @@ class Composition (collections.Mapping, collections.Hashable):
                         yield match
 
 if __name__ == "__main__":
-    #import doctest
-    #doctest.testmod()
-    c = Composition.from_dict({"Li":1, "Co":0.3, "Ni":0.7, "O":2})
-    print c.reduced_formula
+    import doctest
+    doctest.testmod()

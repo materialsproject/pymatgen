@@ -229,6 +229,25 @@ class MoleculeTest(unittest.TestCase):
         self.coords = coords
         self.mol = Molecule(["C", "O"], coords)
 
+    def test_get_angle_dihedral(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0, 0, 1.5])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.2, 0.3, -1.5])
+        self.mol2 = Molecule(["C", "O", "N", "S"], coords)
+        self.assertAlmostEqual(self.mol2.get_angle(0, 1, 2), 35.2643896828)
+        self.assertAlmostEqual(self.mol2.get_angle(3, 1, 2), 28.571854605479576)
+        self.assertAlmostEqual(self.mol2.get_dihedral(0, 1, 2, 3), 2.804666185679337)
+
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0, 0, 1])
+        coords.append([0, 1, 1])
+        coords.append([1, 1, 1])
+        self.mol2 = Molecule(["C", "O", "N", "S"], coords)
+        self.assertAlmostEqual(self.mol2.get_dihedral(0, 1, 2, 3), -90)
+
     def test_properties(self):
         self.assertEqual(len(self.mol), 2)
         self.assertTrue(self.mol.is_ordered)
