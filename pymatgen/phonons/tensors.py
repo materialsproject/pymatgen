@@ -28,6 +28,7 @@ class Cij(object):
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
     TODO: change class names, move methods around
+    Move methods into stress class
     """
     def __init__(self, matrix):
         self._matrix = matrix
