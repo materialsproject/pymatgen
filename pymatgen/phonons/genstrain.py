@@ -1,7 +1,7 @@
 from __future__ import division
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -14,7 +14,6 @@ from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
-import fit_elas
 from pymatgen.phonons.strain import Strain
 from pymatgen.phonons.strain import IndependentStrain
 
