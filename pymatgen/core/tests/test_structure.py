@@ -223,22 +223,18 @@ class StructureTest(unittest.TestCase):
 class MoleculeTest(unittest.TestCase):
 
     def setUp(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0, 0, 1.5])
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360 , 0.889165 , -0.363000]]
         self.coords = coords
-        self.mol = Molecule(["C", "O"], coords)
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
     def test_get_angle_dihedral(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0, 0, 1.5])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.2, 0.3, -1.5])
-        self.mol2 = Molecule(["C", "O", "N", "S"], coords)
-        self.assertAlmostEqual(self.mol2.get_angle(0, 1, 2), 35.2643896828)
-        self.assertAlmostEqual(self.mol2.get_angle(3, 1, 2), 28.571854605479576)
-        self.assertAlmostEqual(self.mol2.get_dihedral(0, 1, 2, 3), 2.804666185679337)
+        self.assertAlmostEqual(self.mol.get_angle(1, 0, 2), 109.47122144618737)
+        self.assertAlmostEqual(self.mol.get_angle(3, 1, 2), 60.00001388659683)
+        self.assertAlmostEqual(self.mol.get_dihedral(0, 1, 2, 3), -35.26438851071765)
 
         coords = list()
         coords.append([0, 0, 0])
@@ -249,16 +245,19 @@ class MoleculeTest(unittest.TestCase):
         self.assertAlmostEqual(self.mol2.get_dihedral(0, 1, 2, 3), -90)
 
     def test_properties(self):
-        self.assertEqual(len(self.mol), 2)
+        self.assertEqual(len(self.mol), 5)
         self.assertTrue(self.mol.is_ordered)
-        self.assertEqual(self.mol.formula, "C1 O1")
+        self.assertEqual(self.mol.formula, "H4 C1")
 
     def test_repr_str(self):
-        ans = """Molecule Summary (C1 O1)
-Reduced Formula: CO
-Sites (2)
+        ans = """Molecule Summary (H4 C1)
+Reduced Formula: H4C
+Sites (5)
 1 C     0.000000     0.000000     0.000000
-2 O     0.000000     0.000000     1.500000"""
+2 H     0.000000     0.000000     1.089000
+3 H     1.026719     0.000000    -0.363000
+4 H    -0.513360    -0.889165    -0.363000
+5 H    -0.513360     0.889165    -0.363000"""
         self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
 Non-periodic Site
@@ -266,18 +265,30 @@ xyz        : (0.0000, 0.0000, 0.0000)
 element    : C
 occupation : 1.00
 Non-periodic Site
-xyz        : (0.0000, 0.0000, 1.5000)
-element    : O
+xyz        : (0.0000, 0.0000, 1.0890)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (1.0267, 0.0000, -0.3630)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (-0.5134, -0.8892, -0.3630)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (-0.5134, 0.8892, -0.3630)
+element    : H
 occupation : 1.00"""
         self.assertEqual(repr(self.mol), ans)
 
     def test_site_properties(self):
-        propertied_mol = Molecule(["C", "O"], self.coords, site_properties={'magmom':[0.5, -0.5]})
+        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords, site_properties={'magmom':[0.5, -0.5, 1, 2, 3]})
         self.assertEqual(propertied_mol[0].magmom, 0.5)
         self.assertEqual(propertied_mol[1].magmom, -0.5)
 
     def test_to_from_dict(self):
-        propertied_mol = Molecule(["C", "O"], self.coords, site_properties={'magmom':[0.5, -0.5]})
+        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords, site_properties={'magmom':[0.5, -0.5, 1, 2, 3]})
         d = propertied_mol.to_dict
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
@@ -285,25 +296,25 @@ occupation : 1.00"""
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.166667]))
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.121000]))
         self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
 
     def test_get_distance(self):
-        self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.5)
+        self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
 
     def test_get_neighbors(self):
         nn = self.mol.get_neighbors(self.mol[0], 1)
         self.assertEqual(len(nn), 0)
         nn = self.mol.get_neighbors(self.mol[0], 2)
-        self.assertEqual(len(nn), 1)
+        self.assertEqual(len(nn), 4)
 
     def test_get_neighbors_in_shell(self):
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 1)
         self.assertEqual(len(nn), 1)
-        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 1)
-        self.assertEqual(len(nn), 1)
-        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 2)
-        self.assertEqual(len(nn), 2)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
+        self.assertEqual(len(nn), 4)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)
+        self.assertEqual(len(nn), 0)
 
 
 class CompositionTest(unittest.TestCase):
