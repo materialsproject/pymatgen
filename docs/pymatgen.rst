@@ -14,11 +14,17 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.alchemy
     pymatgen.analysis
+    pymatgen.borg
     pymatgen.command_line
     pymatgen.core
+    pymatgen.electronic_structure
+    pymatgen.entries
     pymatgen.io
     pymatgen.phasediagram
+    pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util
+    pymatgen.vis
 

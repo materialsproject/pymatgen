@@ -1,0 +1,25 @@
+Fm-3
+x,            y,            z
+x,           -y,           -z
+-x,            y,           -z
+-x,           -y,            z
+z,            x,            y
+-z,           -x,            y
+z,           -x,           -y
+-z,            x,           -y
+y,            z,            x
+-y,            z,           -x
+-y,           -z,            x
+y,           -z,           -x
+-x,           -y,           -z
+-x,            y,            z
+x,           -y,            z
+x,            y,           -z
+-z,           -x,           -y
+z,            x,           -y
+-z,            x,            y
+z,           -x,            y
+-y,           -z,           -x
+y,           -z,            x
+y,            z,           -x
+-y,            z,            x

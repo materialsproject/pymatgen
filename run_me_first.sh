@@ -1,7 +1,8 @@
 #!/bin/bash
 CONFIG_FILE=pymatgen/pymatgen.cfg
 
-echo "Please enter full path where the POT_GGA_PAW_PBE, etc. subdirs are present. (Leave blank to skip this step):"
+echo "Please enter full path where the POT_GGA_PAW_PBE, etc. subdirs are present."
+echo "If you obtain the PSPs directly from VASP, this should typically be the directory that you untar the files to :"
 read pspdir
 if [ "$pspdir" != "" ]; then
 
@@ -38,8 +39,8 @@ if [ "$pspdir" != "" ]; then
         done
         gzip $currdir/*
     done
-    echo "[VASP]" > $CONFIG_FILE
-    echo "pspdir=$targetdir" >> $CONFIG_FILE
+	echo "PSP resources directory generated. You should now add the following to your environment."
+    echo "export VASP_PSP_DIR=LOCATION_OF_PSP_RESOURCES"
 else
     echo "Skipping PSP setup.  Note that POTCAR creation will be limited without this step."
 fi
