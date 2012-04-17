@@ -12,7 +12,7 @@ class BSPlotterTest(unittest.TestCase):
 
     def setUp(self):  
         import json
-        with open(os.path.join(module_dir,"Cao_2605.json"), "rb") as f:
+        with open(os.path.join(module_dir,"CaO_2605.json"), "rb") as f:
             dict=json.loads(f.read())
             self.bs=pymatgen.electronic_structure.band_structure.band_structure.BandStructureSymmLine.from_dict(dict)
             self.plotter=BSPlotter(self.bs)

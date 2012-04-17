@@ -13,6 +13,7 @@ __date__ = "March 14, 2012"
 
 import logging
 import math
+from pymatgen.electronic_structure.core import Spin
 
 log = logging.getLogger('BSPlotter')
 
@@ -44,22 +45,26 @@ class BSPlotter(object):
             A dict of the following format:
                 'ticks': a dictionary with the 'distances' at which there is a 
                 kpoint (the x axis) and the labels (None if no label)
-                'energy': an array (one element for each band) of energy for 
+                'energy': a dictionnary storing bands for spin up and spin down data {Spin:[band_index][k_point_index]} as a list (one element for each band) of energy for 
                 each kpoint
         """
-
-        energy = []
+        energy={Spin.up:[]}
+        if self._bs.is_spin_polarized:
+            energy = energy={Spin.up:[],Spin.down:[]}
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
             #pylab.plot([self._distance[j] for j in range(len(self._kpoints))],[self._bands[i]['energy'][j] for j in range(len(self._kpoints))],'b-',linewidth=5)
-            energy.append([self._bs._bands[i]['energy'][j] for j in range(len(self._bs._kpoints))])
-
+            energy[Spin.up].append([self._bs._bands[Spin.up][i]['energy'][j] for j in range(len(self._bs._kpoints))])
+        if self._bs.is_spin_polarized:
+            for i in range(self._nb_bands):
+                energy[Spin.down].append([self._bs._bands[Spin.down][i]['energy'][j] for j in range(len(self._bs._kpoints))])
+        
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
-        Show the bandstrucure plot.
+        Show the bandstrucure plot. Blue lines are up spin, red lines are down spin
         
         Args:
             file_name:
@@ -80,12 +85,15 @@ class BSPlotter(object):
 
         pylab.figure
         data = self.bs_plot_data
-
         for i in range(self._nb_bands):
             if zero_to_efermi:
-                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][i]], 'b-', linewidth=band_linewidth)
+                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][Spin.up][i]], 'b-', linewidth=band_linewidth)
+                if self._bs.is_spin_polarized:
+                    pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][Spin.down][i]], 'r-', linewidth=band_linewidth)
             else:
-                pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=band_linewidth)
+                pylab.plot(data['distances'], data['energy'][Spin.up][i], 'b-', linewidth=band_linewidth)
+                if self._bs.is_spin_polarized:
+                    pylab.plot(data['distances'], data['energy'][Spin.down][i], 'r-', linewidth=band_linewidth)
 
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
@@ -141,7 +149,7 @@ class BSPlotter(object):
         #last distance point
         x_max = data['distances'][-1]
         pylab.xlim(0, x_max)
-
+        
         if self._bs.is_metal():
             # Plot A Metal
             pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
@@ -161,7 +169,7 @@ class BSPlotter(object):
                 pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
 
             pylab.ylim(e_vbm + e_min, e_cbm + e_max)
-
+        
         pylab.legend()
         if file_name is not None:
             pylab.plot()
@@ -203,17 +211,18 @@ class BSPlotter(object):
 
     def plot_compare(self, other_plotter):
         """
-        plot two band structure for comparison.
+        plot two band structure for comparison. One is in red the other in blue (no difference in spins)
         TODO: still a lot of work to do that nicely!
         """
         import pylab
         data = self.bs_plot_data
         data_other = other_plotter.bs_plot_data
-        for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=3)
-
-        for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data_other['energy'][i], 'r--', linewidth=3)
+        for spin in data:
+            for i in range(self._nb_bands):
+                pylab.plot(data['distances'], data[spin]['energy'][i], 'b-', linewidth=3)
+        for spin in data_other:
+            for i in range(self._nb_bands):
+                pylab.plot(data['distances'], data_other[spin]['energy'][i], 'r--', linewidth=3)
 
 
         ticks = self.get_ticks()
