@@ -241,19 +241,18 @@ class StructureEditor(StructureModifier):
             new_sites.append(PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(site.coords), self._lattice))
         self._sites = new_sites
 
-
     def apply_strain_transformation(self, F=np.identity(3)):
-		"""
-		Apply a  deformation gradient tensor F to a lattice. Defaults to identity tensor. 
-		Note: fractional ionic coordinates should not change upon applying this transformation, but
-		Cartesian coordinates do!
+        """
+        Apply a  deformation gradient tensor F to a lattice. Defaults to identity tensor.
+        Note: fractional ionic coordinates should not change upon applying this transformation, but
+        Cartesian coordinates do!
 
-		Args:
-			F:
-				deformation gradient tensor (3x3 numpy matrix)
-		"""
-		self._lattice = np.matrix(self._lattice._matrix)*F
-	
+        Args:
+            F:
+                deformation gradient tensor (3x3 numpy matrix)
+        """
+        self._lattice = np.matrix(self._lattice._matrix) * F
+
     def translate_sites(self, indices, vector, frac_coords=True):
         """
         Translate specific sites by some vector, keeping the sites within the
