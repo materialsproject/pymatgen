@@ -30,7 +30,7 @@ to be made for the long term health of the code.
 
 setup (
   name='pymatgen',
-  version='1.7.2',
+  version='1.7.3',
   packages=find_packages(),
   install_requires=['numpy', 'scipy', 'PyCIFRW'],
   package_data={'pymatgen.core': ['*.json'],

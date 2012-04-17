@@ -64,15 +64,16 @@ Usage
 API/Reference Docs
 ==================
 
-The API documentation for pymatgen is provided at the link below. The API docs
-are generated using Sphinx auto-doc and outlines the purpose of all 
-modules and classes, and the expected argument and returned objects for most 
-methods. 
+The API documentation for pymatgen is provided at the link below.
 
 .. toctree::
    :maxdepth: 1
 
    modules
+
+The API docs are generated using Sphinx auto-doc and outlines the purpose of all 
+modules and classes, and the expected argument and returned objects for most 
+methods. 
 
 Citing pymatgen
 ===============
