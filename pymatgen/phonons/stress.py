@@ -1,5 +1,5 @@
 import warnings, sys, os
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -31,7 +31,7 @@ class Stress(object):
     # return a scaled version of this matrix
     def get_scaled(self, scale_factor):
         stress_matrix = self._sigma * scale_factor
-        return Stress(stress_matrix)
+        return Stress(deformation_matrix)
 
     @property
     def issymmetric(self, tol=0.001):

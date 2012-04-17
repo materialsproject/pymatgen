@@ -22,7 +22,9 @@ import math
 from pymatgen.phonons.strain import Strain
 from pymatgen.phonons.strain import IndependentStrain
 from pymatgen.phonons.genstrain import DeformGeometry
+#from pymatgen.phonons.Cij import CijTensor
 
+np.set_printoptions(precision=3)
 
 if __name__ == "__main__":
 
@@ -37,7 +39,7 @@ if __name__ == "__main__":
 
     struct = CifParser('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen/phonons/aluminum.cif').get_structures()[0]
     D = DeformGeometry(struct)
-    D = D.deform()
+    D = D.deform(0.01, 0.004, 4, 4)
 
 #   stress_dict: {IndependentStrain:stress matrix}
 
@@ -121,7 +123,13 @@ if __name__ == "__main__":
                 stress_dict[c] = np.matrix(np.loadtxt(sio('\n'.join(lines[3*count:3*count+3]))))
                 count+=1
 
+
+#    CijTensor(stress_dict).fitCij()
+
+#    print stress_dict
+
 #   at this point, the stress_dict is created in such a way that fit_elas can operate on it, i.e. it is in the format stress_dict: {IndependentStrain:stress matrix}
+
 
     def sort_stress_strain(strain, stress):
         indices = [i for (i,j) in sorted(enumerate(strain), key=operator.itemgetter(1))]
@@ -193,7 +201,6 @@ if __name__ == "__main__":
             if c.i==0 and c.j==1:
                 eps12.append(c.strain[c.i, c.j])
                 stress12.append(stress_dict[c])
-                print c.strain
 
             if c.i==1 and c.j==2:
                 eps23.append(c.strain[c.i, c.j])
@@ -227,7 +234,10 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon11)
 
             r2 = rsquared(true_data, f1)
-#            print 0.10*p1[0]
+            Cij[count1, 0] = 0.10*p1[0]
+            count1 += 1
+
+        count1 = 0
 
         for k in inds:
 
@@ -242,7 +252,10 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon22)
 
             r2 = rsquared(true_data, f1)
-#            print 0.10*p1[0]
+            Cij[count1, 1] = 0.10*p1[0]
+            count1 += 1
+
+        count1 = 0
 
         for k in inds:
 
@@ -257,7 +270,10 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon33)
 
             r2 = rsquared(true_data, f1)
-#            print 0.10*p1[0]
+            Cij[count1, 2] = 0.10*p1[0]
+            count1 += 1
+
+        count1 = 0
 
         for k in inds:
 
@@ -272,7 +288,10 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon23)
 
             r2 = rsquared(true_data, f1)
-#            print 0.10*p1[0]/2
+            Cij[count1, 3] = 0.10*p1[0]/2
+            count1 += 1
+
+        count1 = 0
 
         for k in inds:
 
@@ -287,7 +306,10 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon13)
 
             r2 = rsquared(true_data, f1)
-#            print 0.10*p1[0]/2
+            Cij[count1, 4] =  0.10*p1[0]/2
+            count1 += 1
+
+        count1 = 0
 
         for k in inds:
 
@@ -302,11 +324,20 @@ if __name__ == "__main__":
             f3 = np.polyval(p3, epsilon12)
 
             r2 = rsquared(true_data, f1)
- #           print 0.10*p1[0]/2
-#            print epsilon12
+            Cij[count1, 5] =   0.10*p1[0]/2
+            count1 += 1
+
+        for n1 in range(0,6):
+            for n2 in range(0,6):
+
+                if np.abs(Cij[n1, n2]) < 1:
+
+                    Cij[n1, n2] = 0
+
+        
+        print Cij
 
     fitCij(stress_dict)
-
 
 
 

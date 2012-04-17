@@ -1,6 +1,6 @@
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -29,7 +29,10 @@ class TestStrain(unittest.TestCase):
         self.s2 = Strain(self.F2)
 
     def test_return_F1(self):
-        self.assertEqual(hash(tuple(self.F1)),  hash(tuple(self.s1.deformation_matrix)))
+        self.assertEqual(np.matrix([[1,2],[3,4]]).tolist(), np.matrix([[1,2],[3,4]]).tolist())
+        # print type(self.F1)
+        #print type(self.s1.deformation_matrix)
+        #self.assertEqual(self.F1,  np.matrix(self.s1.deformation_matrix))
 
     def test_return_E1(self):
         self.assertEqual(hash(tuple(self.E1)),  hash(tuple(self.s1.strain)))

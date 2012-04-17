@@ -1,6 +1,6 @@
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 #    print mat
 
     my_strain = IndependentStrain(mat)
-    my_strain.check_F2()
+    my_strain.check_F()
 
 #    print my_strain._strain
     

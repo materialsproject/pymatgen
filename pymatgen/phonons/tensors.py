@@ -1,5 +1,5 @@
 import warnings, sys, os, math
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar

@@ -1,7 +1,7 @@
 import warnings
 import sys
 import operator
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
+sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 from StringIO import StringIO as sio
 import pymatgen
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     stress_dict = {}
 
-    struct = CifParser('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen/phonons/aluminum.cif').get_structures()[0]
+    struct = CifParser('aluminum.cif').get_structures()[0]
     
     D = DeformGeometry(struct, 0.01, 0.004, 4, 4)
 
