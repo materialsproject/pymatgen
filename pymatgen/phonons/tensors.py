@@ -1,4 +1,4 @@
-import warnings, sys, os
+import warnings, sys, os, math
 sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
 import unittest
 import pymatgen
@@ -28,7 +28,6 @@ class Cij(object):
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
     """
-
     def __init__(self, matrix):
         self._matrix = matrix
         if self._matrix.shape[0]!=self._matrix.shape[1]:
@@ -41,12 +40,14 @@ class Cij(object):
             return False
 
     def is_rotation_matrix(self, tol=0.001):
-        
         arr1 =  np.nonzero(np.abs(np.linalg.inv(self._matrix)-np.transpose(self._matrix))>tol)[0]
         arr2 = np.linalg.det(self._matrix)
         arr2 = np.float(arr2 - 1)
-        print arr1 ==0 and arr2 < tol
 
+        if len(arr1) ==0 and arr2 < tol:
+            return True
+        else:
+            return False
 
     def symmetrize(self):
         return 0.5*(self._matrix + np.transpose(self._matrix))
@@ -56,41 +57,91 @@ class Cij(object):
 
 class StressOps(Cij):
     """
-    This class contains methods that are to operate on stress tensors specifically, hence
+    This class contains methods that are to operate on *Cauchy* stress tensors specifically, hence
     matrices passed into this class need to be 3x3, otherise an error is thrown. Moreover,
-    the stress tensor is required to be symmetric up to a tolerance tol
+    the *Cauchy* stress tensor is required to be symmetric up to a tolerance tol.
     """
     def __init__(self, stress_matrix):
 
+        self._StressMatrix = stress_matrix
         super(StressOps, self).__init__(stress_matrix)
         if super(StressOps, self).is_symmetric() == False:
             raise ValueError("The stress tensor needs to be symmetric up to a tolerance tol")
 
-    def transform(self, rotation):
-        
+    def rotate(self, rotation):
         super(StressOps, self).__init__(rotation)
         super(StressOps, self).is_rotation_matrix()
 
-#        if super(StressOps, self).is_rotation_matrix() == False:
-#            raise ValueError("Not a valid rotation matrix")
-#        else:
-#            print 'passed test'
+        if super(StressOps, self).is_rotation_matrix() == False:
+            raise ValueError("Not a valid rotation matrix")
+
+        else:
+            return rotation*self._StressMatrix*np.transpose(rotation)
+
+    @property
+    def PrincipalInvariants(self):
+        I1 = self._StressMatrix[0,0] + self._StressMatrix[1,1] + self._StressMatrix[2,2]
+        I2 = self._StressMatrix[0,0]*self._StressMatrix[1,1]+ \
+             self._StressMatrix[1,1]*self._StressMatrix[2,2]+ \
+             self._StressMatrix[0,0]*self._StressMatrix[2,2]- \
+             self._StressMatrix[0,1]**2 - self._StressMatrix[1,2]**2 - self._StressMatrix[2,0]**2
+        I3 = np.linalg.det(self._StressMatrix)
+        I = [I1, I2, I3]
+        return I
+    
+    @property
+    def DeviatorPrincipalInvariants(self):
+        I = self.PrincipalInvariants
+        J1 = 0
+        J2 = 1.0/3*I[0]**2 - I[1]
+        J3 = 2.0/27*I[0]**3 - 1.0/3*I[0]*I[1] + I[2]
+        J = [J1, J2, J3]
+        return J
+
+    @property
+    def VonMises(self):
+        J = self.DeviatorPrincipalInvariants        
+        sigma_mises = math.sqrt(3*J[1])
+        return sigma_mises
+
+    @property
+    def MeanStress(self):
+        return 1.0/3*(self._StressMatrix[0,0] + self._StressMatrix[1,1] + self._StressMatrix[2,2])
+
+    @property
+    def DeviatorStress(self):
+        return self._StressMatrix - self.MeanStress
+
+    def PiolaKirchoff1(self, F):
+        return np.linalg.det(F)*self._StressMatrix*np.transpose(np.linalg.inv(F))
+
+    def PiolaKirchoff2(self, F):
+        return np.linalg.det(F)*np.linalg.inv(F)*self._StressMatrix*np.transpose(np.linalg.inv(F))
 
 
 class ElasticOps(Cij):
     """
     This class contains methods that are to operate on elastic tensors specifically, hence
     matrices passed into this class need to be 6x6, otherise error is thrown. 
+    """        
+
+
+class DeformationGradientTensor(Cij):
     """
-    
-        
+    A class for more advanced operation on the deformation gradient tensor, primarily
+    polar decomposition in order to decompose a general homogeneous deformation into
+    a rigid body rotation and a pure stretch
+    """
+
 
 if __name__ == "__main__":
 
     sigma = Cij(np.random.randn(3,3))
     sigma = sigma.symmetrize()
     rot = np.identity(3)
-
     B = StressOps(sigma)
-    B.transform(rot)
+#    print B.MeanStress
+#    print B.DeviatorStress
+#    print B.DeviatorPrincipalInvariants    
+    print B.VonMises
 
