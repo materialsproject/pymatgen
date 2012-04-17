@@ -1,7 +1,6 @@
 import warnings
 import sys
 import operator
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/') # (If one does not want to change $PYTHONPATH)
 import unittest
 from StringIO import StringIO as sio
 import pymatgen

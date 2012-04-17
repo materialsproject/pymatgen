@@ -1,9 +1,6 @@
 from __future__ import division
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
-#sys.path.append('/home/MDEJONG1/local/lib/python2.7/site-packages/cctbx_sources')
-#sys.path.append('/home/MDEJONG1/local/lib/python2.7/site-packages/boost_1_48_0/')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
