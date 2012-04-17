@@ -1,7 +1,6 @@
 from __future__ import division
 import warnings
 import sys
-sys.path.append('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen')
 import unittest
 import pymatgen
 from pymatgen.io.vaspio import Poscar
