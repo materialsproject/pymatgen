@@ -673,7 +673,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
 
     def get_dihedral(self, i, j, k, l):
         """
-        Returns angle specified by three sites.
+        Returns dihedral angle specified by four sites.
          
         Args:
             i:
