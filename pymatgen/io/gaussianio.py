@@ -85,7 +85,8 @@ class GaussianInput(object):
         coords = []
 
         for l in coord_lines:
-            if l.strip() == "":
+            l = l.strip()
+            if l == "":
                 break
             if xyz_patt.match(l):
                 m = xyz_patt.match(l)
@@ -102,7 +103,7 @@ class GaussianInput(object):
                 else:
                     coords.append(map(float, toks[1:4]))
             elif zmat_patt.match(l):
-                toks = re.split("[,\\s]+", l.strip())
+                toks = re.split("[,\s]+", l.strip())
                 m = mixed_species_patt.match(toks[0])
                 if m:
                     parsed_species.append(toks[0])
@@ -114,7 +115,7 @@ class GaussianInput(object):
                     coords.append(np.array([0, 0, 0]))
                 else:
                     nn = []
-                    var = []
+                    parameters = []
                     while len(toks) > 0:
                         ind = toks.pop(0)
                         data = toks.pop(0)
@@ -123,14 +124,14 @@ class GaussianInput(object):
                             nn.append(int(ind))
                         except:
                             nn.append(parsed_species.index(ind))
-                        var.append(paras[data])
+                        parameters.append(paras[data])
                     if len(nn) == 1:
-                        coords.append(np.array([0, 0, var[0]]))
+                        coords.append(np.array([0, 0, parameters[0]]))
                     elif len(nn) == 2:
                         coords1 = coords[nn[0] - 1]
                         coords2 = coords[nn[1] - 1]
-                        bl = var[0]
-                        angle = var[1]
+                        bl = parameters[0]
+                        angle = parameters[1]
                         axis = [0, 1, 0]
                         coord = SymmOp.from_origin_axis_angle(coords1, axis, angle, False).operate(coords2)
                         vec = coord - coords1
@@ -140,9 +141,9 @@ class GaussianInput(object):
                         coords1 = coords[nn[0] - 1]
                         coords2 = coords[nn[1] - 1]
                         coords3 = coords[nn[2] - 1]
-                        bl = var[0]
-                        angle = var[1]
-                        dih = var[2]
+                        bl = parameters[0]
+                        angle = parameters[1]
+                        dih = parameters[2]
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
