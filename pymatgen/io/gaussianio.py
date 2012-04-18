@@ -65,8 +65,6 @@ class GaussianInput(object):
         """
         return self._mol
 
-
-
     @staticmethod
     def parse_coords(coord_lines):
         """
@@ -206,18 +204,22 @@ class GaussianInput(object):
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
+        input_paras = {}
         for i in xrange(route_index + 5, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
-            if spaces == 2:
-                break
-            coord_lines.append(lines[i].strip())
+            if spaces >= 2:
+                d = lines[i].split("=")
+                if len(d) == 2:
+                    input_paras[d[0]] = float(d[1])
+            else:
+                coord_lines.append(lines[i].strip())
         mol = GaussianInput.parse_coords(coord_lines)
 
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
                             basis_set=basis_set, route_parameters=route_paras,
-                            input_parameters=None)
+                            input_parameters=input_paras)
 
     @staticmethod
     def from_file(filename):
@@ -287,6 +289,7 @@ class GaussianInput(object):
         output = ["#P {func}/{bset} {route} Test".format(func=self.functional, bset=self.basis_set, route=para_dict_to_string(self.route_parameters))]
         output.append("")
         output.append(self.title)
+        output.append("")
         output.append("{} {}".format(self.charge, self.spin_multiplicity))
         output.append(self.get_zmatrix())
         output.append("")
