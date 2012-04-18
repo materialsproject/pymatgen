@@ -55,7 +55,7 @@ class Site(collections.Mapping, collections.Hashable):
         """
 
         if isinstance(atoms_n_occu, dict):
-            self._species = {smart_element_or_specie(k) : v for k, v in atoms_n_occu.items()}
+            self._species = {smart_element_or_specie(k): v for k, v in atoms_n_occu.items()}
             totaloccu = sum(self._species.values())
             if totaloccu > 1:
                 raise ValueError("Species occupancies sum to more than 1!")

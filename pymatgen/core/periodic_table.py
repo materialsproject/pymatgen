@@ -347,15 +347,15 @@ class Element(object):
         Returns the periodic table row of the element.
         """
         Z = self.Z
-        totalEls = 0
+        total = 0
         if Z >= 57 and Z <= 70:
             return 8
         elif Z >= 89 and Z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
-            totalEls += _pt_row_sizes[i]
-            if totalEls >= Z:
+            total += _pt_row_sizes[i]
+            if total >= Z:
                 return i + 1
         return 8
 
@@ -495,7 +495,7 @@ class Specie(object):
     Properties associated with Specie should be "idealized" values, not
     calculated values. For example, high-spin Fe2+ may be assigned an idealized
     spin of +5, but an actual Fe2+ site may be calculated to have a magmom of
-    +4.5. Calculated properties should be assigned to Site objects, and not 
+    +4.5. Calculated properties should be assigned to Site objects, and not
     Specie.
     """
 
@@ -510,7 +510,7 @@ class Specie(object):
                 Oxidation state of element, e.g., 2 or -2
             properties:
                 Properties associated with the Specie, e.g. 
-                {'spin':5}. Defaults to None. Properties must be one of the 
+                {'spin':5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
         self._el = Element(symbol)
@@ -518,7 +518,7 @@ class Specie(object):
         self._properties = properties if properties else {}
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
-                raise ValueError("{} is not a supported Specie property".format(k))
+                raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
         if a in self._properties:
