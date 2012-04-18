@@ -36,10 +36,11 @@ class GaussianInputTest(unittest.TestCase):
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
         self.gau = GaussianInput(mol, route_parameters={'SP':"", "SCF":"Tight"}, input_parameters={"EPS":12})
 
-    def test_str(self):
+    def test_str_and_from_string(self):
         ans = """#P HF/6-31G(d) SP SCF=Tight Test
 
 H4 C1
+
 0 1
 C
 H 1 B1
@@ -60,6 +61,9 @@ D4=119.999966
 EPS=12
 """
         self.assertEqual(str(self.gau), ans)
+        gau = GaussianInput.from_string(ans)
+        self.assertEqual(gau.functional, 'HF')
+        self.assertEqual(gau.input_parameters['EPS'], 12)
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'MethylPyrrolidine_drawn.gjf')
