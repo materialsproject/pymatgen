@@ -246,10 +246,13 @@ class Site(collections.Mapping, collections.Hashable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Specie):
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-            elif isinstance(spec, Element):
+            if isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
+            elif isinstance(spec, Specie):
+                d = spec.to_dict
+                d['occu'] = occu
+                species_list.append(d)
+                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
         return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
 
     @staticmethod
@@ -259,7 +262,7 @@ class Site(collections.Mapping, collections.Hashable):
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
         return Site(atoms_n_occu, d['xyz'], properties=props)
@@ -501,10 +504,12 @@ class PeriodicSite(Site):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Specie):
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-            elif isinstance(spec, Element):
+            if isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
+            else:
+                d = spec.to_dict
+                d['occu'] = occu
+                species_list.append(d)
         return {'label': self.species_string, 'species': species_list,
                 'occu': occu, 'xyz':[float(c) for c in self._coords],
                 'abc':[float(c) for c in self._fcoords],
@@ -1113,7 +1118,7 @@ class Structure(SiteCollection):
 
         for site_dict in d['sites']:
             sp = site_dict['species']
-            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
+            species.append({ Specie.from_dict(sp) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
             coords.append(site_dict['abc'])
             siteprops = site_dict.get('properties', {})
             for k, v in siteprops.items():
