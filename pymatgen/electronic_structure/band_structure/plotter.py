@@ -54,7 +54,6 @@ class BSPlotter(object):
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            #pylab.plot([self._distance[j] for j in range(len(self._kpoints))],[self._bands[i]['energy'][j] for j in range(len(self._kpoints))],'b-',linewidth=5)
             energy[Spin.up].append([self._bs._bands[Spin.up][i]['energy'][j] for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
@@ -180,6 +179,10 @@ class BSPlotter(object):
     def get_ticks(self):
         """
         get all ticks and labels for a band structure plot
+        Returns:
+            A dictionary with 
+            'distance': a list of distance at which ticks should be set
+            'label': a list of label for each of those ticks
         """
         tick_distance = []
         tick_labels = []
@@ -231,7 +234,6 @@ class BSPlotter(object):
         pylab.gca().set_xticklabels(ticks['label'])
         pylab.xlabel('Kpoints', fontsize='large')
         pylab.ylabel('Energy(eV)', fontsize='large')
-        #pylab.ylim(vbm-4,cbm+4)
         for i in range(len(ticks['label'])):
             if(ticks['label'][i] != None):
                 pylab.axvline(ticks['distance'][i], color='k')
@@ -248,9 +250,6 @@ class BSPlotter(object):
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
         vec3 = self._bs._lattice_rec.matrix[2]
-        #ax.plot([0,vec1[0]],[0,vec1[1]],[0,vec1[2]],color='k')
-        #ax.plot([0,vec2[0]],[0,vec2[1]],[0,vec2[2]],color='k')
-        #ax.plot([0,vec3[0]],[0,vec3[1]],[0,vec3[2]],color='k')
 
         #make the grid
         max_x = -1000
@@ -278,13 +277,8 @@ class BSPlotter(object):
                     if(list_k_points[-1][2] < min_z):
                         min_z = list_k_points[-1][0]
 
-                    #ax.scatter([list_k_points[-1][0]],[list_k_points[-1][1]],[list_k_points[-1][2]])
-        #plt.show()
         vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
-        #print vertex
         lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
-        #[vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))]+" "+str(vertex[i][2])
-        #ax.scatter([vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))],[vertex[i][2] for i in range(len(vertex))],color='r')
         for i in range(len(lines)):
             vertex1 = lines[i]['start']
             vertex2 = lines[i]['end']
@@ -294,8 +288,7 @@ class BSPlotter(object):
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
             vertex2 = self._bs._kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3)
-        #plot the labelled points    
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3) 
 
         for k in self._bs._kpoints:
             if k.label:
@@ -313,20 +306,9 @@ class BSPlotter(object):
             a.set_visible(False)
         for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
             a.set_visible(False)
-
-        #ax.set_xlim3d(0.5*min_x, 0.5*max_x) 
-        #ax.set_ylim3d(0.5*min_y, 0.5*max_y) 
-        #ax.set_zlim3d(0.5*min_z, 0.5*max_z) 
+            
         ax.grid(False)
-        
-        #plt.tight_layout()
-        #fig.patch.set_facecolor('blue')
-        #fig.patch.set_alpha(0.7)
-
-
-        #fig.savefig('temp.png', facecolor=fig.get_facecolor(), edgecolor='none')
 
         plt.show()
         ax.axis("off")
-        #
 
