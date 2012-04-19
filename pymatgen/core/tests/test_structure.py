@@ -316,6 +316,14 @@ occupation : 1.00"""
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)
         self.assertEqual(len(nn), 0)
 
+    def test_get_dist_matrix(self):
+        ans = [[0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
+               [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
+               [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
+               [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
+               [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
+        self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
+
 
 class CompositionTest(unittest.TestCase):
 

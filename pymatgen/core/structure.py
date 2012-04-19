@@ -536,6 +536,35 @@ class SiteCollection(collections.Sequence, collections.Hashable):
 
     DISTANCE_TOLERANCE = 0.01
 
+    @abc.abstractproperty
+    def sites(self):
+        """
+        Returns an iterator for the sites in the Structure. 
+        """
+        for site in self._sites:
+            yield site
+
+    @abc.abstractmethod
+    def get_distance(self, i, j):
+        """
+        Returns distance between sites at index i and j.
+        """
+        return
+
+    @property
+    def distance_matrix(self):
+        """
+        Returns the distance matrix between all sites in the structure. For
+        periodic structures, this should return the nearest image distance.
+        """
+        nsites = self.num_sites
+        distmatrix = np.zeros((nsites, nsites))
+        for i, j in itertools.combinations(xrange(nsites), 2):
+            dist = self.get_distance(i, j)
+            distmatrix[i, j] = dist
+            distmatrix[j, i] = dist
+        return distmatrix
+
     @property
     def species(self):
         """
@@ -551,14 +580,6 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         List of species and occupancies at each site of the structure.
         """
         return [site.species_and_occu for site in self.sites]
-
-    @abc.abstractproperty
-    def sites(self):
-        """
-        Returns an iterator for the sites in the Structure. 
-        """
-        for site in self._sites:
-            yield site
 
     @property
     def site_properties(self):
@@ -812,12 +833,12 @@ class Structure(SiteCollection):
 
     def get_distance(self, i, j, jimage=None):
         """
-        Get distance between site i and j assuming periodic boundary conditions
-        if the index jimage of two sites atom j is not specified it selects the 
+        Get distance between site i and j assuming periodic boundary conditions.
+        If the index jimage of two sites atom j is not specified it selects the 
         j image nearest to the i atom and returns the distance and jimage 
         indices in terms of lattice vector translations if the index jimage of 
         atom j is specified it returns the distance between the i atom and the 
-        specified jimage atom, the given jimage is also returned.
+        specified jimage atom.
         
         Args:
             i:
@@ -825,11 +846,11 @@ class Structure(SiteCollection):
             j:
                 Index of second site
             jimage:
-                Number of lattice translations in each lattice direction. Default
-                is None for nearest image.
+                Number of lattice translations in each lattice direction. 
+                Default is None for nearest image.
         
         Returns:
-            (distance, jimage)
+            distance
         """
         return self[i].distance(self[j], jimage)
 
