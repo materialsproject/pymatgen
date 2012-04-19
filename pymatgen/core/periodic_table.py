@@ -607,6 +607,18 @@ class Specie(object):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['element'] = self.symbol
+        d['oxidation_state'] = self._oxi_state
+        d['properties'] = self._properties
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
+
 
 class DummySpecie(Specie):
     """
@@ -691,6 +703,17 @@ class DummySpecie(Specie):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['element'] = self.symbol
+        d['oxidation_state'] = self._oxi_state
+        d['properties'] = self._properties
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return DummySpecie(d['element'], d['oxidation_state'], d.get('properties', None))
 
 @singleton
 class PeriodicTable(object):
