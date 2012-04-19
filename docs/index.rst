@@ -30,6 +30,9 @@ progress. While the development team will always strive to avoid backward
 incompatible changes, they are sometimes unavoidable, and tough decisions have 
 to be made for the long term health of the code.
 
+For documentation and usage guide, please refer to the latest documentation at
+our github page (http://materialsproject.github.com/pymatgen/).
+
    *The code is mightier than the pen.*
 
 Latest Change Log (v1.8.0)
