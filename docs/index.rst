@@ -32,12 +32,12 @@ to be made for the long term health of the code.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.7.3)
+Latest Change Log (v1.8.0)
 --------------------------
 
-1. Beta support for additional properties on Specie (Spin) and Site 
-   (magmom, charge).
-2. Beta Molecule class to support molecules without periodicity.
+1. Support for additional properties on Specie (Spin) and Site (magmom, charge).
+2. Molecule class to support molecules without periodicity.
+3. Beta io class for XYZ and GaussianInput.
 
 .. toctree::
    :maxdepth: 2
