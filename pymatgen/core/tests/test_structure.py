@@ -220,6 +220,11 @@ class StructureTest(unittest.TestCase):
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
+    def test_get_dist_matrix(self):
+        ans = [[ 0., 2.3516318],
+               [ 2.3516318, 0.]]
+        self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
+
 class MoleculeTest(unittest.TestCase):
 
     def setUp(self):
