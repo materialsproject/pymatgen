@@ -106,7 +106,6 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
 
-
     def append_transformation(self, transformation, return_alternatives=False, clear_redo=True, **kwargs):
         """
         Appends a transformation to the TransformedStructure.
@@ -134,12 +133,12 @@ class TransformedStructure(object):
                     new_structure._redo_trans = []
                 alts.append(new_structure)
             return alts
-        
+
         if clear_redo:
-                self._redo_trans = []
-        
+            self._redo_trans = []
+
         if return_alternatives and transformation.is_one_to_many:
-            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True, **kwargs)
+            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True, **kwargs)
             alternative_structures = alternative_transformed_structures(self, transformation, ranked_list[1:], clear_redo)
             new_s = ranked_list[0]
             self._structures.append(new_s.pop('structure'))
@@ -154,7 +153,7 @@ class TransformedStructure(object):
             self._structures.append(new_s)
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
-        
+
 
     def extend_transformations(self, transformations):
         """
