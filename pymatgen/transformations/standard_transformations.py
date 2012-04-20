@@ -484,7 +484,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         manipulation[1] += site[0]
                         manipulation[2].append(site[1])
                     
-                    if abs(manipulation[1]-round(manipulation[1]))>.1: #if the # of atoms to remove isn't within .1 of an integer
+                    if abs(manipulation[1]-round(manipulation[1]))>.25: #if the # of atoms to remove isn't within .25 of an integer
                         raise ValueError('Occupancy fractions not consistent with size of unit cell')
                     
                     manipulation[1] = int(round(manipulation[1]))
