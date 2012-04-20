@@ -392,7 +392,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self):
+    
+    ALGO_FAST = 0
+    ALGO_COMPLETE = 1
+    ALGO_BEST_FIRST = 2
+    
+    def __init__(self, algo = ALGO_FAST):
         '''
         Args:
             num_structures:
@@ -401,7 +406,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 maximum mev per atom above the minimum energy ordering for a
                 structure to be returned
         '''
-
+        self._algo = algo
         self._all_structures = []
 
     def apply_transformation(self, structure, return_ranked_list=False, num_structures=1, energy_cutoff=None):
@@ -494,7 +499,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         matrix = EwaldSummation(structure).total_energy_matrix
 
-        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
+        ewald_m = EwaldMinimizer(matrix, m_list, num_structures, self._algo)
 
         self._all_structures = []
 
@@ -538,7 +543,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {}
+        output['init_args'] = {'algo' : self._algo}
         return output
 
     @property
