@@ -185,9 +185,6 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
     def test_from_dict(self):
-        test_dict = {'lattice': {'a': 3.8401979336999998, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.8401989943442438, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.99999086398419, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'occu': 0.5, 'abc': [0, 0, 0], 'xyz': [0.0, 0.0, 0.0], 'species': [{'occu': 0.5, 'element': 'Mn'}, {'occu': 0.5, 'oxidation_state': 4, 'element': 'Si'}], 'label': 'Mn: 0.5000, Si4+: 0.5000'}, {'occu': 0.5, 'abc': [0.75, 0.5, 0.75], 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.3516317952249999], 'species': [{'occu': 0.5, 'oxidation_state': 4, 'element': 'Ge'}], 'label': 'Ge4+: 0.5000'}]}
-        s = Structure.from_dict(test_dict)
-        self.assertEqual(s.composition.formula, 'Mn0.5 Si0.5 Ge0.5')
         d = self.propertied_structure.to_dict
         s = Structure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
