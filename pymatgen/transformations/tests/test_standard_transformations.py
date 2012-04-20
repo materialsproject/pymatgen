@@ -183,7 +183,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = OrderDisorderedStructureTransformation(num_structures=50)
+        t = OrderDisorderedStructureTransformation()
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -192,22 +192,22 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
 
         struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] , coords)
-        output = t.apply_transformation(struct, True)
+        output = t.apply_transformation(struct, return_ranked_list = True, num_structures = 50)
         self.assertEqual(len(output), 12)
         self.assertIsInstance(output[0]['structure'], Structure)
 
         struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"P5+":0.5, "O2-": 0.5}, {"P5+":0.5, "O2-": 0.5}] , coords)
-        output = t.apply_transformation(struct, return_ranked_list=True)
+        output = t.apply_transformation(struct, return_ranked_list=True, num_structures = 50)
         self.assertIsInstance(output, list)
         self.assertEqual(len(output), 4)
         self.assertEqual(t.lowest_energy_structure, output[0]['structure'])
 
         struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"O2-": 0.5}, {"O2-": 0.5}] , coords)
-        allstructs = t.apply_transformation(struct, True)
+        allstructs = t.apply_transformation(struct, True, num_structures = 50)
         self.assertEqual(len(allstructs), 4)
 
         struct = Structure(lattice, [{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] , coords)
-        allstructs = t.apply_transformation(struct, True)
+        allstructs = t.apply_transformation(struct, True, num_structures = 50)
         self.assertEqual(len(allstructs), 3)
 
 class PrimitiveCellTransformationTest(unittest.TestCase):
