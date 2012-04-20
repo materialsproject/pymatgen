@@ -392,7 +392,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self, num_structures=1, energy_cutoff=None):
+    def __init__(self):
         '''
         Args:
             num_structures:
@@ -402,11 +402,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 structure to be returned
         '''
 
-        self._energy_cutoff = energy_cutoff
         self._all_structures = []
-        self._num_structures = num_structures
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure, return_ranked_list=False, num_structures=1, energy_cutoff=None):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -425,8 +423,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if sum(site.species_and_occu.values()) == 1 and len(site.species_and_occu) == 1:
                 ordered_sites.append(site)
             else:
-                species = tuple([sp for sp, occu in site.species_and_occu.items()])     #group the sites by the list of species
-                                                                                        #on that site
+                species = tuple([sp for sp, occu in site.species_and_occu.items()])
+                #group the sites by the list of species on that site
                 for sp, occu in site.species_and_occu.items():
                     if species not in sites_to_order:
                         sites_to_order[species] = {}
@@ -493,7 +491,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         matrix = EwaldSummation(structure).total_energy_matrix
 
-        ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
+        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
 
         self._all_structures = []
 
@@ -512,8 +510,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             se.delete_sites(del_indices)
             self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
 
-        #if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
-        #    self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
+        #if energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
+        #    self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < energy_cutoff ]
 
         if return_ranked_list:
             return self._all_structures
@@ -537,7 +535,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'num_structures' : self._num_structures, 'energy_cutoff' : self._energy_cutoff}
+        output['init_args'] = {}
         return output
 
     @property
@@ -721,6 +719,140 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__ }
         output['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
+        return output
+
+class SuperTransformation(AbstractTransformation):
+    '''
+    This is a transformation that is inherently one-to-many. It is constructed
+    from a list of transformations and returns one structure for each
+    transformation. The primary use for this class is extending a transmuter
+    object.
+    '''
+
+    def __init__(self, transformations):
+        '''
+        Args:
+            transformations:
+                list of transformations to apply to a structure. One
+                transformation is applied to each output structure.
+        '''
+        self._transformations = transformations
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        if not return_ranked_list:
+            raise ValueError('SuperTransformation has no single best structure output. Must use return_ranked_list')
+        structures = []
+        for t in self._transformations:
+            structures.append({'transformation': t, 'structure': t.apply_transformation(structure)})
+
+        return structures
+
+    def __str__(self):
+        return "Super Transformation : Transformations = {}".format(' '.join([str(t) for t in self._transformations]))
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__, 'version': __version__ }
+        output['init_args'] = {'transformations' : self._transformations}
+        return output
+
+class MultipleSubstitutionTransformation(object):
+    '''
+    Performs multiple substitutions on a structure. For example, can do a fractional replacement of Ge in LiGePS with a list of species,
+    creating one structure for each substitution. Ordering is done using a dummy element so only one ordering must be done per substitution
+    oxidation state. Charge balancing of the structure is optionally performed.
+    
+    Note:
+    There are no checks to make sure that removal fractions are possible and rounding may occur
+    Currently charge balancing only works for removal of species
+    '''
+
+    def __init__(self, sp_to_replace, r_fraction, substitution_dict, charge_balance_species=None, order=True):
+        '''
+        Performs multiple fractional substitutions on a transmuter
+        
+        Args:
+            sp_to_replace
+                species to be replaced
+            r_fraction
+                fraction of that specie to replace
+            substitution_dict
+                dictionary of the format
+                {2: ["Mg", "Ti", "V", "As", "Cr", "Ta", "N", "Nb"], 
+                3: ["Ru", "Fe", "Co", "Ce", "As", "Cr", "Ta", "N", "Nb"],
+                4: ["Ru", "V", "Cr", "Ta", "N", "Nb"], 
+                5: ["Ru", "W", "Mn"]
+                }
+                The number is the charge used for each of the list of elements (an element can be present in multiple lists)
+            charge_balance_species:
+                if specified, will balance the charge on the structure using that specie
+        '''
+        self._sp_to_replace = sp_to_replace
+        self._r_fraction = r_fraction
+        self._substitution_dict = substitution_dict
+        self._charge_balance_species = charge_balance_species
+        self._order = order
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        if not return_ranked_list:
+            raise ValueError('MultipleSubstitutionTransformation has no single best structure output. Must use return_ranked_list')
+        outputs = []
+        for charge, el_list in self._substitution_dict.items():
+            mapping = {}
+            if charge > 0:
+                sign = '+'
+            else:
+                sign = '-'
+            mapping[self._sp_to_replace] = {self._sp_to_replace:1 - self._r_fraction, 'X{}{}'.format(str(charge), sign):self._r_fraction}
+            dummy_structure = SubstitutionTransformation(mapping).apply_transformation(structure)
+            if self._charge_balance_species is not None:
+                cbt = ChargeBalanceTransformation(self._charge_balance_species)
+                dummy_structure = cbt.apply_transformation(dummy_structure)
+            if self._order:
+                dummy_structure = OrderDisorderedStructureTransformation().apply_transformation(dummy_structure)
+
+            for el in el_list:
+                if charge > 0:
+                    sign = '+'
+                else:
+                    sign = '-'
+                st = SubstitutionTransformation({'X{}+'.format(str(charge)): '{}{}{}'.format(el, str(charge), sign)})
+                new_structure = st.apply_transformation(dummy_structure)
+                outputs.append({'structure' : new_structure})
+        return outputs
+
+    def __str__(self):
+        return "Multiple Substitution Transformation : Substitution on  {}".format(self._sp_to_replace)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__, 'version': __version__ }
+        output['init_args'] = {'sp_to_replace' : self._sp_to_replace,
+                               'r_fraction' : self._r_fraction,
+                               'substitution_dict' : self._substitution_dict,
+                               'charge_balance_species' : self._charge_balance_species}
         return output
 
 

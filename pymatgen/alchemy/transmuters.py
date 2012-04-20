@@ -85,7 +85,7 @@ class TransformedStructureTransmuter(object):
         return len(self._transformed_structures)
 
     def append_transformation(self, transformation, extend_collection=False,
-                              clear_redo=True):
+                              clear_redo=True, **kwargs):
         """
         Appends a transformation to all TransformedStructures.
         
@@ -109,70 +109,11 @@ class TransformedStructureTransmuter(object):
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo)
+            new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo, **kwargs)
             if new is not None:
                 new_structures.extend(new)
-        output = [x.was_modified for x in self._transformed_structures]
-        self._transformed_structures.extend(new_structures)
-        return output
-
-    def branch_collection(self, transformations, retention_level=1,
-                          extend_collection=False, clear_redo=True):
-        '''
-        Copies the structures collection, applying one transformation to each 
-        copy.
-        
-        Args:
-            transformations:
-                List of transformations to apply (each structure gets one of 
-                these transformations. To append multiple transformations to 
-                each structure use extend_transformations)
-            retention_level:
-                Specifies which structures will be kept and which will be 
-                thrown out.
-                0 - throws out all structures that weren't modified by any of 
-                the transformations
-                1 - keeps structures that weren't modified by anything.
-                2 - keeps all structures, including the untransformed ones. 
-                Note that this may cause issues with undoing transformations
-                since they will have different transformation histories
                 
-                E.g if you start with 2 structures and apply 2 transformations, 
-                and one structure isn't modified by either of them but the 
-                other structure is modified by both, for retention_level = 0, 
-                you will have 2 structures left, for retention_level = 1 you 
-                will have 3 structures, and for retention_level 2, you will 
-                have 4. In most cases, retention_level = 1 will provide the 
-                desired functionality.
-            extend_collection:
-                Whether to generate multiple structures for transformations 
-                that result in possible multiple structures.
-            clear_redo:
-                Boolean indicating whether to clear the redo list. By default,
-                this is True, meaning any appends clears the history of undoing.
-                However, when using append_transformation to do a redo, the 
-                redo list should not be cleared to allow multiple redos.
-        '''
-        any_modification = [False] * len(self._transformed_structures)
-        old_transformed_structures = self._transformed_structures
-
-        new_trans_structures = []
-        for transformation in transformations:
-            self._transformed_structures = deepcopy(old_transformed_structures)
-            modified = self.append_transformation(transformation, extend_collection, clear_redo)
-            for structure in self._transformed_structures:
-                if structure.was_modified:
-                    new_trans_structures.append(structure)
-            any_modification = map(lambda x:x[0] or x[1], zip(modified, any_modification))
-
-        self._transformed_structures = new_trans_structures
-
-        if retention_level == 1:
-            for i, structure in enumerate(old_transformed_structures):
-                if not any_modification[i]:
-                    self._transformed_structures.append(structure)
-        elif retention_level == 2:
-            self._transformed_structures.extend(old_transformed_structures)
+        self._transformed_structures.extend(new_structures)
 
     def extend_transformations(self, transformations):
         """
