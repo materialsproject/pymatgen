@@ -268,8 +268,12 @@ class EwaldMinimizer:
     
     Author - Will Richards
     '''
+    
+    ALGO_FAST = 0
+    ALGO_COMPLETE = 1
+    ALGO_BEST_FIRST = 2
 
-    def __init__(self, matrix, m_list, num_to_return = 1, fast = True):
+    def __init__(self, matrix, m_list, num_to_return = 1, algo = ALGO_FAST):
         '''
         Args:
             matrix:      
@@ -300,18 +304,25 @@ class EwaldMinimizer:
 
         self._output_lists = []
         self._num_to_return = num_to_return
+        
+        self._algo = algo
+        if algo == EwaldMinimizer.ALGO_COMPLETE:
+            raise NotImplementedError('Complete algo not yet implemented for EwaldMinimizer')
+        self._finished = False #tag that the recurse function looks at at each level. If a method sets this to true it breaks the recursion and stops the search
 
-        n_combinations = 1  #calculate number of permutations to calculate
-        for m in self._m_list:
-            n_combinations *= comb(len(m[2]), m[1])
-
-        if n_combinations <= num_to_return:
-            fast = False                    #If we're returning all sums, don't bother with short circuit algorithm
-
-        self.minimize_matrix(fast)
+        self.minimize_matrix()
 
         self._best_m_list = self._output_lists[0][1]
         self._minimized_sum = self._output_lists[0][0]
+        
+    def minimize_matrix(self):
+        '''
+        This method finds and returns the permutations that produce the lowest ewald sum
+        calls recursive function to iterate through permutations
+        '''
+        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+            return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
+
 
     def add_m_list(self, matrix_sum, m_list):
         '''
@@ -321,6 +332,8 @@ class EwaldMinimizer:
             self._output_lists = [[matrix_sum, m_list]]
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
+        if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and len(self._output_lists) == self._num_to_return:
+            self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
         if len(self._output_lists) == self._num_to_return:
@@ -384,7 +397,7 @@ class EwaldMinimizer:
 
         return next_index
 
-    def _recurse(self, matrix, m_list, indices, fast, output_m_list = []):
+    def _recurse(self, matrix, m_list, indices, output_m_list = []):
         '''
         This method recursively finds the minimal permutations using a binary tree search strategy
         
@@ -402,34 +415,38 @@ class EwaldMinimizer:
             [minimal value, [list of replacements]]
                 Each replacement is a list [index of replaced specie, specie inserted at that index]
         '''
-
+        #check to see if we've found all the solutions that we need
+        if self._finished:
+            return
+        
+        #if we're done with the current manipulation, pop it off. 
         while m_list[-1][1] == 0:
             m_list = copy(m_list)
             m_list.pop()
-            if not m_list:
+            if not m_list: #if there are no more manipulations left to do check the value
                 matrix_sum = sum(sum(matrix))
                 if matrix_sum < self._current_minimum:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
-
+        
+        #if we wont have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
-
+        
+        #get the next index and best case, if there's just one manipulation left
         index = None
-        if fast and len(m_list) == 1 and m_list[-1][1] > 1:
+        if len(m_list) == 1 and m_list[-1][1] > 1:
             best_case = self.best_case(copy(matrix), m_list[-1], indices)
             index = best_case[1]
             if best_case[0] > self._current_minimum:
                 return
-
-
-        if index is None and fast:
+            
+        if index is None:
             index = self.get_next_index(matrix, m_list[-1], indices)
-        elif index is None:
-            index = m_list[-1][2][-1]
 
         m_list[-1][2].remove(index)
-
+        
+        #make the matrix and new m_list where we do the manipulation to the index that we just got
         matrix2 = copy(matrix)
         m_list2 = deepcopy(m_list)
         output_m_list2 = deepcopy(output_m_list)
@@ -440,19 +457,12 @@ class EwaldMinimizer:
         indices2 = copy(indices)
         m_list2[-1][1] -= 1
 
+        #recurse through both the modified and unmodified matrices
         if index in indices2:
             indices2.remove(index)
-            output2 = self._recurse(matrix2, m_list2, indices2, fast, output_m_list2)
-        output1 = self._recurse(matrix, m_list, indices, fast, output_m_list)
-
-
-    def minimize_matrix(self, fast = True):
-        '''
-        This method finds and returns the permutations that produce the lowest ewald sum
-        calls recursive function to iterate through permutations
-        '''
-
-        return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))), fast)
+            self._recurse(matrix2, m_list2, indices2, output_m_list2)
+        self._recurse(matrix, m_list, indices, output_m_list)
+        
 
     @property
     def best_m_list(self):

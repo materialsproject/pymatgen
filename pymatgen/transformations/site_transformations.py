@@ -272,7 +272,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return=1, fast=True)
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return=1)
         minimizer.minimize_matrix()
         lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
         mod = StructureEditor(structure)
