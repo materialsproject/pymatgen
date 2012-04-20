@@ -391,18 +391,16 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    def __init__(self, num_structures=1, energy_cutoff=None):
+    def __init__(self):
         '''
         Args:
             num_structures: maximum number of structures to return
             mev_cutoff: maximum mev per atom above the minimum energy ordering for a structure to be returned
         '''
 
-        self._energy_cutoff = energy_cutoff
         self._all_structures = []
-        self._num_structures = num_structures
 
-    def apply_transformation(self, structure, return_ranked_list=False):
+    def apply_transformation(self, structure, return_ranked_list=False, num_structures=1, energy_cutoff=None):
         """
         For this transformation, the apply_transformation method will return only the ordered
         structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
@@ -479,7 +477,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         matrix = EwaldSummation(structure).total_energy_matrix
 
-        ewald_m = EwaldMinimizer(matrix, m_list, self._num_structures)
+        ewald_m = EwaldMinimizer(matrix, m_list, num_structures)
 
         self._all_structures = []
 
@@ -498,8 +496,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             se.delete_sites(del_indices)
             self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
 
-        if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
-            self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
+        if energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
+            self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < energy_cutoff ]
 
         if return_ranked_list:
             return self._all_structures
@@ -523,7 +521,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'num_structures' : self._num_structures, 'energy_cutoff' : self._energy_cutoff}
+        output['init_args'] = {}
         return output
 
     @property
