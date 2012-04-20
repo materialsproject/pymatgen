@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-This module provides classes used to define a structure, such as 
-Site, PeriodicSite, Structure, and Composition.
+This module provides classes used to define a structure, such as Site,
+PeriodicSite, Structure, and Composition.
 """
 
 from __future__ import division
