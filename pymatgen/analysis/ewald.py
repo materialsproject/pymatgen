@@ -403,7 +403,7 @@ class EwaldMinimizer:
                 Each replacement is a list [index of replaced specie, specie inserted at that index]
         '''
 
-        if m_list[-1][1] == 0:
+        while m_list[-1][1] == 0:
             m_list = copy(m_list)
             m_list.pop()
             if not m_list:
