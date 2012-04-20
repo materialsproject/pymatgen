@@ -216,8 +216,20 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         coords.append([0.5, 0.5, 0.5])
         lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, [{"X4+":0.33, "O2-": 0.33, "P5+": 0.33}] , coords)
-        self.assertRaises(ValueError, t.apply_transformation, struct) 
+        self.assertRaises(ValueError, t.apply_transformation, struct)
+        
+    def test_best_first(self):
+        t = OrderDisorderedStructureTransformation(algo = 2)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
 
+        struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] , coords)
+        output = t.apply_transformation(struct, return_ranked_list = True, num_structures = 3)
+        self.assertAlmostEqual(output[0]['energy'], -175.0599307, 4, 'got incorrect energy') 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):
 
