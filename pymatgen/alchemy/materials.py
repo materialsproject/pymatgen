@@ -115,7 +115,6 @@ class TransformedStructure(object):
             new_structure._transformations.append(transformation)
             yield new_structure
 
-
     def append_transformation(self, transformation, return_alternatives=False, clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.

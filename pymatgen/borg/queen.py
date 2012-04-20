@@ -37,12 +37,12 @@ class BorgQueen(object):
                 you want to do assimilation later, or is using the BorgQueen
                 to load previously assimilated data.
             number_of_drones:
-                Number of drones to parallelize over. Typical machines today have 
-                up to four processors. Note that you won't see a 100% improvement
-                with two drones over one, but you will definitely see a 
-                significant speedup of at least 50% or so. If you are running this
-                over a server with far more processors, the speedup will be even
-                greater.
+                Number of drones to parallelize over. Typical machines today
+                have up to four processors. Note that you won't see a 100%
+                improvement with two drones over one, but you will definitely
+                see a significant speedup of at least 50% or so. If you are
+                running this over a server with far more processors, the
+                speedup will be even greater.
         """
         self._drone = drone
         self._num_drones = number_of_drones
