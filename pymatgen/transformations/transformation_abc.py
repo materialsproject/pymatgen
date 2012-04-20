@@ -30,9 +30,18 @@ class AbstractTransformation(object):
         Args:
             structure:
                 input structure
+            return_ranked_list:
+                boolean stating whether or not multiple structures are returned
                 
         Returns:
+            depending on returned_ranked list, either
             Transformed structure
+            or
+            List of dictionaries, where each dictionary is of the form {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that was actually applied to the structure. 
+            This transformation is parsed by the alchemy classes for generating a more specific transformation
+            history. Any other information will be stored in the transformation_parameters dictionary in the 
+            transmuted structure class
         '''
         return
 
