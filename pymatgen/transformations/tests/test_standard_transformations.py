@@ -248,6 +248,29 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
 
         self.assertAlmostEqual(s.charge, 0, 5)
+        
+class SuperTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        tl = [SubstitutionTransformation({"Li+":"Na+"}),
+              SubstitutionTransformation({"Li+":"K+"})]
+        t = SuperTransformation(tl)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
+        s = t.apply_transformation(struct, return_ranked_list = True)
+        
+        for s_and_t in s:
+            self.assertEqual(s_and_t['transformation'].apply_transformation(struct), s_and_t['structure'])
 
 
 class TransformationJsonTest(unittest.TestCase):

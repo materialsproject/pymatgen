@@ -706,6 +706,49 @@ class ChargeBalanceTransformation(AbstractTransformation):
         output['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
         return output
 
+class SuperTransformation(AbstractTransformation):
+    '''
+    This is a transformation that is inherently one-to-many. It is constructed from a list of transformations
+    and returns one structure for each transformation. The primary use for this class is extending a transmuter
+    object
+    '''
+    
+    def __init__(self, transformations):
+        '''
+        Args:
+            transformations
+                list of transformations to apply to a structure. One transformation is applied to each output structure
+        '''
+        self._transformations = transformations
+        
+    def apply_transformation(self, structure, return_ranked_list = False):
+        if not return_ranked_list:
+            raise ValueError('SuperTransformation has no single best structure output. Must use return_ranked_list')
+        structures = []
+        for t in self._transformations:
+            structures.append({'transformation': t, 'structure': t.apply_transformation(structure)})
+        
+        return structures
+
+    def __str__(self):
+        return "Super Transformation : Transformations = {}".format(' '.join([str(t) for t in self._transformations]))
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        output = {'name' : self.__class__.__name__, 'version': __version__ }
+        output['init_args'] = {'transformations' : self._transformations}
+        return output
 
 def transformation_from_dict(d):
     """
