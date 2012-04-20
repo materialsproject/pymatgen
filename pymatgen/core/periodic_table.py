@@ -47,11 +47,18 @@ class Element(object):
             symbol:
                 Element symbol, e.g., "H", "Fe"
         '''
-        self._data = _pt_data[symbol]
+        object.__setattr__(self, '_data', _pt_data[symbol])
+
         #Store key variables for quick access
-        self._z = self._data['Atomic no']
-        self._symbol = symbol
-        self._x = self._data.get('X', 0)
+        object.__setattr__(self, '_z', self._data['Atomic no'])
+        object.__setattr__(self, '_symbol', symbol)
+        object.__setattr__(self, '_x', self._data.get('X', 0))
+
+    def __setattr__(self, n, v):
+        raise ValueError("Element is immutable and setting of attributes is not allowed")
+
+    def __delattr__(self, n):
+        raise ValueError("Element is immutable and deleting of attributes is not allowed")
 
     @property
     def average_ionic_radius(self):
@@ -513,9 +520,9 @@ class Specie(object):
                 {'spin':5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
-        self._el = Element(symbol)
-        self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        object.__setattr__(self, '_el', Element(symbol))
+        object.__setattr__(self, '_oxi_state', oxidation_state)
+        object.__setattr__(self, '_properties', properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
@@ -527,6 +534,13 @@ class Specie(object):
             return getattr(self._el, a)
         except:
             raise AttributeError(a)
+
+    def __setattr__(self, n, v):
+        raise ValueError("Specie is immutable and setting of attributes is not allowed")
+
+    def __delattr__(self, n):
+        raise ValueError("Specie is immutable and deleting of attributes is not allowed")
+
 
     def __eq__(self, other):
         """
@@ -651,9 +665,9 @@ class DummySpecie(Specie):
         Set required attributes for DummySpecie to function like a Specie in
         most instances.
         """
-        self._symbol = symbol
-        self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        object.__setattr__(self, '_symbol', symbol)
+        object.__setattr__(self, '_oxi_state', oxidation_state)
+        object.__setattr__(self, '_properties', properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported Specie property".format(k))

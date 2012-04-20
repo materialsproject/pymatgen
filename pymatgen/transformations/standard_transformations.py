@@ -148,9 +148,10 @@ class SupercellTransformation(AbstractTransformation):
             scaling_matrix:
                 a matrix of transforming the lattice vectors. Defaults to the 
                 identity matrix.
-                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates 
-                a new structure with lattice vectors a' = 2a + b, b' = 3b, c' = c 
-                where a, b, and c are the lattice vectors of the original structure. 
+                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]]
+                generates a new structure with lattice vectors
+                a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                vectors of the original structure. 
         """
         self._matrix = scaling_matrix
 
@@ -205,8 +206,8 @@ class SubstitutionTransformation(AbstractTransformation):
         Args:
             species_map:
                 A dict containing the species mapping in string-string pairs. 
-                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions can 
-                be done. Overloaded to accept sp_and_occu dictionary
+                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions 
+                can be done. Overloaded to accept sp_and_occu dictionary
                 E.g. {'Si: {'Ge':0.75, 'C':0.25} }, which substitutes a single
                 species with multiple species to generate a disordered structure.
         """
@@ -289,9 +290,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     Requires an oxidation state decorated structure for ewald sum to be 
     computed.
     
-    Given that the solution to selecting the right removals is NP-hard, there are
-    several algorithms provided with varying degrees of accuracy and speed. The 
-    options are as follows:
+    Given that the solution to selecting the right removals is NP-hard, there
+    are several algorithms provided with varying degrees of accuracy and speed.
+    The options are as follows:
     
     ALGO_FAST:
         This is a highly optimized algorithm to quickly go through the search 
@@ -365,8 +366,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
-    Order a disordered structure. The disordered structure must be oxidation state 
-    decorated for ewald sum to be computed. No attempt is made to perform 
+    Order a disordered structure. The disordered structure must be oxidation
+    state decorated for ewald sum to be computed. No attempt is made to perform 
     symmetry determination to reduce the number of combinations.
     
     Hence, attempting to performing ordering on a large number of disordered 
@@ -394,8 +395,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     def __init__(self, num_structures=1, energy_cutoff=None):
         '''
         Args:
-            num_structures: maximum number of structures to return
-            mev_cutoff: maximum mev per atom above the minimum energy ordering for a structure to be returned
+            num_structures:
+                maximum number of structures to return
+            mev_cutoff:
+                maximum mev per atom above the minimum energy ordering for a
+                structure to be returned
         '''
 
         self._energy_cutoff = energy_cutoff
@@ -431,16 +435,22 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     else:
                         sites_to_order[species][sp].append([occu, i])
 
-                total_occu = sum(site.species_and_occu.values())        #if the total occupancy on a site is less than one, add
-                if total_occu < 1:                                      #a list with None as the species (for removal)
+                total_occu = sum(site.species_and_occu.values())
+                #if the total occupancy on a site is less than one, add 
+                #a list with None as the species (for removal)   
+                if total_occu < 1:
                     if None not in sites_to_order[species]:
                         sites_to_order[species][None] = [[1 - total_occu, i]]
                     else:
                         sites_to_order[species][None].append([1 - total_occu, i])
 
-        m_list = []     #create a list of [multiplication fraction, number of replacements, [indices], replacement species]
-        se = StructureEditor(structure)
+        """
+        Create a list of [multiplication fraction, number of replacements, 
+        [indices], replacement species]
+        """
 
+        m_list = []
+        se = StructureEditor(structure)
 
         for species in sites_to_order.values():
             initial_sp = None
@@ -462,9 +472,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
                     prev_fraction = site_list[0][0]
                     for site in site_list:
-                        if site[0] - prev_fraction > .1:            #tolerance for creating a new group of sites. 
-                                                                    #if site occupancies are similar, they will be put in a group
-                                                                    #where the fraction has to be consistent over the whole
+                        if site[0] - prev_fraction > .1:
+                            """
+                            tolerance for creating a new group of sites. 
+                            if site occupancies are similar, they will be put
+                            in a group where the fraction has to be consistent 
+                            over the whole.
+                            """
                             manipulation[1] = int(round(manipulation[1]))
                             m_list.append(manipulation)
                             manipulation = [oxi / initial_sp.oxi_state, 0, [], sp]
@@ -498,8 +512,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             se.delete_sites(del_indices)
             self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
 
-        if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
-            self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
+        #if self._energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
+        #    self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < self._energy_cutoff ]
 
         if return_ranked_list:
             return self._all_structures
@@ -541,17 +555,19 @@ class PrimitiveCellTransformation(AbstractTransformation):
         self._tolerance = tolerance
 
     def _get_more_primitive_structure(self, structure, tolerance):
-        '''this finds a smaller unit cell than the input
-        sometimes it doesn't find the smallest possible one, so this method is called until it
-        is unable to find a smaller cell
+        '''
+        This finds a smaller unit cell than the input. Sometimes it doesn't
+        find the smallest possible one, so this method is called until it
+        is unable to find a smaller cell.
         
-        The method works by finding transformational symmetries for all sites and then using
-        that translational symmetry instead of one of the lattice basis vectors
-        if more than one vector is found (usually the case for large cells) the one with the 
-        smallest norm is used
+        The method works by finding transformational symmetries for all sites
+        and then using that translational symmetry instead of one of the
+        lattice basis vectors if more than one vector is found (usually the
+        case for large cells) the one with the smallest norm is used.
         
-        Things are done in fractional coordinates because its easier
-        to translate back to the unit cell'''
+        Things are done in fractional coordinates because its easier to
+        translate back to the unit cell.
+        '''
 
         #convert tolerance to fractional coordinates
         tol_a = tolerance / structure.lattice.a
@@ -627,8 +643,9 @@ class PrimitiveCellTransformation(AbstractTransformation):
                     new_sites.append(site)
 
             #recreate the structure with just these sites
-            new_structure = Structure(new_structure.lattice, [site.species_and_occu for site in new_sites],
-                                  [(site.frac_coords + .001) % 1 - .001 for site in new_sites])
+            new_structure = Structure(new_structure.lattice,
+                                      [site.species_and_occu for site in new_sites],
+                                      [(site.frac_coords + .001) % 1 - .001 for site in new_sites])
 
             return new_structure
         else: #if there were no translational symmetry vectors
@@ -663,8 +680,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
 class ChargeBalanceTransformation(AbstractTransformation):
     """
-    This is a transformation that disorders a structure to make it charge balanced, given an
-    oxidation state decorated structure
+    This is a transformation that disorders a structure to make it charge
+    balanced, given an oxidation state-decorated structure.
     """
 
     def __init__(self, charge_balance_sp):
@@ -709,9 +726,10 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
 def transformation_from_dict(d):
     """
-    A helper function that simply returns a transformation from a dict representation.
+    A helper function that simply returns a transformation from a dict
+    representation.
     
-    Arguments:
+    Args:
         d:
             A dict representation of a transformation with init args.
     
@@ -728,9 +746,10 @@ def transformation_from_dict(d):
 
 def transformation_from_json(json_string):
     """
-    A helper function that can simply get a transformation from a json representation.
+    A helper function that can simply get a transformation from a json
+    representation.
     
-    Arguments:
+    Args:
         json_string:
             A json string representation of a transformation with init args.
     
