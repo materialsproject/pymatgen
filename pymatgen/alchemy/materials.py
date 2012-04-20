@@ -106,17 +106,8 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
 
-    @staticmethod
-    def _alternative_transformed_structures(unmodified_transformed_structure, transformation, structure_dicts):
-        for x in structure_dicts:
-            new_structure = deepcopy(unmodified_transformed_structure)
-            new_structure._structures.append(x.pop('structure'))
-            new_structure._transformation_parameters.append(x)
-            new_structure._transformations.append(transformation)
-            yield new_structure
 
-
-    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True):
+    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True, **kwargs):
         """
         Appends a transformation to the TransformedStructure.
         
@@ -129,13 +120,33 @@ class TransformedStructure(object):
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
-
-        if return_alternatives:
-            structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True)
-            alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
-            new_s = structures_dict_list[0]
+        def alternative_transformed_structures(unmodified_transformed_structure, transformation, ranked_list, clear_redo):
+            alts = []
+            for x in ranked_list:
+                new_structure = deepcopy(unmodified_transformed_structure)
+                new_structure._structures.append(x.pop('structure'))
+                new_structure._transformation_parameters.append(x)
+                if 'transformation' in x:
+                    new_structure._transformations.append(x.pop('transformation'))
+                else:
+                    new_structure._transformations.append(transformation)
+                if clear_redo:
+                    new_structure._redo_trans = []
+                alts.append(new_structure)
+            return alts
+        
+        if clear_redo:
+                self._redo_trans = []
+        
+        if return_alternatives and transformation.is_one_to_many:
+            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True, **kwargs)
+            alternative_structures = alternative_transformed_structures(self, transformation, ranked_list[1:], clear_redo)
+            new_s = ranked_list[0]
             self._structures.append(new_s.pop('structure'))
-            self._transformations.append(transformation)
+            if 'transformation' in new_s:
+                self._transformations.append(new_s.pop('transformation'))
+            else:
+                self._transformations.append(transformation)
             self._transformation_parameters.append(new_s)
             return alternative_structures
         else:
@@ -143,9 +154,7 @@ class TransformedStructure(object):
             self._structures.append(new_s)
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
-
-        if clear_redo:
-            self._redo_trans = []
+        
 
     def extend_transformations(self, transformations):
         """
