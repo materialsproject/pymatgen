@@ -517,16 +517,24 @@ class PeriodicSite(Site):
                 'properties': self._properties}
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d, lattice=None):
         """
-        Create PeriodicSite from dict representation
+        Create PeriodicSite from dict representation.
+        
+        Args:
+            d:
+                dict representation of PeriodicSite
+            lattice:
+                Optional lattice to override lattice specified in d. Useful for
+                ensuring all sites in a structure share the same lattice.
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
-        return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']), properties=props)
+        lattice = lattice if lattice else Lattice.from_dict(d['lattice'])
+        return PeriodicSite(atoms_n_occu, d['abc'], lattice, properties=props)
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -1117,10 +1125,10 @@ class Structure(SiteCollection):
         props = {}
 
         for site_dict in d['sites']:
-            sp = site_dict['species']
-            species.append({ Specie.from_dict(sp) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
-            coords.append(site_dict['abc'])
-            siteprops = site_dict.get('properties', {})
+            site = PeriodicSite.from_dict(site_dict, lattice)
+            species.append(site.species_and_occu)
+            coords.append(site.frac_coords)
+            siteprops = site.properties
             for k, v in siteprops.items():
                 if k not in props:
                     props[k] = [v]
