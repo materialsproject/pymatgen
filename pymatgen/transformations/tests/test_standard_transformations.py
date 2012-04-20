@@ -209,6 +209,15 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         struct = Structure(lattice, [{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] , coords)
         allstructs = t.apply_transformation(struct, True, num_structures = 50)
         self.assertEqual(len(allstructs), 3)
+        
+    def test_too_small_cell(self):
+        t = OrderDisorderedStructureTransformation()
+        coords = list()
+        coords.append([0.5, 0.5, 0.5])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, [{"X4+":0.33, "O2-": 0.33, "P5+": 0.33}] , coords)
+        self.assertRaises(ValueError, t.apply_transformation, struct) 
+
 
 class PrimitiveCellTransformationTest(unittest.TestCase):
 
