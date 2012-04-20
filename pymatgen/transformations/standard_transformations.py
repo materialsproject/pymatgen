@@ -676,6 +676,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         output['init_args'] = {}
         return output
 
+
 class ChargeBalanceTransformation(AbstractTransformation):
     """
     This is a transformation that disorders a structure to make it charge
@@ -720,6 +721,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         output = {'name' : self.__class__.__name__, 'version': __version__ }
         output['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
         return output
+
 
 class SuperTransformation(AbstractTransformation):
     '''
@@ -767,20 +769,24 @@ class SuperTransformation(AbstractTransformation):
         output['init_args'] = {'transformations' : self._transformations}
         return output
 
+
 class MultipleSubstitutionTransformation(object):
     '''
-    Performs multiple substitutions on a structure. For example, can do a fractional replacement of Ge in LiGePS with a list of species,
-    creating one structure for each substitution. Ordering is done using a dummy element so only one ordering must be done per substitution
-    oxidation state. Charge balancing of the structure is optionally performed.
+    Performs multiple substitutions on a structure. For example, can do a
+    fractional replacement of Ge in LiGePS with a list of species, creating one
+    structure for each substitution. Ordering is done using a dummy element so
+    only one ordering must be done per substitution oxidation state. Charge
+    balancing of the structure is optionally performed.
     
-    Note:
-    There are no checks to make sure that removal fractions are possible and rounding may occur
-    Currently charge balancing only works for removal of species
+    .. note::
+        There are no checks to make sure that removal fractions are possible
+        and rounding may occur. Currently charge balancing only works for
+        removal of species.
     '''
 
     def __init__(self, sp_to_replace, r_fraction, substitution_dict, charge_balance_species=None, order=True):
         '''
-        Performs multiple fractional substitutions on a transmuter
+        Performs multiple fractional substitutions on a transmuter.
         
         Args:
             sp_to_replace
