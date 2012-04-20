@@ -784,7 +784,8 @@ class MultipleSubstitutionTransformation(object):
         removal of species.
     '''
 
-    def __init__(self, sp_to_replace, r_fraction, substitution_dict, charge_balance_species=None, order=True):
+    def __init__(self, sp_to_replace, r_fraction, substitution_dict,
+                 charge_balance_species=None, order=True):
         '''
         Performs multiple fractional substitutions on a transmuter.
         
@@ -800,9 +801,11 @@ class MultipleSubstitutionTransformation(object):
                 4: ["Ru", "V", "Cr", "Ta", "N", "Nb"], 
                 5: ["Ru", "W", "Mn"]
                 }
-                The number is the charge used for each of the list of elements (an element can be present in multiple lists)
+                The number is the charge used for each of the list of elements
+                (an element can be present in multiple lists)
             charge_balance_species:
-                if specified, will balance the charge on the structure using that specie
+                If specified, will balance the charge on the structure using 
+                that specie.
         '''
         self._sp_to_replace = sp_to_replace
         self._r_fraction = r_fraction
