@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Classes for reading/manipulating/writing VASP files.
-All major VASP input files, plus the more common Vasp output files are available.
+Classes for reading/manipulating/writing VASP files. All major VASP input 
+files, plus the more common Vasp output files are available.
 """
 
 from __future__ import division
@@ -52,7 +52,7 @@ class Poscar(VaspInput):
 
     def __init__(self, struct, comment=None, selective_dynamics=None, true_names=True):
         """        
-        Arguments:
+        Args:
             struct:
                 Structure object. See pymatgen.core.structure.Structure.
             comment:
@@ -105,16 +105,23 @@ class Poscar(VaspInput):
     def from_file(filename):
         """
         Reads a Poscar from a file.
-        The code will try its best to determine the elements in the POSCAR in the following order:
-        1. Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
-        2. Failing (1), the code will check if a symbol is provided at the end of each coordinate.
-        3. Failing (i) and (ii), the code will try to check if a POTCAR is in the same directory as the POSCAR and use elements from that.
-        If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
-        to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
-        that does not require specific elemental properties should work fine.
+        The code will try its best to determine the elements in the POSCAR in 
+        the following order:
+        1. Ideally, if the input file is Vasp5-like and contains element 
+           symbols in the 6th line, the code will use that.
+        2. Failing (1), the code will check if a symbol is provided at the end
+           of each coordinate.
+        3. Failing (i) and (ii), the code will try to check if a POTCAR is in
+           the same directory as the POSCAR and use elements from that.
+        If all else fails, the code will just assign the first n elements in 
+        increasing atomic number, where n is the number of species, to the
+        Poscar. For example, H, He, Li, ....  This will ensure at least a
+        unique element is assigned to each site and any analysis that does not
+        require specific elemental properties should work fine.
         
-        Arguments:
-            filename - file name containing Poscar data.
+        Args:
+            filename:
+                File name containing Poscar data.
         
         Returns:
             Poscar object.
@@ -136,14 +143,21 @@ class Poscar(VaspInput):
     def from_string(data, default_names=None):
         """
         Reads a Poscar from a string.
-        The code will try its best to determine the elements in the POSCAR in the following order:
-        1) Ideally, if the input file is Vasp5-like and contains element symbols in the 6th line, the code will use that.
-        2) Failing (i), the code will check if a symbol is provided at the end of each coordinate.
-        If all else fails, the code will just assign the first n elements in increasing atomic number, where n is the number of species, 
-        to the Poscar.  For example, H, He, Li, ....  This will ensure at least a unique element is assigned to each site and any analysis 
-        that does not require specific elemental properties should work fine.
+        The code will try its best to determine the elements in the POSCAR in 
+        the following order:
+        1. Ideally, if the input file is Vasp5-like and contains element 
+           symbols in the 6th line, the code will use that.
+        2. Failing (1), the code will check if a symbol is provided at the end
+           of each coordinate.
+        3. Failing (i) and (ii), the code will try to check if a POTCAR is in
+           the same directory as the POSCAR and use elements from that.
+        If all else fails, the code will just assign the first n elements in 
+        increasing atomic number, where n is the number of species, to the
+        Poscar. For example, H, He, Li, ....  This will ensure at least a
+        unique element is assigned to each site and any analysis that does not
+        require specific elemental properties should work fine.
         
-        Arguments:
+        Args:
             data:
                 string containing Poscar data.
                 
@@ -188,7 +202,8 @@ class Poscar(VaspInput):
         nsites = sum(natoms)
 
         #If default_names is specified (usually coming from a POTCAR), use them.
-        #This is in line with Vasp's parsing order that the POTCAR specified is the default used.
+        #This is in line with Vasp's parsing order that the POTCAR specified 
+        #is the default used.
         if default_names:
             try:
                 atomic_symbols = list()
@@ -230,14 +245,16 @@ class Poscar(VaspInput):
 
     def get_string(self, direct=True, vasp4_compatible=False):
         """
-        Returns a string to be written as a POSCAR file. By default, site symbols are written
-        which means compatibilty is for vasp >= 5.
+        Returns a string to be written as a POSCAR file. By default, site
+        symbols are written, which means compatibilty is for vasp >= 5.
         
-        Arguments:
+        Args:
             direct:
-                Whether coordinates are output in direct or cartesian. Defaults to True.
+                Whether coordinates are output in direct or cartesian. Defaults
+                to True.
             vasp4_compatible:
-                Set to True to omit site symbols on 6th line to maintain backward vasp 4.x compatibility. Defaults to False.
+                Set to True to omit site symbols on 6th line to maintain
+                backward vasp 4.x compatibility. Defaults to False.
                 
         Returns:
             String representation of POSCAR.
@@ -304,24 +321,26 @@ VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS", "NBLK
 
 class Incar(dict, VaspInput):
     """
-    INCAR object for reading and writing INCAR files
-    essentially consists of a dictionary with some helper functions
+    INCAR object for reading and writing INCAR files. Essentially consists of
+    a dictionary with some helper functions
     """
 
     def __init__(self, params=dict()):
         """
         Creates an Incar object.
         
-        Arguments:
-            params - A set of input parameters as a dictionary.
+        Args:
+            params:
+                A set of input parameters as a dictionary.
         """
         super(Incar, self).__init__()
         self.update(params)
 
     def __setitem__(self, key, val):
         """
-        Add parameter-val pair to Incar.  Warns if parameter is not in list of valid INCAR tags.
-        Also cleans the parameter and val by stripping leading and trailing white spaces.
+        Add parameter-val pair to Incar.  Warns if parameter is not in list of
+        valid INCAR tags. Also cleans the parameter and val by stripping
+        leading and trailing white spaces.
         """
         if key.strip().upper() not in VALID_INCAR_TAGS:
             warnings.warn(key.strip() + " not in VALID_INCAR_TAGS")
@@ -340,10 +359,11 @@ class Incar(dict, VaspInput):
 
     def get_string(self, sort_keys=False, pretty=False):
         """
-        Returns a string representation of the INCAR.  The reason why this method is
-        different from the __str__ method is to provide options for pretty printing.
+        Returns a string representation of the INCAR.  The reason why this
+        method is different from the __str__ method is to provide options for
+        pretty printing.
         
-        Arguments:
+        Args:
             sort_keys:
                 Set to True to sort the INCAR parameters alphabetically. Defaults to False.
             pretty:
@@ -376,7 +396,7 @@ class Incar(dict, VaspInput):
         """
         Write Incar to a file.
         
-        Arguments:
+        Args:
             filename:
                 filename to write to.
         """
@@ -409,9 +429,10 @@ class Incar(dict, VaspInput):
     @staticmethod
     def proc_val(key, val):
         """
-        Static helper method to convert INCAR parameters to proper types, e.g. integers, floats, lists, etc.
+        Static helper method to convert INCAR parameters to proper types, e.g.
+        integers, floats, lists, etc.
         
-        Arguments:
+        Args:
             key:
                 INCAR parameter key
             val:
@@ -463,15 +484,20 @@ class Incar(dict, VaspInput):
 
     def diff(self, other):
         """
-        Diff function for Incar.  Compares two Incars and indicates which parameters are the same and which are not.
-        Useful for checking whether two runs were done using the same parameters.
+        Diff function for Incar.  Compares two Incars and indicates which
+        parameters are the same and which are not. Useful for checking whether
+        two runs were done using the same parameters.
         
         Args:
-            other : The other Incar object to compare to.
+            other:
+                The other Incar object to compare to.
         
         Returns:
-            Dict of the following format - {'Same' : parameters_that_are_the_same, 'Different': parameters_that_are_different}
-            Note that the parameters are return as full dictionaries of values. E.g. {'ISIF':3}
+            Dict of the following format:
+                {'Same' : parameters_that_are_the_same,
+                'Different': parameters_that_are_different}
+            Note that the parameters are return as full dictionaries of values.
+            E.g. {'ISIF':3}
         """
         similar_param = {}
         different_param = {}
@@ -490,8 +516,8 @@ class Incar(dict, VaspInput):
 
     def __add__(self, other):
         """
-        Add all the values of another INCAR object to this object
-        Facilitates the use of "standard" INCARs
+        Add all the values of another INCAR object to this object.
+        Facilitates the use of "standard" INCARs.
         """
         params = {k:v for k, v in self.items()}
         for k, v in other.items():
@@ -505,47 +531,59 @@ class Kpoints(VaspInput):
     """
     KPOINT reader/writer.
     """
-    supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode", "Cartesian", "Reciprocal"))
+    supported_modes = Enum(("Gamma", "Monkhorst", "Automatic", "Line_mode",
+                            "Cartesian", "Reciprocal"))
 
-    def __init__(self, comment="Default gamma", num_kpts=0, style=supported_modes.Gamma,
+    def __init__(self, comment="Default gamma", num_kpts=0,
+                 style=supported_modes.Gamma,
                  kpts=[[1, 1, 1]], kpts_shift=(0, 0, 0),
                  kpts_weights=None, coord_type=None, labels=None,
                  tet_number=0, tet_weight=0, tet_connections=None):
         """
-        Highly flexible constructor for Kpoints object.  The flexibility comes at the cost of usability and in 
-        general, it is recommended that you use the default constructor only if you know exactly what you are doing
-        and requires the flexibility.  For most usage cases, the three automatic schemes can be constructed far 
-        more easily using the convenience static constructors (automatic, gamma_automatic, monkhorst_automatic) and it 
+        Highly flexible constructor for Kpoints object.  The flexibility comes
+        at the cost of usability and in general, it is recommended that you use
+        the default constructor only if you know exactly what you are doing and
+        requires the flexibility.  For most usage cases, the three automatic
+        schemes can be constructed far more easily using the convenience static
+        constructors (automatic, gamma_automatic, monkhorst_automatic) and it 
         is recommended that you use those.
         
-        Arguments:
+        Args:
             comment:
                 String comment for Kpoints
             num_kpts:
-                Following VASP method of defining the KPOINTS file, this parameter is the number of kpoints specified.
-                If set to 0 (or negative), VASP automatically generates the KPOINTS.
+                Following VASP method of defining the KPOINTS file, this
+                parameter is the number of kpoints specified. If set to 0
+                (or negative), VASP automatically generates the KPOINTS.
             style:
-                Style for generating KPOINTS.  Use one of the Kpoints.supported_modes enum types.
+                Style for generating KPOINTS.  Use one of the
+                Kpoints.supported_modes enum types.
             kpts:
-                2D array of kpoints.  Even when only a single specification is required, e.g. in the automatic scheme, 
-                the kpts should still be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                2D array of kpoints.  Even when only a single specification is
+                required, e.g. in the automatic scheme, the kpts should still
+                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
             kpts_shift:
                 Shift for Kpoints.
             kpts_weights:
                 Optional weights for kpoints.  For explicit kpoints.
             coord_type:
-                In line-mode, this variable specifies whether the Kpoints were given in Cartesian or Reciprocal coordinates
+                In line-mode, this variable specifies whether the Kpoints were
+                given in Cartesian or Reciprocal coordinates.
             labels:
-                In line-mode, this should provide a list of labels for each kpts.
+                In line-mode, this should provide a list of labels for each kpt.
             tet_number:
-                For explicit kpoints, specifies the number of tetrahedrons for the tetrahedron method.
+                For explicit kpoints, specifies the number of tetrahedrons for
+                the tetrahedron method.
             tet_weight:
-                For explicit kpoints, specifies the weight for each tetrahedron for the tetrahedron method.
+                For explicit kpoints, specifies the weight for each tetrahedron
+                for the tetrahedron method.
             tet_connections:
-                For explicit kpoints, specifies the connections of the tetrahedrons for the tetrahedron method.
+                For explicit kpoints, specifies the connections of the
+                tetrahedrons for the tetrahedron method.
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]), ...]           
         
-        The default behavior of the constructor is for a Gamma centered, 1x1x1 KPOINTS with no shift.
+        The default behavior of the constructor is for a Gamma centered,
+        1x1x1 KPOINTS with no shift.
         """
         if num_kpts > 0 and (not labels) and (not kpts_weights):
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
@@ -568,12 +606,14 @@ class Kpoints(VaspInput):
     def automatic(subdivisions):
         """
         Convenient static constructor for a fully automatic Kpoint grid, with 
-        gamma centered Monkhorst-Pack grids and the number of subdivisions along
-        each reciprocal lattice vector determined by the scheme in the VASP manual.
+        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        along each reciprocal lattice vector determined by the scheme in the
+        VASP manual.
         
-        Arguments:
+        Args:
             subdivisions:
-                 Parameter determining number of subdivisions along each reciprocal lattice vector
+                 Parameter determining number of subdivisions along each
+                 reciprocal lattice vector.
                  
         Returns:
             Kpoints object
@@ -583,13 +623,15 @@ class Kpoints(VaspInput):
     @staticmethod
     def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
         """
-        Convenient static constructor for an automatic Gamma centered Kpoint grid.
+        Convenient static constructor for an automatic Gamma centered Kpoint
+        grid.
         
-        Arguments:
+        Args:
             kpts:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors. Defaults to (1,1,1)
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+                Defaults to (1,1,1)
             shift:
-                Shift to be applied to the kpoints. Defaults to (0,0,0)
+                Shift to be applied to the kpoints. Defaults to (0,0,0).
                 
         Returns:
             Kpoints object
@@ -599,13 +641,15 @@ class Kpoints(VaspInput):
     @staticmethod
     def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
         """
-        Convenient static constructor for an automatic Monkhorst pack Kpoint grid.
+        Convenient static constructor for an automatic Monkhorst pack Kpoint
+        grid.
         
-        Arguments:
+        Args:
             kpts:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors. Defaults to (2,2,2)
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+                Defaults to (2,2,2)
             shift:
-                Shift to be applied to the kpoints. Defaults to (0,0,0)
+                Shift to be applied to the kpoints. Defaults to (0,0,0).
                 
         Returns:
             Kpoints object
@@ -656,34 +700,6 @@ class Kpoints(VaspInput):
         comment = "pymatgen generated Materials Project kpoints with grid density = " + str(kppa) + ' per atom.'
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
-
-    @staticmethod
-    def _is_hexagonal(structure):
-        # Why is this method here?
-        proto1 = [math.pi / 2.0, math.pi / 2.0, 2.0 * math.pi / 3.0]
-        proto2 = [math.pi / 3.0, math.pi / 2.0, math.pi / 2.0]
-        angCopy = [c for c in structure.lattice.angles]
-        angCopy.sort()
-        anglesCheck = False
-        for i in range(len(angCopy)):
-            if(math.fabs(angCopy[i] - proto1[i]) < 0.1):
-                anglesCheck = True
-            if(math.fabs(angCopy[i] - proto2[i]) < 0.1):
-                anglesCheck = True
-
-        num_equals = 0
-        if(math.fabs(structure.lattice.abc[0] - structure.lattice.abc[1]) < 0.001):
-            num_equals = num_equals + 1
-        if(math.fabs(structure.lattice.abc[0] - structure.lattice.abc[2]) < 0.001):
-            num_equals = num_equals + 1
-        if(math.fabs(structure.lattice.abc[1] - structure.lattice.abc[2]) < 0.001):
-            num_equals = num_equals + 1
-
-        if(num_equals > 0 and anglesCheck):
-            return True
-
-        return False
-
 
     @staticmethod
     def from_file(filename):
@@ -829,6 +845,7 @@ class Kpoints(VaspInput):
         num_kpts = d.get('nkpoints', 0)
         #coord_type = d.get('coord_type', None)
         return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
+
 
 class PotcarSingle(VaspInput):
     """
