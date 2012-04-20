@@ -271,6 +271,20 @@ class SuperTransformationTest(unittest.TestCase):
         
         for s_and_t in s:
             self.assertEqual(s_and_t['transformation'].apply_transformation(struct), s_and_t['structure'])
+            
+class MultipleSubstitutionTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        sub_dict = {1: ["Na", "K"]}
+        t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        self.assertEqual(len(t.apply_transformation(struct, return_ranked_list = True)), 2)
 
 
 class TransformationJsonTest(unittest.TestCase):
