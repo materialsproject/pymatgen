@@ -68,6 +68,11 @@ class  ElementTestCase(unittest.TestCase):
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Element list")
 
+    def test_attribute_errors(self):
+        fe = Element("Fe")
+        self.assertRaises(ValueError, fe.__setattr__, "d", 1)
+        self.assertRaises(ValueError, fe.__delattr__, "_symbol")
+
 class  SpecieTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -103,6 +108,11 @@ class  SpecieTestCase(unittest.TestCase):
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Specie list")
 
+    def test_attribute_errors(self):
+        fe = Specie("Fe", 2)
+        self.assertRaises(ValueError, fe.__setattr__, "d", 1)
+        self.assertRaises(ValueError, fe.__delattr__, "_symbol")
+
 class  DummySpecieTestCase(unittest.TestCase):
 
     def test_init(self):
@@ -118,6 +128,12 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+
+    def test_attribute_errors(self):
+        x = DummySpecie("X", 2)
+        self.assertRaises(ValueError, x.__setattr__, "d", 1)
+        self.assertRaises(ValueError, x.__delattr__, "_symbol")
+
 
 class  PeriodicTableTestCase(unittest.TestCase):
 

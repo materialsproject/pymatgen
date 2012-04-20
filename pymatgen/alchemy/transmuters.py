@@ -249,7 +249,8 @@ class TransformedStructureTransmuter(object):
 
 
     @staticmethod
-    def from_cifs(cif_filenames, transformations=[], primitive=True):
+    def from_cifs(cif_filenames, transformations=[], primitive=True,
+                  extend_collection=False):
         '''
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
@@ -261,6 +262,9 @@ class TransformedStructureTransmuter(object):
                 New transformations to be applied to all structures
             primitive:
                 Whether to generate the primitive cell from the cif.
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
         '''
         transformed_structures = []
         for filename in cif_filenames:
@@ -274,7 +278,7 @@ class TransformedStructureTransmuter(object):
                     if read_data:
                         structure_data[-1].append(line)
                 transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, [])
+        return TransformedStructureTransmuter(transformed_structures, [], extend_collection=extend_collection)
 
     @staticmethod
     def from_poscars(poscar_filenames, transformations=[]):
