@@ -56,9 +56,11 @@ class Poscar(VaspInput):
             struct:
                 Structure object. See pymatgen.core.structure.Structure.
             comment:
-                Optional comment line for POSCAR. Defaults to unit cell formula of structure. Defaults to None.
+                Optional comment line for POSCAR. Defaults to unit cell
+                formula of structure. Defaults to None.
             selective_dynamics:
-                Nx3 2D array of boolean values for selective dynamics, where N is number of sites. Defaults to None.
+                Nx3 2D array of boolean values for selective dynamics, where N
+                is number of sites. Defaults to None.
         """
 
         if struct.is_ordered:
@@ -108,11 +110,12 @@ class Poscar(VaspInput):
         The code will try its best to determine the elements in the POSCAR in 
         the following order:
         1. Ideally, if the input file is Vasp5-like and contains element 
-           symbols in the 6th line, the code will use that.
+        symbols in the 6th line, the code will use that.
         2. Failing (1), the code will check if a symbol is provided at the end
-           of each coordinate.
+        of each coordinate.
         3. Failing (i) and (ii), the code will try to check if a POTCAR is in
-           the same directory as the POSCAR and use elements from that.
+        the same directory as the POSCAR and use elements from that.
+        
         If all else fails, the code will just assign the first n elements in 
         increasing atomic number, where n is the number of species, to the
         Poscar. For example, H, He, Li, ....  This will ensure at least a
@@ -146,11 +149,12 @@ class Poscar(VaspInput):
         The code will try its best to determine the elements in the POSCAR in 
         the following order:
         1. Ideally, if the input file is Vasp5-like and contains element 
-           symbols in the 6th line, the code will use that.
+        symbols in the 6th line, the code will use that.
         2. Failing (1), the code will check if a symbol is provided at the end
-           of each coordinate.
+        of each coordinate.
         3. Failing (i) and (ii), the code will try to check if a POTCAR is in
-           the same directory as the POSCAR and use elements from that.
+        the same directory as the POSCAR and use elements from that.
+        
         If all else fails, the code will just assign the first n elements in 
         increasing atomic number, where n is the number of species, to the
         Poscar. For example, H, He, Li, ....  This will ensure at least a
@@ -301,23 +305,51 @@ class Poscar(VaspInput):
             f.write(str(self) + "\n")
 
 """**Non-exhaustive** list of valid INCAR tags"""
-VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS", "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG",
-"PREC", "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM", "NELMIN", "NELMDL", "EDIFF", "EDIFFG", "NSW", "NBLOCK",
-"KBLOCK", "IBRION", "NFREE", "POTIM", "ISIF", "PSTRESS", "IWAVPR", "ISYM", "SYMPREC", "LCORR", "TEBEG", "TEEND", "SMASS",
-"NPACO", "APACO", "POMASS", "ZVAL", "RWIGS", "LORBIT", "NELECT", "NUPDOWN", "EMIN", "EMAX", "NEDOS", "ISMEAR", "SIGMA",
-"FERWE", "FERDO", "SMEARINGS", "LREAL", "ROPT", "GGA", "VOSKOWN", "LASPH", "ALGO", "IALGO", "LDIAG", "NSIM", "IMIX", "INIMIX",
-"MAXMIX", "AMIX", "BMIX", "AMIX_MAG", "BMIX_MAG", "AMIN", "MIXPRE", "WC", "WEIMIN", "EBREAK", "DEPER", "TIME", "LWAVE", "LCHARG",
-"LVTOT", "LELF", "NPAR", "LPLANE", "LASYNC", "LSCALAPACK", "LSCALU", "ISPIND", "HFSCREEN", "LHFCALC", "ENCUTFOCK", "NKRED", "LMAXMIX",
-"PRECFOCK", "AEXX", "AGGAX", "AGGAC", "ALDAC", "LMAXFOCK", "LMAXFOCKAE", "LTHOMAS", "NKREDX", "NKREDY", "NKREDZ", "EVENONLY", "ODDONLY", "LDAU", "LDAUJ", "LDAUL", "LDAUPRINT", "LDAUTYPE", "LDAUU", "LPEAD", "LCALCPOL", "LCALCEPS", "LEFG", "EFIELD_PEAD", "LNONCOLLINEAR",
-"LSORBIT", "IDIPOL", "DIPOL", "LMONO", "LDIPOL", "EPSILON", "EFIELD", "LBERRY", "IGPAR", "NPPSTR", "IPEAD", "I_CONSTRAINED_M", "LAMBDA", "M_CONSTR",
-"IMAGES", "SPRING", "LOPTICS", "CSHIFT", "LNABLA", "LEPSILON", "LRPA", "NOMEGA", "NOMEGAR", "LSPECTRAL", "OMEGAMAX", "OMEGATL", "ENCUTGW",
-"ENCUTGWSOFT", "ODDONLYGW", "EVENONLYGW", "LSELFENERGY", 'LRHFATM', 'METAGGA', 'LMAXTAU', 'LCOMPAT', 'ENMAX', 'LMAXPAW', 'LSPIRAL', 'LZEROZ',
-'LMETAGGA', 'ENINI', 'NRMM', 'MREMOVE', 'ADDGRID', 'EFERMI', 'LPARD', 'LSCAAWARE', 'IDIOT', 'LMUSIC', 'LREAL_COMPAT', 'GGA_COMPAT', 'ICORELEVEL', 'LHFONE',
-'LRHFCALC', 'LMODELHF', 'ENCUT4O', 'EXXOEP', 'FOURORBIT', 'HFALPHA', 'ALDAX', 'SHIFTRED', 'NMAXFOCKAE', 'HFSCREENC', 'MODEL_GW', 'MODEL_EPS0', 'MODEL_ALPHA',
-'LVEL', 'SAXIS', 'QSPIRAL', 'STM', 'KINTER', 'ORBITALMAG', 'LMAGBLOCH', 'LCHIMAG', 'LGAUGE', 'MAGATOM', 'MAGDIPOL', 'AVECCONST', 'LTCTE', 'LTETE',
-'L2ORDER', 'LGWLF', 'ENCUTLF', 'LMAXMP2', 'SCISSOR', 'NBANDSGW', 'NBANDSLF', 'DIM', 'ANTIRES', 'LUSEW', 'OMEGAGRID', 'SELFENERGY', 'NKREDLFX', 'NKREDLFY',
-'NKREDLFZ', 'MAXMEM', 'TELESCOPE', 'LCRITICAL_MEM', 'GGA2',
-'TURBO', 'QUAD_EFG', 'IRESTART', 'NREBOOT', 'NMIN', 'EREF', 'KSPACING', 'KGAMMA', 'LSUBROT', 'SCALEE', 'LVHAR', 'LORBITALREAL', 'DARWINR', 'DARWINV', 'LFOCKAEDFT', 'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE', 'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX')
+VALID_INCAR_TAGS = ('NGX', 'NGY', 'NGZ', 'NGXF', 'NGYF', 'NGZF', 'NBANDS',
+                    'NBLK', 'SYSTEM', 'NWRITE', 'ENCUT', 'ENAUG', 'PREC',
+                    'ISPIN', 'MAGMOM', 'ISTART', 'ICHARG', 'INIWAV', 'NELM',
+                    'NELMIN', 'NELMDL', 'EDIFF', 'EDIFFG', 'NSW', 'NBLOCK',
+                    'KBLOCK', 'IBRION', 'NFREE', 'POTIM', 'ISIF', 'PSTRESS',
+                    'IWAVPR', 'ISYM', 'SYMPREC', 'LCORR', 'TEBEG', 'TEEND',
+                    'SMASS', 'NPACO', 'APACO', 'POMASS', 'ZVAL', 'RWIGS',
+                    'LORBIT', 'NELECT', 'NUPDOWN', 'EMIN', 'EMAX', 'NEDOS',
+                    'ISMEAR', 'SIGMA', 'FERWE', 'FERDO', 'SMEARINGS', 'LREAL',
+                    'ROPT', 'GGA', 'VOSKOWN', 'LASPH', 'ALGO', 'IALGO',
+                    'LDIAG', 'NSIM', 'IMIX', 'INIMIX', 'MAXMIX', 'AMIX',
+                    'BMIX', 'AMIX_MAG', 'BMIX_MAG', 'AMIN', 'MIXPRE', 'WC',
+                    'WEIMIN', 'EBREAK', 'DEPER', 'TIME', 'LWAVE', 'LCHARG',
+                    'LVTOT', 'LELF', 'NPAR', 'LPLANE', 'LASYNC', 'LSCALAPACK',
+                    'LSCALU', 'ISPIND', 'HFSCREEN', 'LHFCALC', 'ENCUTFOCK',
+                    'NKRED', 'LMAXMIX', 'PRECFOCK', 'AEXX', 'AGGAX', 'AGGAC',
+                    'ALDAC', 'LMAXFOCK', 'LMAXFOCKAE', 'LTHOMAS', 'NKREDX',
+                    'NKREDY', 'NKREDZ', 'EVENONLY', 'ODDONLY', 'LDAU', 'LDAUJ',
+                    'LDAUL', 'LDAUPRINT', 'LDAUTYPE', 'LDAUU', 'LPEAD',
+                    'LCALCPOL', 'LCALCEPS', 'LEFG', 'EFIELD_PEAD',
+                    'LNONCOLLINEAR', 'LSORBIT', 'IDIPOL', 'DIPOL', 'LMONO',
+                    'LDIPOL', 'EPSILON', 'EFIELD', 'LBERRY', 'IGPAR', 'NPPSTR',
+                    'IPEAD', 'I_CONSTRAINED_M', 'LAMBDA', 'M_CONSTR', 'IMAGES',
+                    'SPRING', 'LOPTICS', 'CSHIFT', 'LNABLA', 'LEPSILON', 'LRPA',
+                    'NOMEGA', 'NOMEGAR', 'LSPECTRAL', 'OMEGAMAX', 'OMEGATL',
+                    'ENCUTGW', 'ENCUTGWSOFT', 'ODDONLYGW', 'EVENONLYGW',
+                    'LSELFENERGY', 'LRHFATM', 'METAGGA', 'LMAXTAU', 'LCOMPAT',
+                    'ENMAX', 'LMAXPAW', 'LSPIRAL', 'LZEROZ', 'LMETAGGA',
+                    'ENINI', 'NRMM', 'MREMOVE', 'ADDGRID', 'EFERMI', 'LPARD',
+                    'LSCAAWARE', 'IDIOT', 'LMUSIC', 'LREAL_COMPAT',
+                    'GGA_COMPAT', 'ICORELEVEL', 'LHFONE', 'LRHFCALC',
+                    'LMODELHF', 'ENCUT4O', 'EXXOEP', 'FOURORBIT', 'HFALPHA',
+                    'ALDAX', 'SHIFTRED', 'NMAXFOCKAE', 'HFSCREENC', 'MODEL_GW',
+                    'MODEL_EPS0', 'MODEL_ALPHA', 'LVEL', 'SAXIS', 'QSPIRAL',
+                    'STM', 'KINTER', 'ORBITALMAG', 'LMAGBLOCH', 'LCHIMAG',
+                    'LGAUGE', 'MAGATOM', 'MAGDIPOL', 'AVECCONST', 'LTCTE',
+                    'LTETE', 'L2ORDER', 'LGWLF', 'ENCUTLF', 'LMAXMP2',
+                    'SCISSOR', 'NBANDSGW', 'NBANDSLF', 'DIM', 'ANTIRES',
+                    'LUSEW', 'OMEGAGRID', 'SELFENERGY', 'NKREDLFX', 'NKREDLFY',
+                    'NKREDLFZ', 'MAXMEM', 'TELESCOPE', 'LCRITICAL_MEM', 'GGA2',
+                    'TURBO', 'QUAD_EFG', 'IRESTART', 'NREBOOT', 'NMIN', 'EREF',
+                    'KSPACING', 'KGAMMA', 'LSUBROT', 'SCALEE', 'LVHAR',
+                    'LORBITALREAL', 'DARWINR', 'DARWINV', 'LFOCKAEDFT',
+                    'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE',
+                    'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX')
 
 class Incar(dict, VaspInput):
     """
@@ -365,7 +397,8 @@ class Incar(dict, VaspInput):
         
         Args:
             sort_keys:
-                Set to True to sort the INCAR parameters alphabetically. Defaults to False.
+                Set to True to sort the INCAR parameters alphabetically.
+                Defaults to False.
             pretty:
                 Set to True for pretty aligned output. Defaults to False.
         """
@@ -429,7 +462,7 @@ class Incar(dict, VaspInput):
     @staticmethod
     def proc_val(key, val):
         """
-        Static helper method to convert INCAR parameters to proper types, e.g.
+        Static helper method to convert INCAR parameters to proper types, e.g.,
         integers, floats, lists, etc.
         
         Args:
@@ -439,11 +472,12 @@ class Incar(dict, VaspInput):
                 Actual value of INCAR parameter.
         """
         list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE', 'MAGMOM')
-        boolean_type_keys = ('LDAU', 'LWAVE', 'LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
+        boolean_type_keys = ('LDAU', 'LWAVE', 'LSCALU', 'LCHARG', 'LPLANE',
+                             'LHFCALC')
         float_type_keys = ("EDIFF", "SIGMA", 'TIME', 'ENCUTFOCK', 'HFSCREEN')
-        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG", "NELM",
-                         "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX', 'ENCUT', 'NSIM',
-                         'NKRED', 'NUPDOWN', 'ISPIND')
+        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG",
+                         "NELM", "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX',
+                         'ENCUT', 'NSIM', 'NKRED', 'NUPDOWN', 'ISPIND')
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -494,8 +528,8 @@ class Incar(dict, VaspInput):
         
         Returns:
             Dict of the following format:
-                {'Same' : parameters_that_are_the_same,
-                'Different': parameters_that_are_different}
+            {'Same' : parameters_that_are_the_same,
+            'Different': parameters_that_are_different}
             Note that the parameters are return as full dictionaries of values.
             E.g. {'ISIF':3}
         """
@@ -1710,13 +1744,10 @@ class Outcar(object):
             'Total CPU time used (sec)', 'Elapsed time (sec)',
             'Maximum memory used (kb)', 'Average memory used (kb)',
             'User time (sec)'.
-                
-            
+    
     One can then call a specific reader depending on the type of run being
-    perfromed. These are currently:
-       read_igpar()
-       read_lepsilon()
-       read_lcalcpol()
+    perfromed. These are currently: read_igpar(), read_lepsilon() and
+    read_lcalcpol().
 
     See the documentation of those methods for more documentation.
     
