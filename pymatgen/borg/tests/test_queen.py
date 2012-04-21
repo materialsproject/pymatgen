@@ -29,15 +29,15 @@ class BorgQueenTest(unittest.TestCase):
         drone = VaspToComputedEntryDrone()
         self.queen = BorgQueen(drone, test_dir, 1)
 
-    def test_get_data(self):
-        data = self.queen.get_data()
+    def test_get_assimilated_data(self):
+        data = self.queen.get_assimilated_data()
         self.assertEqual(len(data), 1)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()
         queen = BorgQueen(drone)
         queen.load_data(os.path.join(test_dir, "assimilated.json"))
-        self.assertEqual(len(queen.get_data()), 1)
+        self.assertEqual(len(queen.get_assimilated_data()), 1)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
