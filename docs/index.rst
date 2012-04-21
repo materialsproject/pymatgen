@@ -63,6 +63,27 @@ Usage
    
    usage
 
+Contributing
+============
+
+Pymatgen is developed by a team of volunteers. It is started by a team
+comprising of MIT and Lawrence Berkeley National Laboratory staff to be a
+robust toolkit for materials researchers to perform advanced manipulations of
+structures and analyses.
+
+For pymatgen to continue to grow in functionality and robustnes, we rely on
+other volunteers to develop new analyses and report and fix bugs. We welcome
+anyone to use our code as-is, but if you could take a few moment to give back
+to pymatgen in some small way, it would be greatly appreciated. A benefit of
+contributing is that your code will now be used by other researchers who use
+pymatgen, and we will include an acknowledgement to you (and any related
+publications) in pymatgen. Read on to find out about the various ways you can
+contribute.
+
+.. toctree::
+   :maxdepth: 2 
+   
+   contributing
 
 API/Reference Docs
 ==================

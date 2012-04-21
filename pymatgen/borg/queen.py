@@ -20,6 +20,7 @@ import json
 
 from multiprocessing import Manager, Pool
 
+
 class BorgQueen(object):
     """
     The Borg Queen controls the drones to assimilate data in an entire directory
