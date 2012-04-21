@@ -1406,7 +1406,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.dos_has_errors = False #will be set to true if there is an error parsing the Dos.
         self.state = defaultdict(bool)
 
-
     def in_all(self, xml_tags):
         return all([getattr(self, 'in_' + tag, None) for tag in xml_tags])
 
@@ -2172,6 +2171,7 @@ class Chgcar(VolumetricData):
                         intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
         return intchg / self.ngridpts
 
+
 class Procar(object):
     """
     Object for reading a PROCAR file
@@ -2295,6 +2295,7 @@ class Oszicar(object):
         Final energy from run.
         """
         return self.ionic_steps[-1]['F']
+
 
 class VaspParserError(Exception):
     '''
