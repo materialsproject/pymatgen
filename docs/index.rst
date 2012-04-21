@@ -31,7 +31,9 @@ incompatible changes, they are sometimes unavoidable, and tough decisions have
 to be made for the long term health of the code.
 
 For documentation and usage guide, please refer to the latest documentation at
-our github page (http://materialsproject.github.com/pymatgen/).
+our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+be notified via email of pymatgen releases, you may become a member of 
+`pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
@@ -152,3 +154,5 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+.. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
