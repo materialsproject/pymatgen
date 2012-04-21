@@ -80,7 +80,7 @@ class BorgQueen(object):
             order_assimilation((path, self._drone, data))
         self._data.extend(data)
 
-    def get_data(self):
+    def get_assimilated_data(self):
         """
         Returns an list of assimilated objects
         """
