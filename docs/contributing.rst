@@ -3,8 +3,7 @@ Ways to contribute
 
 1. Report issues and bugs. A simple way that anyone can contribute is simply to
    report bugs and issues to the developing team. You can either send an email
-   to the `pymatgen's Google Groups page
-   <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_ or even
+   to the `pymatgen's Google Groups page`_ or even
    better, submit an Issue in our
    `github page <https://github.com/materialsproject/pymatgen/issues>`_.
    
@@ -18,7 +17,7 @@ Collaborative Github Workflow
 
 For developers interested in expanding pymatgen for their own purposes, we
 recommend forking pymatgen directly from the 
-`pymatgen GitHub Repo <https://github.com/materialsproject/pymatgen>`_. Here's
+`pymatgen GitHub repo <https://github.com/materialsproject/pymatgen>`_. Here's
 a typical workflow (adapted from
 http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
@@ -33,34 +32,34 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 4. Clone *your forked repo* to your local machine. You will work mostly with
    your local repo and only publish changes when they are ready to be merged:
 
-::
-
-    git clone git@github.com:YOURNAME/pymatgen.git
+   ::
+   
+       git clone git@github.com:YOURNAME/pymatgen.git
 
 5. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
    remotes. Let's name the upstream repo as mpmaster (materialsproject master).
    
-::
-    
-    git remote add mpmaster git://github.com/materialsproject/pymatgen.git
+   ::
+       
+       git remote add mpmaster git://github.com/materialsproject/pymatgen.git
 
-Make sure your repository is clean (no uncommitted changes) and is currently
-on the master branch. If not, commit or stash any changes and switch to the
-master.
+   Make sure your repository is clean (no uncommitted changes) and is currently
+   on the master branch. If not, commit or stash any changes and switch to the
+   master.
 
-::
-
-   git checkout master
+   ::
    
-Then you can pull all the new commits from the main line
-
-::
-
-   git pull mpmaster master
+      git checkout master
    
-Remember, pull is a combination of the commands fetch and merge, so there may
-be merge conflicts to be manually resolved.
+   Then you can pull all the new commits from the main line
+   
+   ::
+   
+      git pull mpmaster master
+      
+   Remember, pull is a combination of the commands fetch and merge, so there may
+   be merge conflicts to be manually resolved.
 
 6. Publish your contributions. Assuming that you now have a couple of commits
    that you would like to contribute to the main repository. Please follow the
@@ -78,6 +77,7 @@ be merge conflicts to be manually resolved.
    c. If everything is ok, publish the commits to your github repository.
 
       ::
+      
          git push origin master
 
 7. Now that your commit is published, it doesn't mean that it has already been
@@ -108,4 +108,5 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
-   
+
+.. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
