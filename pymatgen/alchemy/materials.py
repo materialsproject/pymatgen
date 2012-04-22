@@ -106,27 +106,34 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
 
-    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True, **kwargs):
+    def append_transformation(self, transformation, return_alternatives=False,
+                              clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.
         
         Args:
             transformation:
                 Transformation to append
+            return_alternatives:
+                Whether to return alternative TransformedStructures for
+                one-to-many transformations. return_alternatives can be a
+                number, which stipulates the total number of structures to
+                return.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
-        def alternative_transformed_structures(unmodified_transformed_structure, transformation, ranked_list, clear_redo):
+        def get_alt_transformed_structures(unmodified_transformed_structure,
+                                           transformation, ranked_list):
             alts = []
             for x in ranked_list:
                 new_structure = deepcopy(unmodified_transformed_structure)
-                new_structure._structures.append(x.pop('structure'))
+                new_structure._structures.append(x['structure'])
                 new_structure._transformation_parameters.append(x)
                 if 'transformation' in x:
-                    new_structure._transformations.append(x.pop('transformation'))
+                    new_structure._transformations.append(x['transformation'])
                 else:
                     new_structure._transformations.append(transformation)
                 if clear_redo:
@@ -139,7 +146,7 @@ class TransformedStructure(object):
 
         if return_alternatives and transformation.is_one_to_many:
             ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=return_alternatives)
-            alternative_structures = alternative_transformed_structures(self, transformation, ranked_list[1:], clear_redo)
+            alternative_structures = get_alt_transformed_structures(self, transformation, ranked_list[1:])
             new_s = ranked_list[0]
             self._structures.append(new_s.pop('structure'))
             if 'transformation' in new_s:
