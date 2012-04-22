@@ -272,14 +272,52 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return)
-        minimizer.minimize_matrix()
-        lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
-        mod = StructureEditor(structure)
-        mod.delete_sites(lowestenergy_indices)
-        return [{'structure':mod.modified_structure.get_sorted_structure(), 'energy':0}]
+
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+
+        all_structures = []
+
+        lowest_energy = minimizer.output_lists[0][0]
+        num_atoms = sum(structure.composition.values())
+
+        for output in minimizer.output_lists:
+            se = StructureEditor(structure)
+            del_indices = [] #do deletions afterwards because they screw up the indices of the structure
+
+            for manipulation in output[1]:
+                if manipulation[1] is None:
+                    del_indices.append(manipulation[0])
+                else:
+                    se.replace_site(manipulation[0], manipulation[1])
+            se.delete_sites(del_indices)
+            all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+
+        return all_structures
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Apply the transformation.
+        
+        Args:
+            structure:
+                input structure
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or
+            a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. 
+            This transformation is parsed by the alchemy classes for generating
+            a more specific transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+        """
         num_remove_dict = {}
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
@@ -289,10 +327,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
 
-        if isinstance(return_ranked_list, int):
-            num_to_return = return_ranked_list
-        else:
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
             num_to_return = 1
+
+        num_to_return = max(1, num_to_return)
 
         if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
             all_structures = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict, num_to_return)
@@ -303,7 +343,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         elif self._algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
             opt_s = PartialRemoveSitesTransformation.best_first_ordering(structure, num_remove_dict)
             all_structures = [opt_s]
-        return opt_s if not return_ranked_list else all_structures
+        return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
         return "PartialRemoveSitesTransformation : Indices and fraction to remove = {}, ALGO = {}".format(self._specie, self._indices_fraction_dict, self._algo)

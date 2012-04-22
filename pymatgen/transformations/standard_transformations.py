@@ -337,9 +337,32 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         self._algo = algo
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Apply the transformation.
+        
+        Args:
+            structure:
+                input structure
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is an int, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or
+            a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. 
+            This transformation is parsed by the alchemy classes for generating
+            a more specific transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+        """
         sp = smart_element_or_specie(self._specie)
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
-        trans = PartialRemoveSitesTransformation([specie_indices], [self._frac], self._algo)
+        trans = PartialRemoveSitesTransformation([specie_indices], [self._frac], algo=self._algo)
         return trans.apply_transformation(structure, return_ranked_list)
 
     @property
@@ -408,18 +431,43 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self._algo = algo
         self._all_structures = []
 
-    def apply_transformation(self, structure, return_ranked_list=False, num_structures=1, energy_cutoff=None):
+    def apply_transformation(self, structure, return_ranked_list=False):
         """
-        For this transformation, the apply_transformation method will return only the ordered
-        structure with the lowest Ewald energy, to be consistent with the method signature of the other transformations.  
-        However, all structures are stored in the  all_structures attribute in the transformation object for easy access.
+        For this transformation, the apply_transformation method will return
+        only the ordered structure with the lowest Ewald energy, to be
+        consistent with the method signature of the other transformations.  
+        However, all structures are stored in the  all_structures attribute in
+        the transformation object for easy access.
         
         Args:
             structure:
                 Oxidation state decorated disordered structure to order
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or
+            a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. 
+            This transformation is parsed by the alchemy classes for generating
+            a more specific transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
         """
         ordered_sites = []
         sites_to_order = {}
+
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+
+        num_to_return = max(1, num_to_return)
 
         sites = list(structure.sites)
         for i in range(len(structure)):
@@ -498,7 +546,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         matrix = EwaldSummation(structure).total_energy_matrix
 
-        ewald_m = EwaldMinimizer(matrix, m_list, num_structures, self._algo)
+        ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
 
         self._all_structures = []
 
@@ -516,9 +564,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
             self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
-
-        #if energy_cutoff is not None: #remove structures from all_structures list if they dont meet the energy cutoff requirements
-        #    self._all_structures = [x for x in self._all_structures if x['energy_above_minimum'] < energy_cutoff ]
 
         if return_ranked_list:
             return self._all_structures

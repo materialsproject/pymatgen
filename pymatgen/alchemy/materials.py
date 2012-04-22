@@ -138,7 +138,7 @@ class TransformedStructure(object):
             self._redo_trans = []
 
         if return_alternatives and transformation.is_one_to_many:
-            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True, **kwargs)
+            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=return_alternatives)
             alternative_structures = alternative_transformed_structures(self, transformation, ranked_list[1:], clear_redo)
             new_s = ranked_list[0]
             self._structures.append(new_s.pop('structure'))
