@@ -84,7 +84,7 @@ class TransformedStructureTransmuter(object):
         return len(self._transformed_structures)
 
     def append_transformation(self, transformation, extend_collection=False,
-                              clear_redo=True, **kwargs):
+                              clear_redo=True):
         """
         Appends a transformation to all TransformedStructures.
         
@@ -108,7 +108,7 @@ class TransformedStructureTransmuter(object):
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo, **kwargs)
+            new = x.append_transformation(transformation, return_alternatives=extend_collection)
             if new is not None:
                 new_structures.extend(new)
 
