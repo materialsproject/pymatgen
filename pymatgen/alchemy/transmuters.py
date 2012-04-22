@@ -33,7 +33,7 @@ class TransformedStructureTransmuter(object):
     """
 
     def __init__(self, transformed_structures, transformations=[],
-                 extend_collection=False):
+                 extend_collection=0):
         """
         Args:
             transformed_structures:
@@ -42,7 +42,8 @@ class TransformedStructureTransmuter(object):
                 New transformations to be applied to all structures
             extend_collection:
                 Whether to use more than one output structure from one-to-many
-                transformations.
+                transformations. extend_collection can be a number, which
+                determines the maximum branching for each transformation.
         """
         self._transformed_structures = transformed_structures
         for trans in transformations:
@@ -92,8 +93,9 @@ class TransformedStructureTransmuter(object):
             transformation:
                 Transformation to append
             extend_collection:
-                Whether to generate multiple structures for transformations 
-                that result in possible multiple structures.
+                Whether to use more than one output structure from one-to-many
+                transformations. extend_collection can be a number, which
+                determines the maximum branching for each transformation.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
