@@ -130,14 +130,13 @@ class TransformedStructure(object):
             alts = []
             for x in ranked_list:
                 new_structure = deepcopy(unmodified_transformed_structure)
-                new_structure._structures.append(x['structure'])
-                paras = {k:v for k, v in x.items()}
-                del paras['structure']
-                new_structure._transformation_parameters.append(paras)
+                new_structure._structures.append(x.pop('structure'))
+                new_structure._transformation_parameters.append(x)
                 if 'transformation' in x:
-                    new_structure._transformations.append(x['transformation'])
+                    new_structure._transformations.append(x.pop('transformation'))
                 else:
                     new_structure._transformations.append(transformation)
+                new_structure._transformation_parameters.append(x)
                 if clear_redo:
                     new_structure._redo_trans = []
                 alts.append(new_structure)
@@ -150,12 +149,11 @@ class TransformedStructure(object):
             ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=return_alternatives)
             alternative_structures = get_alt_transformed_structures(self, transformation, ranked_list[1:])
             new_s = ranked_list[0]
-            self._structures.append(new_s['structure'])
+            self._structures.append(new_s.pop('structure'))
             if 'transformation' in new_s:
-                self._transformations.append(new_s['transformation'])
+                self._transformations.append(new_s.pop('transformation'))
             else:
                 self._transformations.append(transformation)
-            del new_s['structure']
             self._transformation_parameters.append(new_s)
             return alternative_structures
         else:
