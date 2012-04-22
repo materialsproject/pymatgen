@@ -25,7 +25,6 @@ import collections
 
 from pymatgen.alchemy.materials import TransformedStructure
 
-from copy import deepcopy
 
 class TransformedStructureTransmuter(object):
     """
@@ -112,7 +111,7 @@ class TransformedStructureTransmuter(object):
             new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo, **kwargs)
             if new is not None:
                 new_structures.extend(new)
-                
+
         self._transformed_structures.extend(new_structures)
 
     def extend_transformations(self, transformations):
