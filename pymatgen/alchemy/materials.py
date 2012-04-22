@@ -132,7 +132,7 @@ class TransformedStructure(object):
                 new_structure = deepcopy(unmodified_transformed_structure)
                 new_structure._structures.append(x['structure'])
                 paras = {k:v for k, v in x.items()}
-                paras['structure'] = paras['structure'].to_dict
+                del paras['structure']
                 new_structure._transformation_parameters.append(paras)
                 if 'transformation' in x:
                     new_structure._transformations.append(x['transformation'])
@@ -155,7 +155,7 @@ class TransformedStructure(object):
                 self._transformations.append(new_s['transformation'])
             else:
                 self._transformations.append(transformation)
-            new_s['structure'] = new_s['structure'].to_dict
+            del new_s['structure']
             self._transformation_parameters.append(new_s)
             return alternative_structures
         else:
