@@ -259,7 +259,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return all_structures
 
     @staticmethod
-    def fast_ordering(structure, num_remove_dict):
+    def fast_ordering(structure, num_remove_dict, num_to_return=1):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald sums 
         of the potential structures. This is on the order of 4 orders of magnitude 
@@ -272,26 +272,31 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return=1)
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return)
         minimizer.minimize_matrix()
         lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
         mod = StructureEditor(structure)
         mod.delete_sites(lowestenergy_indices)
-        return mod.modified_structure.get_sorted_structure()
+        return [{'structure':mod.modified_structure.get_sorted_structure(), 'energy':0}]
 
     def apply_transformation(self, structure, return_ranked_list=False):
         num_remove_dict = {}
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(num_to_remove)) > 1e-8:
+            if abs(num_to_remove - int(num_to_remove)) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
             else:
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
 
+        if isinstance(return_ranked_list, int):
+            num_to_return = return_ranked_list
+        else:
+            num_to_return = 1
+
         if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
-            opt_s = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict)
-            all_structures = [opt_s]
+            all_structures = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict, num_to_return)
+            opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
             all_structures = PartialRemoveSitesTransformation.complete_ordering(structure, num_remove_dict)
             opt_s = all_structures[0]['structure']

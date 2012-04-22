@@ -338,7 +338,6 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure, return_ranked_list=False):
         sp = smart_element_or_specie(self._specie)
-
         specie_indices = [i for i in xrange(len(structure)) if structure[i].specie == sp]
         trans = PartialRemoveSitesTransformation([specie_indices], [self._frac], self._algo)
         return trans.apply_transformation(structure, return_ranked_list)
@@ -392,12 +391,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     
     USE WITH CARE.
     """
-    
+
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
-    
-    def __init__(self, algo = ALGO_FAST):
+
+    def __init__(self, algo=ALGO_FAST):
         '''
         Args:
             num_structures:
@@ -488,10 +487,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         prev_fraction = site[0]
                         manipulation[1] += site[0]
                         manipulation[2].append(site[1])
-                    
-                    if abs(manipulation[1]-round(manipulation[1]))>.25: #if the # of atoms to remove isn't within .25 of an integer
+
+                    if abs(manipulation[1] - round(manipulation[1])) > .25: #if the # of atoms to remove isn't within .25 of an integer
                         raise ValueError('Occupancy fractions not consistent with size of unit cell')
-                    
+
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
 

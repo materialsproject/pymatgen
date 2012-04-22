@@ -103,8 +103,6 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
         if rform not in cpdenergies:
             psp_settings = set([sym.split(" ")[1] for sym in entry.parameters['potcar_symbols']])
             if not self._valid_potcars.issuperset(psp_settings):
-
-                #print "invalid psp"
                 return None
 
 

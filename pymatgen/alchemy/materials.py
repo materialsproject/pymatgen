@@ -154,7 +154,6 @@ class TransformedStructure(object):
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
 
-
     def extend_transformations(self, transformations):
         """
         Extends a sequence of transformations to the TransformedStructure.
