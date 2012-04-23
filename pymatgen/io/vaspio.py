@@ -927,14 +927,23 @@ class PotcarSingle(VaspInput):
 
     @property
     def nelectrons(self):
-        return float(self.data.split("\n")[1])
+        return self.zval
 
-    @property
-    def valence(self):
+    def __getattr__(self, a):
         """
-        the valence based on the ZVAL keyword
+        Delegates attributes to keywrods. For example, you can use
+        potcarsingle.enmax to get the ENMAX of the POTCAR.
+        
+        For float type properties, they are converted to the correct float. By
+        default, all energies in eV and all length scales are in Angstroms.
         """
-        return int(float(self.keywords['ZVAL'].split()[0]))
+        floatkeywords = ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
+                         'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
+                         'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']
+        a_caps = a.upper()
+        if a_caps in self.keywords:
+            return self.keywords[a_caps] if a_caps not in floatkeywords else float(self.keywords[a_caps].split()[0])
+        raise AttributeError(a)
 
 class Potcar(list, VaspInput):
     """
@@ -2366,3 +2375,4 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
