@@ -132,7 +132,7 @@ class SymmetryFinder(object):
                 'wyckoffs',
                 'equivalent_atoms')
         dataset = {}
-        for key, data in zip(keys, spg.dataset(self._lattice, self._positions, self._numbers, self._symprec)):
+        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec)):
             dataset[key] = data
 
         dataset['international'] = dataset['international'].strip()
@@ -162,7 +162,7 @@ class SymmetryFinder(object):
         rotation = np.zeros((multi, 3, 3), dtype=int)
         translation = np.zeros((multi, 3))
 
-        num_sym = spg.symmetry(rotation, translation, self._lattice,
+        num_sym = spg.symmetry(rotation, translation, self._lattice.transpose().copy(),
                                    self._positions, self._numbers, self._symprec)
         return (rotation[:num_sym], translation[:num_sym])
 

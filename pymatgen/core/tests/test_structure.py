@@ -3,7 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Site, PeriodicSite, Structure, Composition, StructureError
+from pymatgen.core.structure import Site, PeriodicSite, Structure, Molecule, Composition, StructureError
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random
@@ -13,16 +13,27 @@ class SiteTest(unittest.TestCase):
     def setUp(self):
         self.ordered_site = Site(Element("Fe"), [0.25, 0.35, 0.45])
         self.disordered_site = Site({Element("Fe"):0.5, Element("Mn"):0.5}, [0.25, 0.35, 0.45])
+        self.propertied_site = Site(Specie("Fe", 2), [0.25, 0.35, 0.45], {'magmom':5.1, 'charge':4.2})
+
+    def test_init(self):
+        self.assertRaises(ValueError, Site, Specie("Fe", 2), [0.25, 0.35, 0.45], {'mag':5.1})
 
     def test_properties(self):
         self.assertRaises(AttributeError, getattr, self.disordered_site, 'specie')
         self.assertIsInstance(self.ordered_site.specie, Element)
+        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_to_from_dict(self):
         d = self.disordered_site.to_dict
         site = Site.from_dict(d)
         self.assertEqual(site, self.disordered_site)
         self.assertNotEqual(site, self.ordered_site)
+        d = self.propertied_site.to_dict
+        site = Site.from_dict(d)
+        self.assertEqual(site.magmom, 5.1)
+        self.assertEqual(site.charge, 4.2)
+
 
 class PeriodicSiteTest(unittest.TestCase):
 
@@ -32,6 +43,7 @@ class PeriodicSiteTest(unittest.TestCase):
         self.site = PeriodicSite("Fe", np.array([0.25, 0.35, 0.45]), self.lattice)
         self.site2 = PeriodicSite({"Si":0.5}, np.array([0, 0, 0]), self.lattice)
         self.assertEquals(self.site2.species_and_occu, {Element('Si'): 0.5}, "Inconsistent site created!")
+        self.propertied_site = PeriodicSite(Specie("Fe", 2), [0.25, 0.35, 0.45], self.lattice, properties={'magmom':5.1, 'charge':4.2})
 
     def test_properties(self):
         """
@@ -45,6 +57,8 @@ class PeriodicSiteTest(unittest.TestCase):
         self.assertEquals(self.site.z, 4.5)
         self.assertTrue(self.site.is_ordered)
         self.assertFalse(self.site2.is_ordered)
+        self.assertEqual(self.propertied_site.magmom, 5.1)
+        self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
@@ -96,6 +110,10 @@ class PeriodicSiteTest(unittest.TestCase):
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site, self.site2)
         self.assertNotEqual(site, self.site)
+        d = self.propertied_site.to_dict
+        site = Site.from_dict(d)
+        self.assertEqual(site.magmom, 5.1)
+        self.assertEqual(site.charge, 4.2)
 
 class StructureTest(unittest.TestCase):
 
@@ -112,12 +130,13 @@ class StructureTest(unittest.TestCase):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, Structure, self.lattice, [self.si, self.si], coords, True)
+        self.propertied_structure = Structure(self.lattice, [self.si, self.si], coords, site_properties={'magmom':[5, -5]})
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
         self.assertAlmostEqual(self.struct.density, 2.33, 2, "Incorrect density")
 
-    def test_specie_initialization(self):
+    def test_specie_init(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -155,11 +174,28 @@ class StructureTest(unittest.TestCase):
         struct = Structure(self.lattice, [{si:0.5, mn:0.5}, {si:0.5}], coords)
         self.assertIn("lattice", struct.to_dict)
         self.assertIn("sites", struct.to_dict)
+        d = self.propertied_structure.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        s = Structure(self.lattice, [{Specie('O', -2, properties={"spin":3}):1.0}, {Specie('Mg', 2, properties={"spin":2}):0.8}], coords, site_properties={'magmom':[5, -5]})
+        d = s.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
+        self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
     def test_from_dict(self):
-        test_dict = {'lattice': {'a': 3.8401979336999998, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.8401989943442438, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.99999086398419, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'occu': 0.5, 'abc': [0, 0, 0], 'xyz': [0.0, 0.0, 0.0], 'species': [{'occu': 0.5, 'element': 'Mn'}, {'occu': 0.5, 'oxidation_state': 4, 'element': 'Si'}], 'label': 'Mn: 0.5000, Si4+: 0.5000'}, {'occu': 0.5, 'abc': [0.75, 0.5, 0.75], 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.3516317952249999], 'species': [{'occu': 0.5, 'oxidation_state': 4, 'element': 'Ge'}], 'label': 'Ge4+: 0.5000'}]}
-        s = Structure.from_dict(test_dict)
-        self.assertEqual(s.composition.formula, 'Mn0.5 Si0.5 Ge0.5')
+        d = self.propertied_structure.to_dict
+        s = Structure.from_dict(d)
+        self.assertEqual(s[0].magmom, 5)
+        d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'properties': {'magmom': 5}, 'abc': [0.0, 0.0, 0.0], 'occu': 1.0, 'species': [{'occu': 1.0, 'oxidation_state':-2, 'properties': {'spin': 3}, 'element': 'O'}], 'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'label': 'O2-', 'xyz': [0.0, 0.0, 0.0]}, {'properties': {'magmom':-5}, 'abc': [0.75, 0.5, 0.75], 'occu': 0.8, 'species': [{'occu': 0.8, 'oxidation_state': 2, 'properties': {'spin': 2}, 'element': 'Mg'}], 'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'label': 'Mg2+:0.800', 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.351631795225]}]}
+        s = Structure.from_dict(d)
+        self.assertEqual(s[0].magmom, 5)
+        self.assertEqual(s[0].specie.spin, 3)
+
+    def test_site_properties(self):
+        self.assertEqual(self.propertied_structure[0].magmom, 5)
+        self.assertEqual(self.propertied_structure[1].magmom, -5)
 
 
     def test_interpolate(self):
@@ -186,13 +222,122 @@ class StructureTest(unittest.TestCase):
         struct2 = Structure(self.struct.lattice, [self.si, Element("Fe")], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
-
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r)
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+    def test_get_dist_matrix(self):
+        ans = [[ 0., 2.3516318],
+               [ 2.3516318, 0.]]
+        self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
+
+class MoleculeTest(unittest.TestCase):
+
+    def setUp(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360 , 0.889165 , -0.363000]]
+        self.coords = coords
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_get_angle_dihedral(self):
+        self.assertAlmostEqual(self.mol.get_angle(1, 0, 2), 109.47122144618737)
+        self.assertAlmostEqual(self.mol.get_angle(3, 1, 2), 60.00001388659683)
+        self.assertAlmostEqual(self.mol.get_dihedral(0, 1, 2, 3), -35.26438851071765)
+
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0, 0, 1])
+        coords.append([0, 1, 1])
+        coords.append([1, 1, 1])
+        self.mol2 = Molecule(["C", "O", "N", "S"], coords)
+        self.assertAlmostEqual(self.mol2.get_dihedral(0, 1, 2, 3), -90)
+
+    def test_properties(self):
+        self.assertEqual(len(self.mol), 5)
+        self.assertTrue(self.mol.is_ordered)
+        self.assertEqual(self.mol.formula, "H4 C1")
+
+    def test_repr_str(self):
+        ans = """Molecule Summary (H4 C1)
+Reduced Formula: H4C
+Sites (5)
+1 C     0.000000     0.000000     0.000000
+2 H     0.000000     0.000000     1.089000
+3 H     1.026719     0.000000    -0.363000
+4 H    -0.513360    -0.889165    -0.363000
+5 H    -0.513360     0.889165    -0.363000"""
+        self.assertEqual(str(self.mol), ans)
+        ans = """Molecule Summary
+Non-periodic Site
+xyz        : (0.0000, 0.0000, 0.0000)
+element    : C
+occupation : 1.00
+Non-periodic Site
+xyz        : (0.0000, 0.0000, 1.0890)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (1.0267, 0.0000, -0.3630)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (-0.5134, -0.8892, -0.3630)
+element    : H
+occupation : 1.00
+Non-periodic Site
+xyz        : (-0.5134, 0.8892, -0.3630)
+element    : H
+occupation : 1.00"""
+        self.assertEqual(repr(self.mol), ans)
+
+    def test_site_properties(self):
+        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords, site_properties={'magmom':[0.5, -0.5, 1, 2, 3]})
+        self.assertEqual(propertied_mol[0].magmom, 0.5)
+        self.assertEqual(propertied_mol[1].magmom, -0.5)
+
+    def test_to_from_dict(self):
+        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords, site_properties={'magmom':[0.5, -0.5, 1, 2, 3]})
+        d = propertied_mol.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
+        mol = Molecule.from_dict(d)
+        self.assertEqual(mol[0].magmom, 0.5)
+
+    def test_get_boxed_structure(self):
+        s = self.mol.get_boxed_structure(9, 9, 9)
+        self.assertTrue(np.allclose(s[1].frac_coords, [0.000000 , 0.000000, 0.121000]))
+        self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
+
+    def test_get_distance(self):
+        self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
+
+    def test_get_neighbors(self):
+        nn = self.mol.get_neighbors(self.mol[0], 1)
+        self.assertEqual(len(nn), 0)
+        nn = self.mol.get_neighbors(self.mol[0], 2)
+        self.assertEqual(len(nn), 4)
+
+    def test_get_neighbors_in_shell(self):
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 1)
+        self.assertEqual(len(nn), 1)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
+        self.assertEqual(len(nn), 4)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)
+        self.assertEqual(len(nn), 0)
+
+    def test_get_dist_matrix(self):
+        ans = [[0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
+               [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
+               [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
+               [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
+               [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
+        self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
+
 
 class CompositionTest(unittest.TestCase):
 
@@ -224,13 +369,19 @@ class CompositionTest(unittest.TestCase):
         self.assertRaises(ValueError, Composition, f)
         f = {1:2, 8:1}
         self.assertEqual("H2 O1", Composition(f).formula)
-        self.assertEqual("Na2 O1", Composition(Na = 2, O = 1).formula)
+        self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4', 'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54', 'Li1.5 Si0.5']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
         self.assertRaises(ValueError, Composition.from_formula, "(co2)(po4)2")
+
+    def test_mixed_valence(self):
+        comp = Composition({"Fe2+":2, "Fe3+":4, "Li+":8})
+        self.assertEqual(comp.reduced_formula, "Li4Fe3")
+        self.assertEqual(comp.alphabetical_formula, "Fe6 Li8")
+        self.assertEqual(comp.formula, "Li8 Fe6")
 
     def test_indeterminate_formula(self):
         correct_formulas = []
@@ -251,12 +402,12 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(all_formulas, correct_formulas)
 
     def test_reduced_composition(self):
-        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i].get_reduced_composition_and_factor()[0], Composition.from_formula(correct_reduced_formulas[i]))
 
     def test_reduced_formula(self):
-        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li3Si']
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4', 'Li2O2', 'Li3Fe2(MoO4)3', 'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
@@ -277,7 +428,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0, "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
-        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'AB3']
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
 

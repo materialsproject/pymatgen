@@ -229,8 +229,8 @@ class BandStructureSymmLine(BandStructure):
                 self._distance.append(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = self._kpoints[i]
             previous_distance = self._distance[i]
-            if label != None:
-                if previous_label != None:
+            if label:
+                if previous_label:
                     if len(one_group) != 0:
                         branches_tmp.append(one_group)
                     one_group = []
@@ -241,9 +241,6 @@ class BandStructureSymmLine(BandStructure):
             branches_tmp.append(one_group)
         for b in branches_tmp:
             self._branches.append({'start_index':b[0], 'end_index':b[-1], 'name':(self._kpoints[b[0]].label + "-" + self._kpoints[b[-1]].label)})
-
-
-
 
     def get_branch_name(self, index):
         """
@@ -282,10 +279,10 @@ class BandStructureSymmLine(BandStructure):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointvbm = self._kpoints[j]
-        list_index_kpoints=[]
+        list_index_kpoints = []
         if kpointvbm.label != None:
             for i in range(len(self._kpoints)):
-                if self._kpoints[i].label==kpointvbm.label:
+                if self._kpoints[i].label == kpointvbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
@@ -299,16 +296,13 @@ class BandStructureSymmLine(BandStructure):
 
     def get_cbm(self):
         """
-        returns data about the CBM
-        Returns:
-            dict as {'band_index','kpoint_index','kpoint','energy'}
-            each key refers to
-            'band_index': a list of the indices of the band containing the VBM (please note that you can have several bands 
-            sharing the CBM)
-            'kpoint_index': the list of indices in self._kpoints for the kpoint cbm. Please note that there can be several
-            kpoint_indices relating to the same kpoint (e.g., Gamma can occur at different spots in the band structure line plot)
-            'kpoint': the kpoint (as a kpoint object)
-            'energy': the energy of the CBM
+        get the conduction band minimum (CBM). returns a dictionnary with
+        'band_index': a list of the indices of the band containing the CBM (please note that you can have several bands
+        sharing the CBM)
+        'kpoint_index': the list of indices in self._kpoints for the kpoint cbm. Please note that there can be several
+        kpoint_indices relating to the same kpoint (e.g., Gamma can occur at different spots in the band structure line plot)
+        'kpoint': the kpoint (as kpoint object)
+        'energy': the energy of the CBM
         """
         max_tmp = 1000.0
         index = None
@@ -319,10 +313,12 @@ class BandStructureSymmLine(BandStructure):
                         max_tmp = self._bands[i]['energy'][j]
                         index = j
                         kpointcbm = self._kpoints[j]
-        list_index_kpoints=[]
+
+        list_index_kpoints = []
+
         if kpointcbm.label != None:
             for i in range(len(self._kpoints)):
-                if self._kpoints[i].label==kpointcbm.label:
+                if self._kpoints[i].label == kpointcbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
@@ -331,7 +327,7 @@ class BandStructureSymmLine(BandStructure):
         for i in range(self._nb_bands):
             if math.fabs(self._bands[i]['energy'][index] - max_tmp) < 0.001:
                 list_index_band.append(i)
-        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
+        return {'band_index': list_index_band, 'kpoint_index': list_index_kpoints, 'kpoint': kpointcbm, 'energy': max_tmp}
 
     def get_band_gap(self):
         """
@@ -348,10 +344,11 @@ class BandStructureSymmLine(BandStructure):
             return {'energy':0.0, 'direct':False, 'transition':None}
         cbm = self.get_cbm()
         vbm = self.get_vbm()
-        result = {}
+        result = dict(direct=False, energy=0.0, transition=None)
+
         result['energy'] = cbm['energy'] - vbm['energy']
-        result['direct'] = False
-        if (cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01):
+
+        if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
         result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
@@ -371,9 +368,9 @@ class BandStructureSymmLine(BandStructure):
                     below = True
                 if self._bands[i]['energy'][j] > self._efermi:
                     above = True
-            if above and below:
-                return True
-        return False
+                if above and below:
+                    return True
+                return False
 
     @property
     def to_dict(self):
@@ -439,7 +436,6 @@ def get_reconstructed_band_structure(list_bs, efermi):
                 kpoints.append(k.frac_coords)
             for k, v in bs._labels_dict.iteritems():
                 labels_dict[k] = v.frac_coords
-                
         for i in range(nb_bands):
             eigenvals.append({'energy':[], 'occup':[]})
             for bs in list_bs:

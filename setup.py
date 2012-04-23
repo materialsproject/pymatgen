@@ -3,32 +3,43 @@ use_setuptools()
 from setuptools import setup, find_packages
 
 long_description = """
-Pymatgen is the python library that powers the Materials Project 
-(http://www.materialsproject.org). These are some of the key features:
+Pymatgen (python materials genomics) is the python library that powers the 
+Materials Project (http://www.materialsproject.org). These are some of the main 
+features:
 
-1. Highly flexible classes for the representation of Element, Site, Structure 
-   objects.
-2. Powerful io capabilities to manipulate many VASP input and output files 
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information 
-   file format.  This includes generating Structure objects from vasp input and 
-   output.
-3. A comprehensive tool to generate and view compositional and grand canonical 
-   phase diagrams.
+1. Highly flexible classes for the representation of Element, Site, Molecule, 
+   Structure objects.
+2. Extensive io capabilities to manipulate many VASP input and output files 
+   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information file 
+   format. This includes generating Structure objects from vasp input and
+   output. There is also support for Gaussian input files and XYZ file for
+   molecules.
+3. Comprehensive tool to generate and view compositional and grand canonical phase 
+   diagrams.
+4. Electronic structure analyses (DOS and Bandstructure).
 
 The public version of pymatgen is free (as in free beer) to download and to use. 
 However, we would also like you to help us improve this library by making your 
-own contributions as well.  These contributions can be in the form of additional 
-tools or modules you develop, or even simple things such as bug reports.  Please 
-contact the maintainer of this library (shyue@mit.edu) to find out how to include 
-your contributions via github or for bug reports.
+own contributions as well.  These contributions can be in the form of
+additional tools or modules you develop, or even simple things such as bug
+reports. Please contact the maintainer of this library (shyue@mit.edu) to find
+out how to include your contributions via github or for bug reports.
 
-For documentation, usage examples and change log, please read the documentation 
-at http://materialsproject.github.com/pymatgen.
+Note that pymatgen, like all scientific research, will always be a work in
+progress. While the development team will always strive to avoid backward 
+incompatible changes, they are sometimes unavoidable, and tough decisions have 
+to be made for the long term health of the code.
+
+For documentation and usage guide, please refer to the latest documentation at
+our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+be notified via email of pymatgen releases, you may become a member of 
+pymatgen's Google Groups page
+(https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
 setup (
   name='pymatgen',
-  version='1.7.0',
+  version='1.8.0',
   packages=find_packages(),
   install_requires=['numpy', 'scipy', 'PyCIFRW'],
   package_data={'pymatgen.core': ['*.json'],
@@ -53,8 +64,6 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-  test_suite='nose.collector',
-  test_requires=['nose']
+  download_url="https://github.com/materialsproject/pymatgen/tarball/master"
 )
 
