@@ -134,17 +134,18 @@ class TransformedStructure(object):
             alts = []
             for i, x in enumerate(ranked_list):
                 struct = x.pop('structure')
-                other_paras = [p for p in self._other_parameters]
-                hist = self.history
-                tdict = transformation.to_dict
-                tdict['input_structure'] = starting_struct.to_dict
-                tdict['output_parameters'] = x
-                hist.append(tdict)
-                alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
                 if i == 0:
                     self._structures.append(struct)
                     self._transformations.append(transformation)
                     self._transformation_parameters.append(x)
+                else:
+                    other_paras = [p for p in self._other_parameters]
+                    hist = self.history
+                    tdict = transformation.to_dict
+                    tdict['input_structure'] = starting_struct.to_dict
+                    tdict['output_parameters'] = x
+                    hist.append(tdict)
+                    alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
             return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
