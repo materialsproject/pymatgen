@@ -50,7 +50,7 @@ class TransformedStructureTest(unittest.TestCase):
         ts = TransformedStructure(struct, [])
         ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = ts.append_transformation(PartialRemoveSpecieTransformation('Si4+', 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5)
-        self.assertEqual(len(alt), 3)
+        self.assertEqual(len(alt), 2)
 
     def test_get_vasp_input(self):
         vaspis = MaterialsProjectVaspInputSet()

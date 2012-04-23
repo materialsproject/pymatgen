@@ -51,11 +51,11 @@ class TransformedStructureTransmuterTest(unittest.TestCase):
 
         tsc.append_transformation(SubstitutionTransformation({"Fe":{"Fe2+":.25, "Mn3+":.75}, "P":"P5+"}))
         tsc.append_transformation(OrderDisorderedStructureTransformation(), extend_collection=50)
-        self.assertEqual(len(tsc), 5)
+        self.assertEqual(len(tsc), 4)
 
         t = SuperTransformation([SubstitutionTransformation({"Fe2+":"Mg2+"}), SubstitutionTransformation({"Fe2+":"Zn2+"})])
         tsc.append_transformation(t, extend_collection=True)
-        self.assertEqual(len(tsc), 15)
+        self.assertEqual(len(tsc), 8)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
