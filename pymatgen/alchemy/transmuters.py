@@ -219,16 +219,31 @@ class TransformedStructureTransmuter(object):
                         read_data = True
                     if read_data:
                         structure_data[-1].append(line)
-                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, [], extend_collection=extend_collection)
+                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), [], primitive) for data in structure_data])
+        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
 
     @staticmethod
-    def from_poscars(poscar_filenames, transformations=[]):
+    def from_poscars(poscar_filenames, transformations=[],
+                     extend_collection=False):
+        """
+        Generates a transmuter from a sequence of POSCARs.
+        
+        Args:
+            poscar_filenames:
+                List of POSCAR filenames
+            transformations:
+                New transformations to be applied to all structures.
+            primitive:
+                Whether to generate the primitive cell from the cif.
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
+        """
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), transformations))
-        return TransformedStructureTransmuter(transformed_structures, [])
+                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), []))
+        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory=True, subfolder=None):
