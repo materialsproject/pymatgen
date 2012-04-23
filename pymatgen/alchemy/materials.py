@@ -125,37 +125,27 @@ class TransformedStructure(object):
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
-        def get_alt_transformed_structures(unmodified_transformed_structure,
-                                           transformation, ranked_list):
-            alts = []
-            for x in ranked_list:
-                new_structure = deepcopy(unmodified_transformed_structure)
-                new_structure._structures.append(x.pop('structure'))
-                new_structure._transformation_parameters.append(x)
-                if 'transformation' in x:
-                    new_structure._transformations.append(x.pop('transformation'))
-                else:
-                    new_structure._transformations.append(transformation)
-                new_structure._transformation_parameters.append(x)
-                if clear_redo:
-                    new_structure._redo_trans = []
-                alts.append(new_structure)
-            return alts
-
         if clear_redo:
             self._redo_trans = []
 
         if return_alternatives and transformation.is_one_to_many:
-            ranked_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=return_alternatives)
-            alternative_structures = get_alt_transformed_structures(self, transformation, ranked_list[1:])
-            new_s = ranked_list[0]
-            self._structures.append(new_s.pop('structure'))
-            if 'transformation' in new_s:
-                self._transformations.append(new_s.pop('transformation'))
-            else:
-                self._transformations.append(transformation)
-            self._transformation_parameters.append(new_s)
-            return alternative_structures
+            starting_struct = self._structures[-1]
+            ranked_list = transformation.apply_transformation(starting_struct, return_ranked_list=return_alternatives)
+            alts = []
+            for i, x in enumerate(ranked_list):
+                struct = x.pop('structure')
+                other_paras = [p for p in self._other_parameters]
+                hist = self.history
+                tdict = transformation.to_dict
+                tdict['input_structure'] = starting_struct.to_dict
+                tdict['output_parameters'] = x
+                hist.append(tdict)
+                alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
+                if i == 0:
+                    self._structures.append(struct)
+                    self._transformations.append(transformation)
+                    self._transformation_parameters.append(x)
+            return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
