@@ -925,6 +925,17 @@ class PotcarSingle(VaspInput):
         """
         return Element(self.element).Z
 
+    @property
+    def nelectrons(self):
+        return float(self.data.split("\n")[1])
+
+    @property
+    def valence(self):
+        """
+        the valence based on the ZVAL keyword
+        """
+        return int(float(self.keywords['ZVAL'].split()[0]))
+
 class Potcar(list, VaspInput):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
