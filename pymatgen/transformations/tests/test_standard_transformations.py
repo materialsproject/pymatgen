@@ -160,7 +160,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
         s = t1.apply_transformation(p.struct)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
-        self.assertEqual(len(t.apply_transformation(s, 10)), 3)
+        self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
 
