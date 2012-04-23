@@ -240,6 +240,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
         s = SymmetryFinder(structure, symprec=symprec)
+        self.logger.debug('Symmetry of structure is determined to be {}.'.format(s.get_spacegroup_symbol()))
         sg = s.get_spacegroup()
         tested_sites = []
         starttime = time.time()
@@ -355,13 +356,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         total_combis = 0
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(num_to_remove)) > 1e-3:
+            if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
             else:
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
             n = len(indices)
-            total_combis += int(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
+            total_combis += int(round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove)))
 
         self.logger.debug('Total combinations = {}'.format(total_combis))
 
