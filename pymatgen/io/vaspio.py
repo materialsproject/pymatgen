@@ -866,7 +866,14 @@ class PotcarSingle(VaspInput):
         Attempt to return the atomic number based on the VRHFIN keyword
         """
         return Element(self.element).Z
-
+    
+    @property
+    def valence(self):
+        """
+        the valence based on the ZVAL keyword
+        """
+        return int(float(self.keywords['ZVAL'].split()[0]))
+    
 class Potcar(list, VaspInput):
     """
     Object for reading and writing POTCAR files for
@@ -945,8 +952,14 @@ class Potcar(list, VaspInput):
                 VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
             del self[:]
             for el in elements:
-                with file_open_zip_aware(os.path.join(VASP_PSP_DIR, el+"/POTCAR"), 'rb') as f:
-                    self.append(PotcarSingle(f.read()))
+                f = None
+                if os.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
+                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
+                if os.exists(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR")):
+                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR"), 'rb')
+                if f == None:
+                    raise IOError("You do not have the right POTCAR ("+str(el)+") in your VASP_PSP_DIR")
+                self.append(PotcarSingle(f.read()))
 
 
 class Vasprun(object):
