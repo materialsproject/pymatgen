@@ -267,7 +267,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             already_tested = False
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]['energy']
-                if abs((energy - tenergy) / len(s_new)) < 1e-6 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
+                if abs((energy - tenergy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
                     already_tested = True
 
             if not already_tested:
