@@ -20,6 +20,7 @@ import json
 
 from multiprocessing import Manager, Pool
 
+
 class BorgQueen(object):
     """
     The Borg Queen controls the drones to assimilate data in an entire directory
@@ -27,7 +28,7 @@ class BorgQueen(object):
     contains convenience methods to save and load data between sessions.
     """
 
-    def __init__(self, drone, rootpath = None, number_of_drones = 1):
+    def __init__(self, drone, rootpath=None, number_of_drones=1):
         """
         Args:
             drone:
@@ -37,12 +38,12 @@ class BorgQueen(object):
                 you want to do assimilation later, or is using the BorgQueen
                 to load previously assimilated data.
             number_of_drones:
-                Number of drones to parallelize over. Typical machines today have 
-                up to four processors. Note that you won't see a 100% improvement
-                with two drones over one, but you will definitely see a 
-                significant speedup of at least 50% or so. If you are running this
-                over a server with far more processors, the speedup will be even
-                greater.
+                Number of drones to parallelize over. Typical machines today
+                have up to four processors. Note that you won't see a 100%
+                improvement with two drones over one, but you will definitely
+                see a significant speedup of at least 50% or so. If you are
+                running this over a server with far more processors, the
+                speedup will be even greater.
         """
         self._drone = drone
         self._num_drones = number_of_drones
@@ -66,7 +67,21 @@ class BorgQueen(object):
         p.map(order_assimilation, ((path, self._drone, data) for path in valid_paths))
         self._data.extend(data)
 
-    def get_data(self):
+    def serial_assimilate(self, rootpath):
+        """
+        Assimilate the entire subdirectory structure in rootpath serially.
+        """
+        valid_paths = []
+        for (parent, subdirs, files) in os.walk(rootpath):
+            if self._drone.is_valid_path((parent, subdirs, files)):
+                valid_paths.append(parent)
+        print len(valid_paths)
+        data = []
+        for path in valid_paths:
+            order_assimilation((path, self._drone, data))
+        self._data.extend(data)
+
+    def get_assimilated_data(self):
         """
         Returns an list of assimilated objects
         """

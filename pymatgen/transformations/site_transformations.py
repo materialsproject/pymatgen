@@ -16,12 +16,14 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
+import math
 import itertools
+import logging
+import time
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """
@@ -32,7 +34,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         Args:
             indices_species_map:
                 A dict containing the species mapping in int-string pairs. 
-                E.g., { 1:"Na"} or {2,"Mn2+"}. Multiple substitutions can 
+                E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple substitutions can 
                 be done. Overloaded to accept sp_and_occu dictionary
                 E.g. {'Si: {'Ge':0.75, 'C':0.25} }, which substitutes a single
                 species with multiple species to generate a disordered structure.
@@ -54,6 +56,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
 
     @property
     def to_dict(self):
@@ -90,6 +96,10 @@ class RemoveSitesTransformation(AbstractTransformation):
         return None
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'indices_to_remove': self._indices}
@@ -121,13 +131,16 @@ class TranslateSitesTransformation(AbstractTransformation):
         return TranslateSitesTransformation(self._indices, [-c for c in self._vector], self._frac)
 
     @property
+    def is_one_to_many(self):
+        return False
+
+    @property
     def to_dict(self):
         output = {'name' : self.__class__.__name__, 'version': __version__}
         output['init_args'] = {'indices_to_move': self._indices,
                                'translation_vector': self._vector,
                                'vector_in_frac_coords': self._frac}
         return output
-
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
@@ -183,11 +196,17 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self._indices = indices
         self._fractions = fractions
         self._algo = algo
+        self.logger = logging.getLogger(self.__class__.__name__)
 
+    def best_first_ordering(self, structure, num_remove_dict):
 
-    @staticmethod
-    def best_first_ordering(structure, num_remove_dict):
+        self.logger.debug('Performing best first ordering')
+        starttime = time.time()
+        self.logger.debug('Performing initial ewald sum...')
         ewaldsum = EwaldSummation(structure)
+        self.logger.debug('Ewald sum took {} seconds.'.format(time.time() - starttime))
+        starttime = time.time()
+
         ematrix = ewaldsum.total_energy_matrix
         to_delete = []
 
@@ -212,43 +231,60 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             ematrix[maxindex, :] = 0
         mod = StructureEditor(structure)
         mod.delete_sites(to_delete)
-        return mod.modified_structure
+        self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
+        return [{'energy':sum(sum(ematrix)), 'structure': mod.modified_structure.get_sorted_structure()}]
 
-    @staticmethod
-    def complete_ordering(structure, num_remove_dict):
+    def complete_ordering(self, structure, num_remove_dict):
+        self.logger.debug('Performing complete ordering...')
         all_structures = []
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
         s = SymmetryFinder(structure, symprec=symprec)
         sg = s.get_spacegroup()
         tested_sites = []
+        starttime = time.time()
+        self.logger.debug('Performing initial ewald sum...')
         ewaldsum = EwaldSummation(structure)
+        self.logger.debug('Ewald sum took {} seconds.'.format(time.time() - starttime))
+        starttime = time.time()
+
         allcombis = []
         for ind, num in num_remove_dict.items():
             allcombis.append(itertools.combinations(ind, num))
+
+        count = 0
         for allindices in itertools.product(*allcombis):
             sites_to_remove = []
             indices_list = []
             for indices in allindices:
                 sites_to_remove.extend([structure[i] for i in indices])
                 indices_list.extend(indices)
+
+            mod = StructureEditor(structure)
+            mod.delete_sites(indices_list)
+            s_new = mod.modified_structure
+            energy = ewaldsum.compute_partial_energy(indices_list)
             already_tested = False
-            for tsites in tested_sites:
-                if sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
+            for i, tsites in enumerate(tested_sites):
+                tenergy = all_structures[i]['energy']
+                if abs((energy - tenergy) / len(s_new)) < 1e-6 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
                     already_tested = True
+
             if not already_tested:
                 tested_sites.append(sites_to_remove)
-                mod = StructureEditor(structure)
-                mod.delete_sites(indices_list)
-                s_new = mod.modified_structure
-                energy = ewaldsum.compute_partial_energy(indices_list)
                 all_structures.append({'structure':s_new, 'energy':energy})
+
+            count += 1
+            if count % 10 == 0:
+                timenow = time.time()
+                self.logger.debug('{} structures, {:.2f} seconds.'.format(count, timenow - starttime))
+                self.logger.debug('Average time per combi = {} seconds'.format((timenow - starttime) / count))
+                self.logger.debug('{} symmetrically distinct structures found.'.format(len(all_structures)))
 
         all_structures = sorted(all_structures, key=lambda s: s['energy'])
         return all_structures
 
-    @staticmethod
-    def fast_ordering(structure, num_remove_dict):
+    def fast_ordering(self, structure, num_remove_dict, num_to_return=1):
         """
         This method uses the matrix form of ewaldsum to calculate the ewald sums 
         of the potential structures. This is on the order of 4 orders of magnitude 
@@ -257,38 +293,94 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         permutations for example), but this wont make a difference
         until the number of permutations is on the order of 30,000.
         """
+        self.logger.debug('Performing fast ordering')
+        starttime = time.time()
+        self.logger.debug('Performing initial ewald sum...')
+
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
+        self.logger.debug('Ewald sum took {} seconds.'.format(time.time() - starttime))
+        starttime = time.time()
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return=1, fast=True)
-        minimizer.minimize_matrix()
-        lowestenergy_indices = [x[0] for x in minimizer.best_m_list]
-        mod = StructureEditor(structure)
-        mod.delete_sites(lowestenergy_indices)
-        return mod.modified_structure.get_sorted_structure()
 
+        self.logger.debug('Calling EwaldMinimizer...')
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
+
+        all_structures = []
+
+        lowest_energy = minimizer.output_lists[0][0]
+        num_atoms = sum(structure.composition.values())
+
+        for output in minimizer.output_lists:
+            se = StructureEditor(structure)
+            del_indices = [] #do deletions afterwards because they screw up the indices of the structure
+
+            for manipulation in output[1]:
+                if manipulation[1] is None:
+                    del_indices.append(manipulation[0])
+                else:
+                    se.replace_site(manipulation[0], manipulation[1])
+            se.delete_sites(del_indices)
+            all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+
+        return all_structures
 
     def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Apply the transformation.
+        
+        Args:
+            structure:
+                input structure
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or
+            a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. 
+            This transformation is parsed by the alchemy classes for generating
+            a more specific transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+        """
         num_remove_dict = {}
+        total_combis = 0
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(num_to_remove)) > 1e-8:
+            if abs(num_to_remove - int(num_to_remove)) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
             else:
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
+            n = len(indices)
+            total_combis += int(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
+
+        self.logger.debug('Total combinations = {}'.format(total_combis))
+
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+
+        num_to_return = max(1, num_to_return)
+        self.logger.debug('Will return {} best structures.'.format(num_to_return))
 
         if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
-            opt_s = PartialRemoveSitesTransformation.fast_ordering(structure, num_remove_dict)
-            all_structures = [opt_s]
+            all_structures = self.fast_ordering(structure, num_remove_dict, num_to_return)
         elif self._algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
-            all_structures = PartialRemoveSitesTransformation.complete_ordering(structure, num_remove_dict)
-            opt_s = all_structures[0]['structure']
+            all_structures = self.complete_ordering(structure, num_remove_dict)
         elif self._algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
-            opt_s = PartialRemoveSitesTransformation.best_first_ordering(structure, num_remove_dict)
-            all_structures = [opt_s]
-        return opt_s if not return_ranked_list else all_structures
+            all_structures = self.best_first_ordering(structure, num_remove_dict)
+        opt_s = all_structures[0]['structure']
+        return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
         return "PartialRemoveSitesTransformation : Indices and fraction to remove = {}, ALGO = {}".format(self._specie, self._indices_fraction_dict, self._algo)
@@ -299,6 +391,10 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return True
 
     @property
     def to_dict(self):

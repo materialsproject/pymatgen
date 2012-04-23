@@ -1,14 +1,18 @@
+Older versions
+==============
+
+Version 1.7.2
+-------------
+
+1. Bug fixes for vaspio_set and compatibility classes.
+
 Version 1.7.0
-=============
+-------------
 
 1. Complete reorganization of modules for electronic structure.
 2. Beta of band structure classes.
 3. Misc improvements to vaspio classes.
 4. Bug fixes.
-
-
-Older versions
-==============
 
 Version 1.6.0
 -------------

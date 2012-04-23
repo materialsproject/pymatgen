@@ -32,7 +32,7 @@ class BSPlotter(object):
         self._bs = bs
         #Many ab initio codes do not give good results for the highest occupied bands, we therefore only
         #give 90% of the bands for plotting
-        self._nb_bands = int(math.floor(self._bs._nb_bands*0.9))
+        self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
 
     @property
     def bs_plot_data(self):
@@ -153,10 +153,10 @@ class BSPlotter(object):
 
             e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
             e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
- 
+
             for index in cbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)    
-            
+                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)
+
             for index in vbm['kpoint_index']:
                 pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
 
@@ -177,23 +177,22 @@ class BSPlotter(object):
         tick_labels = []
         previous_label = self._bs._kpoints[0].label
         previous_branch = self._bs.get_branch_name(0)
-        for i in range(len(self._bs._kpoints)):
-            c = self._bs._kpoints[i]
-            if(c.label != None):
+        for i, c in enumerate(self._bs._kpoints):
+            if c.label != None:
                 tick_distance.append(self._bs._distance[i])
-                if(c.label != previous_label and previous_branch != self._bs.get_branch_name(i)):
+                if c.label != previous_label and previous_branch != self._bs.get_branch_name(i):
                     label1 = c.label
-                    if(label1.startswith("\\") or label1.find("_") != -1):
+                    if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
                     label0 = previous_label
-                    if(label0.startswith("\\") or label0.find("_") != -1):
+                    if label0.startswith("\\") or label0.find("_") != -1:
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$|$" + label1)
                     #print label0+","+label1
                 else:
-                    if(c.label.startswith("\\") or c.label.find("_") != -1):
+                    if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
                     else:
                         tick_labels.append(c.label)
@@ -224,24 +223,23 @@ class BSPlotter(object):
         pylab.ylabel('Energy(eV)', fontsize='large')
         #pylab.ylim(vbm-4,cbm+4)
         for i in range(len(ticks['label'])):
-            if(ticks['label'][i] != None):
+            if ticks['label'][i]:
                 pylab.axvline(ticks['distance'][i], color='k')
         pylab.show()
         pylab.legend()
 
     def plot_brillouin(self):
-        import pylab as plt
         import pymatgen.command_line.qhull_caller
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
+        mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure(figsize=(8, 8))
-        ax = Axes3D(fig)
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
         vec3 = self._bs._lattice_rec.matrix[2]
-        #ax.plot([0,vec1[0]],[0,vec1[1]],[0,vec1[2]],color='k')
-        #ax.plot([0,vec2[0]],[0,vec2[1]],[0,vec2[2]],color='k')
-        #ax.plot([0,vec3[0]],[0,vec3[1]],[0,vec3[2]],color='k')
 
         #make the grid
         max_x = -1000
@@ -251,34 +249,32 @@ class BSPlotter(object):
         min_y = 1000
         min_z = 1000
         list_k_points = []
-        for i in[-1, 0, 1]:
+        for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
                 for k in [-1, 0, 1]:
                     list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-                    if(list_k_points[-1][0] > max_x):
+                    if list_k_points[-1][0] > max_x:
                         max_x = list_k_points[-1][0]
-                    if(list_k_points[-1][1] > max_y):
+                    if list_k_points[-1][1] > max_y:
                         max_y = list_k_points[-1][1]
-                    if(list_k_points[-1][2] > max_z):
+                    if list_k_points[-1][2] > max_z:
                         max_z = list_k_points[-1][0]
 
-                    if(list_k_points[-1][0] < min_x):
+                    if list_k_points[-1][0] < min_x:
                         min_x = list_k_points[-1][0]
-                    if(list_k_points[-1][1] < min_y):
+                    if list_k_points[-1][1] < min_y:
                         min_y = list_k_points[-1][1]
-                    if(list_k_points[-1][2] < min_z):
+                    if list_k_points[-1][2] < min_z:
                         min_z = list_k_points[-1][0]
 
-                    #ax.scatter([list_k_points[-1][0]],[list_k_points[-1][1]],[list_k_points[-1][2]])
-        #plt.show()
         vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
         #print vertex
         lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
         #[vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))]+" "+str(vertex[i][2])
         #ax.scatter([vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))],[vertex[i][2] for i in range(len(vertex))],color='r')
-        for i in range(len(lines)):
-            vertex1 = lines[i]['start']
-            vertex2 = lines[i]['end']
+        for line in lines:
+            vertex1 = line['start']
+            vertex2 = line['end']
             ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
 
 
@@ -305,19 +301,8 @@ class BSPlotter(object):
         for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
             a.set_visible(False)
 
-        #ax.set_xlim3d(0.5*min_x, 0.5*max_x) 
-        #ax.set_ylim3d(0.5*min_y, 0.5*max_y) 
-        #ax.set_zlim3d(0.5*min_z, 0.5*max_z) 
         ax.grid(False)
-        
-        #plt.tight_layout()
-        #fig.patch.set_facecolor('blue')
-        #fig.patch.set_alpha(0.7)
-
-
-        #fig.savefig('temp.png', facecolor=fig.get_facecolor(), edgecolor='none')
 
         plt.show()
         ax.axis("off")
-        #
 

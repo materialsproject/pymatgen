@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 '''
-This module implements abstract base classes for file io classes.  For seamless integration
-with the rest of the code base, any classes providing to a file io function should extend this class.
+This module implements abstract base classes for file io classes.  For seamless
+integration with the rest of the code base, any classes providing to a file io
+function should extend this class.
 '''
 
 __author__ = "Shyue Ping Ong"
