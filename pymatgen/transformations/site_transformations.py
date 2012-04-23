@@ -199,7 +199,14 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def best_first_ordering(self, structure, num_remove_dict):
+
+        self.logger.debug('Performing best first ordering')
+        starttime = time.time()
+        self.logger.debug('Performing initial ewald sum...')
         ewaldsum = EwaldSummation(structure)
+        self.logger.debug('Ewald sum took {} seconds.'.format(time.time() - starttime))
+        starttime = time.time()
+
         ematrix = ewaldsum.total_energy_matrix
         to_delete = []
 
@@ -224,7 +231,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             ematrix[maxindex, :] = 0
         mod = StructureEditor(structure)
         mod.delete_sites(to_delete)
-        return mod.modified_structure
+        self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
+        return [{'energy':sum(sum(ematrix)), 'structure': mod.modified_structure.get_sorted_structure()}]
 
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug('Performing complete ordering...')
@@ -259,7 +267,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             already_tested = False
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]['energy']
-                if abs((energy - tenergy) / tenergy) < 1e-7 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
+                if abs((energy - tenergy) / len(s_new)) < 1e-6 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
                     already_tested = True
 
             if not already_tested:
@@ -286,13 +294,19 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         until the number of permutations is on the order of 30,000.
         """
         self.logger.debug('Performing fast ordering')
+        starttime = time.time()
+        self.logger.debug('Performing initial ewald sum...')
 
         ewaldmatrix = EwaldSummation(structure).total_energy_matrix
+        self.logger.debug('Ewald sum took {} seconds.'.format(time.time() - starttime))
+        starttime = time.time()
         m_list = []
         for indices, num in num_remove_dict.items():
             m_list.append([0, num, list(indices), None])
 
+        self.logger.debug('Calling EwaldMinimizer...')
         minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
 
         all_structures = []
 
@@ -361,13 +375,11 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         if self._algo == PartialRemoveSitesTransformation.ALGO_FAST:
             all_structures = self.fast_ordering(structure, num_remove_dict, num_to_return)
-            opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSitesTransformation.ALGO_COMPLETE:
             all_structures = self.complete_ordering(structure, num_remove_dict)
-            opt_s = all_structures[0]['structure']
         elif self._algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
-            opt_s = self.best_first_ordering(structure, num_remove_dict)
-            all_structures = [opt_s]
+            all_structures = self.best_first_ordering(structure, num_remove_dict)
+        opt_s = all_structures[0]['structure']
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
