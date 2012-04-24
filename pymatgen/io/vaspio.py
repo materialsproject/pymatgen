@@ -953,9 +953,9 @@ class Potcar(list, VaspInput):
             del self[:]
             for el in elements:
                 f = None
-                if os.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
+                if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
                     f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
-                if os.exists(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR")):
+                if os.path.exists(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR")):
                     f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR"), 'rb')
                 if f == None:
                     raise IOError("You do not have the right POTCAR ("+str(el)+") in your VASP_PSP_DIR")
