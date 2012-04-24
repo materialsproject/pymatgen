@@ -26,8 +26,11 @@ def file_open_zip_aware(filename, *args, **kwargs):
         filename:
             filename 
         args:
-            Standard args for python open(..). E.g., 'r' for read, 'w' for write.
-    
+            Standard args for python open(..). E.g., 'r' for read, 'w' for
+            write.
+        kwargs:
+            Standard kwargs for python open(..).
+            
     Returns:
         File handler
     """
@@ -37,6 +40,7 @@ def file_open_zip_aware(filename, *args, **kwargs):
         return gzip.GzipFile(filename, *args, **kwargs)
     else:
         return open(filename, *args, **kwargs)
+
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
