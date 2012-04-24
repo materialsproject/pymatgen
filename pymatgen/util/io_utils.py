@@ -17,7 +17,7 @@ import bz2
 import re
 import numpy
 
-def file_open_zip_aware(filename, *args):
+def file_open_zip_aware(filename, *args, **kwargs):
     """
     This wrapper wraps around the bz2, gzip and standard python's open function 
     to deal intelligently with bzipped, gzipped or standard text files.
@@ -26,21 +26,22 @@ def file_open_zip_aware(filename, *args):
         filename:
             filename 
         args:
-            Standard args for python open(..).  Examples, 'r' for read, 'w' for write,
+            Standard args for python open(..). E.g., 'r' for read, 'w' for write.
     
     Returns:
         File handler
     """
     if filename.split(".")[-1].upper() == "BZ2":
-        return bz2.BZ2File(filename, *args)
+        return bz2.BZ2File(filename, *args, **kwargs)
     elif filename.split(".")[-1].upper() == "GZ" or filename.split(".")[-1] == "z":
-        return gzip.GzipFile(filename, *args)
+        return gzip.GzipFile(filename, *args, **kwargs)
     else:
-        return open(filename, *args)
+        return open(filename, *args, **kwargs)
 
-def clean_lines(string_list, remove_empty_lines = True):
+def clean_lines(string_list, remove_empty_lines=True):
     """
-    Strips whitespace from strings '\n' and '\r' and empty lines from a list (usually obtained with the ".readlines()" method)
+    Strips whitespace from strings '\n' and '\r' and empty lines from a list
+    (usually obtained with the ".readlines()" method).
     
     Args:
         string_list:
@@ -61,7 +62,8 @@ def clean_lines(string_list, remove_empty_lines = True):
         if (not remove_empty_lines) or clean_s != '':
             yield clean_s
 
-def micro_pyawk(filename, search, results = None, debug = None, postdebug = None):
+
+def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     """
     Small awk-mimicking search routine.
        
@@ -106,14 +108,22 @@ def micro_pyawk(filename, search, results = None, debug = None, postdebug = None
     reader.close()
     return results
 
-def clean_json(input_json, strict = False):
+def clean_json(input_json, strict=False):
     """
-    This method cleans an input json-like dict object, either a list or a dictionary, nested or otherwise,
-    by converting all non-string dictionary keys (such as int and float) to strings.
+    This method cleans an input json-like dict object, either a list or a dict,
+    nested or otherwise, by converting all non-string dictionary keys (such as
+    int and float) to strings.
     
     Args:
         input_dict:
             input dictionary.
+        strict:
+            This parameters sets the behavior when clean_json encounters an
+            object it does not understand. If strict is True, clean_json will
+            try to get the to_dict attribute of the object. If no such
+            attribute is found, an attribute error will be thrown. If strict is
+            False, clean_json will simply call str(object) to convert the object
+            to a string representation.
     
     Returns:
         Sanitized dict that can be json serialized.
