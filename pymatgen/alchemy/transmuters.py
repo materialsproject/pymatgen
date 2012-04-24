@@ -26,7 +26,7 @@ import collections
 from pymatgen.alchemy.materials import TransformedStructure
 
 
-class TransformedStructureTransmuter(object):
+class StandardTransmuter(object):
     """
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
@@ -158,16 +158,19 @@ class TransformedStructureTransmuter(object):
             output.append(str(x._structures[-1]))
         return "\n".join(output)
 
-    @staticmethod
-    def from_cif_string(cif_string, transformations=[], primitive=True,
-                        extend_collection=False):
+
+
+class CifTransmuter(StandardTransmuter):
+
+    def __init__(self, cif_string, transformations=[], primitive=True,
+                  extend_collection=False):
         '''
-        Generates a TransformedStructureCollection from a cif string, possibly
+        Generates a Transmuter from a cif string, possibly
         containing multiple structures.
         
         Args:
             cif_string:
-                A string containing a cif
+                A string containing a cif or a series of cifs
             transformations:
                 New transformations to be applied to all structures
             primitive:
@@ -186,19 +189,18 @@ class TransformedStructureTransmuter(object):
                 read_data = True
             if read_data:
                 structure_data[-1].append(line)
-        transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), [], primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
-
+        transformed_structures.extend([TransformedStructure.from_cif_string("\n".join(data), [], primitive) for data in structure_data])
+        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection)
 
     @staticmethod
-    def from_cifs(cif_filenames, transformations=[], primitive=True,
+    def from_filenames(filenames, transformations=[], primitive=True,
                   extend_collection=False):
         '''
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
         
         Args:
-            cif_filenames:
+            filenames:
                 List of strings of the cif files
             transformations:
                 New transformations to be applied to all structures
@@ -208,29 +210,24 @@ class TransformedStructureTransmuter(object):
                 Whether to use more than one output structure from one-to-many
                 transformations.
         '''
-        transformed_structures = []
-        for filename in cif_filenames:
-            with open(filename, "r") as f:
-                structure_data = []
-                read_data = False
-                for line in f:
-                    if re.match("^\s*data", line):
-                        structure_data.append([])
-                        read_data = True
-                    if read_data:
-                        structure_data[-1].append(line)
-                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), [], primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
 
-    @staticmethod
-    def from_poscars(poscar_filenames, transformations=[],
-                     extend_collection=False):
+        allcifs = []
+        for fname in filenames:
+            with open(fname, "r") as f:
+                allcifs.append(f.read())
+        return CifTransmuter("\n".join(allcifs), transformations, primitive=primitive, extend_collection=extend_collection)
+
+
+class PoscarTransmuter(StandardTransmuter):
+
+    def __init__(self, poscar_string, transformations=[],
+                 extend_collection=False):
         """
         Generates a transmuter from a sequence of POSCARs.
         
         Args:
-            poscar_filenames:
-                List of POSCAR filenames
+            poscar_string:
+                List of POSCAR strings
             transformations:
                 New transformations to be applied to all structures.
             primitive:
@@ -240,10 +237,17 @@ class TransformedStructureTransmuter(object):
                 transformations.
         """
         transformed_structures = []
+        transformed_structures.append(TransformedStructure.from_poscar_string(poscar_string, []))
+        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection=extend_collection)
+
+    @staticmethod
+    def from_filenames(poscar_filenames, transformations=[], primitive=True,
+                  extend_collection=False):
+        transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
                 transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
+        return StandardTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory=True, subfolder=None):
