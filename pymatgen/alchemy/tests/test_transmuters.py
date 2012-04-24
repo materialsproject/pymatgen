@@ -15,29 +15,31 @@ __date__ = "Mar 5, 2012"
 
 import unittest
 import os
-from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
+from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation, SuperTransformation
 
 import pymatgen
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 
-class TransformedStructureTransmuterTest(unittest.TestCase):
+class CifTransmuterTest(unittest.TestCase):
 
-    def test_cif_transmute(self):
+    def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe":"Mn", "Fe2+":"Mn2+"}))
-        tsc = TransformedStructureTransmuter.from_cifs([os.path.join(test_dir, "MultiStructure.cif")], trans)
+        tsc = CifTransmuter.from_filenames([os.path.join(test_dir, "MultiStructure.cif")], trans)
         self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "Li", "P"])
         for s in tsc:
             els = set([el.symbol for el in s.final_structure.composition.elements])
             self.assertEqual(expected_ans, els)
 
-    def test_poscar_transmute(self):
+class PoscarTransmuterTest(unittest.TestCase):
+
+    def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe":"Mn"}))
-        tsc = TransformedStructureTransmuter.from_poscars([os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")], trans)
+        tsc = PoscarTransmuter.from_filenames([os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")], trans)
         self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "P"])
         for s in tsc:
@@ -45,7 +47,7 @@ class TransformedStructureTransmuterTest(unittest.TestCase):
             self.assertEqual(expected_ans, els)
 
     def test_transmuter(self):
-        tsc = TransformedStructureTransmuter.from_poscars([os.path.join(test_dir, "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames([os.path.join(test_dir, "POSCAR")])
         tsc.append_transformation(RemoveSpeciesTransformation('O'))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
