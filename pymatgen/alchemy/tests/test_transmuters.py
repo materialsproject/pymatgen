@@ -58,6 +58,8 @@ class PoscarTransmuterTest(unittest.TestCase):
         t = SuperTransformation([SubstitutionTransformation({"Fe2+":"Mg2+"}), SubstitutionTransformation({"Fe2+":"Zn2+"})])
         tsc.append_transformation(t, extend_collection=True)
         self.assertEqual(len(tsc), 8)
+        for x in tsc:
+            self.assertEqual(len(x), 5, 'something might be wrong with the number of transformations in the history') #should be 4 trans + starting structure
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
