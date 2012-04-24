@@ -158,10 +158,21 @@ class StandardTransmuter(object):
             output.append(str(x._structures[-1]))
         return "\n".join(output)
 
-    def __add__(self, b):
-        transformed_structures = self._transformed_structures
-        transformed_structures.extend(b._transformed_structures)
-        return StandardTransmuter(transformed_structures, [])
+    def append_transformed_structures(self, tstructs_or_transmuter):
+        '''
+        Method is overloaded to accept either a list of transformed structures
+        or transmuter, it which case it appends the 2nd transmuter's structures.
+        
+        Args:
+            tstructs_or_transmuter:
+                A list of transformed structures or a transmuter.
+        '''
+        if isinstance(tstructs_or_transmuter, self.__class__):
+            self._transformed_structures.extend(tstructs_or_transmuter._transformed_structures)
+        else:
+            for ts in tstructs_or_transmuter:
+                assert isinstance(ts, TransformedStructure)
+            self._transformed_structures.extend(tstructs_or_transmuter)
 
 
 class CifTransmuter(StandardTransmuter):
