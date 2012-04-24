@@ -74,7 +74,7 @@ def DeformGeometry(rlxd_str, nd=0.02, ns=0.02, m=4, n=4):
 
 if __name__ == "__main__":
 
-    struct = CifParser('/home/MDEJONG1/pythonplayground/pymatgen/pymatgen_repo/pymatgen/phonons/aluminum.cif').get_structures()[0]
+    struct = CifParser('aluminum.cif').get_structures()[0]
     D = DeformGeometry(struct)    
 
 
