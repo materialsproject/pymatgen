@@ -35,11 +35,14 @@ class BSPlotter(object):
         #give 90% of the bands for plotting
         self._nb_bands = int(math.floor(self._bs._nb_bands*0.9))
 
-    @property
-    def bs_plot_data(self):
+    def bs_plot_data(self, zero_to_efermi=True):
 
         """
         Get the data nicely formatted for a plot
+        
+        Args:
+            zero_to_efermi:
+                Automatically subtract off the Fermi energy from the eigenvalues and plot (E-Ef)
         
         Returns:
             A dict of the following format:
@@ -48,16 +51,25 @@ class BSPlotter(object):
                 'energy': a dictionnary storing bands for spin up and spin down data {Spin:[band_index][k_point_index]} as a list (one element for each band) of energy for 
                 each kpoint
         """
+        zero_energy = None
+        if self._bs.is_metal:
+            zero_energy=self._bs.efermi
+        else:
+            zero_energy=self._bs.get_vbm()['energy']
+        
+        if not zero_to_efermi:
+            zero_energy = 0.0
+            
         energy={Spin.up:[]}
         if self._bs.is_spin_polarized:
             energy = energy={Spin.up:[],Spin.down:[]}
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            energy[Spin.up].append([self._bs._bands[Spin.up][i]['energy'][j] for j in range(len(self._bs._kpoints))])
+            energy[Spin.up].append([self._bs._bands[Spin.up][i]['energy'][j]-zero_energy for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-                energy[Spin.down].append([self._bs._bands[Spin.down][i]['energy'][j] for j in range(len(self._bs._kpoints))])
+                energy[Spin.down].append([self._bs._bands[Spin.down][i]['energy'][j]-zero_energy for j in range(len(self._bs._kpoints))])
         
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
@@ -80,20 +92,15 @@ class BSPlotter(object):
         #main internal config options
         e_min = -4
         e_max = 4
-        band_linewidth = 1
+        band_linewidth = 3
 
         pylab.figure
-        data = self.bs_plot_data
+        data = self.bs_plot_data(zero_to_efermi)
         for i in range(self._nb_bands):
-            if zero_to_efermi:
-                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][Spin.up][i]], 'b-', linewidth=band_linewidth)
+                pylab.plot(data['distances'], [e for e in data['energy'][Spin.up][i]], 'b-', linewidth=band_linewidth)
                 if self._bs.is_spin_polarized:
-                    pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][Spin.down][i]], 'r-', linewidth=band_linewidth)
-            else:
-                pylab.plot(data['distances'], data['energy'][Spin.up][i], 'b-', linewidth=band_linewidth)
-                if self._bs.is_spin_polarized:
-                    pylab.plot(data['distances'], data['energy'][Spin.down][i], 'r-', linewidth=band_linewidth)
-
+                    pylab.plot(data['distances'], [e for e in data['energy'][Spin.down][i]], 'r-', linewidth=band_linewidth)
+                    
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
         log.debug("ticks {t}".format(t=ticks))
@@ -140,9 +147,10 @@ class BSPlotter(object):
         ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
         pylab.ylabel(ylabel, fontsize='large')
 
-        # Draw Fermi energy
-        ef = 0.0 if zero_to_efermi else self._bs.efermi
-        pylab.axhline(ef, linewidth=2, color='k')
+        # Draw Fermi energy, only if not the zero
+        if not zero_to_efermi:
+            ef = self._bs.efermi
+            pylab.axhline(ef, linewidth=2, color='k')
 
         # X range (K)
         #last distance point
