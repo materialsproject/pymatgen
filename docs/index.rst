@@ -41,12 +41,12 @@ be notified via email of pymatgen releases, you may become a member of
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.0)
+Latest Change Log (v1.8.1)
 --------------------------
 
-1. Support for additional properties on Specie (Spin) and Site (magmom, charge).
-2. Molecule class to support molecules without periodicity.
-3. Beta io class for XYZ and GaussianInput.
+1. Revamped transmuter classes for better readability and long term support.
+2. Much improved speed for PartialRemoveSpecieTransformations.
+3. Misc bug fixes.
 
 .. toctree::
    :maxdepth: 2
