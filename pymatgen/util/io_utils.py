@@ -44,12 +44,11 @@ def file_open_zip_aware(filename, *args, **kwargs):
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
-    Strips whitespace from strings '\n' and '\r' and empty lines from a list
-    (usually obtained with the ".readlines()" method).
+    Strips whitespace, \n and \r and empty lines from a list.
     
     Args:
         string_list:
-            list of strings
+            List of strings
         remove_empty_lines:
             Set to True to skip lines which are empty after stripping.
     
