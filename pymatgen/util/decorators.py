@@ -17,6 +17,7 @@ import logging
 import datetime
 from functools import wraps
 
+
 def singleton(cls):
     """
     This decorator can be used to create a singleton out of a class.
@@ -29,6 +30,7 @@ def singleton(cls):
             instances[cls] = cls()
         return instances[cls]
     return getinstance
+
 
 def cached_class(klass):
     """
@@ -49,7 +51,7 @@ def cached_class(klass):
     """
     cache = {}
 
-    @wraps(klass, assigned = ('__name__', '__module__'), updated = ())
+    @wraps(klass, assigned=('__name__', '__module__'), updated=())
     class _decorated(klass):
         # The wraps decorator can't do this because __doc__
         # isn't writable once the class is created
@@ -64,7 +66,15 @@ def cached_class(klass):
 
     return _decorated
 
-def logged(level = logging.DEBUG):
+def logged(level=logging.DEBUG):
+    """
+    Useful logging decorator. If a method is logged, the beginning and end of 
+    the method call will be logged at a pre-specified level.
+    
+    Args:
+        level:
+            Level to log method at. Defaults to DEBUG.
+    """
     def wrap(f):
         logger = logging.getLogger("{}.{}".format(f.__module__, f.__name__))
         def wrapped_f(*args, **kwargs):
