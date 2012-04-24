@@ -77,7 +77,7 @@ comprising of MIT and Lawrence Berkeley National Laboratory staff to be a
 robust toolkit for materials researchers to perform advanced manipulations of
 structures and analyses.
 
-For pymatgen to continue to grow in functionality and robustnes, we rely on
+For pymatgen to continue to grow in functionality and robustness, we rely on
 other volunteers to develop new analyses and report and fix bugs. We welcome
 anyone to use our code as-is, but if you could take a few moment to give back
 to pymatgen in some small way, it would be greatly appreciated. A benefit of
@@ -110,8 +110,8 @@ Citing pymatgen
 
 Some of pymatgen's functionality is based on scientific advances / principles
 developed by the computational materials scientists in our team. If you 
-use some of these functionality in your research, you may wish to consider citing
-the following works:
+use some of these functionality in your research, you may wish to consider
+citing the following works:
 
 pymatgen.io.vaspio_set module
 -----------------------------
@@ -150,6 +150,12 @@ is based on the following work:
    G. Ceder. Formation enthalpies by mixing GGA and GGA + U calculations. 
    Physical Review B, 2011, 84(4), 045115. doi:10.1103/PhysRevB.84.045115
 
+pymatgen.symmetry
+-----------------
+
+The symmetry package is based on the excellent spglib developed by Atz Togo. For
+more information, please refer to Atz Togo's site at
+http://spglib.sourceforge.net/.
 
 Indices and tables
 ==================
