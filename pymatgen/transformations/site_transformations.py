@@ -11,7 +11,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
@@ -200,7 +200,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def best_first_ordering(self, structure, num_remove_dict):
-
         self.logger.debug('Performing best first ordering')
         starttime = time.time()
         self.logger.debug('Performing initial ewald sum...')

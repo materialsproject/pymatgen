@@ -4,7 +4,9 @@
 An interface to the excellent spglib library by Atsushi Togo 
 (http://spglib.sourceforge.net/) for pymatgen.
 
-This is a *beta* version. Not all spglib functions are implemented.
+.. note::
+    This is a *beta* version. Not all spglib functions are implemented. Also,
+    it only works with ordered structures.
 '''
 
 from __future__ import division
@@ -36,6 +38,7 @@ class SymmetryFinder(object):
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
+    Note that this does not work with non-ordered Structures.
     """
 
     def __init__(self, structure, symprec=1e-5):

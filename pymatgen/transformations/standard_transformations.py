@@ -11,7 +11,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
@@ -33,7 +33,8 @@ from pymatgen.transformations.site_transformations import PartialRemoveSitesTran
 
 class IdentityTransformation(AbstractTransformation):
     """
-    This is a demo transformation which does nothing, i.e. just return the same structure.
+    This is a demo transformation which does nothing, i.e. just returns a copy
+    of the same structure.
     """
 
     def __init__(self):
@@ -69,10 +70,14 @@ class RotationTransformation(AbstractTransformation):
 
     def __init__(self, axis, angle, angle_in_radians=False):
         """
-        Arguments:
-            axis - Axis of rotation, e.g., [1, 0, 0]
-            angle - angle to rotate
-            angle_in_radians - Set to True if angle is supplied in radians. Else degrees are assumed.
+        Args:
+            axis:
+                Axis of rotation, e.g., [1, 0, 0]
+            angle:
+                Angle to rotate
+            angle_in_radians:
+                Set to True if angle is supplied in radians. Else degrees are
+                assumed.
         """
         self._axis = axis
         self._angle = angle
@@ -147,16 +152,15 @@ class SupercellTransformation(AbstractTransformation):
         Args:
             scaling_matrix:
                 a matrix of transforming the lattice vectors. Defaults to the 
-                identity matrix.
-                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]]
-                generates a new structure with lattice vectors
-                a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice
-                vectors of the original structure. 
+                identity matrix. Has to be all integers. e.g., 
+                [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
+                lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c
+                are the lattice vectors of the original structure. 
         """
         self._matrix = scaling_matrix
 
     @staticmethod
-    def from_scaling_factors(scale_a, scale_b, scale_c):
+    def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
         """
         Convenience method to get a SupercellTransformation from a simple series
         of three numbers for scaling each lattice vector. Equivalent to calling
@@ -164,11 +168,11 @@ class SupercellTransformation(AbstractTransformation):
         
         Args:
             scale_a:
-                Scaling factor for lattice direction a.
+                Scaling factor for lattice direction a. Defaults to 1.
             scale_b:
-                Scaling factor for lattice direction b.
+                Scaling factor for lattice direction b. Defaults to 1.
             scale_c:
-                Scaling factor for lattice direction c.
+                Scaling factor for lattice direction c. Defaults to 1.
         """
         return SupercellTransformation([[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]])
 
@@ -286,7 +290,8 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
-    Remove fraction of specie from a structure. 
+    Remove fraction of specie from a structure.
+    
     Requires an oxidation state decorated structure for ewald sum to be 
     computed.
     
