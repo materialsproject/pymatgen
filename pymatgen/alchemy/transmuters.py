@@ -25,16 +25,15 @@ import collections
 
 from pymatgen.alchemy.materials import TransformedStructure
 
-from copy import deepcopy
 
-class TransformedStructureTransmuter(object):
+class StandardTransmuter(object):
     """
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
     """
 
     def __init__(self, transformed_structures, transformations=[],
-                 extend_collection=False):
+                 extend_collection=0):
         """
         Args:
             transformed_structures:
@@ -43,7 +42,8 @@ class TransformedStructureTransmuter(object):
                 New transformations to be applied to all structures
             extend_collection:
                 Whether to use more than one output structure from one-to-many
-                transformations.
+                transformations. extend_collection can be a number, which
+                determines the maximum branching for each transformation.
         """
         self._transformed_structures = transformed_structures
         for trans in transformations:
@@ -93,8 +93,9 @@ class TransformedStructureTransmuter(object):
             transformation:
                 Transformation to append
             extend_collection:
-                Whether to generate multiple structures for transformations 
-                that result in possible multiple structures.
+                Whether to use more than one output structure from one-to-many
+                transformations. extend_collection can be a number, which
+                determines the maximum branching for each transformation.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
@@ -109,70 +110,11 @@ class TransformedStructureTransmuter(object):
         new_structures = []
 
         for x in self._transformed_structures:
-            new = x.append_transformation(transformation, return_alternatives=extend_collection, clear_redo=clear_redo)
+            new = x.append_transformation(transformation, return_alternatives=extend_collection)
             if new is not None:
                 new_structures.extend(new)
-        output = [x.was_modified for x in self._transformed_structures]
+
         self._transformed_structures.extend(new_structures)
-        return output
-
-    def branch_collection(self, transformations, retention_level=1,
-                          extend_collection=False, clear_redo=True):
-        '''
-        Copies the structures collection, applying one transformation to each 
-        copy.
-        
-        Args:
-            transformations:
-                List of transformations to apply (each structure gets one of 
-                these transformations. To append multiple transformations to 
-                each structure use extend_transformations)
-            retention_level:
-                Specifies which structures will be kept and which will be 
-                thrown out.
-                0 - throws out all structures that weren't modified by any of 
-                the transformations
-                1 - keeps structures that weren't modified by anything.
-                2 - keeps all structures, including the untransformed ones. 
-                Note that this may cause issues with undoing transformations
-                since they will have different transformation histories
-                
-                E.g if you start with 2 structures and apply 2 transformations, 
-                and one structure isn't modified by either of them but the 
-                other structure is modified by both, for retention_level = 0, 
-                you will have 2 structures left, for retention_level = 1 you 
-                will have 3 structures, and for retention_level 2, you will 
-                have 4. In most cases, retention_level = 1 will provide the 
-                desired functionality.
-            extend_collection:
-                Whether to generate multiple structures for transformations 
-                that result in possible multiple structures.
-            clear_redo:
-                Boolean indicating whether to clear the redo list. By default,
-                this is True, meaning any appends clears the history of undoing.
-                However, when using append_transformation to do a redo, the 
-                redo list should not be cleared to allow multiple redos.
-        '''
-        any_modification = [False] * len(self._transformed_structures)
-        old_transformed_structures = self._transformed_structures
-
-        new_trans_structures = []
-        for transformation in transformations:
-            self._transformed_structures = deepcopy(old_transformed_structures)
-            modified = self.append_transformation(transformation, extend_collection, clear_redo)
-            for structure in self._transformed_structures:
-                if structure.was_modified:
-                    new_trans_structures.append(structure)
-            any_modification = map(lambda x:x[0] or x[1], zip(modified, any_modification))
-
-        self._transformed_structures = new_trans_structures
-
-        if retention_level == 1:
-            for i, structure in enumerate(old_transformed_structures):
-                if not any_modification[i]:
-                    self._transformed_structures.append(structure)
-        elif retention_level == 2:
-            self._transformed_structures.extend(old_transformed_structures)
 
     def extend_transformations(self, transformations):
         """
@@ -216,16 +158,34 @@ class TransformedStructureTransmuter(object):
             output.append(str(x._structures[-1]))
         return "\n".join(output)
 
-    @staticmethod
-    def from_cif_string(cif_string, transformations=[], primitive=True,
-                        extend_collection=False):
+    def append_transformed_structures(self, tstructs_or_transmuter):
         '''
-        Generates a TransformedStructureCollection from a cif string, possibly
+        Method is overloaded to accept either a list of transformed structures
+        or transmuter, it which case it appends the 2nd transmuter's structures.
+        
+        Args:
+            tstructs_or_transmuter:
+                A list of transformed structures or a transmuter.
+        '''
+        if isinstance(tstructs_or_transmuter, self.__class__):
+            self._transformed_structures.extend(tstructs_or_transmuter._transformed_structures)
+        else:
+            for ts in tstructs_or_transmuter:
+                assert isinstance(ts, TransformedStructure)
+            self._transformed_structures.extend(tstructs_or_transmuter)
+
+
+class CifTransmuter(StandardTransmuter):
+
+    def __init__(self, cif_string, transformations=[], primitive=True,
+                  extend_collection=False):
+        '''
+        Generates a Transmuter from a cif string, possibly
         containing multiple structures.
         
         Args:
             cif_string:
-                A string containing a cif
+                A string containing a cif or a series of cifs
             transformations:
                 New transformations to be applied to all structures
             primitive:
@@ -244,45 +204,65 @@ class TransformedStructureTransmuter(object):
                 read_data = True
             if read_data:
                 structure_data[-1].append(line)
-        transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), [], primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, transformations, extend_collection)
-
+        transformed_structures.extend([TransformedStructure.from_cif_string("\n".join(data), [], primitive) for data in structure_data])
+        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection)
 
     @staticmethod
-    def from_cifs(cif_filenames, transformations=[], primitive=True):
+    def from_filenames(filenames, transformations=[], primitive=True,
+                  extend_collection=False):
         '''
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
         
         Args:
-            cif_filenames:
+            filenames:
                 List of strings of the cif files
             transformations:
                 New transformations to be applied to all structures
             primitive:
                 Whether to generate the primitive cell from the cif.
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
         '''
+
+        allcifs = []
+        for fname in filenames:
+            with open(fname, "r") as f:
+                allcifs.append(f.read())
+        return CifTransmuter("\n".join(allcifs), transformations, primitive=primitive, extend_collection=extend_collection)
+
+
+class PoscarTransmuter(StandardTransmuter):
+
+    def __init__(self, poscar_string, transformations=[],
+                 extend_collection=False):
+        """
+        Generates a transmuter from a sequence of POSCARs.
+        
+        Args:
+            poscar_string:
+                List of POSCAR strings
+            transformations:
+                New transformations to be applied to all structures.
+            primitive:
+                Whether to generate the primitive cell from the cif.
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations.
+        """
         transformed_structures = []
-        for filename in cif_filenames:
-            with open(filename, "r") as f:
-                structure_data = []
-                read_data = False
-                for line in f:
-                    if re.match("^\s*data", line):
-                        structure_data.append([])
-                        read_data = True
-                    if read_data:
-                        structure_data[-1].append(line)
-                transformed_structures.extend([TransformedStructure.from_cif_string("".join(data), transformations, primitive) for data in structure_data])
-        return TransformedStructureTransmuter(transformed_structures, [])
+        transformed_structures.append(TransformedStructure.from_poscar_string(poscar_string, []))
+        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection=extend_collection)
 
     @staticmethod
-    def from_poscars(poscar_filenames, transformations=[]):
+    def from_filenames(poscar_filenames, transformations=[], primitive=True,
+                  extend_collection=False):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), transformations))
-        return TransformedStructureTransmuter(transformed_structures, [])
+                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), []))
+        return StandardTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory=True, subfolder=None):

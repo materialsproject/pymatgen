@@ -47,11 +47,18 @@ class Element(object):
             symbol:
                 Element symbol, e.g., "H", "Fe"
         '''
-        self._data = _pt_data[symbol]
+        object.__setattr__(self, '_data', _pt_data[symbol])
+
         #Store key variables for quick access
-        self._z = self._data['Atomic no']
-        self._symbol = symbol
-        self._x = self._data.get('X', 0)
+        object.__setattr__(self, '_z', self._data['Atomic no'])
+        object.__setattr__(self, '_symbol', symbol)
+        object.__setattr__(self, '_x', self._data.get('X', 0))
+
+    def __setattr__(self, n, v):
+        raise ValueError("Element is immutable and setting of attributes is not allowed")
+
+    def __delattr__(self, n):
+        raise ValueError("Element is immutable and deleting of attributes is not allowed")
 
     @property
     def average_ionic_radius(self):
@@ -347,15 +354,15 @@ class Element(object):
         Returns the periodic table row of the element.
         """
         Z = self.Z
-        totalEls = 0
+        total = 0
         if Z >= 57 and Z <= 70:
             return 8
         elif Z >= 89 and Z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
-            totalEls += _pt_row_sizes[i]
-            if totalEls >= Z:
+            total += _pt_row_sizes[i]
+            if total >= Z:
                 return i + 1
         return 8
 
@@ -495,7 +502,7 @@ class Specie(object):
     Properties associated with Specie should be "idealized" values, not
     calculated values. For example, high-spin Fe2+ may be assigned an idealized
     spin of +5, but an actual Fe2+ site may be calculated to have a magmom of
-    +4.5. Calculated properties should be assigned to Site objects, and not 
+    +4.5. Calculated properties should be assigned to Site objects, and not
     Specie.
     """
 
@@ -510,15 +517,15 @@ class Specie(object):
                 Oxidation state of element, e.g., 2 or -2
             properties:
                 Properties associated with the Specie, e.g. 
-                {'spin':5}. Defaults to None. Properties must be one of the 
+                {'spin':5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
-        self._el = Element(symbol)
-        self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        object.__setattr__(self, '_el', Element(symbol))
+        object.__setattr__(self, '_oxi_state', oxidation_state)
+        object.__setattr__(self, '_properties', properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
-                raise ValueError("{} is not a supported Specie property".format(k))
+                raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
         if a in self._properties:
@@ -527,6 +534,13 @@ class Specie(object):
             return getattr(self._el, a)
         except:
             raise AttributeError(a)
+
+    def __setattr__(self, n, v):
+        raise ValueError("Specie is immutable and setting of attributes is not allowed")
+
+    def __delattr__(self, n):
+        raise ValueError("Specie is immutable and deleting of attributes is not allowed")
+
 
     def __eq__(self, other):
         """
@@ -607,6 +621,18 @@ class Specie(object):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['element'] = self.symbol
+        d['oxidation_state'] = self._oxi_state
+        d['properties'] = self._properties
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
+
 
 class DummySpecie(Specie):
     """
@@ -639,9 +665,9 @@ class DummySpecie(Specie):
         Set required attributes for DummySpecie to function like a Specie in
         most instances.
         """
-        self._symbol = symbol
-        self._oxi_state = oxidation_state
-        self._properties = properties if properties else {}
+        object.__setattr__(self, '_symbol', symbol)
+        object.__setattr__(self, '_oxi_state', oxidation_state)
+        object.__setattr__(self, '_properties', properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported Specie property".format(k))
@@ -691,6 +717,17 @@ class DummySpecie(Specie):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['element'] = self.symbol
+        d['oxidation_state'] = self._oxi_state
+        d['properties'] = self._properties
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return DummySpecie(d['element'], d['oxidation_state'], d.get('properties', None))
 
 @singleton
 class PeriodicTable(object):

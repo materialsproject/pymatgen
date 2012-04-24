@@ -131,7 +131,7 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         t = PartialRemoveSitesTransformation([tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_COMPLETE)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
-        s = t.apply_transformation(self.struct, True)
+        s = t.apply_transformation(self.struct, 12)
         self.assertEqual(len(s), 12)
 
     def test_apply_transformation_best_first(self):
