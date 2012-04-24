@@ -10,34 +10,43 @@ Pymatgen (python materials genomics) is the python library that powers the
 Materials Project (http://www.materialsproject.org). These are some of the main 
 features:
 
-1. Highly flexible classes for the representation of Element, Site, Structure objects.
+1. Highly flexible classes for the representation of Element, Site, Molecule, 
+   Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files 
    (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information file 
-   format.  This includes generating Structure objects from vasp input and output.
+   format. This includes generating Structure objects from vasp input and
+   output. There is also support for Gaussian input files and XYZ file for
+   molecules.
 3. Comprehensive tool to generate and view compositional and grand canonical phase 
    diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 
 The public version of pymatgen is free (as in free beer) to download and to use. 
 However, we would also like you to help us improve this library by making your 
-own contributions as well.  These contributions can be in the form of additional 
-tools or modules you develop, or even simple things such as bug reports.  Please 
-contact the maintainer of this library (shyue@mit.edu) to find out how to include 
-your contributions via github or for bug reports.
+own contributions as well.  These contributions can be in the form of
+additional tools or modules you develop, or even simple things such as bug
+reports. Please read the Contributing_ section or contact the maintainer of
+this library (shyue@mit.edu) to find out how to include your contributions
+via github or for bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward 
 incompatible changes, they are sometimes unavoidable, and tough decisions have 
 to be made for the long term health of the code.
 
+For documentation and usage guide, please refer to the latest documentation at
+our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+be notified via email of pymatgen releases, you may become a member of 
+`pymatgen's Google Groups page`_.
+
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.7.3)
+Latest Change Log (v1.8.1)
 --------------------------
 
-1. Beta support for additional properties on Specie (Spin) and Site 
-   (magmom, charge).
-2. Beta Molecule class to support molecules without periodicity.
+1. Revamped transmuter classes for better readability and long term support.
+2. Much improved speed for PartialRemoveSpecieTransformations.
+3. Misc bug fixes.
 
 .. toctree::
    :maxdepth: 2
@@ -60,6 +69,27 @@ Usage
    
    usage
 
+Contributing
+============
+
+Pymatgen is developed by a team of volunteers. It is started by a team
+comprising of MIT and Lawrence Berkeley National Laboratory staff to be a
+robust toolkit for materials researchers to perform advanced manipulations of
+structures and analyses.
+
+For pymatgen to continue to grow in functionality and robustness, we rely on
+other volunteers to develop new analyses and report and fix bugs. We welcome
+anyone to use our code as-is, but if you could take a few moment to give back
+to pymatgen in some small way, it would be greatly appreciated. A benefit of
+contributing is that your code will now be used by other researchers who use
+pymatgen, and we will include an acknowledgement to you (and any related
+publications) in pymatgen. Read on to find out about the various ways you can
+contribute.
+
+.. toctree::
+   :maxdepth: 2 
+   
+   contributing
 
 API/Reference Docs
 ==================
@@ -80,8 +110,8 @@ Citing pymatgen
 
 Some of pymatgen's functionality is based on scientific advances / principles
 developed by the computational materials scientists in our team. If you 
-use some of these functionality in your research, you may wish to consider citing
-the following works:
+use some of these functionality in your research, you may wish to consider
+citing the following works:
 
 pymatgen.io.vaspio_set module
 -----------------------------
@@ -120,6 +150,12 @@ is based on the following work:
    G. Ceder. Formation enthalpies by mixing GGA and GGA + U calculations. 
    Physical Review B, 2011, 84(4), 045115. doi:10.1103/PhysRevB.84.045115
 
+pymatgen.symmetry
+-----------------
+
+The symmetry package is based on the excellent spglib developed by Atz Togo. For
+more information, please refer to Atz Togo's site at
+http://spglib.sourceforge.net/.
 
 Indices and tables
 ==================
@@ -128,3 +164,5 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+.. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/

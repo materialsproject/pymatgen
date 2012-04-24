@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-This module provides classes used to define a structure, such as 
-Site, PeriodicSite, Structure, and Composition.
+This module provides classes used to define a structure, such as Site,
+PeriodicSite, Structure, and Composition.
 """
 
 from __future__ import division
@@ -55,7 +55,7 @@ class Site(collections.Mapping, collections.Hashable):
         """
 
         if isinstance(atoms_n_occu, dict):
-            self._species = {smart_element_or_specie(k) : v for k, v in atoms_n_occu.items()}
+            self._species = {smart_element_or_specie(k): v for k, v in atoms_n_occu.items()}
             totaloccu = sum(self._species.values())
             if totaloccu > 1:
                 raise ValueError("Species occupancies sum to more than 1!")
@@ -246,10 +246,13 @@ class Site(collections.Mapping, collections.Hashable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Specie):
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-            elif isinstance(spec, Element):
+            if isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
+            elif isinstance(spec, Specie):
+                d = spec.to_dict
+                d['occu'] = occu
+                species_list.append(d)
+                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
         return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
 
     @staticmethod
@@ -259,7 +262,7 @@ class Site(collections.Mapping, collections.Hashable):
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
         return Site(atoms_n_occu, d['xyz'], properties=props)
@@ -501,10 +504,12 @@ class PeriodicSite(Site):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Specie):
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-            elif isinstance(spec, Element):
+            if isinstance(spec, Element):
                 species_list.append({'element': spec.symbol, 'occu': occu})
+            else:
+                d = spec.to_dict
+                d['occu'] = occu
+                species_list.append(d)
         return {'label': self.species_string, 'species': species_list,
                 'occu': occu, 'xyz':[float(c) for c in self._coords],
                 'abc':[float(c) for c in self._fcoords],
@@ -512,16 +517,24 @@ class PeriodicSite(Site):
                 'properties': self._properties}
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d, lattice=None):
         """
-        Create PeriodicSite from dict representation
+        Create PeriodicSite from dict representation.
+        
+        Args:
+            d:
+                dict representation of PeriodicSite
+            lattice:
+                Optional lattice to override lattice specified in d. Useful for
+                ensuring all sites in a structure share the same lattice.
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie(sp_occu['element'], sp_occu['oxidation_state']) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
-        return PeriodicSite(atoms_n_occu, d['abc'], Lattice.from_dict(d['lattice']), properties=props)
+        lattice = lattice if lattice else Lattice.from_dict(d['lattice'])
+        return PeriodicSite(atoms_n_occu, d['abc'], lattice, properties=props)
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -535,6 +548,35 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     """
 
     DISTANCE_TOLERANCE = 0.01
+
+    @abc.abstractproperty
+    def sites(self):
+        """
+        Returns an iterator for the sites in the Structure. 
+        """
+        for site in self._sites:
+            yield site
+
+    @abc.abstractmethod
+    def get_distance(self, i, j):
+        """
+        Returns distance between sites at index i and j.
+        """
+        return
+
+    @property
+    def distance_matrix(self):
+        """
+        Returns the distance matrix between all sites in the structure. For
+        periodic structures, this should return the nearest image distance.
+        """
+        nsites = self.num_sites
+        distmatrix = np.zeros((nsites, nsites))
+        for i, j in itertools.combinations(xrange(nsites), 2):
+            dist = self.get_distance(i, j)
+            distmatrix[i, j] = dist
+            distmatrix[j, i] = dist
+        return distmatrix
 
     @property
     def species(self):
@@ -551,14 +593,6 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         List of species and occupancies at each site of the structure.
         """
         return [site.species_and_occu for site in self.sites]
-
-    @abc.abstractproperty
-    def sites(self):
-        """
-        Returns an iterator for the sites in the Structure. 
-        """
-        for site in self._sites:
-            yield site
 
     @property
     def site_properties(self):
@@ -812,12 +846,12 @@ class Structure(SiteCollection):
 
     def get_distance(self, i, j, jimage=None):
         """
-        Get distance between site i and j assuming periodic boundary conditions
-        if the index jimage of two sites atom j is not specified it selects the 
+        Get distance between site i and j assuming periodic boundary conditions.
+        If the index jimage of two sites atom j is not specified it selects the 
         j image nearest to the i atom and returns the distance and jimage 
         indices in terms of lattice vector translations if the index jimage of 
         atom j is specified it returns the distance between the i atom and the 
-        specified jimage atom, the given jimage is also returned.
+        specified jimage atom.
         
         Args:
             i:
@@ -825,11 +859,11 @@ class Structure(SiteCollection):
             j:
                 Index of second site
             jimage:
-                Number of lattice translations in each lattice direction. Default
-                is None for nearest image.
+                Number of lattice translations in each lattice direction. 
+                Default is None for nearest image.
         
         Returns:
-            (distance, jimage)
+            distance
         """
         return self[i].distance(self[j], jimage)
 
@@ -1091,10 +1125,10 @@ class Structure(SiteCollection):
         props = {}
 
         for site_dict in d['sites']:
-            sp = site_dict['species']
-            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
-            coords.append(site_dict['abc'])
-            siteprops = site_dict.get('properties', {})
+            site = PeriodicSite.from_dict(site_dict, lattice)
+            species.append(site.species_and_occu)
+            coords.append(site.frac_coords)
+            siteprops = site.properties
             for k, v in siteprops.items():
                 if k not in props:
                     props[k] = [v]

@@ -106,46 +106,56 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
 
-    @staticmethod
-    def _alternative_transformed_structures(unmodified_transformed_structure, transformation, structure_dicts):
-        for x in structure_dicts:
-            new_structure = deepcopy(unmodified_transformed_structure)
-            new_structure._structures.append(x.pop('structure'))
-            new_structure._transformation_parameters.append(x)
-            new_structure._transformations.append(transformation)
-            yield new_structure
-
-
-    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True):
+    def append_transformation(self, transformation, return_alternatives=False,
+                              clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.
         
         Args:
             transformation:
                 Transformation to append
+            return_alternatives:
+                Whether to return alternative TransformedStructures for
+                one-to-many transformations. return_alternatives can be a
+                number, which stipulates the total number of structures to
+                return.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
+        if clear_redo:
+            self._redo_trans = []
 
-        if return_alternatives:
-            structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list=True)
-            alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
-            new_s = structures_dict_list[0]
-            self._structures.append(new_s.pop('structure'))
-            self._transformations.append(transformation)
-            self._transformation_parameters.append(new_s)
-            return alternative_structures
+        if return_alternatives and transformation.is_one_to_many:
+            starting_struct = self._structures[-1]
+            ranked_list = transformation.apply_transformation(starting_struct, return_ranked_list=return_alternatives)
+            #generate the alternative structures
+            alts = []
+            for x in ranked_list[1:]:
+                struct = x.pop('structure')
+                other_paras = [p for p in self._other_parameters]
+                hist = self.history
+                actual_transformation = x.pop('transformation', transformation)
+                tdict = actual_transformation.to_dict
+                tdict['input_structure'] = starting_struct.to_dict
+                tdict['output_parameters'] = x
+                hist.append(tdict)
+                alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
+            #use the first item in the ranked_list and apply it to this transformed_structure
+            x = ranked_list[0]
+            struct = x.pop('structure')
+            actual_transformation = x.pop('transformation', transformation)
+            self._structures.append(struct)
+            self._transformations.append(actual_transformation)
+            self._transformation_parameters.append(x)
+            return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
-
-        if clear_redo:
-            self._redo_trans = []
 
     def extend_transformations(self, transformations):
         """

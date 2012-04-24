@@ -136,7 +136,7 @@ class StructureTest(unittest.TestCase):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
         self.assertAlmostEqual(self.struct.density, 2.33, 2, "Incorrect density")
 
-    def test_specie_initialization(self):
+    def test_specie_init(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -176,18 +176,27 @@ class StructureTest(unittest.TestCase):
         self.assertIn("sites", struct.to_dict)
         d = self.propertied_structure.to_dict
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        s = Structure(self.lattice, [{Specie('O', -2, properties={"spin":3}):1.0}, {Specie('Mg', 2, properties={"spin":2}):0.8}], coords, site_properties={'magmom':[5, -5]})
+        d = s.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
+        self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
     def test_from_dict(self):
-        test_dict = {'lattice': {'a': 3.8401979336999998, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.8401989943442438, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.99999086398419, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'occu': 0.5, 'abc': [0, 0, 0], 'xyz': [0.0, 0.0, 0.0], 'species': [{'occu': 0.5, 'element': 'Mn'}, {'occu': 0.5, 'oxidation_state': 4, 'element': 'Si'}], 'label': 'Mn: 0.5000, Si4+: 0.5000'}, {'occu': 0.5, 'abc': [0.75, 0.5, 0.75], 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.3516317952249999], 'species': [{'occu': 0.5, 'oxidation_state': 4, 'element': 'Ge'}], 'label': 'Ge4+: 0.5000'}]}
-        s = Structure.from_dict(test_dict)
-        self.assertEqual(s.composition.formula, 'Mn0.5 Si0.5 Ge0.5')
         d = self.propertied_structure.to_dict
         s = Structure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
+        d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'sites': [{'properties': {'magmom': 5}, 'abc': [0.0, 0.0, 0.0], 'occu': 1.0, 'species': [{'occu': 1.0, 'oxidation_state':-2, 'properties': {'spin': 3}, 'element': 'O'}], 'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'label': 'O2-', 'xyz': [0.0, 0.0, 0.0]}, {'properties': {'magmom':-5}, 'abc': [0.75, 0.5, 0.75], 'occu': 0.8, 'species': [{'occu': 0.8, 'oxidation_state': 2, 'properties': {'spin': 2}, 'element': 'Mg'}], 'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596, 'c': 3.8401979337177736, 'b': 3.840198994344244, 'matrix': [[3.8401979337, 0.0, 0.0], [1.9200989668, 3.3257101909, 0.0], [0.0, -2.2171384943, 3.1355090603]], 'alpha': 119.9999908639842, 'beta': 90.0, 'gamma': 60.000009137322195}, 'label': 'Mg2+:0.800', 'xyz': [3.8401979336749994, 1.2247250003039056e-06, 2.351631795225]}]}
+        s = Structure.from_dict(d)
+        self.assertEqual(s[0].magmom, 5)
+        self.assertEqual(s[0].specie.spin, 3)
 
     def test_site_properties(self):
         self.assertEqual(self.propertied_structure[0].magmom, 5)
         self.assertEqual(self.propertied_structure[1].magmom, -5)
+
 
     def test_interpolate(self):
         coords = list()
@@ -219,6 +228,11 @@ class StructureTest(unittest.TestCase):
         all_nn = s.get_all_neighbors(r)
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+    def test_get_dist_matrix(self):
+        ans = [[ 0., 2.3516318],
+               [ 2.3516318, 0.]]
+        self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
 
 class MoleculeTest(unittest.TestCase):
 
@@ -315,6 +329,14 @@ occupation : 1.00"""
         self.assertEqual(len(nn), 4)
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)
         self.assertEqual(len(nn), 0)
+
+    def test_get_dist_matrix(self):
+        ans = [[0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
+               [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
+               [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
+               [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
+               [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
+        self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
 
 
 class CompositionTest(unittest.TestCase):

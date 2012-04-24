@@ -95,5 +95,4 @@ O 9.960184 1.516793 1.393875"""
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

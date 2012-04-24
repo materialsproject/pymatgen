@@ -18,7 +18,10 @@ __date__ = "Mar 18, 2012"
 import os
 import json
 
+from pymatgen.util.io_utils import file_open_zip_aware
+
 from multiprocessing import Manager, Pool
+
 
 class BorgQueen(object):
     """
@@ -37,12 +40,12 @@ class BorgQueen(object):
                 you want to do assimilation later, or is using the BorgQueen
                 to load previously assimilated data.
             number_of_drones:
-                Number of drones to parallelize over. Typical machines today have 
-                up to four processors. Note that you won't see a 100% improvement
-                with two drones over one, but you will definitely see a 
-                significant speedup of at least 50% or so. If you are running this
-                over a server with far more processors, the speedup will be even
-                greater.
+                Number of drones to parallelize over. Typical machines today
+                have up to four processors. Note that you won't see a 100%
+                improvement with two drones over one, but you will definitely
+                see a significant speedup of at least 50% or so. If you are
+                running this over a server with far more processors, the
+                speedup will be even greater.
         """
         self._drone = drone
         self._num_drones = number_of_drones
@@ -74,13 +77,12 @@ class BorgQueen(object):
         for (parent, subdirs, files) in os.walk(rootpath):
             if self._drone.is_valid_path((parent, subdirs, files)):
                 valid_paths.append(parent)
-        print len(valid_paths)
         data = []
         for path in valid_paths:
             order_assimilation((path, self._drone, data))
         self._data.extend(data)
 
-    def get_data(self):
+    def get_assimilated_data(self):
         """
         Returns an list of assimilated objects
         """
@@ -92,16 +94,18 @@ class BorgQueen(object):
         
         Args:
             filename:
-                filename to save the assimilated data to.
+                filename to save the assimilated data to. Note that if the
+                filename ends with gz or bz2, the relevant gzip or bz2
+                compression will be applied.
         """
-        with open(filename, "w") as f:
+        with file_open_zip_aware(filename, "w") as f:
             json.dump(list(self._data), f)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
-        with open(filename, "r") as f:
+        with file_open_zip_aware(filename, "r") as f:
             self._data = json.load(f)
 
 
