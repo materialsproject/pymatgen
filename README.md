@@ -11,8 +11,8 @@ of the main features:
    format. This includes generating Structure objects from vasp input and
    output. There is also support for Gaussian input files and XYZ file for
    molecules.
-3. Comprehensive tool to generate and view compositional and grand canonical phase 
-   diagrams.
+3. Comprehensive tool to generate and view compositional and grand canonical
+   phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 
 The public version of pymatgen is free (as in free beer) to download and to use. 
@@ -49,8 +49,8 @@ Required for proper functioning of the code.
 
 Optional python libraries that are required if you need certain features.
 
-1. matplotlib : For plotting (e.g., Phase Diagrams) using the pymatgen.phasediagrams 
-   package.
+1. matplotlib : For plotting (e.g., Phase Diagrams) using the
+   pymatgen.phasediagrams package.
 2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For 
    reading and writing Crystallographic Information Format (CIF) files using 
    the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
@@ -59,8 +59,8 @@ Optional python libraries that are required if you need certain features.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
-   Required for the usage of the adapters in pymatgen.io.aseio between pymatgen's 
-   core Structure object and the Atoms object used by ASE. 
+   Required for the usage of the adapters in pymatgen.io.aseio between
+   pymatgen's core Structure object and the Atoms object used by ASE. 
 
 ## Optional non-Python programs ##
 
@@ -68,7 +68,8 @@ Optional non-python libraries (because no good pythonic alternative exists at
 the moment) required only for certain features.
 
 1. [Qhull](http://www.qhull.org/) : Needed for bond length analysis 
-   (structure_analyzer.py).  The executable qconvex and qvoronoi must be in the path.
+   (structure_analyzer.py). The executable qconvex and qvoronoi must be in the
+   path.
 2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies 
    (structure_vtk.py).  The executable ffmpeg must be in the path.
 
