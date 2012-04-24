@@ -131,21 +131,25 @@ class TransformedStructure(object):
         if return_alternatives and transformation.is_one_to_many:
             starting_struct = self._structures[-1]
             ranked_list = transformation.apply_transformation(starting_struct, return_ranked_list=return_alternatives)
+            #generate the alternative structures
             alts = []
-            for i, x in enumerate(ranked_list):
+            for x in ranked_list[1:]:
                 struct = x.pop('structure')
-                if i == 0:
-                    self._structures.append(struct)
-                    self._transformations.append(transformation)
-                    self._transformation_parameters.append(x)
-                else:
-                    other_paras = [p for p in self._other_parameters]
-                    hist = self.history
-                    tdict = transformation.to_dict
-                    tdict['input_structure'] = starting_struct.to_dict
-                    tdict['output_parameters'] = x
-                    hist.append(tdict)
-                    alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
+                other_paras = [p for p in self._other_parameters]
+                hist = self.history
+                actual_transformation = x.pop('transformation', transformation)
+                tdict = actual_transformation.to_dict
+                tdict['input_structure'] = starting_struct.to_dict
+                tdict['output_parameters'] = x
+                hist.append(tdict)
+                alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
+            #use the first item in the ranked_list and apply it to this transformed_structure
+            x = ranked_list[0]
+            struct = x.pop('structure')
+            actual_transformation = x.pop('transformation', transformation)
+            self._structures.append(struct)
+            self._transformations.append(actual_transformation)
+            self._transformation_parameters.append(x)
             return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
