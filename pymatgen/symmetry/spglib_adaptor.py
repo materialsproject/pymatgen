@@ -4,16 +4,17 @@
 An interface to the excellent spglib library by Atsushi Togo 
 (http://spglib.sourceforge.net/) for pymatgen.
 
+v1.0 - Now works with both ordered and disordered structure.
+
 .. note::
-    This is a *beta* version. Not all spglib functions are implemented. Also,
-    it only works with ordered structures.
+    This is a *beta* version. Not all spglib functions are implemented. 
 '''
 
 from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 9, 2012"
@@ -21,6 +22,7 @@ __date__ = "Mar 9, 2012"
 import re
 
 import numpy as np
+import itertools
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
@@ -38,7 +40,6 @@ class SymmetryFinder(object):
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
-    Note that this does not work with non-ordered Structures.
     """
 
     def __init__(self, structure, symprec=1e-5):
@@ -53,7 +54,15 @@ class SymmetryFinder(object):
         self._structure = structure
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
-        self._numbers = np.array([site.specie.Z for site in structure])
+        num_species_map = {}
+        zs = []
+        count = 1
+        for k, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
+            zs.extend([count] * len(tuple(g)))
+            num_species_map[count] = k
+            count += 1
+        self._num_species_map = num_species_map
+        self._numbers = np.array(zs)
 
         self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
 
@@ -206,8 +215,9 @@ class SymmetryFinder(object):
                                            numbers,
                                            num_atom,
                                            self._symprec)
-
-        return Structure(lattice.T.copy(), numbers[:num_atom_bravais], pos[:num_atom_bravais])
+        zs = numbers[:num_atom_bravais]
+        species = [self._num_species_map[i] for i in zs]
+        return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
 
 
     def find_primitive(self):
@@ -223,12 +233,14 @@ class SymmetryFinder(object):
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
         num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec)
+        zs = numbers[:num_atom_prim]
+        species = [self._num_species_map[i] for i in zs]
+
         if num_atom_prim > 0:
-            return Structure(lattice.T, numbers[:num_atom_prim], positions[:num_atom_prim])
+            return Structure(lattice.T, species, positions[:num_atom_prim])
         else:
             #Not sure if we should return None or just return the full structure.
             return None
-
 
 def get_pointgroup(rotations):
     """    
