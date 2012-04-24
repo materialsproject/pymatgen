@@ -25,33 +25,12 @@ __date__ ="March 22, 2012"
 class Stress(SQTensor):
  
     def __init__(self, stress_matrix):
-        super(Stress, self).__init__(stress_matrix)
         self._sigma = stress_matrix
+        super(Stress, self).__init__(self._sigma)
 
-    # return instance with a scaled version of this matrix
     def get_scaled(self, scale_factor):
-        stress_matrix = self._sigma * scale_factor
-        return Stress(stress_matrix)
+        return super(Stress, self).get_scaled(scale_factor)
 
-    @property
-    def stress_matrix(self):
-        return self._sigma
-
-    @property
-    def value(self, i, j):         # put value in matrix method
-        return self._sigma[i, j]
-
-    @property
-    def PrincipalInvariants(self):
-        I1 = self._sigma[0,0] + self._sigma[1,1] + self._sigma[2,2]
-        I2 = self._sigma[0,0]*self._sigma[1,1]+ \
-             self._sigma[1,1]*self._sigma[2,2]+ \
-             self._sigma[0,0]*self._sigma[2,2]- \
-             self._sigma[0,1]**2 - self._sigma[1,2]**2 - self._sigma[2,0]**2
-        I3 = np.linalg.det(self._sigma)
-        I = [I1, I2, I3]
-        return I
-    
     @property
     def DeviatorPrincipalInvariants(self):
         I = self.PrincipalInvariants
@@ -63,24 +42,33 @@ class Stress(SQTensor):
 
     @property
     def VonMises(self):
+        if self.is_symmetric() == False:
+            raise ValueError("The stress tensor is not symmetric, VM stress is based on a symmetric stress tensor.")
         J = self.DeviatorPrincipalInvariants        
         sigma_mises = math.sqrt(3*J[1])
         return sigma_mises
 
     @property
     def MeanStress(self):
+        if self.is_symmetric() == False:
+            raise ValueError("The stress tensor is not symmetric, mean stress is based on a symmetric stress tensor.")
         return 1.0/3*(self._sigma[0,0] + self._sigma[1,1] + self._sigma[2,2])
 
     @property
     def DeviatorStress(self):
+        if self.is_symmetric() == False:
+            raise ValueError("The stress tensor is not symmetric, so deviator stress will not be either")
         return self._sigma - self.MeanStress
 
     def PiolaKirchoff1(self, F):
+        if self.is_symmetric() == False:
+            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
         return np.linalg.det(F)*self._sigma*np.transpose(np.linalg.inv(F))
 
     def PiolaKirchoff2(self, F):
+        if self.is_symmetric() == False:
+            raise ValueError("The stress tensor is not symmetric, PK stress is based on a symmetric stress tensor.")
         return np.linalg.det(F)*np.linalg.inv(F)*self._sigma*np.transpose(np.linalg.inv(F))
-
 
 
 if __name__ == "__main__":
@@ -90,12 +78,19 @@ if __name__ == "__main__":
 #    mat[0,2] = 0.1
 #    mat[2,0] = 0.1
     s = Stress(mat)
+    print s.PrincipalInvariants
+    
+#    for property, value in vars(s).iteritems():
+#            print property, ": ", value
+
+
+#    print s.get_scaled(2.0)
 #    s.get_scaled(1.2)
 #    print s.is_symmetric()
-    print s.stress_matrix
-    print s.PiolaKirchoff1(mat)
-    print s.PiolaKirchoff2(mat)
-
-
+#    print s.value(1,2)
+#    print s.returntensor()
+#    print s.stress_matrix
+#    print s.PiolaKirchoff1(mat)
+#    print s.PiolaKirchoff2(mat)
 
 
