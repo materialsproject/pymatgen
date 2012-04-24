@@ -18,6 +18,8 @@ __date__ = "Mar 18, 2012"
 import os
 import json
 
+from pymatgen.util.io_utils import file_open_zip_aware
+
 from multiprocessing import Manager, Pool
 
 
@@ -75,7 +77,6 @@ class BorgQueen(object):
         for (parent, subdirs, files) in os.walk(rootpath):
             if self._drone.is_valid_path((parent, subdirs, files)):
                 valid_paths.append(parent)
-        print len(valid_paths)
         data = []
         for path in valid_paths:
             order_assimilation((path, self._drone, data))
@@ -93,16 +94,18 @@ class BorgQueen(object):
         
         Args:
             filename:
-                filename to save the assimilated data to.
+                filename to save the assimilated data to. Note that if the
+                filename ends with gz or bz2, the relevant gzip or bz2
+                compression will be applied.
         """
-        with open(filename, "w") as f:
+        with file_open_zip_aware(filename, "w") as f:
             json.dump(list(self._data), f)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
-        with open(filename, "r") as f:
+        with file_open_zip_aware(filename, "r") as f:
             self._data = json.load(f)
 
 

@@ -157,12 +157,11 @@ class StandardTransmuter(object):
         for x in self._transformed_structures:
             output.append(str(x._structures[-1]))
         return "\n".join(output)
-    
+
     def __add__(self, b):
         transformed_structures = self._transformed_structures
         transformed_structures.extend(b._transformed_structures)
-        return StandardTransmuter(transformed_structures,[])
-
+        return StandardTransmuter(transformed_structures, [])
 
 
 class CifTransmuter(StandardTransmuter):
