@@ -21,13 +21,12 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="March 22, 2012"
 
-class Cij(object):
+class SQTensor(object):
     """
     Class for doing useful general operation on *square* matrices, without 
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
-    TODO: change class names, move methods around
-    Move methods into stress class
+    TODO: change class names
     """
     def __init__(self, matrix):
         self._matrix = matrix
@@ -50,99 +49,70 @@ class Cij(object):
         else:
             return False
 
+    def get_scaled(self, scale_factor):
+        return self._matrix*scale_factor
+        
     def symmetrize(self):
         return 0.5*(self._matrix + np.transpose(self._matrix))
 
-    def value(self):
+    def rotate(self, rotation):
+       print self.is_rotation_matrix()
+
+    def returntensor(self):
         return self._matrix
 
-class StressOps(Cij):
-    """
-    This class contains methods that are to operate on *Cauchy* stress tensors specifically, hence
-    matrices passed into this class need to be 3x3, otherise an error is thrown. Moreover,
-    the *Cauchy* stress tensor is required to be symmetric up to a tolerance tol.
-    """
-    def __init__(self, stress_matrix):
-
-        self._StressMatrix = stress_matrix
-        super(StressOps, self).__init__(stress_matrix)
-        if super(StressOps, self).is_symmetric() == False:
-            raise ValueError("The stress tensor needs to be symmetric up to a tolerance tol")
-
-    def rotate(self, rotation):
-        super(StressOps, self).__init__(rotation)
-        super(StressOps, self).is_rotation_matrix()
-
-        if super(StressOps, self).is_rotation_matrix() == False:
-            raise ValueError("Not a valid rotation matrix")
-
-        else:
-            return rotation*self._StressMatrix*np.transpose(rotation)
+    def value(self, i, j):         
+        return self._matrix[i, j]
 
     @property
     def PrincipalInvariants(self):
-        I1 = self._StressMatrix[0,0] + self._StressMatrix[1,1] + self._StressMatrix[2,2]
-        I2 = self._StressMatrix[0,0]*self._StressMatrix[1,1]+ \
-             self._StressMatrix[1,1]*self._StressMatrix[2,2]+ \
-             self._StressMatrix[0,0]*self._StressMatrix[2,2]- \
-             self._StressMatrix[0,1]**2 - self._StressMatrix[1,2]**2 - self._StressMatrix[2,0]**2
-        I3 = np.linalg.det(self._StressMatrix)
+        if np.shape(self._matrix)[0] != 3:
+            raise NotImplementedError("Principal Invariants are currently only supported for 3x3 matrices.")
+        I1 = self._matrix[0,0] + self._matrix[1,1] + self._matrix[2,2]
+        I2 = self._matrix[0,0]*self._matrix[1,1]+ \
+             self._matrix[1,1]*self._matrix[2,2]+ \
+             self._matrix[0,0]*self._matrix[2,2]- \
+             self._matrix[0,1]**2 - self._matrix[1,2]**2 - self._matrix[2,0]**2
+        I3 = np.linalg.det(self._matrix)
         I = [I1, I2, I3]
         return I
-    
-    @property
-    def DeviatorPrincipalInvariants(self):
-        I = self.PrincipalInvariants
-        J1 = 0
-        J2 = 1.0/3*I[0]**2 - I[1]
-        J3 = 2.0/27*I[0]**3 - 1.0/3*I[0]*I[1] + I[2]
-        J = [J1, J2, J3]
-        return J
 
-    @property
-    def VonMises(self):
-        J = self.DeviatorPrincipalInvariants        
-        sigma_mises = math.sqrt(3*J[1])
-        return sigma_mises
+#    def rotate(self, rotation):
+#        super(StressOps, self).__init__(rotation)
+#        super(StressOps, self).is_rotation_matrix()
 
-    @property
-    def MeanStress(self):
-        return 1.0/3*(self._StressMatrix[0,0] + self._StressMatrix[1,1] + self._StressMatrix[2,2])
+#        if super(StressOps, self).is_rotation_matrix() == False:
+#            raise ValueError("Not a valid rotation matrix")
 
-    @property
-    def DeviatorStress(self):
-        return self._StressMatrix - self.MeanStress
-
-    def PiolaKirchoff1(self, F):
-        return np.linalg.det(F)*self._StressMatrix*np.transpose(np.linalg.inv(F))
-
-    def PiolaKirchoff2(self, F):
-        return np.linalg.det(F)*np.linalg.inv(F)*self._StressMatrix*np.transpose(np.linalg.inv(F))
-
-
-class ElasticOps(Cij):
-    """
-    This class contains methods that are to operate on elastic tensors specifically, hence
-    matrices passed into this class need to be 6x6, otherise error is thrown. 
-    """        
-
-
-class DeformationGradientTensor(Cij):
-    """
-    A class for more advanced operation on the deformation gradient tensor, primarily
-    polar decomposition in order to decompose a general homogeneous deformation into
-    a rigid body rotation and a pure stretch
-    """
-
+#        else:
+#            return rotation*self._StressMatrix*np.transpose(rotation)
 
 if __name__ == "__main__":
 
-    sigma = Cij(np.random.randn(3,3))
-    sigma = sigma.symmetrize()
-    rot = np.identity(3)
-    B = StressOps(sigma)
+    eye = np.identity(3)
+    sigma = SQTensor(np.random.randn(3,3))
+    sigma.PrincipalInvariants
+
+    
+
+#    print sigma.is_rotation_matrix(np.matrix(eye))
+#    print np.linalg.inv(eye)
+        
+#    sigma = SQTensor(np.identity(3))    
+#    print sigma.is_symmetric()
+#    eye = np.identity(3)   
+
+#    print sigma.symmetrize()        
+#    sigma.rotate(np.identity(3))
+
+#    print sigma.rotate(eye)
+
+#    sigma = sigma.symmetrize()
+#    rot = np.identity(3)
+#    B = StressOps(sigma)
 #    print B.MeanStress
 #    print B.DeviatorStress
 #    print B.DeviatorPrincipalInvariants    
-    print B.VonMises
+#    print B.VonMises
+
 
