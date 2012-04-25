@@ -62,9 +62,8 @@ def cached_class(klass):
                 o = super(klass, cls).__new__(cls, *args, **kwds)
                 cache[key] = o
             return cache[key]
-
-
     return _decorated
+
 
 def logged(level=logging.DEBUG):
     """
