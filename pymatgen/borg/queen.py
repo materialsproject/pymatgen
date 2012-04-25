@@ -59,8 +59,7 @@ class BorgQueen(object):
         """
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            if self._drone.is_valid_path((parent, subdirs, files)):
-                valid_paths.append(parent)
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
 
         manager = Manager()
         data = manager.list()
@@ -75,8 +74,7 @@ class BorgQueen(object):
         """
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            if self._drone.is_valid_path((parent, subdirs, files)):
-                valid_paths.append(parent)
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
         for path in valid_paths:
             order_assimilation((path, self._drone, data))
