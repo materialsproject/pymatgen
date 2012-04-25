@@ -17,6 +17,7 @@ import bz2
 import re
 import numpy
 
+
 def file_open_zip_aware(filename, *args, **kwargs):
     """
     This wrapper wraps around the bz2, gzip and standard python's open function 
