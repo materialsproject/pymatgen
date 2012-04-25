@@ -53,16 +53,43 @@ Latest Change Log (v1.8.1)
 
    changelog
 
-Installation
-============
+Getting pymatgen
+================
+
+pymatgen is now in the Python Package Index (`PyPI`_). The version on
+PyPI is always the latest stable release that will be hopefully, be relatively 
+bug-free. If you have  distutils installed, you can just type: 
+
+::
+
+   easy_install pymatgen
+   
+to install pymatgen with most of the dependencies set up. Otherwise, the latest
+stable source can be downloaded at the `PyPI`_ site as well.
+
+Alternatively, the bleeding edge developmental version is at the public
+pymatgen github repo at https://github.com/materialsproject/pymatgen, including
+options to download the source in various formats. These developmental versions
+are likely to be more buggy, but may contain new features.
+
+From the source, you can type:
+
+::
+
+   python setup.py install
+
+With these basic steps, you should be able to use most of the basic
+functionality of pymatgen. However, some extra functionality do require
+additional setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    installation
 
-Usage
-=====
+Using pymatgen
+==============
 
 .. toctree::
    :maxdepth: 2 
@@ -166,3 +193,4 @@ Indices and tables
 
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
+.. _`PyPI` : http://pypi.python.org/pypi/pymatgen
