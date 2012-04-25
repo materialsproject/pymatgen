@@ -39,35 +39,8 @@ the moment) required only for certain features.
 2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
 
-Basic Setup for Users
-=====================
-
-pymatgen is now on PyPI (http://pypi.python.org/pypi/pymatgen). The version on
-PyPI is always the latest stable release that will be hopefully, be relatively 
-bug-free. If you have  distutils installed, you can just type: 
-
-::
-
-	easy_install pymatgen
-	
-to install pymatgen with most of the dependencies set up. 
-
-Alternatively, the bleeding edge developmental version is at the public
-pymatgen github repo at https://github.com/materialsproject/pymatgen, including
-options to download the source in various formats. These developmental versions
-are likely to be more buggy, but may contain new features.
-
-From the source, you can type:
-
-::
-
-	python setup.py install
-
-With these basic steps, you should be able to use most of the pymatgen code. 
-However, some extra functionality do require additional setup, as outlined below.
-
-Generating POTCARs
-------------------
+POTCAR Setup for Users
+======================
 
 For the code to generate POTCAR files, it needs to know where the VASP 
 pseudopotential files are.  We are not allowed to distribute these under the 
@@ -95,8 +68,8 @@ able to generate POTCARs.
 Alternatively, you can setup the above directly structure manually and set the 
 VASP_PSP_DIR environment variable accordingly.
 
-Basic Setup for Developers (using github)
-=========================================
+Setup for Developers (using github)
+===================================
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
 2. Install the necessary python libraries.
@@ -108,8 +81,8 @@ I recommend that you start by reading some of the unittests in the tests
 subdirectory for each package.  The unittests demonstrate the expected behavior 
 and functionality of the code.
 
-Installation of optional libaries
-=================================
+Installation tips for optional libaries
+=======================================
 
 This section provides a guide for installing various optional libraries used in 
 pymatgen.  Some of the python libraries are rather tricky to build in certain 
