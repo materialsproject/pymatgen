@@ -1,6 +1,13 @@
 Older versions
 ==============
 
+Version 1.8.1
+-------------
+
+1. Revamped transmuter classes for better readability and long term support.
+2. Much improved speed for PartialRemoveSpecieTransformations.
+3. Misc bug fixes.
+
 Version 1.8.0
 -------------
 
