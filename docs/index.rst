@@ -41,12 +41,12 @@ be notified via email of pymatgen releases, you may become a member of
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.1)
+Latest Change Log (v1.8.2)
 --------------------------
 
-1. Revamped transmuter classes for better readability and long term support.
-2. Much improved speed for PartialRemoveSpecieTransformations.
-3. Misc bug fixes.
+1. Spglib now supports disordered structures.
+2. Changes to Borg API to support both file and directory style paths.
+3. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
 
 .. toctree::
    :maxdepth: 2
