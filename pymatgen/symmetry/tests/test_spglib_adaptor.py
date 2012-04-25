@@ -22,6 +22,7 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
+from pymatgen.core.structure_modifier import StructureEditor
 
 import pymatgen
 
@@ -36,10 +37,17 @@ class SymmetryFinderTest(unittest.TestCase):
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
         self.disordered_structure = parser.get_structures()[0]
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
+        s = p.struct
+        editor = StructureEditor(p.struct)
+        site = s[0]
+        editor.delete_site(0)
+        editor.append_site(site.species_and_occu, site.frac_coords)
+        self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
         self.assertEqual(self.disordered_sg.get_spacegroup_symbol(), "P4_2/nmc")
+        self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
 
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
