@@ -21,6 +21,7 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.io_utils import clean_json
+from pymatgen.util.coord_utils import get_linear_interpolated_value
 
 
 class Dos(object):
@@ -45,8 +46,8 @@ class Dos(object):
 
     def get_densities(self, spin=None):
         """
-        Returns the density of states for a particular spin. If Spin is None, the
-        sum of both Spin.up and Spin.down (if they exist) is returned.
+        Returns the density of states for a particular spin. If Spin is None,
+        the sum of both Spin.up and Spin.down (if they exist) is returned.
         
         Args:
             spin:
@@ -128,9 +129,8 @@ class Dos(object):
                 Energy to return the density for.
         """
         f = {}
-        import scipy.interpolate as spint
         for spin in self._dos.keys():
-            f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
+            f[spin] = get_linear_interpolated_value(self._energies, self._dos[spin], energy)
         return f
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -160,15 +160,12 @@ class Dos(object):
         above_fermi = [i for i in xrange(len(energies)) if energies[i] > self._efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        import scipy.interpolate as spint
         if vbm_start == cbm_start:
             return 0.0, self._efermi, self._efermi
         else:
             # Interpolate between adjacent values
-            f = spint.interp1d(tdos[vbm_start:vbm_start + 2][::-1], energies[vbm_start:vbm_start + 2][::-1])
-            start = f(tol)
-            f = spint.interp1d(tdos[cbm_start - 1:cbm_start + 1], energies[cbm_start - 1:cbm_start + 1])
-            end = f(tol)
+            start = get_linear_interpolated_value(tdos[vbm_start:vbm_start + 2][::-1], energies[vbm_start:vbm_start + 2][::-1], tol)
+            end = get_linear_interpolated_value(tdos[cbm_start - 1:cbm_start + 1], energies[cbm_start - 1:cbm_start + 1], tol)
             return end - start, end, start
 
     def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):

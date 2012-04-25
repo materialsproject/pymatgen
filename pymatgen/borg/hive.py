@@ -24,6 +24,7 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 
 logger = logging.getLogger(__name__)
 
+
 class AbstractDrone(object):
     """
     Abstract drone class that defines the various methods that must be implemented
@@ -113,10 +114,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 If parameters == None, a default set of parameters that are 
                 necessary for typical post-processing will be set.
             data:
-                Output data to include. Has to be one of the properties supported
-                by the Vasprun object. The parameters have to be one of python's 
-                primitive types, i.e. list, dict of strings and integers. Complex 
-                objects such as dos are not supported at this point.
+                Output data to include. Has to be one of the properties
+                supported by the Vasprun object. The parameters have to be one
+                of python's primitive types, i.e. list, dict of strings and
+                integers. Complex objects such as dos are not supported at this
+                point.
         """
         self._inc_structure = inc_structure
         self._parameters = parameters if parameters else ["is_hubbard", "hubbards", "potcar_symbols", "run_type"]
@@ -191,6 +193,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                      "data": self._data}
         output = {'name' : self.__class__.__name__, 'init_args': init_args, 'version': __version__ }
         return output
+
 
 def drone_from_dict(d):
     """
