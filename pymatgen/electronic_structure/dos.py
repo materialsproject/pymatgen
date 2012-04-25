@@ -8,7 +8,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 20, 2012"
@@ -21,6 +21,7 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.io_utils import clean_json
+
 
 class Dos(object):
     """
