@@ -29,7 +29,7 @@ class AbstractDrone(object):
     Abstract drone class that defines the various methods that must be implemented
     by drones. Because of the quirky nature of Python's multiprocessing, the 
     representations has to be in the form of python primitives. This can then
-    be reverted to the original object with drone.get_object.
+    be reverted to the original object with drone.convert.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -37,7 +37,10 @@ class AbstractDrone(object):
     def assimilate(self, path):
         '''
         Assimilate data in a directory path into a dict representation of
-        a pymatgen object.
+        a pymatgen object. Because of the quirky nature of Python's
+        multiprocessing, the representations has to be in the form of python
+        primitives. Hence the object must supprot a to_dict. This can then
+        be reverted to the original object with drone.convert.
         
         Args:
             path:
@@ -51,16 +54,21 @@ class AbstractDrone(object):
     @abc.abstractmethod
     def get_valid_paths(self, path):
         """
-        Checks if path contains valid data for assimilation. For example, if you
-        are assimilating VASP runs, you are only interested in directories containing
-        vasprun.xml files.
+        Checks if path contains valid data for assimilation, and then returns
+        the valid paths. The paths returned can be a list of directory or file
+        paths, depending on what kind of data you are assimilating. For example,
+        if you are assimilating VASP runs, you are only interested in
+        directories containing vasprun.xml files. On the other hand, if you are
+        interested converting all POSCARs in a directory tree to cifs for
+        example, you will want the file paths.
         
         Args:
             path:
-                directory path as a tuple generated from os.walk
+                input path as a tuple generated from os.walk, i.e.,
+                (parent, subdirs, files).
                 
         Returns:
-            Valid paths for assimilation
+            List of valid dir/file paths for assimilation
         """
         return
 
