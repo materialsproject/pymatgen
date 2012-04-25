@@ -57,10 +57,19 @@ class SymmetryFinder(object):
         num_species_map = {}
         zs = []
         count = 1
-        for k, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
-            zs.extend([count] * len(tuple(g)))
-            num_species_map[count] = k
-            count += 1
+        def find_index(species):
+            for k, v in num_species_map.items():
+                if v == species:
+                    return k
+            return -1
+
+        for species, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
+            if find_index(species) == -1:
+                zs.extend([count] * len(tuple(g)))
+                num_species_map[count] = species
+                count += 1
+            else:
+                zs.extend([find_index(species)] * len(tuple(g)))
         self._num_species_map = num_species_map
         self._numbers = np.array(zs)
 
