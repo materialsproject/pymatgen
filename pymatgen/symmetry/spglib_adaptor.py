@@ -29,11 +29,7 @@ from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 
-try:
-    import pyspglib._spglib as spg
-    spglib_loaded = True
-except ImportError:
-    spglib_loaded = False
+import pyspglib._spglib as spg
 
 
 class SymmetryFinder(object):
@@ -54,23 +50,18 @@ class SymmetryFinder(object):
         self._structure = structure
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
-        num_species_map = {}
+        unique_species = []
         zs = []
-        count = 1
-        def find_index(species):
-            for k, v in num_species_map.items():
-                if v == species:
-                    return k
-            return -1
 
         for species, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
-            if find_index(species) == -1:
-                zs.extend([count] * len(tuple(g)))
-                num_species_map[count] = species
-                count += 1
-            else:
-                zs.extend([find_index(species)] * len(tuple(g)))
-        self._num_species_map = num_species_map
+            try:
+                ind = unique_species.index(species)
+                zs.extend([ind + 1] * len(tuple(g)))
+            except ValueError:
+                unique_species.append(species)
+                zs.extend([len(unique_species)] * len(tuple(g)))
+
+        self._unique_species = unique_species
         self._numbers = np.array(zs)
 
         self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
@@ -225,7 +216,7 @@ class SymmetryFinder(object):
                                            num_atom,
                                            self._symprec)
         zs = numbers[:num_atom_bravais]
-        species = [self._num_species_map[i] for i in zs]
+        species = [self._unique_species[i - 1] for i in zs]
         return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
 
 
@@ -243,7 +234,7 @@ class SymmetryFinder(object):
         # lattice is transposed with respect to the definition of Atoms class
         num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec)
         zs = numbers[:num_atom_prim]
-        species = [self._num_species_map[i] for i in zs]
+        species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
             return Structure(lattice.T, species, positions[:num_atom_prim])
