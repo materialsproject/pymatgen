@@ -11,3 +11,4 @@ make html
 
 cp nature_mp.css ../../docs/pymatgen/html/static/nature.css
 cp favicon.ico ../../docs/pymatgen/html/static/favicon.ico
+cp pymatgen.png ../../docs/pymatgen/html/static/pymatgen.png
