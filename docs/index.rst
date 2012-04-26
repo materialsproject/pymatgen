@@ -47,8 +47,8 @@ Latest Change Log (v1.8.3)
 
 1. spglib_adaptor now supports disordered structures.
 2. Update to support new spglib with angle_tolerance.
-2. Changes to Borg API to support both file and directory style paths.
-3. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
+3. Changes to Borg API to support both file and directory style paths.
+4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
 
 .. toctree::
    :maxdepth: 2
