@@ -18,9 +18,9 @@ Optional python libraries that are required if you need certain features
 1. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
 2. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/.
-3. pyspglib (highly recommended): For symmetry finding. Needed if you are using 
-   the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy packages. 
-   Get it at http://spglib.sourceforge.net/
+3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
+   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
+   packages. Get it at http://spglib.sourceforge.net/
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE : Required for the usage of the 
@@ -133,8 +133,8 @@ run it.
 	python setup.py build
 	python setup.py install
 	
-Spglib (tested on v1.1.2)
--------------------------
+Spglib (tested on v1.2)
+-----------------------
 
 Mac OS X 10.7
 ~~~~~~~~~~~~~

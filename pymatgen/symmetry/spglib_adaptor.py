@@ -38,15 +38,18 @@ class SymmetryFinder(object):
     Uses pyspglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure, symprec=1e-5):
+    def __init__(self, structure, symprec=1e-5, angle_tolerance=5):
         """
         Args:
             structure:
                 Structure object
             symprec:
                 Tolerance for symmetry finding
+            angle_tolerance:
+                Angle tolerance for symmetry finding.
         """
         self._symprec = symprec
+        self._angle_tol = angle_tolerance
         self._structure = structure
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
@@ -64,7 +67,7 @@ class SymmetryFinder(object):
         self._unique_species = unique_species
         self._numbers = np.array(zs)
 
-        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
+        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec, self._angle_tol)
 
     def get_spacegroup(self):
         """
@@ -144,7 +147,7 @@ class SymmetryFinder(object):
                 'wyckoffs',
                 'equivalent_atoms')
         dataset = {}
-        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec)):
+        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec, self._angle_tol)):
             dataset[key] = data
 
         dataset['international'] = dataset['international'].strip()
@@ -175,7 +178,7 @@ class SymmetryFinder(object):
         translation = np.zeros((multi, 3))
 
         num_sym = spg.symmetry(rotation, translation, self._lattice.transpose().copy(),
-                                   self._positions, self._numbers, self._symprec)
+                                   self._positions, self._numbers, self._symprec, self._angle_tol)
         return (rotation[:num_sym], translation[:num_sym])
 
     def get_symmetry_operations(self, cartesian=False):
@@ -214,7 +217,8 @@ class SymmetryFinder(object):
                                            pos,
                                            numbers,
                                            num_atom,
-                                           self._symprec)
+                                           self._symprec,
+                                           self._angle_tol)
         zs = numbers[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
         return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
@@ -232,7 +236,7 @@ class SymmetryFinder(object):
         lattice = self._lattice.T.copy()
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
-        num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec)
+        num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec, self._angle_tol)
         zs = numbers[:num_atom_prim]
         species = [self._unique_species[i - 1] for i in zs]
 
