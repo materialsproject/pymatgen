@@ -39,7 +39,7 @@ pymatgen's Google Groups page
 
 setup (
   name='pymatgen',
-  version='1.8.2',
+  version='1.8.3',
   packages=find_packages(),
   install_requires=['numpy', 'scipy', 'PyCIFRW'],
   package_data={'pymatgen.core': ['*.json'],
