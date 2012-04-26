@@ -54,7 +54,7 @@ Optional python libraries that are required if you need certain features.
 2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For 
    reading and writing Crystallographic Information Format (CIF) files using 
    the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
-3. [Pyspglib](http://spglib.sourceforge.net/) : For symmetry finding using the 
+3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using the 
    pymatgen.symmetry package.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
