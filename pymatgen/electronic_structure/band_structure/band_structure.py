@@ -118,7 +118,7 @@ class Kpoint(object):
 class BandStructure(object):
     """
     This is the most generic band structure data possible
-    it's defined by a list of kpoints + energy and occupancies for each of them
+    it's defined by a list of kpoints + energies for each of them
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict={},
@@ -126,12 +126,12 @@ class BandStructure(object):
         """
         Args:
             kpoints:
-                Sequence of kpoint as numpy arrays, in frac_coords of the 
+                list of kpoint as numpy arrays, in frac_coords of the 
                 given lattice by default
             eigenvals: 
-                Sequence of {} with energy and occup keys each element of the 
-                list is one "band". There are two sets of eigenvals if the band structure
-                is spin-polarized: {Spin.up:[{'energy','occup'}],Spin.down:[{'energy','occup'}]}.
+                dictionnary of energies for spin up and spin down {Spin.up:[][],Spin.down:[][]}, 
+                the first index of the array [][] refers to the band and the second to the index
+                of the kpoint. The kpoints are ordered according to the order of the kpoints array.
                 If the band structure is not spin polarized, we only store one data set under Spin.up
             lattice: 
                 The reciprocal lattice as a pymatgen.core.lattice.Lattice object
@@ -209,15 +209,14 @@ class BandStructureSymmLine(BandStructure):
         """
         Args:
             kpoints:
-                Sequence of kpoint as numpy arrays, in frac_coords of the 
+                list of kpoint as numpy arrays, in frac_coords of the 
                 given lattice by default
             eigenvals: 
-                Sequence of {} with energy and occup keys each element of the 
-                list is one "band". There are two sets of eigenvals if the band
-                structure is spin-polarized.
-                {Spin.up:[{'energy','occup'}],Spin.down:[{'energy','occup'}]}.
-                If the band structure is not spin polarized, we only store one
-                data set under Spin.up
+                 eigenvals: 
+                dictionnary of energies for spin up and spin down {Spin.up:[][],Spin.down:[][]}, 
+                the first index of the array [][] refers to the band and the second to the index
+                of the kpoint. The kpoints are ordered according to the order of the kpoints array.
+                If the band structure is not spin polarized, we only store one data set under Spin.up
             lattice: 
                 The reciprocal lattice.
             efermi: 
@@ -306,9 +305,9 @@ class BandStructureSymmLine(BandStructure):
         for i in range(self._nb_bands):
             for j in range(len(self._kpoints)):
                 for spin in self._bands:
-                    if self._bands[spin][i]['energy'][j] < self._efermi:
-                        if self._bands[spin][i]['energy'][j] > max_tmp:
-                            max_tmp = self._bands[spin][i]['energy'][j]
+                    if self._bands[spin][i][j] < self._efermi:
+                        if self._bands[spin][i][j] > max_tmp:
+                            max_tmp = self._bands[spin][i][j]
                             index = j
                             kpointvbm = self._kpoints[j]
         list_index_kpoints = []
@@ -324,7 +323,7 @@ class BandStructureSymmLine(BandStructure):
             list_index_band = {Spin.up:[], Spin.down:[]}
         for spin in self._bands:
             for i in range(self._nb_bands):
-                if math.fabs(self._bands[spin][i]['energy'][index] - max_tmp) < 0.001:
+                if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
                 'kpoint':kpointvbm, 'energy':max_tmp}
@@ -356,9 +355,9 @@ class BandStructureSymmLine(BandStructure):
         for spin in self._bands:
             for i in range(self._nb_bands):
                 for j in range(len(self._kpoints)):
-                    if self._bands[spin][i]['energy'][j] > self._efermi:
-                        if self._bands[spin][i]['energy'][j] < max_tmp:
-                            max_tmp = self._bands[spin][i]['energy'][j]
+                    if self._bands[spin][i][j] > self._efermi:
+                        if self._bands[spin][i][j] < max_tmp:
+                            max_tmp = self._bands[spin][i][j]
                             index = j
                             kpointcbm = self._kpoints[j]
         list_index_kpoints = []
@@ -375,7 +374,7 @@ class BandStructureSymmLine(BandStructure):
             list_index_band = {Spin.up:[], Spin.down:[]}
         for spin in self._bands:
             for i in range(self._nb_bands):
-                if math.fabs(self._bands[spin][i]['energy'][index] - max_tmp) < 0.001:
+                if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
 
@@ -417,19 +416,19 @@ class BandStructureSymmLine(BandStructure):
             below = False
             above = False
             for j in range(len(self._kpoints)):
-                if self._bands[Spin.up][i]['energy'][j] < self._efermi:
+                if self._bands[Spin.up][i][j] < self._efermi:
                     below = True
-                if self._bands[Spin.up][i]['energy'][j] > self._efermi:
+                if self._bands[Spin.up][i][j] > self._efermi:
                     above = True
             if above and below:
                 return True
             if self.is_spin_polarized:
+                below = False
+                above = False
                 for j in range(len(self._kpoints)):
-                    below = False
-                    above = False
-                    if self._bands[Spin.down][i]['energy'][j] < self._efermi:
+                    if self._bands[Spin.down][i][j] < self._efermi:
                         below = True
-                    if self._bands[Spin.down][i]['energy'][j] > self._efermi:
+                    if self._bands[Spin.down][i][j] > self._efermi:
                         above = True
                 if above and below:
                     return True
@@ -502,19 +501,15 @@ def get_reconstructed_band_structure(list_bs, efermi):
                 labels_dict[k] = v.frac_coords
         eigenvals = {Spin.up:[]}
         for i in range(nb_bands):
-            eigenvals[Spin.up].append({'energy':[], 'occup':[]})
+            #eigenvals[Spin.up].append({'energy':[], 'occup':[]})
             for bs in list_bs:
-                for e in bs._bands[Spin.up][i]['energy']:
-                    eigenvals[Spin.up][i]['energy'].append(e)
-                for u in bs._bands[Spin.up][i]['occup']:
-                    eigenvals[Spin.up][i]['occup'].append(u)
+                for e in bs._bands[Spin.up][i]:
+                    eigenvals[Spin.up][i].append(e)
         if list_bs[0].is_spin_polarized:
             eigenvals[Spin.down] = []
             for i in range(nb_bands):
-                eigenvals[Spin.down].append({'energy':[], 'occup':[]})
+                #eigenvals[Spin.down].append({'energy':[], 'occup':[]})
                 for bs in list_bs:
-                    for e in bs._bands[Spin.down][i]['energy']:
-                        eigenvals[Spin.down][i]['energy'].append(e)
-                    for u in bs._bands[Spin.down][i]['occup']:
-                        eigenvals[Spin.down][i]['occup'].append(u)
+                    for e in bs._bands[Spin.down][i]:
+                        eigenvals[Spin.down][i].append(e)
         return BandStructureSymmLine(kpoints, eigenvals, rec_lattice, efermi, labels_dict)
