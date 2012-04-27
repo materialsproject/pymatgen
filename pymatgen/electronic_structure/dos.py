@@ -426,7 +426,7 @@ class CompleteDos(Dos):
 
 
 def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
-             xlim=None, ylim=None):
+             xlim=None, ylim=None, file_name=None):
     """
     Plots a series of Dos using matplotlib.
     
@@ -509,6 +509,13 @@ def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
     leg = plt.gca().get_legend()
     ltext = leg.get_texts()  # all the text.Text instance in the legend
     plt.setp(ltext, fontsize=30)
-    plt.tight_layout()
-    plt.show()
+    #temp
+    #plt.tight_layout()
+    #plt.show()
+    if file_name is not None:
+        plt.plot()
+        plt.savefig(file_name)
+        plt.close()
+    else:
+        plt.show()
 

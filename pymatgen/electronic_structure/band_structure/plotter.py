@@ -66,10 +66,10 @@ class BSPlotter(object):
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            energy[Spin.up].append([self._bs._bands[Spin.up][i]['energy'][j]-zero_energy for j in range(len(self._bs._kpoints))])
+            energy[Spin.up].append([self._bs._bands[Spin.up][i][j]-zero_energy for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-                energy[Spin.down].append([self._bs._bands[Spin.down][i]['energy'][j]-zero_energy for j in range(len(self._bs._kpoints))])
+                energy[Spin.down].append([self._bs._bands[Spin.down][i][j]-zero_energy for j in range(len(self._bs._kpoints))])
         
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
@@ -159,7 +159,10 @@ class BSPlotter(object):
         
         if self._bs.is_metal():
             # Plot A Metal
-            pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+            if zero_to_efermi:
+                pylab.ylim(e_min, e_max)
+            else:
+                pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
         else:
             # Semiconductor, or Insulator
             # cbm, vbm are dict with keys: kpoint, energy, is_direct
@@ -181,6 +184,7 @@ class BSPlotter(object):
         if file_name is not None:
             pylab.plot()
             pylab.savefig(file_name)
+            pylab.close()
         else:
             pylab.show()
 
@@ -230,10 +234,10 @@ class BSPlotter(object):
         data_other = other_plotter.bs_plot_data
         for spin in data:
             for i in range(self._nb_bands):
-                pylab.plot(data['distances'], data[spin]['energy'][i], 'b-', linewidth=3)
+                pylab.plot(data['distances'], data[spin][i], 'b-', linewidth=3)
         for spin in data_other:
             for i in range(self._nb_bands):
-                pylab.plot(data['distances'], data_other[spin]['energy'][i], 'r--', linewidth=3)
+                pylab.plot(data['distances'], data_other[spin][i], 'r--', linewidth=3)
 
 
         ticks = self.get_ticks()

@@ -1156,15 +1156,14 @@ class Vasprun(object):
         # Prune off a few eigenvalues to make each kpoint have
         # the same number of eigenvalues.
         neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
+        neigenvalues.append([len(v['up']) for k, v in dict_eigen.items()])
         min_eigenvalues = min(neigenvalues)
         #max_band = int(math.floor(len(dict_eigen['1']['up']) * 0.9))
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append({'energy': [dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]})
-            eigenvals[Spin.up][i]['occup'] = [dict_eigen[str(j + 1)]['up'][i][1] for j in range(len(kpoints))]
+            eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
         if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append({'energy': [dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]})
-                eigenvals[Spin.down][i]['occup'] = [dict_eigen[str(j + 1)]['down'][i][1] for j in range(len(kpoints))]
+                eigenvals[Spin.down].append([dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]);
         return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
 
     @property
