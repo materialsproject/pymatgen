@@ -219,20 +219,15 @@ class PotcarTest(unittest.TestCase):
 
 class VasprunTest(unittest.TestCase):
 
-    def setUp(self):
-        self.filepath = os.path.join(test_dir, 'vasprun.xml')
-        self.vasprun = Vasprun(self.filepath)
-        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        self.vasprun_ggau = Vasprun(filepath2)
-
     def test_properties(self):
-
-        vasprun = self.vasprun
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath)
+        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
+        vasprun_ggau = Vasprun(filepath2)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O']
-, vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
+        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
@@ -255,8 +250,14 @@ class VasprunTest(unittest.TestCase):
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
 
-        self.assertTrue(self.vasprun_ggau.is_hubbard)
-        self.assertEqual(self.vasprun_ggau.hubbards["Fe"], 4.3)
+        #test skipping ionic steps.
+        vasprun_skip = Vasprun(filepath, 3)
+        self.assertEqual(vasprun_skip.final_energy, vasprun.final_energy)
+        self.assertEqual(len(vasprun_skip.ionic_steps), int(len(vasprun.ionic_steps) / 3) + 1)
+        self.assertEqual(len(vasprun_skip.ionic_steps), len(vasprun_skip.structures) - 2)
+
+        self.assertTrue(vasprun_ggau.is_hubbard)
+        self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
 
 class OutcarTest(unittest.TestCase):
 

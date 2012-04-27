@@ -1131,10 +1131,22 @@ class Vasprun(object):
                             'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi',
                             'ionic_steps', 'dos_has_errors']
 
-    def __init__(self, filename):
+    def __init__(self, filename, ionic_step_skip=None):
+        """
+        Args:
+            filename:
+                Filename to parse
+            ionic_step_skip:
+                If ionic_step_skip is a number > 1, only every ionic_step_skip
+                ionic steps will be read for structure and energies. This is
+                very useful if you are parsing very large vasprun.xml files and
+                you are not interested in every single ionic step. Note that the
+                initial and final structure of all runs will always be read,
+                regardless of the ionic_step_skip. 
+        """
         self._filename = filename
         with file_open_zip_aware(filename) as f:
-            self._handler = VasprunHandler(filename)
+            self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip)
             self._parser = xml.sax.parse(f, self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
@@ -1386,8 +1398,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Author: Shyue Ping Ong
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, ionic_step_skip=0):
         self.filename = filename
+        if ionic_step_skip and ionic_step_skip > 1:
+            self.ionic_step_skip = ionic_step_skip
+        else:
+            self.ionic_step_skip = 1
+        self.step_count = 0
         # variables to be filled
         self.vasp_version = None
         self.incar = Incar()
@@ -1467,6 +1484,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 if name == 'v' and self.state['varray'] == 'rec_basis':
                     self.read_rec_lattice = True
             if name == "calculation":
+                self.step_count += 1
+                if self.step_count > 1 and (self.step_count - 1) % self.ionic_step_skip != 0:
+                    del self.ionic_steps[-1]
+                    del self.structures[-1]
+
                 self.scdata = []
                 self.read_calculation = True
             elif name == "scstep":
@@ -2375,4 +2397,3 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
-
