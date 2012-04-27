@@ -17,11 +17,13 @@ __date__ = "Mar 18, 2012"
 
 import os
 import json
+import logging
 
 from pymatgen.util.io_utils import file_open_zip_aware
 
 from multiprocessing import Manager, Pool
 
+logger = logging.getLogger("BorgQueen")
 
 class BorgQueen(object):
     """
@@ -50,6 +52,7 @@ class BorgQueen(object):
         self._drone = drone
         self._num_drones = number_of_drones
         self._data = []
+
         if rootpath:
             self.parallel_assimilate(rootpath)
 
@@ -57,15 +60,20 @@ class BorgQueen(object):
         """
         Assimilate the entire subdirectory structure in rootpath.
         """
+        logger.info('Scanning for valid paths...')
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
 
         manager = Manager()
         data = manager.list()
+        status = manager.dict()
+        status['count'] = 0
+        status['total'] = len(valid_paths)
+        logger.info('{} valid paths found.'.format(len(valid_paths)))
 
         p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data) for path in valid_paths))
+        p.map(order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         self._data.extend(data)
 
     def serial_assimilate(self, rootpath):
@@ -108,7 +116,12 @@ class BorgQueen(object):
 
 
 def order_assimilation(args):
-    (path, drone, data) = args
+    (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
         data.append(newdata)
+    status['count'] += 1
+    count = status['count']
+    total = status['total']
+    logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+
