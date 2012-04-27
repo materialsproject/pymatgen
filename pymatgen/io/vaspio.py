@@ -1470,7 +1470,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "i" and self.state['i'] == "version" and self.state['generator']:
                 self.read_val = True
 
-        else: #reading calculations and structures.
+        elif not self.all_calculations_read: #reading calculations and structures.
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
                     self.read_val = True
@@ -1502,6 +1502,20 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.posstr = StringIO.StringIO()
             elif name == "eigenvalues":
                 self.all_calculations_read = True
+        else: #Read last part of vasprun, which is dos and eigenvalues if any.
+            if self.read_structure:
+                if name == "v" and self.state['varray'] == 'basis':
+                    self.read_lattice = True
+                elif name == "v" and self.state['varray'] == 'positions':
+                    self.read_positions = True
+                if name == 'v' and self.state['varray'] == 'rec_basis':
+                    self.read_rec_lattice = True
+            if name == 'structure':
+                self.latticestr = StringIO.StringIO()
+                self.latticerec = StringIO.StringIO()
+                self.posstr = StringIO.StringIO()
+                self.read_structure = True
+
             if self.read_eigen:
                 if name == "r" and self.state["set"]:
                     self.read_val = True
@@ -2397,3 +2411,5 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
+
