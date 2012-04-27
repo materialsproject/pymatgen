@@ -14,33 +14,14 @@ from pymatgen.io.vaspio import Outcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.borg.hive import VaspToComputedEntryDrone
 from pymatgen.borg.queen import BorgQueen
+import multiprocessing
 
-
-def detect_ncpus():
-    """
-    Detects the number of CPUs on a system. Cribbed from pp.
-    """
-    # Linux, Unix and MacOS:
-    if hasattr(os, "sysconf"):
-        if os.sysconf_names.has_key("SC_NPROCESSORS_ONLN"):
-            # Linux & Unix:
-            ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
-            if isinstance(ncpus, int) and ncpus > 0:
-                return ncpus
-    else: # OSX:
-        return int(os.popen2("sysctl -n hw.ncpu")[1].read())
-    # Windows:
-    if os.environ.has_key("NUMBER_OF_PROCESSORS"):
-        ncpus = int(os.environ["NUMBER_OF_PROCESSORS"]);
-        if ncpus > 0:
-            return ncpus
-    return 1 # Default
 
 def get_energies(rootdir, reanalyze):
     FORMAT = "%(relativeCreated)d msecs : %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
     drone = VaspToComputedEntryDrone(data=['filename'])
-    ncpus = detect_ncpus()
+    ncpus = multiprocessing.cpu_count()
     logging.info('Detect {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists('vasp_analyzer_data.gz') and not reanalyze:
