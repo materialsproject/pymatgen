@@ -20,9 +20,9 @@ import multiprocessing
 def get_energies(rootdir, reanalyze):
     FORMAT = "%(relativeCreated)d msecs : %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
-    drone = VaspToComputedEntryDrone(data=['filename'])
+    drone = VaspToComputedEntryDrone(inc_structure=True, data=['filename'])
     ncpus = multiprocessing.cpu_count()
-    logging.info('Detect {} cpus'.format(ncpus))
+    logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists('vasp_analyzer_data.gz') and not reanalyze:
         logging.info('Using previously assimilated data file vasp_analyzer_data.gz. Use -f to force re-analysis')
@@ -32,8 +32,8 @@ def get_energies(rootdir, reanalyze):
         queen.save_data('vasp_analyzer_data.gz')
     entries = queen.get_assimilated_data()
     entries = sorted(entries, key=lambda x:x.data['filename'])
-    all_data = [(e.data['filename'], e.energy, e.energy_per_atom) for e in entries]
-    print str_aligned(all_data, ("Directory", "Energy", "Energy/Atom"))
+    all_data = [(e.data['filename'].replace("./", ""), e.composition.formula, "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom), "{:.2f}".format(e.structure.volume)) for e in entries]
+    print str_aligned(all_data, ("Directory", "Formula", "Energy", "E/Atom", "Vol"))
 
 def get_magnetizations(mydir, ionList):
     print "%10s | %7s" % ("Ion", "Magmoms")
