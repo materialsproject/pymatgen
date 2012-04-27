@@ -29,9 +29,11 @@ from pymatgen.util.io_utils import file_open_zip_aware
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, Composition
 
-class CifParser:
+
+class CifParser(object):
     '''
-    A wrapper class around PyCifRW to read Cif and convert into a pymatgen Structure object.
+    A wrapper class around PyCifRW to read Cif and convert into a pymatgen
+    Structure object.
     '''
 
     def __init__(self, filename):
@@ -144,9 +146,9 @@ class CifParser:
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
         
-        Arguments:
+        Args:
             primitive:
-                Set to False to return conventional unit cells.  Defaults to True.
+                Set to False to return conventional unit cells. Defaults to True.
         
         Returns:
             List of Structures.
@@ -169,7 +171,7 @@ class CifWriter:
 
     def __init__(self, struct):
         """
-        Arguments:
+        Args:
             struct:
                 A pymatgen.core.structure.Structure object.
         """

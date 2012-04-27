@@ -3,9 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
 Introduction
 ============
-
+   
 Pymatgen (python materials genomics) is the python library that powers the 
 Materials Project (http://www.materialsproject.org). These are some of the main 
 features:
@@ -41,28 +42,56 @@ be notified via email of pymatgen releases, you may become a member of
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.0)
+Latest Change Log (v1.8.3)
 --------------------------
 
-1. Support for additional properties on Specie (Spin) and Site (magmom, charge).
-2. Molecule class to support molecules without periodicity.
-3. Beta io class for XYZ and GaussianInput.
+1. spglib_adaptor now supports disordered structures.
+2. Update to support new spglib with angle_tolerance.
+3. Changes to Borg API to support both file and directory style paths.
+4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
 
 .. toctree::
    :maxdepth: 2
 
    changelog
 
-Installation
-============
+Getting pymatgen
+================
+
+pymatgen is now in the Python Package Index (`PyPI`_). The version on
+PyPI is always the latest stable release that will be hopefully, be relatively 
+bug-free. If you have  distutils installed, you can just type: 
+
+::
+
+   easy_install pymatgen
+   
+to install pymatgen with most of the dependencies set up. Otherwise, the latest
+stable source can be downloaded at the `PyPI`_ site as well.
+
+Alternatively, the bleeding edge developmental version is at the public
+pymatgen github repo at https://github.com/materialsproject/pymatgen, including
+options to download the source in various formats. These developmental versions
+are likely to be more buggy, but may contain new features.
+
+From the source, you can type:
+
+::
+
+   python setup.py install
+
+With these basic steps, you should be able to use most of the basic
+functionality of pymatgen. However, some extra functionality do require
+additional setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    installation
 
-Usage
-=====
+Using pymatgen
+==============
 
 .. toctree::
    :maxdepth: 2 
@@ -77,7 +106,7 @@ comprising of MIT and Lawrence Berkeley National Laboratory staff to be a
 robust toolkit for materials researchers to perform advanced manipulations of
 structures and analyses.
 
-For pymatgen to continue to grow in functionality and robustnes, we rely on
+For pymatgen to continue to grow in functionality and robustness, we rely on
 other volunteers to develop new analyses and report and fix bugs. We welcome
 anyone to use our code as-is, but if you could take a few moment to give back
 to pymatgen in some small way, it would be greatly appreciated. A benefit of
@@ -110,8 +139,8 @@ Citing pymatgen
 
 Some of pymatgen's functionality is based on scientific advances / principles
 developed by the computational materials scientists in our team. If you 
-use some of these functionality in your research, you may wish to consider citing
-the following works:
+use some of these functionality in your research, you may wish to consider
+citing the following works:
 
 pymatgen.io.vaspio_set module
 -----------------------------
@@ -150,6 +179,12 @@ is based on the following work:
    G. Ceder. Formation enthalpies by mixing GGA and GGA + U calculations. 
    Physical Review B, 2011, 84(4), 045115. doi:10.1103/PhysRevB.84.045115
 
+pymatgen.symmetry
+-----------------
+
+The symmetry package is based on the excellent spglib developed by Atz Togo. For
+more information, please refer to Atz Togo's site at
+http://spglib.sourceforge.net/.
 
 Indices and tables
 ==================
@@ -160,3 +195,4 @@ Indices and tables
 
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
+.. _`PyPI` : http://pypi.python.org/pypi/pymatgen

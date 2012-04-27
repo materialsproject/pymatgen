@@ -11,7 +11,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
@@ -149,9 +149,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     Requires an oxidation state decorated structure for ewald sum to be 
     computed.
     
-    Given that the solution to selecting the right removals is NP-hard, there are
-    several algorithms provided with varying degrees of accuracy and speed. The 
-    options are as follows:
+    Given that the solution to selecting the right removals is NP-hard, there
+    are several algorithms provided with varying degrees of accuracy and speed.
+    The options are as follows:
     
     ALGO_FAST:
         This is a highly optimized algorithm to quickly go through the search 
@@ -163,16 +163,17 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         The complete algo ensures that you get all symmetrically distinct 
         orderings, ranked by the estimated Ewald energy. But this can be an
         extremely time-consuming process if the number of possible orderings is
-        very large.
+        very large. Use this if you really want all possible orderings. If you
+        want just the lowest energy ordering, ALGO_FAST is accurate and faster.
         
     ALGO_BEST_FIRST:
-        This algorithm is for ordering the really large cells which defeats even 
-        the ALGO_FAST.  For example, if you have 48 sites of which you want to
+        This algorithm is for ordering the really large cells that defeats even 
+        ALGO_FAST.  For example, if you have 48 sites of which you want to
         remove 16 of them, the number of possible orderings is around 2 x 10^12.
         ALGO_BEST_FIRST shortcircuits the entire search tree by removing the 
-        highest energy site first, then followed by the next highest energy site,
-        and so on.  It is guaranteed to find a solution in a reasonable time, but it
-        is also likely to be highly inaccurate. 
+        highest energy site first, then followed by the next highest energy
+        site, and so on.  It is guaranteed to find a solution in a reasonable
+        time, but it is also likely to be highly inaccurate. 
     """
 
     ALGO_FAST = 0
@@ -199,7 +200,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def best_first_ordering(self, structure, num_remove_dict):
-
         self.logger.debug('Performing best first ordering')
         starttime = time.time()
         self.logger.debug('Performing initial ewald sum...')
@@ -232,7 +232,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         mod = StructureEditor(structure)
         mod.delete_sites(to_delete)
         self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
-        return [{'energy':sum(sum(ematrix)), 'structure': mod.modified_structure.get_sorted_structure()}]
+        return [{'energy':sum(sum(ematrix)),
+                 'structure': mod.modified_structure.get_sorted_structure()}]
 
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug('Performing complete ordering...')
@@ -240,6 +241,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         symprec = 0.1
         s = SymmetryFinder(structure, symprec=symprec)
+        self.logger.debug('Symmetry of structure is determined to be {}.'.format(s.get_spacegroup_symbol()))
         sg = s.get_spacegroup()
         tested_sites = []
         starttime = time.time()
@@ -267,7 +269,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             already_tested = False
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]['energy']
-                if abs((energy - tenergy) / len(s_new)) < 1e-6 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
+                if abs((energy - tenergy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
                     already_tested = True
 
             if not already_tested:
@@ -355,13 +357,13 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         total_combis = 0
         for indices, frac in zip(self._indices, self._fractions):
             num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(num_to_remove)) > 1e-3:
+            if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
             else:
                 num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
             n = len(indices)
-            total_combis += int(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
+            total_combis += int(round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove)))
 
         self.logger.debug('Total combinations = {}'.format(total_combis))
 

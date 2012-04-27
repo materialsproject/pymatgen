@@ -349,7 +349,7 @@ VALID_INCAR_TAGS = ('NGX', 'NGY', 'NGZ', 'NGXF', 'NGYF', 'NGZF', 'NBANDS',
                     'KSPACING', 'KGAMMA', 'LSUBROT', 'SCALEE', 'LVHAR',
                     'LORBITALREAL', 'DARWINR', 'DARWINV', 'LFOCKAEDFT',
                     'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE',
-                    'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX')
+                    'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX', 'LIP')
 
 class Incar(dict, VaspInput):
     """
@@ -925,6 +925,26 @@ class PotcarSingle(VaspInput):
         """
         return Element(self.element).Z
 
+    @property
+    def nelectrons(self):
+        return self.zval
+
+    def __getattr__(self, a):
+        """
+        Delegates attributes to keywrods. For example, you can use
+        potcarsingle.enmax to get the ENMAX of the POTCAR.
+        
+        For float type properties, they are converted to the correct float. By
+        default, all energies in eV and all length scales are in Angstroms.
+        """
+        floatkeywords = ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
+                         'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
+                         'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']
+        a_caps = a.upper()
+        if a_caps in self.keywords:
+            return self.keywords[a_caps] if a_caps not in floatkeywords else float(self.keywords[a_caps].split()[0])
+        raise AttributeError(a)
+
 class Potcar(list, VaspInput):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
@@ -1111,10 +1131,22 @@ class Vasprun(object):
                             'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi',
                             'ionic_steps', 'dos_has_errors']
 
-    def __init__(self, filename):
-        self._filename = filename
+    def __init__(self, filename, ionic_step_skip=None):
+        """
+        Args:
+            filename:
+                Filename to parse
+            ionic_step_skip:
+                If ionic_step_skip is a number > 1, only every ionic_step_skip
+                ionic steps will be read for structure and energies. This is
+                very useful if you are parsing very large vasprun.xml files and
+                you are not interested in every single ionic step. Note that the
+                initial and final structure of all runs will always be read,
+                regardless of the ionic_step_skip. 
+        """
+        self.filename = filename
         with file_open_zip_aware(filename) as f:
-            self._handler = VasprunHandler(filename)
+            self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip)
             self._parser = xml.sax.parse(f, self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
@@ -1228,7 +1260,7 @@ class Vasprun(object):
             
         """
         if not kpoints_filename:
-            kpoints_filename = self._filename.replace('vasprun.xml', 'KPOINTS')
+            kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
         if not self.incar['ICHARG'] == 11:
@@ -1366,8 +1398,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Author: Shyue Ping Ong
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, ionic_step_skip=0):
         self.filename = filename
+        if ionic_step_skip and ionic_step_skip > 1:
+            self.ionic_step_skip = ionic_step_skip
+        else:
+            self.ionic_step_skip = 1
+        self.step_count = 0
         # variables to be filled
         self.vasp_version = None
         self.incar = Incar()
@@ -1433,7 +1470,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "i" and self.state['i'] == "version" and self.state['generator']:
                 self.read_val = True
 
-        else: #reading calculations and structures.
+        elif not self.all_calculations_read: #reading calculations and structures.
             if self.read_calculation:
                 if name == "i" and self.state['scstep']:
                     self.read_val = True
@@ -1447,6 +1484,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 if name == 'v' and self.state['varray'] == 'rec_basis':
                     self.read_rec_lattice = True
             if name == "calculation":
+                self.step_count += 1
+                if self.step_count > 1 and (self.step_count - 1) % self.ionic_step_skip != 0:
+                    del self.ionic_steps[-1]
+                    del self.structures[-1]
+
                 self.scdata = []
                 self.read_calculation = True
             elif name == "scstep":
@@ -1460,6 +1502,20 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.posstr = StringIO.StringIO()
             elif name == "eigenvalues":
                 self.all_calculations_read = True
+        else: #Read last part of vasprun, which is dos and eigenvalues if any.
+            if self.read_structure:
+                if name == "v" and self.state['varray'] == 'basis':
+                    self.read_lattice = True
+                elif name == "v" and self.state['varray'] == 'positions':
+                    self.read_positions = True
+                if name == 'v' and self.state['varray'] == 'rec_basis':
+                    self.read_rec_lattice = True
+            if name == 'structure':
+                self.latticestr = StringIO.StringIO()
+                self.latticerec = StringIO.StringIO()
+                self.posstr = StringIO.StringIO()
+                self.read_structure = True
+
             if self.read_eigen:
                 if name == "r" and self.state["set"]:
                     self.read_val = True
@@ -2355,3 +2411,5 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
+

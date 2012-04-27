@@ -17,8 +17,7 @@ Collaborative Github Workflow
 
 For developers interested in expanding pymatgen for their own purposes, we
 recommend forking pymatgen directly from the 
-`pymatgen GitHub repo <https://github.com/materialsproject/pymatgen>`_. Here's
-a typical workflow (adapted from
+`pymatgen GitHub repo`_. Here's a typical workflow (adapted from
 http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
 .. note::
@@ -26,8 +25,11 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    Ignore the Github fork queue. Let the maintainer of pymatgen worry about
    the fork queue.
 
-1. Create a free GitHub account (if you don't already have one).
-2. Fork the pymatgen GitHub repo.
+1. Create a free GitHub account (if you don't already have one) and perform the
+   necessary setup (e.g., install SSH keys etc.).
+2. Fork the pymatgen GitHub repo, i.e., go to the main 
+   `pymatgen GitHub repo`_ and click fork to create a copy of the pymatgen code
+   base on your own Github account.
 3. Install git on your local machine (if you don't already have it).
 4. Clone *your forked repo* to your local machine. You will work mostly with
    your local repo and only publish changes when they are ready to be merged:
@@ -36,7 +38,8 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    
        git clone git@github.com:YOURNAME/pymatgen.git
 
-5. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
+5. It is highly recommended you install all the optional dependencies as well.
+6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
    remotes. Let's name the upstream repo as mpmaster (materialsproject master).
    
@@ -61,7 +64,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    Remember, pull is a combination of the commands fetch and merge, so there may
    be merge conflicts to be manually resolved.
 
-6. Publish your contributions. Assuming that you now have a couple of commits
+7. Publish your contributions. Assuming that you now have a couple of commits
    that you would like to contribute to the main repository. Please follow the
    following steps:
    
@@ -80,7 +83,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
       
          git push origin master
 
-7. Now that your commit is published, it doesn't mean that it has already been
+8. Now that your commit is published, it doesn't mean that it has already been
    merged into the main repository. You should issue a merge request to 
    pymatgen' maintainers. They will pull your commits and run their own tests
    before releasing.
@@ -110,3 +113,4 @@ For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
+.. _`pymatgen GitHub repo`: https://github.com/materialsproject/pymatgen
