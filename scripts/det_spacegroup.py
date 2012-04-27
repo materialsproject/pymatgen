@@ -17,25 +17,25 @@ import argparse
 
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser
-from pymatgen.vis.structure_vtk import StructureVis
+from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
 
-parser = argparse.ArgumentParser(description='''Convenient structure file viewer.  Currently only cif and POSCAR formats supported.
+parser = argparse.ArgumentParser(description='''Convenient structure spacegroup determination.  Currently only cif and POSCAR formats supported.
 Author: Shyue Ping Ong
 Version: 1.0
-Last updated: Nov 29 2011''')
+Last updated: Apr 24 2012''')
 parser.add_argument('input_file', metavar='input file', type=str, nargs=1, help='input file')
 
 parser.add_argument('-f', '--format', dest='format', type=str, nargs=1, choices=['cif', 'poscar'], default='poscar', help='Format of input file. Defaults to POSCAR')
-parser.add_argument('-e', '--exclude_bonding', dest='exclude_bonding', type=str, nargs=1, help='List of elements to exclude from bonding analysis. E.g., Li,Na')
+parser.add_argument('-t', '--tolerance', dest='tolerance', type=float, nargs=1, help='Tolerance for symmetry determination')
 
 args = parser.parse_args()
-excluded_bonding_elements = args.exclude_bonding[0].split(',') if args.exclude_bonding else []
+tolerance = float(args.tolerance[0]) if args.tolerance else 0.1
 
 file_format = args.format
 
-if args.input_file[0].endswith(".cif"):
+if args.input_file[0].lower().endswith(".cif"):
     file_format = "cif"
-elif args.input_file[0].startswith("POSCAR"):
+elif args.input_file[0].upper().startswith("POSCAR"):
     file_format = "poscar"
 
 s = None
@@ -48,7 +48,9 @@ else:
     s = r.get_structures(False)[0]
 
 if s:
-    vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
-    vis.set_structure(s)
-    vis.show()
+    finder = SymmetryFinder(s, tolerance)
+    dataset = finder.get_symmetry_dataset()
+    print "Spacegroup  : {}".format(dataset['international'])
+    print "Int number  : {}".format(dataset['number'])
+    print "Hall symbol : {}".format(dataset["hall"])
 
