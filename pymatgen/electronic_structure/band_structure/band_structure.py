@@ -451,8 +451,10 @@ class BandStructureSymmLine(BandStructure):
         d['branches'] = self._branches
         d['bands'] = { str(int(spin)) : self._bands[spin] for spin in self._bands}
         d['is_metal'] = self.is_metal()
-        d['VBM'] = self.get_cbm()
-        d['CBM'] = self.get_vbm()
+        tmp_dict = self.get_vbm()
+        d['VBM'] = {'energy':tmp_dict['energy'],'kpoint_index':tmp_dict['kpoint_index'],'band_index':{str(int(spin)) : tmp_dict['band_index'][spin] for spin in tmp_dict['band_index']}}
+        tmp_dict = self.get_cbm()
+        d['CBM'] = {'energy':tmp_dict['energy'],'kpoint_index':tmp_dict['kpoint_index'],'band_index':{str(int(spin)) : tmp_dict['band_index'][spin] for spin in tmp_dict['band_index']}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
