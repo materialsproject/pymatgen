@@ -349,7 +349,7 @@ VALID_INCAR_TAGS = ('NGX', 'NGY', 'NGZ', 'NGXF', 'NGYF', 'NGZF', 'NBANDS',
                     'KSPACING', 'KGAMMA', 'LSUBROT', 'SCALEE', 'LVHAR',
                     'LORBITALREAL', 'DARWINR', 'DARWINV', 'LFOCKAEDFT',
                     'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE',
-                    'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX')
+                    'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX', 'LIP')
 
 class Incar(dict, VaspInput):
     """
@@ -1144,7 +1144,7 @@ class Vasprun(object):
                 initial and final structure of all runs will always be read,
                 regardless of the ionic_step_skip. 
         """
-        self._filename = filename
+        self.filename = filename
         with file_open_zip_aware(filename) as f:
             self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip)
             self._parser = xml.sax.parse(f, self._handler)
@@ -1260,7 +1260,7 @@ class Vasprun(object):
             
         """
         if not kpoints_filename:
-            kpoints_filename = self._filename.replace('vasprun.xml', 'KPOINTS')
+            kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
         if not self.incar['ICHARG'] == 11:
