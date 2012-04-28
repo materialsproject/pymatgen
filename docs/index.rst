@@ -42,12 +42,13 @@ be notified via email of pymatgen releases, you may become a member of
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.2)
+Latest Change Log (v1.8.3)
 --------------------------
 
-1. Spglib now supports disordered structures.
-2. Changes to Borg API to support both file and directory style paths.
-3. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
+1. spglib_adaptor now supports disordered structures.
+2. Update to support new spglib with angle_tolerance.
+3. Changes to Borg API to support both file and directory style paths.
+4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
 
 .. toctree::
    :maxdepth: 2

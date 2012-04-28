@@ -304,10 +304,11 @@ class SupercellMaker(StructureModifier):
             structure:
                 pymatgen.core.structure Structure object.
             scaling_matrix:
-                a matrix of transforming the lattice vectors. Defaults to the identity matrix.
-                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                with lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice 
-                vectors of the original structure. 
+                a matrix of transforming the lattice vectors. Defaults to the
+                identity matrix. Has to be all integers. e.g.,
+                [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
+                lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c
+                are the lattice vectors of the original structure. 
         """
         self._original_structure = structure
         old_lattice = structure.lattice
