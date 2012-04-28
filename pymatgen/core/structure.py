@@ -357,7 +357,7 @@ class PeriodicSite(Site):
         """
         if self.lattice != other.lattice:
             return False
-        frac_diff = abs(self._fcoords - other._fcoords) % 1
+        frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
         frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance for a in frac_diff]
         return  all(frac_diff)
 
