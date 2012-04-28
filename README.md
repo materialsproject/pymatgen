@@ -60,7 +60,11 @@ Optional python libraries that are required if you need certain features.
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
    Required for the usage of the adapters in pymatgen.io.aseio between
-   pymatgen's core Structure object and the Atoms object used by ASE. 
+   pymatgen's core Structure object and the Atoms object used by ASE.
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
+   usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
+   and OpenBabel's OBMol. Opens up input and output support for the very large
+   number of input and output formats supported by OpenBabel.
 
 ## Optional non-Python programs ##
 

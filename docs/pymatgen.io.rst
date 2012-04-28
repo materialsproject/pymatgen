@@ -17,6 +17,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`babelio` Module
+---------------------
+
+.. automodule:: pymatgen.io.babelio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`cifio` Module
 -------------------
 
