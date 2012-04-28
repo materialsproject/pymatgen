@@ -16,6 +16,8 @@ __date__ = "Apr 28, 2012"
 import unittest
 import os
 
+from nose.exc import SkipTest
+
 from pymatgen.core.structure import Molecule
 import pymatgen.io.babelio as babelio
 from pymatgen.io.babelio import BabelMolAdaptor
@@ -24,7 +26,6 @@ import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
-from nose.exc import SkipTest
 
 class BabelMolAdaptorTest(unittest.TestCase):
 
