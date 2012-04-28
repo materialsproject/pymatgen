@@ -8,6 +8,8 @@ do
     mv temp.rst $filename
 done
 make html
+#make latexpdf
+#cp ../../docs/pymatgen/latex/pymatgen.pdf ../../docs/pymatgen/html/pymatgen.pdf
 
 cp nature_mp.css ../../docs/pymatgen/html/static/nature.css
 cp favicon.ico ../../docs/pymatgen/html/static/favicon.ico
