@@ -24,10 +24,13 @@ import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
+from nose.exc import SkipTest
 
 class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_init(self):
+        if not babelio.babel_loaded:
+            raise SkipTest("OpenBabel not present. Skipping...")
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
@@ -42,6 +45,8 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
+        if not babelio.babel_loaded:
+            raise SkipTest("OpenBabel not present. Skipping...")
         adaptor = BabelMolAdaptor.from_file(os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
