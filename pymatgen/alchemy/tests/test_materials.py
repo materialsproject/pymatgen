@@ -18,7 +18,7 @@ import os
 import json
 
 from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation, PartialRemoveSpecieTransformation, SupercellTransformation
 from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
 
 from pymatgen.alchemy.materials import TransformedStructure
@@ -42,6 +42,15 @@ class TransformedStructureTest(unittest.TestCase):
         self.trans.append_transformation(t)
         self.assertEqual("NaMnPO4", self.trans.final_structure.composition.reduced_formula)
         self.assertEqual(len(self.trans.structures), 3)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(lattice, ["Si4+", "Si4+"], coords)
+        ts = TransformedStructure(struct, [])
+        ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
+        alt = ts.append_transformation(PartialRemoveSpecieTransformation('Si4+', 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5)
+        self.assertEqual(len(alt), 2)
 
     def test_get_vasp_input(self):
         vaspis = MaterialsProjectVaspInputSet()
@@ -59,7 +68,7 @@ class TransformedStructureTest(unittest.TestCase):
         ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
         self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
         self.assertEqual(ts.other_parameters, {'author': 'Will', 'tags': ['test']})
-        
+
     def test_undo_last_transformation_and_redo(self):
         trans = []
         trans.append(SubstitutionTransformation({"Li":"Na"}))
@@ -77,6 +86,12 @@ class TransformedStructureTest(unittest.TestCase):
         self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
         self.assertRaises(IndexError, ts.redo_next_transformation)
 
+    def test_to_dict(self):
+        d = self.trans.to_dict
+        self.assertIn('last_modified', d)
+        self.assertIn('history', d)
+        self.assertIn('version', d)
+        self.assertEqual(Structure.from_dict(d).formula, 'Na4 Fe4 P4 O16')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 '''
-This module performs list of transformations on list of entries, and provides a 
-consistent input vs output interface for transformations on db entries.
+This module provides various representations of transformed structures. A
+TransformedStructure is a structure that has been modified by undergoing a
+series of transformations. 
 '''
 
 from __future__ import division
@@ -17,7 +18,6 @@ __date__ = "Mar 2, 2012"
 import os
 import re
 import json
-import collections
 import datetime
 
 from pymatgen.core.structure import Structure
@@ -30,27 +30,29 @@ class TransformedStructure(object):
     """
     Container object for new structures that include history of transformations.
     
-    Each transformed structure is made up of a sequence of structures with associated
-    transformation history.
+    Each transformed structure is made up of a sequence of structures with
+    associated transformation history.
     """
 
-    def __init__(self, structure, transformations, history = None, other_parameters = None):
+    def __init__(self, structure, transformations, history=None,
+                 other_parameters=None):
         """
-        Standard constructor for a TransformedStructure
+        Standard constructor for a TransformedStructure.
         
         Args:
             structure:
                 input structure
             transformations:
-                sequence of transformations to be applied to the input structure.
+                Sequence of transformations to be applied to the input 
+                structure.
             history:
                 optional history for the input structure, which provides a way
                 to track structures having undergone multiple series of 
                 transformations.
             other_parameters:
-                optional parameters to store along with the transformedstructure.
-                This can include tags (a list) or author which will be parsed when the structure
-                is uploaded to the database
+                optional parameters to store along with the 
+                TransformedStructure. This can include tags (a list) or author 
+                which will be parsed.
         """
         history = [] if history == None else history
         self._source = {}
@@ -93,7 +95,7 @@ class TransformedStructure(object):
         if len(self._redo_trans) == 0:
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
-        self.append_transformation(t, clear_redo = False)
+        self.append_transformation(t, clear_redo=False)
 
     def __getitem__(self, index):
         return (self._structures[index], self._transformations[0:index])
@@ -104,48 +106,56 @@ class TransformedStructure(object):
     def __len__(self):
         return len(self._structures)
 
-    @staticmethod
-    def _alternative_transformed_structures(unmodified_transformed_structure, transformation, structure_dicts):
-        for x in structure_dicts:
-            new_structure = deepcopy(unmodified_transformed_structure)
-            new_structure._structures.append(x.pop('structure'))
-            new_structure._transformation_parameters.append(x)
-            new_structure._transformations.append(transformation)
-            yield new_structure
-
-
-    def append_transformation(self, transformation, return_alternatives = False, clear_redo = True):
+    def append_transformation(self, transformation, return_alternatives=False,
+                              clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.
         
         Args:
             transformation:
                 Transformation to append
+            return_alternatives:
+                Whether to return alternative TransformedStructures for
+                one-to-many transformations. return_alternatives can be a
+                number, which stipulates the total number of structures to
+                return.
             clear_redo:
                 Boolean indicating whether to clear the redo list. By default,
                 this is True, meaning any appends clears the history of undoing.
                 However, when using append_transformation to do a redo, the redo
                 list should not be cleared to allow multiple redos.
         """
+        if clear_redo:
+            self._redo_trans = []
 
-        if return_alternatives:
-            structures_dict_list = transformation.apply_transformation(self._structures[-1], return_ranked_list = True)
-            alternative_structures = self._alternative_transformed_structures(deepcopy(self), transformation, structures_dict_list[1:])
-
-            new_s = structures_dict_list[0]
-            self._structures.append(new_s.pop('structure'))
-            self._transformations.append(transformation)
-            self._transformation_parameters.append(new_s)
-            return alternative_structures
-
+        if return_alternatives and transformation.is_one_to_many:
+            starting_struct = self._structures[-1]
+            ranked_list = transformation.apply_transformation(starting_struct, return_ranked_list=return_alternatives)
+            #generate the alternative structures
+            alts = []
+            for x in ranked_list[1:]:
+                struct = x.pop('structure')
+                other_paras = [p for p in self._other_parameters]
+                hist = self.history
+                actual_transformation = x.pop('transformation', transformation)
+                tdict = actual_transformation.to_dict
+                tdict['input_structure'] = starting_struct.to_dict
+                tdict['output_parameters'] = x
+                hist.append(tdict)
+                alts.append(TransformedStructure(struct, [], history=hist, other_parameters=other_paras))
+            #use the first item in the ranked_list and apply it to this transformed_structure
+            x = ranked_list[0]
+            struct = x.pop('structure')
+            actual_transformation = x.pop('transformation', transformation)
+            self._structures.append(struct)
+            self._transformations.append(actual_transformation)
+            self._transformation_parameters.append(x)
+            return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
-
-        if clear_redo:
-            self._redo_trans = []
 
     def extend_transformations(self, transformations):
         """
@@ -158,7 +168,7 @@ class TransformedStructure(object):
         for t in transformations:
             self.append_transformation(t)
 
-    def get_vasp_input(self, vasp_input_set, generate_potcar = True):
+    def get_vasp_input(self, vasp_input_set, generate_potcar=True):
         """
         Returns VASP input as a dict of vaspio objects.
         
@@ -175,19 +185,20 @@ class TransformedStructure(object):
         d['transformations.json'] = json.dumps(self.to_dict)
         return d
 
-    def write_vasp_input(self, vasp_input_set, output_dir, create_directory = True):
+    def write_vasp_input(self, vasp_input_set, output_dir, create_directory=True):
         """
         Writes VASP input to an output_dir.
         
         Args:
             vasp_input_set:
-                pymatgen.io.vaspio_set.VaspInputSet like object that creates vasp input files from structures
+                pymatgen.io.vaspio_set.VaspInputSet like object that creates 
+                vasp input files from structures
             output_dir:
                 Directory to output files
             create_directory:
                 Create the directory if not present. Defaults to True.
         """
-        vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present = create_directory)
+        vasp_input_set.write_input(self._structures[-1], output_dir, make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, 'transformations.json'), 'w') as fp:
             json.dump(self.to_dict, fp)
 
@@ -217,17 +228,18 @@ class TransformedStructure(object):
     @property
     def was_modified(self):
         """
-        boolean describing whether the last transformation on the structure made any alterations to it
-        one example of when this would return false is in the case of performing a substitution transformation
-        on the structure when the specie to replace isn't in the structure.
+        Boolean describing whether the last transformation on the structure 
+        made any alterations to it one example of when this would return false
+        is in the case of performing a substitution transformation on the
+        structure when the specie to replace isn't in the structure.
         """
         return not self._structures[-1] == self._structures[-2]
 
     @property
     def structures(self):
         """
-        Returns a copy of all structures in the TransformedStructure. A structure
-        is stored after every single transformation.
+        Returns a copy of all structures in the TransformedStructure. A 
+        structure is stored after every single transformation.
         """
         return [s for s in self._structures]
 
@@ -271,11 +283,12 @@ class TransformedStructure(object):
         d = self._structures[-1].to_dict
         d['history'] = self.history
         d['version'] = __version__
+        d['last_modified'] = str(datetime.datetime.utcnow())
         d['other_parameters'] = self._other_parameters
         return d
 
     @staticmethod
-    def from_cif_string(cif_string, transformations = [], primitive = True):
+    def from_cif_string(cif_string, transformations=[], primitive=True):
         """
         Generates TransformedStructure from a cif string.
 
@@ -302,11 +315,11 @@ class TransformedStructure(object):
             source = partial_cif['_database_code_ICSD'] + "-ICSD"
         else:
             source = 'uploaded cif'
-        source_info = {'source':source, 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
+        source_info = {'source':source, 'datetime':str(datetime.datetime.now()), 'original_file':raw_string, 'cif_data':cif_dict[cif_keys[0]]}
         return TransformedStructure(s, transformations, [source_info])
 
     @staticmethod
-    def from_poscar_string(poscar_string, transformations = []):
+    def from_poscar_string(poscar_string, transformations=[]):
         """
         Generates TransformedStructure from a poscar string. 
 
@@ -319,7 +332,7 @@ class TransformedStructure(object):
             raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
         raw_string = re.sub("'", "\"", poscar_string)
         s = p.struct
-        source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.utcnow()), 'original_file':raw_string}
+        source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.now()), 'original_file':raw_string}
         return TransformedStructure(s, transformations, [source_info])
 
 

@@ -245,8 +245,8 @@ class BandStructureSymmLine(BandStructure):
                 self._distance.append(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = self._kpoints[i]
             previous_distance = self._distance[i]
-            if label != None:
-                if previous_label != None:
+            if label:
+                if previous_label:
                     if len(one_group) != 0:
                         branches_tmp.append(one_group)
                     one_group = []
@@ -310,6 +310,7 @@ class BandStructureSymmLine(BandStructure):
                             max_tmp = self._bands[spin][i][j]
                             index = j
                             kpointvbm = self._kpoints[j]
+
         list_index_kpoints = []
         if kpointvbm.label != None:
             for i in range(len(self._kpoints)):
@@ -361,13 +362,13 @@ class BandStructureSymmLine(BandStructure):
                             index = j
                             kpointcbm = self._kpoints[j]
         list_index_kpoints = []
+
         if kpointcbm.label != None:
             for i in range(len(self._kpoints)):
                 if self._kpoints[i].label == kpointcbm.label:
                     list_index_kpoints.append(i)
         else:
             list_index_kpoints.append(index)
-        #get all other bands sharing the cbm
         #get all other bands sharing the vbm
         list_index_band = {Spin.up:[]}
         if self.is_spin_polarized:
@@ -377,6 +378,7 @@ class BandStructureSymmLine(BandStructure):
                 if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
+
 
     def get_band_gap(self):
         """
@@ -395,10 +397,11 @@ class BandStructureSymmLine(BandStructure):
             return {'energy':0.0, 'direct':False, 'transition':None}
         cbm = self.get_cbm()
         vbm = self.get_vbm()
-        result = {}
+        result = dict(direct=False, energy=0.0, transition=None)
+
         result['energy'] = cbm['energy'] - vbm['energy']
-        result['direct'] = False
-        if (cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01):
+
+        if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
         result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
@@ -434,6 +437,7 @@ class BandStructureSymmLine(BandStructure):
                     return True
 
         return False
+
 
     @property
     def to_dict(self):

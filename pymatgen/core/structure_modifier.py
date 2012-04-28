@@ -51,7 +51,7 @@ class StructureEditor(StructureModifier):
 
     def __init__(self, structure):
         """
-        Arguments:
+        Args:
             structure:
                 pymatgen.core.structure Structure object.
         """
@@ -59,16 +59,38 @@ class StructureEditor(StructureModifier):
         self._lattice = structure.lattice
         self._sites = list(structure.sites)
 
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+        
+        Args:
+            property_name:
+                The name of the property to add.
+            values: 
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = PeriodicSite(site.species_and_occu, site.frac_coords, self._lattice, properties=props)
+
     def replace_species(self, species_mapping):
         """
         Swap species in a structure.
         
-        Arguments:
+        Args:
             species_mapping:
                 dict of species to swap. Species can be elements too.
-                e.g., {Element("Li"): Element("Na")} performs a Li for Na substitution.
-                the second species can be a sp_and_occu dict. For example, a site with 0.5 Si that is passed
-                the mapping {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will have .375 Ge and .125 C
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na 
+                substitution. The second species can be a sp_and_occu dict. 
+                For example, a site with 0.5 Si that is passed the mapping 
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
         """
 
         def mod_site(site):
@@ -99,9 +121,11 @@ class StructureEditor(StructureModifier):
         """
         Replace a single site. Takes either a species or a dict of occus
         
-        Arguments:
-            index: the index of the site in the _sites list
-            species: a species object        
+        Args:
+            index:
+                The index of the site in the _sites list
+            species:
+                A species object  
         """
         self._sites[index] = PeriodicSite(species_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords), self._lattice)
 
@@ -120,7 +144,8 @@ class StructureEditor(StructureModifier):
                 new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords, self._lattice))
         self._sites = new_sites
 
-    def append_site(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
+    def append_site(self, species, coords, coords_are_cartesian=False,
+                    validate_proximity=True):
         """
         Append a site to the structure at the end.
         
@@ -137,7 +162,8 @@ class StructureEditor(StructureModifier):
         """
         self.insert_site(len(self._sites), species, coords, coords_are_cartesian, validate_proximity)
 
-    def insert_site(self, i, species, coords, coords_are_cartesian=False, validate_proximity=True):
+    def insert_site(self, i, species, coords, coords_are_cartesian=False,
+                    validate_proximity=True, properties=None):
         """
         Insert a site to the structure.
         
@@ -154,9 +180,9 @@ class StructureEditor(StructureModifier):
                 Whether to check if inserted site is too close to an existing site. Defaults to True.
         """
         if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice)
+            new_site = PeriodicSite(species, coords, self._lattice, properties=properties)
         else:
-            new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords), self._lattice)
+            new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords), self._lattice, properties=properties)
 
         if validate_proximity:
             for site in self._sites:
@@ -217,14 +243,17 @@ class StructureEditor(StructureModifier):
 
     def translate_sites(self, indices, vector, frac_coords=True):
         """
-        Translate specific sites by some vector, keeping the sites within the unit cell
-        
-        TODO: Write nosetests for this method (one for frac_coords, one for cartesian)
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
         
         Args:
-            sites: list of site indices on which to perform the translation
-            vector: translation vector for sites
-            frac_coords: Boolean stating whether the vector corresponds to fractional or cartesian coordinates
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
         """
         for i in indices:
             site = self._sites[i]
@@ -247,14 +276,20 @@ class StructureEditor(StructureModifier):
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector, frac_coords=False)
 
-
     @property
     def original_structure(self):
         return self._original_structure
 
     @property
     def modified_structure(self):
-        return Structure(self._lattice, [site.species_and_occu for site in self._sites], [site.frac_coords for site in self._sites], False)
+        coords = [site.frac_coords for site in self._sites]
+        species = [site.species_and_occu for site in self._sites]
+        props = {}
+        if self._sites[0].properties:
+            for k in self._sites[0].properties.keys():
+                props[k] = [site.properties[k] for site in self._sites]
+        return Structure(self._lattice, species, coords, False,
+                         site_properties=props)
 
 class SupercellMaker(StructureModifier):
     """
@@ -269,10 +304,11 @@ class SupercellMaker(StructureModifier):
             structure:
                 pymatgen.core.structure Structure object.
             scaling_matrix:
-                a matrix of transforming the lattice vectors. Defaults to the identity matrix.
-                Has to be all integers. e.g., [[2,1,0],[0,3,0],[0,0,1]] generates a new structure
-                with lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c are the lattice 
-                vectors of the original structure. 
+                a matrix of transforming the lattice vectors. Defaults to the
+                identity matrix. Has to be all integers. e.g.,
+                [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
+                lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c
+                are the lattice vectors of the original structure. 
         """
         self._original_structure = structure
         old_lattice = structure.lattice

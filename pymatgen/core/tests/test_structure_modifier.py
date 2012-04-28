@@ -22,47 +22,59 @@ class StructureEditorTest(unittest.TestCase):
         s = Structure(lattice, [self.si, self.fe], coords)
         self.modifier = StructureEditor(s)
 
-    def test_modified_structure(self):
-        self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords = True)
+    def test_translate_sites(self):
+        self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
         self.assertTrue(np.array_equal(self.modifier.modified_structure.frac_coords[0], np.array([ 0.5, 0.5, 0.5])))
 
-        self.modifier.translate_sites([0], [0.5, 0.5, 0.5], frac_coords = False)
+        self.modifier.translate_sites([0], [0.5, 0.5, 0.5], frac_coords=False)
         self.assertTrue(np.array_equal(self.modifier.modified_structure.cart_coords[0], np.array([ 5.5, 5.5, 5.5])))
 
+    def test_append_site(self):
         self.modifier.append_site(self.si, [0, 0.5, 0])
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
+        self.assertRaises(ValueError, self.modifier.append_site, self.si, np.array([0, 0.5, 0]))
 
+    def test_modified_structure(self):
         self.modifier.insert_site(1, self.si, [0, 0.25, 0])
-        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si3", "Wrong formula!")
-
-        self.modifier.delete_site(0)
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2", "Wrong formula!")
 
+        self.modifier.delete_site(0)
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1", "Wrong formula!")
+
         self.modifier.replace_site(0, self.ge)
-        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1 Ge1", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Ge1", "Wrong formula!")
 
         self.modifier.append_site(self.si, [0, 0.75, 0])
         self.modifier.replace_species({self.si: self.ge})
-        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Ge3", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Ge2", "Wrong formula!")
 
         self.modifier.replace_species({self.ge: {self.ge:0.5, self.si:0.5}})
-        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1.5 Ge1.5", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1 Ge1", "Wrong formula!")
 
         #this should change the .5Si .5Ge sites to .75Si .25Ge
         self.modifier.replace_species({self.ge: {self.ge:0.5, self.si:0.5}})
-        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si2.25 Ge0.75", "Wrong formula!")
-
-        self.assertRaises(ValueError, self.modifier.append_site, self.si, np.array([0, 0.5, 0]))
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1.5 Ge0.5", "Wrong formula!")
 
         d = 0.1
         pre_perturbation_sites = self.modifier.modified_structure.sites
-        self.modifier.perturb_structure(distance = d)
+        self.modifier.perturb_structure(distance=d)
         post_perturbation_sites = self.modifier.modified_structure.sites
 
-        for x in pre_perturbation_sites:
-            self.assertAlmostEqual(x.distance(post_perturbation_sites.next()), d, 3, "Bad perturbation distance")
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d, 3, "Bad perturbation distance")
 
+    def test_add_site_property(self):
+        self.modifier.add_site_property("charge", [4.1, 5])
+        s = self.modifier.modified_structure
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[1].charge, 5)
 
+        #test adding multiple properties.
+        mod2 = StructureEditor(s)
+        mod2.add_site_property("magmom", [3, 2])
+        s = mod2.modified_structure
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[0].magmom, 3)
 
 class SupercellMakerTest(unittest.TestCase):
 

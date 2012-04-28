@@ -33,7 +33,7 @@ class BSPlotter(object):
         self._bs = bs
         #Many ab initio codes do not give good results for the highest occupied bands, we therefore only
         #give 90% of the bands for plotting
-        self._nb_bands = int(math.floor(self._bs._nb_bands*0.9))
+        self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
 
     def bs_plot_data(self, zero_to_efermi=True):
 
@@ -171,10 +171,10 @@ class BSPlotter(object):
 
             e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
             e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
- 
+
             for index in cbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)    
-            
+                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)
+
             for index in vbm['kpoint_index']:
                 pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
 
@@ -200,23 +200,22 @@ class BSPlotter(object):
         tick_labels = []
         previous_label = self._bs._kpoints[0].label
         previous_branch = self._bs.get_branch_name(0)
-        for i in range(len(self._bs._kpoints)):
-            c = self._bs._kpoints[i]
-            if(c.label != None):
+        for i, c in enumerate(self._bs._kpoints):
+            if c.label != None:
                 tick_distance.append(self._bs._distance[i])
-                if(c.label != previous_label and previous_branch != self._bs.get_branch_name(i)):
+                if c.label != previous_label and previous_branch != self._bs.get_branch_name(i):
                     label1 = c.label
-                    if(label1.startswith("\\") or label1.find("_") != -1):
+                    if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
                     label0 = previous_label
-                    if(label0.startswith("\\") or label0.find("_") != -1):
+                    if label0.startswith("\\") or label0.find("_") != -1:
                         label0 = "$" + label0 + "$"
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$|$" + label1)
                     #print label0+","+label1
                 else:
-                    if(c.label.startswith("\\") or c.label.find("_") != -1):
+                    if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
                     else:
                         tick_labels.append(c.label)
@@ -247,18 +246,20 @@ class BSPlotter(object):
         pylab.xlabel('Kpoints', fontsize='large')
         pylab.ylabel('Energy(eV)', fontsize='large')
         for i in range(len(ticks['label'])):
-            if(ticks['label'][i] != None):
+            if ticks['label'][i]:
                 pylab.axvline(ticks['distance'][i], color='k')
         pylab.show()
         pylab.legend()
 
     def plot_brillouin(self):
-        import pylab as plt
         import pymatgen.command_line.qhull_caller
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
+        mpl.rcParams['legend.fontsize'] = 10
 
-        fig = plt.figure(figsize=(8, 8))
-        ax = Axes3D(fig)
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
         vec1 = self._bs._lattice_rec.matrix[0]
         vec2 = self._bs._lattice_rec.matrix[1]
         vec3 = self._bs._lattice_rec.matrix[2]
@@ -271,31 +272,31 @@ class BSPlotter(object):
         min_y = 1000
         min_z = 1000
         list_k_points = []
-        for i in[-1, 0, 1]:
+        for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
                 for k in [-1, 0, 1]:
                     list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-                    if(list_k_points[-1][0] > max_x):
+                    if list_k_points[-1][0] > max_x:
                         max_x = list_k_points[-1][0]
-                    if(list_k_points[-1][1] > max_y):
+                    if list_k_points[-1][1] > max_y:
                         max_y = list_k_points[-1][1]
-                    if(list_k_points[-1][2] > max_z):
+                    if list_k_points[-1][2] > max_z:
                         max_z = list_k_points[-1][0]
 
-                    if(list_k_points[-1][0] < min_x):
+                    if list_k_points[-1][0] < min_x:
                         min_x = list_k_points[-1][0]
-                    if(list_k_points[-1][1] < min_y):
+                    if list_k_points[-1][1] < min_y:
                         min_y = list_k_points[-1][1]
-                    if(list_k_points[-1][2] < min_z):
+                    if list_k_points[-1][2] < min_z:
                         min_z = list_k_points[-1][0]
 
         vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
         lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
+        
         for i in range(len(lines)):
             vertex1 = lines[i]['start']
             vertex2 = lines[i]['end']
             ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
-
 
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
@@ -318,7 +319,7 @@ class BSPlotter(object):
             a.set_visible(False)
         for a in ax.w_zaxis.get_ticklines() + ax.w_zaxis.get_ticklabels():
             a.set_visible(False)
-            
+
         ax.grid(False)
 
         plt.show()

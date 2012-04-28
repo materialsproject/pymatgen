@@ -33,6 +33,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`gaussianio` Module
+------------------------
+
+.. automodule:: pymatgen.io.gaussianio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`io_abc` Module
 --------------------
 
@@ -53,6 +61,14 @@ io Package
 ------------------------
 
 .. automodule:: pymatgen.io.vaspio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`xyzio` Module
+-------------------
+
+.. automodule:: pymatgen.io.xyzio
     :members:
     :undoc-members:
     :show-inheritance:
