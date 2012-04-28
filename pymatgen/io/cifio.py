@@ -164,6 +164,7 @@ class CifParser(object):
                 d[k][k2] = v2
         return d
 
+
 class CifWriter:
     '''
     A wrapper around PyCifRW to write CIF files from pymatgen structures.
