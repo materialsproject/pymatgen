@@ -29,7 +29,7 @@ class ComputedEntry(PDEntry):
     Author: Shyue Ping Ong, Anubhav Jain
     """
 
-    def __init__(self, composition, energy, correction = 0.0, parameters = None, data = None):
+    def __init__(self, composition, energy, correction=0.0, parameters=None, data=None):
         """
         Args:
             composition:
@@ -88,7 +88,7 @@ class ComputedEntry(PDEntry):
     @staticmethod
     def from_dict(d):
         return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             d['parameters'], d['data'])
+                             d.get('parameters', {}), d.get('data', {}))
 
     @property
     def to_dict(self):
@@ -100,6 +100,7 @@ class ComputedEntry(PDEntry):
         d['data'] = self.data
         return d
 
+
 class ComputedStructureEntry(ComputedEntry):
     """
     A heavier version of ComputedEntry which contains a structure as well. The 
@@ -108,7 +109,7 @@ class ComputedStructureEntry(ComputedEntry):
     Author: Shyue Ping Ong, Anubhav Jain
     """
 
-    def __init__(self, structure, energy, correction = 0.0, parameters = None, data = None):
+    def __init__(self, structure, energy, correction=0.0, parameters=None, data=None):
         """
         Args:
             structure:
@@ -126,7 +127,7 @@ class ComputedStructureEntry(ComputedEntry):
                 An optional dict of any additional data associated with 
                 the entry. Defaults to None
         """
-        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction = correction, parameters = parameters, data = data)
+        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction=correction, parameters=parameters, data=data)
         self.structure = structure
 
     def __repr__(self):
@@ -151,7 +152,7 @@ class ComputedStructureEntry(ComputedEntry):
     @staticmethod
     def from_dict(d):
         return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
-                             d['correction'], d['parameters'], d['data'])
+                             d['correction'], d.get('parameters', {}), d.get('data', {}))
 
 
 def computed_entries_to_json(all_entries):
