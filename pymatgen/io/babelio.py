@@ -29,8 +29,6 @@ class BabelMolAdaptor(object):
     Molecule.
     '''
 
-    supported_output_formats = pb.outformats
-
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel's OBMol.
@@ -78,3 +76,9 @@ class BabelMolAdaptor(object):
         """
         mol = pb.Molecule(self._obmol)
         mol.write(file_format, filename, overwrite=True)
+
+    @staticmethod
+    def from_file(filename, file_format="xyz"):
+        mol = pb.readfile(file_format, filename).next()
+        return BabelMolAdaptor(mol.OBMol)
+
