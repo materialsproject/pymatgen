@@ -14,10 +14,15 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 28, 2012"
 
 import unittest
+import os
 
 from pymatgen.core.structure import Molecule
 import pymatgen.io.babelio as babelio
 from pymatgen.io.babelio import BabelMolAdaptor
+
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -35,6 +40,11 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
         adaptor = BabelMolAdaptor(adaptor.openbabel_mol)
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
+
+    def test_from_file(self):
+        adaptor = BabelMolAdaptor.from_file(os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
+        mol = adaptor.pymatgen_mol
+        self.assertEqual(mol.formula, "H6 C2")
 
 if __name__ == "__main__":
     if babelio.babel_loaded:
