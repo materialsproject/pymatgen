@@ -118,7 +118,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 supported by the Vasprun object. The parameters have to be one
                 of python's primitive types, i.e. list, dict of strings and
                 integers. Complex objects such as dos are not supported at this
-                point.
+                point. e.g., ['filename']
         """
         self._inc_structure = inc_structure
         self._parameters = parameters if parameters else ["is_hubbard", "hubbards", "potcar_symbols", "run_type"]
