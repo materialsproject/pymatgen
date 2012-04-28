@@ -8,15 +8,21 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 20, 2012"
+
+from collections import OrderedDict
 
 import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
+from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.io_utils import clean_json
+from pymatgen.util.coord_utils import get_linear_interpolated_value
+
 
 class Dos(object):
     """
@@ -40,8 +46,8 @@ class Dos(object):
 
     def get_densities(self, spin=None):
         """
-        Returns the density of states for a particular spin. If Spin is None, the
-        sum of both Spin.up and Spin.down (if they exist) is returned.
+        Returns the density of states for a particular spin. If Spin is None,
+        the sum of both Spin.up and Spin.down (if they exist) is returned.
         
         Args:
             spin:
@@ -64,6 +70,24 @@ class Dos(object):
         Dict representation of the densities, {Spin: densities}
         """
         return self._dos
+
+    def get_smeared_densities(self, sigma):
+        """
+        Returns the Dict representation of the densities, {Spin: densities}, 
+        but with a Gaussian smearing of std dev sigma applied about the fermi
+        level.
+        
+        Args:
+            sigma:
+                Std dev of Gaussian smearing function.
+        """
+        from scipy.ndimage.filters import gaussian_filter1d
+        smeared_dens = {}
+        diff = [self._energies[i + 1] - self._energies[i] for i in xrange(len(self.energies) - 1)]
+        avgdiff = sum(diff) / len(diff)
+        for spin, dens in self._dos.items():
+            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
+        return smeared_dens
 
     @property
     def efermi(self):
@@ -105,9 +129,8 @@ class Dos(object):
                 Energy to return the density for.
         """
         f = {}
-        import scipy.interpolate as spint
         for spin in self._dos.keys():
-            f[spin] = spint.interp1d(self._energies, self._dos[spin])(energy)
+            f[spin] = get_linear_interpolated_value(self._energies, self._dos[spin], energy)
         return f
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -137,15 +160,12 @@ class Dos(object):
         above_fermi = [i for i in xrange(len(energies)) if energies[i] > self._efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
-        import scipy.interpolate as spint
         if vbm_start == cbm_start:
             return 0.0, self._efermi, self._efermi
         else:
             # Interpolate between adjacent values
-            f = spint.interp1d(tdos[vbm_start:vbm_start + 2][::-1], energies[vbm_start:vbm_start + 2][::-1])
-            start = f(tol)
-            f = spint.interp1d(tdos[cbm_start - 1:cbm_start + 1], energies[cbm_start - 1:cbm_start + 1])
-            end = f(tol)
+            start = get_linear_interpolated_value(tdos[vbm_start:vbm_start + 2][::-1], energies[vbm_start:vbm_start + 2][::-1], tol)
+            end = get_linear_interpolated_value(tdos[cbm_start - 1:cbm_start + 1], energies[cbm_start - 1:cbm_start + 1], tol)
             return end - start, end, start
 
     def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):
@@ -425,97 +445,158 @@ class CompleteDos(Dos):
         return "Complete DOS for " + str(self._structure)
 
 
-def plot_dos(dos_dict, zero_at_efermi=True, stack=False, key_sort_func=None,
-             xlim=None, ylim=None, file_name=None):
+class DosPlotter(object):
     """
-    Plots a series of Dos using matplotlib.
-    
-    Args:
-        dos_dict:
-            dict of {label: Dos}
-        zero_at_efermi:
-            Whether to shift all Dos to have zero energy at the fermi energy.
-            Defaults to True.
-        stack:
-            Whether to plot the DOS as a stacked area graph
-        key_sort_func:
-            function used to sort the dos_dict keys.
-        xlim:
-            Specifies the x-axis limits.
-        ylim:
-            Specifies the y-axis limits.
+    Class for plotting DOSes.
     """
-    from pymatgen.util.plotting_utils import get_publication_quality_plot
-    plt = get_publication_quality_plot(12, 8)
-    color_order = ['r', 'b', 'g', 'c']
 
-    y = None
-    alldensities = []
-    allenergies = []
-    keys = list(dos_dict.keys())
-    if key_sort_func:
-        keys = sorted(keys, key=key_sort_func)
-    for key in keys:
-        dos = dos_dict[key]
-        energies = dos.energies - dos.efermi if zero_at_efermi else dos.energies
-        densities = dos.densities
-        if not y:
-            y = {Spin.up: np.zeros(energies.shape), Spin.down: np.zeros(energies.shape)}
-        newdens = {}
-        for spin in [Spin.up, Spin.down]:
-            if spin in dos.densities:
-                if stack:
-                    y[spin] += densities[spin]
-                    newdens[spin] = y[spin].copy()
-                else:
-                    newdens[spin] = densities[spin]
-        allenergies.append(energies)
-        alldensities.append(newdens)
+    def __init__(self, zero_at_efermi=True, stack=False,
+                 sigma=None):
+        """
+        Args:
+            zero_at_efermi:
+                Whether to shift all Dos to have zero energy at the fermi energy.
+                Defaults to True.
+            stack:
+                Whether to plot the DOS as a stacked area graph
+            key_sort_func:
+                function used to sort the dos_dict keys.
+            sigma:
+                A float specifying a standard deviation for Gaussian smearing the 
+                DOS for nicer looking plots. Defaults to None for no smearing.
+        """
+        self.zero_at_efermi = zero_at_efermi
+        self.stack = stack
+        self.sigma = sigma
+        self._doses = OrderedDict()
 
-    keys = list(keys)
-    keys.reverse()
-    alldensities.reverse()
+    def add_dos(self, label, dos):
+        """
+        Adds a dos for plotting.
+        
+        Args:
+            label:
+                label for the DOS. Must be unique.
+            dos:
+                Dos object
+        """
+        energies = dos.energies - dos.efermi if self.zero_at_efermi else dos.energies
+        densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
+        efermi = dos.efermi
+        self._doses[label] = {'energies':energies, 'densities': densities, 'efermi':efermi}
 
-    allpts = []
-    for i, key in enumerate(keys):
-        x = []
-        y = []
-        for spin in [Spin.up, Spin.down]:
-            if spin in alldensities[i]:
-                x.extend(allenergies[i])
-                y.extend(int(spin) * alldensities[i][spin])
-        allpts.extend(zip(x, y))
-        if stack:
-            plt.fill(x, y, color=color_order[i % 4], label=str(key))
+    def add_dos_dict(self, dos_dict, key_sort_func=None):
+        """
+        Add a dictionary of doses, with an optional sorting function for the 
+        keys.
+        
+        Args:
+            dos_dict:
+                dict of {label: Dos}
+            key_sort_func:
+                function used to sort the dos_dict keys.
+        """
+        if key_sort_func:
+            keys = sorted(dos_dict.keys(), key=key_sort_func)
         else:
-            plt.plot(x, y, color=color_order[i % 4], label=str(key))
+            keys = dos_dict.keys()
+        for label in keys:
+            self.add_dos(label, dos_dict[label])
 
-    plt.xlabel('Energies (eV)')
-    plt.ylabel('Density of states')
-    if xlim:
-        plt.xlim(xlim)
-    if ylim:
-        plt.ylim(ylim)
-    else:
-        xlim = plt.xlim()
-        relevanty = [p[1] for p in allpts if p[0] > xlim[0] and p[0] < xlim[1]]
-        plt.ylim((min(relevanty), max(relevanty)))
+    def get_dos_dict(self):
+        """
+        Returns the added doses as a json-serializable dict. Note that if you
+        have specified smearing for the DOS plot, the densities returned will
+        be the smeared densities, not the original densities.
+        
+        Returns:
+            Dict of dos data. Generally of the form, {label: {'energies':..,
+            'densities': {'up':...}, 'efermi':efermi}}
+        """
+        return clean_json(self._doses)
 
-    if zero_at_efermi:
-        ylim = plt.ylim()
-        plt.plot([0, 0], ylim, 'k--', linewidth=2)
+    def show(self, xlim=None, ylim=None):
+        """
+        Show the plot using matplotlib.
+        
+        Args:
+            xlim:
+                Specifies the x-axis limits. Set to None for automatic 
+                determination.
+            ylim:
+                Specifies the y-axis limits. 
+        """
+        plt = get_publication_quality_plot(12, 8)
+        color_order = ['r', 'b', 'g', 'c']
 
-    plt.legend()
-    leg = plt.gca().get_legend()
-    ltext = leg.get_texts()  # all the text.Text instance in the legend
-    plt.setp(ltext, fontsize=30)
-    #temp
-    #plt.tight_layout()
-    #plt.show()
-    if file_name is not None:
-        plt.plot()
-        plt.savefig(file_name)
-        plt.close()
-    else:
+        y = None
+        alldensities = []
+        allenergies = []
+        """
+        Note that this complicated processing of energies is to allow for
+        stacked plots in matplotlib.
+        """
+        for key, dos in self._doses.items():
+            energies = dos['energies']
+            densities = dos['densities']
+            if not y:
+                y = {Spin.up: np.zeros(energies.shape), Spin.down: np.zeros(energies.shape)}
+            newdens = {}
+            for spin in [Spin.up, Spin.down]:
+                if spin in densities:
+                    if self.stack:
+                        y[spin] += densities[spin]
+                        newdens[spin] = y[spin].copy()
+                    else:
+                        newdens[spin] = densities[spin]
+            allenergies.append(energies)
+            alldensities.append(newdens)
+
+        keys = list(self._doses.keys())
+        keys.reverse()
+        alldensities.reverse()
+        allenergies.reverse()
+        allpts = []
+        for i, key in enumerate(keys):
+            x = []
+            y = []
+            for spin in [Spin.up, Spin.down]:
+                if spin in alldensities[i]:
+                    densities = list(int(spin) * alldensities[i][spin])
+                    energies = list(allenergies[i])
+                    if spin == Spin.down:
+                        energies.reverse()
+                        densities.reverse()
+                    x.extend(energies)
+                    y.extend(densities)
+            allpts.extend(zip(x, y))
+            if self.stack:
+                plt.fill(x, y, color=color_order[i % 4], label=str(key))
+            else:
+                plt.plot(x, y, color=color_order[i % 4], label=str(key))
+            if not self.zero_at_efermi:
+                ylim = plt.ylim()
+                plt.plot([self._doses[key]['efermi'], self._doses[key]['efermi']], ylim, color_order[i % 4] + '--', linewidth=2)
+
+        plt.xlabel('Energies (eV)')
+        plt.ylabel('Density of states')
+        if xlim:
+            plt.xlim(xlim)
+        if ylim:
+            plt.ylim(ylim)
+        else:
+            xlim = plt.xlim()
+            relevanty = [p[1] for p in allpts if p[0] > xlim[0] and p[0] < xlim[1]]
+            plt.ylim((min(relevanty), max(relevanty)))
+
+        if self.zero_at_efermi:
+            ylim = plt.ylim()
+            plt.plot([0, 0], ylim, 'k--', linewidth=2)
+
+        plt.legend()
+        leg = plt.gca().get_legend()
+        ltext = leg.get_texts()  # all the text.Text instance in the legend
+        plt.setp(ltext, fontsize=30)
+        plt.tight_layout()
         plt.show()
 

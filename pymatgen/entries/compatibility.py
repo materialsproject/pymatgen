@@ -31,7 +31,7 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
     different parameters is not valid.
     """
 
-    def __init__(self, compat_type = "Advanced"):
+    def __init__(self, compat_type="Advanced"):
         """
         Arguments:
             compat_type:
@@ -103,8 +103,6 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
         if rform not in cpdenergies:
             psp_settings = set([sym.split(" ")[1] for sym in entry.parameters['potcar_symbols']])
             if not self._valid_potcars.issuperset(psp_settings):
-
-                #print "invalid psp"
                 return None
 
 
@@ -162,7 +160,7 @@ class MITCompatibility(MaterialsProjectCompatibility):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    def __init__(self, compat_type = "Advanced"):
+    def __init__(self, compat_type="Advanced"):
         """
         Arguments:
             compat_type:
@@ -202,3 +200,10 @@ class MITCompatibility(MaterialsProjectCompatibility):
             self._u_corrections_sulfides = dict()
             self._oxide_u = defaultdict(int)
 
+    def has_u_element_oxides(self, comp):
+        if Element("O") not in comp and Element("F") not in comp:
+            return False
+        for el in comp.elements:
+            if el in self._oxide_u:
+                return True
+        return False

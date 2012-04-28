@@ -15,7 +15,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 
 class SymmOp (object):
     """
@@ -187,6 +187,47 @@ class SymmOp (object):
         r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)
 
         return SymmOp.from_rotation_matrix_and_translation_vector(r, translation_vec)
+
+
+    @staticmethod
+    def from_origin_axis_angle(origin, axis, angle, angle_in_radians=False):
+        theta = angle * pi / 180 if not angle_in_radians else angle
+        a = origin[0]
+        b = origin[1]
+        c = origin[2]
+        u = axis[0]
+        v = axis[1]
+        w = axis[2]
+        # Set some intermediate values.
+        u2 = u * u
+        v2 = v * v
+        w2 = w * w
+        cos_t = cos(theta)
+        sin_t = sin(theta)
+        l2 = u2 + v2 + w2
+        l = sqrt(l2)
+
+        # Build the matrix entries element by element.
+        m11 = (u2 + (v2 + w2) * cos_t) / l2
+        m12 = (u * v * (1 - cos_t) - w * l * sin_t) / l2
+        m13 = (u * w * (1 - cos_t) + v * l * sin_t) / l2
+        m14 = (a * (v2 + w2) - u * (b * v + c * w)
+            + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t + (b * w - c * v) * l * sin_t) / l2
+
+        m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2
+        m22 = (v2 + (u2 + w2) * cos_t) / l2
+        m23 = (v * w * (1 - cos_t) - u * l * sin_t) / l2
+        m24 = (b * (u2 + w2) - v * (a * u + c * w)
+            + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t + (c * u - a * w) * l * sin_t) / l2
+
+        m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2
+        m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2
+        m33 = (w2 + (u2 + v2) * cos_t) / l2
+        m34 = (c * (u2 + v2) - w * (a * u + b * v)
+            + (w * (a * u + b * v) - c * (u2 + v2)) * cos_t + (a * v - b * u) * l * sin_t) / l2
+
+        return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
+                       [m31, m32, m33, m34], [0, 0, 0, 1]])
 
     @property
     def to_dict(self):

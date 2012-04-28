@@ -26,12 +26,12 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..
 class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def setUp(self):
-        self.drone = VaspToComputedEntryDrone(data = ["efermi"])
+        self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
 
-    def test_is_valid_path(self):
+    def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(self.drone.is_valid_path(path))
+            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate_and_convert(self):
         d = self.drone.assimilate(test_dir)

@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar
+from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar, PotcarSingle
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Composition, Structure
 from numpy import array
@@ -167,7 +167,44 @@ class  KpointsTest(unittest.TestCase):
         #self.assertEqual(k.kpts_shift, k2.kpts_shift)
         #self.assertEqual(k.num_kpts, k2.num_kpts)
 
-class  PotcarTest(unittest.TestCase):
+class PotcarSingleTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, 'POTCAR.Mn_pv'), 'r') as f:
+            self.psingle = PotcarSingle(f.read())
+
+    def test_keywords(self):
+        data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': 'T    paw PP', 'DEXC': '-.003',
+                'STEP': '20.000   1.050',
+                'RPACOR': '2.080    partial core radius', 'LEXCH': 'PE',
+                'ENMAX': '269.865', 'QCUT': '-4.454',
+                'TITEL': 'PAW_PBE Mn_pv 07Sep2000',
+                'LCOR': 'T    correct aug charges', 'EAUG': '569.085',
+                'RMAX': '2.807    core radius for proj-oper',
+                'ZVAL': '13.000    mass and valenz',
+                'EATOM': '2024.8347 eV,  148.8212 Ry', 'NDATA': '100',
+                'LULTRA': 'F    use ultrasoft PP ?',
+                'QGAM': '8.907    optimization parameters',
+                'ENMIN': '202.399 eV', 'RCLOC': '1.725    cutoff for local pot',
+                'RCORE': '2.300    outmost cutoff radius',
+                'RDEP': '2.338    radius for radial grids',
+                'IUNSCR': '1    unscreen: 0-lin 1-nonlin 2-no',
+                'RAUG': '1.300    factor for augmentation sphere',
+                'POMASS': '54.938',
+                'RWIGS': '1.323    wigner-seitz radius (au A)'}
+        self.assertEqual(self.psingle.keywords, data)
+
+    def test_nelectrons(self):
+        self.assertEqual(self.psingle.nelectrons, 13)
+
+    def test_attributes(self):
+        for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
+                         'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
+                         'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
+            self.assertIsNotNone(getattr(self.psingle, k))
+
+
+class PotcarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POTCAR')
@@ -180,28 +217,17 @@ class  PotcarTest(unittest.TestCase):
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
-class  VasprunTest(unittest.TestCase):
-
-    def setUp(self):
-        self.filepath = os.path.join(test_dir, 'vasprun.xml')
-        self.vasprun = Vasprun(self.filepath)
-        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        self.vasprun_ggau = Vasprun(filepath2)
-
+class VasprunTest(unittest.TestCase):
 
     def test_properties(self):
-
-        vasprun = self.vasprun
-
-
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath)
+        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
+        vasprun_ggau = Vasprun(filepath2)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
-
         self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
-
-
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O']
-, vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
+        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
@@ -224,8 +250,14 @@ class  VasprunTest(unittest.TestCase):
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
 
-        self.assertTrue(self.vasprun_ggau.is_hubbard)
-        self.assertEqual(self.vasprun_ggau.hubbards["Fe"], 4.3)
+        #test skipping ionic steps.
+        vasprun_skip = Vasprun(filepath, 3)
+        self.assertEqual(vasprun_skip.final_energy, vasprun.final_energy)
+        self.assertEqual(len(vasprun_skip.ionic_steps), int(len(vasprun.ionic_steps) / 3) + 1)
+        self.assertEqual(len(vasprun_skip.ionic_steps), len(vasprun_skip.structures) - 2)
+
+        self.assertTrue(vasprun_ggau.is_hubbard)
+        self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
 
 class OutcarTest(unittest.TestCase):
 

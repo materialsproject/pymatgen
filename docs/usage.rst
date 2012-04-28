@@ -7,8 +7,7 @@ the pymatgen code base.
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic 
-boundary conditions, though flexibility has been built in for molecules and other
-materials.
+boundary conditions, though flexibility has been built in for molecules.
 
 The core modules are in the (yes, you guess it) pymatgen.core package. Given the 
 importance of this package for the overall functioning of the code, we have 
@@ -25,11 +24,11 @@ provided a quick summary of the various modules here:
    object provides convenience methods for performing fractional to cartesian 
    coordinates and vice version, lattice parameter and angles computations, etc.
  
-3. pymatgen.core.structure : Defines the Site, PeriodicSite, Structure and 
-   Composition objects. A Site is essentially a coordinate point containing an 
-   Element or Specie. A PeriodicSite contains a Lattice as well. A Structure is 
-   simply a list of Sites having the same Lattice. Finally, a Composition is 
-   mapping of Element/Specie to amounts.
+3. pymatgen.core.structure : Defines the Site, PeriodicSite, Structure,
+   Molecule, and Composition objects. A Site is essentially a coordinate point
+   containing an Element or Specie. A PeriodicSite contains a Lattice as well.
+   A Structure and Molecule are simply a list of PeriodicSites and Site
+   respectively. Finally, a Composition is mapping of Element/Specie to amounts.
 
 Side-note : to_dict / from_dict
 ===============================
@@ -37,10 +36,10 @@ Side-note : to_dict / from_dict
 As you explore the code, you may notice that many of the objects have a to_dict 
 property and a from_dict static method implemented.  For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for 
-subsequent use. While python does provide pickling functionality, pickle tends to
-be extremely fragile with respect to code changes. Pymatgen's to_dict provide a
-means to save your work in a more robust manner, which also has the added benefit
-of being more readable. The dictionary representation is also particularly useful
+subsequent use. While python does provide pickling functionality, pickle tends
+to be extremely fragile with respect to code changes. Pymatgen's to_dict provide
+a means to save your work in a more robust manner, which also has the added
+benefit of being more readable. The dict representation is also particularly useful
 for entering such objects into certain databases, such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you 
@@ -64,14 +63,15 @@ follows:
 You may replace any of the above json commands with yaml in the PyYAML package
 to create a yaml file instead. There are certain tradeoffs between the two 
 choices. JSON is much more efficient as a format, with extremely fast read/write
-speed, but is much less readable. YAML is much slower in terms of io, but is 
-human readable.
+speed, but is much less readable. YAML is an order of magnitude or more slower
+in terms of parsing, but is more human readable.
 
 Structures
 ==========
 
-For most applications, you will be creating and manipulating Structure objects. 
-There are several ways to create these objects:
+For most applications, you will be creating and manipulating Structure objects.
+The construction of Molecule follows a similar API. There are several ways to
+create these objects:
 
 Creating a Structure manually
 -----------------------------
@@ -82,16 +82,14 @@ crystal is provided below:
 
 ::
 
-   from pymatgen.core.periodic_table import Element
    from pymatgen.core.lattice import Lattice
    from pymatgen.core.structure import Structure
    
-   si = Element("Si")
    coords = list()
    coords.append([0,0,0])
    coords.append([0.75,0.5,0.75])
    lattice = Lattice.from_parameters(a = 3.84, b = 3.84, c = 3.84, alpha = 120, beta = 90, gamma = 60)
-   struct = Structure(lattice, [si, si], coords)
+   struct = Structure(lattice, ["Si", "Si"], coords)
 
 
 Creating Structures using the pymatgen.io packages
@@ -123,7 +121,19 @@ Another example, creating a Structure from a VASP POSCAR/CONTCAR file.
 Many of these io packages also provide the means to write a Structure to various 
 output formats, e.g. the CifWriter in pymatgen.io.cifio. In particular, the
 pymatgen.io.vaspio_set provides a powerful way to generate complete sets of VASP 
-input files from a Structure.
+input files from a Structure. In general, most file format conversions can be
+done with a few quick lines of code. For example, to read a POSCAR and write a
+cif:
+
+::
+
+   from pymatgen.io.vaspio import Poscar
+   from pymatgen.io.cifio import CifWriter
+
+   p = Poscar.from_file('POSCAR')
+   w = CifWriter(p.struct)
+   w.write_file('mystructure.cif')
+
 
 Things you can do with Structures
 ---------------------------------
@@ -268,21 +278,69 @@ step,
    print rxn
    print rxn.calculated_reaction_energy
 
-Example scripts
-===============
 
-Some example scripts have been provided in the scripts directory. In general, 
-most file format conversions, manipulations and io can be done with a few quick 
-lines of code. For example, to read a POSCAR and write a cif:
+pymatgen.transformations
+========================
+
+The pymatgen.transformations package is the standard package for performing
+transformations on structures. Many transformations are already supported today,
+from simple transformations such as adding and removing sites, and replacing
+species in a structure to more advanced one-to-many transformations such as
+partially removing a fraction of a certain species from a structure using an
+electrostatic energy criterion. The Transformation classes follow a strict API.
+A typical usage is as follows:
 
 ::
 
-   from pymatgen.io.vaspio import Poscar
-   from pymatgen.io.cifio import CifWriter
+   from pymatgen.io.cifio import CifParser
+   from pymatgen.transformations.standard_transformations import RemoveSpecieTransformations
+   
+   # Read in a LiFePO4 structure from a cif.
+   parser = CifParser('LiFePO4.cif')
+   struct = parser.get_structures()[0]
+   
+   t = RemoveSpeciesTransformation(["Li"])
+   modified_structure = t.apply_transformation(struct)
 
-   p = Poscar.from_file('POSCAR')
-   w = CifWriter(p.struct)
-   w.write_file('mystructure.cif')
+pymatgen.alchemy - High-throughput transformations
+==================================================
 
-More examples will be added soon.
+The pymatgen.alchemy package is a framework for performing high-throughput (HT)
+structure transformations. For example, it allows a user to define a series of
+transformations to be applied to a set of structures, generating new structures
+in the process. The framework is also designed to provide proper logging of all
+changes performed on structures, with infinite undo. The main classes are:
+
+1. pymatgen.alchemy.materials.TransformedStructure - Standard object
+   representing a TransformedStructure. Takes in an input structure and a list
+   of transformations as an input. Can also be generated from cifs and POSCARs.
+2. pymatgen.alchemy.transmuters.TransformedStructureTransmuter - An example of
+   a Transmuter class, which takes a list of structures, and apply a sequence
+   of transformations on all of them.
+   
+Usage example - replace Fe with Mn and remove all Li in all structures:
+
+::
+
+   from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
+   from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
+
+   trans = []
+   trans.append(SubstitutionTransformation({"Fe":"Mn"}))
+   trans.append(RemoveSpecieTransformation(["Lu"]))
+   transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
+   structures = transmuter.get_transformed_structures()
+
+Example scripts
+===============
+
+A good way to explore the functionality of pymatgen is to look at examples. We
+have written some example scripts to perform some commonly desired
+functionality, e.g., file format conversion, determining the spacegroup of a
+structure, plotting the DOS of a VASP run, visualizing a structure using VTK,
+etc. These example scripts can be found in the `scripts directory of pymatgen's
+github repo <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_
+or the `downloaded source from PyPI <http://pypi.python.org/pypi/pymatgen>`_. 
+
+More examples will be added to the scripts directory in future.
 

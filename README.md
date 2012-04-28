@@ -1,33 +1,37 @@
 ## Introduction ##
 
-Pymatgen (**py**thon **mat**erials **gen**omics) is the python library that powers 
-the Materials Project (http://www.materialsproject.org). These are some of the 
-key features:
+Pymatgen (**py**thon **mat**erials **gen**omics) is the python library that
+powers the Materials Project (http://www.materialsproject.org). These are some
+of the main features:
 
-1. Highly flexible classes for the representation of Element, Site, Structure 
-   objects.
-2. Powerful io capabilities to manipulate many VASP input and output files 
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information 
-   file format.  This includes generating Structure objects from vasp input and 
-   output.
-3. A comprehensive tool to generate and view compositional and grand canonical 
+1. Highly flexible classes for the representation of Element, Site, Molecule, 
+   Structure objects.
+2. Extensive io capabilities to manipulate many VASP input and output files 
+   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information file 
+   format. This includes generating Structure objects from vasp input and
+   output. There is also support for Gaussian input files and XYZ file for
+   molecules.
+3. Comprehensive tool to generate and view compositional and grand canonical
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 
 The public version of pymatgen is free (as in free beer) to download and to use. 
 However, we would also like you to help us improve this library by making your 
-own contributions as well.  These contributions can be in the form of additional 
-tools or modules you develop, or even simple things such as bug reports.  Please 
-contact the maintainer of this library (shyue@mit.edu) to find out how to include 
-your contributions via github or for bug reports.
+own contributions as well.  These contributions can be in the form of
+additional tools or modules you develop, or even simple things such as bug
+reports. Please contact the maintainer of this library (shyue@mit.edu) to find
+out how to include your contributions via github or for bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward 
-incompatible changes, sometimes those are unavoidable and tough decisions have 
-to be made for the long term health of the code. 
+incompatible changes, they are sometimes unavoidable, and tough decisions have 
+to be made for the long term health of the code.
 
-For documentation, usage examples and change log, please read the documentation 
-at http://materialsproject.github.com/pymatgen.
+For documentation and usage guide, please refer to the latest documentation at
+our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+be notified via email of pymatgen releases, you may become a member of 
+pymatgen's Google Groups page
+(https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 
 ## Requirements ##
 
@@ -45,18 +49,18 @@ Required for proper functioning of the code.
 
 Optional python libraries that are required if you need certain features.
 
-1. matplotlib : For plotting (e.g., Phase Diagrams) using the pymatgen.phasediagrams 
-   package.
+1. matplotlib : For plotting (e.g., Phase Diagrams) using the
+   pymatgen.phasediagrams package.
 2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For 
    reading and writing Crystallographic Information Format (CIF) files using 
    the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
-3. [Pyspglib](http://spglib.sourceforge.net/) : For symmetry finding using the 
+3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using the 
    pymatgen.symmetry package.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
-   Required for the usage of the adapters in pymatgen.io.aseio between pymatgen's 
-   core Structure object and the Atoms object used by ASE. 
+   Required for the usage of the adapters in pymatgen.io.aseio between
+   pymatgen's core Structure object and the Atoms object used by ASE. 
 
 ## Optional non-Python programs ##
 
@@ -64,7 +68,8 @@ Optional non-python libraries (because no good pythonic alternative exists at
 the moment) required only for certain features.
 
 1. [Qhull](http://www.qhull.org/) : Needed for bond length analysis 
-   (structure_analyzer.py).  The executable qconvex and qvoronoi must be in the path.
+   (structure_analyzer.py). The executable qconvex and qvoronoi must be in the
+   path.
 2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies 
    (structure_vtk.py).  The executable ffmpeg must be in the path.
 

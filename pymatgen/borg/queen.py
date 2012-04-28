@@ -17,8 +17,13 @@ __date__ = "Mar 18, 2012"
 
 import os
 import json
+import logging
+
+from pymatgen.util.io_utils import file_open_zip_aware
 
 from multiprocessing import Manager, Pool
+
+logger = logging.getLogger("BorgQueen")
 
 class BorgQueen(object):
     """
@@ -27,7 +32,7 @@ class BorgQueen(object):
     contains convenience methods to save and load data between sessions.
     """
 
-    def __init__(self, drone, rootpath = None, number_of_drones = 1):
+    def __init__(self, drone, rootpath=None, number_of_drones=1):
         """
         Args:
             drone:
@@ -37,16 +42,17 @@ class BorgQueen(object):
                 you want to do assimilation later, or is using the BorgQueen
                 to load previously assimilated data.
             number_of_drones:
-                Number of drones to parallelize over. Typical machines today have 
-                up to four processors. Note that you won't see a 100% improvement
-                with two drones over one, but you will definitely see a 
-                significant speedup of at least 50% or so. If you are running this
-                over a server with far more processors, the speedup will be even
-                greater.
+                Number of drones to parallelize over. Typical machines today
+                have up to four processors. Note that you won't see a 100%
+                improvement with two drones over one, but you will definitely
+                see a significant speedup of at least 50% or so. If you are
+                running this over a server with far more processors, the
+                speedup will be even greater.
         """
         self._drone = drone
         self._num_drones = number_of_drones
         self._data = []
+
         if rootpath:
             self.parallel_assimilate(rootpath)
 
@@ -54,19 +60,35 @@ class BorgQueen(object):
         """
         Assimilate the entire subdirectory structure in rootpath.
         """
+        logger.info('Scanning for valid paths...')
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            if self._drone.is_valid_path((parent, subdirs, files)):
-                valid_paths.append(parent)
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
 
         manager = Manager()
         data = manager.list()
+        status = manager.dict()
+        status['count'] = 0
+        status['total'] = len(valid_paths)
+        logger.info('{} valid paths found.'.format(len(valid_paths)))
 
         p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data) for path in valid_paths))
+        p.map(order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         self._data.extend(data)
 
-    def get_data(self):
+    def serial_assimilate(self, rootpath):
+        """
+        Assimilate the entire subdirectory structure in rootpath serially.
+        """
+        valid_paths = []
+        for (parent, subdirs, files) in os.walk(rootpath):
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
+        data = []
+        for path in valid_paths:
+            order_assimilation((path, self._drone, data))
+        self._data.extend(data)
+
+    def get_assimilated_data(self):
         """
         Returns an list of assimilated objects
         """
@@ -78,21 +100,28 @@ class BorgQueen(object):
         
         Args:
             filename:
-                filename to save the assimilated data to.
+                filename to save the assimilated data to. Note that if the
+                filename ends with gz or bz2, the relevant gzip or bz2
+                compression will be applied.
         """
-        with open(filename, "w") as f:
+        with file_open_zip_aware(filename, "w") as f:
             json.dump(list(self._data), f)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
-        with open(filename, "r") as f:
+        with file_open_zip_aware(filename, "r") as f:
             self._data = json.load(f)
 
 
 def order_assimilation(args):
-    (path, drone, data) = args
+    (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
         data.append(newdata)
+    status['count'] += 1
+    count = status['count']
+    total = status['total']
+    logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+
