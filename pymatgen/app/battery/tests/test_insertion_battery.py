@@ -32,7 +32,6 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
 
     def test_voltage(self):
-
         #test basic voltage
         self.assertAlmostEqual(self.ie_LTO.max_voltage, 2.78583901, 3)
         self.assertAlmostEqual(self.ie_LTO.min_voltage, 0.89702381, 3)
@@ -54,11 +53,12 @@ class InsertionElectrodeTest(unittest.TestCase):
 
         #test alternate normalization option
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3)
+        self.assertIsNotNone(self.ie_LTO.to_dict_summary(True))
 
     def test_entries(self):
         #test that the proper number of sub-electrodes are returned
-        self.assertEqual(len(self.ie_LTO.sub_electrodes(False, True)), 3)
-        self.assertEqual(len(self.ie_LTO.sub_electrodes(True, True)), 2)
+        self.assertEqual(len(self.ie_LTO.get_sub_electrodes(False, True)), 3)
+        self.assertEqual(len(self.ie_LTO.get_sub_electrodes(True, True)), 2)
 
 
 if __name__ == '__main__':

@@ -21,33 +21,6 @@ import scipy.constants as sc
 class AbstractVoltagePair(object):
     '''
     An Abstract Base Class for a Voltage Pair.
-    
-    One of the major challenges with representing battery materials is keeping
-    track of the normalization between different entries. For example, one
-    entry might be TiO2 with one unit cell whereas another is LiTi2O4 with two
-    unit cells. When computing battery properties, it is needed to always use
-    a universal reference state otherwise you have normalization errors (e.g.,
-    the energy of LiTi2O4 must be divided by two to be compared with TiO2).
-    
-    For intrinsic battery properties, like voltage, the normalization does not
-    much matter. But for extrinsic properties such as volume, mass, or mAh
-    transferred within the voltage pair, a universal convention is necessary.
-    AbstractElectrode can query for extrinsic properties of several different
-    AbstractVoltagePairs belonging to a single charge/discharge path and be
-    confident that the normalization is being carried out properly throughout,
-    even if more AbstractVoltagePairs are added later.
-    
-    The universal normalization is defined by the reduced structural framework
-    of the entries, which is common along the entire charge/discharge path. For
-    example, LiTi2O4 has a reduced structural framework of TiO2. Another
-    example is Li9V6P16O58 which would have a reduced structural framework of
-    V3P8O29. Note that reduced structural frameworks need not be
-    charge-balanced or physical, e.g. V3P8O29 is not charge-balanced, they are
-    just a tool for normalization.
-    
-    Example: for a LiTi2O4 -> TiO2 AbstractVoltagePair, extrinsic quantities
-    like mAh or cell volumes are given per TiO2 formula unit.
-    
     '''
     __metaclass__ = ABCMeta
 
@@ -88,6 +61,31 @@ class AbstractElectrode(Sequence):
     general concept is that all other battery properties such as capacity, etc.
     are derived from voltage pairs.
     
+    One of the major challenges with representing battery materials is keeping
+    track of the normalization between different entries. For example, one
+    entry might be TiO2 with one unit cell whereas another is LiTi2O4 with two
+    unit cells. When computing battery properties, it is needed to always use
+    a universal reference state otherwise you have normalization errors (e.g.,
+    the energy of LiTi2O4 must be divided by two to be compared with TiO2).
+    
+    For properties such as volume, mass, or mAh transferred within the voltage
+    pair, a universal convention is necessary. AbstractElectrode can query for
+    extrinsic properties of several different AbstractVoltagePairs belonging to
+    a single charge/discharge path and be confident that the normalization is
+    being carried out properly throughout, even if more AbstractVoltagePairs
+    are added later.
+    
+    The universal normalization is defined by the reduced structural framework
+    of the entries, which is common along the entire charge/discharge path. For
+    example, LiTi2O4 has a reduced structural framework of TiO2. Another
+    example is Li9V6P16O58 which would have a reduced structural framework of
+    V3P8O29. Note that reduced structural frameworks need not be
+    charge-balanced or physical, e.g. V3P8O29 is not charge-balanced, they are
+    just a tool for normalization.
+    
+    Example: for a LiTi2O4 -> TiO2 AbstractVoltagePair, extrinsic quantities
+    like mAh or cell volumes are given per TiO2 formula unit.
+    
     Developers implementing a new battery (other than the two general ones
     already implemented) need to implement a VoltagePair and an Electrode.
     """
@@ -96,6 +94,9 @@ class AbstractElectrode(Sequence):
 
     @abstractproperty
     def voltage_pairs(self):
+        """
+        Returns all the VoltagePairs
+        """
         return
 
     @abstractproperty
@@ -108,7 +109,7 @@ class AbstractElectrode(Sequence):
     @abstractproperty
     def entry_ion(self):
         '''
-        The working ion as the original Entry object
+        The working ion as an Entry object
         '''
         return
 
@@ -241,6 +242,8 @@ class AbstractElectrode(Sequence):
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         '''
+        Returns the specific energy of the battery in mAh/g.
+        
         Args:
             min_voltage:
                 the minimum allowable voltage for a given step

@@ -88,7 +88,7 @@ class InsertionElectrode(AbstractElectrode):
     def voltage_pairs(self):
         return self._vpairs
 
-    def stable_entries(self, charge_to_discharge=True):
+    def get_stable_entries(self, charge_to_discharge=True):
         '''   
         Args:
             charge_to_discharge:
@@ -102,7 +102,7 @@ class InsertionElectrode(AbstractElectrode):
         list_copy = list(self._stable_entries)
         return list_copy if charge_to_discharge else list_copy.reverse()
 
-    def unstable_entries(self, charge_to_discharge=True):
+    def get_unstable_entries(self, charge_to_discharge=True):
         '''
         Returns the unstable entries for the electrode.
            
@@ -118,13 +118,15 @@ class InsertionElectrode(AbstractElectrode):
         list_copy = list(self._unstable_entries)
         return list_copy if charge_to_discharge else list_copy.reverse()
 
-    def all_entries(self, charge_to_discharge=True):
+    def get_all_entries(self, charge_to_discharge=True):
         '''
-        Return all entries input for the electrode.   
+        Return all entries input for the electrode.
+        
         Args:
             charge_to_discharge:
                 order from most charge to most discharged state? Defaults to
                 True.
+        
         Returns:
             A list of all entries in the electrode (both stable and unstable),
             ordered by amount of the working ion.
@@ -149,7 +151,7 @@ class InsertionElectrode(AbstractElectrode):
         '''
         return self._stable_entries[-1]
 
-    def max_instability(self, min_voltage=None, max_voltage=None):
+    def get_max_instability(self, min_voltage=None, max_voltage=None):
         '''
         The maximum instability along a path for a specific voltage range.
         
@@ -165,7 +167,7 @@ class InsertionElectrode(AbstractElectrode):
         '''
         return max([max(pair.decomp_e_discharge, pair.decomp_e_charge) for pair in self._select_in_voltage_range(min_voltage, max_voltage)])
 
-    def min_instability(self, min_voltage=None, max_voltage=None):
+    def get_min_instability(self, min_voltage=None, max_voltage=None):
         '''
         The minimum instability along a path for a specific voltage range.
         
@@ -181,8 +183,10 @@ class InsertionElectrode(AbstractElectrode):
         '''
         return min([min(pair.decomp_e_discharge, pair.decomp_e_charge) for pair in self._select_in_voltage_range(min_voltage, max_voltage)])
 
-    def max_muO2(self, min_voltage=None, max_voltage=None):
+    def get_max_muO2(self, min_voltage=None, max_voltage=None):
         '''
+        Maximum critical oxygen chemical potential along path.
+        
         Args:
             min_voltage:
                 The minimum allowable voltage.
@@ -196,8 +200,10 @@ class InsertionElectrode(AbstractElectrode):
         '''
         return max([max(pair.muO2_discharge, pair.muO2_charge) for pair in self._select_in_voltage_range(min_voltage, max_voltage)])
 
-    def min_muO2(self, min_voltage=None, max_voltage=None):
+    def get_min_muO2(self, min_voltage=None, max_voltage=None):
         '''
+        Minimum critical oxygen chemical potential along path.
+        
         Args:
             min_voltage:
                 the minimum allowable voltage for a given step
@@ -211,7 +217,7 @@ class InsertionElectrode(AbstractElectrode):
         '''
         return min([min(pair.muO2_discharge, pair.muO2_charge) for pair in self._select_in_voltage_range(min_voltage, max_voltage)])
 
-    def sub_electrodes(self, adjacent_only=True, include_myself=True):
+    def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         '''
         If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
@@ -238,9 +244,13 @@ class InsertionElectrode(AbstractElectrode):
             entry_charge = pair.entry_charge if adjacent_only else pair[0].entry_charge
             entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
+            def in_range(entry):
+                frac = entry.composition.get_atomic_fraction(self.working_ion)
+                return frac >= entry_charge.composition.get_atomic_fraction(self.working_ion) and frac <= entry_discharge.composition.get_atomic_fraction(self.working_ion)
+
             if include_myself or entry_charge != self.fully_charged_entry or entry_discharge != self.fully_discharged_entry:
-                unstable_entries = filter(lambda entry: entry.composition.get_atomic_fraction(self.working_ion) >= entry_charge.composition.get_atomic_fraction(self.working_ion) and entry.composition.get_atomic_fraction(self.working_ion) <= entry_discharge.composition.get_atomic_fraction(self.working_ion), self.unstable_entries())
-                stable_entries = filter(lambda entry: entry.composition.get_atomic_fraction(self.working_ion) >= entry_charge.composition.get_atomic_fraction(self.working_ion) and entry.composition.get_atomic_fraction(self.working_ion) <= entry_discharge.composition.get_atomic_fraction(self.working_ion), self.stable_entries())
+                unstable_entries = filter(in_range, self.get_unstable_entries())
+                stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
                 battery_list.append(InsertionElectrode(all_entries, self.entry_ion))
@@ -258,15 +268,15 @@ class InsertionElectrode(AbstractElectrode):
         '''
 
         d = {}
-        d['average_voltage'] = self.average_voltage()
+        d['average_voltage'] = self.get_average_voltage()
         d['max_voltage'] = self.max_voltage
         d['min_voltage'] = self.min_voltage
         d['max_delta_volume'] = self.max_delta_volume
         d['max_voltage_step'] = self.max_voltage_step
-        d['capacity_grav'] = self.capacity_grav()
-        d['capacity_vol'] = self.capacity_vol()
-        d['energy_grav'] = self.specific_energy()
-        d['energy_vol'] = self.energy_density()
+        d['capacity_grav'] = self.get_capacity_grav()
+        d['capacity_vol'] = self.get_capacity_vol()
+        d['energy_grav'] = self.get_specific_energy()
+        d['energy_vol'] = self.get_energy_density()
         d['working_ion'] = self._working_ion.symbol
         d['nsteps'] = self.num_steps
         d['framework'] = composition_to_multi_dict(self._vpairs[0].framework)
@@ -274,19 +284,19 @@ class InsertionElectrode(AbstractElectrode):
         d['formula_discharge'] = self.fully_discharged_entry.composition.reduced_formula
         d['fracA_charge'] = self.fully_charged_entry.composition.get_atomic_fraction(self.working_ion)
         d['fracA_discharge'] = self.fully_discharged_entry.composition.get_atomic_fraction(self.working_ion)
-        d['max_instability'] = self.max_instability()
-        d['min_instability'] = self.min_instability()
+        d['max_instability'] = self.get_max_instability()
+        d['min_instability'] = self.get_min_instability()
         if print_subelectrodes:
             f_dict = lambda c: c.to_dict_summary(print_subelectrodes=False)
-            d['adj_pairs'] = map(f_dict, self.sub_electrodes(adjacent_only=True))
-            d['all_pairs'] = map(f_dict, self.sub_electrodes(adjacent_only=False))
+            d['adj_pairs'] = map(f_dict, self.get_sub_electrodes(adjacent_only=True))
+            d['all_pairs'] = map(f_dict, self.get_sub_electrodes(adjacent_only=False))
         return d
 
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return 'InsertionElectrode with endpoints at %s and %s, average voltage %f, capacity (grav.) %f, capacity (vol.) %f' % (self.fully_charged_entry.composition.reduced_formula, self.fully_discharged_entry.composition.reduced_formula, self.average_voltage(), self.capacity_grav(), self.capacity_vol())
+        return 'InsertionElectrode with endpoints at %s and %s, average voltage %f, capacity (grav.) %f, capacity (vol.) %f' % (self.fully_charged_entry.composition.reduced_formula, self.fully_discharged_entry.composition.reduced_formula, self.get_average_voltage(), self.get_capacity_grav(), self.get_capacity_vol())
 
 
 
