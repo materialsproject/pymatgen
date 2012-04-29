@@ -19,8 +19,7 @@ from pymatgen.core.structure import Composition
 from pymatgen.core.physical_constants import ELECTRON_TO_AMPERE_HOURS
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.entries import PDEntry
-
-from pymatgen.app.battery.battery_abc import AbstractElectrode, AbstractVoltagePair, composition_to_multi_dict
+from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair, composition_to_multi_dict
 
 
 class InsertionElectrode(AbstractElectrode):

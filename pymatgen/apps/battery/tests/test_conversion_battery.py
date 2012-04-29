@@ -18,10 +18,13 @@ import os
 
 from pymatgen.core.structure import Composition
 
-from pymatgen.app.battery.conversion_battery import ConversionElectrode
+from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.entries.computed_entries import computed_entries_from_json
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 
 class ConversionElectrodeTest(unittest.TestCase):
 
@@ -43,7 +46,7 @@ class ConversionElectrodeTest(unittest.TestCase):
                                          'energy_density': 6528.38954147}
         for f in formulas:
 
-            with open(os.path.join(module_dir, f + ".json"), 'r') as fid:
+            with open(os.path.join(test_dir, f + ".json"), 'r') as fid:
                 entries = computed_entries_from_json(fid.read())
 
             c = ConversionElectrode.from_composition_and_entries(Composition.from_formula(f), entries)
