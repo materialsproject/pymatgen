@@ -47,9 +47,9 @@ class ConversionElectrodeTest(unittest.TestCase):
                 entries = computed_entries_from_json(fid.read())
 
             c = ConversionElectrode.from_composition_and_entries(Composition.from_formula(f), entries)
-            self.assertEqual(len(c.sub_electrodes(True)), c.num_steps)
-            self.assertEqual(len(c.sub_electrodes(False)), sum(xrange(1, c.num_steps + 1)))
-
+            self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
+            self.assertEqual(len(c.get_sub_electrodes(False)), sum(xrange(1, c.num_steps + 1)))
+            self.assertIsNotNone(str(c))
             p = expected_properties[f]
 
             for k, v in p.items():
