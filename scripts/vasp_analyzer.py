@@ -77,4 +77,5 @@ if __name__ == "__main__":
         ion_list = list()
         (start, end) = map(int, re.split("-", args.ion_list[0]))
         ion_list = range(start, end + 1)
-        get_magnetizations(args.directories, ion_list)
+        for d in args.directories:
+            get_magnetizations(d, ion_list)
