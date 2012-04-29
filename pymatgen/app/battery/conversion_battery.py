@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Created on Feb 1, 2012
+This module contains the classes to build a ConversionElectrode.
 '''
 
 from __future__ import division

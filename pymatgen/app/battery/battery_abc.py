@@ -2,6 +2,10 @@
 
 '''
 This module defines the abstract base classes for battery-related classes.
+Regardless of the kind of electrode, conversion or insertion, there are many
+common definitions and properties, e.g., average voltage, capacity, etc. which
+can be defined in a general way. The Abc for battery classes implements some of
+these common definitions to allow sharing of common logic between them.
 '''
 
 from __future__ import division
@@ -17,6 +21,7 @@ from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
 import scipy.constants as sc
+
 
 class AbstractVoltagePair(object):
     '''
