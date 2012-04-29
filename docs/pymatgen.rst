@@ -16,7 +16,7 @@ Subpackages
 
     pymatgen.alchemy
     pymatgen.analysis
-    pymatgen.app
+    pymatgen.apps
     pymatgen.borg
     pymatgen.command_line
     pymatgen.core

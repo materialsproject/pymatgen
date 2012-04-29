@@ -15,9 +15,11 @@ import unittest
 import os
 
 from pymatgen.entries.computed_entries import computed_entries_from_json
-from pymatgen.app.battery.insertion_battery import InsertionElectrode
+from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 
-module_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 
 class InsertionElectrodeTest(unittest.TestCase):
@@ -26,7 +28,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         data_Li = '[{"correction": 0.0, "composition": {"Li":1}, "formulasum": "Li1", "energy": -1.90753119}]'
         self.entry_Li = computed_entries_from_json(data_Li)[0]
 
-        data_LTO = open(os.path.join(module_dir, "tests", "LiTiO2.json")).readline()
+        data_LTO = open(os.path.join(test_dir, "LiTiO2.json")).readline()
         self.entries_LTO = computed_entries_from_json(data_LTO)
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
