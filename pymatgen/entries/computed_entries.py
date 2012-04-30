@@ -29,13 +29,13 @@ class ComputedEntry(PDEntry):
     Author: Shyue Ping Ong, Anubhav Jain
     """
 
-    def __init__(self, composition, energy, correction = 0.0, parameters = None, data = None):
+    def __init__(self, composition, energy, correction=0.0, parameters=None, data=None):
         """
         Args:
             composition:
-                Composition of the entry. For flexibility, this can take the form
-                of a {symbol: amt} dictionary as well the standard pymatgen
-                Composition object.
+                Composition of the entry. For flexibility, this can take the
+                form of all the typical input taken by a Composition, including
+                a {symbol: amt} dict, a string formula, and others.
             energy:
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
@@ -43,17 +43,14 @@ class ComputedEntry(PDEntry):
                 A correction to be applied to the energy. This is used to modify
                 the energy for certain analyses. Defaults to 0.0.
             parameters:
-                An optional dict of parameters associated with the entry. Defaults
-                to None.
+                An optional dict of parameters associated with the entry.
+                Defaults to None.
             data:
-                An optional dict of any additional data associated with 
-                the entry. Defaults to None
+                An optional dict of any additional data associated with the
+                entry. Defaults to None.
         """
-        if not isinstance(composition, Composition):
-            comp = Composition.from_dict(composition)
-        else:
-            comp = composition
-        super(ComputedEntry, self).__init__(comp, energy)
+        comp = Composition(composition)
+        PDEntry.__init__(self, comp, energy)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
@@ -100,6 +97,7 @@ class ComputedEntry(PDEntry):
         d['data'] = self.data
         return d
 
+
 class ComputedStructureEntry(ComputedEntry):
     """
     A heavier version of ComputedEntry which contains a structure as well. The 
@@ -108,7 +106,8 @@ class ComputedStructureEntry(ComputedEntry):
     Author: Shyue Ping Ong, Anubhav Jain
     """
 
-    def __init__(self, structure, energy, correction = 0.0, parameters = None, data = None):
+    def __init__(self, structure, energy, correction=0.0, parameters=None,
+                 data=None):
         """
         Args:
             structure:
@@ -120,13 +119,13 @@ class ComputedStructureEntry(ComputedEntry):
                 A correction to be applied to the energy. This is used to modify
                 the energy for certain analyses. Defaults to 0.0.
             parameters:
-                An optional dict of parameters associated with the entry. Defaults
-                to None.
+                An optional dict of parameters associated with the entry.
+                Defaults to None.
             data:
-                An optional dict of any additional data associated with 
-                the entry. Defaults to None
+                An optional dict of any additional data associated with the
+                entry. Defaults to None.
         """
-        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction = correction, parameters = parameters, data = data)
+        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction=correction, parameters=parameters, data=data)
         self.structure = structure
 
     def __repr__(self):
