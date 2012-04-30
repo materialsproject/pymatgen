@@ -53,7 +53,8 @@ class ComputedStructureEntryTest(unittest.TestCase):
 
     def setUp(self):
         self.entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy, parameters=vasprun.incar)
+                                   vasprun.final_energy,
+                                   parameters=vasprun.incar)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)

@@ -3,22 +3,24 @@
 '''
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
-contain calculated information, typically from VASP or other electronic structure
-codes. For example, ComputedEntries can be used as inputs for phase diagram analysis.
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.
 '''
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011M"
+__date__ = "Apr 30, 2012"
 
 import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Structure, Composition
+
 
 class ComputedEntry(PDEntry):
     """
@@ -125,7 +127,9 @@ class ComputedStructureEntry(ComputedEntry):
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
         """
-        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction=correction, parameters=parameters, data=data)
+        ComputedEntry.__init__(self, structure.composition, energy,
+                                        correction=correction,
+                                        parameters=parameters, data=data)
         self.structure = structure
 
     def __repr__(self):
@@ -153,13 +157,34 @@ class ComputedStructureEntry(ComputedEntry):
                              d['correction'], d['parameters'], d['data'])
 
 
-def computed_entries_to_json(all_entries):
+def computed_entries_to_json(entries):
+    """
+    Returns a json representation of a sequence of entries.
+    
+    Args:
+        all_entries:
+            A sequence of entries
+            
+    Returns:
+        JSON string representation
+    """
     jsonlist = list()
-    for entry in all_entries:
+    for entry in entries:
         jsonlist.append(entry.to_dict)
     return json.dumps(jsonlist)
 
+
 def computed_entries_from_json(jsonstr):
+    """
+    Returns a sequence of entries from a json representation.
+    
+    Args:
+        json_str:
+            JSON string
+            
+    Returns:
+        Sequence of entries
+    """
     json_list = json.loads(jsonstr)
     entries = list()
     for d in json_list:
