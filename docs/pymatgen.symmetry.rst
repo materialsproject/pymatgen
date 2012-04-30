@@ -25,9 +25,3 @@ symmetry Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-
