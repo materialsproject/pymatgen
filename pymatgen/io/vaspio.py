@@ -1285,7 +1285,11 @@ class Vasprun(object):
             eigenvals = {Spin.up:[],Spin.down:[]}
         else:
             eigenvals = {Spin.up:[]}
+            
+        neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
+        min_eigenvalues = min(neigenvalues)
 
+        
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
         if eigenvals.has_key(Spin.down):
@@ -2380,23 +2384,17 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
         # populate branches with Bandstructure instances
-        up_branches = []
-        down_branches = []
+        branches=[]
 
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, 'vasprun.xml')
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file)
-                # why are these keyword args?
-                if run.is_spin:
-                    up_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
-                else:
-                    up_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi))
-                    down_branches.append(run.get_band_structure(kpoints_filename=None, efermi=efermi, spin='down'))
+                branches.append(run.get_band_structure(efermi = efermi))
             else:
                 # It might be better to throw an exception
                 warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
-        return get_reconstructed_band_structure(up_branches, efermi)
+        return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, 'vasprun.xml')
         #Better handling of Errors

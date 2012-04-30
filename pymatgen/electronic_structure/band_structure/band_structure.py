@@ -505,17 +505,18 @@ def get_reconstructed_band_structure(list_bs, efermi):
                 kpoints.append(k.frac_coords)
             for k, v in bs._labels_dict.iteritems():
                 labels_dict[k] = v.frac_coords
-        eigenvals = {Spin.up:[]}
+        eigenvals = {Spin.up:list_bs[0]._bands[Spin.up]}
+        print eigenvals
         for i in range(nb_bands):
             #eigenvals[Spin.up].append({'energy':[], 'occup':[]})
-            for bs in list_bs:
+            for bs in list_bs[1:]:
                 for e in bs._bands[Spin.up][i]:
                     eigenvals[Spin.up][i].append(e)
         if list_bs[0].is_spin_polarized:
-            eigenvals[Spin.down] = []
+            eigenvals[Spin.down] = list_bs[0]._bands[Spin.up]
             for i in range(nb_bands):
                 #eigenvals[Spin.down].append({'energy':[], 'occup':[]})
-                for bs in list_bs:
+                for bs in list_bs[1:]:
                     for e in bs._bands[Spin.down][i]:
                         eigenvals[Spin.down][i].append(e)
         return BandStructureSymmLine(kpoints, eigenvals, rec_lattice, efermi, labels_dict)
