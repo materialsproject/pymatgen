@@ -13,6 +13,40 @@ __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
 
+def generate_latex_table(results, header=None):
+    """
+    Generates a string latex table from a sequence of sequence.
+    
+    Args:
+        result: 2d sequence of arbitrary types.
+        header: optional header
+        
+    Returns:
+        String representation of Latex table with data.
+    """
+    body = []
+    if header != None:
+        body.append(" & ".join(header))
+        body.append("\\hline")
+    maxlength = 0
+    for result in results:
+        maxlength = max(maxlength, len(result))
+        body.append(" & ".join([str(m) for m in result]))
+    colstr = 'c' * maxlength
+    output = []
+    output.append('\\begin{table}[htp]')
+    output.append('\\caption{Enter caption}')
+    output.append('\\label{mytablelabel}')
+    output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' + colstr + '}')
+    output.append('\\hline')
+
+    output.append("\\\\\n".join(body) + "\\\\")
+    output.append('\\hline')
+    output.append('\\end{tabular*}')
+    output.append('\\end{table}')
+    return "\n".join(output)
+
+
 def str_delimited(results, header=None, delimiter="\t"):
     """
     Given a tuple of tuples, generate a delimited string form.
@@ -28,7 +62,6 @@ def str_delimited(results, header=None, delimiter="\t"):
         
     Returns:
         Aligned string output in a table-like format.
-    
     """
     returnstr = ''
     if header != None:
