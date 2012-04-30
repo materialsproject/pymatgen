@@ -41,7 +41,11 @@ setup (
   name='pymatgen',
   version='1.8.3',
   packages=find_packages(),
-  install_requires=['numpy', 'scipy', 'PyCIFRW'],
+  install_requires=['numpy>=1.6', 'scipy>=0.9', 'PyCifRW>=3.3'],
+  extras_require={
+        'plotting':  ['matplotlib>=1.1'],
+        'ase_adaptor': ['ase>=3.3']
+  },
   package_data={'pymatgen.core': ['*.json'],
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},
