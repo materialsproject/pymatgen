@@ -17,9 +17,3 @@ band_structure Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-

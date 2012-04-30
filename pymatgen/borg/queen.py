@@ -73,7 +73,7 @@ class BorgQueen(object):
         logger.info('{} valid paths found.'.format(len(valid_paths)))
 
         p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
+        p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         self._data.extend(data)
 
     def serial_assimilate(self, rootpath):
@@ -85,7 +85,7 @@ class BorgQueen(object):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
         for path in valid_paths:
-            order_assimilation((path, self._drone, data))
+            _order_assimilation((path, self._drone, data))
         self._data.extend(data)
 
     def get_assimilated_data(self):
@@ -115,7 +115,10 @@ class BorgQueen(object):
             self._data = json.load(f)
 
 
-def order_assimilation(args):
+def _order_assimilation(args):
+    """
+    Internal helper method for BorgQueen to process assimilation
+    """
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
