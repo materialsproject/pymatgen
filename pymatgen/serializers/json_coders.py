@@ -5,7 +5,8 @@ Beta version of general JSON encoders and decoders for pymatgen. Will only
 support pymatgen objects version > 1.8.3.
 
 Current support for all core objects that obey the to_dict API, including Site,
-PeriodicSite, Structure, Specie, Dos, Lattice, etc.
+PeriodicSite, Structure, Specie, Dos, Lattice, etc. and all Entry and  all
+Transformations.
 '''
 
 from __future__ import division
