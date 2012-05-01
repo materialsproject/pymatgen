@@ -262,21 +262,47 @@ class BandStructureSymmLine(BandStructure):
         if len(self._bands) == 2:
             self._is_spin_polarized = True
 
-    def get_branch_name(self, index):
+    def get_equivalent_kpoints(self,index):
         """
-        Returns in what branch is the kpoint
+        Returns the list of kpoint indices equivalent (meaning they are the same frac coords) to the given one
+        Args:
+            index:
+                the kpoint index
+        
+        Returns:
+            a list of equivalent indices
+            
+        TODO: now it uses the label we might want to use coordinates instead (in case there was a mislabel)
+        """
+        #if the kpoint has no label it can't have a repetition along the band structure line object
+        
+        if self._kpoints[index].label == None:
+            return [index]
+        
+        list_index_kpoints=[]
+        for i in range(len(self._kpoints)):
+            if self._kpoints[i].label == self._kpoints[index].label:
+                list_index_kpoints.append(i)
+        
+        return list_index_kpoints
+    
+    def get_branch(self, index):
+        """
+        Returns in what branch(es) is the kpoint. There can be several branches
         
         Args:
             index:
                 the kpoint index
         
         Returns:
-            A string indicating in what branch the kpoint is.
+            A list of {'name','start_index','end_index','index'} dictionaries indicating all branches
+            in which the k_point is
         """
         to_return = []
-        for b in self._branches:
-                if b['start_index'] <= index <= b['end_index']:
-                    to_return.append(b['name'])
+        for i in self.get_equivalent_kpoints(index):
+            for b in self._branches:
+                    if b['start_index'] <= i <= b['end_index']:
+                        to_return.append({'name':b['name'],'start_index':b['start_index'],'end_index':b['end_index'],'index':i})
         return to_return
 
     def get_vbm(self):
