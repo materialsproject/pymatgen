@@ -540,6 +540,16 @@ class DosPlotter(object):
         return clean_json(self._doses)
 
     def get_plot(self, xlim=None, ylim=None):
+        """
+        Get a matplotlib plot showing the DOS.
+        
+        Args:
+            xlim:
+                Specifies the x-axis limits. Set to None for automatic 
+                determination.
+            ylim:
+                Specifies the y-axis limits. 
+        """
         plt = get_publication_quality_plot(12, 8)
         color_order = ['r', 'b', 'g', 'c']
 
@@ -615,6 +625,20 @@ class DosPlotter(object):
         return plt
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+        """
+        Save matplotlib plot to a file.
+        
+        Args:
+            filename:
+                Filename to write to.
+            img_format:
+                Image format to use. Defaults to EPS.
+            xlim:
+                Specifies the x-axis limits. Set to None for automatic 
+                determination.
+            ylim:
+                Specifies the y-axis limits. 
+        """
         plt = self.get_plot(xlim, ylim)
         plt.savefig(filename, format=img_format)
 
