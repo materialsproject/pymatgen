@@ -27,11 +27,12 @@ class SQTensor(object):
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
     TODO: change class names
+    TODO: AJ asks if there is an existing matrix implementation to subclass instead of object, that for instance already implements 'rotate'
     """
     def __init__(self, matrix):
         self._matrix = matrix
         if self._matrix.shape[0]!=self._matrix.shape[1]:
-            raise ValueError("This class operates only on square matrices")
+            raise ValueError("SQTensor operates only on square matrices")
         
     def is_symmetric(self, tol=0.001):
         if len(np.nonzero(np.abs(self._matrix-np.transpose(self._matrix))>tol)[0]) == 0:
@@ -40,7 +41,7 @@ class SQTensor(object):
             return False
 
     def is_rotation_matrix(self, tol=0.001):
-        arr1 =  np.nonzero(np.abs(np.linalg.inv(self._matrix)-np.transpose(self._matrix))>tol)[0]
+        arr1 = np.nonzero(np.abs(np.linalg.inv(self._matrix)-np.transpose(self._matrix))>tol)[0]
         arr2 = np.linalg.det(self._matrix)
         arr2 = np.float(arr2 - 1)
 
@@ -55,8 +56,11 @@ class SQTensor(object):
     def symmetrize(self):
         return 0.5*(self._matrix + np.transpose(self._matrix))
 
+
     def rotate(self, rotation):
-       print self.is_rotation_matrix()
+        if not self.is_rotation_matrix():
+            raise ValueError("Specified rotation matrix is invalid")
+        raise NotImplementedError("matrix rotations are not yet supported")
 
     def returntensor(self):
         return self._matrix
