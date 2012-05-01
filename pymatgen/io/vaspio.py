@@ -1433,6 +1433,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.ionic_steps = [] # should be a list of dict
         self.structures = []
         self.lattice_rec = []
+        self.stress = []
 
         self.input_read = False
         self.all_calculations_read = False

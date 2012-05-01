@@ -308,6 +308,7 @@ class PDos(Dos):
         d['orbital'] = str(self.orbital)
         return d
 
+
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
@@ -330,6 +331,10 @@ class CompleteDos(Dos):
         self._dos = total_dos.densities
         self._pdos = pdoss
         self._structure = structure
+
+    @property
+    def pdos(self):
+        return self._pdos
 
     @property
     def structure(self):
@@ -371,6 +376,19 @@ class CompleteDos(Dos):
             else:
                 site_dos += pdos
         return site_dos
+
+    def get_site_t2g_eg_resolved_dos(self, site):
+        t2g_dos = []
+        eg_dos = []
+        for s, atom_dos in self._pdos.items():
+            if s == site:
+                for orb, pdos in atom_dos.items():
+                    if orb in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
+                        t2g_dos.append(pdos)
+                    elif orb in (Orbital.dx2, Orbital.dz2):
+                        eg_dos.append(pdos)
+        sum_dos = lambda a, b: a + b
+        return {'t2g':reduce(sum_dos, t2g_dos), 'e_g':reduce(sum_dos, eg_dos)}
 
     def get_spd_dos(self):
         """
@@ -521,17 +539,7 @@ class DosPlotter(object):
         """
         return clean_json(self._doses)
 
-    def show(self, xlim=None, ylim=None):
-        """
-        Show the plot using matplotlib.
-        
-        Args:
-            xlim:
-                Specifies the x-axis limits. Set to None for automatic 
-                determination.
-            ylim:
-                Specifies the y-axis limits. 
-        """
+    def get_plot(self, xlim=None, ylim=None):
         plt = get_publication_quality_plot(12, 8)
         color_order = ['r', 'b', 'g', 'c']
 
@@ -604,5 +612,23 @@ class DosPlotter(object):
         ltext = leg.get_texts()  # all the text.Text instance in the legend
         plt.setp(ltext, fontsize=30)
         plt.tight_layout()
+        return plt
+
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+        plt = self.get_plot(xlim, ylim)
+        plt.savefig(filename, format=img_format)
+
+    def show(self, xlim=None, ylim=None):
+        """
+        Show the plot using matplotlib.
+        
+        Args:
+            xlim:
+                Specifies the x-axis limits. Set to None for automatic 
+                determination.
+            ylim:
+                Specifies the y-axis limits. 
+        """
+        plt = self.get_plot(xlim, ylim)
         plt.show()
 
