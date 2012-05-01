@@ -191,8 +191,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
         init_args = {'inc_structure' : self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data}
-        output = {'name' : self.__class__.__name__, 'init_args': init_args, 'version': __version__ }
-        return output
+        d = {'name' : self.__class__.__name__, 'init_args': init_args, 'version': __version__ }
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 def drone_from_dict(d):

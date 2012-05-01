@@ -378,8 +378,6 @@ class BandStructureSymmLine(BandStructure):
         Json-serializable dict representation of BandStructureSymmLine.
         """
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
         d['lattice_rec'] = self._lattice_rec.to_dict
         d['efermi'] = self._efermi
         d['kpoints'] = []
