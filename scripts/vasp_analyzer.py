@@ -33,7 +33,7 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
         msg = 'Analysis results saved to vasp_analyzer_data.gz for faster subsequent loading.'
         queen.save_data('vasp_analyzer_data.gz')
 
-    entries = queen.get_assimilated_data()
+    entries = queen.get_data()
     entries = sorted(entries, key=lambda x:x.data['filename'])
     all_data = [(e.data['filename'].replace("./", ""), e.composition.formula, "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom), "{:.2f}".format(e.structure.volume)) for e in entries]
     headers = ("Directory", "Formula", "Energy", "E/Atom", "Vol")
