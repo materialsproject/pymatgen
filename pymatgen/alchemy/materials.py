@@ -26,6 +26,7 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio import Poscar
 from copy import deepcopy
 
+
 class TransformedStructure(object):
     """
     Container object for new structures that include history of transformations.
