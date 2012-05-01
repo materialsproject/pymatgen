@@ -38,6 +38,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    
        git clone git@github.com:YOURNAME/pymatgen.git
 
+   Note that the entire Github repo is fairly large because of the presence of
+   test files, but these are absolutely necessary for rigorous testing of the
+   code.
 5. It is highly recommended you install all the optional dependencies as well.
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
