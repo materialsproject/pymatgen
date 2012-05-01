@@ -17,6 +17,7 @@ import unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
+import json
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 class PMGJSONTest(unittest.TestCase):
@@ -29,27 +30,21 @@ class PMGJSONTest(unittest.TestCase):
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         objs = [struct, struct[0], struct.lattice, struct[0].specie]
         for o in  objs:
-            enc = PMGJSONEncoder()
-            jsonstr = enc.encode(o)
-            dec = PMGJSONDecoder()
-            d = dec.decode(jsonstr)
+            jsonstr = json.dumps(o, cls=PMGJSONEncoder)
+            d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         mol = Molecule(["O", "O"], coords)
         objs = [mol, mol[0]]
         for o in  objs:
-            enc = PMGJSONEncoder()
-            jsonstr = enc.encode(o)
-            dec = PMGJSONDecoder()
-            d = dec.decode(jsonstr)
+            jsonstr = json.dumps(o, cls=PMGJSONEncoder)
+            d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         #Check dict of things
         o = {'structure':struct, "molecule":mol}
-        enc = PMGJSONEncoder()
-        jsonstr = enc.encode(o)
-        dec = PMGJSONDecoder()
-        d = dec.decode(jsonstr)
+        jsonstr = json.dumps(o, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d['structure']), Structure)
         self.assertEqual(type(d['molecule']), Molecule)
 
