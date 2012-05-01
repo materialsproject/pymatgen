@@ -1059,6 +1059,8 @@ class Vasprun(object):
     Attributes:
     
         **Vasp results**
+        Note that the results would differ depending on whether the
+        read_electronic_structure option is set to True.
         
         ionic_steps: 
             All ionic steps in the run as a list of
@@ -1131,7 +1133,8 @@ class Vasprun(object):
                             'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi',
                             'ionic_steps', 'dos_has_errors']
 
-    def __init__(self, filename, ionic_step_skip=None):
+    def __init__(self, filename, ionic_step_skip=None,
+                 read_electronic_structure=True):
         """
         Args:
             filename:
@@ -1142,11 +1145,16 @@ class Vasprun(object):
                 very useful if you are parsing very large vasprun.xml files and
                 you are not interested in every single ionic step. Note that the
                 initial and final structure of all runs will always be read,
-                regardless of the ionic_step_skip. 
+                regardless of the ionic_step_skip.
+            read_electronic_structure:
+                Whether to read in electronic structure data like dos,
+                eigenvalues and efermi where available. Defaults to True. Set
+                to False to shave off significant time from the parsing if you
+                are not interested in getting those data.
         """
         self.filename = filename
         with file_open_zip_aware(filename) as f:
-            self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip)
+            self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip, read_electronic_structure=read_electronic_structure)
             self._parser = xml.sax.parse(f, self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
@@ -1398,8 +1406,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Author: Shyue Ping Ong
     """
 
-    def __init__(self, filename, ionic_step_skip=0):
+    def __init__(self, filename, ionic_step_skip=0,
+                 read_electronic_structure=True):
         self.filename = filename
+        self.read_electronic_structure = read_electronic_structure
         if ionic_step_skip and ionic_step_skip > 1:
             self.ionic_step_skip = ionic_step_skip
         else:
@@ -1436,6 +1446,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_lattice = False
         self.read_positions = False
         self.incar_param = None
+
+        #Intermediate variables
         self.dos_energies_val = []
         self.dos_val = []
         self.idos_val = []
@@ -1524,37 +1536,38 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.posstr = StringIO.StringIO()
             self.read_structure = True
 
-        if self.read_eigen:
-            if name == "r" and self.state["set"]:
-                self.read_val = True
-            elif name == "set" and "comment" in attributes:
-                comment = attributes["comment"]
-                self.state["set"] = comment
-                if comment.startswith("spin"):
-                    self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                if comment.startswith("kpoint"):
-                    self.eigen_kpoint = int(comment.split(" ")[1])
-        elif self.read_dos:
-            if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
-                self.read_val = True
-            elif name == "set" and "comment" in attributes:
-                comment = attributes["comment"]
-                self.state["set"] = comment
-                if self.state['partial']:
-                    if comment.startswith("ion"):
-                        self.pdos_ion = int(comment.split(" ")[1])
-                    elif comment.startswith("spin"):
-                        self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-        elif name == "dos":
-            self.dos_energies = None
-            self.tdos = {}
-            self.idos = {}
-            self.pdos = {}
-            self.efermi = None
-            self.read_dos = True
-        elif name == "eigenvalues":
-            self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
-            self.read_eigen = True
+        if self.read_electronic_structure:
+            if self.read_eigen:
+                if name == "r" and self.state["set"]:
+                    self.read_val = True
+                elif name == "set" and "comment" in attributes:
+                    comment = attributes["comment"]
+                    self.state["set"] = comment
+                    if comment.startswith("spin"):
+                        self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+                    if comment.startswith("kpoint"):
+                        self.eigen_kpoint = int(comment.split(" ")[1])
+            elif self.read_dos:
+                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
+                    self.read_val = True
+                elif name == "set" and "comment" in attributes:
+                    comment = attributes["comment"]
+                    self.state["set"] = comment
+                    if self.state['partial']:
+                        if comment.startswith("ion"):
+                            self.pdos_ion = int(comment.split(" ")[1])
+                        elif comment.startswith("spin"):
+                            self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+            elif name == "dos":
+                self.dos_energies = None
+                self.tdos = {}
+                self.idos = {}
+                self.pdos = {}
+                self.efermi = None
+                self.read_dos = True
+            elif name == "eigenvalues":
+                self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
+                self.read_eigen = True
 
     def characters(self, data):
         if self.read_val:
@@ -2425,3 +2438,4 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
