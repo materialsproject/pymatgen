@@ -8,7 +8,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
@@ -37,18 +37,16 @@ class AbstractDrone(object):
     @abc.abstractmethod
     def assimilate(self, path):
         '''
-        Assimilate data in a directory path into a dict representation of
-        a pymatgen object. Because of the quirky nature of Python's
-        multiprocessing, the representations has to be in the form of python
-        primitives. Hence the object must supprot a to_dict. This can then
-        be reverted to the original object with drone.convert.
+        Assimilate data in a directory path into a pymatgen object. Because of
+        the quirky nature of Python's multiprocessing, the object must support
+        pymatgen's to_dict for parallel processing.
         
         Args:
             path:
                 directory path
                 
         Returns:
-            Dict representation of an assimilated object
+            An assimilated object
         '''
         return
 
@@ -72,12 +70,6 @@ class AbstractDrone(object):
             List of valid dir/file paths for assimilation
         """
         return
-
-    @abc.abstractmethod
-    def convert(self, d):
-        """
-        Convert a dict generated from assimilate into an actual pymatgen object.
-        """
 
     @abc.abstractproperty
     def to_dict(self):
@@ -167,7 +159,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         else:
             entry = ComputedEntry(vasprun.final_structure.composition,
                                    vasprun.final_energy, parameters=param, data=data)
-        return entry.to_dict
+        return entry
 
     def get_valid_paths(self, path):
         (parent, subdirs, files) = path
@@ -177,12 +169,6 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return [parent]
         return []
 
-    def convert(self, d):
-        if 'structure' in d:
-            return ComputedStructureEntry.from_dict(d)
-        else:
-            return ComputedEntry.from_dict(d)
-
     def __str__(self):
         return "VaspToEntryDrone"
 
@@ -191,25 +177,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         init_args = {'inc_structure' : self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data}
-        d = {'name' : self.__class__.__name__, 'init_args': init_args, 'version': __version__ }
+        d = {'init_args': init_args, 'version': __version__ }
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
-
-
-def drone_from_dict(d):
-    """
-    A helper function that returns a drone from a dict representation.
-    
-    Arguments:
-        d:
-            A dict representation of a drone with init args.
-    
-    Returns:
-        A properly initialized Drone object
-    """
-    mod = __import__('pymatgen.borg.hive', globals(), locals(), [d['name']], -1)
-    if hasattr(mod, d['name']):
-        drone = getattr(mod, d['name'])
-        return drone(**d['init_args'])
-    raise ValueError("Invalid Drone Dict")

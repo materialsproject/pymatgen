@@ -33,16 +33,14 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         for path in os.walk(test_dir):
             self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
-    def test_assimilate_and_convert(self):
-        d = self.drone.assimilate(test_dir)
+    def test_assimilate(self):
+        entry = self.drone.assimilate(test_dir)
         for p in ["hubbards", "is_hubbard", "potcar_symbols", "run_type"]:
-            self.assertIn(p, d["parameters"])
-        self.assertAlmostEqual(d["data"]["efermi"], 1.8301027)
-        entry = self.drone.convert(d)
+            self.assertIn(p, entry.parameters)
+        self.assertAlmostEqual(entry.data["efermi"], 1.8301027)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
         self.assertAlmostEqual(entry.energy, -269.38319884)
-        d = self.structure_drone.assimilate(test_dir)
-        entry = self.structure_drone.convert(d)
+        entry = self.structure_drone.assimilate(test_dir)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
         self.assertAlmostEqual(entry.energy, -269.38319884)
         self.assertIsInstance(entry, ComputedStructureEntry)
