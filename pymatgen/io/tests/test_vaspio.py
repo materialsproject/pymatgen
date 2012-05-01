@@ -58,6 +58,25 @@ direct
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+        self.selective_poscar = poscar
+
+    def test_to_from_dict(self):
+        poscar_string = """Test3
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O"""
+        poscar = Poscar.from_string(poscar_string)
+        d = poscar.to_dict
+        poscar2 = Poscar.from_dict(d)
+        self.assertEqual(poscar2.comment, "Test3")
+        self.assertTrue(all(poscar2.selective_dynamics[0]))
+        self.assertFalse(all(poscar2.selective_dynamics[1]))
 
     def test_str(self):
         si = 14
