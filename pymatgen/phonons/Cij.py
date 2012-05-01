@@ -29,7 +29,8 @@ class CijTensor(object):
     Args:
         - strain_stress_dict: dict containing stress matrices
     """
-
+    #TODO: AJ says rename class to CijFitter, otherwise it seems the class's purpose is to represent a CijTensor
+    
     def __init__(self, strain_stress_dict):
         self._sig_eps = strain_stress_dict
 
@@ -94,6 +95,6 @@ class CijTensor(object):
                 if n2 > 2:
                     Cij[n1, n2] = Cij[n1, n2]*0.50
 
-        
+        #TODO: consider returning an SqTensor object
         return Cij
 
