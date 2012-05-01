@@ -304,6 +304,24 @@ class Poscar(VaspInput):
         with open(filename, 'w') as f:
             f.write(str(self) + "\n")
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['structure'] = self._struct.to_dict
+        d['true_names'] = self._true_names
+        d['selective_dynamics'] = self._selective_dynamics
+        d['comment'] = self.comment
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return Poscar(Structure.from_dict(d['structure']), comment=d['comment'],
+                      selective_dynamics=d['selective_dynamics'],
+                      true_names=d['true_names'])
+
+
 """**Non-exhaustive** list of valid INCAR tags"""
 VALID_INCAR_TAGS = ('NGX', 'NGY', 'NGZ', 'NGXF', 'NGYF', 'NGZF', 'NBANDS',
                     'NBLK', 'SYSTEM', 'NWRITE', 'ENCUT', 'ENAUG', 'PREC',
@@ -380,13 +398,17 @@ class Incar(dict, VaspInput):
 
     @property
     def to_dict(self):
-        return self
+        d = {k: v for k, v in self.items()}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d):
         i = Incar()
         for k, v in d.items():
-            i[k] = v
+            if k not in ("module", "class"):
+                i[k] = v
         return i
 
     def get_string(self, sort_keys=False, pretty=False):
@@ -866,6 +888,8 @@ class Kpoints(VaspInput):
         for para in optional_paras:
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -975,7 +999,10 @@ class Potcar(list, VaspInput):
 
     @property
     def to_dict(self):
-        return {'functional': self.functional, 'symbols': self.symbols}
+        d = {'functional': self.functional, 'symbols': self.symbols}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d):
