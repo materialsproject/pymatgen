@@ -199,11 +199,17 @@ class BSPlotter(object):
         tick_distance = []
         tick_labels = []
         previous_label = self._bs._kpoints[0].label
-        previous_branch = self._bs.get_branch_name(0)
+        previous_branch = self._bs._branches[0]['name']
         for i, c in enumerate(self._bs._kpoints):
             if c.label != None:
                 tick_distance.append(self._bs._distance[i])
-                if c.label != previous_label and previous_branch != self._bs.get_branch_name(i):
+                this_branch = None
+                for b in self._bs._branches:
+                    if i >= b['start_index'] and i <= ['end_index']:
+                        this_branch=b['name']
+                        break
+                        
+                if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
@@ -220,7 +226,7 @@ class BSPlotter(object):
                     else:
                         tick_labels.append(c.label)
                 previous_label = c.label
-                previous_branch = self._bs.get_branch_name(i)
+                previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
     def plot_compare(self, other_plotter):
