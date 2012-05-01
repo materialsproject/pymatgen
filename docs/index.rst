@@ -68,9 +68,10 @@ to install pymatgen with most of the dependencies set up. Otherwise, the latest
 stable source can be downloaded at the `PyPI`_ site as well.
 
 Alternatively, the bleeding edge developmental version is at the public
-pymatgen github repo at https://github.com/materialsproject/pymatgen, including
-options to download the source in various formats. These developmental versions
-are likely to be more buggy, but may contain new features.
+pymatgen github repo at 
+https://github.com/materialsproject/pymatgen/tarball/master. These developmental
+versions are likely to be more buggy, but may contain new features. Note that
+the github versions include test files as well for complete unittesting.
 
 From the source, you can type:
 
