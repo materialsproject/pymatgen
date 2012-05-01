@@ -91,7 +91,9 @@ class ComputedEntry(PDEntry):
 
     @property
     def to_dict(self):
-        d = dict()
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['energy'] = self.uncorrected_energy
         d['composition'] = self.composition.to_dict
         d['correction'] = self.correction
@@ -148,6 +150,8 @@ class ComputedStructureEntry(ComputedEntry):
     @property
     def to_dict(self):
         d = super(ComputedStructureEntry, self).to_dict
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['structure'] = self.structure.to_dict
         return d
 

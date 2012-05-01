@@ -254,6 +254,8 @@ class Dos(object):
         Json-serializable dict representation of Dos.
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['efermi'] = self._efermi
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
@@ -298,6 +300,8 @@ class PDos(Dos):
         Json-serializable dict representation of PDos.
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['efermi'] = self._efermi
         d['energies'] = list(self._energies)
         d['densities'] = { str(int(spin)) : list(dens) for spin , dens in self._dos.items() }
@@ -426,6 +430,8 @@ class CompleteDos(Dos):
         Json-serializable dict representation of CompleteDos.
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['efermi'] = self._efermi
         d['structure'] = self._structure.to_dict
         d['energies'] = list(self._energies)

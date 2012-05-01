@@ -253,7 +253,10 @@ class Site(collections.Mapping, collections.Hashable):
                 d['occu'] = occu
                 species_list.append(d)
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d = {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d):
@@ -510,11 +513,14 @@ class PeriodicSite(Site):
                 d = spec.to_dict
                 d['occu'] = occu
                 species_list.append(d)
-        return {'label': self.species_string, 'species': species_list,
-                'occu': occu, 'xyz':[float(c) for c in self._coords],
-                'abc':[float(c) for c in self._fcoords],
-                'lattice': self._lattice.to_dict,
-                'properties': self._properties}
+        d = {'label': self.species_string, 'species': species_list,
+             'occu': occu, 'xyz':[float(c) for c in self._coords],
+             'abc':[float(c) for c in self._fcoords],
+             'lattice': self._lattice.to_dict,
+             'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d, lattice=None):
@@ -1102,6 +1108,8 @@ class Structure(SiteCollection):
         Json-serializable dict representation of Structure
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
         return d
@@ -1214,6 +1222,8 @@ class Molecule(SiteCollection):
         Json-serializable dict representation of Molecule
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['sites'] = [site.to_dict for site in self]
         return d
 
