@@ -306,6 +306,8 @@ class Lattice(object):
         'gamma': float(self.gamma),
         'volume': float(self.volume),
         }
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         return d
 
     def get_primitive_lattice(self, lattice_type):

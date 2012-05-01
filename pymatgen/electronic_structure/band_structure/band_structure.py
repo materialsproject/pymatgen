@@ -160,7 +160,7 @@ class BandStructure(object):
             self._kpoints.append(Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
 
         self._bands = eigenvals
-        
+
         self._nb_bands = len(eigenvals)
 
     @property
@@ -378,6 +378,8 @@ class BandStructureSymmLine(BandStructure):
         Json-serializable dict representation of BandStructureSymmLine.
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['lattice_rec'] = self._lattice_rec.to_dict
         d['efermi'] = self._efermi
         d['kpoints'] = []
@@ -424,13 +426,13 @@ def get_reconstructed_band_structure(list_bs, efermi):
         """
         if not efermi:
             efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
-            
+
         kpoints = []
         eigenvals = []
         labels_dict = {}
         rec_lattice = list_bs[0]._lattice_rec
         nb_bands = list_bs[0]._nb_bands
-        
+
         for bs in list_bs:
             for k in bs._kpoints:
                 kpoints.append(k.frac_coords)
