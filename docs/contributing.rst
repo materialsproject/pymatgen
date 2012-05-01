@@ -107,10 +107,10 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 must be observed.
 3. **Documentation** required for all modules, classes and methods. In
-   particular, the method docstrings should make clear documentation, the
-   arguments expected and the return values. For complex algorithms (e.g., an
-   Ewald summation), a summary of the alogirthm should be provided, and
-   preferably with a link to a publication outlining the method in detail.
+   particular, the method docstrings should make clear the arguments expected
+   and the return values. For complex algorithms (e.g., an Ewald summation), a
+   summary of the alogirthm should be provided, and preferably with a link to a
+   publication outlining the method in detail.
    
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
