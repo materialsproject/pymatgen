@@ -1445,7 +1445,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
 
     def startElement(self, name, attributes):
 
-        self.state[name] = True if 'name' not in attributes else attributes['name']
+        self.state[name] = attributes.get('name', True)
         self.read_val = False
 
         #Nested if loops makes reading much faster.
@@ -1478,11 +1478,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_val = True
 
     def _init_calc(self, name, attributes):
-        if self.read_calculation:
-            if name == "i" and self.state['scstep']:
-                self.read_val = True
-            elif name == "v" and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
-                self.read_positions = True
         if self.read_structure and name == "v":
             if self.state['varray'] == 'basis':
                 self.read_lattice = True
@@ -1490,6 +1485,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.read_positions = True
             elif self.state['varray'] == 'rec_basis':
                 self.read_rec_lattice = True
+        elif self.read_calculation:
+            if name == "i" and self.state['scstep']:
+                self.read_val = True
+            elif name == "v" and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
+                self.read_positions = True
+
         if name == "calculation":
             self.step_count += 1
             if self.step_count > 1 and (self.step_count - 1) % self.ionic_step_skip != 0:
@@ -2424,4 +2425,3 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
-
