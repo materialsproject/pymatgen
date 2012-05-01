@@ -225,7 +225,7 @@ class VasprunTest(unittest.TestCase):
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
-        self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
+        self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
         self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
