@@ -23,10 +23,12 @@ __status__ = "Development"
 __date__ ="March 22, 2012"
 
 class Stress(SQTensor):
+    #TODO: AJ says method names are not PEP8. e.g., VonMises should be von_mises.
  
     def __init__(self, stress_matrix):
         self._sigma = stress_matrix
         super(Stress, self).__init__(self._sigma)
+        #TODO: AJ says defining a sigma parameter is bad, just use the _matrix parameter from the superclass
 
     def get_scaled(self, scale_factor):
         return super(Stress, self).get_scaled(scale_factor)
