@@ -25,13 +25,19 @@ __date__ ="March 13, 2012"
 
 
 class Strain(object):
- 
+    #TODO: AJ says strain must subclass SQTensor
+    #TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
+    #TODO: AJ says there should be a static from_strain(matrix) method that constructs the object from a strain matrix rather than deformation matrix
+    #For an example of the above, see the various 'from_xxxxx' methods in pymatgen.core.structure.Composition
+    
     def __init__(self, deformation_matrix):
         self._dfm = deformation_matrix
+        #TODO: AJ says the above needs to be handled by a super() call
         self._strain = 0.5 * (np.matrix(self._dfm) * np.transpose(np.matrix(self._dfm)) - np.eye(3))
 
     # return a scaled version of this matrix
     def get_scaled(self, scale_factor):
+        #TODO: AJ says this method is not needed, anyway it goes in the superclass if needed
         deformation_matrix = self._dfm * scale_factor
         return Strain(deformation_matrix)
 
@@ -53,6 +59,7 @@ class Strain(object):
 
     def __eq__(self, other):
         df, df2 = self.deformation_matrix, other.deformation_matrix
+        #TODO: AJ asks can't you just do return self.deformation_matrix == other.deformation_matrix?
         for i, row in enumerate(df):
             for j, item in enumerate(row):
                 if df[i][j] != df2[i][j]:
