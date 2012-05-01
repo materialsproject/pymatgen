@@ -21,6 +21,7 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="March 22, 2012"
 
+
 class SQTensor(object):
     """
     Class for doing useful general operation on *square* matrices, without 
@@ -28,6 +29,7 @@ class SQTensor(object):
     An error is thrown when the class is initialized with non-square matrix.
     TODO: change class names
     TODO: AJ asks if there is an existing matrix implementation to subclass instead of object, that for instance already implements 'rotate'
+    TODO: AJ suggests changing name of this class to SqTensor
     """
     def __init__(self, matrix):
         self._matrix = matrix
