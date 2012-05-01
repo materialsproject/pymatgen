@@ -44,6 +44,15 @@ class PMGJSONTest(unittest.TestCase):
             d = dec.decode(jsonstr)
             self.assertEqual(type(d), type(o))
 
+        #Check dict of things
+        o = {'structure':struct, "molecule":mol}
+        enc = PMGJSONEncoder()
+        jsonstr = enc.encode(o)
+        dec = PMGJSONDecoder()
+        d = dec.decode(jsonstr)
+        self.assertEqual(type(d['structure']), Structure)
+        self.assertEqual(type(d['molecule']), Molecule)
+
     def test_entry(self):
         entry = ComputedEntry("Fe2O3", 2.3)
         enc = PMGJSONEncoder()
@@ -51,6 +60,17 @@ class PMGJSONTest(unittest.TestCase):
         dec = PMGJSONDecoder()
         d = dec.decode(jsonstr)
         self.assertEqual(type(d), ComputedEntry)
+
+        #Check list of entries
+        entries = [entry, entry, entry]
+        enc = PMGJSONEncoder()
+        jsonstr = enc.encode(entries)
+        dec = PMGJSONDecoder()
+        d = dec.decode(jsonstr)
+        for i in d:
+            self.assertEqual(type(i), ComputedEntry)
+        self.assertEqual(len(d), 3)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
