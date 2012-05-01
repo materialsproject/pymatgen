@@ -51,6 +51,7 @@ class SQTensor(object):
             return False
 
     def get_scaled(self, scale_factor):
+        #TODO: AJ says this method is pointless
         return self._matrix*scale_factor
         
     def symmetrize(self):
@@ -63,13 +64,16 @@ class SQTensor(object):
         raise NotImplementedError("matrix rotations are not yet supported")
 
     def returntensor(self):
+        #TODO: AJ says this method should be an @property, and simply be called 'matrix' or 'tensor' instead of returntensor.
         return self._matrix
 
-    def value(self, i, j):         
+    def value(self, i, j):
+        #TODO: AJ says this method is pretty pointless
         return self._matrix[i, j]
 
     @property
     def PrincipalInvariants(self):
+        #TODO: AJ says this should be named principal_invariants according to PEP8
         if np.shape(self._matrix)[0] != 3:
             raise NotImplementedError("Principal Invariants are currently only supported for 3x3 matrices.")
         I1 = self._matrix[0,0] + self._matrix[1,1] + self._matrix[2,2]
