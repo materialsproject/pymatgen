@@ -1,13 +1,23 @@
 #!/usr/bin/env python
 
 '''
-Beta version of general JSON encoders and decoders for pymatgen. Will only
-support pymatgen objects version > 1.8.3.
+General JSON encoders and decoders for pymatgen. Only supports pymatgen objects
+version >= 1.9.0.
 
 Current support for all core objects that obey the to_dict API, including Site,
 PeriodicSite, Structure, Specie, Dos, Lattice, etc. and all Entry and  all
 Transformations. Note that lists and dicts of these objects are supported as
 well.
+
+.. note::
+    The decoder depends on finding a "module" and "class" key in the dict in
+    order to decode the necessary python object. All to_dict properties must
+    therefore have the module name and class embedded. The easiest way is to
+    add the following to any to_dict method::
+    
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+    
 '''
 
 from __future__ import division
@@ -26,10 +36,8 @@ class PMGJSONEncoder(json.JSONEncoder):
     A Pymatgen Json Encoder which supports the to_dict API.
     
     Usage:
-        Instead of the typical json.dumps(object), you may use
-        enc = PMGJSONEncoder()
-        enc.encode(object)
-        instead. 
+        Add it as a *cls* keyword when using json.dump
+        json.dumps(object, cls=PMGJSONDecoder)
     """
 
     def default(self, o):
@@ -48,10 +56,8 @@ class PMGJSONDecoder(json.JSONDecoder):
     lists and dicts containing pymatgen object will be decoded correctly as well.
     
     Usage:
-        Instead of the typical json.loads(json_string), you may use
-        dec = PMGJSONDecoder()
-        dec.decode(object)
-        instead.
+        Add it as a *cls* keyword when using json.load
+        json.loads(json_string, cls=PMGJSONDecoder)
     """
 
     def _process_decoded(self, d):
