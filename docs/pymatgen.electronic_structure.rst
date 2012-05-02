@@ -39,5 +39,4 @@ Subpackages
 .. toctree::
 
     pymatgen.electronic_structure.band_structure
-    pymatgen.electronic_structure.tests
 

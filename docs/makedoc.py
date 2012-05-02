@@ -35,7 +35,7 @@ for f in glob.glob("*.rst"):
             for line in fid:
                 if line.strip() == "Subpackages":
                     subpackage = True
-                if not subpackage:
+                if not subpackage and not line.strip().endswith("tests"):
                     newoutput.append(line)
                 else:
                     if not line.strip().endswith("tests"):
