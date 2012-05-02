@@ -8,7 +8,7 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
-3. scipy 0.9+ - For interpolation, physical constants and other functions. In 
+3. scipy 0.10+ - For interpolation, physical constants and other functions. In 
    particular, scipy.spatial.Delaunay is used for phase diagram construction.
 
 Optional Python Libraries
