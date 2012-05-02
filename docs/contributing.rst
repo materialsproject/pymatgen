@@ -38,6 +38,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    
        git clone git@github.com:YOURNAME/pymatgen.git
 
+   Note that the entire Github repo is fairly large because of the presence of
+   test files, but these are absolutely necessary for rigorous testing of the
+   code.
 5. It is highly recommended you install all the optional dependencies as well.
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
@@ -104,10 +107,10 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 must be observed.
 3. **Documentation** required for all modules, classes and methods. In
-   particular, the method docstrings should make clear documentation, the
-   arguments expected and the return values. For complex algorithms (e.g., an
-   Ewald summation), a summary of the alogirthm should be provided, and
-   preferably with a link to a publication outlining the method in detail.
+   particular, the method docstrings should make clear the arguments expected
+   and the return values. For complex algorithms (e.g., an Ewald summation), a
+   summary of the alogirthm should be provided, and preferably with a link to a
+   publication outlining the method in detail.
    
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.

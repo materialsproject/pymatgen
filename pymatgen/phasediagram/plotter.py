@@ -17,6 +17,7 @@ import numpy as np
 import re
 import itertools
 
+
 class PDPlotter(object):
     '''
     A plotter class for phase diagrams.

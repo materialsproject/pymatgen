@@ -25,11 +25,18 @@ electronic_structure Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`plotter` Module
+---------------------
+
+.. automodule:: pymatgen.electronic_structure.plotter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
 
     pymatgen.electronic_structure.band_structure
-    pymatgen.electronic_structure.tests
 

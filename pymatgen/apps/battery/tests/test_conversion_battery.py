@@ -58,6 +58,14 @@ class ConversionElectrodeTest(unittest.TestCase):
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v)
 
+            d = c.to_dict
+            print d
+            import json
+            print json.dumps(d)
+            c2 = ConversionElectrode.from_dict(d)
+            for k, v in p.items():
+                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v)
+            self.assertIsNotNone(c.get_summary_dict(True))
 
 if __name__ == "__main__":
     unittest.main()

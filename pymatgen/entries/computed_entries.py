@@ -3,22 +3,24 @@
 '''
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
-contain calculated information, typically from VASP or other electronic structure
-codes. For example, ComputedEntries can be used as inputs for phase diagram analysis.
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.
 '''
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011M"
+__date__ = "Apr 30, 2012"
 
 import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Structure, Composition
+
 
 class ComputedEntry(PDEntry):
     """
@@ -33,9 +35,9 @@ class ComputedEntry(PDEntry):
         """
         Args:
             composition:
-                Composition of the entry. For flexibility, this can take the form
-                of a {symbol: amt} dictionary as well the standard pymatgen
-                Composition object.
+                Composition of the entry. For flexibility, this can take the
+                form of all the typical input taken by a Composition, including
+                a {symbol: amt} dict, a string formula, and others.
             energy:
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
@@ -43,17 +45,14 @@ class ComputedEntry(PDEntry):
                 A correction to be applied to the energy. This is used to modify
                 the energy for certain analyses. Defaults to 0.0.
             parameters:
-                An optional dict of parameters associated with the entry. Defaults
-                to None.
+                An optional dict of parameters associated with the entry.
+                Defaults to None.
             data:
-                An optional dict of any additional data associated with 
-                the entry. Defaults to None
+                An optional dict of any additional data associated with the
+                entry. Defaults to None.
         """
-        if not isinstance(composition, Composition):
-            comp = Composition.from_dict(composition)
-        else:
-            comp = composition
-        super(ComputedEntry, self).__init__(comp, energy)
+        comp = Composition(composition)
+        PDEntry.__init__(self, comp, energy)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
@@ -92,7 +91,9 @@ class ComputedEntry(PDEntry):
 
     @property
     def to_dict(self):
-        d = dict()
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['energy'] = self.uncorrected_energy
         d['composition'] = self.composition.to_dict
         d['correction'] = self.correction
@@ -109,7 +110,8 @@ class ComputedStructureEntry(ComputedEntry):
     Author: Shyue Ping Ong, Anubhav Jain
     """
 
-    def __init__(self, structure, energy, correction=0.0, parameters=None, data=None):
+    def __init__(self, structure, energy, correction=0.0, parameters=None,
+                 data=None):
         """
         Args:
             structure:
@@ -121,13 +123,16 @@ class ComputedStructureEntry(ComputedEntry):
                 A correction to be applied to the energy. This is used to modify
                 the energy for certain analyses. Defaults to 0.0.
             parameters:
-                An optional dict of parameters associated with the entry. Defaults
-                to None.
+                An optional dict of parameters associated with the entry.
+                Defaults to None.
             data:
-                An optional dict of any additional data associated with 
-                the entry. Defaults to None
+                An optional dict of any additional data associated with the
+                entry. Defaults to None.
         """
-        super(ComputedStructureEntry, self).__init__(structure.composition, energy, correction=correction, parameters=parameters, data=data)
+
+        ComputedEntry.__init__(self, structure.composition, energy,
+                                        correction=correction,
+                                        parameters=parameters, data=data)
         self.structure = structure
 
     def __repr__(self):
@@ -146,6 +151,8 @@ class ComputedStructureEntry(ComputedEntry):
     @property
     def to_dict(self):
         d = super(ComputedStructureEntry, self).to_dict
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['structure'] = self.structure.to_dict
         return d
 
@@ -155,13 +162,34 @@ class ComputedStructureEntry(ComputedEntry):
                              d['correction'], d.get('parameters', {}), d.get('data', {}))
 
 
-def computed_entries_to_json(all_entries):
+def computed_entries_to_json(entries):
+    """
+    Returns a json representation of a sequence of entries.
+    
+    Args:
+        all_entries:
+            A sequence of entries
+            
+    Returns:
+        JSON string representation
+    """
     jsonlist = list()
-    for entry in all_entries:
+    for entry in entries:
         jsonlist.append(entry.to_dict)
     return json.dumps(jsonlist)
 
+
 def computed_entries_from_json(jsonstr):
+    """
+    Returns a sequence of entries from a json representation.
+    
+    Args:
+        json_str:
+            JSON string
+            
+    Returns:
+        Sequence of entries
+    """
     json_list = json.loads(jsonstr)
     entries = list()
     for d in json_list:

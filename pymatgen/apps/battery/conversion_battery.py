@@ -27,7 +27,7 @@ class ConversionElectrode(AbstractElectrode):
     Class representing a ConversionElectrode.
     """
 
-    def __init__(self, element_profile, entry_ion, initial_comp):
+    def __init__(self, element_profile, working_ion_entry, initial_comp):
         """
         General constructor for ConversionElectrode. However, it is usually
         easier to construct a ConversionElectrode using one of the static
@@ -42,15 +42,15 @@ class ConversionElectrode(AbstractElectrode):
                 from all phases of interest in a system. E.g., if you are
                 interested in FeF3 as a conversion battery, you need to have
                 all known Li-Fe-F phases and construct a phase diagram.
-            entry_ion:
+            working_ion_entry:
                 A single ComputedEntry or PDEntry representing the element that
                 carries charge across the battery, e.g. Li.
             initial_comp:
                 Starting composition for ConversionElectrode.
         """
         self._composition = initial_comp
-        self._entry_ion = entry_ion
-        self._working_ion = self._entry_ion.composition.elements[0].symbol
+        self._working_ion_entry = working_ion_entry
+        self._working_ion = self._working_ion_entry.composition.elements[0].symbol
         normalization_els = {}
         for el, amt in self._composition.items():
             if el != Element(self._working_ion):
@@ -76,12 +76,12 @@ class ConversionElectrode(AbstractElectrode):
         """
         working_ion = Element(working_ion_symbol)
         entry = None
-        entry_ion = None
+        working_ion_entry = None
         for e in pd.stable_entries:
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
             elif e.is_element and e.composition.reduced_formula == working_ion_symbol:
-                entry_ion = e
+                working_ion_entry = e
 
         if not entry:
             raise ValueError("Not stable compound found at composition {}.".format(comp))
@@ -92,7 +92,7 @@ class ConversionElectrode(AbstractElectrode):
         profile.reverse() #Need to reverse because voltage goes form most charged to most discharged
         if len(profile) < 2:
             return None
-        return ConversionElectrode(profile, entry_ion, comp)
+        return ConversionElectrode(profile, working_ion_entry, comp)
 
     @staticmethod
     def from_composition_and_entries(comp, entries_in_chemsys,
@@ -136,12 +136,12 @@ class ConversionElectrode(AbstractElectrode):
         '''
 
         if adjacent_only:
-            return [ConversionElectrode(self._el_profile[i:i + 2], self._entry_ion, self._composition) for i in xrange(len(self._el_profile) - 1)]
+            return [ConversionElectrode(self._el_profile[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._el_profile) - 1)]
 
         sub_electrodes = []
         for i in xrange(len(self._el_profile) - 1):
             for j in xrange(i + 1, len(self._el_profile)):
-                sub_electrodes.append(ConversionElectrode(self._el_profile[i:j + 1], self._entry_ion, self._composition))
+                sub_electrodes.append(ConversionElectrode(self._el_profile[i:j + 1], self._working_ion_entry, self._composition))
 
         return sub_electrodes
 
@@ -154,11 +154,11 @@ class ConversionElectrode(AbstractElectrode):
         '''
         The working ion as an Element object
         '''
-        return self._entry_ion.composition.elements[0]
+        return self._working_ion_entry.composition.elements[0]
 
     @property
-    def entry_ion(self):
-        return self._entry_ion
+    def working_ion_entry(self):
+        return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
@@ -221,6 +221,76 @@ class ConversionElectrode(AbstractElectrode):
         output.append('Specific energy {} Wh/kg, energy density {} Wh/l'.format(self.get_specific_energy(), self.get_energy_density()))
         return "\n".join(output)
 
+    @staticmethod
+    def from_dict(d):
+        from pymatgen.serializers.json_coders import PMGJSONDecoder
+        dec = PMGJSONDecoder()
+        return ConversionElectrode(dec.process_decoded(d['element_profile']),
+                                   dec.process_decoded(d['working_ion_entry']),
+                                   Composition(d['initial_comp']))
+
+    @property
+    def to_dict(self):
+        from pymatgen.serializers.json_coders import PMGJSONEncoder
+        enc = PMGJSONEncoder()
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['element_profile'] = enc.default(self._el_profile)
+        d['working_ion_entry'] = self.working_ion_entry.to_dict
+        d['initial_comp'] = self._composition.to_dict
+        return d
+
+
+    def get_summary_dict(self, print_subelectrodes=True):
+        '''
+        Arguments:
+            print_subelectrodes:
+                Also print data on all the possible subelectrodes
+        
+        Returns:
+            a summary of this electrode's properties in dictionary format
+        '''
+
+        d = {}
+        framework_comp = Composition({k: v for k, v in self._composition.items() if k.symbol != self.working_ion.symbol })
+
+        d['framework'] = framework_comp.to_data_dict
+        d['framework_pretty'] = framework_comp.reduced_formula
+        d['average_voltage'] = self.get_average_voltage()
+        d['max_voltage'] = self.max_voltage
+        d['min_voltage'] = self.min_voltage
+        d['max_delta_volume'] = self.max_delta_volume
+        d['max_instability'] = 0
+        d['max_voltage_step'] = self.max_voltage_step
+        d['nsteps'] = self.num_steps
+        d['capacity_grav'] = self.get_capacity_grav()
+        d['capacity_vol'] = self.get_capacity_vol()
+        d['energy_grav'] = self.get_specific_energy()
+        d['energy_vol'] = self.get_energy_density()
+        d['working_ion'] = self.working_ion.symbol
+        d['reactions'] = []
+        d['reactant_compositions'] = []
+        comps = []
+        frac = []
+        for pair in self._vpairs:
+            rxn = pair.rxn
+            frac.append(pair.frac_charge)
+            frac.append(pair.frac_discharge)
+            d['reactions'].append(str(rxn))
+            for i in xrange(len(rxn.coeffs)):
+                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+                    comps.append(rxn.all_comp[i])
+                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d['working_ion']:
+                    d['reactant_compositions'].append(rxn.all_comp[i].get_reduced_composition_and_factor()[0].to_dict)
+        d['fracA_charge'] = min(frac)
+        d['fracA_discharge'] = max(frac)
+        d['nsteps'] = self.num_steps
+        if print_subelectrodes:
+            f_dict = lambda c: c.get_summary_dict(print_subelectrodes=False)
+            d['adj_pairs'] = map(f_dict, self.get_sub_electrodes(adjacent_only=True))
+            d['all_pairs'] = map(f_dict, self.get_sub_electrodes(adjacent_only=False))
+        return d
 
 class ConversionVoltagePair(AbstractVoltagePair):
     """
@@ -239,9 +309,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
                 Elements to normalize the reaction by. To ensure correct
                 capacities.
         """
-        self._entry_ion = step1['element_reference']
-        working_ion = self._entry_ion.composition.elements[0].symbol
-        self._voltage = -step1['chempot'] + self._entry_ion.energy_per_atom
+        self._working_ion_entry = step1['element_reference']
+        working_ion = self._working_ion_entry.composition.elements[0].symbol
+        self._voltage = -step1['chempot'] + self._working_ion_entry.energy_per_atom
         self._mAh = (step2['evolution'] - step1['evolution']) * ELECTRON_TO_AMPERE_HOURS * 1000
         self._vol_charge = 0
         self._vol_discharge = 0
@@ -332,11 +402,11 @@ class ConversionVoltagePair(AbstractVoltagePair):
         return self._vol_discharge
 
     @property
-    def entry_ion(self):
-        return self._entry_ion
+    def working_ion_entry(self):
+        return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Conversion voltage pair with working ion {}".format(self._entry_ion.composition.reduced_formula)]
+        output = ["Conversion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula)]
         output.append("Reaction : {}".format(self._rxn))
         output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
         output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))

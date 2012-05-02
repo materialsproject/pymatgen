@@ -42,13 +42,13 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.3)
+Latest Change Log (v1.9.0)
 --------------------------
 
-1. spglib_adaptor now supports disordered structures.
-2. Update to support new spglib with angle_tolerance.
-3. Changes to Borg API to support both file and directory style paths.
-4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
+1. Completely new json encoder and decoder that support serialization of almost
+   all pymatgen objects. See `Using pymatgen`_ section for more details.
+2. Simplification to Borg API utilizing the new json API.
+3. Bandstructure classes now support spin-polarized runs.
 
 .. toctree::
    :maxdepth: 2
@@ -70,9 +70,10 @@ to install pymatgen with most of the dependencies set up. Otherwise, the latest
 stable source can be downloaded at the `PyPI`_ site as well.
 
 Alternatively, the bleeding edge developmental version is at the public
-pymatgen github repo at https://github.com/materialsproject/pymatgen, including
-options to download the source in various formats. These developmental versions
-are likely to be more buggy, but may contain new features.
+pymatgen github repo at 
+https://github.com/materialsproject/pymatgen/tarball/master. These developmental
+versions are likely to be more buggy, but may contain new features. Note that
+the github versions include test files as well for complete unittesting.
 
 From the source, you can type:
 

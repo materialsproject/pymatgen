@@ -54,17 +54,21 @@ class AbstractVoltagePair(object):
         return self._vol_discharge
 
     @abstractproperty
-    def entry_ion(self):
-        return self._entry_ion
+    def working_ion_entry(self):
+        return self._working_ion_entry
 
 
 class AbstractElectrode(Sequence):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
-    three abstract properties: voltage_pairs, working_ion and entry_ion. The
-    general concept is that all other battery properties such as capacity, etc.
-    are derived from voltage pairs.
+    three abstract properties:
+        voltage_pairs
+        working_ion and
+        working_ion_entry.
+    
+    The general concept is that all other battery properties such as capacity,
+    etc. are derived from voltage pairs.
     
     One of the major challenges with representing battery materials is keeping
     track of the normalization between different entries. For example, one
@@ -112,7 +116,7 @@ class AbstractElectrode(Sequence):
         return
 
     @abstractproperty
-    def entry_ion(self):
+    def working_ion_entry(self):
         '''
         The working ion as an Entry object
         '''
@@ -294,23 +298,3 @@ class AbstractElectrode(Sequence):
         max_voltage = max_voltage if max_voltage is not None else self.max_voltage
         return filter(lambda p: p.voltage >= min_voltage and p.voltage <= max_voltage, self.voltage_pairs)
 
-
-def composition_to_multi_dict(comp):
-    '''
-    Given a composition, this will write out a dictionary with many
-    sub-properties.
-    
-    Args:
-        comp:
-            A Composition to turn into a dictionary
-    
-    Return:
-        A dictionary with many keys and values relating to Composition/Formula
-    '''
-    rdict = {}
-    rdict['reduced_cell_composition'] = comp.to_reduced_dict
-    rdict['unit_cell_composition'] = comp.to_dict
-    rdict['reduced_cell_formula'] = comp.reduced_formula
-    rdict['elements'] = comp.to_dict.keys()
-    rdict['nelements'] = len(comp.to_dict.keys())
-    return rdict
