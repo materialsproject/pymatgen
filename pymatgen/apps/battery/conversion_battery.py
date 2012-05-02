@@ -294,13 +294,30 @@ class ConversionVoltagePair(AbstractVoltagePair):
                  entries_charge, entries_discharge, working_ion_entry):
         """
         Args:
-            step1:
-                Starting step
-            step2:
-                Ending step
-            normalization_els:
-                Elements to normalize the reaction by. To ensure correct
-                capacities.
+            balanced_rxn:
+                BalancedReaction for the step
+            voltage:
+                Voltage for the step
+            mAh:
+                Capacity of the step
+            vol_charge:
+                Volume of charged state
+            vol_discharge:
+                Volume of discharged state
+            mass_charge:
+                Mass of charged state
+            mass_discharge:
+                Mass of discharged state
+            frac_charge:
+                Fraction of working ion in the charged state
+            frac_discharge:
+                Fraction of working ion in the discharged state
+            entries_charge:
+                Entries present in the charged state
+            entries_discharge:
+                Entries present in discharged state
+            working_ion_entry:
+                Entry of the working ion.
         """
         self._working_ion_entry = working_ion_entry
         working_ion = self._working_ion_entry.composition.elements[0].symbol
@@ -321,6 +338,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
     @staticmethod
     def from_steps(step1, step2, normalization_els):
         """
+        Creates a ConversionVoltagePair from two steps in the element profile
+        from a PD analysis.
+        
         Args:
             step1:
                 Starting step
