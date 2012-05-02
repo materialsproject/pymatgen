@@ -193,17 +193,22 @@ class Reaction(object):
 
     @property
     def reactants(self):
-        """List of reactants"""
-
+        """
+        List of reactants
+        """
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] < 0]
 
     @property
     def products(self):
-        """List of products"""
+        """
+        List of products
+        """
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] > 0]
 
     def get_coeff(self, comp):
-        """Returns coefficient for a particular composition"""
+        """
+        Returns coefficient for a particular composition
+        """
         return self._coeffs[self._all_comp.index(comp)]
 
     def normalized_repr_and_factor(self):
@@ -263,7 +268,6 @@ class Reaction(object):
                 reactant_str.append("%.3f %s" % (-scaled_coeff, comp.reduced_formula))
             elif scaled_coeff > 0:
                 product_str.append("%.3f %s" % (scaled_coeff, comp.reduced_formula))
-
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 
     @property
