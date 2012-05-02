@@ -1186,9 +1186,20 @@ class Vasprun(object):
                 are not interested in getting those data.
         """
         self.filename = filename
+        
         with file_open_zip_aware(filename) as f:
-            self._handler = VasprunHandler(filename, ionic_step_skip=ionic_step_skip, read_electronic_structure=read_electronic_structure)
-            self._parser = xml.sax.parse(f, self._handler)
+            self._handler = VasprunHandler(filename, read_electronic_structure=read_electronic_structure)
+            if ionic_step_skip == None:
+                self._parser = xml.sax.parse(f, self._handler)
+            else:
+                #remove parts of the xml file and parse the string
+                run = f.read()
+                steps = run.split('<calculation>')
+                new_steps = steps[::int(ionic_step_skip)]
+                #add the last step from the run
+                if steps[-1] != new_steps[-1]:
+                    new_steps.append(steps[-1])
+                self._parser = xml.sax.parseString('<calculation>'.join(new_steps), self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
 
@@ -1430,14 +1441,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Author: Shyue Ping Ong
     """
 
-    def __init__(self, filename, ionic_step_skip=0,
-                 read_electronic_structure=True):
+    def __init__(self, filename, read_electronic_structure=True):
         self.filename = filename
         self.read_electronic_structure = read_electronic_structure
-        if ionic_step_skip and ionic_step_skip > 1:
-            self.ionic_step_skip = ionic_step_skip
-        else:
-            self.ionic_step_skip = 1
         self.step_count = 0
         # variables to be filled
         self.vasp_version = None
@@ -1530,9 +1536,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
 
         if name == "calculation":
             self.step_count += 1
-            if self.step_count > 1 and (self.step_count - 1) % self.ionic_step_skip != 0:
-                del self.ionic_steps[-1]
-                del self.structures[-1]
             self.scdata = []
             self.read_calculation = True
         elif name == "scstep":
