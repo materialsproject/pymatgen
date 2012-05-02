@@ -36,7 +36,7 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "CaO_2605.json"), "rb") as f:
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
@@ -51,7 +51,7 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertEqual(self.bs._branches[5]['start_index'], 80)
             self.assertEqual(self.bs._branches[5]['end_index'], 95)
             self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
-        with open(os.path.join(test_dir, "NiO_19009.json"), "rb") as f:
+        with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             self.bs_spin = BandStructureSymmLine.from_dict(d)
             #this doesn't really test to_dict -> from_dict very well
