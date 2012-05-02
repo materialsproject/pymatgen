@@ -17,7 +17,7 @@ import argparse
 from collections import OrderedDict
 
 from pymatgen.io.vaspio import Vasprun
-from pymatgen.electronic_structure.dos import DosPlotter
+from pymatgen.electronic_structure.plotter import DosPlotter
 
 parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for vasp runs.
 Author: Shyue Ping Ong
