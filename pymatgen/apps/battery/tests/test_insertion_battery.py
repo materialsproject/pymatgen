@@ -30,7 +30,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         data_Li = '[{"correction": 0.0, "composition": {"Li":1}, "formulasum": "Li1", "energy": -1.90753119}]'
         self.entry_Li = computed_entries_from_json(data_Li)[0]
 
-        data_LTO = open(os.path.join(test_dir, "LiTiO2.json")).readline()
+        data_LTO = open(os.path.join(test_dir, "LiTiO2_batt.json")).readline()
         self.entries_LTO = computed_entries_from_json(data_LTO)
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
