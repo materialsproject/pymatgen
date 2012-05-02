@@ -68,8 +68,8 @@ class BandStructureSymmLine_test(unittest.TestCase):
 
         self.assertAlmostEqual(self.bs.efermi, 2.6211967, "wrong fermi energy")
 
-    def test_get_branch_name(self):
-        self.assertAlmostEqual(self.bs.get_branch_name(110)[0], "U-W")
+    def test_get_branch(self):
+        self.assertAlmostEqual(self.bs.get_branch(110)[0]['name'], "U-W")
 
     def test_is_metal(self):
         self.assertFalse(self.bs.is_metal(), "wrong metal assignment")
