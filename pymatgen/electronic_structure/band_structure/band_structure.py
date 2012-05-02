@@ -533,7 +533,6 @@ def get_reconstructed_band_structure(list_bs, efermi):
             efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
 
         kpoints = []
-        eigenvals = []
         labels_dict = {}
         rec_lattice = list_bs[0]._lattice_rec
         nb_bands = list_bs[0]._nb_bands
@@ -544,7 +543,6 @@ def get_reconstructed_band_structure(list_bs, efermi):
             for k, v in bs._labels_dict.iteritems():
                 labels_dict[k] = v.frac_coords
         eigenvals = {Spin.up:list_bs[0]._bands[Spin.up]}
-        print eigenvals
         for i in range(nb_bands):
             #eigenvals[Spin.up].append({'energy':[], 'occup':[]})
             for bs in list_bs[1:]:
