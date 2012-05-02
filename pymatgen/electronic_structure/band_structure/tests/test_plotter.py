@@ -14,7 +14,7 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..
 class BSPlotterTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "CaO_2605.json"), "rb") as f:
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
