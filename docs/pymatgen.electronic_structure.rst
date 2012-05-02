@@ -25,6 +25,14 @@ electronic_structure Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`plotter` Module
+---------------------
+
+.. automodule:: pymatgen.electronic_structure.plotter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 

@@ -53,24 +53,24 @@ class BSPlotter(object):
         """
         zero_energy = None
         if self._bs.is_metal:
-            zero_energy=self._bs.efermi
+            zero_energy = self._bs.efermi
         else:
-            zero_energy=self._bs.get_vbm()['energy']
-        
+            zero_energy = self._bs.get_vbm()['energy']
+
         if not zero_to_efermi:
             zero_energy = 0.0
-            
-        energy={Spin.up:[]}
+
+        energy = {Spin.up:[]}
         if self._bs.is_spin_polarized:
-            energy = energy={Spin.up:[],Spin.down:[]}
+            energy = energy = {Spin.up:[], Spin.down:[]}
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            energy[Spin.up].append([self._bs._bands[Spin.up][i][j]-zero_energy for j in range(len(self._bs._kpoints))])
+            energy[Spin.up].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-                energy[Spin.down].append([self._bs._bands[Spin.down][i][j]-zero_energy for j in range(len(self._bs._kpoints))])
-        
+                energy[Spin.down].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
     def show(self, file_name=None, zero_to_efermi=True):
@@ -100,7 +100,7 @@ class BSPlotter(object):
                 pylab.plot(data['distances'], [e for e in data['energy'][Spin.up][i]], 'b-', linewidth=band_linewidth)
                 if self._bs.is_spin_polarized:
                     pylab.plot(data['distances'], [e for e in data['energy'][Spin.down][i]], 'r-', linewidth=band_linewidth)
-                    
+
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
         log.debug("ticks {t}".format(t=ticks))
@@ -156,7 +156,7 @@ class BSPlotter(object):
         #last distance point
         x_max = data['distances'][-1]
         pylab.xlim(0, x_max)
-        
+
         if self._bs.is_metal():
             # Plot A Metal
             if zero_to_efermi:
@@ -179,7 +179,7 @@ class BSPlotter(object):
                 pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
 
             pylab.ylim(e_vbm + e_min, e_cbm + e_max)
-        
+
         pylab.legend()
         if file_name is not None:
             pylab.plot()
@@ -190,11 +190,12 @@ class BSPlotter(object):
 
     def get_ticks(self):
         """
-        get all ticks and labels for a band structure plot
+        Get all ticks and labels for a band structure plot.
+        
         Returns:
-            A dictionary with 
-            'distance': a list of distance at which ticks should be set
-            'label': a list of label for each of those ticks
+            A dict with 
+                'distance': a list of distance at which ticks should be set.
+                'label': a list of label for each of those ticks.
         """
         tick_distance = []
         tick_labels = []
@@ -297,7 +298,7 @@ class BSPlotter(object):
 
         vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
         lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
-        
+
         for i in range(len(lines)):
             vertex1 = lines[i]['start']
             vertex2 = lines[i]['end']
@@ -306,7 +307,7 @@ class BSPlotter(object):
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
             vertex2 = self._bs._kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3) 
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3)
 
         for k in self._bs._kpoints:
             if k.label:

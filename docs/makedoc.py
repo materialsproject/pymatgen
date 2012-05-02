@@ -38,11 +38,13 @@ for f in glob.glob("*.rst"):
                 if not subpackage:
                     newoutput.append(line)
                 else:
-                    suboutput.append(line)
+                    if not line.strip().endswith("tests"):
+                        suboutput.append(line)
                     if line.strip().startswith("pymatgen") and not line.strip().endswith("tests"):
                         newoutput.extend(suboutput)
                         subpackage = False
                         suboutput = []
+
 
         with open(f, 'w') as fid:
             fid.write("".join(newoutput))
