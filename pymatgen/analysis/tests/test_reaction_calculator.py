@@ -17,6 +17,10 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(str(rxn), "2.000 Fe + 1.500 O2 -> 1.000 Fe2O3", "Wrong reaction obtained!")
         self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3", "Wrong normalized reaction obtained!")
 
+        d = rxn.to_dict
+        rxn = Reaction.from_dict(d)
+        self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3", "Wrong normalized reaction obtained!")
+
         reactants = [Composition.from_formula("Fe"), Composition.from_formula("O"), Composition.from_formula("Mn"), Composition.from_formula("P")]
         products = [Composition.from_formula("FeP"), Composition.from_formula("MnO")]
         rxn = Reaction(reactants, products)
@@ -90,7 +94,6 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(rxn.normalized_repr, "MgO + Al2O3 -> MgAl2O4", "Wrong normalized reaction obtained!")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.2, 5)
 
-
     def test_products_reactants(self):
         reactants = [Composition.from_formula("Li3Fe2(PO4)3"), Composition.from_formula("Fe2O3"), Composition.from_formula("O2")]
         products = [Composition.from_formula("LiFePO4")]
@@ -102,6 +105,14 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(str(rxn), "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.250 O2 + 1.000 LiFePO4", "Wrong reaction obtained!")
         self.assertEquals(rxn.normalized_repr, "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4", "Wrong normalized reaction obtained!")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.48333333, 5)
+
+    def test_to_from_dict(self):
+        reactants = [Composition.from_formula("Fe"), Composition.from_formula("O2")]
+        products = [Composition.from_formula("Fe2O3")]
+        rxn = Reaction(reactants, products)
+        d = rxn.to_dict
+        rxn = Reaction.from_dict(d)
+        self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3", "Wrong normalized reaction obtained!")
 
 
 class BalancedReactionTest(unittest.TestCase):
@@ -116,6 +127,16 @@ class BalancedReactionTest(unittest.TestCase):
         rct = {Composition.from_formula('K2SO4'):1, Composition.from_formula('Na2S'):1, Composition.from_formula('Li'):24}
         prod = {Composition.from_formula('KNaS'): 2, Composition.from_formula('K2S'):2, Composition.from_formula('Li2O'):12}
         self.assertRaises(ReactionError, BalancedReaction, rct, prod)
+
+    def test_to_from_dict(self):
+        rct = {Composition.from_formula('K2SO4'):3, Composition.from_formula('Na2S'):1, Composition.from_formula('Li'):24}
+        prod = {Composition.from_formula('KNaS'): 2, Composition.from_formula('K2S'):2, Composition.from_formula('Li2O'):12}
+        rxn = BalancedReaction(rct, prod)
+        d = rxn.to_dict
+        new_rxn = BalancedReaction.from_dict(d)
+        for comp in new_rxn.all_comp:
+            self.assertEqual(new_rxn.get_coeff(comp), rxn.get_coeff(comp))
+
 
 class ComputedReactionTest(unittest.TestCase):
 
@@ -134,6 +155,12 @@ class ComputedReactionTest(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(str(self.rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+
+    def test_to_from_dict(self):
+        d = self.rxn.to_dict
+        new_rxn = ComputedReaction.from_dict(d)
+        self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+
 
 if __name__ == '__main__':
     unittest.main()
