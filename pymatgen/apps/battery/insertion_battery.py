@@ -42,6 +42,8 @@ class InsertionElectrode(AbstractElectrode):
                 A single ComputedEntry or PDEntry representing the element that
                 carries charge across the battery, e.g. Li.
         '''
+
+        self._entries = entries
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
 
@@ -297,6 +299,21 @@ class InsertionElectrode(AbstractElectrode):
     def __repr__(self):
         return 'InsertionElectrode with endpoints at %s and %s, average voltage %f, capacity (grav.) %f, capacity (vol.) %f' % (self.fully_charged_entry.composition.reduced_formula, self.fully_discharged_entry.composition.reduced_formula, self.get_average_voltage(), self.get_capacity_grav(), self.get_capacity_vol())
 
+    @staticmethod
+    def from_dict(d):
+        from pymatgen.serializers.json_coders import PMGJSONDecoder
+        dec = PMGJSONDecoder()
+        return InsertionElectrode(dec.process_decoded(d['entries']),
+                                  dec.process_decoded(d['working_ion_entry']))
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['entries'] = [entry.to_dict for entry in self._entries]
+        d['working_ion_entry'] = self.working_ion_entry.to_dict
+        return d
 
 
 class InsertionVoltagePair(AbstractVoltagePair):

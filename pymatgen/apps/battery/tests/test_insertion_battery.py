@@ -62,6 +62,12 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(False, True)), 3)
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(True, True)), 2)
 
+    def test_to_from_dict(self):
+        d = self.ie_LTO.to_dict
+        ie = InsertionElectrode.from_dict(d)
+        self.assertAlmostEqual(ie.max_voltage, 2.78583901, 3)
+        self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
+        self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
 
 if __name__ == '__main__':
     unittest.main()
