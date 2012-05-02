@@ -13,9 +13,11 @@ __date__ = "Jan 25, 2012"
 
 import unittest
 import os
+import json
 
 from pymatgen.entries.computed_entries import computed_entries_from_json
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 import pymatgen
 
@@ -68,6 +70,14 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(ie.max_voltage, 2.78583901, 3)
         self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
         self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
+
+        #Just to make sure json string works.
+        json_str = json.dumps(self.ie_LTO, cls=PMGJSONEncoder)
+        ie = json.loads(json_str, cls=PMGJSONDecoder)
+        self.assertAlmostEqual(ie.max_voltage, 2.78583901, 3)
+        self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
+        self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
+
 
 if __name__ == '__main__':
     unittest.main()
