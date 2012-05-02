@@ -19,7 +19,6 @@ import numpy as np
 
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
-from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.io_utils import clean_json
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 
@@ -550,6 +549,7 @@ class DosPlotter(object):
             ylim:
                 Specifies the y-axis limits. 
         """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         color_order = ['r', 'b', 'g', 'c']
 
