@@ -25,9 +25,3 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-

@@ -66,6 +66,43 @@ choices. JSON is much more efficient as a format, with extremely fast read/write
 speed, but is much less readable. YAML is an order of magnitude or more slower
 in terms of parsing, but is more human readable.
 
+New in version 1.9.0 - PMG JSON encoder/decoder
+-----------------------------------------------
+
+In version 1.9.0 of pymatgen, a brand new serialization framework is
+implemented. Extensions of the standard Python JSONEncoder and JSONDecoder is
+introduced to support pymatgen objects. Given that these coders depend on
+certain new dict keys, they will only support pymatgen objects coming from
+version >= 1.9.0.
+
+The PMGJSONEncoder uses the to_dict API of pymatgen to generate the necessary
+dict for converting into json. To use the PMGJSONEncoder, simply add it as the
+*cls* kwarg when using json. For example,
+
+::
+
+   json.dumps(object, cls=PMGJSONEncoder)
+
+The PMGJSONDecoder depends on finding a "module" and "class" key in the dict in
+order to decode the necessary python object. **All to_dict properties must
+therefore have the module name and class embedded.** The easiest way is to
+add the following to any to_dict method::
+    
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        
+To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
+load, e.g.,
+
+::
+
+   json.loads(json_string, cls=PMGJSONDecoder)
+
+The decoder is written in such a way that it supports nested list and dict of
+pymatgen objects. When going through the nesting hirerachy, the decoder will
+look for the highest level module/class names specified and convert those to
+pymatgen objects.
+
 Structures
 ==========
 

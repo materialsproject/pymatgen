@@ -39,9 +39,14 @@ pymatgen's Google Groups page
 
 setup (
   name='pymatgen',
-  version='1.8.3',
+  version='1.9.0',
   packages=find_packages(),
-  install_requires=['numpy', 'scipy', 'PyCIFRW'],
+  install_requires=['numpy>=1.6', 'scipy>=0.10'],
+  extras_require={
+        'plotting':  ['matplotlib>=1.1'],
+        'ase_adaptor': ['ase>=3.3'],
+        'cif':['PyCifRW>=3.3']
+  },
   package_data={'pymatgen.core': ['*.json'],
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},

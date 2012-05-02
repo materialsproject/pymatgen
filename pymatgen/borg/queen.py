@@ -9,7 +9,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
@@ -20,10 +20,12 @@ import json
 import logging
 
 from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 from multiprocessing import Manager, Pool
 
 logger = logging.getLogger("BorgQueen")
+
 
 class BorgQueen(object):
     """
@@ -54,7 +56,10 @@ class BorgQueen(object):
         self._data = []
 
         if rootpath:
-            self.parallel_assimilate(rootpath)
+            if number_of_drones > 1:
+                self.parallel_assimilate(rootpath)
+            else:
+                self.serial_assimilate(rootpath)
 
     def parallel_assimilate(self, rootpath):
         """
@@ -73,8 +78,9 @@ class BorgQueen(object):
         logger.info('{} valid paths found.'.format(len(valid_paths)))
 
         p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
-        self._data.extend(data)
+        p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
+        for d in data:
+            self._data.append(PMGJSONDecoder().process_decoded(d))
 
     def serial_assimilate(self, rootpath):
         """
@@ -84,15 +90,21 @@ class BorgQueen(object):
         for (parent, subdirs, files) in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data = []
+        count = 0
+        total = len(valid_paths)
         for path in valid_paths:
-            order_assimilation((path, self._drone, data))
-        self._data.extend(data)
+            newdata = self._drone.assimilate(path)
+            self._data.append(newdata)
+            count += 1
+            logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+        for d in data:
+            self._data.append(PMGJSONDecoder().process_decoded(d))
 
-    def get_assimilated_data(self):
+    def get_data(self):
         """
         Returns an list of assimilated objects
         """
-        return [self._drone.convert(d) for d in self._data]
+        return self._data
 
     def save_data(self, filename):
         """
@@ -105,23 +117,27 @@ class BorgQueen(object):
                 compression will be applied.
         """
         with file_open_zip_aware(filename, "w") as f:
-            json.dump(list(self._data), f)
+            json.dump(list(self._data), f, cls=PMGJSONEncoder)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
         with file_open_zip_aware(filename, "r") as f:
-            self._data = json.load(f)
+            self._data = json.load(f, cls=PMGJSONDecoder)
 
 
-def order_assimilation(args):
+def _order_assimilation(args):
+    """
+    Internal helper method for BorgQueen to process assimilation
+    """
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
-        data.append(newdata)
+        data.append(PMGJSONEncoder().default(newdata))
     status['count'] += 1
     count = status['count']
     total = status['total']
     logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+
 

@@ -26,6 +26,7 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio import Poscar
 from copy import deepcopy
 
+
 class TransformedStructure(object):
     """
     Container object for new structures that include history of transformations.
@@ -281,6 +282,8 @@ class TransformedStructure(object):
         Returns a dict representation of the TransformedStructure.
         """
         d = self._structures[-1].to_dict
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['history'] = self.history
         d['version'] = __version__
         d['last_modified'] = str(datetime.datetime.utcnow())

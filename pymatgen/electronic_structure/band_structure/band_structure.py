@@ -170,6 +170,7 @@ class BandStructure(object):
         if len(self._bands) == 2:
             self._is_spin_polarized = True
 
+
     @property
     def kpoints(self):
         """
