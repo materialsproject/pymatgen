@@ -46,7 +46,7 @@ class ConversionElectrodeTest(unittest.TestCase):
                                          'energy_density': 6528.38954147}
         for f in formulas:
 
-            with open(os.path.join(test_dir, f + ".json"), 'r') as fid:
+            with open(os.path.join(test_dir, f + "_batt.json"), 'r') as fid:
                 entries = computed_entries_from_json(fid.read())
 
             c = ConversionElectrode.from_composition_and_entries(Composition.from_formula(f), entries)
