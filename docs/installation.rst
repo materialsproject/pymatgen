@@ -8,7 +8,7 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
-3. scipy 0.9+ - For interpolation, physical constants and other functions. In 
+3. scipy 0.10+ - For interpolation, physical constants and other functions. In 
    particular, scipy.spatial.Delaunay is used for phase diagram construction.
 
 Optional Python Libraries
@@ -26,7 +26,11 @@ Optional python libraries that are required if you need certain features
 5. Atomistic Simulation Environment or ASE : Required for the usage of the 
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and 
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-6. nose - For complete unittesting. This is NOT optional for developers!
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
+   usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
+   and OpenBabel's OBMol. Opens up input and output support for the very large
+   number of input and output formats supported by OpenBabel.
+7. nose - For complete unittesting. This is NOT optional for developers!
 
 Optional non-Python programs
 ----------------------------
@@ -88,7 +92,8 @@ This section provides a guide for installing various optional libraries used in
 pymatgen.  Some of the python libraries are rather tricky to build in certain 
 operating systems, especially for users unfamiliar with building C/C++ code. 
 Please feel free to send in suggestions to update the instructions based on 
-your experiences.
+your experiences. In all the instructions, it is assumed that you have standard
+gcc and other compilers (e.g., Xcode on Macs) already installed.
 
 Scipy (tested on v0.10.1)
 -------------------------
@@ -172,7 +177,8 @@ VTK (tested on v5.8.0)
 Mac OS X 10.7
 ~~~~~~~~~~~~~
 
-The easiest is to install cmake from http://cmake.org/cmake/resources/software.html
+The easiest is to install cmake from
+http://cmake.org/cmake/resources/software.html.
 
 Type the following:
 
@@ -193,3 +199,41 @@ CMakeCache.txt file is generated, type:
 	
 With any luck, you should have vtk with the necessary python wrappers installed.
 
+OpenBabel (tested on v2.3.0)
+----------------------------
+
+Mac OS X 10.7
+~~~~~~~~~~~~~
+
+openbabel must be compiled with python bindings for integration with pymatgen.
+For some reason, openbabel v2.3.1 is harder to compile on Mac OS Lion than I
+thought. But I managed to get v2.3.0 to work. Here are the steps that I took to
+make it work:
+
+1. Install cmake from http://cmake.org/cmake/resources/software.html.
+2. Download openbabel 2.3.0 *source code* from
+   http://sourceforge.net/projects/openbabel/files/openbabel/2.3.0/.
+3. Download Eigen version 2.0 (newer versions will *not* work) from
+   http://eigen.tuxfamily.org/index.php?title=Main_Page
+4. Extract your Eigen and openbabel source distributions:
+
+::
+
+   tar -zxvf openbabel-2.3.0.tar.gz
+   tar -zxvf eigen2.tar.gz 
+   
+5. Now you should have two directories. Assuming that your openbabel src is in 
+   a directory called "openbabel-2.3.0" and your eigen source is in a directory
+   called "eigen2", do the following steps.
+   
+::
+   mv openbabel-2.3.0 ob-src
+   mkdir ob-build
+   cd ob-build
+   cmake -DPYTHON_BINDINGS=ON -DEIGEN2_INCLUDE_DIR=../eigen2 ../ob-src 2>&1 | tee cmake.out
+   make -j2
+   sudo make install
+   
+With any luck, you should have openbabel with python bindings installed. You can
+test your installation by trying to import openbabel from the python command
+line.

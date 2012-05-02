@@ -63,9 +63,11 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'indices_species_map': self._indices_species_map}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'indices_species_map': self._indices_species_map}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class RemoveSitesTransformation(AbstractTransformation):
@@ -101,9 +103,11 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'indices_to_remove': self._indices}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'indices_to_remove': self._indices}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class TranslateSitesTransformation(AbstractTransformation):
@@ -136,11 +140,13 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'indices_to_move': self._indices,
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'indices_to_move': self._indices,
                                'translation_vector': self._vector,
                                'vector_in_frac_coords': self._frac}
-        return output
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
@@ -400,7 +406,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'indices': self._indices, 'fractions': self._fractions, 'algo':self._algo}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'indices': self._indices, 'fractions': self._fractions, 'algo':self._algo}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 

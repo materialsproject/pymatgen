@@ -41,7 +41,7 @@ Required for proper functioning of the code.
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
-3. scipy 0.9+ - For interpolation, physical constants and other functions. In 
+3. scipy 0.10+ - For interpolation, physical constants and other functions. In 
    particular, scipy.spatial.Delaunay is used for phase diagram construction.
 5. nose - For complete unittesting. This is NOT optional!
 
@@ -54,13 +54,18 @@ Optional python libraries that are required if you need certain features.
 2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For 
    reading and writing Crystallographic Information Format (CIF) files using 
    the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
-3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using the 
-   pymatgen.symmetry package.
+3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using
+   the pymatgen.symmetry package. Note that version 1.2 and above must be
+   installed; older versions are not compatible.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
    Required for the usage of the adapters in pymatgen.io.aseio between
-   pymatgen's core Structure object and the Atoms object used by ASE. 
+   pymatgen's core Structure object and the Atoms object used by ASE.
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
+   usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
+   and OpenBabel's OBMol. Opens up input and output support for the very large
+   number of input and output formats supported by OpenBabel.
 
 ## Optional non-Python programs ##
 

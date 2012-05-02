@@ -23,6 +23,7 @@ Subpackages
     pymatgen.entries
     pymatgen.io
     pymatgen.phasediagram
+    pymatgen.serializers
     pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util
