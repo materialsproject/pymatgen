@@ -289,6 +289,7 @@ class ConversionElectrode(AbstractElectrode):
             d['all_pairs'] = map(f_dict, self.get_sub_electrodes(adjacent_only=False))
         return d
 
+
 class ConversionVoltagePair(AbstractVoltagePair):
     """
     A VoltagePair representing a Conversion Reaction with a defined voltage.
