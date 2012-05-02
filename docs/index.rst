@@ -47,6 +47,8 @@ Latest Change Log (v1.9.0)
 
 1. Completely new json encoder and decoder that support serialization of almost
    all pymatgen objects. See `Using pymatgen`_ section for more details.
+2. Simplification to Borg API utilizing the new json API.
+3. Bandstructure classes now support spin-polarized runs.
 
 .. toctree::
    :maxdepth: 2
