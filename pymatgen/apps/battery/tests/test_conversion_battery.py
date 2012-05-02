@@ -18,7 +18,7 @@ import os
 
 from pymatgen.core.structure import Composition
 
-from pymatgen.apps.battery.conversion_battery import ConversionElectrode
+from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.entries.computed_entries import computed_entries_from_json
 
 import pymatgen
@@ -58,14 +58,22 @@ class ConversionElectrodeTest(unittest.TestCase):
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v)
 
-            d = c.to_dict
-            print d
-            import json
-            print json.dumps(d)
-            c2 = ConversionElectrode.from_dict(d)
-            for k, v in p.items():
-                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v)
             self.assertIsNotNone(c.get_summary_dict(True))
+
+            #Test pair to dict
+
+            pair = c.voltage_pairs[0]
+            d = pair.to_dict
+            pair2 = ConversionVoltagePair.from_dict(d)
+            for prop in ['voltage', 'mass_charge', 'mass_discharge']:
+                self.assertEqual(getattr(pair, prop), getattr(pair2, prop))
+
+            #Test 
+            d = c.to_dict
+            electrode = ConversionElectrode.from_dict(d)
+            for k, v in p.items():
+                self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v)
+
 
 if __name__ == "__main__":
     unittest.main()
