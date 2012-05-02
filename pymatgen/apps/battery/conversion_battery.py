@@ -137,12 +137,10 @@ class ConversionElectrode(AbstractElectrode):
 
         if adjacent_only:
             return [ConversionElectrode(self._el_profile[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._el_profile) - 1)]
-
         sub_electrodes = []
         for i in xrange(len(self._el_profile) - 1):
             for j in xrange(i + 1, len(self._el_profile)):
                 sub_electrodes.append(ConversionElectrode(self._el_profile[i:j + 1], self._working_ion_entry, self._composition))
-
         return sub_electrodes
 
     @property
@@ -240,7 +238,6 @@ class ConversionElectrode(AbstractElectrode):
         d['working_ion_entry'] = self.working_ion_entry.to_dict
         d['initial_comp'] = self._composition.to_dict
         return d
-
 
     def get_summary_dict(self, print_subelectrodes=True):
         '''
