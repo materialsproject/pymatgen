@@ -113,7 +113,12 @@ class Kpoint(object):
         """
         Json-serializable dict representation of a kpoint
         """
-        return {'lattice':self.lattice.to_dict, 'fcoords':list(self.frac_coords), 'ccoords':list(self.cart_coords), 'label':self.label}
+        d = {'lattice':self.lattice.to_dict, 'fcoords':list(self.frac_coords),
+             'ccoords':list(self.cart_coords), 'label':self.label}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
 
 class BandStructure(object):
     """
@@ -146,13 +151,9 @@ class BandStructure(object):
                 fermi energy
         """
 
-
         self._efermi = efermi
-
         self._lattice_rec = lattice
-
         self._kpoints = []
-
         self._labels_dict = {}
 
         for k in kpoints:
@@ -165,13 +166,11 @@ class BandStructure(object):
             self._kpoints.append(Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
 
         self._bands = eigenvals
-
         self._nb_bands = len(eigenvals[Spin.up])
 
         self._is_spin_polarized = False
         if len(self._bands) == 2:
             self._is_spin_polarized = True
-
 
     @property
     def kpoints(self):
@@ -201,6 +200,7 @@ class BandStructure(object):
         """
         return self._is_spin_polarized
 
+
 class BandStructureSymmLine(BandStructure):
     """
     This object stores band structures along selected (symmetry) lines in the
@@ -208,7 +208,8 @@ class BandStructureSymmLine(BandStructure):
     "branches".
     """
 
-    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian=False):
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
+                 coords_are_cartesian=False):
         """
         Args:
             kpoints:
@@ -231,7 +232,8 @@ class BandStructureSymmLine(BandStructure):
             coords_are_cartesian:
                 Whether coordinates are cartesian.
         """
-        super(BandStructureSymmLine, self).__init__(kpoints, eigenvals, lattice, efermi, labels_dict, coords_are_cartesian)
+        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
+                               labels_dict, coords_are_cartesian)
         self._distance = []
         self._branches = []
         one_group = []
@@ -364,7 +366,6 @@ class BandStructureSymmLine(BandStructure):
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
                 'kpoint':kpointvbm, 'energy':max_tmp}
 
-
     def get_cbm(self):
         """
         Returns data about the CBM.
@@ -412,8 +413,8 @@ class BandStructureSymmLine(BandStructure):
             for i in range(self._nb_bands):
                 if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
-        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints, 'kpoint':kpointcbm, 'energy':max_tmp}
-
+        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
+                'kpoint':kpointcbm, 'energy':max_tmp}
 
     def get_band_gap(self):
         """
@@ -440,7 +441,6 @@ class BandStructureSymmLine(BandStructure):
             result['direct'] = True
         result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
-
 
     def is_metal(self):
         """
@@ -470,9 +470,7 @@ class BandStructureSymmLine(BandStructure):
                         above = True
                 if above and below:
                     return True
-
         return False
-
 
     @property
     def to_dict(self):
@@ -480,6 +478,8 @@ class BandStructureSymmLine(BandStructure):
         Json-serializable dict representation of BandStructureSymmLine.
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['lattice_rec'] = self._lattice_rec.to_dict
         d['efermi'] = self._efermi
         d['kpoints'] = []
@@ -490,10 +490,12 @@ class BandStructureSymmLine(BandStructure):
         d['branches'] = self._branches
         d['bands'] = { str(int(spin)) : self._bands[spin] for spin in self._bands}
         d['is_metal'] = self.is_metal()
-        tmp_dict = self.get_vbm()
-        d['VBM'] = {'energy':tmp_dict['energy'], 'kpoint_index':tmp_dict['kpoint_index'], 'band_index':{str(int(spin)) : tmp_dict['band_index'][spin] for spin in tmp_dict['band_index']}}
-        tmp_dict = self.get_cbm()
-        d['CBM'] = {'energy':tmp_dict['energy'], 'kpoint_index':tmp_dict['kpoint_index'], 'band_index':{str(int(spin)) : tmp_dict['band_index'][spin] for spin in tmp_dict['band_index']}}
+        vbm = self.get_vbm()
+        d['VBM'] = {'energy':vbm['energy'], 'kpoint_index':vbm['kpoint_index'],
+                    'band_index':{str(int(spin)) : vbm['band_index'][spin] for spin in vbm['band_index']}}
+        cbm = self.get_cbm()
+        d['CBM'] = {'energy':vbm['energy'], 'kpoint_index':cbm['kpoint_index'],
+                    'band_index':{str(int(spin)) : cbm['band_index'][spin] for spin in cbm['band_index']}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
@@ -505,9 +507,10 @@ class BandStructureSymmLine(BandStructure):
     def from_dict(d):
         """
         Args:
-            a dictionnary with all data for a band structure symm line object
+            A dict with all data for a band structure symm line object.
+            
         Returns:
-            a BandStructureSymmLine object
+            A BandStructureSymmLine object
         """
         labels_dict = d['labels_dict']
         return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice.from_dict(d['lattice_rec']), d['efermi'], labels_dict)
