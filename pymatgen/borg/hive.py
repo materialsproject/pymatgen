@@ -170,7 +170,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return []
 
     def __str__(self):
-        return "VaspToEntryDrone"
+        return " VaspToComputedEntryDrone"
 
     @property
     def to_dict(self):
@@ -181,3 +181,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
+
+    @staticmethod
+    def from_dict(d):
+        return VaspToComputedEntryDrone(**d['init_args'])
