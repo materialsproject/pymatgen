@@ -232,6 +232,8 @@ class SymmOp (object):
     @property
     def to_dict(self):
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['matrix'] = self._matrix.tolist()
         d['tolerance'] = self._tol
         return d

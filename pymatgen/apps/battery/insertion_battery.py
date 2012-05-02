@@ -19,7 +19,7 @@ from pymatgen.core.structure import Composition
 from pymatgen.core.physical_constants import ELECTRON_TO_AMPERE_HOURS
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair, composition_to_multi_dict
+from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 
 
 class InsertionElectrode(AbstractElectrode):
@@ -29,21 +29,21 @@ class InsertionElectrode(AbstractElectrode):
     insertion battery electrode.
     '''
 
-    def __init__(self, entries, entry_ion):
+    def __init__(self, entries, working_ion_entry):
         '''
         Create a new InsertionElectrode.
         
         Args:
             entries:
-                A list of ComputedStructureEntry objects representing the
-                different topotactic states of the battery, e.g. TiO2 and
+                A list of ComputedStructureEntries (or subclasses) representing
+                the different topotactic states of the battery, e.g. TiO2 and
                 LiTiO2.
-            entry_ion:
+            working_ion_entry:
                 A single ComputedEntry or PDEntry representing the element that
                 carries charge across the battery, e.g. Li.
         '''
-        self._working_ion = entry_ion.composition.elements[0]
-        self._entry_ion = entry_ion
+        self._working_ion = working_ion_entry.composition.elements[0]
+        self._working_ion_entry = working_ion_entry
 
         #Prepare to make phase diagram: determine elements and set their energy to be very high
         elements = set()
@@ -70,7 +70,7 @@ class InsertionElectrode(AbstractElectrode):
         self._unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
 
         #create voltage pairs
-        self._vpairs = tuple([InsertionVoltagePair(self._stable_entries[i], self._stable_entries[i + 1], entry_ion) for i in range(len(self._stable_entries) - 1)])
+        self._vpairs = tuple([InsertionVoltagePair(self._stable_entries[i], self._stable_entries[i + 1], working_ion_entry) for i in range(len(self._stable_entries) - 1)])
 
     @property
     def working_ion(self):
@@ -80,8 +80,8 @@ class InsertionElectrode(AbstractElectrode):
         return self._working_ion
 
     @property
-    def entry_ion(self):
-        return self._entry_ion
+    def working_ion_entry(self):
+        return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
@@ -252,7 +252,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(InsertionElectrode(all_entries, self.entry_ion))
+                battery_list.append(InsertionElectrode(all_entries, self.working_ion_entry))
 
         return battery_list
 
@@ -278,7 +278,7 @@ class InsertionElectrode(AbstractElectrode):
         d['energy_vol'] = self.get_energy_density()
         d['working_ion'] = self._working_ion.symbol
         d['nsteps'] = self.num_steps
-        d['framework'] = composition_to_multi_dict(self._vpairs[0].framework)
+        d['framework'] = self._vpairs[0].framework.to_data_dict
         d['formula_charge'] = self.fully_charged_entry.composition.reduced_formula
         d['formula_discharge'] = self.fully_discharged_entry.composition.reduced_formula
         d['fracA_charge'] = self.fully_charged_entry.composition.get_atomic_fraction(self.working_ion)
@@ -301,27 +301,36 @@ class InsertionElectrode(AbstractElectrode):
 
 class InsertionVoltagePair(AbstractVoltagePair):
     '''
-    Defines an insertion voltage pair.
+    Defines an Insertion Voltage Pair.
     '''
 
-    def __init__(self, entry1, entry2, entry_ion):
-
+    def __init__(self, entry1, entry2, working_ion_entry):
+        """
+        Args:
+            entry1:
+                Entry corresponding to one of the entries in the voltage step.
+            entry2:
+                Entry corresponding to the other entry in the voltage step.
+            working_ion_entry:
+                A single ComputedEntry or PDEntry representing the element that
+                carries charge across the battery, e.g. Li.
+        """
         #initialize some internal variables
-        working_element = entry_ion.composition.elements[0]
+        working_element = working_ion_entry.composition.elements[0]
         frame1_dict = entry1.composition.to_dict
         if working_element.symbol in frame1_dict:
             del frame1_dict[working_element.symbol]
-        frame1_comp = Composition.from_dict(frame1_dict)  # composition of the structural framework (no working ion present) in entry 1
+        frame1_comp = Composition.from_dict(frame1_dict)
 
         frame2_dict = entry2.composition.to_dict
         if working_element.symbol in frame2_dict:
             del frame2_dict[working_element.symbol]
-        frame2_comp = Composition.from_dict(frame2_dict)  # composition of the structural framework (no working ion present) in entry 2
+        frame2_comp = Composition.from_dict(frame2_dict)
 
-        #Step 1: Test the validity of the given data
+        #Data validation
 
         #check that the ion is just a single element
-        if not entry_ion.composition.is_element:
+        if not working_ion_entry.composition.is_element:
             raise ValueError('VoltagePair: The working ion specified must be an element')
 
         #check that at least one of the entries contains the working element
@@ -336,43 +345,46 @@ class InsertionVoltagePair(AbstractVoltagePair):
         if not frame1_comp.reduced_formula == frame2_comp.reduced_formula:
             raise ValueError('VoltagePair: the specified entries must have the same compositional framework')
 
-        #Look like we passed all the tests!
-
-        #Step 2: initialize normalization factors, charged and discharged entries
+        #Initialize normalization factors, charged and discharged entries
         entry1_normalization = frame1_comp.get_reduced_formula_and_factor()[1]
         entry2_normalization = frame2_comp.get_reduced_formula_and_factor()[1]
 
         entry1_is_charged = entry1.composition.get_atomic_fraction(working_element) < entry2.composition.get_atomic_fraction(working_element)
 
-        self._entry_charge = entry1 if entry1_is_charged else entry2
-        self._entry_discharge = entry2 if entry1_is_charged else entry1
-        self._normalization_charge = entry1_normalization if entry1_is_charged else entry2_normalization
-        self._normalization_discharge = entry2_normalization if entry1_is_charged else entry1_normalization
+        entry_charge = entry1 if entry1_is_charged else entry2
+        entry_discharge = entry2 if entry1_is_charged else entry1
+        normalization_charge = entry1_normalization if entry1_is_charged else entry2_normalization
+        normalization_discharge = entry2_normalization if entry1_is_charged else entry1_normalization
 
-        self._framework_composition = Composition.from_formula(frame2_comp.get_reduced_formula_and_factor()[0])
-        self._entry_ion = entry_ion
+        self.framework = Composition.from_formula(frame2_comp.get_reduced_formula_and_factor()[0])
+        self._working_ion_entry = working_ion_entry
 
-        #Step 3: initialize normalized properties
-        self._vol_charge = self._entry_charge.structure.volume / self._normalization_charge
-        self._vol_discharge = self._entry_discharge.structure.volume / self._normalization_discharge
+        #Initialize normalized properties
+        self._vol_charge = entry_charge.structure.volume / normalization_charge
+        self._vol_discharge = entry_discharge.structure.volume / normalization_discharge
 
-        self._mass_charge = self._entry_charge.composition.weight / self._normalization_charge
-        self._mass_discharge = self._entry_discharge.composition.weight / self._normalization_discharge
+        comp_charge = entry_charge.composition
+        comp_discharge = entry_discharge.composition
 
-        self._mass_charge = self._entry_charge.composition.weight / self._normalization_charge  # in grams
-        self._mass_discharge = self._entry_discharge.composition.weight / self._normalization_discharge  # in grams
+        self._mass_charge = comp_charge.weight / normalization_charge
+        self._mass_discharge = comp_discharge.weight / normalization_discharge
 
-        self._num_ions_transferred = (self._entry_discharge.composition[working_element] / self._normalization_discharge) - (self._entry_charge.composition[working_element] / self._normalization_charge)
+        self._num_ions_transferred = (comp_discharge[working_element] / normalization_discharge) - (comp_charge[working_element] / normalization_charge)
 
-        self._voltage = ((self._entry_charge.energy / self._normalization_charge) - (self._entry_discharge.energy / self._normalization_discharge)) / self._num_ions_transferred + entry_ion.energy_per_atom
+        self._voltage = ((entry_charge.energy / normalization_charge) - (entry_discharge.energy / normalization_discharge)) / self._num_ions_transferred + working_ion_entry.energy_per_atom
         self._mAh = self._num_ions_transferred * ELECTRON_TO_AMPERE_HOURS * 1000
 
         #Step 4: add (optional) hull and muO2 data
-        self._e_decomp_charge = self._entry_charge.data['decomposition_energy'] if 'decomposition_energy' in self._entry_charge.data else None
-        self._e_decomp_discharge = self._entry_discharge.data['decomposition_energy'] if 'decomposition_energy' in self._entry_discharge.data else None
+        self.decomp_e_charge = entry_charge.data['decomposition_energy'] if 'decomposition_energy' in entry_charge.data else None
+        self.decomp_e_discharge = entry_discharge.data['decomposition_energy'] if 'decomposition_energy' in entry_discharge.data else None
 
-        self._muO2_charge = self._entry_charge.data['muO2'] if 'muO2' in self._entry_charge.data else None
-        self._muO2_discharge = self._entry_discharge.data['muO2'] if 'muO2' in self._entry_discharge.data else None
+        self._muO2_charge = entry_charge.data['muO2'] if 'muO2' in entry_charge.data else None
+        self._muO2_discharge = entry_discharge.data['muO2'] if 'muO2' in entry_discharge.data else None
+
+        self.entry_charge = entry_charge
+        self.entry_discharge = entry_discharge
+        self.normalization_charge = normalization_charge
+        self.normalization_discharge = normalization_discharge
 
     @property
     def voltage(self):
@@ -399,35 +411,5 @@ class InsertionVoltagePair(AbstractVoltagePair):
         return self._vol_discharge
 
     @property
-    def decomp_e_charge(self):
-        return self._e_decomp_charge
-
-    @property
-    def decomp_e_discharge(self):
-        return self._e_decomp_discharge
-
-    @property
-    def muO2_charge(self):
-        return self._muO2_charge
-
-    @property
-    def muO2_discharge(self):
-        return self._muO2_discharge
-
-    @property
-    def entry_charge(self):
-        return self._entry_charge
-
-    @property
-    def entry_discharge(self):
-        return self._entry_discharge
-
-    @property
-    def entry_ion(self):
-        return self._entry_ion
-
-    @property
-    def framework(self):
-        return self._framework_composition
-
-
+    def working_ion_entry(self):
+        return self._working_ion_entry

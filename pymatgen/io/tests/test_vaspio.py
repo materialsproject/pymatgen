@@ -58,6 +58,25 @@ direct
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+        self.selective_poscar = poscar
+
+    def test_to_from_dict(self):
+        poscar_string = """Test3
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O"""
+        poscar = Poscar.from_string(poscar_string)
+        d = poscar.to_dict
+        poscar2 = Poscar.from_dict(d)
+        self.assertEqual(poscar2.comment, "Test3")
+        self.assertTrue(all(poscar2.selective_dynamics[0]))
+        self.assertFalse(all(poscar2.selective_dynamics[1]))
 
     def test_str(self):
         si = 14
@@ -225,7 +244,7 @@ class VasprunTest(unittest.TestCase):
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
-        self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
+        self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
         self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")

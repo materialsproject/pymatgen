@@ -18,6 +18,7 @@ __date__ = "$Nov 22, 2011M$"
 
 import subprocess
 import numpy as np
+import os
 
 
 def run_aconvasp_command(command, structure):
@@ -105,6 +106,8 @@ def get_point_group_rec(structure):
             axis = np.array([float(line.split()[0]), float(line.split()[1]), float(line.split()[2])])
         if(count == 11):
             listUc.append({'matrix':np.array(linetmp), 'type':type_transf, 'axis':axis, 'schoenflies':schoenflies})
-
+    
     f.close()
+    os.remove("aflow.pgroupk.out")
+    
     return listUc

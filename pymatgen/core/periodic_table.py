@@ -624,6 +624,8 @@ class Specie(object):
     @property
     def to_dict(self):
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['element'] = self.symbol
         d['oxidation_state'] = self._oxi_state
         d['properties'] = self._properties
@@ -720,6 +722,8 @@ class DummySpecie(Specie):
     @property
     def to_dict(self):
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['element'] = self.symbol
         d['oxidation_state'] = self._oxi_state
         d['properties'] = self._properties

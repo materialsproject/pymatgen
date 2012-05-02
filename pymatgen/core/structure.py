@@ -253,7 +253,10 @@ class Site(collections.Mapping, collections.Hashable):
                 d['occu'] = occu
                 species_list.append(d)
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d = {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d):
@@ -510,11 +513,14 @@ class PeriodicSite(Site):
                 d = spec.to_dict
                 d['occu'] = occu
                 species_list.append(d)
-        return {'label': self.species_string, 'species': species_list,
-                'occu': occu, 'xyz':[float(c) for c in self._coords],
-                'abc':[float(c) for c in self._fcoords],
-                'lattice': self._lattice.to_dict,
-                'properties': self._properties}
+        d = {'label': self.species_string, 'species': species_list,
+             'occu': occu, 'xyz':[float(c) for c in self._coords],
+             'abc':[float(c) for c in self._fcoords],
+             'lattice': self._lattice.to_dict,
+             'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d, lattice=None):
@@ -1102,6 +1108,8 @@ class Structure(SiteCollection):
         Json-serializable dict representation of Structure
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
         return d
@@ -1214,6 +1222,8 @@ class Molecule(SiteCollection):
         Json-serializable dict representation of Molecule
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['sites'] = [site.to_dict for site in self]
         return d
 
@@ -1779,6 +1789,22 @@ class Composition (collections.Mapping, collections.Hashable):
         reduced_formula = self.reduced_formula
         c = Composition.from_formula(reduced_formula)
         return c.to_dict
+
+    @property
+    def to_data_dict(self):
+        '''
+        Returns a dict with many composition-related properties.
+        
+        Returns:
+            A dict with many keys and values relating to Composition/Formula
+        '''
+        d = {}
+        d['reduced_cell_composition'] = self.to_reduced_dict
+        d['unit_cell_composition'] = self.to_dict
+        d['reduced_cell_formula'] = self.reduced_formula
+        d['elements'] = self.to_dict.keys()
+        d['nelements'] = len(self.to_dict.keys())
+        return d
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
