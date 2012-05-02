@@ -21,11 +21,6 @@ class QhullCallerTest(unittest.TestCase):
         print "Qvoronoi output : " + str(facets)
         self.assertEqual(facets, [[5, 1, 4, 1, 0, 2], [5, 1, 2, 1, 0, 2], [5, 2, 4, 0, 1, 2]], "Qvoronoi gave wrong answers")
     
-    def test_qvertex_target(self):
-        data = [[-0.5,0,-0.5],[-0.5,0.5,0],[0.5,-0.5,1],[0.5,0.5,2],[0.5,1,2]]
-        facets = qvertex_target(data)
-        print "Qvoronoi output : " + str(facets)
-        self.assertEqual(facets, [[5, 1, 4, 1, 0, 2], [5, 1, 2, 1, 0, 2], [5, 2, 4, 0, 1, 2]], "Qvoronoi gave wrong answers")
     
 if __name__ == '__main__':
     unittest.main()

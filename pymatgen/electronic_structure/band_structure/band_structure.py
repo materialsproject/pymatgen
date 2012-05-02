@@ -295,8 +295,9 @@ class BandStructureSymmLine(BandStructure):
                 the kpoint index
         
         Returns:
-            A list of {'name','start_index','end_index','index'} dictionaries indicating all branches
-            in which the k_point is
+            A list of dictionaries [{'name','start_index','end_index','index'}] indicating all branches
+            in which the k_point is. It takes into account the fact that one kpoint (e.g., \Gamma) can be
+            in several branches
         """
         to_return = []
         for i in self.get_equivalent_kpoints(index):
@@ -314,7 +315,7 @@ class BandStructureSymmLine(BandStructure):
             'band_index':
                 A dict with spin keys pointing to a list of the indices of the
                 band containing the VBM (please note that you can have several
-                bands sharing the VBM)
+                bands sharing the VBM) {Spin.up:[],Spin.down:[]}
             'kpoint_index':
                 The list of indices in self._kpoints for the kpoint vbm. Please
                 note that there can be several kpoint_indices relating to the
@@ -365,7 +366,7 @@ class BandStructureSymmLine(BandStructure):
             'band_index':
                 A dict with spin keys pointing to a list of the indices of the
                 band containing the CBM (please note that you can have several
-                bands sharing the CBM)
+                bands sharing the CBM) {Spin.up:[],Spin.down:[]}
             'kpoint_index':
                 The list of indices in self._kpoints for the kpoint vbm. Please
                 note that there can be several kpoint_indices relating to the

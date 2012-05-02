@@ -205,10 +205,9 @@ class BSPlotter(object):
                 tick_distance.append(self._bs._distance[i])
                 this_branch = None
                 for b in self._bs._branches:
-                    if i >= b['start_index'] and i <= ['end_index']:
-                        this_branch=b['name']
+                    if i >= b['start_index'] and i <= b['end_index']:
+                        this_branch = b['name']
                         break
-                        
                 if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
