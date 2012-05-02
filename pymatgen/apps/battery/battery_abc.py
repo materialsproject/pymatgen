@@ -62,10 +62,7 @@ class AbstractElectrode(Sequence):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
-    three abstract properties:
-        voltage_pairs
-        working_ion and
-        working_ion_entry.
+    three abstract properties: voltage_pairs, working_ion and working_ion_entry.
     
     The general concept is that all other battery properties such as capacity,
     etc. are derived from voltage pairs.
