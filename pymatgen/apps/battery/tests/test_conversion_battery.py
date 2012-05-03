@@ -56,7 +56,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             p = expected_properties[f]
 
             for k, v in p.items():
-                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v)
+                self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
 
             self.assertIsNotNone(c.get_summary_dict(True))
 
