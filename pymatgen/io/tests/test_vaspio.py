@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar, PotcarSingle
+from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar, PotcarSingle, Locpot, Chgcar
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Composition, Structure
 from numpy import array
@@ -124,6 +124,7 @@ class  IncarTest(unittest.TestCase):
         incar2 = Incar.from_dict(d)
         self.assertEqual(incar, incar2)
 
+
 class  KpointsTest(unittest.TestCase):
 
     def test_init(self):
@@ -185,6 +186,7 @@ class  KpointsTest(unittest.TestCase):
         #self.assertEqual(k.style, k2.style)
         #self.assertEqual(k.kpts_shift, k2.kpts_shift)
         #self.assertEqual(k.num_kpts, k2.num_kpts)
+
 
 class PotcarSingleTest(unittest.TestCase):
 
@@ -278,6 +280,7 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
 
+
 class OutcarTest(unittest.TestCase):
 
     def test_init(self):
@@ -300,6 +303,7 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+
 class OszicarTest(unittest.TestCase):
 
     def test_init(self):
@@ -308,6 +312,29 @@ class OszicarTest(unittest.TestCase):
         self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
         self.assertEqual(len(oszicar.all_energies), 60)
         self.assertAlmostEqual(oszicar.final_energy, -526.63928)
+
+
+class LocpotTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'LOCPOT')
+        locpot = Locpot(filepath)
+        self.assertAlmostEqual(-217.05226954, sum(locpot.get_avg_potential_along_axis(0)))
+        self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.8762886788306927)
+        self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.8762886788306927)
+        self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.8762886788306927)
+
+
+class ChgcarTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'CHGCAR.nospin')
+        chg = Chgcar(filepath)
+        self.assertAlmostEqual(chg.get_diff_int_charge(0, 2), 0)
+        filepath = os.path.join(test_dir, 'CHGCAR.spin')
+        chg = Chgcar(filepath)
+        self.assertAlmostEqual(chg.get_diff_int_charge(0, 1), -0.00438969322375)
+
 
 if __name__ == '__main__':
     unittest.main()
