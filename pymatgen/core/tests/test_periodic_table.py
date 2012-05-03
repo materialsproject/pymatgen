@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie, PeriodicTable
 from copy import deepcopy
 
 class  ElementTestCase(unittest.TestCase):
@@ -49,14 +49,13 @@ class  ElementTestCase(unittest.TestCase):
                         "vickers_hardness", "density_of_solid", "coefficient_of_linear_thermal_expansion", "oxidation_states", "common_oxidation_states", 'average_ionic_radius', 'ionic_radii']
 
         #Test all elements up to Uranium
-        for i in xrange(1, 93):
+        for i in range(1, 93):
             for k in keys:
                 self.assertIsNotNone(getattr(Element.from_Z(i), k))
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states), el.max_oxidation_state)
                 self.assertEqual(min(el.oxidation_states), el.min_oxidation_state)
-
 
     def test_oxidation_states(self):
         el = Element("Fe")
@@ -69,12 +68,21 @@ class  ElementTestCase(unittest.TestCase):
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Element list")
 
+    def test_attribute_errors(self):
+        fe = Element("Fe")
+        self.assertRaises(ValueError, fe.__setattr__, "d", 1)
+        self.assertRaises(ValueError, fe.__delattr__, "_symbol")
+
 class  SpecieTestCase(unittest.TestCase):
 
     def setUp(self):
         self.specie1 = Specie.from_string("Fe2+")
         self.specie2 = Specie("Fe", 3)
         self.specie3 = Specie("Fe", 2)
+        self.specie4 = Specie("Fe", 2, {'spin':5})
+
+    def test_init(self):
+        self.assertRaises(ValueError, Specie, "Fe", 2, {'magmom':5})
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5)
@@ -83,18 +91,27 @@ class  SpecieTestCase(unittest.TestCase):
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3, "Static and actual constructor for Fe2+_ gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2, "Fe2+ should not be equal to Fe3+")
+        self.assertEqual(self.specie4, self.specie3, "Species with same oxi state and element should be equal!")
+        self.assertFalse(self.specie1 == Element("Fe"))
+        self.assertFalse(Element("Fe") == self.specie1)
 
     def test_cmp(self):
         self.assertTrue(self.specie1 < self.specie2, "Fe2+ should be < Fe3+")
 
     def test_attr(self):
         self.assertEqual(self.specie1.Z, 26, "Z attribute for Fe2+ should be the same as that for Element Fe.")
+        self.assertEqual(self.specie4.spin, 5)
 
     def test_deepcopy(self):
         el1 = Specie("Fe", 4)
         el2 = Specie("Na", 1)
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy of Specie list")
+
+    def test_attribute_errors(self):
+        fe = Specie("Fe", 2)
+        self.assertRaises(ValueError, fe.__setattr__, "d", 1)
+        self.assertRaises(ValueError, fe.__delattr__, "_symbol")
 
 class  DummySpecieTestCase(unittest.TestCase):
 
@@ -103,12 +120,21 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, DummySpecie, 'Xe')
         self.assertRaises(ValueError, DummySpecie, 'Xec')
         self.assertRaises(ValueError, DummySpecie, 'Vac')
+        self.specie2 = DummySpecie("X", 2, {'spin':3})
+        self.assertEqual(self.specie2.spin, 3)
 
     def test_from_string(self):
         sp = DummySpecie.from_string("X")
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+
+    def test_attribute_errors(self):
+        x = DummySpecie("X", 2)
+        print x.to_dict
+        self.assertRaises(ValueError, x.__setattr__, "d", 1)
+        self.assertRaises(ValueError, x.__delattr__, "_symbol")
+
 
 class  PeriodicTableTestCase(unittest.TestCase):
 
@@ -130,6 +156,9 @@ class  PeriodicTableTestCase(unittest.TestCase):
 
             for a in all_attr:
                 self.assertIsNotNone(el, a)
+
+    def test_print_periodic_table(self):
+        PeriodicTable().print_periodic_table()
 
 
 if __name__ == '__main__':

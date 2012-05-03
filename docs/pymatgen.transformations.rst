@@ -25,9 +25,3 @@ transformations Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
-
-.. toctree::
-
-
