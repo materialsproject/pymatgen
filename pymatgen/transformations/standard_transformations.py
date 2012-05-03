@@ -994,6 +994,12 @@ def transformation_from_dict(d):
     A helper function that simply returns a transformation from a dict
     representation.
     
+    .. deprecated:: 1.9.0
+    
+        transformations_from_json has been deprecated from pymatgen v1.9.0 and
+        will be removed in v2.0.0. Please use the from_dict method or
+        PMGJSONDecoder instead.
+    
     Args:
         d:
             A dict representation of a transformation with init args.
@@ -1001,6 +1007,8 @@ def transformation_from_dict(d):
     Returns:
         A properly initialized Transformation object
     """
+    import warnings
+    warnings.warn("transformations_from_dict has been deprecated from pymatgen v1.9.0 and will be removed in v2.0.0. Please use the from_dict method or PMGJSONDecoder instead.")
     for trans_modules in ['standard_transformations', 'site_transformations']:
         mod = __import__('pymatgen.transformations.' + trans_modules, globals(), locals(), [d['name']], -1)
         if hasattr(mod, d['name']):
@@ -1014,6 +1022,12 @@ def transformation_from_json(json_string):
     A helper function that can simply get a transformation from a json
     representation.
     
+    .. deprecated:: 1.9.0
+    
+        transformations_from_json has been deprecated from pymatgen v1.9.0 and
+        will be removed in v2.0.0. Please use the from_dict method or
+        PMGJSONDecoder instead.
+    
     Args:
         json_string:
             A json string representation of a transformation with init args.
@@ -1021,6 +1035,9 @@ def transformation_from_json(json_string):
     Returns:
         A properly initialized Transformation object
     """
+    import warnings
+    warnings.warn("transformations_from_json has been deprecated from pymatgen v1.9.0 and will be removed in v2.0.0. Please use the from_dict method or PMGJSONDecoder instead.")
+
     jsonobj = json.loads(json_string)
     return transformation_from_dict(jsonobj)
 
