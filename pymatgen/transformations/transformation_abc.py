@@ -72,7 +72,6 @@ class AbstractTransformation(object):
     def to_json(self):
         return json.dumps(self.to_dict)
 
-
     @abc.abstractproperty
     def to_dict(self):
         '''
