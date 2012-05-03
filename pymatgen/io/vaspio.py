@@ -1195,12 +1195,11 @@ class Vasprun(object):
                 #remove parts of the xml file and parse the string
                 run = f.read()
                 steps = run.split('<calculation>')
-                #the last split contains the last ionic step which is added later
-                new_steps = steps[:-1:int(ionic_step_skip)]
-                new_run = '<calculation>'.join(new_steps)
-                #add the final position from the runs
-                new_run += steps[-1].split('</calculation>')[1]
-                self._parser = xml.sax.parseString(new_run, self._handler)
+                new_steps = steps[::int(ionic_step_skip)]
+                #add the last step from the run
+                if steps[-1] != new_steps[-1]:
+                    new_steps.append(steps[-1])
+                self._parser = xml.sax.parseString('<calculation>'.join(new_steps), self._handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(self._handler, k))
 
