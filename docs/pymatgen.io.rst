@@ -17,6 +17,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`babelio` Module
+---------------------
+
+.. automodule:: pymatgen.io.babelio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`cifio` Module
 -------------------
 
@@ -29,6 +37,14 @@ io Package
 --------------------
 
 .. automodule:: pymatgen.io.cssrio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`gaussianio` Module
+------------------------
+
+.. automodule:: pymatgen.io.gaussianio
     :members:
     :undoc-members:
     :show-inheritance:
@@ -57,9 +73,11 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-Subpackages
------------
+:mod:`xyzio` Module
+-------------------
 
-.. toctree::
-
+.. automodule:: pymatgen.io.xyzio
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

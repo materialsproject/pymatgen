@@ -1,6 +1,14 @@
 alchemy Package
 ===============
 
+:mod:`alchemy` Package
+----------------------
+
+.. automodule:: pymatgen.alchemy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`materials` Module
 -----------------------
 
@@ -16,10 +24,4 @@ alchemy Package
     :members:
     :undoc-members:
     :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-
 

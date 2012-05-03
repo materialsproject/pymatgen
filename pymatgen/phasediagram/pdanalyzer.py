@@ -6,13 +6,13 @@ This module provides classes for analyzing phase diagrams.
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ ="$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
 import numpy as np
 from pymatgen.core.structure import Composition
@@ -23,9 +23,9 @@ class PDAnalyzer(object):
     """
     A class for performing analyses on Phase Diagrams.
     """
-    
+
     numerical_tol = 1e-8
-    
+
     def __init__(self, pd):
         """
         Args:
@@ -33,7 +33,7 @@ class PDAnalyzer(object):
         """
         self._pd = pd
 
-    def _make_comp_matrix(self,complist):
+    def _make_comp_matrix(self, complist):
         """
         Helper function to generates a normalized composition matrix from a list of composition.
         """
@@ -57,16 +57,16 @@ class PDAnalyzer(object):
         """
         dim = len(self._pd.elements)
         if dim > 1:
-            origin = np.array(self._pd.qhull_data[facet[0]][0:dim-1])
-            cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim-1]) - origin for i in xrange(1, len(facet))])
-            row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1,len(self._pd.elements))]
+            origin = np.array(self._pd.qhull_data[facet[0]][0:dim - 1])
+            cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim - 1]) - origin for i in xrange(1, len(facet))])
+            row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1, len(self._pd.elements))]
             compm = np.array(row) - origin
             coeffs = np.linalg.solve(cm.transpose(), compm)
             return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
         else:
             return True
 
-    def _get_facets(self,comp):
+    def _get_facets(self, comp):
         """
         Get the facets that a composition falls into.
         """
@@ -75,8 +75,8 @@ class PDAnalyzer(object):
             if self._in_facet(facet, comp):
                 memberfacets.append(facet)
         return memberfacets
-    
-    def _get_facet(self,comp):
+
+    def _get_facet(self, comp):
         """
         Get the facets that a composition falls into.
         """
@@ -99,14 +99,14 @@ class PDAnalyzer(object):
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         m = self._make_comp_matrix(complist)
         compm = self._make_comp_matrix([comp])
-        decompamts = np.dot(np.linalg.inv(m.transpose()),compm.transpose())
+        decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
         decomp = dict()
         #Scrub away zero amounts
         for i in xrange(len(decompamts)):
             if abs(decompamts[i][0]) > PDAnalyzer.numerical_tol:
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp
-    
+
     def get_decomp_and_e_above_hull(self, entry):
         """
         Provides the decomposition and energy above convex hull for an entry
@@ -121,7 +121,7 @@ class PDAnalyzer(object):
         comp = entry.composition
         eperatom = entry.energy_per_atom
         decomp = self.get_decomposition(comp)
-        hullenergy = sum([entry.energy_per_atom*amt for entry, amt in decomp.items()])
+        hullenergy = sum([entry.energy_per_atom * amt for entry, amt in decomp.items()])
         if abs(eperatom) < PDAnalyzer.numerical_tol:
             return (decomp, 0)
         return (decomp, eperatom - hullenergy)
@@ -157,7 +157,7 @@ class PDAnalyzer(object):
         modpd = PhaseDiagram(entries, self._pd.elements)
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
-    
+
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase Diagram.
@@ -177,19 +177,19 @@ class PDAnalyzer(object):
             complist = [self._pd.qhull_entries[i].composition for i in facet]
             energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
             m = self._make_comp_matrix(complist)
-            chempots = np.dot(np.linalg.inv(m),energylist)
+            chempots = np.dot(np.linalg.inv(m), energylist)
             critical_chempots.append(chempots[ind])
-                
+
         clean_pots = []
         for c in sorted(critical_chempots):
             if len(clean_pots) == 0:
                 clean_pots.append(c)
             else:
-                if abs(c-clean_pots[-1]) > PDAnalyzer.numerical_tol:
+                if abs(c - clean_pots[-1]) > PDAnalyzer.numerical_tol:
                     clean_pots.append(c)
         clean_pots.reverse()
         return tuple(clean_pots)
-    
+
     def get_element_profile(self, element, comp):
         """
         Provides the element evolution data for a composition.
@@ -219,9 +219,9 @@ class PDAnalyzer(object):
                 if comp not in decomp1:
                     return False
             return True
-        
+
         for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c-0.01}, self._pd.elements)
+            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01}, self._pd.elements)
             analyzer = PDAnalyzer(gcpd)
             decomp = [gcentry.original_entry.composition for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
             decomp_entries = [gcentry.original_entry for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
@@ -232,6 +232,6 @@ class PDAnalyzer(object):
                 rxn = Reaction([comp], decomp)
                 rxn.normalize_to(comp)
                 prev_decomp = decomp
-                evolution.append({'chempot':c, 'evolution' : - rxn.coeffs[rxn.all_comp.index(elcomp)], 'element_reference': elref, 'reaction':rxn, 'entries':decomp_entries})
-            
+                evolution.append({'chempot':c, 'evolution' :-rxn.coeffs[rxn.all_comp.index(elcomp)], 'element_reference': elref, 'reaction':rxn, 'entries':decomp_entries})
+
         return evolution

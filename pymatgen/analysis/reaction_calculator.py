@@ -32,13 +32,17 @@ class Reaction(object):
 
     def __init__(self, reactants, products):
         """
-        Reactants and products to be specified as list of pymatgen.core.structure.Composition.  
-        e.g., [comp1, comp2]
+        Reactants and products to be specified as list of 
+        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
         
         Args:
-            reactants : List of reactants.
-            products : List of products.
+            reactants: 
+                List of reactants.
+            products:
+                List of products.
         """
+        self._input_reactants = reactants
+        self._input_products = products
         all_comp = reactants[:]
         all_comp.extend(products[:])
         els = set()
@@ -144,7 +148,7 @@ class Reaction(object):
         """
         return sum([self._coeffs[i] * energies[self._all_comp[i]] for i in range(self._num_comp)])
 
-    def normalize_to(self, comp, factor = 1):
+    def normalize_to(self, comp, factor=1):
         """
         Normalizes the reaction to one of the compositions.
         By default, normalizes such that the composition given has a coefficient of 1.
@@ -153,7 +157,7 @@ class Reaction(object):
         scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
 
-    def normalize_to_element(self, element, target_amount = 1):
+    def normalize_to_element(self, element, target_amount=1):
         """
         Normalizes the reaction to one of the elements.
         By default, normalizes such that the amount of the element is 1.
@@ -189,17 +193,22 @@ class Reaction(object):
 
     @property
     def reactants(self):
-        """List of reactants"""
-
+        """
+        List of reactants
+        """
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] < 0]
 
     @property
     def products(self):
-        """List of products"""
+        """
+        List of products
+        """
         return [self._all_comp[i] for i in xrange(len(self._all_comp)) if self._coeffs[i] > 0]
 
     def get_coeff(self, comp):
-        """Returns coefficient for a particular composition"""
+        """
+        Returns coefficient for a particular composition
+        """
         return self._coeffs[self._all_comp.index(comp)]
 
     def normalized_repr_and_factor(self):
@@ -259,13 +268,28 @@ class Reaction(object):
                 reactant_str.append("%.3f %s" % (-scaled_coeff, comp.reduced_formula))
             elif scaled_coeff > 0:
                 product_str.append("%.3f %s" % (scaled_coeff, comp.reduced_formula))
-
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['reactants'] = [comp.to_dict for comp in self._input_reactants]
+        d['products'] = [comp.to_dict for comp in self._input_products]
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        reactants = [Composition(sym_amt) for sym_amt in d['reactants']]
+        products = [Composition(sym_amt) for sym_amt in d['products']]
+        return Reaction(reactants, products)
 
 
 def smart_float_gcd(list_of_floats):
     """
-    Determines the great common denominator (gcd).  Works on floats as well as integers.
+    Determines the great common denominator (gcd).  Works on floats as well as
+    integers.
     
     Args:
         list_of_floats: List of floats to determine gcd.
@@ -281,8 +305,8 @@ def smart_float_gcd(list_of_floats):
 
 class ReactionError(Exception):
     '''
-    Exception class for Reactions. Allows more information exception messages to cover situations not
-    covered by standard exception classes.
+    Exception class for Reactions. Allows more information exception messages
+    to cover situations not covered by standard exception classes.
     '''
 
     def __init__(self, msg):
@@ -303,9 +327,10 @@ class BalancedReaction(Reaction):
         pymatgen.core.structure.Composition : coeff.  
         
         Args:
-            reactants : List of reactants.
-            products : List of products.
+            reactants : Reactants as dict of {Composition: amt}.
+            products : Products as dict of {Composition: amt}.
         """
+
         coeffs = []
         all_comp = []
         for comp, c in reactants_coeffs.items():
@@ -338,8 +363,79 @@ class BalancedReaction(Reaction):
             if abs(v) > Reaction.TOLERANCE:
                 raise ReactionError("Reaction is unbalanced with {}!".format(v))
 
+        self._input_rct = reactants_coeffs
+        self._input_prd = products_coeffs
+
         self._els = els
         self._all_comp = all_comp
         self._coeffs = coeffs
         self._num_comp = len(self._all_comp)
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        #String comp needed because comp.to_dict results in dict which is non-hashable
+        d['reactants'] = {str(comp):coeff for comp, coeff in self._input_rct.items()}
+        d['products'] = {str(comp):coeff for comp, coeff in self._input_prd.items()}
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        reactants = {Composition(comp):coeff for comp, coeff in d['reactants'].items()}
+        products = {Composition(comp):coeff for comp, coeff in d['products'].items()}
+        return BalancedReaction(reactants, products)
+
+
+class ComputedReaction(Reaction):
+    """
+    Convenience class to generate a reaction from ComputedEntry objects, with
+    some additional attributes, such as a reaction energy based on computed
+    energies.
+    """
+
+    def __init__(self, reactant_entries, product_entries):
+        """
+        Args:
+            reactant_entries: 
+                List of reactant_entries.
+            products: 
+                List of product_entries.
+        """
+        self._reactant_entries = reactant_entries
+        self._product_entries = product_entries
+        reactant_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in reactant_entries])
+        product_comp = set([e.composition.get_reduced_composition_and_factor()[0] for e in product_entries])
+        super(ComputedReaction, self).__init__(list(reactant_comp), list(product_comp))
+
+    @property
+    def calculated_reaction_energy(self):
+        calc_energies = {}
+        def update_calc_energies(entry):
+            (comp, factor) = entry.composition.get_reduced_composition_and_factor()
+            if comp not in calc_energies:
+                calc_energies[comp] = entry.energy / factor
+            else:
+                calc_energies[comp] = min(calc_energies[comp], entry.energy / factor)
+        map(update_calc_energies, self._reactant_entries)
+        map(update_calc_energies, self._product_entries)
+        return self.calculate_energy(calc_energies)
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        #String comp needed because comp.to_dict results in dict which is non-hashable
+        d['reactants'] = [e.to_dict for e in self._reactant_entries]
+        d['products'] = [e.to_dict for e in self._product_entries]
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        from pymatgen.serializers.json_coders import PMGJSONDecoder
+        dec = PMGJSONDecoder()
+        reactants = [dec.process_decoded(e) for e in d['reactants']]
+        products = [dec.process_decoded(e) for e in d['products']]
+        return ComputedReaction(reactants, products)

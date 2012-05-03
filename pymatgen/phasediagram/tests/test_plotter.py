@@ -5,6 +5,7 @@ from pymatgen.phasediagram.entries import PDEntryIO
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.plotter import PDPlotter, uniquelines
 
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 class PDPlotterTest(unittest.TestCase):
