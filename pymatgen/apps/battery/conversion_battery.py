@@ -12,6 +12,7 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Feb 1, 2012"
+__status__ = "Beta"
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.physical_constants import ELECTRON_TO_AMPERE_HOURS
