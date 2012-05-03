@@ -37,7 +37,7 @@ class PMGJSONEncoder(json.JSONEncoder):
     
     Usage:
         Add it as a *cls* keyword when using json.dump
-        json.dumps(object, cls=PMGJSONDecoder)
+        json.dumps(object, cls=PMGJSONEncoder)
     """
 
     def default(self, o):
