@@ -800,6 +800,48 @@ class ChargeBalanceTransformation(AbstractTransformation):
         d['class'] = self.__class__.__name__
         return d
 
+class PerturbStructureTransformation(AbstractTransformation):
+    """
+    This transformation perturbs a structure by a specified distance in random
+    directions. Used for breaking symmetries.
+    """
+
+    def __init__(self, amplitude=0.1):
+        """
+        Args:
+            amplitude:
+                Amplitude of perturbation in angstroms. All sites will be
+                perturbed by exactly that amplitude in a random direction.
+        """
+        self._amp = amplitude
+
+    def apply_transformation(self, structure):
+        editor = StructureEditor(structure)
+        editor.perturb_structure(self._amp)
+        return editor.modified_structure
+
+    def __str__(self):
+        return "Perturb Structure Transformation : Amplitude = {}".format(self._amp)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__ }
+        d['init_args'] = {'amplitude' : self._amp}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
 
 class SuperTransformation(AbstractTransformation):
     '''

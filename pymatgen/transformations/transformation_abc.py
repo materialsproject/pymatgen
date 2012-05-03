@@ -77,8 +77,19 @@ class AbstractTransformation(object):
     def to_dict(self):
         '''
         Creates a json representation of the transformation, which must contain
-        all necessary information to allow a reconstruction from a from_json static method.
+        all necessary information to allow a reconstruction from a from_json
+        static method.
+        
         Format should follow:
         {'name' : transformation_class_name, 'init_arguments' : (init arguments)}
         '''
         return
+
+    @staticmethod
+    def from_dict(d):
+        for trans_modules in ['standard_transformations', 'site_transformations']:
+            mod = __import__('pymatgen.transformations.' + trans_modules, globals(), locals(), [d['name']], -1)
+            if hasattr(mod, d['name']):
+                trans = getattr(mod, d['name'])
+                return trans(**d['init_args'])
+        raise ValueError("Invalid Transformations dict")
