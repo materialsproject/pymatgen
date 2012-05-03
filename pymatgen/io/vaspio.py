@@ -1075,10 +1075,10 @@ class Potcar(list, VaspInput):
                 f = None
                 if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
                     f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
-                if os.path.exists(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR")):
-                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el)+"/POTCAR"), 'rb')
+                if os.path.exists(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR")):
+                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR"), 'rb')
                 if f == None:
-                    raise IOError("You do not have the right POTCAR ("+str(el)+") in your VASP_PSP_DIR")
+                    raise IOError("You do not have the right POTCAR (" + str(el) + ") in your VASP_PSP_DIR")
                 self.append(PotcarSingle(f.read()))
 
 
@@ -1186,7 +1186,7 @@ class Vasprun(object):
                 are not interested in getting those data.
         """
         self.filename = filename
-        
+
         with file_open_zip_aware(filename) as f:
             self._handler = VasprunHandler(filename, read_electronic_structure=read_electronic_structure)
             if ionic_step_skip == None:
@@ -1326,16 +1326,16 @@ class Vasprun(object):
         kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
 
-        eigenvals={}
+        eigenvals = {}
         if dict_eigen['1'].has_key('up') and dict_eigen['1'].has_key('down') and self.incar['ISPIN'] == 2:
-            eigenvals = {Spin.up:[],Spin.down:[]}
+            eigenvals = {Spin.up:[], Spin.down:[]}
         else:
             eigenvals = {Spin.up:[]}
-            
+
         neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
         min_eigenvalues = min(neigenvalues)
 
-        
+
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
         if eigenvals.has_key(Spin.down):
@@ -2077,6 +2077,12 @@ class VolumetricData(object):
         self.ngridpts = 0
         self._read_file(filename)
 
+    def get_axis_grid(self, ind):
+        ng = self.dim
+        num_pts = ng[ind]
+        lengths = self.poscar.struct.lattice.abc
+        return [i / num_pts * lengths[ind] for i in xrange(num_pts)]
+
     def __add__(self, other):
         return self.linear_add(other, 1.0)
 
@@ -2199,6 +2205,7 @@ class Locpot(VolumetricData):
             avg[i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
         return avg
 
+
 class Chgcar(VolumetricData):
     """
     Simple object for reading a CHGCAR file.
@@ -2213,8 +2220,8 @@ class Chgcar(VolumetricData):
         # Chgcar format is total density in first set, and moment density in
         # second set. Need to split them into up and down.
         updowndata = dict()
-        updowndata[Spin.up] = 0.5 * (self.data[Spin.up] + self.data[Spin.down])
-        updowndata[Spin.down] = 0.5 * (self.data[Spin.up] - self.data[Spin.down])
+        updowndata[Spin.up] = 0.5 * (self.data[Spin.up] + self.data.get(Spin.down, 0))
+        updowndata[Spin.down] = 0.5 * (self.data[Spin.up] - self.data.get(Spin.down, 0))
         self.data = updowndata
         self._distance_matrix = dict()
 
@@ -2327,6 +2334,7 @@ class Procar(object):
                     self.data[index] = self.data[index] + np.array(linefloatdata) * weight
                 else:
                     self.data[index] = np.array(linefloatdata) * weight
+
 
 class Oszicar(object):
     """
@@ -2442,13 +2450,13 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
         sorted_branch_dir_names = sorted(branch_dir_names, key=sort_by)
 
         # populate branches with Bandstructure instances
-        branches=[]
+        branches = []
 
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, 'vasprun.xml')
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file)
-                branches.append(run.get_band_structure(efermi = efermi))
+                branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # It might be better to throw an exception
                 warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
