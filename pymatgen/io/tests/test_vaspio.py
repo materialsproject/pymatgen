@@ -320,9 +320,9 @@ class LocpotTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'LOCPOT')
         locpot = Locpot(filepath)
         self.assertAlmostEqual(-217.05226954, sum(locpot.get_avg_potential_along_axis(0)))
-        self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.8762886788306927)
-        self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.8762886788306927)
-        self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.8762886788306927)
+        self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.87629, 2)
+        self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.87629, 2)
+        self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.87629, 2)
 
 
 class ChgcarTest(unittest.TestCase):
