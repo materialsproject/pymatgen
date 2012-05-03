@@ -16,6 +16,7 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Feb 1, 2012"
+__status__ = "Beta"
 
 from collections import Sequence
 from abc import ABCMeta, abstractproperty
