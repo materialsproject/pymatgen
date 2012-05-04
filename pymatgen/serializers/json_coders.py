@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 '''
+.. versionadded:: 1.9.0
+
 General JSON encoders and decoders for pymatgen. Only supports pymatgen objects
 version >= 1.9.0.
 

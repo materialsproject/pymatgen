@@ -66,8 +66,10 @@ choices. JSON is much more efficient as a format, with extremely fast read/write
 speed, but is much less readable. YAML is an order of magnitude or more slower
 in terms of parsing, but is more human readable.
 
-New in version 1.9.0 - PMG JSON encoder/decoder
------------------------------------------------
+PMG JSON encoder/decoder
+------------------------
+
+.. versionadded:: 1.9.0
 
 In version 1.9.0 of pymatgen, a brand new serialization framework is
 implemented. Extensions of the standard Python JSONEncoder and JSONDecoder is
