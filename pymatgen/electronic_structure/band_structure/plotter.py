@@ -60,16 +60,16 @@ class BSPlotter(object):
         if not zero_to_efermi:
             zero_energy = 0.0
 
-        energy = {Spin.up:[]}
+        energy = {str(Spin.up): []}
         if self._bs.is_spin_polarized:
-            energy = energy = {Spin.up:[], Spin.down:[]}
+            energy = {str(Spin.up): [], str(Spin.down): []}
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            energy[Spin.up].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+            energy[str(Spin.up)].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-                energy[Spin.down].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+                energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy}
 
