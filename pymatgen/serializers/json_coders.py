@@ -12,10 +12,13 @@ Entry and  all Transformations. Note that nested lists and dicts of these
 objects are supported as well.
 
 .. note::
+
     The decoder depends on finding a "module" and "class" key in the dict in
     order to decode the necessary python object. All to_dict properties must
-    therefore have the module name and class embedded. The easiest way is to
-    add the following to any to_dict property::
+    therefore have the module name and class embedded. In general, the
+    PMGJSONEncoder will add these keys if they are not present, but for better
+    long term stability, the easiest way is to add the following to any to_dict
+    property::
     
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
@@ -44,7 +47,12 @@ class PMGJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         try:
-            return o.to_dict
+            d = o.to_dict
+            if "module" not in d:
+                d["module"] = o.__class__.__module__
+            if "class" not in d:
+                d['class'] = o.__class__.__name__
+            return d
         except:
             return json.JSONEncoder.default(self, o)
 
@@ -69,10 +77,12 @@ class PMGJSONDecoder(json.JSONDecoder):
         """
         if isinstance(d, dict):
             if 'module' in d and 'class' in d:
+
                 mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])
-                    return cls.from_dict(d)
+                    data = {k:v for k, v in d.items() if k not in ["module", "class"]}
+                    return cls.from_dict(data)
             else:
                 return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
         elif isinstance(d, list):
