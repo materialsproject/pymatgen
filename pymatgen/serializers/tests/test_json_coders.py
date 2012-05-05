@@ -17,6 +17,7 @@ import unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.transformations.standard_transformations import IdentityTransformation
 import json
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
@@ -28,7 +29,7 @@ class PMGJSONTest(unittest.TestCase):
         coords.append([0.75, 0.5, 0.75])
         lattice = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
-        objs = [struct, struct[0], struct.lattice, struct[0].specie]
+        objs = [struct, struct[0], struct.lattice, struct[0].specie, struct.composition]
         for o in  objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)
@@ -49,23 +50,27 @@ class PMGJSONTest(unittest.TestCase):
         self.assertEqual(type(d['molecule']), Molecule)
 
     def test_entry(self):
-        entry = ComputedEntry("Fe2O3", 2.3)
         enc = PMGJSONEncoder()
-        jsonstr = enc.encode(entry)
         dec = PMGJSONDecoder()
+
+        entry = ComputedEntry("Fe2O3", 2.3)
+        jsonstr = enc.encode(entry)
         d = dec.decode(jsonstr)
         self.assertEqual(type(d), ComputedEntry)
 
         #Check list of entries
         entries = [entry, entry, entry]
-        enc = PMGJSONEncoder()
         jsonstr = enc.encode(entries)
-        dec = PMGJSONDecoder()
         d = dec.decode(jsonstr)
         for i in d:
             self.assertEqual(type(i), ComputedEntry)
         self.assertEqual(len(d), 3)
 
+    def test_transformations(self):
+        trans = IdentityTransformation()
+        jsonstr = json.dumps(trans, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        self.assertEqual(type(d), IdentityTransformation)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
