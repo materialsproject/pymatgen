@@ -1,6 +1,14 @@
 symmetry Package
 ================
 
+:mod:`symmetry` Package
+-----------------------
+
+.. automodule:: pymatgen.symmetry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`spacegroup` Module
 ------------------------
 
