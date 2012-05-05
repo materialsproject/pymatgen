@@ -1,89 +1,0 @@
-10
-
-dir
-605
-https://spglib.svn.sourceforge.net/svnroot/spglib/trunk/test/data/virtual_structure
-https://spglib.svn.sourceforge.net/svnroot/spglib
-
-
-
-2008-11-14T16:57:10.329791Z
-205
-papatogo
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-4b2e0049-ea43-0410-b050-db698c15d9a4
-
-poscar_Ia-3d_unit
-dir
-
-test-virtual.zsh
-file
-
-
-
-
-2011-08-24T05:54:37.897009Z
-c00a605bf1db197c425e53526190fdcc
-2008-11-14T16:57:10.329791Z
-205
-papatogo
-has-props
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-566
-
-poscars-1
-dir
-
-poscar-221
-dir
-
-poscars-2
-dir
-
-poscar-222
-dir
-
-poscar-223
-dir
-
-poscar-224
-dir
-
-poscar_Fd-3m_unit
-dir
-
-poscar_Ia-3d_primitive
-dir
-
