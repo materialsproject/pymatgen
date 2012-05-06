@@ -29,7 +29,7 @@ from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 
-import pymatgen._spglib as spg
+import pyspglib._spglib as spg
 
 
 class SymmetryFinder(object):
