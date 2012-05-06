@@ -20,8 +20,6 @@ extension = Extension('pyspglib._spglib',
                       extra_link_args=['-lgomp'],
                       )
 
-os.chdir("lib")
-
 setup (
        name='spglib',
        version='1.2',

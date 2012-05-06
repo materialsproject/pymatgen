@@ -49,7 +49,7 @@ sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
 
 sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
 
-extension = Extension('pymatgen._spglib',
+extension = Extension('pyspglib._spglib',
                       include_dirs=include_dirs + get_numpy_include_dirs(),
                       sources=['_spglib.c'] + sources,
                       extra_compile_args=['-fopenmp'],
@@ -96,6 +96,18 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-  ext_modules=[extension]
+  download_url="https://github.com/materialsproject/pymatgen/tarball/master"
+)
+
+os.chdir('lib')
+
+setup (
+       name='pyspglib',
+       version='1.2',
+       description='This is the spglib module.',
+       author='Atsushi Togo',
+       author_email='atz.togo@gmail.com',
+       url='http://spglib.sourceforge.net/',
+       packages=['pyspglib'],
+       ext_modules=[extension]
 )
