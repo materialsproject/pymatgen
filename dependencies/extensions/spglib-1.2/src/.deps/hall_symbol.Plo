@@ -1,0 +1,50 @@
+hall_symbol.lo hall_symbol.o: hall_symbol.c /usr/include/stdio.h \
+  /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
+  /usr/include/sys/_posix_availability.h /usr/include/Availability.h \
+  /usr/include/AvailabilityInternal.h /usr/include/_types.h \
+  /usr/include/sys/_types.h /usr/include/machine/_types.h \
+  /usr/include/i386/_types.h /usr/include/secure/_stdio.h \
+  /usr/include/secure/_common.h lattice.h mathfunc.h hall_symbol.h \
+  symmetry.h cell.h spg_database.h pointgroup.h spacegroup.h debug.h
+
+/usr/include/stdio.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/sys/_symbol_aliasing.h:
+
+/usr/include/sys/_posix_availability.h:
+
+/usr/include/Availability.h:
+
+/usr/include/AvailabilityInternal.h:
+
+/usr/include/_types.h:
+
+/usr/include/sys/_types.h:
+
+/usr/include/machine/_types.h:
+
+/usr/include/i386/_types.h:
+
+/usr/include/secure/_stdio.h:
+
+/usr/include/secure/_common.h:
+
+lattice.h:
+
+mathfunc.h:
+
+hall_symbol.h:
+
+symmetry.h:
+
+cell.h:
+
+spg_database.h:
+
+pointgroup.h:
+
+spacegroup.h:
+
+debug.h:
