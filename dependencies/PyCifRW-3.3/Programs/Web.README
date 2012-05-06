@@ -1,0 +1,15 @@
+This directory, apart from a few example programs, also contains
+a simple web-server for validation.
+
+To install, first install PyCifRW.
+
+Following this: 
+
+1.  install validate-process.py into your web server's
+CGI directory and give it the appropriate permissions.   
+
+2.  install cifv_server.html into your server's tree in an appropriate
+place (this file is simply the form for entry of user data).
+
+3.  Put all CIF dictionaries into directory /usr/local/lib/cif. For
+correct naming, check the HTML source in cifv_server.html. 

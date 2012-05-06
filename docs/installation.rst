@@ -17,10 +17,12 @@ Optional python libraries that are required if you need certain features
 
 1. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
 2. PyCifRW (highly recommended): For reading and writing Crystallographic 
-   Information Format (CIF) files. Get it from http://pycifrw.berlios.de/.
+   Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
+   working version is provided in the dependencies directory of pymatgen.
 3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
    using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
-   packages. Get it at http://spglib.sourceforge.net/
+   packages. Get it at http://spglib.sourceforge.net/ or a working version is
+   provided in the dependencies directory of pymatgen.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE : Required for the usage of the 
@@ -155,8 +157,15 @@ commands:
 	make
 	sudo make install
 	cd python/ase
-	python setup.py install
-	
+	sudo python setup.py install
+
+If you are using the version in the dependencies directory of pymatgen, you can
+simply do:
+
+::
+
+   cd dependencies/spglib-1.2
+   sudo python setup.py install
 
 Qhull (tested on v2012.1)
 -------------------------

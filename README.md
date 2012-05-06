@@ -56,7 +56,8 @@ Optional python libraries that are required if you need certain features.
    the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
 3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using
    the pymatgen.symmetry package. Note that version 1.2 and above must be
-   installed; older versions are not compatible.
+   installed; older versions are not compatible. A working version is provided
+   in the dependencies directory.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
