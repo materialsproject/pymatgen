@@ -1,0 +1,20 @@
+#CIF1.1
+# A CIF file for validity testing.  One block contains a series of
+# invalidly-typed items as per the supplied DDL1 dictionary file
+# The other block contains a report which any validity checking
+# program should be able to produce on request.
+
+data_invalid_type_block
+_test_reference_block_id   invalid_type_block
+_test_construct_character  'there is nothing wrong with this'
+# this data item should be a number
+_test_construct_number   453K
+# there is no time type in DDL1 or 2
+_test_construct_time     15:34
+
+data_invalid_type_block_report
+_test_result_block_id   invalid_type_block
+_test_result_validity   invalid
+_test_result_fail_item_name   '_test_number'
+_test_result_fail_type   'Value construction'
+_test_result_fail_item_value 453K

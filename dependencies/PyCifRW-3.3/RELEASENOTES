@@ -1,0 +1,129 @@
+Release Notes for PyCIFRW-3.3  
+=============================
+
+New in this release
+===================
+
+This release updates the installation system to the ez-install style
+using Python 'eggs' (analogous to Java 'jars').  The usual 
+'python setup.py install' command will continue to work.
+
+A small bugfix is also included to make the way contents of loop
+packets are addressed consistent.  The dot notation / getattr
+command should always be used, and dictionary style access is no
+longer possible.
+
+Work on DDLm support continues.  Details are not yet documented.
+
+Bug fixes (since 3.0)
+=====================
+
+(3.0)
+* deepcopy failed when copying CifFile objects due to the
+way the __iter__ method was set.  This has been fixed.
+
+* Data values which began with an apostrophe or quotation
+mark were not necessarily put inside quotes when output, leading to
+potential corruption of the output file. 
+
+(3.1.1)
+* Replacing items in a loop could cause a duplicate item error to
+be raised, instead of silently replacing the item
+
+* Loop validation has been broken since 2.0. This should now work
+properly
+
+* _category_mandatory checking behaved differently to that described
+in the journal article; this has been fixed
+
+(3.1.2)
+* The _str_ method of StarError exceptions was broken (always returned None).
+This has been fixed.
+
+(3.1.3)
+
+* Merging of DDL2 dictionaries failed in multiple ways.  This has been
+fixed, in particular, merging of multiple _item.names in a single definition
+block is performed sensibly.
+
+* Only 50 characters of bad values are output in text error reporting
+
+* Save frames in CIF dictionaries had type CifLoopBlock instead of 
+  CifBlock.  This has been fixed.
+
+(3.1.4)
+
+* A stray newline on stdout during flex-based parsing has been 
+  fixed (Boris Dusek)
+
+(3.2)
+
+* Fixed overlay merging bug
+ 
+(3.3)
+
+* Loop packets were inconsistently returned as either dictionaries or lists,
+  depending on the method of access; this has been fixed so that now they
+  always look like lists with attributes corresponding to the data name
+
+Improvements/Changes (since 3.0)
+================================
+
+(3.0)
+* A compiled tokenizer is now available to increase speed of file
+input.  The option 'scantype="flex"' should be passed to the 
+ReadCif/ReadStar commands.  Error reporting is minimal.
+
+* Method ChangeItemOrder added to allow moving item position in the
+output file
+
+(3.1.1)
+
+* HTML-formatted validity reporting is now available
+
+* A simple HTML server script for doing validation reporting is now bundled
+
+(3.1.2)
+
+* Better control over output line length added  
+
+* Much better syntax error output added
+
+(3.1.4)
+
+* The ReadStar method accepts an output stream as an alternative 
+  to a filename (Boris Dusek)
+
+* A first_block method is provided for quick access to the first 
+  block in a file (Boris Dusek)
+
+(3.1.5)
+
+* The GetItemPosition call added to return a numeric value for the
+  item's position in the output (relative to loop/block beginning) 
+
+* Changing an item's value no longer moves it to the end of the file
+  (suggested by Boris Dusek)
+
+(3.1.6)
+
+* Runtime and parser generation is now provided by Yapps 2.1.1 (aka
+  Yapps 3)
+
+(3.2)
+
+* Improved pure python parsing speed (Boris Dusek)
+* ValidationResult class for easier access to validation output (Boris Dusek)
+* Nested bracket expressions parsed (for DDLm)
+* Retrieval/removal of specific loop packet using value of a key dataname
+* Datanames in packets returned by GetPacket or iteration can be 
+  accessed by attribute
+* Packets can be added to loops.
+
+Incompatible changes (since 3.0)
+================================
+
+(3.3)
+* Any code using the dictionary style notation for packets will no longer work.
+  e.g. packet["_atom_position_id"] is no longer possible.
+
