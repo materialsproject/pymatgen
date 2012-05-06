@@ -53,11 +53,12 @@ Optional python libraries that are required if you need certain features.
    pymatgen.phasediagrams package.
 2. [PyCifRW](http://prdownload.berlios.de/pycifrw/PyCifRW-3.3.tar.gz) : For 
    reading and writing Crystallographic Information Format (CIF) files using 
-   the pymatgen.io.cifio module [more info](http://pycifrw.berlios.de/)
+   the pymatgen.io.cifio module. A working version is provided in the
+   dependencies directory of pymatgen.
 3. [pyspglib 1.2+](http://spglib.sourceforge.net/) : For symmetry finding using
    the pymatgen.symmetry package. Note that version 1.2 and above must be
    installed; older versions are not compatible. A working version is provided
-   in the dependencies directory.
+   in the dependencies directory of pymatgen.
 4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
 5. Atomistic Simulation Environment or ASE (https://wiki.fysik.dtu.dk/ase/): 
