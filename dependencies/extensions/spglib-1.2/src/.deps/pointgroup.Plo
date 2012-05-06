@@ -1,0 +1,51 @@
+pointgroup.lo pointgroup.o: pointgroup.c /usr/include/string.h \
+  /usr/include/_types.h /usr/include/sys/_types.h \
+  /usr/include/sys/cdefs.h /usr/include/sys/_symbol_aliasing.h \
+  /usr/include/sys/_posix_availability.h /usr/include/machine/_types.h \
+  /usr/include/i386/_types.h /usr/include/Availability.h \
+  /usr/include/AvailabilityInternal.h /usr/include/strings.h \
+  /usr/include/secure/_string.h /usr/include/secure/_common.h \
+  /usr/include/stdio.h /usr/include/secure/_stdio.h lattice.h mathfunc.h \
+  pointgroup.h symmetry.h cell.h debug.h
+
+/usr/include/string.h:
+
+/usr/include/_types.h:
+
+/usr/include/sys/_types.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/sys/_symbol_aliasing.h:
+
+/usr/include/sys/_posix_availability.h:
+
+/usr/include/machine/_types.h:
+
+/usr/include/i386/_types.h:
+
+/usr/include/Availability.h:
+
+/usr/include/AvailabilityInternal.h:
+
+/usr/include/strings.h:
+
+/usr/include/secure/_string.h:
+
+/usr/include/secure/_common.h:
+
+/usr/include/stdio.h:
+
+/usr/include/secure/_stdio.h:
+
+lattice.h:
+
+mathfunc.h:
+
+pointgroup.h:
+
+symmetry.h:
+
+cell.h:
+
+debug.h:

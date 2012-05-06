@@ -1,0 +1,1 @@
+sitesym_database.lo sitesym_database.o: sitesym_database.c
