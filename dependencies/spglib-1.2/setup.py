@@ -2,7 +2,7 @@ import os
 from distutils.core import setup, Extension
 from numpy.distutils.misc_util import get_numpy_include_dirs
 
-spgsrcdir = os.path.join('extensions', 'spglib-1.2', 'src')
+spgsrcdir = os.path.join('src')
 
 include_dirs = [spgsrcdir]
 sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
