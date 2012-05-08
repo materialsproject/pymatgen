@@ -40,7 +40,7 @@ extension = Extension('pyspglib._spglib',
                       extra_link_args=['-lgomp'],
                       )
 
-setup (name = 'pyspglib',
+setup (name = 'spglib',
        version = '1.2',
        description = 'This is the spglib module.',
        author = 'Atsushi Togo',
