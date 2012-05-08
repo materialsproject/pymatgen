@@ -1,0 +1,14 @@
+spg_database.lo spg_database.o: spg_database.c spg_database.h lattice.h \
+  mathfunc.h pointgroup.h symmetry.h cell.h
+
+spg_database.h:
+
+lattice.h:
+
+mathfunc.h:
+
+pointgroup.h:
+
+symmetry.h:
+
+cell.h:
