@@ -53,18 +53,19 @@ class BSPlotter(object):
                 'vbm': a list of tuples (distance,energy) marking the vbms. The energies are shifted with respect to the fermi level is the option has been selected.
                 'cbm': a list of tuples (distance,energy) marking the cbms. The energies are shifted with respect to the fermi level is the option has been selected.
                 'lattice': the reciprocal lattice
-                'efermi': the fermi level
+                'zero_energy': this is the energy used as zero for the plot
                 'band_gap': a string indicating the band gap and it's nature (empty if it's a metal)
         """
         zero_energy = None
-        if self._bs.is_metal:
+        
+        if self._bs.is_metal():
             zero_energy = self._bs.efermi
         else:
             zero_energy = self._bs.get_vbm()['energy']
 
         if not zero_to_efermi:
             zero_energy = 0.0
-
+        
         energy = {str(Spin.up): []}
         if self._bs.is_spin_polarized:
             energy = {str(Spin.up): [], str(Spin.down): []}
@@ -83,10 +84,10 @@ class BSPlotter(object):
         cbm_plot=[]
         
         for index in cbm['kpoint_index']:
-            cbm_plot.append((self._bs._distance[index],cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']))
+            cbm_plot.append((self._bs._distance[index],cbm['energy'] - zero_energy if zero_to_efermi else cbm['energy']))
         
         for index in vbm['kpoint_index']:
-            vbm_plot.append((self._bs._distance[index],vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']))
+            vbm_plot.append((self._bs._distance[index],vbm['energy'] - zero_energy if zero_to_efermi else vbm['energy']))
         
         bg=self._bs.get_band_gap()
         direct="Indirect"
@@ -94,7 +95,7 @@ class BSPlotter(object):
             direct="Direct"
             
         return {'ticks': ticks, 'distances': distance, 'energy': energy, 'vbm':vbm_plot, 'cbm':cbm_plot, 
-                'lattice':self._bs._lattice_rec.to_dict, 'efermi':self._bs.efermi, 'band_gap':direct+" "+bg['transition']+"band gap="+bg['energy'] if self._bs.is_metal==False else ""}
+                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'band_gap':direct+" "+bg['transition']+"band gap="+bg['energy'] if self._bs.is_metal==False else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
