@@ -431,7 +431,7 @@ class BandStructureSymmLine(BandStructure):
 
         if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
-        result['transition'] = '-'.join([str(c.label) if c.label is not None else str(c.frac_coords) for c in [vbm['kpoint'], cbm['kpoint']]])
+        result['transition'] = '-'.join([str(c.label) if c.label is not None else str("(")+','.join(['{0:.3f}'.format(c.frac_coords[i]) for i in range(3)])+str(")") for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
 
 
@@ -503,7 +503,7 @@ class BandStructureSymmLine(BandStructure):
             a BandStructureSymmLine object
         """
         labels_dict = d['labels_dict']
-        return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice.from_dict(d['lattice_rec']), d['efermi'], labels_dict)
+        return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi'], labels_dict)
 
 
 def get_reconstructed_band_structure(list_bs, efermi):
