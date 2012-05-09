@@ -1,3 +1,3 @@
 """
-This package contains electronic structure related tools. 
+This package contains electronic structure related tools and analyses.
 """

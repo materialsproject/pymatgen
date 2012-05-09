@@ -1,0 +1,22 @@
+have_header: checking for spglib.h... -------------------- yes
+
+"gcc -E -I. -I/usr/lib/ruby/1.8/x86_64-linux -I. -I../src    -fno-strict-aliasing -g -g -O2  -fPIC    conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <spglib.h>
+/* end */
+
+--------------------
+
+have_library: checking for main() in -lsymspg... -------------------- yes
+
+"gcc -o conftest -I. -I/usr/lib/ruby/1.8/x86_64-linux -I. -I../src    -fno-strict-aliasing -g -g -O2  -fPIC   conftest.c  -L. -L/usr/lib -L../src/.libs -L. -Wl,-Bsymbolic-functions -rdynamic -Wl,-export-dynamic     -lruby1.8-static -lsymspg  -lpthread -lrt -ldl -lcrypt -lm   -lc"
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { void ((*volatile p)()); p = (void ((*)()))main; return 0; }
+/* end */
+
+--------------------
+

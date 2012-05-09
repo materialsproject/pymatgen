@@ -266,10 +266,12 @@ class StructureEditor(StructureModifier):
 
     def perturb_structure(self, distance=0.1):
         '''
-        performs a random perturbation of the sites in a structure to break symmetries
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
         
         Args:
-            distance: distance by which to perturb each site
+            distance:
+                distance in angstroms by which to perturb each site.
         '''
         for i in range(len(self._sites)):
             vector = np.random.rand(3)
