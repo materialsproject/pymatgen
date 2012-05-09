@@ -37,7 +37,7 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, PDos
-from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine, get_reconstructed_band_structure
+from pymatgen.electronic_structure.band_structure.band_structure import BandStructure, BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
 
@@ -1291,9 +1291,8 @@ class Vasprun(object):
                 will get it from the vasprun.
                 
         Returns:
-            a tuple of 'up' and 'down' BandStructureSymmLine objects
-            (BandStructureSymmLine object, BandStructureSymmLine object)
-            if the system in Non-spin polarized, the 'down' states are None
+            a BandStructure object (or more specifically a BandStructureSymmLine object if 
+            the run is detected to be a run along symmetry lines)
         
         TODO:
             - make a bit more general for non Symm Line band structures
@@ -1307,8 +1306,7 @@ class Vasprun(object):
         if not self.incar['ICHARG'] == 11:
             raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
 
-        k = Kpoints.from_file(kpoints_filename)
-        labels_dict = dict(zip(k.labels, k.kpts))
+        kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
         #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
@@ -1330,7 +1328,11 @@ class Vasprun(object):
         if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]);
-        return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
+        if kpoint_file.style == "Line_mode":
+            labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
+        else:
+            return BandStructure(kpoints, eigenvals, lattice_new, self.efermi)
 
 
     @property
@@ -2152,6 +2154,58 @@ class VolumetricData(object):
             self.data = {Spin.up:uppot, Spin.down:downpot}
         else:
             self.data = {Spin.up:uppot}
+    
+    def write_file(self, file_name, vasp4_compatible=False):
+        """
+            write the VolumetricData object to a vasp compatible file
+            Args:
+                file_name:the path to a file
+                vasp4_compatible: True if the format is vasp4 compatible
+        """
+        count=0
+        f=open(file_name,'w')
+        #f.write(self.name+"\n")
+        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible)+"\n")
+        list_lines=[]
+        f.write("\n")
+        f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
+        a=self.dim
+        for k in xrange(a[2]):
+            for j in xrange(a[1]):
+                for i in xrange(a[0]):
+                    list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
+                    count+=1
+                    if count%5 == 0:
+                        f.write(''.join(list)+"\n")
+                        list_lines=[]
+                    else:
+                        list_lines.append(" ")
+        if not self.spinpolarized:
+            f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
+            for k in xrange(a[2]):
+                for j in xrange(a[1]):
+                    for i in xrange(a[0]):
+                        list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
+                        count+=1
+                        if count%5 == 0:
+                            f.write(''.join(list)+"\n")
+                            list_lines=[]
+                        else:
+                            list_lines.append(" ")
+        else:
+            f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
+            for k in xrange(a[2]):
+                for j in xrange(a[1]):
+                    for i in xrange(a[0]):
+                        list_lines.append('%0.11e' % self.data[Spin.down][i,j,k])
+                        count+=1
+                        if count%5 == 0:
+                            f.write(''.join(list)+"\n")
+                            list_lines=[]
+                        else:
+                            list_lines.append(" ")
+        f.close()
+            
 
 
 class Locpot(VolumetricData):
@@ -2181,7 +2235,8 @@ class Locpot(VolumetricData):
         m = self.data[Spin.up]
 
         ng = self.dim
-        avg = np.zeros((ng[ind], 1))
+        avg = np.zeros((2,ng[ind]))
+        axis_tick=0.0
         for i in xrange(ng[ind]):
             mysum = 0
             for j in xrange(ng[(ind + 1) % 3]):
@@ -2193,7 +2248,8 @@ class Locpot(VolumetricData):
                     if ind == 2:
                         mysum += m[j, k, i]
 
-            avg[i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
+            avg[1][i]= mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
+            avg[0][i]= axis_tick + i*self.poscar.struct.lattice.abc[ind]/ng[ind]
         return avg
 
 class Chgcar(VolumetricData):
