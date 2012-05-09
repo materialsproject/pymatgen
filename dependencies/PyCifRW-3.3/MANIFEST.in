@@ -1,0 +1,14 @@
+include *.nw
+include LICENSE
+include INSTALLATION
+include *.html
+include *.pdf
+include TestPyCifRW.py
+include RELEASENOTES
+include Programs/*.py
+include Programs/*.cif
+include Programs/*.html
+include Programs/Web.README
+include Changelog
+include Makefile
+include lib/*

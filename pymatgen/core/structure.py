@@ -1790,6 +1790,22 @@ class Composition (collections.Mapping, collections.Hashable):
         c = Composition.from_formula(reduced_formula)
         return c.to_dict
 
+    @property
+    def to_data_dict(self):
+        '''
+        Returns a dict with many composition-related properties.
+        
+        Returns:
+            A dict with many keys and values relating to Composition/Formula
+        '''
+        d = {}
+        d['reduced_cell_composition'] = self.to_reduced_dict
+        d['unit_cell_composition'] = self.to_dict
+        d['reduced_cell_formula'] = self.reduced_formula
+        d['elements'] = self.to_dict.keys()
+        d['nelements'] = len(self.to_dict.keys())
+        return d
+
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
         '''

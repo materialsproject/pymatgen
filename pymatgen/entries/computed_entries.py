@@ -87,7 +87,7 @@ class ComputedEntry(PDEntry):
     @staticmethod
     def from_dict(d):
         return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             d['parameters'], d['data'])
+                             d.get('parameters', {}), d.get('data', {}))
 
     @property
     def to_dict(self):
@@ -129,6 +129,7 @@ class ComputedStructureEntry(ComputedEntry):
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
         """
+
         ComputedEntry.__init__(self, structure.composition, energy,
                                         correction=correction,
                                         parameters=parameters, data=data)
@@ -158,7 +159,7 @@ class ComputedStructureEntry(ComputedEntry):
     @staticmethod
     def from_dict(d):
         return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
-                             d['correction'], d['parameters'], d['data'])
+                             d['correction'], d.get('parameters', {}), d.get('data', {}))
 
 
 def computed_entries_to_json(entries):

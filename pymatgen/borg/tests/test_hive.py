@@ -48,6 +48,10 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         compat = MITCompatibility()
         self.assertIsNone(compat.process_entry(entry))
 
+    def test_to_from_dict(self):
+        d = self.structure_drone.to_dict
+        drone = VaspToComputedEntryDrone.from_dict(d)
+        self.assertEqual(type(drone), VaspToComputedEntryDrone)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
