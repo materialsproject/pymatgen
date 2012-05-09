@@ -95,7 +95,7 @@ class BSPlotter(object):
             direct="Direct"
             
         return {'ticks': ticks, 'distances': distance, 'energy': energy, 'vbm':vbm_plot, 'cbm':cbm_plot, 
-                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'band_gap':direct+" "+bg['transition']+"band gap="+bg['energy'] if self._bs.is_metal==False else ""}
+                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'band_gap':direct+" "+bg['transition']+" band gap="+str(bg['energy']) if self._bs.is_metal()==False else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
