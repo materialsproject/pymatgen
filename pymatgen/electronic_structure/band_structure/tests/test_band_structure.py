@@ -61,9 +61,9 @@ class BandStructureSymmLine_test(unittest.TestCase):
         self.assertEqual(self.one_kpoint.frac_coords[0], 0.5)
         self.assertEqual(self.one_kpoint.frac_coords[1], 0.25)
         self.assertEqual(self.one_kpoint.frac_coords[2], 0.75)
-        self.assertAlmostEqual(self.one_kpoint.cart_coords[0], 0.79508914)
-        self.assertAlmostEqual(self.one_kpoint.cart_coords[1], 0.45904494)
-        self.assertAlmostEqual(self.one_kpoint.cart_coords[2], 1.12442586)
+        self.assertAlmostEqual(self.one_kpoint.cart_coords[0], 0.64918757)
+        self.assertAlmostEqual(self.one_kpoint.cart_coords[1], 1.29837513)
+        self.assertAlmostEqual(self.one_kpoint.cart_coords[2], 0.0)
         self.assertEqual(self.one_kpoint.label, "W")
 
         self.assertAlmostEqual(self.bs.efermi, 2.6211967, "wrong fermi energy")
