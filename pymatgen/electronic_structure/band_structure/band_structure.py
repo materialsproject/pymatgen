@@ -491,10 +491,10 @@ class BandStructureSymmLine(BandStructure):
         d['bands'] = { str(int(spin)) : self._bands[spin] for spin in self._bands}
         d['is_metal'] = self.is_metal()
         vbm = self.get_vbm()
-        d['VBM'] = {'energy':vbm['energy'], 'kpoint_index':vbm['kpoint_index'],
+        d['vbm'] = {'energy':vbm['energy'], 'kpoint_index':vbm['kpoint_index'],
                     'band_index':{str(int(spin)) : vbm['band_index'][spin] for spin in vbm['band_index']}}
         cbm = self.get_cbm()
-        d['CBM'] = {'energy':vbm['energy'], 'kpoint_index':cbm['kpoint_index'],
+        d['cbm'] = {'energy':vbm['energy'], 'kpoint_index':cbm['kpoint_index'],
                     'band_index':{str(int(spin)) : cbm['band_index'][spin] for spin in cbm['band_index']}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
