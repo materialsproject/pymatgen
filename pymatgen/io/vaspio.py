@@ -2163,58 +2163,60 @@ class VolumetricData(object):
             self.data = {Spin.up:uppot, Spin.down:downpot}
         else:
             self.data = {Spin.up:uppot}
-    
+
     def write_file(self, file_name, vasp4_compatible=False):
         """
-            write the VolumetricData object to a vasp compatible file
-            Args:
-                file_name:the path to a file
-                vasp4_compatible: True if the format is vasp4 compatible
+        Write the VolumetricData object to a vasp compatible file
+        
+        Args:
+            file_name:
+                The path to a file
+            vasp4_compatible:
+                True if the format is vasp4 compatible
         """
-        count=0
-        f=open(file_name,'w')
-        #f.write(self.name+"\n")
-        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible)+"\n")
-        list_lines=[]
+        count = 0
+        f = open(file_name, 'w')
+        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
+        list_lines = []
         f.write("\n")
-        f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
-        a=self.dim
+        f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
+        a = self.dim
         for k in xrange(a[2]):
             for j in xrange(a[1]):
                 for i in xrange(a[0]):
-                    list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
-                    count+=1
-                    if count%5 == 0:
-                        f.write(''.join(list)+"\n")
-                        list_lines=[]
+                    list_lines.append('%0.11e' % self.data[Spin.up][i, j, k])
+                    count += 1
+                    if count % 5 == 0:
+                        f.write(''.join(list) + "\n")
+                        list_lines = []
                     else:
                         list_lines.append(" ")
         if not self.spinpolarized:
-            f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
+            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
             for k in xrange(a[2]):
                 for j in xrange(a[1]):
                     for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
-                        count+=1
-                        if count%5 == 0:
-                            f.write(''.join(list)+"\n")
-                            list_lines=[]
+                        list_lines.append('%0.11e' % self.data[Spin.up][i, j, k])
+                        count += 1
+                        if count % 5 == 0:
+                            f.write(''.join(list) + "\n")
+                            list_lines = []
                         else:
                             list_lines.append(" ")
         else:
-            f.write(str(self.dim[0])+" "+str(self.dim[1])+" "+str(self.dim[2])+"\n")
+            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
             for k in xrange(a[2]):
                 for j in xrange(a[1]):
                     for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.down][i,j,k])
-                        count+=1
-                        if count%5 == 0:
-                            f.write(''.join(list)+"\n")
-                            list_lines=[]
+                        list_lines.append('%0.11e' % self.data[Spin.down][i, j, k])
+                        count += 1
+                        if count % 5 == 0:
+                            f.write(''.join(list) + "\n")
+                            list_lines = []
                         else:
                             list_lines.append(" ")
         f.close()
-            
+
 
 
 class Locpot(VolumetricData):
@@ -2244,8 +2246,8 @@ class Locpot(VolumetricData):
         m = self.data[Spin.up]
 
         ng = self.dim
-        avg = np.zeros((2,ng[ind]))
-        axis_tick=0.0
+        avg = np.zeros((2, ng[ind]))
+        axis_tick = 0.0
         for i in xrange(ng[ind]):
             mysum = 0
             for j in xrange(ng[(ind + 1) % 3]):
@@ -2257,8 +2259,8 @@ class Locpot(VolumetricData):
                     if ind == 2:
                         mysum += m[j, k, i]
 
-            avg[1][i]= mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
-            avg[0][i]= axis_tick + i*self.poscar.struct.lattice.abc[ind]/ng[ind]
+            avg[1][i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
+            avg[0][i] = axis_tick + i * self.poscar.struct.lattice.abc[ind] / ng[ind]
         return avg
 
 
