@@ -290,7 +290,6 @@ class BSPlotter(object):
         import pymatgen.command_line.qhull_caller
         import matplotlib as mpl
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         mpl.rcParams['legend.fontsize'] = 10
 
         fig = plt.figure()
