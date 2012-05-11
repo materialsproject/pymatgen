@@ -336,6 +336,9 @@ class BandStructureSymmLine(BandStructure):
                 'energy':
                     The energy of the VBM
         """
+        if self.is_metal():
+            return {'band_index':[], 'kpoint_index':[],
+                'kpoint':[], 'energy':None}
         max_tmp = -1000.0
         index = None
         kpointvbm = None
@@ -386,6 +389,9 @@ class BandStructureSymmLine(BandStructure):
                 'energy':
                     The energy of the CBM
         """
+        if self.is_metal():
+            return {'band_index':[], 'kpoint_index':[],
+                'kpoint':[], 'energy':None}
         max_tmp = 1000.0
         index = None
         kpointcbm = None

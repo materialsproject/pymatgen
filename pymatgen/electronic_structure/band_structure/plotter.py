@@ -55,6 +55,7 @@ class BSPlotter(object):
                 'lattice': the reciprocal lattice
                 'zero_energy': this is the energy used as zero for the plot
                 'band_gap': a string indicating the band gap and it's nature (empty if it's a metal)
+                'is_metal': True if the band structure is metallic (i.e., there is at least one band crossing the fermi level)
         """
         zero_energy = None
         
@@ -95,7 +96,8 @@ class BSPlotter(object):
             direct="Direct"
             
         return {'ticks': ticks, 'distances': distance, 'energy': energy, 'vbm':vbm_plot, 'cbm':cbm_plot, 
-                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'band_gap':direct+" "+bg['transition']+" band gap="+str(bg['energy']) if self._bs.is_metal()==False else ""}
+                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
+                'band_gap':direct+" "+bg['transition']+" band gap="+str(bg['energy']) if self._bs.is_metal()==False else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
@@ -116,14 +118,17 @@ class BSPlotter(object):
         #main internal config options
         e_min = -4
         e_max = 4
+        if self._bs.is_metal():
+            e_min=-10
+            e_max=10
         band_linewidth = 3
 
         pylab.figure
         data = self.bs_plot_data(zero_to_efermi)
         for i in range(self._nb_bands):
-                pylab.plot(data['distances'], [e for e in data['energy'][Spin.up][i]], 'b-', linewidth=band_linewidth)
+                pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.up)][i]], 'b-', linewidth=band_linewidth)
                 if self._bs.is_spin_polarized:
-                    pylab.plot(data['distances'], [e for e in data['energy'][Spin.down][i]], 'r-', linewidth=band_linewidth)
+                    pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.down)][i]], 'r-', linewidth=band_linewidth)
 
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
