@@ -2173,7 +2173,6 @@ class VolumetricData(object):
         """
         count=0
         f=open(file_name,'w')
-        #f.write(self.name+"\n")
         f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible)+"\n")
         list_lines=[]
         f.write("\n")
@@ -2185,7 +2184,7 @@ class VolumetricData(object):
                     list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
                     count+=1
                     if count%5 == 0:
-                        f.write(''.join(list)+"\n")
+                        f.write(''.join(list_lines)+"\n")
                         list_lines=[]
                     else:
                         list_lines.append(" ")
@@ -2197,7 +2196,7 @@ class VolumetricData(object):
                         list_lines.append('%0.11e' % self.data[Spin.up][i,j,k])
                         count+=1
                         if count%5 == 0:
-                            f.write(''.join(list)+"\n")
+                            f.write(''.join(list_lines)+"\n")
                             list_lines=[]
                         else:
                             list_lines.append(" ")
