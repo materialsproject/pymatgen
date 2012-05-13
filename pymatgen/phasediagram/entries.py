@@ -19,12 +19,13 @@ import re
 
 from pymatgen.core.structure import Composition
 from pymatgen.core.periodic_table import Element
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 
-class PDEntry (object):
+
+class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase
     diagrams.
-    Author: Shyue
     """
 
     def __init__(self, comp, finalenergy, name=None):
@@ -82,19 +83,37 @@ class PDEntry (object):
     def __str__(self):
         return "PDEntry : " + self.composition.__str__()
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['composition'] = self._composition.to_dict
+        d['final_energy'] = self._finalenergy
+        d['name'] = self._name
+        return d
 
-class GrandPotPDEntry (PDEntry):
+    @staticmethod
+    def from_dict(d):
+        return PDEntry(Composition(d['composition']), d['final_energy'], d['name'])
+
+
+class GrandPotPDEntry(PDEntry):
     """
     A grand potential pd entry object encompassing all relevant data for phase
-    diagrams.  Chemical potentials are given as a element-chemical potential dict.
-    Author: Shyue
+    diagrams.  Chemical potentials are given as a element-chemical potential
+    dict.
     """
     def __init__(self, entry, chempots, name=None):
         """
         Args:
-            entry - A PDEntry object containing the composition entry.
-            chempots - Chemical potential specification as {Element: float}.
-            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+            entry:
+                A PDEntry object containing the composition entry.
+            chempots:
+                Chemical potential specification as {Element: float}.
+            name:
+                Optional parameter to name the entry. Defaults to the reduced
+                chemical formula.
         """
         comp = entry.composition
         self._original_entry = entry
@@ -134,6 +153,23 @@ class GrandPotPDEntry (PDEntry):
 
     def __str__(self):
         return "GrandPotPDEntry with original composition " + str(self.original_entry.composition) + " and " + ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['entry'] = self._original_entry.to_dict
+        d['chempots'] = {el.symbol: u for el, u in self.chempots.items()}
+        d['name'] = self._name
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        chempots = {Element(symbol): u for symbol, u in d['chempots'].items()}
+        entry = PMGJSONDecoder().process_decoded(d['entry'])
+        return GrandPotPDEntry(entry, chempots, d['name'])
+
 
 class PDEntryIO(object):
     """

@@ -20,9 +20,9 @@ import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Structure, Composition
+from pymatgen.serializers.json_coders import MSONable
 
-
-class ComputedEntry(PDEntry):
+class ComputedEntry(PDEntry, MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes.  Extends a PDEntry so that it can be used for phase diagram
@@ -161,40 +161,3 @@ class ComputedStructureEntry(ComputedEntry):
         return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
                              d['correction'], d.get('parameters', {}), d.get('data', {}))
 
-
-def computed_entries_to_json(entries):
-    """
-    Returns a json representation of a sequence of entries.
-    
-    Args:
-        all_entries:
-            A sequence of entries
-            
-    Returns:
-        JSON string representation
-    """
-    jsonlist = list()
-    for entry in entries:
-        jsonlist.append(entry.to_dict)
-    return json.dumps(jsonlist)
-
-
-def computed_entries_from_json(jsonstr):
-    """
-    Returns a sequence of entries from a json representation.
-    
-    Args:
-        json_str:
-            JSON string
-            
-    Returns:
-        Sequence of entries
-    """
-    json_list = json.loads(jsonstr)
-    entries = list()
-    for d in json_list:
-        if 'structure' in d:
-            entries.append(ComputedStructureEntry.from_dict(d))
-        else:
-            entries.append(ComputedEntry.from_dict(d))
-    return entries

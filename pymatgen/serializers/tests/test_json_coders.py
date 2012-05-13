@@ -19,7 +19,56 @@ from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.transformations.standard_transformations import IdentityTransformation
 import json
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, MSONable
+
+
+class MSONableTest(unittest.TestCase):
+
+    def setUp(self):
+        class GoodMSONClass(MSONable):
+
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+            @property
+            def to_dict(self):
+                d = {'a':self.a, 'b':self.b}
+                return d
+
+            @staticmethod
+            def from_dict(d):
+                return GoodMSONClass(d['a'], d['b'])
+
+        self.good_cls = GoodMSONClass
+
+        class BadMSONClass(MSONable):
+
+            def __init__(self, a, b):
+                self.a = a
+                self.b = b
+
+            @property
+            def to_dict(self):
+                d = {'a':self.a, 'b':self.b}
+                return d
+
+        self.bad_cls = BadMSONClass
+
+    def test_to_from_dict(self):
+        obj = self.good_cls("Hello", "World")
+        d = obj.to_dict
+        self.assertIsNotNone(d)
+        self.good_cls.from_dict(d)
+        obj = self.bad_cls("Hello", "World")
+        d = obj.to_dict
+        self.assertIsNotNone(d)
+        self.assertRaises(NotImplementedError, self.bad_cls.from_dict, d)
+
+    def test_to_json(self):
+        obj = self.good_cls("Hello", "World")
+        self.assertIsNotNone(obj.to_json)
+
 
 class PMGJSONTest(unittest.TestCase):
 

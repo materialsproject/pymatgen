@@ -15,11 +15,12 @@ __date__ = "Feb 2, 2012"
 
 import unittest
 import os
+import json
 
 from pymatgen.core.structure import Composition
 
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
-from pymatgen.entries.computed_entries import computed_entries_from_json
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 import pymatgen
 
@@ -47,7 +48,12 @@ class ConversionElectrodeTest(unittest.TestCase):
         for f in formulas:
 
             with open(os.path.join(test_dir, f + "_batt.json"), 'r') as fid:
-                entries = computed_entries_from_json(fid.read())
+                entries = json.load(fid, cls=PMGJSONDecoder)
+
+                #entries = computed_entries_from_json(fid.read())
+
+            # with open(os.path.join(test_dir, f + "_batt.json"), 'w') as fid:
+            #json.dump(entries, fid, cls=PMGJSONEncoder)
 
             c = ConversionElectrode.from_composition_and_entries(Composition.from_formula(f), entries)
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
@@ -66,7 +72,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             d = pair.to_dict
             pair2 = ConversionVoltagePair.from_dict(d)
             for prop in ['voltage', 'mass_charge', 'mass_discharge']:
-                self.assertEqual(getattr(pair, prop), getattr(pair2, prop),2)
+                self.assertEqual(getattr(pair, prop), getattr(pair2, prop), 2)
 
             #Test 
             d = c.to_dict

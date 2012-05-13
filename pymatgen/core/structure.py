@@ -26,9 +26,9 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
+from pymatgen.serializers.json_coders import MSONable
 
-
-class Site(collections.Mapping, collections.Hashable):
+class Site(collections.Mapping, collections.Hashable, MSONable):
     '''
     A generalized *non-periodic* site. Atoms and occupancies should be a dict
     of element:occupancy or an element, in which case the occupancy default to 
@@ -271,7 +271,7 @@ class Site(collections.Mapping, collections.Hashable):
         return Site(atoms_n_occu, d['xyz'], properties=props)
 
 
-class PeriodicSite(Site):
+class PeriodicSite(Site, MSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.
@@ -736,7 +736,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23), np.dot(v12, v23)) * 180 / math.pi
 
 
-class Structure(SiteCollection):
+class Structure(SiteCollection, MSONable):
     """
     Basic Structure object with periodicity. Essentially a sequence of 
     PeriodicSites having a common lattice. Structure is made to be immutable 
@@ -1145,7 +1145,7 @@ class Structure(SiteCollection):
         return Structure(lattice, species, coords, site_properties=props)
 
 
-class Molecule(SiteCollection):
+class Molecule(SiteCollection, MSONable):
     """
     Basic Molecule object without periodicity. Essentially a sequence of sites. 
     Molecule is made to be immutable so that they can function as keys in a 
@@ -1369,7 +1369,7 @@ class StructureError(Exception):
         return "Structure Error : " + self.msg
 
 
-class Composition (collections.Mapping, collections.Hashable):
+class Composition (collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} dict. 
     Note that the key can be either an Element or a Specie. Elements and Specie
