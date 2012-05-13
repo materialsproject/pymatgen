@@ -21,16 +21,19 @@ import logging
 
 from pymatgen.io.vaspio import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.serializers.json_coders import MSONable
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(object):
+class AbstractDrone(MSONable):
     """
-    Abstract drone class that defines the various methods that must be implemented
-    by drones. Because of the quirky nature of Python's multiprocessing, the 
-    representations has to be in the form of python primitives. This can then
-    be reverted to the original object with drone.convert.
+    Abstract drone class that defines the various methods that must be
+    implemented by drones. Because of the quirky nature of Python's
+    multiprocessing, the intermediate data representations has to be in the
+    form of python primitives. So all objects that drones work with must be
+    MSONable. All drones must also implement the standard MSONable to_dict and
+    from_dict API.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -68,13 +71,6 @@ class AbstractDrone(object):
                 
         Returns:
             List of valid dir/file paths for assimilation
-        """
-        return
-
-    @abc.abstractproperty
-    def to_dict(self):
-        """
-        All drones must support a json serializable dict representation
         """
         return
 
