@@ -19,15 +19,16 @@ import os
 import re
 import json
 import datetime
+from copy import deepcopy
 
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import transformation_from_dict
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio import Poscar
-from copy import deepcopy
+from pymatgen.serializers.json_coders import MSONable
 
 
-class TransformedStructure(object):
+class TransformedStructure(MSONable):
     """
     Container object for new structures that include history of transformations.
     
