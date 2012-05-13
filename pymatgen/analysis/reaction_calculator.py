@@ -19,11 +19,13 @@ import itertools
 import numpy as np
 from collections import defaultdict
 
+from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.structure import Composition
 
 logger = logging.getLogger(__name__)
 
-class Reaction(object):
+
+class Reaction(MSONable):
     """
     A class representing a Reaction.
     """
