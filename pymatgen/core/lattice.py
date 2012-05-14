@@ -18,7 +18,10 @@ import numpy as np
 import numpy.linalg as npl
 from numpy import pi
 
-class Lattice(object):
+from pymatgen.serializers.json_coders import MSONable
+
+
+class Lattice(MSONable):
     '''
     A lattice object.  Essentially a matrix with conversion matrices.
     '''

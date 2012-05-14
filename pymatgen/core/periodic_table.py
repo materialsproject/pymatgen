@@ -19,7 +19,7 @@ import json
 
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
-
+from pymatgen.serializers.json_coders import MSONable
 
 def _load__pt_data():
     """Loads element data from json file"""
@@ -494,7 +494,7 @@ class Element(object):
         return Element(self.symbol)
 
 
-class Specie(object):
+class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Note that optional properties are not checked when comparing
@@ -636,7 +636,7 @@ class Specie(object):
         return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
 
 
-class DummySpecie(Specie):
+class DummySpecie(Specie, MSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special

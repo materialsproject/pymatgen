@@ -17,9 +17,10 @@ import numpy as np
 import math
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.serializers.json_coders import MSONable
 
 
-class Kpoint(object):
+class Kpoint(MSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac 
     or cartesian coordinates syntax similar than the site object in 
@@ -201,7 +202,7 @@ class BandStructure(object):
         return self._is_spin_polarized
 
 
-class BandStructureSymmLine(BandStructure):
+class BandStructureSymmLine(BandStructure, MSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z) 
@@ -445,7 +446,7 @@ class BandStructureSymmLine(BandStructure):
 
         if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
             result['direct'] = True
-        result['transition'] = '-'.join([str(c.label) if c.label is not None else str("(")+','.join(['{0:.3f}'.format(c.frac_coords[i]) for i in range(3)])+str(")") for c in [vbm['kpoint'], cbm['kpoint']]])
+        result['transition'] = '-'.join([str(c.label) if c.label is not None else str("(") + ','.join(['{0:.3f}'.format(c.frac_coords[i]) for i in range(3)]) + str(")") for c in [vbm['kpoint'], cbm['kpoint']]])
         return result
 
     def is_metal(self):

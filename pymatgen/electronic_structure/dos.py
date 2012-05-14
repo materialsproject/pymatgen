@@ -18,9 +18,9 @@ import numpy as np
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.serializers.json_coders import MSONable
 
-
-class Dos(object):
+class Dos(MSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this object.
     """
