@@ -51,7 +51,6 @@ class PDEntryTestCase (unittest.TestCase):
         self.assertEquals(gpentry.energy_per_atom, 50.0 / 2, "Wrong energy per atom!")
 
 
-
 class PDEntryIOTestCase(unittest.TestCase):
 
     def test_read_csv(self):
