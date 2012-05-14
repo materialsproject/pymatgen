@@ -27,7 +27,7 @@ def run_aconvasp_command(command, structure):
     """
     from pymatgen.io.vaspio import Poscar
     poscar = Poscar(structure)
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
     return output
 
@@ -47,6 +47,8 @@ def get_minkowski_red(structure):
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
     started = False
     poscar_string = ""
+    if "ERROR" in output[1]:
+        raise AconvaspError(output[1])
     for line in output[0].split("\n"):
         if started or line.find("KPOINTS TO RUN") != -1:
             poscar_string = poscar_string + line + "\n"
@@ -62,6 +64,8 @@ def get_vasp_kpoint_file_sym(structure):
     get a kpoint file ready to be ran in VASP along setries of a structure 
     """
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
+    if "ERROR" in output[1]:
+        raise AconvaspError(output[1])
     started = False
     kpoints_string = ""
     for line in output[0].split("\n"):
@@ -111,3 +115,16 @@ def get_point_group_rec(structure):
     os.remove("aflow.pgroupk.out")
     
     return listUc
+
+
+class AconvaspError(Exception):
+    '''
+    Exception class for aconvasp.
+    Raised when the aconvasp gives an error
+    '''
+
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return "AconvaspError : " + self.msg

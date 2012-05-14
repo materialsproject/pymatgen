@@ -193,21 +193,14 @@ class BSPlotter(object):
             else:
                 pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
         else:
-            # Semiconductor, or Insulator
-            # cbm, vbm are dict with keys: kpoint, energy, is_direct
-            vbm = self._bs.get_vbm()
-            cbm = self._bs.get_cbm()
 
-            e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
-            e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
+            for cbm in data['cbm']:
+                pylab.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
 
-            for index in cbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)
+            for vbm in data['vbm']:
+                pylab.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
 
-            for index in vbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
-
-            pylab.ylim(e_vbm + e_min, e_cbm + e_max)
+            pylab.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
 
         pylab.legend()
         if file_name is not None:
