@@ -17,12 +17,14 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 from math import sin, cos, pi, sqrt
 
-class SymmOp (object):
+from pymatgen.serializers.json_coders import MSONable
+
+
+class SymmOp(MSONable):
     """
-    A symmetry operation in cartesian space.
-    Consists of a rotation plus a translation.
-    Implementation is as an affine transformation matrix of rank 4 for efficiency.
-    Read: http://en.wikipedia.org/wiki/Affine_transformation
+    A symmetry operation in cartesian space. Consists of a rotation plus a
+    translation. Implementation is as an affine transformation matrix of rank 4
+    for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation
     """
 
     def __init__(self, affine_transformation_matrix, tol=0.01):
@@ -33,8 +35,10 @@ class SymmOp (object):
         generate a SymmOp from proper rotations and translation.
         
         Args:
-            affine_transformation_matrix: A 4x4 numpy.array representing an affine transformation.
-            tol: Tolerance for determining if matrices are equal.
+            affine_transformation_matrix:
+                A 4x4 numpy.array representing an affine transformation.
+            tol:
+                Tolerance for determining if matrices are equal.
         """
         affine_transformation_matrix = np.array(affine_transformation_matrix)
         if affine_transformation_matrix.shape != (4, 4):

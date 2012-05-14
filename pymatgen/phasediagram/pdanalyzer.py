@@ -138,7 +138,6 @@ class PDAnalyzer(object):
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
-
     def get_equilibrium_reaction_energy(self, entry):
         """
         Provides the reaction energy of a stable entry from the neighboring equilibrium stable entries.
@@ -158,6 +157,13 @@ class PDAnalyzer(object):
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
 
+    def get_facet_chempots(self, facet):
+        complist = [self._pd.qhull_entries[i].composition for i in facet]
+        energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+        m = self._make_comp_matrix(complist)
+        chempots = np.dot(np.linalg.inv(m), energylist)
+        return dict(zip(self._pd.elements, chempots))
+
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase Diagram.
@@ -171,14 +177,11 @@ class PDAnalyzer(object):
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
-        ind = self._pd.elements.index(element)
+
         critical_chempots = []
         for facet in self._pd.facets:
-            complist = [self._pd.qhull_entries[i].composition for i in facet]
-            energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-            m = self._make_comp_matrix(complist)
-            chempots = np.dot(np.linalg.inv(m), energylist)
-            critical_chempots.append(chempots[ind])
+            chempots = self.get_facet_chempots(facet)
+            critical_chempots.append(chempots[element])
 
         clean_pots = []
         for c in sorted(critical_chempots):

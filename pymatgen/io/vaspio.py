@@ -2163,7 +2163,7 @@ class VolumetricData(object):
             self.data = {Spin.up:uppot, Spin.down:downpot}
         else:
             self.data = {Spin.up:uppot}
-    
+
     def write_file(self, file_name, vasp4_compatible=False):
         """
             Write the VolumetricData object to a vasp compatible file
@@ -2187,7 +2187,7 @@ class VolumetricData(object):
                     list_lines.append('%0.11e' % self.data[Spin.up][i, j, k])
                     count += 1
                     if count % 5 == 0:
-                        f.write(''.join(list) + "\n")
+                        f.write(''.join(list_lines) + "\n")
                         list_lines = []
                     else:
                         list_lines.append(" ")
@@ -2206,6 +2206,7 @@ class VolumetricData(object):
 
         else:
             f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
+
             for k in xrange(a[2]):
                 for j in xrange(a[1]):
                     for i in xrange(a[0]):
@@ -2217,7 +2218,7 @@ class VolumetricData(object):
                         else:
                             list_lines.append(" ")
         f.close()
-            
+
 
 
 class Locpot(VolumetricData):
@@ -2261,7 +2262,7 @@ class Locpot(VolumetricData):
                         mysum += m[j, k, i]
 
             avg[1][i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
-            avg[0][i] = axis_tick + i*self.poscar.struct.lattice.abc[ind] / ng[ind]
+            avg[0][i] = axis_tick + i * self.poscar.struct.lattice.abc[ind] / ng[ind]
         return avg
 
 

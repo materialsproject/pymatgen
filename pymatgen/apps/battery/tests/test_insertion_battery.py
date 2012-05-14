@@ -15,7 +15,7 @@ import unittest
 import os
 import json
 
-from pymatgen.entries.computed_entries import computed_entries_from_json
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
@@ -27,11 +27,10 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..
 class InsertionElectrodeTest(unittest.TestCase):
 
     def setUp(self):
-        data_Li = '[{"correction": 0.0, "composition": {"Li":1}, "formulasum": "Li1", "energy": -1.90753119}]'
-        self.entry_Li = computed_entries_from_json(data_Li)[0]
+        self.entry_Li = ComputedEntry("Li", -1.90753119)
 
-        data_LTO = open(os.path.join(test_dir, "LiTiO2_batt.json")).readline()
-        self.entries_LTO = computed_entries_from_json(data_LTO)
+        with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
+            self.entries_LTO = json.load(f, cls=PMGJSONDecoder)
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
 

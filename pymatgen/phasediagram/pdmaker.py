@@ -26,6 +26,7 @@ from pymatgen.analysis.reaction_calculator import Reaction
 
 logger = logging.getLogger(__name__)
 
+
 class PhaseDiagram (object):
     '''
     Simple phase diagram class taking in elements and entries as inputs.

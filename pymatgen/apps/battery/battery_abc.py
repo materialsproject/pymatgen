@@ -23,6 +23,8 @@ from abc import ABCMeta, abstractproperty
 
 import scipy.constants as sc
 
+from pymatgen.serializers.json_coders import MSONable
+
 
 class AbstractVoltagePair(object):
     '''
@@ -59,7 +61,7 @@ class AbstractVoltagePair(object):
         return self._working_ion_entry
 
 
-class AbstractElectrode(Sequence):
+class AbstractElectrode(Sequence, MSONable):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement

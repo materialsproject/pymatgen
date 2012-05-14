@@ -13,10 +13,10 @@ __date__ = "Sep 23, 2011"
 
 
 import abc
-import json
 
+from pymatgen.serializers.json_coders import MSONable
 
-class AbstractTransformation(object):
+class AbstractTransformation(MSONable):
     """
     Abstract transformation class.    
     """
@@ -68,21 +68,6 @@ class AbstractTransformation(object):
         the transformed structures to be returned as a ranked list.
         '''
         return False
-
-    def to_json(self):
-        return json.dumps(self.to_dict)
-
-    @abc.abstractproperty
-    def to_dict(self):
-        '''
-        Creates a json representation of the transformation, which must contain
-        all necessary information to allow a reconstruction from a from_json
-        static method.
-        
-        Format should follow:
-        {'name' : transformation_class_name, 'init_arguments' : (init arguments)}
-        '''
-        return
 
     @staticmethod
     def from_dict(d):
