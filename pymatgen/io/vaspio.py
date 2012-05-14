@@ -905,7 +905,7 @@ class Kpoints(VaspInput):
         return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
-class PotcarSingle(VaspInput):
+class PotcarSingle(object):
     """
     Object for a **single** POTCAR.
     The builder assumes the complete string is the POTCAR
@@ -2174,9 +2174,9 @@ class VolumetricData(object):
                 vasp4_compatible:
                     True if the format is vasp4 compatible
         """
-        count=0
-        f = open(file_name,'w')
-        f.write(self.poscar.get_string(vasp4_compatible = vasp4_compatible) + "\n")
+        count = 0
+        f = open(file_name, 'w')
+        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
         list_lines = []
         f.write("\n")
         f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
