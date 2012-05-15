@@ -93,6 +93,3 @@ class Simplex(object):
     @property
     def coords(self):
         return self._coords.copy()
-
-    def get_plot_coords(self):
-        return self._coords.transpose()
