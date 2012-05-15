@@ -245,14 +245,12 @@ class PDAnalyzer(object):
 
     def get_chempot_range_map(self, elements):
         """
-        Beta method to show chempot map. Currently works only for 3-component
+        Beta method to get chempot range map. Currently works only for 3-component
         PDs. 
         
         TODO:
             1. Generalize code to any dim and define stability range for any
                entry as a bounded hyperplane in N-1 D.
-            2. Separate plotting function from plane definition.
-            3. Improve look of plot.
         
         Args:
             elements:
@@ -283,6 +281,21 @@ class PDAnalyzer(object):
         return chempot_ranges
 
     def plot_chempot_range_map(self, elements):
+        """
+        Plot chemical potential range map. Currently works only for 3-component
+        PDs.
+
+        TODO:
+            1. Generalize code to any dim and define stability range for any
+               entry as a bounded hyperplane in N - 1 D.
+
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li - Co - O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         from pymatgen.util.coord_utils import in_coord_list
         plt = get_publication_quality_plot(12, 8)
