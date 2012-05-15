@@ -129,12 +129,15 @@ class VaspInputSet(AbstractVaspInputSet):
     implementations.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, config = None):
         self.name = name
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
+        if config is None:
+            module_dir = os.path.dirname(os.path.abspath(__file__))
+            self._config = ConfigParser.SafeConfigParser()
+            self._config.optionxform = str
+            self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
+        else:
+            self._config = config
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name + 'INCAR'))
