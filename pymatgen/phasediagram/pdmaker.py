@@ -66,6 +66,10 @@ class PhaseDiagram (object):
         return self._all_entries
 
     @property
+    def dim(self):
+        return len(self._elements)
+
+    @property
     def elements(self):
         """
         Elements in the phase diagram.
