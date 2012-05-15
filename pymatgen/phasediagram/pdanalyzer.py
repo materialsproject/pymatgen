@@ -45,28 +45,20 @@ class PDAnalyzer(object):
 
     def _in_facet(self, facet, comp):
         """
-        Checks if a composition is in a facet using the standard barycentric coordinate system algorithm.
-        The general concept is that the facets from a convex hull form a simplex in n-dimensional space.
-        Taking an arbitrary vertex as an origin, we compute the basis for the simplex from this origin by
-        subtracting all other vertices from the origin. We then project the composition into this 
-        coordinate system and determine the coefficients in this coordinate system.  If the coeffs satisfy
-        that all coeffs >= 0 and sum(coeffs) <= 1, the composition is in the facet.
-        For example, take a 4-comp PD where the facets are tetrahedrons. For a tetrahedron, let's label
-        the vertices as O, A, B anc C.  Let's call our comp coordinate as X.
-        We form the composition matrix M with vectors OA, OB and OB, transponse it, and solve for 
-            M'.a = OX
-        where a are the coefficients.
-        if (a >= 0).all() and sum(a) <= 1, X is in the tetrahedron.
-        Note that in reality, the test needs to provide a tolerance (set to 1e-8 by default) for numerical errors.
+        Checks if a composition is in a facet.
+        
+        Args:
+            facet:
+                facet to test.
+            comp:
+                Composition to test.
         """
         dim = len(self._pd.elements)
         if dim > 1:
-            origin = np.array(self._pd.qhull_data[facet[0]][0:dim - 1])
-            cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim - 1]) - origin for i in xrange(1, len(facet))])
-            row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1, len(self._pd.elements))]
-            compm = np.array(row) - origin
-            coeffs = np.linalg.solve(cm.transpose(), compm)
-            return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
+            coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1]) for i in xrange(len(facet))]
+            simplex = Simplex(coords)
+            comp_point = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1, len(self._pd.elements))]
+            return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
         else:
             return True
 
