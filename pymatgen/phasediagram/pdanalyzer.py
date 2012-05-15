@@ -15,6 +15,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
+import re
 import itertools
 
 from pymatgen.core.structure import Composition
@@ -291,14 +292,18 @@ class PDAnalyzer(object):
             center_y = 0
 
             coords = []
+            poly = []
+            center = np.zeros(2)
             for line in lines:
-                (x, y) = line.get_plot_coords()
+                (x, y) = line.coords.transpose()
+                center += line.coords[0] + line.coords[1]
                 plt.plot(x, y, 'k')
                 center_x += sum(x)
                 center_y += sum(y)
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
+                        poly.append(coord)
                     else:
                         coords.remove(coord.tolist())
             comp = entry.composition
@@ -317,22 +322,25 @@ class PDAnalyzer(object):
         for entry, coords in missing_lines.items():
             center_x = 0
             center_y = 0
-            for coord in coords:
-                x = None
-                y = None
-                if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
-                    print entry
-                    x = [coord[0], min(xlim)]
-                    y = [coord[1], coord[1]]
-                elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
-                    x = [coord[0], coord[0]]
-                    y = [coord[1], min(ylim)]
-                if x and y:
-                    plt.plot(x, y, 'k')
-                    center_x += sum(x)
-                    center_y += sum(y)
+            comp = entry.composition
+            if not comp.is_element:
+                for coord in coords:
+                    x = None
+                    y = None
+                    if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
+                        x = [coord[0], min(xlim)]
+                        y = [coord[1], coord[1]]
+                    elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
+                        x = [coord[0], coord[0]]
+                        y = [coord[1], min(ylim)]
+                    if x and y:
+                        plt.plot(x, y, 'k')
+                        center_x += sum(x)
+                        center_y += sum(y)
+            else:
+                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
+                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
             plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.composition.reduced_formula, fontsize=20)
 
         plt.tight_layout()
         plt.show()
-
