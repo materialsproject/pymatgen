@@ -243,7 +243,7 @@ class PDAnalyzer(object):
 
         return evolution
 
-    def show_chempot_range_map(self, elements):
+    def get_chempot_range_map(self, elements):
         """
         Beta method to show chempot map. Currently works only for 3-component
         PDs. 
@@ -260,37 +260,83 @@ class PDAnalyzer(object):
                 E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
-         
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(12, 8)
-
         elrefs = self._pd.el_refs
-
+        chempot_ranges = {}
         for entry in self._pd.stable_entries:
             all_facets = self._get_facets(entry.composition)
-            center_x = 0
-            center_y = 0
-            count = 0
+            lines = []
             for facet1, facet2 in itertools.combinations(all_facets, 2):
                 inter = set(facet1).intersection(set(facet2))
+
                 if len(inter) == 2:
                     chempots1 = self.get_facet_chempots(facet1)
                     chempots2 = self.get_facet_chempots(facet2)
                     start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
                     end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
                     line = BoundedLine(start, end)
-                    (x, y) = line.get_plot_coords()
-                    plt.plot(x, y)
-                    center_x += sum(x)
-                    center_y += sum(y)
-                    count += 1
-            if count > 0:
-                plt.plot(center_x / 2 / count, center_y / 2 / count , 'ko')
-                plt.text(center_x / 2 / count, center_y / 2 / count , entry.composition.reduced_formula, fontsize=20)
+                    lines.append(line)
+
+            if len(lines) > 0:
+                chempot_ranges[entry] = lines
+
+        return chempot_ranges
+
+    def plot_chempot_range_map(self, elements):
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.coord_utils import in_coord_list
+        plt = get_publication_quality_plot(12, 8)
+
+        chempot_ranges = self.get_chempot_range_map(elements)
+        missing_lines = {}
+        for entry, lines in chempot_ranges.items():
+
+            center_x = 0
+            center_y = 0
+
+            coords = []
+            for line in lines:
+                (x, y) = line.get_plot_coords()
+                plt.plot(x, y, 'k')
+                center_x += sum(x)
+                center_y += sum(y)
+                if not in_coord_list(coords, line.coord1):
+                    coords.append(line.coord1)
+                else:
+                    coords.remove(line.coord1)
+                if not in_coord_list(coords, line.coord2):
+                    coords.append(line.coord2)
+                else:
+                    coords.remove(line.coord2)
+            comp = entry.composition
+            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
+            if coords and frac_sum < 0.99:
+                missing_lines[entry] = coords
+            else:
+                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.composition.reduced_formula, fontsize=20)
+
         plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         ax = plt.gca()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        for entry, coords in missing_lines.items():
+            center_x = 0
+            center_y = 0
+            for coord in coords:
+                if comp[elements[0]] == 0:
+                    x = [coord[0], min(xlim)]
+                    y = [coord[1], coord[1]]
+                else:
+                    x = [coord[0], coord[0]]
+                    y = [coord[1], max(ylim)]
+                plt.plot(x, y, 'k')
+                center_x += sum(x)
+                center_y += sum(y)
+            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.composition.reduced_formula, fontsize=20)
+
+
         ax.set_xlim(ax.get_xlim()[::-1])
         plt.tight_layout()
         plt.show()
