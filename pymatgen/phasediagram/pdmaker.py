@@ -66,6 +66,10 @@ class PhaseDiagram (object):
         return self._all_entries
 
     @property
+    def dim(self):
+        return len(self._elements)
+
+    @property
     def elements(self):
         """
         Elements in the phase diagram.
@@ -236,19 +240,24 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
     Grand potential phase diagram class taking in elements and entries as inputs.
     '''
 
-    def __init__(self, entries, chempots, elements, use_external_qhull=False):
+    def __init__(self, entries, chempots, elements=None, use_external_qhull=False):
         """
-        Standard constructor for phase diagram.
+        Standard constructor for grand potential phase diagram.
         
         Args:
             entries:
-                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+                A list of PDEntry-like objects having an energy, energy_per_atom
+                and composition.
             chempots:
-                A dict of {element: float} to specify the chemical potentials of the open elements.
+                A dict of {element: float} to specify the chemical potentials
+                of the open elements.
             elements:
-                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                the entries themselves.
+                Optional list of elements in the phase diagram. If set to None,
+                the elements are determined from the entries themselves.
         """
+        if elements == None:
+            elements = set()
+            map(elements.update, [entry.composition.elements for entry in entries])
         allentries = list()
         for entry in entries:
             if not (entry.is_element and (entry.composition.elements[0] in chempots)):

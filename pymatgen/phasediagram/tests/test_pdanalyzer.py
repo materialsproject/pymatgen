@@ -46,6 +46,10 @@ class  PDAnalyzerTest(unittest.TestCase):
                 if not (entry.composition.is_element):
                     self.assertLessEqual(len(self.analyzer.get_element_profile(el, entry.composition)), len(self.pd.facets))
 
+    def test_get_get_chempot_range_map(self):
+        elements = [el for el in self.pd.elements if el.symbol != "Fe"]
+        self.assertEqual(len(self.analyzer.get_chempot_range_map(elements)), 10)
+
 if __name__ == '__main__':
     unittest.main()
 

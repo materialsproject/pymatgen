@@ -15,9 +15,13 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
+import itertools
+
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.comp_geometry.simplex import Simplex
+
 
 class PDAnalyzer(object):
     """
@@ -41,28 +45,20 @@ class PDAnalyzer(object):
 
     def _in_facet(self, facet, comp):
         """
-        Checks if a composition is in a facet using the standard barycentric coordinate system algorithm.
-        The general concept is that the facets from a convex hull form a simplex in n-dimensional space.
-        Taking an arbitrary vertex as an origin, we compute the basis for the simplex from this origin by
-        subtracting all other vertices from the origin. We then project the composition into this 
-        coordinate system and determine the coefficients in this coordinate system.  If the coeffs satisfy
-        that all coeffs >= 0 and sum(coeffs) <= 1, the composition is in the facet.
-        For example, take a 4-comp PD where the facets are tetrahedrons. For a tetrahedron, let's label
-        the vertices as O, A, B anc C.  Let's call our comp coordinate as X.
-        We form the composition matrix M with vectors OA, OB and OB, transponse it, and solve for 
-            M'.a = OX
-        where a are the coefficients.
-        if (a >= 0).all() and sum(a) <= 1, X is in the tetrahedron.
-        Note that in reality, the test needs to provide a tolerance (set to 1e-8 by default) for numerical errors.
+        Checks if a composition is in a facet.
+        
+        Args:
+            facet:
+                facet to test.
+            comp:
+                Composition to test.
         """
         dim = len(self._pd.elements)
         if dim > 1:
-            origin = np.array(self._pd.qhull_data[facet[0]][0:dim - 1])
-            cm = np.array([np.array(self._pd.qhull_data[facet[i]][0:dim - 1]) - origin for i in xrange(1, len(facet))])
-            row = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1, len(self._pd.elements))]
-            compm = np.array(row) - origin
-            coeffs = np.linalg.solve(cm.transpose(), compm)
-            return (coeffs >= -PDAnalyzer.numerical_tol).all() and sum(coeffs) <= (1 + PDAnalyzer.numerical_tol)
+            coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1]) for i in xrange(len(facet))]
+            simplex = Simplex(coords)
+            comp_point = [comp.get_atomic_fraction(self._pd.elements[i]) for i in xrange(1, len(self._pd.elements))]
+            return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
         else:
             return True
 
@@ -238,3 +234,113 @@ class PDAnalyzer(object):
                 evolution.append({'chempot':c, 'evolution' :-rxn.coeffs[rxn.all_comp.index(elcomp)], 'element_reference': elref, 'reaction':rxn, 'entries':decomp_entries})
 
         return evolution
+
+    def get_chempot_range_map(self, elements):
+        """
+        Beta method to get chempot range map.
+                
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li-Co-O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        """
+        elrefs = self._pd.el_refs
+        chempot_ranges = {}
+        for entry in self._pd.stable_entries:
+            all_facets = self._get_facets(entry.composition)
+            lines = []
+            for facet1, facet2 in itertools.combinations(all_facets, 2):
+                inter = set(facet1).intersection(set(facet2))
+
+                if len(inter) == 2:
+                    chempots1 = self.get_facet_chempots(facet1)
+                    chempots2 = self.get_facet_chempots(facet2)
+                    start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
+                    end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
+                    line = Simplex([start, end])
+                    lines.append(line)
+
+            if len(lines) > 0:
+                chempot_ranges[entry] = lines
+
+        return chempot_ranges
+
+    def plot_chempot_range_map(self, elements):
+        """
+        Plot chemical potential range map. Currently works only for 3-component
+        PDs.
+
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li - Co - O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.coord_utils import in_coord_list
+        plt = get_publication_quality_plot(12, 8)
+
+        chempot_ranges = self.get_chempot_range_map(elements)
+        missing_lines = {}
+        for entry, lines in chempot_ranges.items():
+
+            center_x = 0
+            center_y = 0
+
+            coords = []
+            poly = []
+            center = np.zeros(2)
+            for line in lines:
+                (x, y) = line.coords.transpose()
+                center += line.coords[0] + line.coords[1]
+                plt.plot(x, y, 'k')
+                center_x += sum(x)
+                center_y += sum(y)
+                for coord in line.coords:
+                    if not in_coord_list(coords, coord):
+                        coords.append(coord.tolist())
+                        poly.append(coord)
+                    else:
+                        coords.remove(coord.tolist())
+            comp = entry.composition
+            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
+            if coords and frac_sum < 0.99:
+                missing_lines[entry] = coords
+            else:
+                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.name, fontsize=20)
+
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
+        ax = plt.gca()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        for entry, coords in missing_lines.items():
+            center_x = 0
+            center_y = 0
+            comp = entry.composition
+            if not comp.is_element:
+                for coord in coords:
+                    x = None
+                    y = None
+                    if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
+                        x = [coord[0], min(xlim)]
+                        y = [coord[1], coord[1]]
+                    elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
+                        x = [coord[0], coord[0]]
+                        y = [coord[1], min(ylim)]
+                    if x and y:
+                        plt.plot(x, y, 'k')
+                        center_x += sum(x)
+                        center_y += sum(y)
+            else:
+                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
+                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
+            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.name, fontsize=20)
+
+        plt.tight_layout()
+        plt.show()
+
