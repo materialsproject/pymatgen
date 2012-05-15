@@ -237,13 +237,8 @@ class PDAnalyzer(object):
 
     def get_chempot_range_map(self, elements):
         """
-        Beta method to get chempot range map. Currently works only for 3-component
-        PDs. 
-        
-        TODO:
-            1. Generalize code to any dim and define stability range for any
-               entry as a bounded hyperplane in N-1 D.
-        
+        Beta method to get chempot range map.
+                
         Args:
             elements:
                 Sequence of elements to be considered as independent variables.
@@ -277,10 +272,6 @@ class PDAnalyzer(object):
         Plot chemical potential range map. Currently works only for 3-component
         PDs.
 
-        TODO:
-            1. Generalize code to any dim and define stability range for any
-               entry as a bounded hyperplane in N - 1 D.
-
         Args:
             elements:
                 Sequence of elements to be considered as independent variables.
@@ -307,9 +298,9 @@ class PDAnalyzer(object):
                 center_y += sum(y)
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
-                        coords.append(coord)
+                        coords.append(coord.tolist())
                     else:
-                        coords.remove(coord)
+                        coords.remove(coord.tolist())
             comp = entry.composition
             frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
             if coords and frac_sum < 0.99:
@@ -330,6 +321,7 @@ class PDAnalyzer(object):
                 x = None
                 y = None
                 if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
+                    print entry
                     x = [coord[0], min(xlim)]
                     y = [coord[1], coord[1]]
                 elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
