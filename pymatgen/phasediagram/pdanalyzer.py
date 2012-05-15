@@ -20,7 +20,7 @@ import itertools
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
-from pymatgen.comp_geometry.bounded import BoundedLine
+from pymatgen.comp_geometry.simplex import Simplex
 
 
 class PDAnalyzer(object):
@@ -272,7 +272,7 @@ class PDAnalyzer(object):
                     chempots2 = self.get_facet_chempots(facet2)
                     start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
                     end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
-                    line = BoundedLine(start, end)
+                    line = Simplex([start, end])
                     lines.append(line)
 
             if len(lines) > 0:
@@ -313,14 +313,11 @@ class PDAnalyzer(object):
                 plt.plot(x, y, 'k')
                 center_x += sum(x)
                 center_y += sum(y)
-                if not in_coord_list(coords, line.coord1):
-                    coords.append(line.coord1)
-                else:
-                    coords.remove(line.coord1)
-                if not in_coord_list(coords, line.coord2):
-                    coords.append(line.coord2)
-                else:
-                    coords.remove(line.coord2)
+                for coord in line.coords:
+                    if not in_coord_list(coords, coord):
+                        coords.append(coord)
+                    else:
+                        coords.remove(coord)
             comp = entry.composition
             frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
             if coords and frac_sum < 0.99:
@@ -338,18 +335,36 @@ class PDAnalyzer(object):
             center_x = 0
             center_y = 0
             for coord in coords:
-                if comp[elements[0]] == 0:
+                x = None
+                y = None
+                if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
                     x = [coord[0], min(xlim)]
                     y = [coord[1], coord[1]]
-                else:
+                elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
                     x = [coord[0], coord[0]]
-                    y = [coord[1], max(ylim)]
-                plt.plot(x, y, 'k')
-                center_x += sum(x)
-                center_y += sum(y)
+                    y = [coord[1], min(ylim)]
+                if x and y:
+                    plt.plot(x, y, 'k')
+                    center_x += sum(x)
+                    center_y += sum(y)
             plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.composition.reduced_formula, fontsize=20)
 
-
-        ax.set_xlim(ax.get_xlim()[::-1])
+        #ax.set_xlim(ax.get_xlim()[::-1])
+        #ax.set_ylim(ax.get_ylim()[::-1])
         plt.tight_layout()
         plt.show()
+
+
+from pymatgen.core.periodic_table import Element
+
+from pymatpro.db.mongo.query_engine_mit import MITQueryEngine
+from pymatgen.entries.compatibility import MITCompatibility
+qe = MITQueryEngine()
+
+entries = qe.get_entries_in_system(["Li", "Co", "O"])
+compat = MITCompatibility()
+entries = compat.process_entries(entries)
+pd = PhaseDiagram(entries)
+
+analyzer = PDAnalyzer(pd)
+analyzer.plot_chempot_range_map([Element("Li"), Element("O")])
