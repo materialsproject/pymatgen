@@ -349,22 +349,6 @@ class PDAnalyzer(object):
                     center_y += sum(y)
             plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.composition.reduced_formula, fontsize=20)
 
-        #ax.set_xlim(ax.get_xlim()[::-1])
-        #ax.set_ylim(ax.get_ylim()[::-1])
         plt.tight_layout()
         plt.show()
 
-
-from pymatgen.core.periodic_table import Element
-
-from pymatpro.db.mongo.query_engine_mit import MITQueryEngine
-from pymatgen.entries.compatibility import MITCompatibility
-qe = MITQueryEngine()
-
-entries = qe.get_entries_in_system(["Li", "Co", "O"])
-compat = MITCompatibility()
-entries = compat.process_entries(entries)
-pd = PhaseDiagram(entries)
-
-analyzer = PDAnalyzer(pd)
-analyzer.plot_chempot_range_map([Element("Li"), Element("O")])
