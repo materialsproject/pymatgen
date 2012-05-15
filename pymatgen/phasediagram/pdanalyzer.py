@@ -15,7 +15,6 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
-import re
 import itertools
 
 from pymatgen.core.structure import Composition
@@ -311,7 +310,7 @@ class PDAnalyzer(object):
             if coords and frac_sum < 0.99:
                 missing_lines[entry] = coords
             else:
-                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.composition.reduced_formula, fontsize=20)
+                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.name, fontsize=20)
 
         plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
@@ -340,7 +339,8 @@ class PDAnalyzer(object):
             else:
                 center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
                 center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
-            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.composition.reduced_formula, fontsize=20)
+            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.name, fontsize=20)
 
         plt.tight_layout()
         plt.show()
+
