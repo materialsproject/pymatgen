@@ -15,9 +15,13 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
+import itertools
+
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.comp_geometry.bounded import BoundedLine
+
 
 class PDAnalyzer(object):
     """
@@ -238,3 +242,55 @@ class PDAnalyzer(object):
                 evolution.append({'chempot':c, 'evolution' :-rxn.coeffs[rxn.all_comp.index(elcomp)], 'element_reference': elref, 'reaction':rxn, 'entries':decomp_entries})
 
         return evolution
+
+    def show_chempot_range_map(self, elements):
+        """
+        Beta method to show chempot map. Currently works only for 3-component
+        PDs. 
+        
+        TODO:
+            1. Generalize code to any dim and define stability range for any
+               entry as a bounded hyperplane in N-1 D.
+            2. Separate plotting function from plane definition.
+            3. Improve look of plot.
+        
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li-Co-O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+         
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8)
+
+        elrefs = self._pd.el_refs
+
+        for entry in self._pd.stable_entries:
+            all_facets = self._get_facets(entry.composition)
+            center_x = 0
+            center_y = 0
+            count = 0
+            for facet1, facet2 in itertools.combinations(all_facets, 2):
+                inter = set(facet1).intersection(set(facet2))
+                if len(inter) == 2:
+                    chempots1 = self.get_facet_chempots(facet1)
+                    chempots2 = self.get_facet_chempots(facet2)
+                    start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
+                    end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
+                    line = BoundedLine(start, end)
+                    (x, y) = line.get_plot_coords()
+                    plt.plot(x, y)
+                    center_x += sum(x)
+                    center_y += sum(y)
+                    count += 1
+            if count > 0:
+                plt.plot(center_x / 2 / count, center_y / 2 / count , 'ko')
+                plt.text(center_x / 2 / count, center_y / 2 / count , entry.composition.reduced_formula, fontsize=20)
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
+        ax = plt.gca()
+        ax.set_xlim(ax.get_xlim()[::-1])
+        plt.tight_layout()
+        plt.show()
