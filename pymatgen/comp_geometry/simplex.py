@@ -93,3 +93,4 @@ class Simplex(object):
     @property
     def coords(self):
         return self._coords.copy()
+
