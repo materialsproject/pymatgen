@@ -251,15 +251,15 @@ class PDAnalyzer(object):
         for entry in self._pd.stable_entries:
             all_facets = self._get_facets(entry.composition)
             lines = []
-            for facet1, facet2 in itertools.combinations(all_facets, 2):
-                inter = set(facet1).intersection(set(facet2))
+            for facets in itertools.combinations(all_facets, self._pd.dim - 1):
+                inter = reduce(lambda a, b: set(a).intersection(set(b)), facets)
 
                 if len(inter) == 2:
-                    chempots1 = self.get_facet_chempots(facet1)
-                    chempots2 = self.get_facet_chempots(facet2)
-                    start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
-                    end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
-                    line = Simplex([start, end])
+                    coords = []
+                    for facet in facets:
+                        chempots = self.get_facet_chempots(facet)
+                        coords.append([chempots[el] - elrefs[el].energy_per_atom for el in elements])
+                    line = Simplex(coords)
                     lines.append(line)
 
             if len(lines) > 0:
