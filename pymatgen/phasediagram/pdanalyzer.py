@@ -237,7 +237,7 @@ class PDAnalyzer(object):
 
     def get_chempot_range_map(self, elements):
         """
-        Beta method to get chempot range map.
+        Returns a chemical potential range map for each stable entry.
                 
         Args:
             elements:
@@ -245,12 +245,17 @@ class PDAnalyzer(object):
                 E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+        
+        Returns:
+            Returns a dict of the form {entry: [simplices]}. The list of 
+            simplices are the sides of the N-1 dim polytope bounding the
+            allowable chemical potential range of each entry.
         """
         elrefs = self._pd.el_refs
         chempot_ranges = {}
         for entry in self._pd.stable_entries:
             all_facets = self._get_facets(entry.composition)
-            lines = []
+            simplices = []
             for facets in itertools.combinations(all_facets, self._pd.dim - 1):
                 inter = reduce(lambda a, b: set(a).intersection(set(b)), facets)
 
@@ -259,11 +264,11 @@ class PDAnalyzer(object):
                     for facet in facets:
                         chempots = self.get_facet_chempots(facet)
                         coords.append([chempots[el] - elrefs[el].energy_per_atom for el in elements])
-                    line = Simplex(coords)
-                    lines.append(line)
+                    sim = Simplex(coords)
+                    simplices.append(sim)
 
-            if len(lines) > 0:
-                chempot_ranges[entry] = lines
+            if len(simplices) > 0:
+                chempot_ranges[entry] = simplices
 
         return chempot_ranges
 
