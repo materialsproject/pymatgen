@@ -286,23 +286,17 @@ class PDAnalyzer(object):
         chempot_ranges = self.get_chempot_range_map(elements)
         missing_lines = {}
         for entry, lines in chempot_ranges.items():
-
             center_x = 0
             center_y = 0
-
             coords = []
-            poly = []
-            center = np.zeros(2)
             for line in lines:
                 (x, y) = line.coords.transpose()
-                center += line.coords[0] + line.coords[1]
                 plt.plot(x, y, 'k')
                 center_x += sum(x)
                 center_y += sum(y)
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
-                        poly.append(coord)
                     else:
                         coords.remove(coord.tolist())
             comp = entry.composition
@@ -312,8 +306,6 @@ class PDAnalyzer(object):
             else:
                 plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.name, fontsize=20)
 
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
@@ -341,6 +333,7 @@ class PDAnalyzer(object):
                 center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
             plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.name, fontsize=20)
 
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         plt.tight_layout()
         plt.show()
-
