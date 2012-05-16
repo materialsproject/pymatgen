@@ -256,10 +256,14 @@ class PDAnalyzer(object):
         for entry in self._pd.stable_entries:
             all_facets = self._get_facets(entry.composition)
             simplices = []
-            for facets in itertools.combinations(all_facets, self._pd.dim - 1):
-                inter = reduce(lambda a, b: set(a).intersection(set(b)), facets)
+            # For each entry, go through all possible combinations of 2 facets.
+            for facets in itertools.combinations(all_facets, 2):
+                # Get the intersection of the 2 facets.
+                inter = set(facets[0]).intersection(set(facets[1]))
 
-                if len(inter) == 2:
+                #Check if the intersection has N-1 vertices. if so, add the line
+                #to the list of simplices.
+                if len(inter) == self._pd.dim - 1:
                     coords = []
                     for facet in facets:
                         chempots = self.get_facet_chempots(facet)
@@ -342,3 +346,4 @@ class PDAnalyzer(object):
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         plt.tight_layout()
         plt.show()
+
