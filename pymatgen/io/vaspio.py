@@ -41,7 +41,7 @@ from pymatgen.electronic_structure.band_structure.band_structure import BandStru
 from pymatgen.core.lattice import Lattice
 import pymatgen
 
-coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
+
 
 class Poscar(VaspInput):
     """
@@ -778,6 +778,8 @@ class Kpoints(VaspInput):
         #Fully automatic KPOINTS
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
+
+        coord_pattern = re.compile("^\s*([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)\s+([\d+\.\-Ee]+)")
 
         #Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
