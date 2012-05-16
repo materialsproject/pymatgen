@@ -19,6 +19,7 @@ Subpackages
     pymatgen.apps
     pymatgen.borg
     pymatgen.command_line
+    pymatgen.comp_geometry
     pymatgen.core
     pymatgen.electronic_structure
     pymatgen.entries
