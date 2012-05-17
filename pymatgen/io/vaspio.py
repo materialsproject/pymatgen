@@ -1343,9 +1343,9 @@ class Vasprun(object):
                 eigenvals[Spin.down].append([dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]);
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
         else:
-            return BandStructure(kpoints, eigenvals, lattice_new, self.efermi)
+            return BandStructure(kpoints, eigenvals, lattice_new, efermi)
 
 
     @property
