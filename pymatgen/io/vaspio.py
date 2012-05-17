@@ -942,7 +942,9 @@ class PotcarSingle(object):
         """
         Attempt to return the atomic symbol based on the VRHFIN keyword
         """
-        return self.keywords['VRHFIN'].split(":")[0].strip()
+        element = self.keywords['VRHFIN'].split(":")[0].strip()
+        #VASP incorrectly gives the element symbol for Xe as 'X'
+        return 'Xe' if element == 'X' else element
 
     @property
     def atomic_no(self):
