@@ -318,8 +318,8 @@ class LocpotTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'LOCPOT')
-        locpot = Locpot(filepath)
-        self.assertAlmostEqual(-217.05226954, sum(locpot.get_avg_potential_along_axis(0)))
+        locpot = Locpot.from_file(filepath)
+        self.assertAlmostEqual(-217.05226954, sum(locpot.get_average_along_axis(0)))
         self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.87629, 2)
         self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.87629, 2)
         self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.87629, 2)
@@ -329,11 +329,15 @@ class ChgcarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'CHGCAR.nospin')
-        chg = Chgcar(filepath)
-        self.assertAlmostEqual(chg.get_diff_int_charge(0, 2), 0)
+        chg = Chgcar.from_file(filepath)
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 2), 0)
         filepath = os.path.join(test_dir, 'CHGCAR.spin')
-        chg = Chgcar(filepath)
-        self.assertAlmostEqual(chg.get_diff_int_charge(0, 1), -0.00438969322375)
+        chg = Chgcar.from_file(filepath)
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375)
+        #test sum
+        chg += chg
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375 * 2)
+
 
 
 if __name__ == '__main__':
