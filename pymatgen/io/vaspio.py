@@ -583,6 +583,7 @@ class Incar(dict, VaspInput):
                 params[k] = v
         return Incar(params)
 
+
 class Kpoints(VaspInput):
     """
     KPOINT reader/writer.
@@ -738,7 +739,6 @@ class Kpoints(VaspInput):
 
         num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
         #ensure that numDiv[i] > 0
-
         num_div = [i if i > 0 else 1 for i in num_div]
 
         angles = latt.angles
@@ -762,7 +762,7 @@ class Kpoints(VaspInput):
         """
         Reads a Kpoints object from a KPOINTS file.
         
-        Arguments:
+        Args:
             filename:
                 filename to read from.
                 
@@ -848,7 +848,7 @@ class Kpoints(VaspInput):
         """
         Write Kpoints to a file.
         
-        Arguments:
+        Args:
             filename:
                 filename to write to.
         """
@@ -970,6 +970,7 @@ class PotcarSingle(object):
         if a_caps in self.keywords:
             return self.keywords[a_caps] if a_caps not in floatkeywords else float(self.keywords[a_caps].split()[0])
         raise AttributeError(a)
+
 
 class Potcar(list, VaspInput):
     """
@@ -1348,7 +1349,6 @@ class Vasprun(object):
         else:
             return BandStructure(kpoints, eigenvals, lattice_new, efermi)
 
-
     @property
     def eigenvalue_band_properties(self):
         """
@@ -1440,10 +1440,8 @@ class Vasprun(object):
 
 class VasprunHandler(xml.sax.handler.ContentHandler):
     """
-    Sax handler for vasprun.xml.
-    Attributes are mirrored into Vasprun object.
-    
-    Author: Shyue Ping Ong
+    Sax handler for vasprun.xml. Attributes are mirrored into Vasprun object.
+    Generally should not be initiatized on its own.
     """
 
     def __init__(self, filename, read_electronic_structure=True):
@@ -1867,7 +1865,6 @@ class Outcar(object):
     See the documentation of those methods for more documentation.
     
     Authors: Rickard Armiento, Shyue Ping Ong
-    
     """
     def __init__(self, filename):
         self.filename = filename
@@ -1997,7 +1994,6 @@ class Outcar(object):
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
 
-
             def piezo_section_start(results, match): results.piezo_index = 0;
             search.append(['PIEZOELECTRIC TENSOR  for field in x, y, z        \(e  Angst\)', None, piezo_section_start])
 
@@ -2009,7 +2005,6 @@ class Outcar(object):
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
-
 
             def born_section_start(results, match): results.born_ion = -1;
             search.append(['BORN EFFECTIVE CHARGES \(in e, cummulative output\)', None, born_section_start])
@@ -2025,9 +2020,6 @@ class Outcar(object):
 
             self.born_ion = None
             self.born = {}
-
-            #def debug_print(results,match): print "MATCH:",match.group(0),':',results.born_ion
-            #micro_pyawk(filename,search,self,debug=debug_print, postdebug=debug_print)
 
             micro_pyawk(self.filename, search, self)
 
@@ -2169,59 +2161,36 @@ class VolumetricData(object):
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
-            Write the VolumetricData object to a vasp compatible file
+        Write the VolumetricData object to a vasp compatible file.
             
-            Args:
-                file_name:
-                    the path to a file
-                vasp4_compatible:
-                    True if the format is vasp4 compatible
+        Args:
+            file_name:
+                the path to a file
+            vasp4_compatible:
+                True if the format is vasp4 compatible
         """
         count = 0
         f = open(file_name, 'w')
         f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
-        list_lines = []
-        f.write("\n")
-        f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
+        lines = []
         a = self.dim
-        for k in xrange(a[2]):
-            for j in xrange(a[1]):
-                for i in xrange(a[0]):
-                    list_lines.append('%0.11e' % self.data[Spin.up][i, j, k])
-                    count += 1
-                    if count % 5 == 0:
-                        f.write(''.join(list_lines) + "\n")
-                        list_lines = []
-                    else:
-                        list_lines.append(" ")
+        f.write("\n")
+        def write_spin(spin):
+            f.write("{} {} {}\n".format(a[0], a[1], a[2]))
+            for k in xrange(a[2]):
+                for j in xrange(a[1]):
+                    for i in xrange(a[0]):
+                        lines.append('%0.11e' % self.data[spin][i, j, k])
+                        count += 1
+                        if count % 5 == 0:
+                            f.write(''.join(lines) + "\n")
+                            lines = []
+                        else:
+                            lines.append(" ")
+        write_spin(Spin.up)
         if not self.spinpolarized:
-            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
-            for k in xrange(a[2]):
-                for j in xrange(a[1]):
-                    for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.down][i, j, k])
-                        count += 1
-                        if count % 5 == 0:
-                            f.write(''.join(list) + "\n")
-                            list_lines = []
-                        else:
-                            list_lines.append(" ")
-
-        else:
-            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
-
-            for k in xrange(a[2]):
-                for j in xrange(a[1]):
-                    for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.down][i, j, k])
-                        count += 1
-                        if count % 5 == 0:
-                            f.write(''.join(list) + "\n")
-                            list_lines = []
-                        else:
-                            list_lines.append(" ")
+            write_spin(Spin.down)
         f.close()
-
 
 
 class Locpot(VolumetricData):
