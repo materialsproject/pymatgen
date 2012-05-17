@@ -16,7 +16,6 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Apr 30, 2012"
 
-import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Structure, Composition
@@ -25,13 +24,14 @@ from pymatgen.serializers.json_coders import MSONable
 class ComputedEntry(PDEntry, MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
-    for many purposes.  Extends a PDEntry so that it can be used for phase diagram
-    generation.
-    
-    Author: Shyue Ping Ong, Anubhav Jain
+    for many purposes. Extends a PDEntry so that it can be used for phase
+    diagram generation. The difference between a ComputedEntry and a standard
+    PDEntry is that it includes additional parameters like a correction and
+    run_parameters.
     """
 
-    def __init__(self, composition, energy, correction=0.0, parameters=None, data=None):
+    def __init__(self, composition, energy, correction=0.0, parameters=None,
+                 data=None):
         """
         Args:
             composition:
@@ -106,8 +106,6 @@ class ComputedStructureEntry(ComputedEntry):
     """
     A heavier version of ComputedEntry which contains a structure as well. The 
     structure is needed for some analyses.
-    
-    Author: Shyue Ping Ong, Anubhav Jain
     """
 
     def __init__(self, structure, energy, correction=0.0, parameters=None,

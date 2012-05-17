@@ -8,11 +8,11 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "May 16, 2012"
 
 import numpy as np
 import itertools
@@ -86,7 +86,8 @@ class PDAnalyzer(object):
         Provides the decomposition at a particular composition
         
         Args:
-            comp - A composition
+            comp:
+                A composition
         
         Returns:
             Decomposition as a dict of {PDEntry: amount}
@@ -136,15 +137,16 @@ class PDAnalyzer(object):
 
     def get_equilibrium_reaction_energy(self, entry):
         """
-        Provides the reaction energy of a stable entry from the neighboring equilibrium stable entries.
-        (also known as the inverse distance to hull).
+        Provides the reaction energy of a stable entry from the neighboring
+        equilibrium stable entries (also known as the inverse distance to hull).
         
         Args:
             entry:
                 A PDEntry like object
         
         Returns:
-            Equilibrium reaction energy of entry.  Stable entries should have equilibrium reaction energy <= 0.
+            Equilibrium reaction energy of entry. Stable entries should have
+            equilibrium reaction energy <= 0.
         """
         if entry not in self._pd.stable_entries:
             raise ValueError("Equilibrium reaction energy is available only for stable entries.")
@@ -166,10 +168,11 @@ class PDAnalyzer(object):
         
         Args:
             element:
-                An element.  Has to be in the PD in the first place.
+                An element. Has to be in the PD in the first place.
         
         Returns:
-            A sorted sequence of critical chemical potentials, from less negative to more negative.
+            A sorted sequence of critical chemical potentials, from less
+            negative to more negative.
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
@@ -192,8 +195,9 @@ class PDAnalyzer(object):
     def get_element_profile(self, element, comp):
         """
         Provides the element evolution data for a composition.
-        For example, can be used to analyze Li conversion voltages by varying uLi and looking at the phases formed.
-        Also can be used to analyze O2 evolution by varying uO2.
+        For example, can be used to analyze Li conversion voltages by varying
+        uLi and looking at the phases formed. Also can be used to analyze O2
+        evolution by varying uO2.
         
         Args:
             element:
@@ -202,7 +206,9 @@ class PDAnalyzer(object):
                 A Composition
         
         Returns:
-            Evolution data as a list of dictionaries of the following format: [ {'chempot': -10.487582010000001, 'evolution': -2.0, 'reaction': Reaction Object], ...]
+            Evolution data as a list of dictionaries of the following format:
+            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
+            'reaction': Reaction Object], ...]
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
@@ -284,7 +290,7 @@ class PDAnalyzer(object):
         Args:
             elements:
                 Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li - Co - O
+                E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         """
