@@ -1310,7 +1310,6 @@ class Vasprun(object):
         TODO:
             - make a bit more general for non Symm Line band structures
             - make a decision on the convention with 2*pi or not 
-            
         """
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
@@ -1332,9 +1331,11 @@ class Vasprun(object):
         else:
             eigenvals = {Spin.up:[]}
 
-        neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
+        neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
+        if not efermi:
+            efermi = self.efermi
 
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
