@@ -2055,30 +2055,62 @@ class VolumetricData(object):
             The name from the comment line.
         poscar:
             Poscar object
-        spinpolarized:
+        is_spin_polarized:
             True if run is spin polarized
         dim:
             Tuple of dimensions of volumetric grid in each direction, 
             (nx, ny, nz)
         data:
-            Actual data as a dict of {grid coordinate: value}. Grid coordinate
-            is a (x,y,z) tuple.
+            Actual data as a dict of {string: np.array}. The string are "total"
+            and "diff", in accordance to the output format of vasp LOCPOT and
+            CHGCAR files where the total spin density is written first, followed
+            by the difference spin density.
+        spin_data:
+            The data decomposed into actual spin data as {spin: data}.
+            Essentially, this provides the actual Spin.up and Spin.down data
+            instead of the total and diff.  Note that by definition, a
+            non-spin-polarized run would have Spin.up data == Spin.down data.
         ngridpts:
             Total number of grid points in volumetric data.
     """
-    def __init__(self, filename):
-        self.name = str()
-        self.poscar = None
-        self.spinpolarized = False
-        self.dim = None
-        self.data = dict()
-        self.ngridpts = 0
-        self._read_file(filename)
+    def __init__(self, structure, data, distance_matrix=None):
+        """
+        Typically, this constructor is not used directly and the static
+        from_file constructor is used. This constructor is designed to allow
+        summation and other operations between VolumetricData objects.
+        
+        Args:
+            structure:
+                Structure associated with the volumetric data
+            data:
+                Actual volumetric data.
+            distance_matrix:
+                A pre-computed distance matrix if available. Useful so pass
+                distance_matrices between sums, shortcircuiting an otherwise
+                expensive operation.
+        """
+        self.structure = structure
+        self.is_spin_polarized = len(data) == 2
+        self.dim = data['total'].shape
+        self.data = data
+        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
+        #lazy init the spin data since this is not always needed.
+        self._spin_data = {}
+        self._distance_matrix = {} if not distance_matrix else distance_matrix
+
+    @property
+    def spin_data(self):
+        if not self._spin_data:
+            spin_data = dict()
+            spin_data[Spin.up] = 0.5 * (self.data['total'] + self.data.get('diff', 0))
+            spin_data[Spin.down] = 0.5 * (self.data['total'] - self.data.get('diff', 0))
+            self._spin_data = spin_data
+        return self._spin_data
 
     def get_axis_grid(self, ind):
         ng = self.dim
         num_pts = ng[ind]
-        lengths = self.poscar.struct.lattice.abc
+        lengths = self.structure.lattice.abc
         return [i / num_pts * lengths[ind] for i in xrange(num_pts)]
 
     def __add__(self, other):
@@ -2087,29 +2119,48 @@ class VolumetricData(object):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def linear_add(self, other, scalefactor=1.0):
+    def linear_add(self, other, scale_factor=1.0):
         '''
         Method to do a linear sum of volumetric objects. Used by + and -
-        operators as well.
+        operators as well. Returns a VolumetricData object containing the
+        linear sum.
+        
+        Args:
+            other:
+                Another VolumetricData object
+            scale_factor:
+                Factor to scale the other data by.
+                
+        Returns:
+            VolumetricData corresponding to self + scale_factor * other.
         '''
+        if self.structure != other.structure:
+            raise ValueError("Adding or subtraction operations can only be performed for volumetric data with the exact same structure.")
         #To add checks
-        summed = VolumetricData()
-        summed.name = self.name
-        summed.poscar = self.poscar
-        summed.spinpolarized = self.spinpolarized
-        summed.dim = self.dim
-        summed.numpts = self.ngridpts
-        for spin in self.data.keys():
-            summed.data[spin] = self.data[spin] + scalefactor * other.data[spin]
-        return summed
+        data = {}
+        for k in self.data.keys():
+            data[k] = self.data[k] + scale_factor * other.data[k]
+        return VolumetricData(self.structure, data, self._distance_matrix)
 
-    def _read_file(self, filename):
+    @staticmethod
+    def parse_file(filename):
+        """
+        Convenience method to parse a generic volumetric data file in the vasp
+        like format. Used by subclasses for parsing file.
+        
+        Args:
+            filename:
+                Path of file to parse
+        
+        Returns:
+            (poscar, data)
+        """
 
         reader = file_open_zip_aware(filename)
         lines = reader.readlines()
         reader.close()
 
-        self.poscar = Poscar.from_file(filename)
+        poscar = Poscar.from_file(filename)
 
         # Skip whitespace between POSCAR and LOCPOT data
         i = 0
@@ -2123,42 +2174,39 @@ class VolumetricData(object):
         spinpolarized = False
         # Search for the second dimension line, where the next spin starts
         for j in xrange(i, len(lines)):
-            if(dimensionline == lines[j].strip()):
+            if dimensionline == lines[j].strip():
                 spinpolarized = True
                 break
 
         if not spinpolarized:
             j = j + 2
 
-        self.spinpolarized = spinpolarized
-
         # Read three numbers that is the dimension
         dimensionexpr = re.compile('([0-9]+) +([0-9]+) +([0-9]+)')
         m = dimensionexpr.match(dimensionline.strip())
         a = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+
+        def parse_data(data):
+            pot = np.zeros((a[0], a[1], a[2]))
+            count = 0
+            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                pot[x, y, z] = float(data[count])
+                count += 1
+            return pot
+
         data = (" ".join(lines[i:j - 1])).split()
         data = data[:(a[0] * a[1] * a[2])]
 
-        self.dim = a
-        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        uppot = np.zeros((a[0], a[1], a[2]))
-        count = 0
-        for z in xrange(a[2]):
-            for y in xrange(a[1]):
-                for x in xrange(a[0]):
-                    uppot[x, y, z] = float(data[count])
-                    count += 1
+        totalpot = parse_data(data)
         if spinpolarized:
             data = (" ".join(lines[j + 1:])).split()
             data = data[:(a[0] * a[1] * a[2])]
-            downpot = np.zeros((a[0], a[1], a[2]))
-            count = 0
-            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
-                downpot[x, y, z] = float(data[count])
-                count += 1
-            self.data = {Spin.up:uppot, Spin.down:downpot}
+            diffpot = parse_data(data)
+            data = {"total":totalpot, "diff":diffpot}
         else:
-            self.data = {Spin.up:uppot}
+            data = {"total":totalpot}
+
+        return (poscar, data)
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
@@ -2172,105 +2220,41 @@ class VolumetricData(object):
         """
 
         f = open(file_name, 'w')
-        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
+        p = Poscar(self.structure)
+        f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
         a = self.dim
         f.write("\n")
-        def write_spin(spin):
+        def write_spin(data_type):
             lines = []
             count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for k in xrange(a[2]):
-                for j in xrange(a[1]):
-                    for i in xrange(a[0]):
-                        lines.append('%0.11e' % self.data[spin][i, j, k])
-                        count += 1
-                        if count % 5 == 0:
-                            f.write(''.join(lines) + "\n")
-                            lines = []
-                        else:
-                            lines.append(" ")
+            for (k, j, i) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                lines.append('%0.11e' % self.data[data_type][i, j, k])
+                count += 1
+                if count % 5 == 0:
+                    f.write(''.join(lines) + "\n")
+                    lines = []
+                else:
+                    lines.append(" ")
             f.write(''.join(lines) + "\n")
-        write_spin(Spin.up)
-        if self.spinpolarized:
+        write_spin("total")
+        if self.is_spin_polarized:
             f.write("\n")
-            write_spin(Spin.down)
+            write_spin("diff")
         f.close()
 
-
-class Locpot(VolumetricData):
-    """
-    Simple object for reading a LOCPOT file.
-    """
-
-    def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Name of file containing LOCPOT.
-        """
-        super(Locpot, self).__init__(filename)
-
-    def get_avg_potential_along_axis(self, ind):
-        """
-        Get the averaged LOCPOT along a certain axis direction. Useful for
-        visualizing Hartree Potentials.
-        
-        Args:
-            ind : Index of axis.
-            
-        Returns:
-            Average Hatree potential along axis
-        """
-        m = self.data[Spin.up]
-
-        ng = self.dim
-        avg = []
-        for i in xrange(ng[ind]):
-            mysum = 0
-            for j in xrange(ng[(ind + 1) % 3]):
-                for k in xrange(ng[(ind + 2) % 3]):
-                    if ind == 0:
-                        mysum += m[i, j, k]
-                    if ind == 1:
-                        mysum += m[k, i, j]
-                    if ind == 2:
-                        mysum += m[j, k, i]
-
-            avg.append(mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0))
-        return avg
-
-
-class Chgcar(VolumetricData):
-    """
-    Simple object for reading a CHGCAR file.
-    """
-    def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Name of file containing CHGCAR.
-        """
-        super(Chgcar, self).__init__(filename)
-        # Chgcar format is total density in first set, and moment density in
-        # second set. Need to split them into up and down.
-        updowndata = dict()
-        updowndata[Spin.up] = 0.5 * (self.data[Spin.up] + self.data.get(Spin.down, 0))
-        updowndata[Spin.down] = 0.5 * (self.data[Spin.up] - self.data.get(Spin.down, 0))
-        self.updowndata = updowndata
-        self._distance_matrix = dict()
-
     def _calculate_distance_matrix(self, ind):
-        structure = self.poscar.struct
+        site = self.structure[ind]
         a = self.dim
         distances = dict()
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             pt = np.array([x / a[0], y / a[1] , z / a[2]])
-            distances[(x, y, z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
+            distances[(x, y, z)] = site.distance_and_image_from_frac_coords(pt)[0]
         self._distance_matrix[ind] = distances
 
-    def get_diff_int_charge(self, ind, radius):
+    def get_integrated_diff(self, ind, radius):
         """
-        Get differential integrated charge of atom index ind up to radius.
+        Get integrated difference of atom index ind up to radius.
         
         Args:
             ind:
@@ -2281,14 +2265,95 @@ class Chgcar(VolumetricData):
         Returns:
             Differential integrated charge.
         """
+        #Shortcircuit the data since by definition, this will be zero for non
+        #spin-polarized runs.
+        if not self.is_spin_polarized:
+            return 0
         if ind not in self._distance_matrix:
             self._calculate_distance_matrix(ind)
         a = self.dim
         intchg = 0
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x, y, z)] < radius:
-                intchg += self.updowndata[Spin.up][x, y, z] - self.updowndata[Spin.down][x, y, z]
+                intchg += self.data["diff"][x, y, z]
         return intchg / self.ngridpts
+
+    def get_average_along_axis(self, ind):
+        """
+        Get the averaged total of the volumetric data a certain axis direction.
+        For example, useful for visualizing Hartree Potentials from a LOCPOT
+        fike.
+        
+        Args:
+            ind : Index of axis.
+            
+        Returns:
+            Average total along axis
+        """
+        m = self.data["total"]
+
+        ng = self.dim
+        avg = []
+        for i in xrange(ng[ind]):
+            subtotal = 0
+            for j in xrange(ng[(ind + 1) % 3]):
+                for k in xrange(ng[(ind + 2) % 3]):
+                    if ind == 0:
+                        subtotal += m[i, j, k]
+                    if ind == 1:
+                        subtotal += m[k, i, j]
+                    if ind == 2:
+                        subtotal += m[j, k, i]
+            avg.append(subtotal)
+        avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
+        return avg
+
+
+class Locpot(VolumetricData):
+    """
+    Simple object for reading a LOCPOT file.
+    """
+
+    def __init__(self, poscar, data):
+        """
+        Args:
+            poscar:
+                Poscar object containing structure.
+            data:
+                Actual data.
+        """
+        VolumetricData.__init__(self, poscar.struct, data)
+        self.name = poscar.comment
+
+    @staticmethod
+    def from_file(filename):
+        (poscar, data) = VolumetricData.parse_file(filename)
+        return Locpot(poscar, data)
+
+
+
+class Chgcar(VolumetricData):
+    """
+    Simple object for reading a CHGCAR file.
+    """
+
+    def __init__(self, poscar, data):
+        """
+        Args:
+            poscar:
+                Poscar object containing structure.
+            data:
+                Actual data.
+        """
+        VolumetricData.__init__(self, poscar.struct, data)
+        self.poscar = poscar
+        self.name = poscar.comment
+        self._distance_matrix = {}
+
+    @staticmethod
+    def from_file(filename):
+        (poscar, data) = VolumetricData.parse_file(filename)
+        return Chgcar(poscar, data)
 
 
 class Procar(object):
@@ -2469,4 +2534,3 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
-
