@@ -11,7 +11,7 @@ import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
-class  PoscarTest(unittest.TestCase):
+class PoscarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -101,7 +101,7 @@ direct
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
-class  IncarTest(unittest.TestCase):
+class IncarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'INCAR')
@@ -125,7 +125,7 @@ class  IncarTest(unittest.TestCase):
         self.assertEqual(incar, incar2)
 
 
-class  KpointsTest(unittest.TestCase):
+class KpointsTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'KPOINTS.auto')
@@ -287,12 +287,12 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'OUTCAR')
         outcar = Outcar(filepath)
         expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
- {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
- {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
- {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
- {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
- {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
- {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
+                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
+                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
         expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
 
         self.assertAlmostEqual(outcar.magnetization, expected_mag, 5, "Wrong magnetization read from Outcar")
