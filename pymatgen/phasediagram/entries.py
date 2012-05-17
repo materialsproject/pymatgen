@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "May 16, 2011"
 
 import re
 
@@ -32,7 +32,7 @@ class PDEntry(MSONable):
         Args:
             comp:
                 Composition as a pymatgen.core.structure.Composition
-            finalenergy:
+            energy:
                 Energy for composition.
             name:
                 Optional parameter to name the entry. Defaults to the reduced
@@ -40,10 +40,7 @@ class PDEntry(MSONable):
         """
         self._energy = energy
         self._composition = composition
-        if name == None:
-            self._name = composition.reduced_formula
-        else:
-            self._name = name
+        self._name = name if name else composition.reduced_formula
 
     @property
     def energy(self):
@@ -226,30 +223,33 @@ class PDEntryIO(object):
                 header_read = True
             else:
                 name = row[0]
-                finalenergy = float(row[-1])
+                energy = float(row[-1])
                 comp = dict()
                 for ind in range(1, len(row) - 1):
                     if float(row[ind]) > 0:
                         comp[Element(elements[ind - 1])] = float(row[ind])
-                entries.append(PDEntry(Composition(comp), finalenergy, name))
+                entries.append(PDEntry(Composition(comp), energy, name))
         elements = [Element(el) for el in elements]
         return (elements, entries)
 
 
 class TransformedPDEntry(PDEntry):
     """
-    An object encompassing all relevant data for phase diagrams.
-    Author: Shyue
+    Beta object for transforming a PDEntry to a different composition coordinate
+    space. Experimental - may be removed in future releases.
     """
 
-    def __init__(self, comp, finalenergy, original_entry):
+    def __init__(self, comp, energy, original_entry):
         """
         Args:
-            comp - Composition as a pymatgen.core.structure.Composition
-            finalenergy - energy for composition.
-            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+            comp:
+                Composition as a pymatgen.core.structure.Composition
+            energy:
+                Energy for composition.
+            original_entry:
+                Original entry that this entry arose from.
         """
-        super(TransformedPDEntry, self).__init__(comp, finalenergy)
+        super(TransformedPDEntry, self).__init__(comp, energy)
         self._original_entry = original_entry
         self._name = self._original_entry.composition.reduced_formula
 
