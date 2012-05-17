@@ -2045,6 +2045,7 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+
 class VolumetricData(object):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
@@ -2169,13 +2170,14 @@ class VolumetricData(object):
             vasp4_compatible:
                 True if the format is vasp4 compatible
         """
-        count = 0
+
         f = open(file_name, 'w')
         f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
-        lines = []
         a = self.dim
         f.write("\n")
         def write_spin(spin):
+            lines = []
+            count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
             for k in xrange(a[2]):
                 for j in xrange(a[1]):
@@ -2187,8 +2189,10 @@ class VolumetricData(object):
                             lines = []
                         else:
                             lines.append(" ")
+            f.write(''.join(lines) + "\n")
         write_spin(Spin.up)
-        if not self.spinpolarized:
+        if self.spinpolarized:
+            f.write("\n")
             write_spin(Spin.down)
         f.close()
 
@@ -2254,7 +2258,7 @@ class Chgcar(VolumetricData):
         updowndata = dict()
         updowndata[Spin.up] = 0.5 * (self.data[Spin.up] + self.data.get(Spin.down, 0))
         updowndata[Spin.down] = 0.5 * (self.data[Spin.up] - self.data.get(Spin.down, 0))
-        self.data = updowndata
+        self.updowndata = updowndata
         self._distance_matrix = dict()
 
     def _calculate_distance_matrix(self, ind):
@@ -2285,7 +2289,7 @@ class Chgcar(VolumetricData):
         intchg = 0
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x, y, z)] < radius:
-                intchg += self.data[Spin.up][x, y, z] - self.data[Spin.down][x, y, z]
+                intchg += self.updowndata[Spin.up][x, y, z] - self.updowndata[Spin.down][x, y, z]
         return intchg / self.ngridpts
 
     def get_diff_int_charge_slow(self, ind, radius):
@@ -2318,7 +2322,7 @@ class Chgcar(VolumetricData):
                     pt = np.array([modx * 1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
                     dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
                     if dist < radius:
-                        intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
+                        intchg += self.updowndata[Spin.up][modx, mody, modz] - self.updowndata[Spin.down][modx, mody, modz]
         return intchg / self.ngridpts
 
 
