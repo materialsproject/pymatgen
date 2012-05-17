@@ -1,11 +1,23 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+'''
+Created on May 17, 2012
+'''
+
+from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "May 17, 2012"
+
 import unittest
 import os
 
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar, PotcarSingle, Locpot, Chgcar
-from pymatgen.core.lattice import Lattice
+from pymatgen.io.vaspio import *
 from pymatgen.core.structure import Composition, Structure
-from numpy import array
 
 import pymatgen
 
@@ -81,11 +93,11 @@ direct
     def test_str(self):
         si = 14
         coords = list()
-        coords.append(array([0, 0, 0]))
-        coords.append(array([0.75, 0.5, 0.75]))
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
 
         #Silicon structure for testing.
-        latt = Lattice(array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        latt = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(latt, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = '''Si2
@@ -100,6 +112,8 @@ direct
 0.750000 0.500000 0.750000 Si'''
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
+
+
 
 class IncarTest(unittest.TestCase):
 
@@ -238,6 +252,7 @@ class PotcarTest(unittest.TestCase):
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
+
 class VasprunTest(unittest.TestCase):
 
     def test_properties(self):
@@ -340,6 +355,7 @@ class ChgcarTest(unittest.TestCase):
 
 
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.testName']
+    unittest.main()
