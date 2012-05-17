@@ -2224,8 +2224,7 @@ class Locpot(VolumetricData):
         m = self.data[Spin.up]
 
         ng = self.dim
-        avg = np.zeros((2, ng[ind]))
-        axis_tick = 0.0
+        avg = []
         for i in xrange(ng[ind]):
             mysum = 0
             for j in xrange(ng[(ind + 1) % 3]):
@@ -2237,8 +2236,7 @@ class Locpot(VolumetricData):
                     if ind == 2:
                         mysum += m[j, k, i]
 
-            avg[1][i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
-            avg[0][i] = axis_tick + i * self.poscar.struct.lattice.abc[ind] / ng[ind]
+            avg.append(mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0))
         return avg
 
 
@@ -2290,39 +2288,6 @@ class Chgcar(VolumetricData):
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x, y, z)] < radius:
                 intchg += self.updowndata[Spin.up][x, y, z] - self.updowndata[Spin.down][x, y, z]
-        return intchg / self.ngridpts
-
-    def get_diff_int_charge_slow(self, ind, radius):
-        """
-        Deprecated. **Much** slower algorithm for finding differential
-        integrated charge.  Used mainly for testing purposes.
-        
-        Args:
-            ind:
-                Index of atom.
-            radius:
-                Radius of integration.
-            
-        Returns:
-            Differential integrated charge.       
-        """
-        st = self.poscar.struct
-        a = self.dim
-        intchg = 0
-        ioncoord = st[ind].frac_coords
-        iongridpt = [int(round(ioncoord[i] * a[i])) for i in xrange(3)]
-        max_grid_pts = [min(int(round(radius / st.lattice.abc[i] * a[i])) + 1, int(round(a[i] / 2))) for i in xrange(3)]
-
-        for x in xrange(iongridpt[0] - max_grid_pts[0], iongridpt[0] + max_grid_pts[0]):
-            for y in xrange(iongridpt[1] - max_grid_pts[1], iongridpt[1] + max_grid_pts[1]):
-                for z in xrange(iongridpt[2] - max_grid_pts[2], iongridpt[2] + max_grid_pts[2]):
-                    modx = x % a[0]
-                    mody = y % a[1]
-                    modz = z % a[2]
-                    pt = np.array([modx * 1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
-                    dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
-                    if dist < radius:
-                        intchg += self.updowndata[Spin.up][modx, mody, modz] - self.updowndata[Spin.down][modx, mody, modz]
         return intchg / self.ngridpts
 
 
