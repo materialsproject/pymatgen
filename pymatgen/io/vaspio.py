@@ -1611,53 +1611,55 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.latticerec.write(data)
 
     def _read_input(self, name):
+        state = self.state
         if name == "i":
             if self.state['incar']:
                 self.incar[self.incar_param] = parse_parameters(self.param_type, self.val.getvalue().strip())
-            elif self.state['parameters']:
+            elif state['parameters']:
                 self.parameters[self.incar_param] = parse_parameters(self.param_type, self.val.getvalue().strip())
-            elif self.state['generator'] and self.state["i"] == "version":
+            elif state['generator'] and state["i"] == "version":
                 self.vasp_version = self.val.getvalue().strip()
             self.incar_param = None
         elif name == "set":
-            if self.state['array'] == "atoms":
+            if state['array'] == "atoms":
                 self.atomic_symbols = self.atomic_symbols[::2]
                 self.atomic_symbols = [sym if sym != "X" else "Xe" for sym in self.atomic_symbols]
-            elif self.state['array'] == "atomtypes":
+            elif state['array'] == "atomtypes":
                 self.potcar_symbols = self.potcar_symbols[4::5]
                 self.input_read = True
         elif name == "c":
-            if self.state['array'] == "atoms":
+            if state['array'] == "atoms":
                 self.atomic_symbols.append(self.val.getvalue().strip())
-            elif self.state['array'] == "atomtypes":
+            elif state['array'] == "atomtypes":
                 self.potcar_symbols.append(self.val.getvalue().strip())
         elif name == "v":
-            if self.state['incar']:
-                self.incar[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+            if state['incar']:
+                self.incar[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                 self.incar_param = None
-            elif self.state['parameters']:
-                self.parameters[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
-            elif self.state['kpoints']:
-                if self.state['varray'] == 'kpointlist':
+            elif state['parameters']:
+                self.parameters[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+            elif state['kpoints']:
+                if state['varray'] == 'kpointlist':
                     self.actual_kpoints.append([float(x) for x in re.split("\s+", self.val.getvalue().strip())])
-                if self.state['varray'] == 'weights':
+                if state['varray'] == 'weights':
                     self.actual_kpoints_weights.append(float(self.val.getvalue()))
-                if self.state['v'] == "divisions":
+                if state['v'] == "divisions":
                     self.kpoints.kpts = [[int(x) for x in re.split("\s+", self.val.getvalue().strip())]]
-                elif self.state['v'] == "usershift":
+                elif state['v'] == "usershift":
                     self.kpoints.kpts_shift = [float(x) for x in re.split("\s+", self.val.getvalue().strip())]
-                elif self.state['v'] == "genvec1" or self.state['v'] == "genvec2" or self.state['v'] == "genvec3" or self.state['v'] == "shift":
-                    setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
+                elif state['v'] == "genvec1" or state['v'] == "genvec2" or state['v'] == "genvec3" or state['v'] == "shift":
+                    setattr(self.kpoints, state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
 
     def _read_calc(self, name):
-        if name == "i" and self.state['scstep']:
-            self.scstep[self.state['i']] = float(self.val.getvalue())
+        state = self.state
+        if name == "i" and state['scstep']:
+            self.scstep[state['i']] = float(self.val.getvalue())
         elif name == 'scstep':
             self.scdata.append(self.scstep)
-        elif name == 'varray' and self.state['varray'] == "forces":
+        elif name == 'varray' and state['varray'] == "forces":
             self.forces = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.forces.shape = (len(self.atomic_symbols), 3)
-        elif name == 'varray' and self.state['varray'] == "stress":
+        elif name == 'varray' and state['varray'] == "stress":
             self.stress = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.stress.shape = (3, 3)
         elif name == "calculation":
@@ -1680,27 +1682,28 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = False
 
     def _read_dos(self, name):
+        state = self.state
         try:
-            if name == "i" and self.state["i"] == "efermi":
+            if name == "i" and state["i"] == "efermi":
                 self.efermi = float(self.val.getvalue().strip())
-            elif name == "r" and self.state["total"]  and str(self.state["set"]).startswith("spin"):
+            elif name == "r" and state["total"]  and str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.dos_energies_val.append(float(tok[0]))
                 self.dos_val.append(float(tok[1]))
                 self.idos_val.append(float(tok[2]))
-            elif name == "r" and self.state["partial"]  and str(self.state["set"]).startswith("spin"):
+            elif name == "r" and state["partial"]  and str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.raw_data.append([float(i) for i in tok[1:]])
-            elif name == "set" and self.state["total"] and str(self.state["set"]).startswith("spin"):
-                spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+            elif name == "set" and state["total"] and str(state["set"]).startswith("spin"):
+                spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.tdos[spin] = self.dos_val
                 self.idos[spin] = self.dos_val
                 self.dos_energies = self.dos_energies_val
                 self.dos_energies_val = []
                 self.dos_val = []
                 self.idos_val = []
-            elif name == "set" and self.state["partial"] and str(self.state["set"]).startswith("spin"):
-                spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+            elif name == "set" and state["partial"] and str(state["set"]).startswith("spin"):
+                spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.norbitals = len(self.raw_data[0])
                 for i in xrange(self.norbitals):
                     self.pdos[(self.pdos_ion, i, spin)] = [row[i] for row in self.raw_data]
@@ -1727,10 +1730,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.dos_has_errors = True
 
     def _read_eigen(self, name):
-        if name == "r" and str(self.state["set"]).startswith("kpoint"):
+        state = self.state
+        if name == "r" and str(state["set"]).startswith("kpoint"):
             tok = re.split("\s+", self.val.getvalue().strip())
             self.raw_data.append([float(i) for i in tok])
-        elif name == "set" and str(self.state["set"]).startswith("kpoint"):
+        elif name == "set" and str(state["set"]).startswith("kpoint"):
             self.eigenvalues[(self.eigen_kpoint, self.eigen_spin)] = self.raw_data
             self.raw_data = []
         elif name == "eigenvalues":
@@ -1768,7 +1772,7 @@ def parse_parameters(val_type, val):
     else:
         return float(val)
 
-def _parse_v_parameters(val_type, val, filename, param_name):
+def parse_v_parameters(val_type, val, filename, param_name):
     """
     Helper function to convert a Vasprun array-type parameter into the proper type.
     Boolean, int and float types are converted.
@@ -1796,7 +1800,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
-            val = _parse_from_incar(filename, param_name)
+            val = parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
@@ -1807,12 +1811,12 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
-            val = _parse_from_incar(filename, param_name)
+            val = parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
 
-def _parse_from_incar(filename, key):
+def parse_from_incar(filename, key):
     """
     Helper function to parse a parameter from the INCAR.
     """
@@ -1859,7 +1863,7 @@ class Outcar(object):
             'User time (sec)'.
     
     One can then call a specific reader depending on the type of run being
-    perfromed. These are currently: read_igpar(), read_lepsilon() and
+    performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol().
 
     See the documentation of those methods for more documentation.
@@ -2053,8 +2057,8 @@ class VolumetricData(object):
     Attributes:
         name:
             The name from the comment line.
-        poscar:
-            Poscar object
+        structure:
+            Structure associated with the Volumetric Data object
         is_spin_polarized:
             True if run is spin polarized
         dim:
@@ -2108,6 +2112,13 @@ class VolumetricData(object):
         return self._spin_data
 
     def get_axis_grid(self, ind):
+        """
+        Returns the grid for a particular axis.
+        
+        Args:
+            ind:
+                Axis index.
+        """
         ng = self.dim
         num_pts = ng[ind]
         lengths = self.structure.lattice.abc
