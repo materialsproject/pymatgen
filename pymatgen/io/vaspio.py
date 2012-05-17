@@ -583,6 +583,7 @@ class Incar(dict, VaspInput):
                 params[k] = v
         return Incar(params)
 
+
 class Kpoints(VaspInput):
     """
     KPOINT reader/writer.
@@ -738,7 +739,6 @@ class Kpoints(VaspInput):
 
         num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
         #ensure that numDiv[i] > 0
-
         num_div = [i if i > 0 else 1 for i in num_div]
 
         angles = latt.angles
@@ -762,7 +762,7 @@ class Kpoints(VaspInput):
         """
         Reads a Kpoints object from a KPOINTS file.
         
-        Arguments:
+        Args:
             filename:
                 filename to read from.
                 
@@ -848,7 +848,7 @@ class Kpoints(VaspInput):
         """
         Write Kpoints to a file.
         
-        Arguments:
+        Args:
             filename:
                 filename to write to.
         """
@@ -972,6 +972,7 @@ class PotcarSingle(object):
         if a_caps in self.keywords:
             return self.keywords[a_caps] if a_caps not in floatkeywords else float(self.keywords[a_caps].split()[0])
         raise AttributeError(a)
+
 
 class Potcar(list, VaspInput):
     """
@@ -1312,7 +1313,6 @@ class Vasprun(object):
         TODO:
             - make a bit more general for non Symm Line band structures
             - make a decision on the convention with 2*pi or not 
-            
         """
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
@@ -1334,9 +1334,11 @@ class Vasprun(object):
         else:
             eigenvals = {Spin.up:[]}
 
-        neigenvalues = [len(v['up']) for k, v in dict_eigen.items()]
+        neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
+        if not efermi:
+            efermi = self.efermi
 
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
@@ -1345,10 +1347,9 @@ class Vasprun(object):
                 eigenvals[Spin.down].append([dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]);
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, self.efermi, labels_dict)
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
         else:
-            return BandStructure(kpoints, eigenvals, lattice_new, self.efermi)
-
+            return BandStructure(kpoints, eigenvals, lattice_new, efermi)
 
     @property
     def eigenvalue_band_properties(self):
@@ -1441,10 +1442,8 @@ class Vasprun(object):
 
 class VasprunHandler(xml.sax.handler.ContentHandler):
     """
-    Sax handler for vasprun.xml.
-    Attributes are mirrored into Vasprun object.
-    
-    Author: Shyue Ping Ong
+    Sax handler for vasprun.xml. Attributes are mirrored into Vasprun object.
+    Generally should not be initiatized on its own.
     """
 
     def __init__(self, filename, read_electronic_structure=True):
@@ -1614,53 +1613,55 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.latticerec.write(data)
 
     def _read_input(self, name):
+        state = self.state
         if name == "i":
             if self.state['incar']:
                 self.incar[self.incar_param] = parse_parameters(self.param_type, self.val.getvalue().strip())
-            elif self.state['parameters']:
+            elif state['parameters']:
                 self.parameters[self.incar_param] = parse_parameters(self.param_type, self.val.getvalue().strip())
-            elif self.state['generator'] and self.state["i"] == "version":
+            elif state['generator'] and state["i"] == "version":
                 self.vasp_version = self.val.getvalue().strip()
             self.incar_param = None
         elif name == "set":
-            if self.state['array'] == "atoms":
+            if state['array'] == "atoms":
                 self.atomic_symbols = self.atomic_symbols[::2]
                 self.atomic_symbols = [sym if sym != "X" else "Xe" for sym in self.atomic_symbols]
-            elif self.state['array'] == "atomtypes":
+            elif state['array'] == "atomtypes":
                 self.potcar_symbols = self.potcar_symbols[4::5]
                 self.input_read = True
         elif name == "c":
-            if self.state['array'] == "atoms":
+            if state['array'] == "atoms":
                 self.atomic_symbols.append(self.val.getvalue().strip())
-            elif self.state['array'] == "atomtypes":
+            elif state['array'] == "atomtypes":
                 self.potcar_symbols.append(self.val.getvalue().strip())
         elif name == "v":
-            if self.state['incar']:
-                self.incar[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+            if state['incar']:
+                self.incar[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
                 self.incar_param = None
-            elif self.state['parameters']:
-                self.parameters[self.incar_param] = _parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
-            elif self.state['kpoints']:
-                if self.state['varray'] == 'kpointlist':
+            elif state['parameters']:
+                self.parameters[self.incar_param] = parse_v_parameters(self.param_type, self.val.getvalue().strip(), self.filename, self.incar_param)
+            elif state['kpoints']:
+                if state['varray'] == 'kpointlist':
                     self.actual_kpoints.append([float(x) for x in re.split("\s+", self.val.getvalue().strip())])
-                if self.state['varray'] == 'weights':
+                if state['varray'] == 'weights':
                     self.actual_kpoints_weights.append(float(self.val.getvalue()))
-                if self.state['v'] == "divisions":
+                if state['v'] == "divisions":
                     self.kpoints.kpts = [[int(x) for x in re.split("\s+", self.val.getvalue().strip())]]
-                elif self.state['v'] == "usershift":
+                elif state['v'] == "usershift":
                     self.kpoints.kpts_shift = [float(x) for x in re.split("\s+", self.val.getvalue().strip())]
-                elif self.state['v'] == "genvec1" or self.state['v'] == "genvec2" or self.state['v'] == "genvec3" or self.state['v'] == "shift":
-                    setattr(self.kpoints, self.state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
+                elif state['v'] == "genvec1" or state['v'] == "genvec2" or state['v'] == "genvec3" or state['v'] == "shift":
+                    setattr(self.kpoints, state['v'], [float(x) for x in re.split("\s+", self.val.getvalue().strip())])
 
     def _read_calc(self, name):
-        if name == "i" and self.state['scstep']:
-            self.scstep[self.state['i']] = float(self.val.getvalue())
+        state = self.state
+        if name == "i" and state['scstep']:
+            self.scstep[state['i']] = float(self.val.getvalue())
         elif name == 'scstep':
             self.scdata.append(self.scstep)
-        elif name == 'varray' and self.state['varray'] == "forces":
+        elif name == 'varray' and state['varray'] == "forces":
             self.forces = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.forces.shape = (len(self.atomic_symbols), 3)
-        elif name == 'varray' and self.state['varray'] == "stress":
+        elif name == 'varray' and state['varray'] == "stress":
             self.stress = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.stress.shape = (3, 3)
         elif name == "calculation":
@@ -1683,27 +1684,28 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = False
 
     def _read_dos(self, name):
+        state = self.state
         try:
-            if name == "i" and self.state["i"] == "efermi":
+            if name == "i" and state["i"] == "efermi":
                 self.efermi = float(self.val.getvalue().strip())
-            elif name == "r" and self.state["total"]  and str(self.state["set"]).startswith("spin"):
+            elif name == "r" and state["total"]  and str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.dos_energies_val.append(float(tok[0]))
                 self.dos_val.append(float(tok[1]))
                 self.idos_val.append(float(tok[2]))
-            elif name == "r" and self.state["partial"]  and str(self.state["set"]).startswith("spin"):
+            elif name == "r" and state["partial"]  and str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.raw_data.append([float(i) for i in tok[1:]])
-            elif name == "set" and self.state["total"] and str(self.state["set"]).startswith("spin"):
-                spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+            elif name == "set" and state["total"] and str(state["set"]).startswith("spin"):
+                spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.tdos[spin] = self.dos_val
                 self.idos[spin] = self.dos_val
                 self.dos_energies = self.dos_energies_val
                 self.dos_energies_val = []
                 self.dos_val = []
                 self.idos_val = []
-            elif name == "set" and self.state["partial"] and str(self.state["set"]).startswith("spin"):
-                spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+            elif name == "set" and state["partial"] and str(state["set"]).startswith("spin"):
+                spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.norbitals = len(self.raw_data[0])
                 for i in xrange(self.norbitals):
                     self.pdos[(self.pdos_ion, i, spin)] = [row[i] for row in self.raw_data]
@@ -1730,10 +1732,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.dos_has_errors = True
 
     def _read_eigen(self, name):
-        if name == "r" and str(self.state["set"]).startswith("kpoint"):
+        state = self.state
+        if name == "r" and str(state["set"]).startswith("kpoint"):
             tok = re.split("\s+", self.val.getvalue().strip())
             self.raw_data.append([float(i) for i in tok])
-        elif name == "set" and str(self.state["set"]).startswith("kpoint"):
+        elif name == "set" and str(state["set"]).startswith("kpoint"):
             self.eigenvalues[(self.eigen_kpoint, self.eigen_spin)] = self.raw_data
             self.raw_data = []
         elif name == "eigenvalues":
@@ -1771,7 +1774,7 @@ def parse_parameters(val_type, val):
     else:
         return float(val)
 
-def _parse_v_parameters(val_type, val, filename, param_name):
+def parse_v_parameters(val_type, val, filename, param_name):
     """
     Helper function to convert a Vasprun array-type parameter into the proper type.
     Boolean, int and float types are converted.
@@ -1799,7 +1802,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
-            val = _parse_from_incar(filename, param_name)
+            val = parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
@@ -1810,12 +1813,12 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
-            val = _parse_from_incar(filename, param_name)
+            val = parse_from_incar(filename, param_name)
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
 
-def _parse_from_incar(filename, key):
+def parse_from_incar(filename, key):
     """
     Helper function to parse a parameter from the INCAR.
     """
@@ -1862,13 +1865,12 @@ class Outcar(object):
             'User time (sec)'.
     
     One can then call a specific reader depending on the type of run being
-    perfromed. These are currently: read_igpar(), read_lepsilon() and
+    performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol().
 
     See the documentation of those methods for more documentation.
     
     Authors: Rickard Armiento, Shyue Ping Ong
-    
     """
     def __init__(self, filename):
         self.filename = filename
@@ -1998,7 +2000,6 @@ class Outcar(object):
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
 
-
             def piezo_section_start(results, match): results.piezo_index = 0;
             search.append(['PIEZOELECTRIC TENSOR  for field in x, y, z        \(e  Angst\)', None, piezo_section_start])
 
@@ -2010,7 +2011,6 @@ class Outcar(object):
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
-
 
             def born_section_start(results, match): results.born_ion = -1;
             search.append(['BORN EFFECTIVE CHARGES \(in e, cummulative output\)', None, born_section_start])
@@ -2026,9 +2026,6 @@ class Outcar(object):
 
             self.born_ion = None
             self.born = {}
-
-            #def debug_print(results,match): print "MATCH:",match.group(0),':',results.born_ion
-            #micro_pyawk(filename,search,self,debug=debug_print, postdebug=debug_print)
 
             micro_pyawk(self.filename, search, self)
 
@@ -2054,6 +2051,7 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+
 class VolumetricData(object):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
@@ -2061,32 +2059,71 @@ class VolumetricData(object):
     Attributes:
         name:
             The name from the comment line.
-        poscar:
-            Poscar object
-        spinpolarized:
+        structure:
+            Structure associated with the Volumetric Data object
+        is_spin_polarized:
             True if run is spin polarized
         dim:
             Tuple of dimensions of volumetric grid in each direction, 
             (nx, ny, nz)
         data:
-            Actual data as a dict of {grid coordinate: value}. Grid coordinate
-            is a (x,y,z) tuple.
+            Actual data as a dict of {string: np.array}. The string are "total"
+            and "diff", in accordance to the output format of vasp LOCPOT and
+            CHGCAR files where the total spin density is written first, followed
+            by the difference spin density.
+        spin_data:
+            The data decomposed into actual spin data as {spin: data}.
+            Essentially, this provides the actual Spin.up and Spin.down data
+            instead of the total and diff.  Note that by definition, a
+            non-spin-polarized run would have Spin.up data == Spin.down data.
         ngridpts:
             Total number of grid points in volumetric data.
     """
-    def __init__(self, filename):
-        self.name = str()
-        self.poscar = None
-        self.spinpolarized = False
-        self.dim = None
-        self.data = dict()
-        self.ngridpts = 0
-        self._read_file(filename)
+    def __init__(self, structure, data, distance_matrix=None):
+        """
+        Typically, this constructor is not used directly and the static
+        from_file constructor is used. This constructor is designed to allow
+        summation and other operations between VolumetricData objects.
+        
+        Args:
+            structure:
+                Structure associated with the volumetric data
+            data:
+                Actual volumetric data.
+            distance_matrix:
+                A pre-computed distance matrix if available. Useful so pass
+                distance_matrices between sums, shortcircuiting an otherwise
+                expensive operation.
+        """
+        self.structure = structure
+        self.is_spin_polarized = len(data) == 2
+        self.dim = data['total'].shape
+        self.data = data
+        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
+        #lazy init the spin data since this is not always needed.
+        self._spin_data = {}
+        self._distance_matrix = {} if not distance_matrix else distance_matrix
+
+    @property
+    def spin_data(self):
+        if not self._spin_data:
+            spin_data = dict()
+            spin_data[Spin.up] = 0.5 * (self.data['total'] + self.data.get('diff', 0))
+            spin_data[Spin.down] = 0.5 * (self.data['total'] - self.data.get('diff', 0))
+            self._spin_data = spin_data
+        return self._spin_data
 
     def get_axis_grid(self, ind):
+        """
+        Returns the grid for a particular axis.
+        
+        Args:
+            ind:
+                Axis index.
+        """
         ng = self.dim
         num_pts = ng[ind]
-        lengths = self.poscar.struct.lattice.abc
+        lengths = self.structure.lattice.abc
         return [i / num_pts * lengths[ind] for i in xrange(num_pts)]
 
     def __add__(self, other):
@@ -2095,29 +2132,48 @@ class VolumetricData(object):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def linear_add(self, other, scalefactor=1.0):
+    def linear_add(self, other, scale_factor=1.0):
         '''
         Method to do a linear sum of volumetric objects. Used by + and -
-        operators as well.
+        operators as well. Returns a VolumetricData object containing the
+        linear sum.
+        
+        Args:
+            other:
+                Another VolumetricData object
+            scale_factor:
+                Factor to scale the other data by.
+                
+        Returns:
+            VolumetricData corresponding to self + scale_factor * other.
         '''
+        if self.structure != other.structure:
+            raise ValueError("Adding or subtraction operations can only be performed for volumetric data with the exact same structure.")
         #To add checks
-        summed = VolumetricData()
-        summed.name = self.name
-        summed.poscar = self.poscar
-        summed.spinpolarized = self.spinpolarized
-        summed.dim = self.dim
-        summed.numpts = self.ngridpts
-        for spin in self.data.keys():
-            summed.data[spin] = self.data[spin] + scalefactor * other.data[spin]
-        return summed
+        data = {}
+        for k in self.data.keys():
+            data[k] = self.data[k] + scale_factor * other.data[k]
+        return VolumetricData(self.structure, data, self._distance_matrix)
 
-    def _read_file(self, filename):
+    @staticmethod
+    def parse_file(filename):
+        """
+        Convenience method to parse a generic volumetric data file in the vasp
+        like format. Used by subclasses for parsing file.
+        
+        Args:
+            filename:
+                Path of file to parse
+        
+        Returns:
+            (poscar, data)
+        """
 
         reader = file_open_zip_aware(filename)
         lines = reader.readlines()
         reader.close()
 
-        self.poscar = Poscar.from_file(filename)
+        poscar = Poscar.from_file(filename)
 
         # Skip whitespace between POSCAR and LOCPOT data
         i = 0
@@ -2131,176 +2187,87 @@ class VolumetricData(object):
         spinpolarized = False
         # Search for the second dimension line, where the next spin starts
         for j in xrange(i, len(lines)):
-            if(dimensionline == lines[j].strip()):
+            if dimensionline == lines[j].strip():
                 spinpolarized = True
                 break
 
         if not spinpolarized:
             j = j + 2
 
-        self.spinpolarized = spinpolarized
-
         # Read three numbers that is the dimension
         dimensionexpr = re.compile('([0-9]+) +([0-9]+) +([0-9]+)')
         m = dimensionexpr.match(dimensionline.strip())
         a = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+
+        def parse_data(data):
+            pot = np.zeros((a[0], a[1], a[2]))
+            count = 0
+            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                pot[x, y, z] = float(data[count])
+                count += 1
+            return pot
+
         data = (" ".join(lines[i:j - 1])).split()
         data = data[:(a[0] * a[1] * a[2])]
 
-        self.dim = a
-        self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
-        uppot = np.zeros((a[0], a[1], a[2]))
-        count = 0
-        for z in xrange(a[2]):
-            for y in xrange(a[1]):
-                for x in xrange(a[0]):
-                    uppot[x, y, z] = float(data[count])
-                    count += 1
+        totalpot = parse_data(data)
         if spinpolarized:
             data = (" ".join(lines[j + 1:])).split()
             data = data[:(a[0] * a[1] * a[2])]
-            downpot = np.zeros((a[0], a[1], a[2]))
-            count = 0
-            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
-                downpot[x, y, z] = float(data[count])
-                count += 1
-            self.data = {Spin.up:uppot, Spin.down:downpot}
+            diffpot = parse_data(data)
+            data = {"total":totalpot, "diff":diffpot}
         else:
-            self.data = {Spin.up:uppot}
+            data = {"total":totalpot}
+
+        return (poscar, data)
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
-            Write the VolumetricData object to a vasp compatible file
+        Write the VolumetricData object to a vasp compatible file.
             
-            Args:
-                file_name:
-                    the path to a file
-                vasp4_compatible:
-                    True if the format is vasp4 compatible
+        Args:
+            file_name:
+                the path to a file
+            vasp4_compatible:
+                True if the format is vasp4 compatible
         """
-        count = 0
+
         f = open(file_name, 'w')
-        f.write(self.poscar.get_string(vasp4_compatible=vasp4_compatible) + "\n")
-        list_lines = []
-        f.write("\n")
-        f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
+        p = Poscar(self.structure)
+        f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
         a = self.dim
-        for k in xrange(a[2]):
-            for j in xrange(a[1]):
-                for i in xrange(a[0]):
-                    list_lines.append('%0.11e' % self.data[Spin.up][i, j, k])
-                    count += 1
-                    if count % 5 == 0:
-                        f.write(''.join(list_lines) + "\n")
-                        list_lines = []
-                    else:
-                        list_lines.append(" ")
-        if not self.spinpolarized:
-            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
-            for k in xrange(a[2]):
-                for j in xrange(a[1]):
-                    for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.down][i, j, k])
-                        count += 1
-                        if count % 5 == 0:
-                            f.write(''.join(list) + "\n")
-                            list_lines = []
-                        else:
-                            list_lines.append(" ")
-
-        else:
-            f.write("{} {} {}\n".format(self.dim[0], self.dim[1], self.dim[2]))
-
-            for k in xrange(a[2]):
-                for j in xrange(a[1]):
-                    for i in xrange(a[0]):
-                        list_lines.append('%0.11e' % self.data[Spin.down][i, j, k])
-                        count += 1
-                        if count % 5 == 0:
-                            f.write(''.join(list) + "\n")
-                            list_lines = []
-                        else:
-                            list_lines.append(" ")
+        f.write("\n")
+        def write_spin(data_type):
+            lines = []
+            count = 0
+            f.write("{} {} {}\n".format(a[0], a[1], a[2]))
+            for (k, j, i) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                lines.append('%0.11e' % self.data[data_type][i, j, k])
+                count += 1
+                if count % 5 == 0:
+                    f.write(''.join(lines) + "\n")
+                    lines = []
+                else:
+                    lines.append(" ")
+            f.write(''.join(lines) + "\n")
+        write_spin("total")
+        if self.is_spin_polarized:
+            f.write("\n")
+            write_spin("diff")
         f.close()
 
-
-
-class Locpot(VolumetricData):
-    """
-    Simple object for reading a LOCPOT file.
-    """
-
-    def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Name of file containing LOCPOT.
-        """
-        super(Locpot, self).__init__(filename)
-
-    def get_avg_potential_along_axis(self, ind):
-        """
-        Get the averaged LOCPOT along a certain axis direction. Useful for
-        visualizing Hartree Potentials.
-        
-        Args:
-            ind : Index of axis.
-            
-        Returns:
-            Average Hatree potential along axis
-        """
-        m = self.data[Spin.up]
-
-        ng = self.dim
-        avg = np.zeros((2, ng[ind]))
-        axis_tick = 0.0
-        for i in xrange(ng[ind]):
-            mysum = 0
-            for j in xrange(ng[(ind + 1) % 3]):
-                for k in xrange(ng[(ind + 2) % 3]):
-                    if ind == 0:
-                        mysum += m[i, j, k]
-                    if ind == 1:
-                        mysum += m[k, i, j]
-                    if ind == 2:
-                        mysum += m[j, k, i]
-
-            avg[1][i] = mysum / (ng[(ind + 1) % 3] * 1.0) / (ng[(ind + 2) % 3] * 1.0)
-            avg[0][i] = axis_tick + i * self.poscar.struct.lattice.abc[ind] / ng[ind]
-        return avg
-
-
-class Chgcar(VolumetricData):
-    """
-    Simple object for reading a CHGCAR file.
-    """
-    def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Name of file containing CHGCAR.
-        """
-        super(Chgcar, self).__init__(filename)
-        # Chgcar format is total density in first set, and moment density in
-        # second set. Need to split them into up and down.
-        updowndata = dict()
-        updowndata[Spin.up] = 0.5 * (self.data[Spin.up] + self.data.get(Spin.down, 0))
-        updowndata[Spin.down] = 0.5 * (self.data[Spin.up] - self.data.get(Spin.down, 0))
-        self.data = updowndata
-        self._distance_matrix = dict()
-
     def _calculate_distance_matrix(self, ind):
-        structure = self.poscar.struct
+        site = self.structure[ind]
         a = self.dim
         distances = dict()
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             pt = np.array([x / a[0], y / a[1] , z / a[2]])
-            distances[(x, y, z)] = structure[ind].distance_and_image_from_frac_coords(pt)[0]
+            distances[(x, y, z)] = site.distance_and_image_from_frac_coords(pt)[0]
         self._distance_matrix[ind] = distances
 
-    def get_diff_int_charge(self, ind, radius):
+    def get_integrated_diff(self, ind, radius):
         """
-        Get differential integrated charge of atom index ind up to radius.
+        Get integrated difference of atom index ind up to radius.
         
         Args:
             ind:
@@ -2311,47 +2278,95 @@ class Chgcar(VolumetricData):
         Returns:
             Differential integrated charge.
         """
+        #Shortcircuit the data since by definition, this will be zero for non
+        #spin-polarized runs.
+        if not self.is_spin_polarized:
+            return 0
         if ind not in self._distance_matrix:
             self._calculate_distance_matrix(ind)
         a = self.dim
         intchg = 0
         for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
             if self._distance_matrix[ind][(x, y, z)] < radius:
-                intchg += self.data[Spin.up][x, y, z] - self.data[Spin.down][x, y, z]
+                intchg += self.data["diff"][x, y, z]
         return intchg / self.ngridpts
 
-    def get_diff_int_charge_slow(self, ind, radius):
+    def get_average_along_axis(self, ind):
         """
-        Deprecated. **Much** slower algorithm for finding differential
-        integrated charge.  Used mainly for testing purposes.
+        Get the averaged total of the volumetric data a certain axis direction.
+        For example, useful for visualizing Hartree Potentials from a LOCPOT
+        fike.
         
         Args:
-            ind:
-                Index of atom.
-            radius:
-                Radius of integration.
+            ind : Index of axis.
             
         Returns:
-            Differential integrated charge.       
+            Average total along axis
         """
-        st = self.poscar.struct
-        a = self.dim
-        intchg = 0
-        ioncoord = st[ind].frac_coords
-        iongridpt = [int(round(ioncoord[i] * a[i])) for i in xrange(3)]
-        max_grid_pts = [min(int(round(radius / st.lattice.abc[i] * a[i])) + 1, int(round(a[i] / 2))) for i in xrange(3)]
+        m = self.data["total"]
 
-        for x in xrange(iongridpt[0] - max_grid_pts[0], iongridpt[0] + max_grid_pts[0]):
-            for y in xrange(iongridpt[1] - max_grid_pts[1], iongridpt[1] + max_grid_pts[1]):
-                for z in xrange(iongridpt[2] - max_grid_pts[2], iongridpt[2] + max_grid_pts[2]):
-                    modx = x % a[0]
-                    mody = y % a[1]
-                    modz = z % a[2]
-                    pt = np.array([modx * 1.0 / a[0], 1.0 * mody / a[1] , 1.0 * modz / a[2]])
-                    dist = st[ind].distance_and_image_from_frac_coords(pt)[0]
-                    if dist < radius:
-                        intchg += self.data[Spin.up][modx, mody, modz] - self.data[Spin.down][modx, mody, modz]
-        return intchg / self.ngridpts
+        ng = self.dim
+        avg = []
+        for i in xrange(ng[ind]):
+            subtotal = 0
+            for j in xrange(ng[(ind + 1) % 3]):
+                for k in xrange(ng[(ind + 2) % 3]):
+                    if ind == 0:
+                        subtotal += m[i, j, k]
+                    if ind == 1:
+                        subtotal += m[k, i, j]
+                    if ind == 2:
+                        subtotal += m[j, k, i]
+            avg.append(subtotal)
+        avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
+        return avg
+
+
+class Locpot(VolumetricData):
+    """
+    Simple object for reading a LOCPOT file.
+    """
+
+    def __init__(self, poscar, data):
+        """
+        Args:
+            poscar:
+                Poscar object containing structure.
+            data:
+                Actual data.
+        """
+        VolumetricData.__init__(self, poscar.struct, data)
+        self.name = poscar.comment
+
+    @staticmethod
+    def from_file(filename):
+        (poscar, data) = VolumetricData.parse_file(filename)
+        return Locpot(poscar, data)
+
+
+
+class Chgcar(VolumetricData):
+    """
+    Simple object for reading a CHGCAR file.
+    """
+
+    def __init__(self, poscar, data):
+        """
+        Args:
+            poscar:
+                Poscar object containing structure.
+            data:
+                Actual data.
+        """
+        VolumetricData.__init__(self, poscar.struct, data)
+        self.poscar = poscar
+        self.name = poscar.comment
+        self._distance_matrix = {}
+
+    @staticmethod
+    def from_file(filename):
+        (poscar, data) = VolumetricData.parse_file(filename)
+        return Chgcar(poscar, data)
 
 
 class Procar(object):
@@ -2532,4 +2547,3 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
-

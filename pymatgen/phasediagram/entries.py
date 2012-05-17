@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-This module defines PDEntry, which wraps information (composition and energy) necessary to create
-phase diagrams. 
+This module defines PDEntry, which wraps information (composition and energy)
+necessary to create phase diagrams. 
 """
 
 from __future__ import division
@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "May 16, 2011"
 
 import re
 
@@ -24,30 +24,30 @@ from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 
 class PDEntry(MSONable):
     """
-    An object encompassing all relevant data for phase
-    diagrams.
+    An object encompassing all relevant data for phase diagrams.
     """
 
-    def __init__(self, comp, finalenergy, name=None):
+    def __init__(self, composition, energy, name=None):
         """
         Args:
-            comp - Composition as a pymatgen.core.structure.Composition
-            finalenergy - energy for composition.
-            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+            comp:
+                Composition as a pymatgen.core.structure.Composition
+            energy:
+                Energy for composition.
+            name:
+                Optional parameter to name the entry. Defaults to the reduced
+                chemical formula.
         """
-        self._finalenergy = float(finalenergy)
-        self._composition = comp
-        if name == None:
-            self._name = comp.reduced_formula
-        else:
-            self._name = name
+        self._energy = energy
+        self._composition = composition
+        self._name = name if name else composition.reduced_formula
 
     @property
     def energy(self):
         """
         Returns the final energy.
         """
-        return self._finalenergy
+        return self._energy
 
     @property
     def energy_per_atom(self):
@@ -89,13 +89,13 @@ class PDEntry(MSONable):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['composition'] = self._composition.to_dict
-        d['final_energy'] = self._finalenergy
+        d['energy'] = self._energy
         d['name'] = self._name
         return d
 
     @staticmethod
     def from_dict(d):
-        return PDEntry(Composition(d['composition']), d['final_energy'], d['name'])
+        return PDEntry(Composition(d['composition']), d['energy'], d['name'])
 
 
 class GrandPotPDEntry(PDEntry):
@@ -108,7 +108,7 @@ class GrandPotPDEntry(PDEntry):
         """
         Args:
             entry:
-                A PDEntry object containing the composition entry.
+                A PDEntry-like object.
             chempots:
                 Chemical potential specification as {Element: float}.
             name:
@@ -130,7 +130,7 @@ class GrandPotPDEntry(PDEntry):
     @property
     def original_entry(self):
         '''
-        Original PDEntry object.
+        Original entry.
         '''
         return self._original_entry
 
@@ -173,7 +173,8 @@ class GrandPotPDEntry(PDEntry):
 
 class PDEntryIO(object):
     """
-    Utility class to export and import PDEntry to and from csv files, as well as to and from json.
+    Utility class to export and import PDEntry to and from csv files, as well
+    as to and from json.
     """
 
     @staticmethod
@@ -182,9 +183,12 @@ class PDEntryIO(object):
         Exports PDEntries to a csv
         
         Args:
-            filename - Filename to write to.
-            entries - PDEntries to export.
-            latexify_names - Format entry names to be LaTex compatible, e.g., Li_{2}O
+            filename:
+                Filename to write to.
+            entries:
+                PDEntries to export.
+            latexify_names:
+                Format entry names to be LaTex compatible, e.g., Li_{2}O
         """
         import csv
         elements = set()
@@ -219,31 +223,33 @@ class PDEntryIO(object):
                 header_read = True
             else:
                 name = row[0]
-                finalenergy = float(row[-1])
+                energy = float(row[-1])
                 comp = dict()
                 for ind in range(1, len(row) - 1):
                     if float(row[ind]) > 0:
                         comp[Element(elements[ind - 1])] = float(row[ind])
-                entries.append(PDEntry(Composition(comp), finalenergy, name))
+                entries.append(PDEntry(Composition(comp), energy, name))
         elements = [Element(el) for el in elements]
         return (elements, entries)
 
 
 class TransformedPDEntry(PDEntry):
     """
-    An object encompassing all relevant data for phase
-    diagrams.
-    Author: Shyue
+    Beta object for transforming a PDEntry to a different composition coordinate
+    space. Experimental - may be removed in future releases.
     """
 
-    def __init__(self, comp, finalenergy, original_entry):
+    def __init__(self, comp, energy, original_entry):
         """
         Args:
-            comp - Composition as a pymatgen.core.structure.Composition
-            finalenergy - energy for composition.
-            name- Optional parameter to name the entry. Defaults to the reduced chemical formula.
+            comp:
+                Composition as a pymatgen.core.structure.Composition
+            energy:
+                Energy for composition.
+            original_entry:
+                Original entry that this entry arose from.
         """
-        super(TransformedPDEntry, self).__init__(comp, finalenergy)
+        super(TransformedPDEntry, self).__init__(comp, energy)
         self._original_entry = original_entry
         self._name = self._original_entry.composition.reduced_formula
 
