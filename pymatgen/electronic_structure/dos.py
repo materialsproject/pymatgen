@@ -272,8 +272,6 @@ class PDos(Dos):
             densities:
                 A dict of {Spin: np.array} representing the density of states 
                 for each Spin.
-            site:
-                Site associated with the projected DOS.
             orbital:
                 The orbital associated with the projected DOS.
         """

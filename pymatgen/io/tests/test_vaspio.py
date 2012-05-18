@@ -117,6 +117,8 @@ direct
         #Parsing from an MD type run with velocities
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"), check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
+        self.assertEqual(p.predictor_corrector[0][0], 1)
+        self.assertEqual(p.predictor_corrector[1][0], 2)
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
