@@ -24,6 +24,7 @@ import json
 
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
+
 class AbstractVaspInputSet(object):
     """
     Abstract base class representing a set of Vasp input parameters.
@@ -129,7 +130,7 @@ class VaspInputSet(AbstractVaspInputSet):
     implementations.
     """
 
-    def __init__(self, name, config = None):
+    def __init__(self, name, config=None):
         self.name = name
         if config is None:
             module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -199,8 +200,8 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_kpoints(self, structure):
         '''
-        Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
-        for hexagonal cells and Monkhorst-Pack grids otherwise.
+        Writes out a KPOINTS file using the fully automated grid method. Uses
+        Gamma centered meshes  for hexagonal cells and Monk grids otherwise.
         
         Algorithm: 
             Uses a simple approach scaling the number of divisions along each 

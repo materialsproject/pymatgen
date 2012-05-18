@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Created on May 15, 2012
+This module defines a class representing an arbitrary Simplex in arbitrary
+dimensional space.
 '''
 
 from __future__ import division
@@ -52,10 +53,9 @@ class Simplex(object):
         For example, take a tetrahedron. For a tetrahedron, let's label
         the vertices as O, A, B anc C.  Let's call our point coordinate as X.
         We form the composition matrix M with vectors OA, OB and OB, transponse
-        it, and solve for 
-            M'.a = OX
-        where a are the coefficients.
-        if (a >= 0).all() and sum(a) <= 1, X is in the tetrahedron.
+        it, and solve for M'.a = OX where a are the coefficients.
+        
+        If (a >= 0).all() and sum(a) <= 1, X is in the tetrahedron.
         Note that in reality, the test needs to provide a tolerance (set to 
         1e-8 by default) for numerical errors.
         
@@ -93,3 +93,4 @@ class Simplex(object):
     @property
     def coords(self):
         return self._coords.copy()
+

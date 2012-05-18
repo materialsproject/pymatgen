@@ -175,7 +175,7 @@ class DosPlotter(object):
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
         plt.setp(ltext, fontsize=30)
-        plt.tight_layout()
+        #plt.tight_layout()
         return plt
 
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
