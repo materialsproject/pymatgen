@@ -42,12 +42,11 @@ from pymatgen.core.lattice import Lattice
 import pymatgen
 
 
-
 class Poscar(VaspInput):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
-    Please note that this current implementation does not parse selective
-    dynamcics POSCAR files. All attributes can be set directly.
+    Please note that this current implementation. Most attributes can be set
+    directly.
     
     .. attribute:: structure
         
@@ -325,7 +324,7 @@ class Poscar(VaspInput):
                    significant_figures=6):
         """
         Returns a string to be written as a POSCAR file. By default, site
-        symbols are written, which means compatibilty is for vasp >= 5.
+        symbols are written, which means compatibility is for vasp >= 5.
         
         Args:
             direct:
@@ -1848,6 +1847,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self._read_calc(name)
         self.state[name] = False
 
+
 def parse_parameters(val_type, val):
     """
     Helper function to convert a Vasprun parameter into the proper type.
@@ -1865,6 +1865,7 @@ def parse_parameters(val_type, val):
         return val.strip()
     else:
         return float(val)
+
 
 def parse_v_parameters(val_type, val, filename, param_name):
     """
@@ -1909,6 +1910,7 @@ def parse_v_parameters(val_type, val, filename, param_name):
             if val == None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
+
 
 def parse_from_incar(filename, key):
     """
