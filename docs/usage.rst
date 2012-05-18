@@ -30,6 +30,11 @@ provided a quick summary of the various modules here:
    A Structure and Molecule are simply a list of PeriodicSites and Site
    respectively. Finally, a Composition is mapping of Element/Specie to amounts.
 
+All units in pymatgen are typically assumed to be in atomic units, i.e.,
+angstroms for lengths, eV for energies, etc. However, most objects do not assume
+any units per se and it should be perfectly fine for the most part no matter
+what units are being used, as long as they are used consistently.
+
 Side-note : to_dict / from_dict
 ===============================
 

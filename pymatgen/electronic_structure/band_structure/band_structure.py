@@ -200,6 +200,7 @@ class BandStructure(object):
         True if the band structure is spin-polarized, False otherwise
         """
         return self._is_spin_polarized
+    
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
@@ -457,6 +458,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         Returns:
             True if a metal, False if not
         """
+        #print self._efermi
         for i in range(self._nb_bands):
             below = False
             above = False
@@ -523,7 +525,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi'], labels_dict)
 
 
-def get_reconstructed_band_structure(list_bs, efermi):
+def get_reconstructed_band_structure(list_bs, efermi = None):
         """
         This method takes a list of band structure (divided by branches)
         and reconstruct one band structure object from all of them
@@ -539,7 +541,7 @@ def get_reconstructed_band_structure(list_bs, efermi):
         Returns:
             A BandStructureSymmLine object
         """
-        if not efermi:
+        if efermi == None:
             efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
 
         kpoints = []

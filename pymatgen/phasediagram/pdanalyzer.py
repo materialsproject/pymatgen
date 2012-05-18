@@ -8,11 +8,11 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "May 16, 2012"
 
 import numpy as np
 import itertools
@@ -86,7 +86,8 @@ class PDAnalyzer(object):
         Provides the decomposition at a particular composition
         
         Args:
-            comp - A composition
+            comp:
+                A composition
         
         Returns:
             Decomposition as a dict of {PDEntry: amount}
@@ -136,15 +137,16 @@ class PDAnalyzer(object):
 
     def get_equilibrium_reaction_energy(self, entry):
         """
-        Provides the reaction energy of a stable entry from the neighboring equilibrium stable entries.
-        (also known as the inverse distance to hull).
+        Provides the reaction energy of a stable entry from the neighboring
+        equilibrium stable entries (also known as the inverse distance to hull).
         
         Args:
             entry:
                 A PDEntry like object
         
         Returns:
-            Equilibrium reaction energy of entry.  Stable entries should have equilibrium reaction energy <= 0.
+            Equilibrium reaction energy of entry. Stable entries should have
+            equilibrium reaction energy <= 0.
         """
         if entry not in self._pd.stable_entries:
             raise ValueError("Equilibrium reaction energy is available only for stable entries.")
@@ -166,10 +168,11 @@ class PDAnalyzer(object):
         
         Args:
             element:
-                An element.  Has to be in the PD in the first place.
+                An element. Has to be in the PD in the first place.
         
         Returns:
-            A sorted sequence of critical chemical potentials, from less negative to more negative.
+            A sorted sequence of critical chemical potentials, from less
+            negative to more negative.
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
@@ -192,8 +195,9 @@ class PDAnalyzer(object):
     def get_element_profile(self, element, comp):
         """
         Provides the element evolution data for a composition.
-        For example, can be used to analyze Li conversion voltages by varying uLi and looking at the phases formed.
-        Also can be used to analyze O2 evolution by varying uO2.
+        For example, can be used to analyze Li conversion voltages by varying
+        uLi and looking at the phases formed. Also can be used to analyze O2
+        evolution by varying uO2.
         
         Args:
             element:
@@ -202,7 +206,9 @@ class PDAnalyzer(object):
                 A Composition
         
         Returns:
-            Evolution data as a list of dictionaries of the following format: [ {'chempot': -10.487582010000001, 'evolution': -2.0, 'reaction': Reaction Object], ...]
+            Evolution data as a list of dictionaries of the following format:
+            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
+            'reaction': Reaction Object], ...]
         """
         if element not in self._pd.elements:
             raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
@@ -237,7 +243,7 @@ class PDAnalyzer(object):
 
     def get_chempot_range_map(self, elements):
         """
-        Beta method to get chempot range map.
+        Returns a chemical potential range map for each stable entry.
                 
         Args:
             elements:
@@ -245,25 +251,34 @@ class PDAnalyzer(object):
                 E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+        
+        Returns:
+            Returns a dict of the form {entry: [simplices]}. The list of 
+            simplices are the sides of the N-1 dim polytope bounding the
+            allowable chemical potential range of each entry.
         """
         elrefs = self._pd.el_refs
         chempot_ranges = {}
         for entry in self._pd.stable_entries:
             all_facets = self._get_facets(entry.composition)
-            lines = []
-            for facet1, facet2 in itertools.combinations(all_facets, 2):
-                inter = set(facet1).intersection(set(facet2))
+            simplices = []
+            # For each entry, go through all possible combinations of 2 facets.
+            for facets in itertools.combinations(all_facets, 2):
+                # Get the intersection of the 2 facets.
+                inter = set(facets[0]).intersection(set(facets[1]))
 
-                if len(inter) == 2:
-                    chempots1 = self.get_facet_chempots(facet1)
-                    chempots2 = self.get_facet_chempots(facet2)
-                    start = [chempots1[el] - elrefs[el].energy_per_atom for el in elements]
-                    end = [chempots2[el] - elrefs[el].energy_per_atom for el in elements]
-                    line = Simplex([start, end])
-                    lines.append(line)
+                #Check if the intersection has N-1 vertices. if so, add the line
+                #to the list of simplices.
+                if len(inter) == self._pd.dim - 1:
+                    coords = []
+                    for facet in facets:
+                        chempots = self.get_facet_chempots(facet)
+                        coords.append([chempots[el] - elrefs[el].energy_per_atom for el in elements])
+                    sim = Simplex(coords)
+                    simplices.append(sim)
 
-            if len(lines) > 0:
-                chempot_ranges[entry] = lines
+            if len(simplices) > 0:
+                chempot_ranges[entry] = simplices
 
         return chempot_ranges
 
@@ -275,7 +290,7 @@ class PDAnalyzer(object):
         Args:
             elements:
                 Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li - Co - O
+                E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         """
@@ -286,23 +301,17 @@ class PDAnalyzer(object):
         chempot_ranges = self.get_chempot_range_map(elements)
         missing_lines = {}
         for entry, lines in chempot_ranges.items():
-
             center_x = 0
             center_y = 0
-
             coords = []
-            poly = []
-            center = np.zeros(2)
             for line in lines:
                 (x, y) = line.coords.transpose()
-                center += line.coords[0] + line.coords[1]
                 plt.plot(x, y, 'k')
                 center_x += sum(x)
                 center_y += sum(y)
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
-                        poly.append(coord)
                     else:
                         coords.remove(coord.tolist())
             comp = entry.composition
@@ -312,8 +321,6 @@ class PDAnalyzer(object):
             else:
                 plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.name, fontsize=20)
 
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
@@ -341,6 +348,8 @@ class PDAnalyzer(object):
                 center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
             plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.name, fontsize=20)
 
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
         plt.tight_layout()
         plt.show()
 

@@ -42,14 +42,12 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.9.0)
+Latest Change Log (v1.9.1)
 --------------------------
 
-1. Completely new json encoder and decoder that support serialization of almost
-   all pymatgen objects. See `Using pymatgen`_ section for more details.
-2. Simplification to Borg API utilizing the new json API.
-3. Bandstructure classes now support spin-polarized runs.
-4. Beta classes for battery (insertion and conversion) analysis.
+1. New PDAnalyzer method to generate chemical potential maps.
+2. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
 
 .. toctree::
    :maxdepth: 2

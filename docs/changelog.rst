@@ -1,6 +1,15 @@
 Older versions
 ==============
 
+Version 1.9.0
+-------------
+
+1. Completely new json encoder and decoder that support serialization of almost
+   all pymatgen objects.
+2. Simplification to Borg API utilizing the new json API.
+3. Bandstructure classes now support spin-polarized runs.
+4. Beta classes for battery (insertion and conversion) analysis.
+
 Version 1.8.3
 -------------
 
