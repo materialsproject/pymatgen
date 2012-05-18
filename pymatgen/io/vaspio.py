@@ -47,7 +47,30 @@ class Poscar(VaspInput):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation does not parse selective
-    dynamcics POSCAR files.
+    dynamcics POSCAR files. All attributes can be set directly.
+    
+    .. attribute:: structure
+        
+        Associated Structure.
+    
+    .. attribute:: comment
+        
+        Optional comment string.
+
+    .. attribute:: true_names
+        
+        Boolean indication whether Poscar contains actual real names parsed
+        from either a POTCAR or the POSCAR itself.
+    
+    .. attribute:: velocities
+        
+        Velocities for each site (typically read in from a CONTCAR). A Nx3
+        array of floats.
+    
+    .. attribute:: selective_dynamics
+        
+        Selective dynamics attribute for each site if available. A Nx3 array of
+        booleans.
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
@@ -90,19 +113,30 @@ class Poscar(VaspInput):
         """
         return self.structure
 
+    @property
+    def site_symbols(self):
+        """
+        Sequence of symbols associated with the Poscar. Similar to 6th line in
+        vasp 5+ POSCAR.
+        """
+        syms = [site.specie.symbol for site in self.structure]
+        return [s for (s, data) in itertools.groupby(syms)]
+
+    @property
+    def natoms(self):
+        """
+        Sequence of number of sites of each type associated with the Poscar.
+        Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
+        """
+        syms = [site.specie.symbol for site in self.structure]
+        return [len(tuple(data)) for (s, data) in itertools.groupby(syms)]
+
     def __setattr__(self, name, value):
         if name in ("selective_dynamics", "velocities"):
             if value:
                 dim = np.array(value).shape
                 if dim[1] != 3 or dim[0] != len(self.struct):
                     raise ValueError("{} array must be same length as the structure.".format(name))
-        elif name == "structure":
-            self.site_symbols = []
-            self.natoms = []
-            syms = [site.specie.symbol for site in value]
-            for (s, data) in itertools.groupby(syms):
-                self.site_symbols.append(s)
-                self.natoms.append(len(tuple(data)))
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
@@ -1814,8 +1848,8 @@ def parse_v_parameters(val_type, val, filename, param_name):
             Actual string value parsed for vasprun.xml.
         filename: 
             Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
-            if vasprun.xml contains *** for some Incar parameters, the code will try
-            to read from an INCAR file present in the same directory.
+            if vasprun.xml contains \*\*\* for some Incar parameters, the code
+            will try to read from an INCAR file present in the same directory.
         param_name: 
             Name of parameter.
             
