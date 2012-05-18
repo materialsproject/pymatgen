@@ -62,19 +62,24 @@ class Poscar(VaspInput):
         Boolean indication whether Poscar contains actual real names parsed
         from either a POTCAR or the POSCAR itself.
     
+    .. attribute:: selective_dynamics
+        
+        Selective dynamics attribute for each site if available. A Nx3 array of
+        booleans.
+    
     .. attribute:: velocities
         
         Velocities for each site (typically read in from a CONTCAR). A Nx3
         array of floats.
     
-    .. attribute:: selective_dynamics
+    .. attribute:: predictor_corrector
         
-        Selective dynamics attribute for each site if available. A Nx3 array of
-        booleans.
+        Predictor corrector coordinates for each site (typically read in from a 
+        MD CONTCAR).
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
-                 true_names=True, velocities=None):
+                 true_names=True, velocities=None, predictor_corrector=None):
         """        
         Args:
             structure:
@@ -93,16 +98,18 @@ class Poscar(VaspInput):
             velocities:
                 Velocities for the POSCAR. Typically parsed in MD runs or can be
                 used to initialize velocities.
+            predictor_corrector:
+                Velocities for the POSCAR. Typically parsed in MD runs or can be
+                used to initialize velocities.
         """
 
         if structure.is_ordered:
-            if velocities and len(velocities) != len(structure):
-                raise ValueError("Specified velocities must have the same length as the number of sites in the structure.")
             self.structure = structure
             self.true_names = true_names
             self.selective_dynamics = selective_dynamics
             self.comment = structure.formula if comment == None else comment
             self.velocities = velocities
+            self.predictor_corrector = predictor_corrector
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
 
@@ -137,6 +144,12 @@ class Poscar(VaspInput):
                 dim = np.array(value).shape
                 if dim[1] != 3 or dim[0] != len(self.struct):
                     raise ValueError("{} array must be same length as the structure.".format(name))
+        elif name == "structure":
+            #If we set a new structure, we should discard the velocities and
+            #predictor_corrector and selective dynamics.
+            self.velocities = None
+            self.predictor_corrector = None
+            self.selective_dynamics = None
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
@@ -298,7 +311,15 @@ class Poscar(VaspInput):
             for line in chunks[1].strip().split("\n"):
                 velocities.append([float(tok) for tok in re.split("\s+", line.strip())])
 
-        return Poscar(struct, comment, selective_dynamics, vasp5_symbols, velocities=velocities)
+        predictor_corrector = []
+        if len(chunks) > 2:
+            lines = chunks[2].strip().split("\n")
+            predictor_corrector.append([int(lines[0])])
+            for line in lines[1:]:
+                predictor_corrector.append([float(tok) for tok in re.split("\s+", line.strip())])
+
+        return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
+                      velocities=velocities, predictor_corrector=predictor_corrector)
 
     def get_string(self, direct=True, vasp4_compatible=False,
                    significant_figures=6):
@@ -331,23 +352,29 @@ class Poscar(VaspInput):
             lines.append("Selective dynamics")
         lines.append('direct' if direct else 'cartesian')
 
-        format_str = "{{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(significant_figures)
+        format_str = "{{:.{0}f}}".format(significant_figures)
 
         for i in xrange(len(self.struct)):
             site = self.struct[i]
             coords = site.frac_coords if direct else site.coords
-            line = format_str.format(*coords)
+            line = " ".join([format_str.format(c) for c in coords])
             if self.selective_dynamics:
                 sd = ['T' if j else 'F' for j in self.selective_dynamics[i]]
                 line += " %s %s %s" % (sd[0], sd[1], sd[2])
             line += " " + site.species_string
             lines.append(line)
 
-        format_str = "{{:.{0}e}} {{:.{0}e}} {{:.{0}e}}".format(significant_figures)
         if self.velocities:
             lines.append("")
             for v in self.velocities:
-                lines.append(format_str.format(*v))
+                lines.append(" ".join([format_str.format(i) for i in v]))
+
+        if self.predictor_corrector:
+            lines.append("")
+            lines.append(str(self.predictor_corrector[0][0]))
+            lines.append(str(self.predictor_corrector[1][0]))
+            for v in self.predictor_corrector[2:]:
+                lines.append(" ".join([format_str.format(i) for i in v]))
 
         return "\n".join(lines)
 
@@ -374,6 +401,7 @@ class Poscar(VaspInput):
         d['true_names'] = self.true_names
         d['selective_dynamics'] = self.selective_dynamics
         d['velocities'] = self.velocities
+        d['predictor_corrector'] = self.predictor_corrector
         d['comment'] = self.comment
         return d
 
@@ -381,7 +409,9 @@ class Poscar(VaspInput):
     def from_dict(d):
         return Poscar(Structure.from_dict(d['structure']), comment=d['comment'],
                       selective_dynamics=d['selective_dynamics'],
-                      true_names=d['true_names'])
+                      true_names=d['true_names'],
+                      velocities=d.get('velocities', None),
+                      predictor_corrector=d.get('predictor_corrector', None))
 
 
 """**Non-exhaustive** list of valid INCAR tags"""
