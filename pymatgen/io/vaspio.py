@@ -2169,57 +2169,37 @@ class VolumetricData(object):
             (poscar, data)
         """
 
-        reader = file_open_zip_aware(filename)
-        lines = reader.readlines()
-        reader.close()
+        with file_open_zip_aware(filename) as f:
+            contents = f.read()
+            (poscar_string, grid_data) = re.split("^\s*$", contents, flags=re.MULTILINE)
+            poscar = Poscar.from_string(poscar_string)
 
-        poscar = Poscar.from_file(filename)
+            grid_data = grid_data.strip()
+            ind = grid_data.find("\n")
+            dim_line = grid_data[0:ind].strip()
+            a = [int(i) for i in dim_line.split()]
 
-        # Skip whitespace between POSCAR and LOCPOT data
-        i = 0
-        while lines[i].strip() != "":
-            i += 1
-        while lines[i].strip() == "":
-            i += 1
+            pieces = grid_data[ind:].strip().split(dim_line)
 
-        dimensionline = lines[i].strip()
-        i += 1
-        spinpolarized = False
-        # Search for the second dimension line, where the next spin starts
-        for j in xrange(i, len(lines)):
-            if dimensionline == lines[j].strip():
-                spinpolarized = True
-                break
+            spinpolarized = (len(pieces) == 2)
 
-        if not spinpolarized:
-            j = j + 2
+            def parse_data(lines):
+                pot = np.zeros(a)
+                count = 0
+                data = re.sub("\n", " ", lines).split()
+                for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
+                    pot[x, y, z] = float(data[count])
+                    count += 1
+                return pot
 
-        # Read three numbers that is the dimension
-        dimensionexpr = re.compile('([0-9]+) +([0-9]+) +([0-9]+)')
-        m = dimensionexpr.match(dimensionline.strip())
-        a = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            totalpot = parse_data(pieces[0])
+            if spinpolarized:
+                diffpot = parse_data(pieces[1])
+                data = {"total":totalpot, "diff":diffpot}
+            else:
+                data = {"total":totalpot}
 
-        def parse_data(data):
-            pot = np.zeros((a[0], a[1], a[2]))
-            count = 0
-            for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
-                pot[x, y, z] = float(data[count])
-                count += 1
-            return pot
-
-        data = (" ".join(lines[i:j - 1])).split()
-        data = data[:(a[0] * a[1] * a[2])]
-
-        totalpot = parse_data(data)
-        if spinpolarized:
-            data = (" ".join(lines[j + 1:])).split()
-            data = data[:(a[0] * a[1] * a[2])]
-            diffpot = parse_data(data)
-            data = {"total":totalpot, "diff":diffpot}
-        else:
-            data = {"total":totalpot}
-
-        return (poscar, data)
+            return (poscar, data)
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
