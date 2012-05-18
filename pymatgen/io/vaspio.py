@@ -2183,18 +2183,18 @@ class VolumetricData(object):
 
             spinpolarized = (len(pieces) == 2)
 
-            def parse_data(lines):
+            def parse_data(piece):
                 pot = np.zeros(a)
                 count = 0
-                data = re.sub("\n", " ", lines).split()
+                data = re.sub("\n", " ", piece).split()
                 for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]), xrange(a[0])):
                     pot[x, y, z] = float(data[count])
                     count += 1
                 return pot
 
-            totalpot = parse_data(pieces[0])
+            totalpot = parse_data(pieces[0].strip())
             if spinpolarized:
-                diffpot = parse_data(pieces[1])
+                diffpot = parse_data(pieces[1].strip())
                 data = {"total":totalpot, "diff":diffpot}
             else:
                 data = {"total":totalpot}
