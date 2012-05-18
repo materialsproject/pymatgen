@@ -46,6 +46,8 @@ Latest Change Log (v1.9.1)
 --------------------------
 
 1. New PDAnalyzer method to generate chemical potential maps.
+2. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
 
 .. toctree::
    :maxdepth: 2

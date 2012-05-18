@@ -113,7 +113,15 @@ direct
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
+    def test_from_md_run(self):
+        #Parsing from an MD type run with velocities
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"), check_for_POTCAR=False)
+        self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
 
+    def test_setattr(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        self.assertRaises(ValueError, setattr, poscar, 'velocities', [[0, 0, 0]])
 
 class IncarTest(unittest.TestCase):
 

@@ -50,10 +50,11 @@ class Poscar(VaspInput):
     dynamcics POSCAR files.
     """
 
-    def __init__(self, struct, comment=None, selective_dynamics=None, true_names=True):
+    def __init__(self, structure, comment=None, selective_dynamics=None,
+                 true_names=True, velocities=None):
         """        
         Args:
-            struct:
+            structure:
                 Structure object. See pymatgen.core.structure.Structure.
             comment:
                 Optional comment line for POSCAR. Defaults to unit cell
@@ -61,60 +62,64 @@ class Poscar(VaspInput):
             selective_dynamics:
                 Nx3 2D array of boolean values for selective dynamics, where N
                 is number of sites. Defaults to None.
+            true_names:
+                Set to False is the names in the POSCAR are not well-defined
+                and ambiguous. This situation arises commonly in vasp < 5 where
+                the POSCAR sometimes does not contain element symbols. Defaults
+                to True.
+            velocities:
+                Velocities for the POSCAR. Typically parsed in MD runs or can be
+                used to initialize velocities.
         """
 
-        if struct.is_ordered:
-            self._struct = struct
-            self._site_symbols = []
-            self._natoms = []
-            syms = [site.specie.symbol for site in struct]
-            for (s, data) in itertools.groupby(syms):
-                self._site_symbols.append(s)
-                self._natoms.append(len(tuple(data)))
-            self._true_names = true_names
-            if selective_dynamics:
-                self.set_selective_dynamics(selective_dynamics)
-            else:
-                self._selective_dynamics = None
-            self.comment = struct.formula if comment == None else comment
+        if structure.is_ordered:
+            if velocities and len(velocities) != len(structure):
+                raise ValueError("Specified velocities must have the same length as the number of sites in the structure.")
+            self.structure = structure
+            self.true_names = true_names
+            self.selective_dynamics = selective_dynamics
+            self.comment = structure.formula if comment == None else comment
+            self.velocities = velocities
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
-
-    def set_selective_dynamics(self, selective_dynamics):
-        if selective_dynamics and len(selective_dynamics) != len(self._struct):
-            raise ValueError("Selective dynamics array must be same length as the structure.")
-        self._selective_dynamics = selective_dynamics
-
-    @property
-    def selective_dynamics(self):
-        return self._selective_dynamics
-
-    @property
-    def site_symbols(self):
-        """
-        Symbols for each site in POSCAR.
-        """
-        return self._site_symbols
 
     @property
     def struct(self):
         """
-        Structure associated with the Poscar file.
+        For backwards compatibility.
         """
-        return self._struct
+        return self.structure
+
+    def __setattr__(self, name, value):
+        if name in ("selective_dynamics", "velocities"):
+            if value:
+                dim = np.array(value).shape
+                if dim[1] != 3 or dim[0] != len(self.struct):
+                    raise ValueError("{} array must be same length as the structure.".format(name))
+        elif name == "structure":
+            self.site_symbols = []
+            self.natoms = []
+            syms = [site.specie.symbol for site in value]
+            for (s, data) in itertools.groupby(syms):
+                self.site_symbols.append(s)
+                self.natoms.append(len(tuple(data)))
+        super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename, check_for_POTCAR=True):
         """
         Reads a Poscar from a file.
+        
         The code will try its best to determine the elements in the POSCAR in 
         the following order:
-        1. Ideally, if the input file is Vasp5-like and contains element 
-        symbols in the 6th line, the code will use that.
-        2. Failing (1), the code will check if a symbol is provided at the end
+        1. If check_for_POTCAR is True, the code will try to check if a POTCAR
+        is in the same directory as the POSCAR and use elements from that by
+        default. (This is the VASP default sequence of priority).
+        2. If the input file is Vasp5-like and contains element symbols in the
+        6th line, the code will use that if check_for_POTCAR is False or there
+        is no POTCAR found.
+        3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
-        3. Failing (i) and (ii), the code will try to check if a POTCAR is in
-        the same directory as the POSCAR and use elements from that.
         
         If all else fails, the code will just assign the first n elements in 
         increasing atomic number, where n is the number of species, to the
@@ -125,20 +130,24 @@ class Poscar(VaspInput):
         Args:
             filename:
                 File name containing Poscar data.
-        
+            check_for_POTCAR:
+                Whether to check if a POTCAR is present in the same directory
+                as the POSCAR. Defaults to True.
+                
         Returns:
             Poscar object.
         """
 
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
-        for f in os.listdir(dirname):
-            if f == "POTCAR":
-                try:
-                    potcar = Potcar.from_file(os.path.join(dirname, f))
-                    names = [sym.split("_")[0] for sym in potcar.symbols]
-                except:
-                    names = None
+        if check_for_POTCAR:
+            for f in os.listdir(dirname):
+                if f == "POTCAR":
+                    try:
+                        potcar = Potcar.from_file(os.path.join(dirname, f))
+                        names = [sym.split("_")[0] for sym in potcar.symbols]
+                    except:
+                        names = None
         with file_open_zip_aware(filename, "r") as f:
             return Poscar.from_string(f.read(), names)
 
@@ -146,14 +155,16 @@ class Poscar(VaspInput):
     def from_string(data, default_names=None):
         """
         Reads a Poscar from a string.
+        
         The code will try its best to determine the elements in the POSCAR in 
         the following order:
-        1. Ideally, if the input file is Vasp5-like and contains element 
-        symbols in the 6th line, the code will use that.
-        2. Failing (1), the code will check if a symbol is provided at the end
+        1. If default_names are supplied and valid, it will use those. Usually,
+        default names comes from an external source, such as a POTCAR in the
+        same directory.
+        2. If there are no valid default names but the input file is Vasp5-like
+        and contains element symbols in the 6th line, the code will use that.
+        3. Failing (2), the code will check if a symbol is provided at the end
         of each coordinate.
-        3. Failing (i) and (ii), the code will try to check if a POTCAR is in
-        the same directory as the POSCAR and use elements from that.
         
         If all else fails, the code will just assign the first n elements in 
         increasing atomic number, where n is the number of species, to the
@@ -164,12 +175,18 @@ class Poscar(VaspInput):
         Args:
             data:
                 string containing Poscar data.
+            default_names:
+                default symbols for the POSCAR file, usually coming from a
+                POTCAR in the same directory.
                 
         Returns:
             Poscar object.
         """
 
-        lines = tuple(clean_lines(data.split("\n"), False))
+        chunks = re.split("^\s*$", data.strip(), flags=re.MULTILINE)
+
+        #Parse positions
+        lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
         lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
@@ -241,13 +258,16 @@ class Poscar(VaspInput):
 
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
-        return Poscar(struct, comment, selective_dynamics, vasp5_symbols)
+        #parse velocities if any
+        velocities = []
+        if len(chunks) > 1:
+            for line in chunks[1].strip().split("\n"):
+                velocities.append([float(tok) for tok in re.split("\s+", line.strip())])
 
-    @property
-    def true_names(self):
-        return self._true_names
+        return Poscar(struct, comment, selective_dynamics, vasp5_symbols, velocities=velocities)
 
-    def get_string(self, direct=True, vasp4_compatible=False):
+    def get_string(self, direct=True, vasp4_compatible=False,
+                   significant_figures=6):
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibilty is for vasp >= 5.
@@ -259,29 +279,41 @@ class Poscar(VaspInput):
             vasp4_compatible:
                 Set to True to omit site symbols on 6th line to maintain
                 backward vasp 4.x compatibility. Defaults to False.
+            significant_figures:
+                Number of significant figures to output all quantities. Defaults
+                to 6. Note that positions are output in fixed point, while
+                velocities are output in scientific format.
                 
         Returns:
             String representation of POSCAR.
         """
         lines = [self.comment]
         lines.append("1.0")
-        lines.append(str(self._struct.lattice))
-        if self._true_names == True and not vasp4_compatible:
-            lines.append(" ".join(self._site_symbols))
-        lines.append(" ".join([str(x) for x in self._natoms]))
-        if self._selective_dynamics:
+        lines.append(str(self.struct.lattice))
+        if self.true_names and not vasp4_compatible:
+            lines.append(" ".join(self.site_symbols))
+        lines.append(" ".join([str(x) for x in self.natoms]))
+        if self.selective_dynamics:
             lines.append("Selective dynamics")
         lines.append('direct' if direct else 'cartesian')
 
-        for i in xrange(len(self._struct)):
-            site = self._struct[i]
+        format_str = "{{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(significant_figures)
+
+        for i in xrange(len(self.struct)):
+            site = self.struct[i]
             coords = site.frac_coords if direct else site.coords
-            line = "%.6f %.6f %.6f" % (coords[0], coords[1], coords[2])
-            if self._selective_dynamics:
-                sd = ['T' if j else 'F' for j in self._selective_dynamics[i]]
+            line = format_str.format(*coords)
+            if self.selective_dynamics:
+                sd = ['T' if j else 'F' for j in self.selective_dynamics[i]]
                 line += " %s %s %s" % (sd[0], sd[1], sd[2])
             line += " " + site.species_string
             lines.append(line)
+
+        format_str = "{{:.{0}e}} {{:.{0}e}} {{:.{0}e}}".format(significant_figures)
+        if self.velocities:
+            lines.append("")
+            for v in self.velocities:
+                lines.append(format_str.format(*v))
 
         return "\n".join(lines)
 
@@ -291,27 +323,23 @@ class Poscar(VaspInput):
         """
         return self.get_string()
 
-    def set_site_symbols(self, symbols):
-        self._site_symbols = symbols
-        self._true_names = True
-        #update the Structure as well
-        elements = list()
-        for i in range(len(symbols)):
-            elements.extend([symbols[i]] * self._natoms[i])
-        self._struct = Structure(self._struct.lattice, elements, self._struct.frac_coords)
-
-    def write_file(self, filename):
+    def write_file(self, filename, **kwargs):
+        """
+        Writes POSCAR to a file. The supported kwargs are the same as those for
+        the Poscar.get_string method and are passed through directly.
+        """
         with open(filename, 'w') as f:
-            f.write(str(self) + "\n")
+            f.write(self.get_string(**kwargs) + "\n")
 
     @property
     def to_dict(self):
         d = {}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
-        d['structure'] = self._struct.to_dict
-        d['true_names'] = self._true_names
-        d['selective_dynamics'] = self._selective_dynamics
+        d['structure'] = self.struct.to_dict
+        d['true_names'] = self.true_names
+        d['selective_dynamics'] = self.selective_dynamics
+        d['velocities'] = self.velocities
         d['comment'] = self.comment
         return d
 
