@@ -2169,28 +2169,28 @@ class VolumetricData(object):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
     
-    Attributes:
-        name:
-            The name from the comment line.
-        structure:
-            Structure associated with the Volumetric Data object
-        is_spin_polarized:
-            True if run is spin polarized
-        dim:
-            Tuple of dimensions of volumetric grid in each direction, 
-            (nx, ny, nz)
-        data:
-            Actual data as a dict of {string: np.array}. The string are "total"
-            and "diff", in accordance to the output format of vasp LOCPOT and
-            CHGCAR files where the total spin density is written first, followed
-            by the difference spin density.
-        spin_data:
-            The data decomposed into actual spin data as {spin: data}.
-            Essentially, this provides the actual Spin.up and Spin.down data
-            instead of the total and diff.  Note that by definition, a
-            non-spin-polarized run would have Spin.up data == Spin.down data.
-        ngridpts:
-            Total number of grid points in volumetric data.
+    .. attribute:: structure
+    
+        Structure associated with the Volumetric Data object
+    
+    ..attribute:: is_spin_polarized
+    
+        True if run is spin polarized
+    
+    ..attribute:: dim
+        
+        Tuple of dimensions of volumetric grid in each direction (nx, ny, nz).
+    
+    ..attribute:: data
+        
+        Actual data as a dict of {string: np.array}. The string are "total"
+        and "diff", in accordance to the output format of vasp LOCPOT and
+        CHGCAR files where the total spin density is written first, followed
+        by the difference spin density.
+    
+    .. attribute:: ngridpts
+        
+        Total number of grid points in volumetric data.
     """
     def __init__(self, structure, data, distance_matrix=None):
         """
@@ -2219,6 +2219,12 @@ class VolumetricData(object):
 
     @property
     def spin_data(self):
+        """
+        The data decomposed into actual spin data as {spin: data}.
+        Essentially, this provides the actual Spin.up and Spin.down data
+        instead of the total and diff.  Note that by definition, a
+        non-spin-polarized run would have Spin.up data == Spin.down data.
+        """
         if not self._spin_data:
             spin_data = dict()
             spin_data[Spin.up] = 0.5 * (self.data['total'] + self.data.get('diff', 0))
