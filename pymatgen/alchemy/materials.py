@@ -335,7 +335,7 @@ class TransformedStructure(MSONable):
         if not p.true_names:
             raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
         raw_string = re.sub("'", "\"", poscar_string)
-        s = p.struct
+        s = p.structure
         source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.now()), 'original_file':raw_string}
         return TransformedStructure(s, transformations, [source_info])
 
