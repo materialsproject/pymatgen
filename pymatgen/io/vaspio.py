@@ -1009,10 +1009,9 @@ class PotcarSingle(object):
         """
         Expects a complete and single potcar file as a string in "data"
         """
-        self.data = data # raw POTCAR as a string
-        keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(data)
-        self.keywords = dict(keypairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
-
+        self.data = data  # raw POTCAR as a string
+        self._keywords = None
+    
     def __str__(self):
         return self.data
 
@@ -1020,7 +1019,19 @@ class PotcarSingle(object):
         writer = open(filename, 'w')
         writer.write(self.__str__() + "\n")
         writer.close()
-
+    
+    @property
+    def keywords(self):
+        """
+        the keywords are instantiated only if needed because the regex takes time to compile (AJ 5/18/2012)
+        this greatly speeds up the use of PotcarSingle if you don't plan on querying its properties
+        """
+        if self._keywords:
+            return self._keywords
+        keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(self.data)
+        self._keywords = dict(keypairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
+        return self._keywords
+        
     @property
     def symbol(self):
         """
