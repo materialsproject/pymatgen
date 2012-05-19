@@ -1422,6 +1422,9 @@ class Vasprun(object):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
         if not self.incar['ICHARG'] == 11:
             raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
+        
+        if efermi == None:
+            efermi = self.efermi
 
         kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
@@ -1439,9 +1442,6 @@ class Vasprun(object):
         neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
-        if not efermi:
-            efermi = self.efermi
-
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
         if eigenvals.has_key(Spin.down):
@@ -1452,6 +1452,7 @@ class Vasprun(object):
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
         else:
             return BandStructure(kpoints, eigenvals, lattice_new, efermi)
+
 
     @property
     def eigenvalue_band_properties(self):
@@ -2593,7 +2594,7 @@ class VaspParserError(Exception):
         return "VaspParserError : " + self.msg
 
 
-def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
+def get_band_structure_from_vasp_multiple_branches(dir_name, efermi = None):
     """
     this method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
@@ -2620,15 +2621,48 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             xml_file = os.path.join(dir_name, 'vasprun.xml')
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file)
-                branches.append(run.get_band_structure(efermi=efermi))
+                branches.append(run.get_band_structure(efermi = efermi))
             else:
                 # It might be better to throw an exception
-                warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
+                warnings.warn("Skipping {d}. Unable to find {f}".format(d = dir_name, f = xml_file))
         return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, 'vasprun.xml')
         #Better handling of Errors
         if os.path.exists(xml_file):
-            return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
+            return Vasprun(xml_file).get_band_structure(kpoints_filename = None, efermi = efermi)
         else:
             return None
+
+        
+def get_adjusted_fermi_level(run_static, band_structure):
+    """
+    When running a band structure computations the fermi level needs to be taken from
+    the static run that gave the charge density used for the non-self consistent band structure run.
+    Sometimes this fermi level is however a little too low because of the mismatch between the uniform grid
+    used in the static run and the band structure k-points (e.g., the VBM is on Gamma and the Gamma point is not in the 
+    uniform mesh). Here we use a procedure consisting in looking for energy levels higher than the static fermi level (but lower
+    than the LUMO) if any of these levels make the band structure appears insulating and not metallic anymore, we keep this
+    adjusted fermi level. This procedure has shown to detect correctly most insulators.
+    Args:
+        run_static: 
+            a Vasprun object for the static run
+        run_bandstructure: 
+            a band_structure object
+            
+    Returns:
+        a new adjusted fermi level
+    """
+    #make a working copy of band_structure
+    bs_working = pymatgen.electronic_structure.band_structure.band_structure.BandStructureSymmLine.from_dict(band_structure.to_dict)
+    if bs_working.is_metal():
+                e = run_static.efermi
+                while e < run_static.eigenvalue_band_properties[1]:
+                    e+=0.01
+                    bs_working._efermi=e
+                    if not bs_working.is_metal():
+                        return e
+                    
+    return run_static.efermi
+    
+
