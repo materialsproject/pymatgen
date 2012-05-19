@@ -1000,22 +1000,23 @@ class Kpoints(VaspInput):
 
 class PotcarSingle(object):
     """
-    Object for a **single** POTCAR.
-    The builder assumes the complete string is the POTCAR
-    contains the complete untouched data in "data" as a string and
-    a dictionary of keywords
+    Object for a **single** POTCAR. The builder assumes the complete string is
+    the POTCAR contains the complete untouched data in "data" as a string and
+    a dict of keywords.
     """
     def __init__(self, data):
         """
-        Expects a complete and single potcar file as a string in "data"
+        Args:
+            data:
+                Complete and single potcar file as a string.
         """
         self.data = data  # raw POTCAR as a string
-        
+
         # AJ (5/18/2012) - only search on relevant portion of POTCAR, should fail gracefully if string not found
         search_string = self.data[0:self.data.find("END of PSCTR-controll parameters")]
         keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(search_string)
         self.keywords = dict(keypairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
-    
+
     def __str__(self):
         return self.data
 
@@ -1023,7 +1024,7 @@ class PotcarSingle(object):
         writer = open(filename, 'w')
         writer.write(self.__str__() + "\n")
         writer.close()
-        
+
     @property
     def symbol(self):
         """
@@ -1034,7 +1035,7 @@ class PotcarSingle(object):
     @property
     def element(self):
         """
-        Attempt to return the atomic symbol based on the VRHFIN keyword
+        Attempt to return the atomic symbol based on the VRHFIN keyword.
         """
         element = self.keywords['VRHFIN'].split(":")[0].strip()
         #VASP incorrectly gives the element symbol for Xe as 'X'
@@ -1043,7 +1044,7 @@ class PotcarSingle(object):
     @property
     def atomic_no(self):
         """
-        Attempt to return the atomic number based on the VRHFIN keyword
+        Attempt to return the atomic number based on the VRHFIN keyword.
         """
         return Element(self.element).Z
 
@@ -1053,7 +1054,7 @@ class PotcarSingle(object):
 
     def __getattr__(self, a):
         """
-        Delegates attributes to keywrods. For example, you can use
+        Delegates attributes to keywords. For example, you can use
         potcarsingle.enmax to get the ENMAX of the POTCAR.
         
         For float type properties, they are converted to the correct float. By
@@ -1186,75 +1187,80 @@ class Vasprun(object):
     Vastly improved sax-based parser for vasprun.xml files.
     Speedup over Dom is at least 2x for smallish files (~1Mb) to orders of
     magnitude for larger files (~10Mb). All data is stored as attributes, which
-    are delegated to the VasprunHandler object.
+    are delegated to the VasprunHandler object. Note that the results would
+    differ depending on whether the read_electronic_structure option is set to
+    True.
     
-    Attributes:
+    **Vasp results**
+        
+    .. attribute:: ionic_steps
     
-        **Vasp results**
-        Note that the results would differ depending on whether the
-        read_electronic_structure option is set to True.
-        
-        ionic_steps: 
-            All ionic steps in the run as a list of
-            {'structure': structure at end of run,
-            'electronic_steps': {All electronic step data in vasprun file},
-            'stresses': stress matrix}
-        structures: 
-            List of Structure objects for the structure at each ionic step.
-        tdos: 
-            Total dos calculated at the end of run.
-        idos: 
-            Integrated dos calculated at the end of run.
-        pdos: 
-            List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
-        efermi: 
-            Fermi energy
-        eigenvalues: 
-            Final eigenvalues as a dict of
-            {(kpoint index, Spin.up):[[eigenvalue, occu]]}. 
-            This representation is probably not ideal, but since this is not
-            used anywhere else for now, I leave it as such.
-            Future developers who need to work with this should refactored the
-            object into a sensible structure.
-        
-        **Vasp inputs**
-        
-        incar:
-            Incar object for parameters specified in INCAR file.
-        parameters:
-            Incar object with parameters that vasp actually used, including all
-            defaults.
-        kpoints:
-            Kpoints object for KPOINTS specified in run.
-        actual_kpoints:
-            List of actual kpoints, e.g.,
-            [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
-            [0.25, 0.375, 0.08333333], ....]
-        actual_kpoints_weights:
-            List of kpoint weights, E.g.,
-            [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667,
-            0.04166667, ....]
-        atomic_symbols:
-            List of atomic symbols, e.g.,
-            ['Li', 'Fe', 'Fe', 'P', 'P', 'P']
-        potcar_symbols:
-            List of POTCAR symbols. e.g., 
-            ['PAW_PBE Li 17Jan2003', 'PAW_PBE Fe 06Sep2000', ..]
+        All ionic steps in the run as a list of
+        {'structure': structure at end of run,
+        'electronic_steps': {All electronic step data in vasprun file},
+        'stresses': stress matrix}
     
-        **Convenience attributes**
+    .. attribute:: structures
+    
+        List of Structure objects for the structure at each ionic step.
+    
+    .. attribute:: tdos
+     
+        Total dos calculated at the end of run.
+    
+    .. attribute:: idos 
         
-        final_energy: 
-            Final energy from the run.
-        final_structure: 
-            Final relaxed structure.
-        initial_structure: 
-            Initial input structure.
-        complete_dos: 
-            CompleteDos object containing both the total and projected Dos from the run.
-        is_hubbard:
-            Indicates if a run is a GGA+U run.
-        hubbards:
-            Returns the U values, if any, used in the run.
+        Integrated dos calculated at the end of run.
+    
+    .. attribute:: pdos 
+        
+        List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
+    
+    .. attribute:: efermi
+        
+        Fermi energy
+    
+    .. attribute:: eigenvalues 
+        
+        Final eigenvalues as a dict of {(kpoint index, spin):[[eigenvalue, occu]]}. 
+        This representation is probably not ideal, but since this is not used
+        anywhere else for now, I leave it as such. Future developers who need
+        to work with this should refactored the object into a sensible structure.
+        
+    **Vasp inputs**
+        
+    .. attribute:: incar
+        
+        Incar object for parameters specified in INCAR file.
+    
+    .. attribute:: parameters
+        
+        Incar object with parameters that vasp actually used, including all
+        defaults.
+    
+    .. attribute:: kpoints
+        
+        Kpoints object for KPOINTS specified in run.
+    
+    .. attribute:: actual_kpoints
+        
+        List of actual kpoints, e.g.,
+        [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
+        [0.25, 0.375, 0.08333333], ....]
+    
+    .. attribute:: actual_kpoints_weights
+        
+        List of kpoint weights, E.g.,
+        [0.04166667, 0.04166667, 0.04166667, 0.04166667, 0.04166667, ....]
+    
+    .. attribute:: atomic_symbols
+        
+        List of atomic symbols, e.g., ['Li', 'Fe', 'Fe', 'P', 'P', 'P']
+    
+    .. attribute:: potcar_symbols
+        
+        List of POTCAR symbols. e.g., 
+        ['PAW_PBE Li 17Jan2003', 'PAW_PBE Fe 06Sep2000', ..]
             
     Author: Shyue Ping Ong
     """
@@ -1374,12 +1380,18 @@ class Vasprun(object):
 
     @property
     def is_hubbard(self):
+        """
+        True if run is a DFT+U run.
+        """
         if len(self.hubbards) == 0:
             return False
         return sum(self.hubbards.values()) > 0
 
     @property
     def is_spin(self):
+        """
+        True if run is spin-polarized.
+        """
         return True if self.incar.get('ISPIN', 1) == 2 else False
 
 
@@ -1414,7 +1426,7 @@ class Vasprun(object):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
         if not self.incar['ICHARG'] == 11:
             raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
-        
+
         if efermi == None:
             efermi = self.efermi
 
@@ -1445,14 +1457,11 @@ class Vasprun(object):
         else:
             return BandStructure(kpoints, eigenvals, lattice_new, efermi)
 
-
     @property
     def eigenvalue_band_properties(self):
         """
-        Returns band properties from the eigenvalues.
-        
-        Returns:
-            (band gap, cbm, vbm, is_band_gap_direct)
+        Band properties from the eigenvalues as a tuple,
+        (band gap, cbm, vbm, is_band_gap_direct).
         """
         vbm = -float('inf')
         vbm_kpoint = None
@@ -1471,7 +1480,7 @@ class Vasprun(object):
     @property
     def to_dict(self):
         """
-        json-friendly dict representation for Vasprun.
+        Json-serializable dict representation.
         """
         d = {}
         d['vasp_version'] = self.vasp_version
@@ -1943,24 +1952,30 @@ class Outcar(object):
     Creating the OUTCAR class with a filename reads "regular parameters" that
     are always present.
     
-    Default attributes:
-        magnetization:
-            Magnetization on each ion as a tuple of dict, e.g.,
-            ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005}, ... )
-            Note that this data is not always present.  LORBIT must be set to
-            some other value than the default.
-        charge:
-            Charge on each ion as a tuple of dict, e.g.,
-            ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, ...)
-            Note that this data is not always present.  LORBIT must be set to
-            some other value than the default.
-        is_stopped:
-            True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
-        run_stats:
-            Various useful run stats as a dict including 'System time (sec)', 
-            'Total CPU time used (sec)', 'Elapsed time (sec)',
-            'Maximum memory used (kb)', 'Average memory used (kb)',
-            'User time (sec)'.
+    .. attribute:: magnetization
+    
+        Magnetization on each ion as a tuple of dict, e.g.,
+        ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005}, ... )
+        Note that this data is not always present.  LORBIT must be set to some
+        other value than the default.
+    
+    .. attribute:: charge
+        
+        Charge on each ion as a tuple of dict, e.g.,
+        ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, ...)
+        Note that this data is not always present.  LORBIT must be set to some
+        other value than the default.
+    
+    .. attribute:: is_stopped
+    
+        True if OUTCAR is from a stopped run (using STOPCAR, see Vasp Manual).
+    
+    .. attribute:: run_stats
+        
+        Various useful run stats as a dict including 'System time (sec)', 
+        'Total CPU time used (sec)', 'Elapsed time (sec)',
+        'Maximum memory used (kb)', 'Average memory used (kb)',
+        'User time (sec)'.
     
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
@@ -2500,8 +2515,8 @@ class Oszicar(object):
     recommend that you use the Vasprun parser instead, which gives far richer
     information about a run.
     
-    Attributes:
-        electronic_steps:
+    .. attribute:: electronic_steps
+    
             All electronic steps as a list of list of dict. e.g., 
             [[{'rms': 160.0, 'E': 4507.24605593, 'dE': 4507.2, 'N': 1,
             'deps': -17777.0, 'ncg': 16576}, ...], [....]
@@ -2510,20 +2525,21 @@ class Oszicar(object):
             particular electronic step at subindex in ionic step at index. The
             dict of properties depends on the type of VASP run, but in general,
             "E", "dE" and "rms" should be present in almost all runs.
-        ionic_steps:
+    
+    .. attribute:: ionic_steps:
+    
             All ionic_steps as a list of dict, e.g.,
             [{'dE': -526.36, 'E0': -526.36024, 'mag': 0.0, 'F': -526.36024},
             ...]
-            This is the typical output from VASP at the end of each ionic step.
-
-    Please refer to the vasp manual for the definition for each of the terms.
-            
-    In addition, two convenience properties, all_energies and final_energy are
-    provided for quick access to the commonly used energetic output from a run.
-    Please refer to the doc for those two methods for details.    
+            This is the typical output from VASP at the end of each ionic step.  
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename:
+                Filename of file to parse
+        """
         electronic_steps = []
         ionic_steps = []
         ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+E0=\s*([\d\-\.E\+]+)\s+d\s*E\s*=\s*([\d\-\.E\+]+)\s+mag=\s*([\d\-\.E\+]+)")
@@ -2586,7 +2602,7 @@ class VaspParserError(Exception):
         return "VaspParserError : " + self.msg
 
 
-def get_band_structure_from_vasp_multiple_branches(dir_name, efermi = None):
+def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
     """
     this method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
@@ -2595,7 +2611,14 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi = None):
 
     The method returns None is there's a parsing error
 
-    Return tuple (bandstructure_up, bandstructure_down)
+    Args:
+        dir_name:
+            Directory containing all bandstructure runs.
+        efermi:
+            Efermi for bandstructure.
+    
+    Returns:
+        (bandstructure_up, bandstructure_down)
     """
     #ToDo: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
@@ -2613,29 +2636,33 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi = None):
             xml_file = os.path.join(dir_name, 'vasprun.xml')
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file)
-                branches.append(run.get_band_structure(efermi = efermi))
+                branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # It might be better to throw an exception
-                warnings.warn("Skipping {d}. Unable to find {f}".format(d = dir_name, f = xml_file))
+                warnings.warn("Skipping {d}. Unable to find {f}".format(d=dir_name, f=xml_file))
         return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, 'vasprun.xml')
         #Better handling of Errors
         if os.path.exists(xml_file):
-            return Vasprun(xml_file).get_band_structure(kpoints_filename = None, efermi = efermi)
+            return Vasprun(xml_file).get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
 
-        
+
 def get_adjusted_fermi_level(run_static, band_structure):
     """
-    When running a band structure computations the fermi level needs to be taken from
-    the static run that gave the charge density used for the non-self consistent band structure run.
-    Sometimes this fermi level is however a little too low because of the mismatch between the uniform grid
-    used in the static run and the band structure k-points (e.g., the VBM is on Gamma and the Gamma point is not in the 
-    uniform mesh). Here we use a procedure consisting in looking for energy levels higher than the static fermi level (but lower
-    than the LUMO) if any of these levels make the band structure appears insulating and not metallic anymore, we keep this
-    adjusted fermi level. This procedure has shown to detect correctly most insulators.
+    When running a band structure computations the fermi level needs to be taken
+    from the static run that gave the charge density used for the non-self
+    consistent band structure run. Sometimes this fermi level is however a
+    little too low because of the mismatch between the uniform grid used in
+    the static run and the band structure k-points (e.g., the VBM is on Gamma
+    and the Gamma point is not in the uniform mesh). Here we use a procedure
+    consisting in looking for energy levels higher than the static fermi level
+    (but lower than the LUMO) if any of these levels make the band structure
+    appears insulating and not metallic anymore, we keep this adjusted fermi
+    level. This procedure has shown to detect correctly most insulators.
+    
     Args:
         run_static: 
             a Vasprun object for the static run
@@ -2646,15 +2673,15 @@ def get_adjusted_fermi_level(run_static, band_structure):
         a new adjusted fermi level
     """
     #make a working copy of band_structure
-    bs_working = pymatgen.electronic_structure.band_structure.band_structure.BandStructureSymmLine.from_dict(band_structure.to_dict)
+    bs_working = BandStructureSymmLine.from_dict(band_structure.to_dict)
     if bs_working.is_metal():
-                e = run_static.efermi
-                while e < run_static.eigenvalue_band_properties[1]:
-                    e+=0.01
-                    bs_working._efermi=e
-                    if not bs_working.is_metal():
-                        return e
-                    
+        e = run_static.efermi
+        while e < run_static.eigenvalue_band_properties[1]:
+            e += 0.01
+            bs_working._efermi = e
+            if not bs_working.is_metal():
+                return e
+
     return run_static.efermi
-    
+
 
