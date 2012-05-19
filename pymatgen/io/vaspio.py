@@ -237,6 +237,8 @@ class Poscar(VaspInput):
         scale = float(lines[1])
         lattice = np.array([[float(s) for s in line.split()] for line in lines[2:5]])
         if scale < 0:
+            # In vasp, a negative scale factor is treated as a volume. We need
+            # to translate this to a proper lattice vector scaling.
             vol = abs(det(lattice))
             lattice = (-scale / vol) ** (1 / 3) * lattice
         else:
@@ -281,9 +283,12 @@ class Poscar(VaspInput):
                 pass
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
-            try: #check if names are appended at the end of the POSCAR coordinates
+            try:
+                #check if names are appended at the end of the coordinates.
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1:ipos + 1 + nsites]]
-                [Element(sym) for sym in atomic_symbols] #Ensure symbols are valid elements
+                #Ensure symbols are valid elements
+                if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
+                    raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except:
                 #Defaulting to false names.
@@ -318,7 +323,8 @@ class Poscar(VaspInput):
                 predictor_corrector.append([float(tok) for tok in re.split("\s+", line.strip())])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
-                      velocities=velocities, predictor_corrector=predictor_corrector)
+                      velocities=velocities,
+                      predictor_corrector=predictor_corrector)
 
     def get_string(self, direct=True, vasp4_compatible=False,
                    significant_figures=6):
@@ -460,6 +466,7 @@ VALID_INCAR_TAGS = ('NGX', 'NGY', 'NGZ', 'NGXF', 'NGYF', 'NGZF', 'NBANDS',
                     'NUCIND', 'MAGPOS', 'LNICSALL', 'LADDER', 'LHARTREE',
                     'IBSE', 'NBANDSO', 'NBANDSV', 'OPTEMAX', 'LIP')
 
+
 class Incar(dict, VaspInput):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -584,11 +591,10 @@ class Incar(dict, VaspInput):
             val:
                 Actual value of INCAR parameter.
         """
-        list_type_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE', 'MAGMOM')
-        boolean_type_keys = ('LDAU', 'LWAVE', 'LSCALU', 'LCHARG', 'LPLANE',
-                             'LHFCALC')
-        float_type_keys = ("EDIFF", "SIGMA", 'TIME', 'ENCUTFOCK', 'HFSCREEN')
-        int_type_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG",
+        list_keys = ('LDAUU', 'LDAUL', 'LDAUJ', 'LDAUTYPE', 'MAGMOM')
+        bool_keys = ('LDAU', 'LWAVE', 'LSCALU', 'LCHARG', 'LPLANE', 'LHFCALC')
+        float_keys = ("EDIFF", "SIGMA", 'TIME', 'ENCUTFOCK', 'HFSCREEN')
+        int_keys = ('NSW', 'NELMIN', 'ISIF', 'IBRION', "ISPIN", "ICHARG",
                          "NELM", "ISMEAR", "NPAR", "LDAUPRINT", 'LMAXMIX',
                          'ENCUT', 'NSIM', 'NKRED', 'NUPDOWN', 'ISPIND')
 
@@ -598,7 +604,7 @@ class Incar(dict, VaspInput):
             else:
                 return int(numstr)
         try:
-            if key in list_type_keys:
+            if key in list_keys:
                 output = list()
                 toks = re.split("\s+", val)
 
@@ -609,7 +615,7 @@ class Incar(dict, VaspInput):
                     else:
                         output.append(smart_int_or_float(tok))
                 return output
-            if key in boolean_type_keys:
+            if key in bool_keys:
                 m = re.search("^\W+([TtFf])", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
@@ -618,10 +624,10 @@ class Incar(dict, VaspInput):
                         return False
                 raise ValueError(key + " should be a boolean type!")
 
-            if key in float_type_keys:
+            if key in float_keys:
                 return float(val)
 
-            if key in int_type_keys:
+            if key in int_keys:
                 return int(val)
 
         except:
@@ -1003,6 +1009,16 @@ class PotcarSingle(object):
     Object for a **single** POTCAR. The builder assumes the complete string is
     the POTCAR contains the complete untouched data in "data" as a string and
     a dict of keywords.
+    
+    .. attribute:: data
+    
+        POTCAR data as a string.
+        
+    .. attribute:: keywords
+    
+        Keywords parsed from the POTCAR as a dict. All keywords are also
+        accessible as attributes in themselves. E.g., potcar.enmax,
+        potcar.encut, etc.
     """
     def __init__(self, data):
         """
@@ -1012,10 +1028,11 @@ class PotcarSingle(object):
         """
         self.data = data  # raw POTCAR as a string
 
-        # AJ (5/18/2012) - only search on relevant portion of POTCAR, should fail gracefully if string not found
+        # AJ (5/18/2012) - only search on relevant portion of POTCAR, should
+        # fail gracefully if string not found
         search_string = self.data[0:self.data.find("END of PSCTR-controll parameters")]
         keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*", re.M).findall(search_string)
-        self.keywords = dict(keypairs) # all key = val found in the POTCAR as a dictionary all keys and vals are strings
+        self.keywords = dict(keypairs)
 
     def __str__(self):
         return self.data
@@ -1028,7 +1045,7 @@ class PotcarSingle(object):
     @property
     def symbol(self):
         """
-        Full name of POTCAR, e.g., Fe_pv
+        Symbol of POTCAR, e.g., Fe_pv
         """
         return self.keywords['TITEL'].split(" ")[1].strip()
 
