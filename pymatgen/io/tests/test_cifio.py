@@ -29,7 +29,7 @@ class  CifIOTest(unittest.TestCase):
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.struct)
+        writer = CifWriter(poscar.structure)
         expected_cif_str = """#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file 

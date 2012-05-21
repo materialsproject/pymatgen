@@ -19,6 +19,10 @@ import random
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.io.vaspio import Poscar
 
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 class TransformationsTest(unittest.TestCase):
 
     def setUp(self):
@@ -157,30 +161,20 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformations_complete_ranking(self):
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
+        s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
+        s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
-    def test_to_from_dict(self):
-        json_str = json.dumps(PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST).to_dict)
-        t = transformation_from_json(json_str)
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
-        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
-        self.assertEqual(len(t.apply_transformation(s)), 26)
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
@@ -332,12 +326,6 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         self.assertEqual(len(t.apply_transformation(struct, return_ranked_list=True)), 2)
 
-
-class TransformationJsonTest(unittest.TestCase):
-
-    def test_from_json(self):
-        self.assertIsInstance(transformation_from_json('{"name": "IdentityTransformation", "init_args": {}}'), IdentityTransformation)
-        self.assertIsInstance(transformation_from_json('{"name": "RotationTransformation", "init_args": {"angle": 30, "angle_in_radians": false, "axis": [0, 1, 0]}}'), RotationTransformation)
 
 if __name__ == "__main__":
     unittest.main()
