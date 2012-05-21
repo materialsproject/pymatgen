@@ -28,7 +28,7 @@ class PoscarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        comp = poscar.struct.composition
+        comp = poscar.structure.composition
         self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
 
         #Vasp 4 type with symbols at the end.
@@ -42,7 +42,7 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.struct.composition, Composition.from_formula("SiF"))
+        self.assertEqual(poscar.structure.composition, Composition.from_formula("SiF"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
@@ -55,7 +55,7 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
+        self.assertEqual(poscar.structure.composition, Composition.from_formula("HHe"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
@@ -189,7 +189,7 @@ class KpointsTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[100]])
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        kpoints = Kpoints.automatic_density(poscar.struct, 500)
+        kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
 
     def test_to_dict_from_dict(self):

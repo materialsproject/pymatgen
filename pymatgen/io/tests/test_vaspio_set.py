@@ -17,7 +17,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        self.struct = poscar.struct
+        self.struct = poscar.structure
 
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()

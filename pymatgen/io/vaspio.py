@@ -115,7 +115,9 @@ class Poscar(VaspInput):
     @property
     def struct(self):
         """
-        For backwards compatibility.
+        .. deprecated::
+    
+            For backwards compatibility.
         """
         return self.structure
 
@@ -141,7 +143,7 @@ class Poscar(VaspInput):
         if name in ("selective_dynamics", "velocities"):
             if value:
                 dim = np.array(value).shape
-                if dim[1] != 3 or dim[0] != len(self.struct):
+                if dim[1] != 3 or dim[0] != len(self.structure):
                     raise ValueError("{} array must be same length as the structure.".format(name))
         elif name == "structure":
             #If we set a new structure, we should discard the velocities and
@@ -349,7 +351,7 @@ class Poscar(VaspInput):
         """
         lines = [self.comment]
         lines.append("1.0")
-        lines.append(str(self.struct.lattice))
+        lines.append(str(self.structure.lattice))
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
@@ -359,8 +361,7 @@ class Poscar(VaspInput):
 
         format_str = "{{:.{0}f}}".format(significant_figures)
 
-        for i in xrange(len(self.struct)):
-            site = self.struct[i]
+        for (i, site) in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
             line = " ".join([format_str.format(c) for c in coords])
             if self.selective_dynamics:
@@ -402,7 +403,7 @@ class Poscar(VaspInput):
         d = {}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
-        d['structure'] = self.struct.to_dict
+        d['structure'] = self.structure.to_dict
         d['true_names'] = self.true_names
         d['selective_dynamics'] = self.selective_dynamics
         d['velocities'] = self.velocities
@@ -2451,7 +2452,7 @@ class Locpot(VolumetricData):
             data:
                 Actual data.
         """
-        VolumetricData.__init__(self, poscar.struct, data)
+        VolumetricData.__init__(self, poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -2474,7 +2475,7 @@ class Chgcar(VolumetricData):
             data:
                 Actual data.
         """
-        VolumetricData.__init__(self, poscar.struct, data)
+        VolumetricData.__init__(self, poscar.structure, data)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}

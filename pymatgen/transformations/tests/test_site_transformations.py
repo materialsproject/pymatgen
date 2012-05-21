@@ -16,12 +16,10 @@ __date__ = "Mar 15, 2012"
 import unittest
 
 import numpy as np
-import json
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.transformations.site_transformations import TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
-from pymatgen.transformations.standard_transformations import transformation_from_json
 
 class TranslateSitesTransformationTest(unittest.TestCase):
 
@@ -50,8 +48,8 @@ class TranslateSitesTransformationTest(unittest.TestCase):
 
 
     def test_to_from_dict(self):
-        json_str = json.dumps(TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).to_dict)
-        t = transformation_from_json(json_str)
+        d = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).to_dict
+        t = TranslateSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
 
@@ -77,8 +75,8 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         self.assertEqual(s.formula, "Na1 Li3 O4")
 
     def test_to_from_dict(self):
-        json_str = json.dumps(ReplaceSiteSpeciesTransformation({0:"Na"}).to_dict)
-        t = transformation_from_json(json_str)
+        d = ReplaceSiteSpeciesTransformation({0:"Na"}).to_dict
+        t = ReplaceSiteSpeciesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Na1 Li3 O4")
 
@@ -105,8 +103,8 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         self.assertEqual(s.formula, "Li2 O4")
 
     def test_to_from_dict(self):
-        json_str = json.dumps(RemoveSitesTransformation(range(2)).to_dict)
-        t = transformation_from_json(json_str)
+        d = RemoveSitesTransformation(range(2)).to_dict
+        t = RemoveSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
 
@@ -148,8 +146,8 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         self.assertEqual(s.formula, "Li2 O2")
 
     def test_to_from_dict(self):
-        json_str = json.dumps(PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict)
-        t = transformation_from_json(json_str)
+        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict
+        t = PartialRemoveSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
 
