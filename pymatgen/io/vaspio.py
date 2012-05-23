@@ -449,6 +449,8 @@ class Poscar(VaspInput):
         
         velocities *= scale * 1e-5  #these are in A/fs
         
+        self.temperature = temperature
+        self.selective_dynamics = None
         self.predictor_corrector = None
         self.velocities = velocities.tolist() #returns as a list of lists to be consistent with the other initializations
 
