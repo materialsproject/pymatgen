@@ -3,9 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
 Introduction
 ============
-
+   
 Pymatgen (python materials genomics) is the python library that powers the 
 Materials Project (http://www.materialsproject.org). These are some of the main 
 features:
@@ -34,35 +35,63 @@ progress. While the development team will always strive to avoid backward
 incompatible changes, they are sometimes unavoidable, and tough decisions have 
 to be made for the long term health of the code.
 
-For documentation and usage guide, please refer to the latest documentation at
-our github page (http://materialsproject.github.com/pymatgen/). If you wish to
-be notified via email of pymatgen releases, you may become a member of 
-`pymatgen's Google Groups page`_.
+The most up-to-date documention is available at our github page
+(http://materialsproject.github.com/pymatgen/), where you can also report any
+bugs/issues. If you wish to be notified via email of pymatgen releases, you may
+become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.8.1)
+Latest Change Log (v1.9.1)
 --------------------------
 
-1. Revamped transmuter classes for better readability and long term support.
-2. Much improved speed for PartialRemoveSpecieTransformations.
-3. Misc bug fixes.
+1. New PDAnalyzer method to generate chemical potential maps.
+2. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
 
 .. toctree::
    :maxdepth: 2
 
    changelog
 
-Installation
-============
+Getting pymatgen
+================
+
+pymatgen is now in the Python Package Index (`PyPI`_). The version on
+PyPI is always the latest stable release that will be hopefully, be relatively 
+bug-free. If you have  distutils installed, you can just type: 
+
+::
+
+   easy_install pymatgen
+   
+to install pymatgen with most of the dependencies set up. Otherwise, the latest
+stable source can be downloaded at the `PyPI`_ site as well.
+
+Alternatively, the bleeding edge developmental version is at the public
+pymatgen github repo at 
+https://github.com/materialsproject/pymatgen/tarball/master. These developmental
+versions are likely to be more buggy, but may contain new features. Note that
+the github versions include test files as well for complete unittesting.
+
+From the source, you can type:
+
+::
+
+   python setup.py install
+
+With these basic steps, you should be able to use most of the basic
+functionality of pymatgen. However, some extra functionality do require
+additional setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    installation
 
-Usage
-=====
+Using pymatgen
+==============
 
 .. toctree::
    :maxdepth: 2 
@@ -166,3 +195,4 @@ Indices and tables
 
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
+.. _`PyPI` : http://pypi.python.org/pypi/pymatgen

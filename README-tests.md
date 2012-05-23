@@ -8,4 +8,4 @@ To run tests,
 
 * unit tests
 
-`nosetests -c nose_unit.cfg`
+`nosetests`

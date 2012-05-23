@@ -7,8 +7,7 @@ the pymatgen code base.
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
 biased towards the representation and manipulation of crystals with periodic 
-boundary conditions, though flexibility has been built in for molecules and other
-materials.
+boundary conditions, though flexibility has been built in for molecules.
 
 The core modules are in the (yes, you guess it) pymatgen.core package. Given the 
 importance of this package for the overall functioning of the code, we have 
@@ -25,11 +24,16 @@ provided a quick summary of the various modules here:
    object provides convenience methods for performing fractional to cartesian 
    coordinates and vice version, lattice parameter and angles computations, etc.
  
-3. pymatgen.core.structure : Defines the Site, PeriodicSite, Structure and 
-   Composition objects. A Site is essentially a coordinate point containing an 
-   Element or Specie. A PeriodicSite contains a Lattice as well. A Structure is 
-   simply a list of Sites having the same Lattice. Finally, a Composition is 
-   mapping of Element/Specie to amounts.
+3. pymatgen.core.structure : Defines the Site, PeriodicSite, Structure,
+   Molecule, and Composition objects. A Site is essentially a coordinate point
+   containing an Element or Specie. A PeriodicSite contains a Lattice as well.
+   A Structure and Molecule are simply a list of PeriodicSites and Site
+   respectively. Finally, a Composition is mapping of Element/Specie to amounts.
+
+All units in pymatgen are typically assumed to be in atomic units, i.e.,
+angstroms for lengths, eV for energies, etc. However, most objects do not assume
+any units per se and it should be perfectly fine for the most part no matter
+what units are being used, as long as they are used consistently.
 
 Side-note : to_dict / from_dict
 ===============================
@@ -37,10 +41,10 @@ Side-note : to_dict / from_dict
 As you explore the code, you may notice that many of the objects have a to_dict 
 property and a from_dict static method implemented.  For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for 
-subsequent use. While python does provide pickling functionality, pickle tends to
-be extremely fragile with respect to code changes. Pymatgen's to_dict provide a
-means to save your work in a more robust manner, which also has the added benefit
-of being more readable. The dictionary representation is also particularly useful
+subsequent use. While python does provide pickling functionality, pickle tends
+to be extremely fragile with respect to code changes. Pymatgen's to_dict provide
+a means to save your work in a more robust manner, which also has the added
+benefit of being more readable. The dict representation is also particularly useful
 for entering such objects into certain databases, such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you 
@@ -64,14 +68,56 @@ follows:
 You may replace any of the above json commands with yaml in the PyYAML package
 to create a yaml file instead. There are certain tradeoffs between the two 
 choices. JSON is much more efficient as a format, with extremely fast read/write
-speed, but is much less readable. YAML is much slower in terms of io, but is 
-human readable.
+speed, but is much less readable. YAML is an order of magnitude or more slower
+in terms of parsing, but is more human readable.
+
+PMG JSON encoder/decoder
+------------------------
+
+.. versionadded:: 1.9.0
+
+In version 1.9.0 of pymatgen, a brand new serialization framework is
+implemented. Extensions of the standard Python JSONEncoder and JSONDecoder is
+introduced to support pymatgen objects. Given that these coders depend on
+certain new dict keys, they will only support pymatgen objects coming from
+version >= 1.9.0.
+
+The PMGJSONEncoder uses the to_dict API of pymatgen to generate the necessary
+dict for converting into json. To use the PMGJSONEncoder, simply add it as the
+*cls* kwarg when using json. For example,
+
+::
+
+   json.dumps(object, cls=PMGJSONEncoder)
+
+The PMGJSONDecoder depends on finding a "module" and "class" key in the dict in
+order to decode the necessary python object. In general, the PMGJSONEncoder will
+add these keys if they are not present, but for better long term stability
+(e.g., there may be situations where to_dict is called directly rather than
+through the encoder), the easiest way is to add the following to any to_dict
+property::
+    
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        
+To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
+load, e.g.,
+
+::
+
+   json.loads(json_string, cls=PMGJSONDecoder)
+
+The decoder is written in such a way that it supports nested list and dict of
+pymatgen objects. When going through the nesting hirerachy, the decoder will
+look for the highest level module/class names specified and convert those to
+pymatgen objects.
 
 Structures
 ==========
 
-For most applications, you will be creating and manipulating Structure objects. 
-There are several ways to create these objects:
+For most applications, you will be creating and manipulating Structure objects.
+The construction of Molecule follows a similar API. There are several ways to
+create these objects:
 
 Creating a Structure manually
 -----------------------------
@@ -82,16 +128,14 @@ crystal is provided below:
 
 ::
 
-   from pymatgen.core.periodic_table import Element
    from pymatgen.core.lattice import Lattice
    from pymatgen.core.structure import Structure
    
-   si = Element("Si")
    coords = list()
    coords.append([0,0,0])
    coords.append([0.75,0.5,0.75])
    lattice = Lattice.from_parameters(a = 3.84, b = 3.84, c = 3.84, alpha = 120, beta = 90, gamma = 60)
-   struct = Structure(lattice, [si, si], coords)
+   struct = Structure(lattice, ["Si", "Si"], coords)
 
 
 Creating Structures using the pymatgen.io packages
@@ -123,7 +167,19 @@ Another example, creating a Structure from a VASP POSCAR/CONTCAR file.
 Many of these io packages also provide the means to write a Structure to various 
 output formats, e.g. the CifWriter in pymatgen.io.cifio. In particular, the
 pymatgen.io.vaspio_set provides a powerful way to generate complete sets of VASP 
-input files from a Structure.
+input files from a Structure. In general, most file format conversions can be
+done with a few quick lines of code. For example, to read a POSCAR and write a
+cif:
+
+::
+
+   from pymatgen.io.vaspio import Poscar
+   from pymatgen.io.cifio import CifWriter
+
+   p = Poscar.from_file('POSCAR')
+   w = CifWriter(p.struct)
+   w.write_file('mystructure.cif')
+
 
 Things you can do with Structures
 ---------------------------------
@@ -324,18 +380,13 @@ Usage example - replace Fe with Mn and remove all Li in all structures:
 Example scripts
 ===============
 
-Some example scripts have been provided in the scripts directory. In general, 
-most file format conversions, manipulations and io can be done with a few quick 
-lines of code. For example, to read a POSCAR and write a cif:
+A good way to explore the functionality of pymatgen is to look at examples. We
+have written some example scripts to perform some commonly desired
+functionality, e.g., file format conversion, determining the spacegroup of a
+structure, plotting the DOS of a VASP run, visualizing a structure using VTK,
+etc. These example scripts can be found in the `scripts directory of pymatgen's
+github repo <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_
+or the `downloaded source from PyPI <http://pypi.python.org/pypi/pymatgen>`_. 
 
-::
-
-   from pymatgen.io.vaspio import Poscar
-   from pymatgen.io.cifio import CifWriter
-
-   p = Poscar.from_file('POSCAR')
-   w = CifWriter(p.struct)
-   w.write_file('mystructure.cif')
-
-More examples will be added soon.
+More examples will be added to the scripts directory in future.
 

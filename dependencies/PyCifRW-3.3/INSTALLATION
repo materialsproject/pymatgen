@@ -1,0 +1,39 @@
+Installation instructions for PyCifRW
+-------------------------------------
+
+Prerequisites
+-------------
+
+Python 2.3 or greater must already be installed.
+Self-installing packages for Python (Windows and Mac) are 
+available from www.python.org.  Almost all Linux
+distributions bundle python as standard.
+
+Installation
+------------
+
+(Windows minimal)
+
+Download and execute the file PyCifRW-3.2.exe
+
+(All operating systems)
+ 
+1. Download and unpack the file PyCifRW-3.2.tar.gz
+2. In directory PyCifRW-3.2, execute the command
+ 
+    'python setup.py install'
+
+In Windows this can be accomplished by double-clicking 
+the setup.py icon.
+
+Note that documentation and commented source code
+(.nw files) are available only in the .tar.gz file.
+The validate.py program is also not provided in 
+the windows installer.
+
+Checking the installation
+-------------------------
+
+Start the python interpreter from anywhere. Type
+"import CifFile".  If this command is
+successful, installation is complete.

@@ -4,16 +4,17 @@
 An interface to the excellent spglib library by Atsushi Togo 
 (http://spglib.sourceforge.net/) for pymatgen.
 
+v1.0 - Now works with both ordered and disordered structure.
+
 .. note::
-    This is a *beta* version. Not all spglib functions are implemented. Also,
-    it only works with ordered structures.
+    This is a *beta* version. Not all spglib functions are implemented. 
 '''
 
 from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 9, 2012"
@@ -21,41 +22,52 @@ __date__ = "Mar 9, 2012"
 import re
 
 import numpy as np
+import itertools
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 
-try:
-    import pyspglib._spglib as spg
-    spglib_loaded = True
-except ImportError:
-    spglib_loaded = False
+import pyspglib._spglib as spg
 
 
 class SymmetryFinder(object):
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
-    Note that this does not work with non-ordered Structures.
     """
 
-    def __init__(self, structure, symprec=1e-5):
+    def __init__(self, structure, symprec=1e-5, angle_tolerance=5):
         """
         Args:
             structure:
                 Structure object
             symprec:
                 Tolerance for symmetry finding
+            angle_tolerance:
+                Angle tolerance for symmetry finding.
         """
         self._symprec = symprec
+        self._angle_tol = angle_tolerance
         self._structure = structure
         self._lattice = structure.lattice.matrix
         self._positions = np.array([site.frac_coords for site in structure])
-        self._numbers = np.array([site.specie.Z for site in structure])
+        unique_species = []
+        zs = []
 
-        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec)
+        for species, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
+            try:
+                ind = unique_species.index(species)
+                zs.extend([ind + 1] * len(tuple(g)))
+            except ValueError:
+                unique_species.append(species)
+                zs.extend([len(unique_species)] * len(tuple(g)))
+
+        self._unique_species = unique_species
+        self._numbers = np.array(zs)
+
+        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(), self._positions.copy(), self._numbers, self._symprec, self._angle_tol)
 
     def get_spacegroup(self):
         """
@@ -135,7 +147,7 @@ class SymmetryFinder(object):
                 'wyckoffs',
                 'equivalent_atoms')
         dataset = {}
-        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec)):
+        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(), self._positions, self._numbers, self._symprec, self._angle_tol)):
             dataset[key] = data
 
         dataset['international'] = dataset['international'].strip()
@@ -166,7 +178,7 @@ class SymmetryFinder(object):
         translation = np.zeros((multi, 3))
 
         num_sym = spg.symmetry(rotation, translation, self._lattice.transpose().copy(),
-                                   self._positions, self._numbers, self._symprec)
+                                   self._positions, self._numbers, self._symprec, self._angle_tol)
         return (rotation[:num_sym], translation[:num_sym])
 
     def get_symmetry_operations(self, cartesian=False):
@@ -205,9 +217,11 @@ class SymmetryFinder(object):
                                            pos,
                                            numbers,
                                            num_atom,
-                                           self._symprec)
-
-        return Structure(lattice.T.copy(), numbers[:num_atom_bravais], pos[:num_atom_bravais])
+                                           self._symprec,
+                                           self._angle_tol)
+        zs = numbers[:num_atom_bravais]
+        species = [self._unique_species[i - 1] for i in zs]
+        return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
 
 
     def find_primitive(self):
@@ -222,13 +236,15 @@ class SymmetryFinder(object):
         lattice = self._lattice.T.copy()
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
-        num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec)
+        num_atom_prim = spg.primitive(lattice, positions, numbers, self._symprec, self._angle_tol)
+        zs = numbers[:num_atom_prim]
+        species = [self._unique_species[i - 1] for i in zs]
+
         if num_atom_prim > 0:
-            return Structure(lattice.T, numbers[:num_atom_prim], positions[:num_atom_prim])
+            return Structure(lattice.T, species, positions[:num_atom_prim])
         else:
             #Not sure if we should return None or just return the full structure.
             return None
-
 
 def get_pointgroup(rotations):
     """    

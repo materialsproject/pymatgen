@@ -1,6 +1,31 @@
 Older versions
 ==============
 
+Version 1.9.0
+-------------
+
+1. Completely new json encoder and decoder that support serialization of almost
+   all pymatgen objects.
+2. Simplification to Borg API utilizing the new json API.
+3. Bandstructure classes now support spin-polarized runs.
+4. Beta classes for battery (insertion and conversion) analysis.
+
+Version 1.8.3
+-------------
+
+1. spglib_adaptor now supports disordered structures.
+2. Update to support new spglib with angle_tolerance.
+3. Changes to Borg API to support both file and directory style paths.
+4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
+
+
+Version 1.8.1
+-------------
+
+1. Revamped transmuter classes for better readability and long term support.
+2. Much improved speed for PartialRemoveSpecieTransformations.
+3. Misc bug fixes.
+
 Version 1.8.0
 -------------
 

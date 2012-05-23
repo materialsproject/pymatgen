@@ -1,6 +1,14 @@
 transformations Package
 =======================
 
+:mod:`transformations` Package
+------------------------------
+
+.. automodule:: pymatgen.transformations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`site_transformations` Module
 ----------------------------------
 
@@ -24,10 +32,4 @@ transformations Package
     :members:
     :undoc-members:
     :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-
 

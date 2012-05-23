@@ -13,6 +13,7 @@ __date__ = "March 14, 2012"
 
 import logging
 import math
+from pymatgen.electronic_structure.core import Spin
 
 log = logging.getLogger('BSPlotter')
 
@@ -34,32 +35,73 @@ class BSPlotter(object):
         #give 90% of the bands for plotting
         self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
 
-    @property
-    def bs_plot_data(self):
+    def bs_plot_data(self, zero_to_efermi=True):
 
         """
         Get the data nicely formatted for a plot
+        
+        Args:
+            zero_to_efermi:
+                Automatically subtract off the Fermi energy from the eigenvalues and plot (E-Ef)
         
         Returns:
             A dict of the following format:
                 'ticks': a dictionary with the 'distances' at which there is a 
                 kpoint (the x axis) and the labels (None if no label)
-                'energy': an array (one element for each band) of energy for 
+                'energy': a dictionnary storing bands for spin up and spin down data {Spin:[band_index][k_point_index]} as a list (one element for each band) of energy for 
                 each kpoint
+                'vbm': a list of tuples (distance,energy) marking the vbms. The energies are shifted with respect to the fermi level is the option has been selected.
+                'cbm': a list of tuples (distance,energy) marking the cbms. The energies are shifted with respect to the fermi level is the option has been selected.
+                'lattice': the reciprocal lattice
+                'zero_energy': this is the energy used as zero for the plot
+                'band_gap': a string indicating the band gap and it's nature (empty if it's a metal)
+                'is_metal': True if the band structure is metallic (i.e., there is at least one band crossing the fermi level)
         """
+        zero_energy = None
+        
+        if self._bs.is_metal():
+            zero_energy = self._bs.efermi
+        else:
+            zero_energy = self._bs.get_vbm()['energy']
 
-        energy = []
+        if not zero_to_efermi:
+            zero_energy = 0.0
+        
+        energy = {str(Spin.up): []}
+        if self._bs.is_spin_polarized:
+            energy = {str(Spin.up): [], str(Spin.down): []}
         distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            #pylab.plot([self._distance[j] for j in range(len(self._kpoints))],[self._bands[i]['energy'][j] for j in range(len(self._kpoints))],'b-',linewidth=5)
-            energy.append([self._bs._bands[i]['energy'][j] for j in range(len(self._bs._kpoints))])
-
-        return {'ticks': ticks, 'distances': distance, 'energy': energy}
+            energy[str(Spin.up)].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+        if self._bs.is_spin_polarized:
+            for i in range(self._nb_bands):
+                energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+        
+        vbm = self._bs.get_vbm()
+        cbm = self._bs.get_cbm()
+        
+        vbm_plot=[]
+        cbm_plot=[]
+        
+        for index in cbm['kpoint_index']:
+            cbm_plot.append((self._bs._distance[index],cbm['energy'] - zero_energy if zero_to_efermi else cbm['energy']))
+        
+        for index in vbm['kpoint_index']:
+            vbm_plot.append((self._bs._distance[index],vbm['energy'] - zero_energy if zero_to_efermi else vbm['energy']))
+        
+        bg=self._bs.get_band_gap()
+        direct="Indirect"
+        if bg['direct']:
+            direct="Direct"
+            
+        return {'ticks': ticks, 'distances': distance, 'energy': energy, 'vbm':vbm_plot, 'cbm':cbm_plot, 
+                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
+                'band_gap':direct+" "+bg['transition']+" band gap="+str(bg['energy']) if self._bs.is_metal()==False else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
-        Show the bandstrucure plot.
+        Show the bandstrucure plot. Blue lines are up spin, red lines are down spin
         
         Args:
             file_name:
@@ -76,16 +118,17 @@ class BSPlotter(object):
         #main internal config options
         e_min = -4
         e_max = 4
-        band_linewidth = 1
+        if self._bs.is_metal():
+            e_min=-10
+            e_max=10
+        band_linewidth = 3
 
         pylab.figure
-        data = self.bs_plot_data
-
+        data = self.bs_plot_data(zero_to_efermi)
         for i in range(self._nb_bands):
-            if zero_to_efermi:
-                pylab.plot(data['distances'], [e - self._bs.efermi for e in data['energy'][i]], 'b-', linewidth=band_linewidth)
-            else:
-                pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=band_linewidth)
+                pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.up)][i]], 'b-', linewidth=band_linewidth)
+                if self._bs.is_spin_polarized:
+                    pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.down)][i]], 'r-', linewidth=band_linewidth)
 
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
@@ -133,9 +176,10 @@ class BSPlotter(object):
         ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
         pylab.ylabel(ylabel, fontsize='large')
 
-        # Draw Fermi energy
-        ef = 0.0 if zero_to_efermi else self._bs.efermi
-        pylab.axhline(ef, linewidth=2, color='k')
+        # Draw Fermi energy, only if not the zero
+        if not zero_to_efermi:
+            ef = self._bs.efermi
+            pylab.axhline(ef, linewidth=2, color='k')
 
         # X range (K)
         #last distance point
@@ -144,43 +188,50 @@ class BSPlotter(object):
 
         if self._bs.is_metal():
             # Plot A Metal
-            pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+            if zero_to_efermi:
+                pylab.ylim(e_min, e_max)
+            else:
+                pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
         else:
-            # Semiconductor, or Insulator
-            # cbm, vbm are dict with keys: kpoint, energy, is_direct
-            vbm = self._bs.get_vbm()
-            cbm = self._bs.get_cbm()
 
-            e_cbm = cbm['energy'] - self._bs.efermi if zero_to_efermi else cbm['energy']
-            e_vbm = vbm['energy'] - self._bs.efermi if zero_to_efermi else vbm['energy']
+            for cbm in data['cbm']:
+                pylab.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
 
-            for index in cbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_cbm, color='r', marker='o', s=100)
+            for vbm in data['vbm']:
+                pylab.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
 
-            for index in vbm['kpoint_index']:
-                pylab.scatter(self._bs._distance[index], e_vbm, color='g', marker='o', s=100)
-
-            pylab.ylim(e_vbm + e_min, e_cbm + e_max)
+            pylab.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
 
         pylab.legend()
         if file_name is not None:
             pylab.plot()
             pylab.savefig(file_name)
+            pylab.close()
         else:
             pylab.show()
 
     def get_ticks(self):
         """
-        get all ticks and labels for a band structure plot
+        Get all ticks and labels for a band structure plot.
+        
+        Returns:
+            A dict with 
+                'distance': a list of distance at which ticks should be set.
+                'label': a list of label for each of those ticks.
         """
         tick_distance = []
         tick_labels = []
         previous_label = self._bs._kpoints[0].label
-        previous_branch = self._bs.get_branch_name(0)
+        previous_branch = self._bs._branches[0]['name']
         for i, c in enumerate(self._bs._kpoints):
             if c.label != None:
                 tick_distance.append(self._bs._distance[i])
-                if c.label != previous_label and previous_branch != self._bs.get_branch_name(i):
+                this_branch = None
+                for b in self._bs._branches:
+                    if i >= b['start_index'] and i <= b['end_index']:
+                        this_branch = b['name']
+                        break
+                if c.label != previous_label and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
@@ -197,22 +248,23 @@ class BSPlotter(object):
                     else:
                         tick_labels.append(c.label)
                 previous_label = c.label
-                previous_branch = self._bs.get_branch_name(i)
+                previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
     def plot_compare(self, other_plotter):
         """
-        plot two band structure for comparison.
+        plot two band structure for comparison. One is in red the other in blue (no difference in spins)
         TODO: still a lot of work to do that nicely!
         """
         import pylab
         data = self.bs_plot_data
         data_other = other_plotter.bs_plot_data
-        for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data['energy'][i], 'b-', linewidth=3)
-
-        for i in range(self._nb_bands):
-            pylab.plot(data['distances'], data_other['energy'][i], 'r--', linewidth=3)
+        for spin in data:
+            for i in range(self._nb_bands):
+                pylab.plot(data['distances'], data[spin][i], 'b-', linewidth=3)
+        for spin in data_other:
+            for i in range(self._nb_bands):
+                pylab.plot(data['distances'], data_other[spin][i], 'r--', linewidth=3)
 
 
         ticks = self.get_ticks()
@@ -221,7 +273,6 @@ class BSPlotter(object):
         pylab.gca().set_xticklabels(ticks['label'])
         pylab.xlabel('Kpoints', fontsize='large')
         pylab.ylabel('Energy(eV)', fontsize='large')
-        #pylab.ylim(vbm-4,cbm+4)
         for i in range(len(ticks['label'])):
             if ticks['label'][i]:
                 pylab.axvline(ticks['distance'][i], color='k')
@@ -232,7 +283,6 @@ class BSPlotter(object):
         import pymatgen.command_line.qhull_caller
         import matplotlib as mpl
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D
         mpl.rcParams['legend.fontsize'] = 10
 
         fig = plt.figure()
@@ -268,21 +318,17 @@ class BSPlotter(object):
                         min_z = list_k_points[-1][0]
 
         vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
-        #print vertex
         lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
-        #[vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))]+" "+str(vertex[i][2])
-        #ax.scatter([vertex[i][0] for i in range(len(vertex))],[vertex[i][1] for i in range(len(vertex))],[vertex[i][2] for i in range(len(vertex))],color='r')
-        for line in lines:
-            vertex1 = line['start']
-            vertex2 = line['end']
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
 
+        for i in range(len(lines)):
+            vertex1 = lines[i]['start']
+            vertex2 = lines[i]['end']
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
 
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
             vertex2 = self._bs._kpoints[b['end_index']].cart_coords
             ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3)
-        #plot the labelled points    
 
         for k in self._bs._kpoints:
             if k.label:

@@ -1,22 +1,34 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+'''
+Created on May 17, 2012
+'''
+
+from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "May 17, 2012"
+
 import unittest
 import os
 
-from pymatgen.io.vaspio import Poscar, Potcar, Kpoints, Incar, Vasprun, Outcar, Oszicar, PotcarSingle
-from pymatgen.core.lattice import Lattice
+from pymatgen.io.vaspio import *
 from pymatgen.core.structure import Composition, Structure
-from numpy import array
 
 import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
-class  PoscarTest(unittest.TestCase):
+class PoscarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        comp = poscar.struct.composition
+        comp = poscar.structure.composition
         self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
 
         #Vasp 4 type with symbols at the end.
@@ -30,7 +42,7 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.struct.composition, Composition.from_formula("SiF"))
+        self.assertEqual(poscar.structure.composition, Composition.from_formula("SiF"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
@@ -43,7 +55,7 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.struct.composition, Composition.from_formula("HHe"))
+        self.assertEqual(poscar.structure.composition, Composition.from_formula("HHe"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
@@ -58,15 +70,34 @@ direct
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+        self.selective_poscar = poscar
+
+    def test_to_from_dict(self):
+        poscar_string = """Test3
+1.0
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+Selective dynamics
+direct
+0.000000 0.000000 0.000000 T T T Si
+0.750000 0.500000 0.750000 F F F O"""
+        poscar = Poscar.from_string(poscar_string)
+        d = poscar.to_dict
+        poscar2 = Poscar.from_dict(d)
+        self.assertEqual(poscar2.comment, "Test3")
+        self.assertTrue(all(poscar2.selective_dynamics[0]))
+        self.assertFalse(all(poscar2.selective_dynamics[1]))
 
     def test_str(self):
         si = 14
         coords = list()
-        coords.append(array([0, 0, 0]))
-        coords.append(array([0.75, 0.5, 0.75]))
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
 
         #Silicon structure for testing.
-        latt = Lattice(array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        latt = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(latt, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = '''Si2
@@ -82,7 +113,19 @@ direct
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
-class  IncarTest(unittest.TestCase):
+    def test_from_md_run(self):
+        #Parsing from an MD type run with velocities
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"), check_for_POTCAR=False)
+        self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
+        self.assertEqual(p.predictor_corrector[0][0], 1)
+        self.assertEqual(p.predictor_corrector[1][0], 2)
+
+    def test_setattr(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        self.assertRaises(ValueError, setattr, poscar, 'velocities', [[0, 0, 0]])
+
+class IncarTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'INCAR')
@@ -105,7 +148,8 @@ class  IncarTest(unittest.TestCase):
         incar2 = Incar.from_dict(d)
         self.assertEqual(incar, incar2)
 
-class  KpointsTest(unittest.TestCase):
+
+class KpointsTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'KPOINTS.auto')
@@ -145,7 +189,7 @@ class  KpointsTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[100]])
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        kpoints = Kpoints.automatic_density(poscar.struct, 500)
+        kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
 
     def test_to_dict_from_dict(self):
@@ -166,6 +210,7 @@ class  KpointsTest(unittest.TestCase):
         #self.assertEqual(k.style, k2.style)
         #self.assertEqual(k.kpts_shift, k2.kpts_shift)
         #self.assertEqual(k.num_kpts, k2.num_kpts)
+
 
 class PotcarSingleTest(unittest.TestCase):
 
@@ -217,22 +262,18 @@ class PotcarTest(unittest.TestCase):
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
+
 class VasprunTest(unittest.TestCase):
 
-    def setUp(self):
-        self.filepath = os.path.join(test_dir, 'vasprun.xml')
-        self.vasprun = Vasprun(self.filepath)
-        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        self.vasprun_ggau = Vasprun(filepath2)
-
     def test_properties(self):
-
-        vasprun = self.vasprun
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath)
+        filepath2 = os.path.join(test_dir, 'lifepo4.xml')
+        vasprun_ggau = Vasprun(filepath2)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
-        self.assertEquals(29, len(vasprun.ionic_steps), "Incorrect number of energies read from vasprun.xml")
+        self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O']
-, vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
+        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
@@ -255,8 +296,15 @@ class VasprunTest(unittest.TestCase):
             for orbitaldos in atomdoses:
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
 
-        self.assertTrue(self.vasprun_ggau.is_hubbard)
-        self.assertEqual(self.vasprun_ggau.hubbards["Fe"], 4.3)
+        #test skipping ionic steps.
+        vasprun_skip = Vasprun(filepath, 3)
+        self.assertEqual(vasprun_skip.final_energy, vasprun.final_energy)
+        self.assertEqual(len(vasprun_skip.ionic_steps), int(len(vasprun.ionic_steps) / 3) + 1)
+        self.assertEqual(len(vasprun_skip.ionic_steps), len(vasprun_skip.structures) - 2)
+
+        self.assertTrue(vasprun_ggau.is_hubbard)
+        self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
+
 
 class OutcarTest(unittest.TestCase):
 
@@ -264,12 +312,12 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'OUTCAR')
         outcar = Outcar(filepath)
         expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
- {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
- {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
- {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
- {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
- {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
- {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
+                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
+                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
         expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
 
         self.assertAlmostEqual(outcar.magnetization, expected_mag, 5, "Wrong magnetization read from Outcar")
@@ -280,6 +328,7 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+
 class OszicarTest(unittest.TestCase):
 
     def test_init(self):
@@ -289,6 +338,34 @@ class OszicarTest(unittest.TestCase):
         self.assertEqual(len(oszicar.all_energies), 60)
         self.assertAlmostEqual(oszicar.final_energy, -526.63928)
 
-if __name__ == '__main__':
-    unittest.main()
 
+class LocpotTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'LOCPOT')
+        locpot = Locpot.from_file(filepath)
+        self.assertAlmostEqual(-217.05226954, sum(locpot.get_average_along_axis(0)))
+        self.assertAlmostEqual(locpot.get_axis_grid(0)[-1], 2.87629, 2)
+        self.assertAlmostEqual(locpot.get_axis_grid(1)[-1], 2.87629, 2)
+        self.assertAlmostEqual(locpot.get_axis_grid(2)[-1], 2.87629, 2)
+
+
+class ChgcarTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'CHGCAR.nospin')
+        chg = Chgcar.from_file(filepath)
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 2), 0)
+        filepath = os.path.join(test_dir, 'CHGCAR.spin')
+        chg = Chgcar.from_file(filepath)
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375)
+        #test sum
+        chg += chg
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375 * 2)
+
+
+
+
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.testName']
+    unittest.main()

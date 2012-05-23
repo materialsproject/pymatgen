@@ -15,7 +15,7 @@ class EwaldSummationTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
-        s = p.struct
+        s = p.structure
 
         modifier = OxidationStateDecorator(s, {"Li":1, "Fe":2, "P":5, "O":-2})
         s = modifier.modified_structure

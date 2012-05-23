@@ -1,0 +1,10 @@
+Spglib test is made by symPoscar.rb. Structure data are in the data directory.
+The space group number is written in the last of filename. Cross check is
+done by findsym which is available at (http://stokes.byu.edu/isotropy.html).
+
+How to make ruby module for symPoscar.rb.
+
+% ruby extconf.rb --with-getspg-include=../src --with-getspg-lib=../src/.libs
+% make  
+% export LD_LIBRARY_PATH=directory_containing_libsymspg.so
+% export RUBYLIB=current_directory

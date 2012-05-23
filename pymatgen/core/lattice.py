@@ -18,22 +18,30 @@ import numpy as np
 import numpy.linalg as npl
 from numpy import pi
 
-class Lattice(object):
+from pymatgen.serializers.json_coders import MSONable
+
+
+class Lattice(MSONable):
     '''
-    A lattice object.  Essentially a matrix with conversion matrices.
+    A lattice object.  Essentially a matrix with conversion matrices. In general,
+    it is assumed that length units are in Angstroms and angles are in degrees
+    unless otherwise stated.
     '''
 
     def __init__(self, matrix):
         """
-        Create a lattice from any sequence of 9 numbers. Note that the sequence is assumed to be read
-        one row at a time.  Each row represents one lattice vector.
+        Create a lattice from any sequence of 9 numbers. Note that the sequence
+        is assumed to be read one row at a time. Each row represents one
+        lattice vector.
         
         Args:
-            matrix - sequence of numbers in any form. Examples of acceptable input.
+            matrix:
+                Sequence of numbers in any form. Examples of acceptable
+                input.
                 i) An actual numpy array.
                 ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
-                iii) [1,0,0,0,1,0,0,0,1]
-                iv) (1,0,0,0,1,0,0,0,1)
+                iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
+                iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
         """
 
         self._matrix = np.array(matrix).reshape((3, 3))
@@ -73,7 +81,8 @@ class Lattice(object):
         Returns the fractional coordinates given cartesian coordinates
         
         Args:
-            cartesian_coords : Cartesian coords.
+            cartesian_coords:
+                Cartesian coords.
             
         Returns:
             fractional coordinates
@@ -83,48 +92,99 @@ class Lattice(object):
     @staticmethod
     def cubic(a):
         """
-        Returns a new cubic lattice of dimensions a x a x a.
+        Convenience constructor for a cubic lattice.
         
         Args:
-            a - *a* lattice parameter
+            a:
+                The *a* lattice parameter of the cubic cell.
             
         Returns:
-            Cubic lattice of lattice parameter a.
+            Cubic lattice of dimensions a x a x a.
         """
         return Lattice(np.array([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]]))
 
     @staticmethod
     def tetragonal(a, c):
         """
-        Returns a new tetragonal lattice of dimensions a x a x c
+        Convenience constructor for a tetragonal lattice.
+        
+        Args:
+            a:
+                The *a* lattice parameter of the tetragonal cell.
+            c:
+                The *c* lattice parameter of the tetragonal cell.
+            
+        Returns:
+            Tetragonal lattice of dimensions a x a x c.
         """
         return Lattice.from_parameters(a, a, c, 90, 90, 90)
 
     @staticmethod
     def orthorhombic(a, b, c):
         """
-        Returns a new orthorhombic lattice of dimensions a x b x c
+        Convenience constructor for an orthorhombic lattice.
+        
+        Args:
+            a:
+                The *a* lattice parameter of the orthorhombic cell.
+            b:
+                The *b* lattice parameter of the orthorhombic cell.
+            c:
+                The *c* lattice parameter of the orthorhombic cell.
+            
+        Returns:
+            Orthorhombic lattice of dimensions a x b x c.
         """
         return Lattice.from_parameters(a, b, c, 90, 90, 90)
 
     @staticmethod
     def monoclinic(a, b, c, alpha):
         """
-        Returns a new monoclinic lattice of dimensions a x b x c with angle alpha between lattice vectors b and c
+        Convenience constructor for a monoclinic lattice.
+        
+        Args:
+            a:
+                The *a* lattice parameter of the monoclinc cell.
+            b:
+                The *b* lattice parameter of the monoclinc cell.
+            c:
+                The *c* lattice parameter of the monoclinc cell.
+            alpha:
+                The *alpha* angle between lattice vectors b and c.
+            
+        Returns:
+            Monoclinic lattice of dimensions a x b x c with angle alpha between
+            lattice vectors b and c.
         """
         return Lattice.from_parameters(a, b, c, alpha, 90, 90)
 
     @staticmethod
     def hexagonal(a, c):
         """
-        Returns a new hexagonal lattice of dimensions a x a x c.
+        Convenience constructor for a hexagonal lattice.
+        
+        Args:
+            a:
+                The *a* lattice parameter of the hexagonal cell.
+            c:
+                The *c* lattice parameter of the hexagonal cell.
+            
+        Returns:
+            Hexagonal lattice of dimensions a x a x c.
         """
         return Lattice.from_parameters(a, a, c, 90.0, 90.0, 120.0)
 
     @staticmethod
     def rhombohedral(a):
         """
-        Returns a new rhombohedral lattice of dimensions a x a x a.
+        Convenience constructor for a rhombohedral lattice.
+        
+        Args:
+            a:
+                The *a* lattice parameter of the rhombohedral cell.
+            
+        Returns:
+            Rhombohedral lattice of dimensions a x a x a.
         """
         return Lattice.from_parameters(a, a, a, 60.0, 60.0, 60.0)
 
@@ -134,8 +194,13 @@ class Lattice(object):
         Create a Lattice using unit cell lengths and angles (in degrees).
         
         Args:
-            abc: lattice parameters, e.g. (4,4,5)
-            ang: lattice angles in degrees, e.g., (90,90,120)
+            abc:
+                lattice parameters, e.g. (4, 4, 5).
+            ang: 
+                lattice angles in degrees, e.g., (90,90,120).
+                
+        Returns:
+            A Lattice with the specified lattice parameters.
         '''
         return Lattice.from_parameters(abc[0], abc[1], abc[2], ang[0], ang[1], ang[2])
 
@@ -143,8 +208,23 @@ class Lattice(object):
     def from_parameters(a, b, c, alpha, beta, gamma):
         '''
         Create a Lattice using unit cell lengths and angles (in degrees).
-        a, b, c: lattice parameters
-        alpha, beta, gamma : lattice angles
+        
+        Args:
+            a:
+                The *a* lattice parameter of the monoclinc cell.
+            b:
+                The *b* lattice parameter of the monoclinc cell.
+            c:
+                The *c* lattice parameter of the monoclinc cell.
+            alpha:
+                The *alpha* angle.
+            beta:
+                The *beta* angle.
+            gamma:
+                The *gamma* angle.
+                
+        Returns:
+            A Lattice with the specified lattice parameters.
         '''
         to_r = lambda degrees: np.radians(degrees)
 
@@ -163,93 +243,93 @@ class Lattice(object):
         return Lattice([vector_a, vector_b, vector_c])
 
     @staticmethod
-    def from_dict(args):
+    def from_dict(d):
         """
-        Create a Lattice from a dictionary containing the a, b, c, alpha, beta, and gamma parameters.
+        Create a Lattice from a dictionary containing the a, b, c, alpha, beta, 
+        and gamma parameters.
         """
-        a = args["a"]
-        b = args["b"]
-        c = args["c"]
-        alpha = args["alpha"]
-        beta = args["beta"]
-        gamma = args["gamma"]
+        a = d["a"]
+        b = d["b"]
+        c = d["c"]
+        alpha = d["alpha"]
+        beta = d["beta"]
+        gamma = d["gamma"]
         return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
     @property
     def angles(self):
         """
-        returns the angles (alpha, beta, gamma) of the lattice
+        Returns the angles (alpha, beta, gamma) of the lattice.
         """
         return self.lengths_and_angles[1]
 
     @property
     def a(self):
         """
-        a, i.e., [1,0,0] lattice parameter
+        *a* lattice parameter.
         """
         return self.abc[0]
 
     @property
     def b(self):
         """
-        b, i.e., [0,1,0] lattice parameter
+        *b* lattice parameter.
         """
         return self.abc[1]
 
     @property
     def c(self):
         """
-        c, i.e., [0,0,1] lattice parameter
+        *c* lattice parameter.
         """
         return self.abc[2]
 
     @property
     def abc(self):
         """
-        Lengths of the lattice vectors
+        Lengths of the lattice vectors, i.e. (a, b, c)
         """
         return self.lengths_and_angles[0]
 
     def _angle_between(self, x, y):
         """ 
-        internal method to calculate the angle
-        between two vectors
+        Internal method to calculate the angle between two vectors.
         """
-        angle_between = lambda x, y: 180.0 / np.pi * np.arccos(np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y)))
-        return angle_between(x, y)
+        angle_between = 180.0 / np.pi * np.arccos(np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y)))
+        return angle_between
 
     @property
     def alpha(self):
         """
-        Angle alpha of lattice
+        Angle alpha of lattice.
         """
         return self._angle_between(self._matrix[1], self._matrix[2])
 
     @property
     def beta(self):
         """
-        Angle beta of lattice
+        Angle beta of lattice.
         """
         return self._angle_between(self._matrix[0], self._matrix[2])
 
     @property
     def gamma(self):
         """
-        Angle gamma of lattice
+        Angle gamma of lattice.
         """
         return self._angle_between(self._matrix[0], self._matrix[1])
 
     @property
     def volume(self):
         """
-        Volume of the unit cell
+        Volume of the unit cell.
         """
         return npl.det(self._matrix)
 
     @property
     def lengths_and_angles(self):
         '''
-        Returns (lattice lengths, lattice angles)
+        Returns (lattice lengths, lattice angles).
         '''
         prim = self._matrix
         lengths = np.sum(prim ** 2, axis=1) ** 0.5
@@ -262,7 +342,7 @@ class Lattice(object):
     @property
     def reciprocal_lattice(self):
         """
-        return the reciprocal lattice
+        Return the reciprocal lattice.
         """
         v = 2 * np.pi / self.volume
         k1 = np.cross(self._matrix[1], self._matrix[2]) * v
@@ -283,6 +363,10 @@ class Lattice(object):
         return "\n".join(outs)
 
     def __eq__(self, other):
+        """
+        A lattice is considered to be equal to another if the internal matrix
+        representation satisfies np.allclose(matrix1, matrix2) to be True.
+        """
         if other == None:
             return False
         return np.allclose(self._matrix, other._matrix)
@@ -295,7 +379,8 @@ class Lattice(object):
 
     @property
     def to_dict(self):
-        '''dict representation of the Lattice'''
+        '''
+        Json-serialization dict representation of the Lattice.'''
         d = {
         'matrix': self._matrix.tolist(),
         'a': float(self.a),
@@ -306,9 +391,20 @@ class Lattice(object):
         'gamma': float(self.gamma),
         'volume': float(self.volume),
         }
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         return d
 
     def get_primitive_lattice(self, lattice_type):
+        """
+        Returns the primitive lattice of the lattice given the type.
+        
+        Args:
+            lattice_type:
+                An alphabet indicating whether the lattice type, P - primitive,
+                R - rhombohedral, A - A-centered, B - B-centered, C - C-centered,
+                I - body-centered, F - F-centered.
+        """
         if lattice_type == 'P':
             return Lattice(self._matrix)
         conv_to_prim = {
@@ -323,11 +419,11 @@ class Lattice(object):
 
     def get_most_compact_basis_on_lattice(self):
         """
-        this method get the an alternative basis corresponding to the shortest 3
-        linearly independent translational operations permitted.
+        This method returns the alternative basis corresponding to the shortest
+        3 linearly independent translational operations permitted.
         This tends to create larger angles for every elongated cells and is 
-        beneficial for viewing crystal structure (especially when they are Niggli cells)
-        Geoffroy Hautier adapted this code from a java method in jcmc coded by Charles Moore
+        beneficial for viewing crystal structure (especially when they are
+        Niggli cells).
         """
         matrix = self.matrix
         a = matrix[0]

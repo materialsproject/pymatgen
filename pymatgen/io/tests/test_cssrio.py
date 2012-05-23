@@ -6,7 +6,7 @@ Created on Jan 24, 2012
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -23,13 +23,13 @@ from pymatgen.io.vaspio import Poscar
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class CssrTest(unittest.TestCase):
-    
+
     def setUp(self):
-        
-        filepath = os.path.join(test_dir,'POSCAR')
+
+        filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
-        self.cssr = Cssr(p.struct)
-    
+        self.cssr = Cssr(p.structure)
+
     def test_str(self):
         expected_string = """10.4118 6.0672 4.7595
 90.00 90.00 90.00 SPGR =  1 P 1    OPT = 1
