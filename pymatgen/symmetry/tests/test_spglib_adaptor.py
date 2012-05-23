@@ -6,7 +6,7 @@ Created on Mar 9, 2012
 
 from __future__ import division
 
-__author__="Shyue Ping Ong"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -22,6 +22,7 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
+from pymatgen.core.structure_modifier import StructureEditor
 
 import pymatgen
 
@@ -33,29 +34,42 @@ class SymmetryFinderTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.struct
         self.sg = SymmetryFinder(self.structure, 0.001)
-        
+        parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
+        self.disordered_structure = parser.get_structures()[0]
+        self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
+        s = p.struct
+        editor = StructureEditor(p.struct)
+        site = s[0]
+        editor.delete_site(0)
+        editor.append_site(site.species_and_occu, site.frac_coords)
+        self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
+
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
-    
+        self.assertEqual(self.disordered_sg.get_spacegroup_symbol(), "P4_2/nmc")
+        self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
+
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
-        
+        self.assertEqual(self.disordered_sg.get_spacegroup_number(), 137)
+
     def test_get_hall(self):
-        hall = '-P 2ac 2n'
-        self.assertEqual(self.sg.get_hall(), hall)
-        
+        self.assertEqual(self.sg.get_hall(), '-P 2ac 2n')
+        self.assertEqual(self.disordered_sg.get_hall(), 'P 4n 2n -1n')
+
     def test_get_pointgroup(self):
-        pg = 'mmm'
-        self.assertEqual(self.sg.get_pointgroup(), pg)
-    
+        self.assertEqual(self.sg.get_pointgroup(), 'mmm')
+        self.assertEqual(self.disordered_sg.get_pointgroup(), '4/mmm')
+
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
         self.assertEqual(ds['international'], 'Pnma')
-        
+
     def test_get_crystal_system(self):
         crystal_system = self.sg.get_crystal_system()
         self.assertEqual('orthorhombic', crystal_system)
-    
+        self.assertEqual('tetragonal', self.disordered_sg.get_crystal_system())
+
     def test_get_symmetry_operations(self):
         fracsymmops = self.sg.get_symmetry_operations()
         symmops = self.sg.get_symmetry_operations(True)
@@ -67,23 +81,30 @@ class SymmetryFinderTest(unittest.TestCase):
                 newcart = op.operate(site.coords)
                 self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
                 found = False
-                newsite = PeriodicSite(site.species_and_occu, newcart, latt, coords_are_cartesian = True)
+                newsite = PeriodicSite(site.species_and_occu, newcart, latt, coords_are_cartesian=True)
                 for testsite in self.structure:
                     if newsite.is_periodic_image(testsite, 1e-3):
                         found = True
                         break
                 self.assertTrue(found)
-                    
+
     def test_get_refined_structure(self):
         for a in self.sg.get_refined_structure().lattice.angles:
             self.assertEqual(a, 90)
-            
+        refined = self.disordered_sg.get_refined_structure()
+        for a in refined.lattice.angles:
+            self.assertEqual(a, 90)
+        self.assertEqual(refined.lattice.a , refined.lattice.b)
+
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
         for a in symm_struct.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(len(symm_struct.equivalent_sites), 5)
-        
+
+        symm_struct = self.disordered_sg.get_symmetrized_structure()
+        self.assertEqual(len(symm_struct.equivalent_sites), 8)
+
     def test_get_primitive(self):
         """
         F m -3 m Li2O testing of converting to primitive cell
@@ -98,14 +119,14 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.alpha, 120)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
-        self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume/4.0)
+        self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume / 4.0)
 
 class HelperFunctionsTest(unittest.TestCase):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.sg = SymmetryFinder(p.struct, 0.1)
-        
+
     def test_get_pointgroup(self):
         (rots, trans) = self.sg.get_symmetry()
         pg = get_pointgroup(rots)

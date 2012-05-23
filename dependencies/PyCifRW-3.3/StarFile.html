@@ -1,0 +1,1739 @@
+<!-- this file was generated automatically by noweave; better not edit it-->
+<html><head><title>StarFile.nw</title></head><body><pre><a name="NW3RaCNp-3wCo6Z-1" href="#NW3RaCNp-3wCo6Z-1"><dfn>&lt;Copyright statement&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+&quot;&quot;&quot;
+1.This Software copyright \u00A9 Australian Synchrotron Research Program Inc, (&quot;ASRP&quot;).
+
+2.Subject to ensuring that this copyright notice and licence terms
+appear on all copies and all modified versions, of PyCIFRW computer
+code (&quot;this Software&quot;), a royalty-free non-exclusive licence is hereby
+given (i) to use, copy and modify this Software including the use of
+reasonable portions of it in other software and (ii) to publish,
+bundle and otherwise re-distribute this Software or modified versions
+of this Software to third parties, provided that this copyright notice
+and terms are clearly shown as applying to all parts of software
+derived from this Software on each occasion it is published, bundled
+or re-distributed.  You are encouraged to communicate useful
+modifications to ASRP for inclusion for future versions.
+
+3.No part of this Software may be sold as a standalone package.
+
+4.If any part of this Software is bundled with Software that is sold,
+a free copy of the relevant version of this Software must be made
+available through the same distribution channel (be that web server,
+tape, CD or otherwise).
+
+5.It is a term of exercise of any of the above royalty free licence
+rights that ASRP gives no warranty, undertaking or representation
+whatsoever whether express or implied by statute, common law, custom
+or otherwise, in respect of this Software or any part of it.  Without
+limiting the generality of the preceding sentence, ASRP will not be
+liable for any injury, loss or damage (including consequential loss or
+damage) or other loss, loss of profits, costs, charges or expenses
+however caused which may be suffered, incurred or arise directly or
+indirectly in respect of this Software.
+
+6. This Software is not licenced for use in medical applications.
+&quot;&quot;&quot;
+
+</pre><p><h2>Introduction</h2>
+<p>
+This file implements a general STAR reading/writing utility.  The basic
+objects (<code>StarFile/StarBlock</code>) read and write syntactically correct STAR files
+including save frames.
+<p>
+The <code>StarFile</code> class is initialised with either no arguments (a new STAR file) 
+or with the name of an already existing STAR file.  Data items are 
+accessed/changed/added using the python mapping type ie to get 
+<code>dataitem</code> you would type <code>value = cf[blockname][dataitem]</code>. 
+<p>
+The methods available for the StarFile type are:
+<ol>
+<li><code>ReadStar(filestream)</code>: (re)initialise using opened STAR file <code>filestream</code>.
+<li><code>NewBlock(blockname,[block contents],replace=False)</code>: add new block to this object.  If <code>blockcontents</code> is provided, it
+must be a <code>StarBlock</code> object (see below).  If replace is <code>False</code>, attempts to
+replace a pre-existing block will cause an error.
+<li><code>WriteOut(comment)</code>: return the contents of the current file as a
+CIF-conformant string, with optional <code>comment</code> at the beginning.
+<li><code>set_uri(URI)</code>: set the URI of the file.  Typically this is done internally when
+loading from a file, or else is set to the current working directory
+</ol>
+<p>
+The methods available for the StarBlock type are:
+<ol>
+<li><code>GetLoopItem(itemname)</code>: return the value of <code>itemname</code> in 
+current block (equivalent to using [])
+<li><code>AddLoopItem(data)</code>: add <code>data</code> to the current block.  <code>data</code> is 
+a tuple consisting of a single itemname and an array of 
+data, or else a single data value.  This method 
+is called when setting data using [].
+<li><code>RemoveLoopItem(dataname)</code>: remove the given dataname from the 
+current block.  Same as typing <code>'del block[item]'</code>
+<li><code>GetLoop(dataname)</code>: for looped data item <code>dataname</code>, get a list
+of all itemnames and values co-occurring in this loop.  Returns an error
+if <code>dataname</code> is not in a loop.
+<li><code>AddLoop(dataname,data)</code>: add <code>data</code> to the loop containing
+<code>dataname</code>.  If dataname is not a looped item, an error is returned.
+If (data) has the wrong length, an error is returned. 
+<li><code>loops()</code>: return a list containing all looped names, grouped into
+individual loops.  This was added to facilitate validity checking and is
+unlikely to be useful otherwise.
+<li><code><a name="NWD3RaCNp-1">first_block()</a></code>: returns the first block in the file.
+</ol>
+<p>
+Note also that a StarFile object can be accessed as a mapping type, ie using
+square brackets.  Most mapping operations have been implemented (see below).
+<p>
+We import type objects at the module level, as required by later versions
+of Python.
+<p>
+<pre><a name="NW3RaCNp-1p0Y9w-1" href="#NWD3RaCNp-1"><dfn>&lt;*&gt;=</dfn></a>
+<a name="NW3RaCNp-1p0Y9w-1-u1" href="#NW3RaCNp-3wCo6Z-1"><i>&lt;Copyright statement&gt;</i></a>
+from types import *
+from urllib import *         # for arbitrary opening
+import re
+import copy
+<a name="NW3RaCNp-1p0Y9w-1-u2" href="#NWD3RaCNp-E"><i>&lt;Define a collection datatype&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u3" href="#NWD3RaCNp-F"><i>&lt;LoopBlock class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u4" href="#NWD3RaCNp-m"><i>&lt;StarBlock class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u5" href="#NWD3RaCNp-Q"><i>&lt;Star packet class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u6" href="#NWD3RaCNp-2"><i>&lt;BlockCollection class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u7" href="#NWD3RaCNp-A"><i>&lt;StarFile class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u8" href="#NW3RaCNp-2NwwNO-1"><i>&lt;Define an error class&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u9" href="#NWD3RaCNp-D"><i>&lt;Read in a STAR file&gt;</i></a>
+<a name="NW3RaCNp-1p0Y9w-1-u10" href="#NWD3RaCNp-f"><i>&lt;Get data dimension&gt;</i></a>
+
+</pre><p><h2>BlockCollection</h2>
+<p>
+<a name="NWD3RaCNp-2">STAR files and a collection of save frames look very similar, so we</a>
+abstract the common behaviour into the <code>BlockCollection</code> class, and then
+inherit from it to make a <code>StarFile</code> object.  Save frames require
+no further special behaviour, and so are instances of a <code>BlockCollection</code>.
+<p>
+This is a parameterised class, in that we specify the class of the items in
+the BlockCollection at initialisation time.  This allows us to restrict the
+components of a CIF file, for example, to be CifBlocks.
+<p>
+<pre><a name="NW3RaCNp-1QuCxB-1" href="#NWD3RaCNp-2"><dfn>&lt;BlockCollection class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class BlockCollection:
+    <a name="NW3RaCNp-1QuCxB-1-u1" href="#NWD3RaCNp-3"><i>&lt;Initialise BC data structures&gt;</i></a>
+    <a name="NW3RaCNp-1QuCxB-1-u2" href="#NWD3RaCNp-5"><i>&lt;BC emulation of mapping type&gt;</i></a>
+    <a name="NW3RaCNp-1QuCxB-1-u3" href="#NWD3RaCNp-6"><i>&lt;Add a new data section&gt;</i></a>
+    <a name="NW3RaCNp-1QuCxB-1-u4" href="#NWD3RaCNp-7"><i>&lt;Merge with another block collection&gt;</i></a>
+    <a name="NW3RaCNp-1QuCxB-1-u5" href="#NWD3RaCNp-8"><i>&lt;Collect all values of a single key in all blocks&gt;</i></a>
+<a name="NW3RaCNp-1QuCxB-1-u6" href="#NWD3RaCNp-9"><i>&lt;Write out to string representation&gt;</i></a>
+
+</pre><p>When initialising, we take an optional type tag, which will
+be used when printing out as a prefix before each block name.
+<a name="NWD3RaCNp-3">Usually this will be either &quot;data_&quot; for a data block in a</a>
+STAR file, or &quot;save_&quot; for a save frame in a data block.
+<p>
+We also require a class name that we use to restrict the components
+of the block.   If we are passed another BlockCollection object, we
+cycle through all of the blocks, if necessary imposing the the proper
+<code>element_class</code>.  This is in practice used to turn StarBlocks into
+CifBlocks.
+<p>
+<pre><a name="NW3RaCNp-4MdpJz-1" href="#NWD3RaCNp-3"><dfn>&lt;Initialise BC data structures&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+def __init__(self,datasource=None,element_class=StarBlock,type_tag=''):
+    self.dictionary = {}
+    self.type_tag = type_tag
+    self.lower_keys = []              # for efficiency
+    self.element_class = element_class
+    if isinstance(datasource,(DictType,BlockCollection)):
+        for key,value in datasource.items():
+            if value.__class__ == element_class:
+                self[key]=value
+            else:
+                self[key]= element_class(value)
+    self.header_comment = ''
+ 
+</pre><p><a name="NWD3RaCNp-4">Checking block name lengths.  This is not needed for a STAR block, but</a>
+is useful for CIF.
+<p>
+<pre><a name="NW3RaCNp-2z3h9g-1" href="#NWD3RaCNp-4"><dfn>&lt;Check block name lengths&gt;=</dfn></a>
+def checklengths(self,maxlength):
+    toolong = filter(lambda a:len(a)&gt;maxlength, self.dictionary.keys())
+    if toolong:
+        errorstring = &quot;&quot;
+        for bn in toolong:
+            errorstring += &quot;\n&quot; + bn
+        raise StarError( 'Following block name(s) too long: \n' + errorstring)
+ 
+</pre><p><a name="NWD3RaCNp-5">Emulation of a mapping type.  When called via __setitem__, we do not</a>
+check that a new blockname replaces an old block name.  If you need this,
+you should call <code>NewBlock</code> directly.  We also put odd little useful
+utilities in this section.
+<p>
+<pre><a name="NW3RaCNp-2S7feP-1" href="#NWD3RaCNp-5"><dfn>&lt;BC emulation of mapping type&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+def __str__(self):
+    return self.WriteOut()
+
+def __setitem__(self,key,value):
+    if isinstance(value,(self.element_class,DictType)):
+        self.NewBlock(key,value,replace=True)
+    else: raise TypeError
+    self.lower_keys.append(key.lower())
+
+# due to attempt to get upper/lower case treated as identical
+# we have a bit of cruft here
+def __getitem__(self,key):
+    try:
+        return self.dictionary[key]
+    except KeyError:
+        if key.lower() not in self.lower_keys:
+            raise KeyError, &quot;No such item: %s&quot; % key
+    curr_keys = self.dictionary.keys()
+    lower_ordered = map(lambda a:a.lower(),curr_keys)
+    keyindex = lower_ordered.index(key.lower())
+    return self.dictionary[curr_keys[keyindex]]
+
+# we have to get an ordered list of the current keys,
+# as we'll have to delete one of them anyway
+def __delitem__(self,key):
+    try:
+        del self.dictionary[key]
+        self.lower_keys.remove(key.lower())
+    except KeyError:
+        if not self.has_key(key):
+            raise KeyError
+        curr_keys = self.dictionary.keys()
+        lower_ordered = map(lambda a:a.lower(),curr_keys)
+        keyindex = lower_ordered.index(key.lower())
+        del self.dictionary[curr_keys[keyindex]]
+    
+def __len__(self):
+    return len(self.dictionary)
+
+def keys(self):
+    return self.dictionary.keys()
+
+# changes to take case independence into account
+def has_key(self,key):
+    if not isinstance(key,StringType): return 0
+    if self.dictionary.has_key(key):
+       return 1
+    if key.lower() in self.lower_keys:
+       return 1
+    return 0
+
+def get(self,key,default=None):
+    if self.dictionary.has_key(key):
+        return self.dictionary[key]
+    elif self.has_key(key):     # take account of case
+        return self.__getitem__(key)
+    else:
+        return default
+
+def clear(self):
+    self.dictionary.clear()
+    self.lower_keys = []
+
+def copy(self):   
+    newcopy = self.dictionary.copy()
+    return BlockCollection('',newcopy)
+ 
+def update(self,adict):
+    for key in adict.keys():
+        self.dictionary[key] = adict[key]
+    self.lower_keys.extend(map(lambda a:a.lower(),adict.keys()))
+
+def items(self):
+    return self.dictionary.items()
+
+def first_block(self):
+    if self.keys():
+        return self[self.keys()[0]]
+
+</pre><p>Adding a new block.  A new block is just a new item in our
+dictionary, so we add a new entry to the current list of dictionaries, and set
+the count of the number of loops to zero.  We return the new block name
+in case we have changed it, so the calling routine can refer to it
+<a name="NWD3RaCNp-6">later.  Also, there is a limit of 75 characters for the block name length,</a>
+which we enforce here.
+<p>
+The <code>no_replace</code> option will signal an error if the requested blockname
+is already in the CifFile.
+<p>
+Note that we must take account of upper/lower case differences being irrelevant
+for CIFs, but that we want to preserve the original case.
+<p>
+<pre><a name="NW3RaCNp-2XFw2a-1" href="#NWD3RaCNp-6"><dfn>&lt;Add a new data section&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+def NewBlock(self,blockname,blockcontents=(),replace=False,fix=True):
+    if not blockcontents:
+        blockcontents = self.element_class()
+    elif isinstance(blockcontents,DictType):
+        blockcontents = self.element_class(blockcontents)
+    if not isinstance(blockcontents,self.element_class):
+        raise StarError( 'Block is not of required type %s, is %s' % self.element_class.__name__,blockcontents.__class__.__name__)
+    if fix:
+        newblockname = re.sub('[  \t]','_',blockname)
+    else: newblockname = blockname
+    new_lowerbn = newblockname.lower()
+    if self.lower_keys.count(new_lowerbn):    #already in CIF
+        if not replace:
+            raise StarError( &quot;Attempt to replace existing block&quot; + blockname)
+        # generate a list of lower-case keys in correct order
+        current_keys = self.dictionary.keys()
+        blocknames = map(lambda a:a.lower(),current_keys)
+        location = blocknames.index(new_lowerbn)
+        del self.dictionary[current_keys[location]]
+        self.lower_keys.remove(new_lowerbn)
+    self.dictionary.update({blockname:blockcontents})
+    self.lower_keys.append(new_lowerbn)
+
+</pre><p>Merging.  We implement this for dictionary merging support.  We can't
+merge <code>CifDic</code> objects, because the internal data structures for DDL2 and
+DDL1 are different (parent-child in particular), so any merge operation
+would have to first recreate the original Cif structure before proceeding.
+<p>
+Merging can be strict, overlay or replace.  In all cases, if the block
+name is different, we simply add it in.  If it is the same, in strict
+mode we flag an error, in replace mode we replace it, and in overlay
+mode we actually add/replace individual data items.
+<p>
+If the single_block list is non-empty, we assume that we should merge
+on the block level, using the given block names as the particular
+blocks to merge.  This is essentially what we have to do for DDL2
+dictionaries, where all the definitions are stored in save frames inside a
+single block. 
+<p>
+Note also the related situation where we are in 'strict' mode, and
+the DDL1 dictionaries both have an &quot;on_this_dictionary&quot; block.  So we
+have an extra keyword argument &quot;idblock&quot; which contains a blockname
+to ignore during merging, i.e. it will remain the same
+as before merging.  In the future we may implement some sort of
+version tracking mechanism using this block.
+<p>
+The suggested overlay method involves adding to loops, rather than
+replacing them completely.  Identical rows must be removed, and
+any key values with identical values remaining after this have to
+flag an error.  We don't read in the ddl specifications themselves,
+to avoid messing with hard-coded filenames, so we require the calling
+function to provide us with this file (not yet implemented).  
+<p>
+The <code>match_att</code> keyword allows us to match blocks/save frames on a
+particular attribute, rather than the block name itself.  This means
+we can do the right thing and compare <code>_name</code> entries rather than
+block names (the default behaviour).
+<p>
+<a name="NWD3RaCNp-7">Note also a problem with the overlay protocol as written up in Vol. G:</a>
+if we try matching on item.name, we will run into trouble where _item.name
+is looped in DDL2-style dictionaries.  We can't match on a complete match
+against all item names in the list, because we would like to be able to add
+item names in overlay mode.  So we have to deduce the 'main' item name
+from any parent-child information that we have using a helper function which
+is passed to us.
+<p>
+<pre><a name="NW3RaCNp-4cDjKm-1" href="#NWD3RaCNp-7"><dfn>&lt;Merge with another block collection&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+def merge(self,new_bc,mode=&quot;strict&quot;,single_block=[],
+               idblock=&quot;&quot;,match_att=[],match_function=None):
+    if single_block:
+        self.dictionary[single_block[0]].merge(new_bc[single_block[1]],mode,
+                                               match_att=match_att,
+                                               match_function=match_function)
+        return None
+    base_keys = self.keys()
+    block_to_item = base_keys   #default
+    new_keys = new_bc.keys()
+    if match_att:
+        #make a blockname -&gt; item name map
+        if match_function:
+            block_to_item = map(lambda a:match_function(self[a]),self.keys())
+        else:
+            block_to_item = map(lambda a:self[a].get(match_att[0],None),self.keys())
+        #print `block_to_item`
+    for key in new_keys:
+        if key == idblock: continue
+        basekey = key        #default value
+        attval = new_bc[key].get(match_att[0],0)
+        for ii in range(len(block_to_item)):  #do this way to get looped names
+            thisatt = block_to_item[ii]
+            #print &quot;Looking for %s in %s&quot; % (attval,thisatt)
+            if attval == thisatt or \
+               (isinstance(thisatt,ListType) and attval in thisatt):
+                  basekey = base_keys.pop(ii)
+                  block_to_item.remove(thisatt)
+                  break
+        if not self.dictionary.has_key(basekey) or mode==&quot;replace&quot;:
+            self.dictionary[basekey] = new_bc[key]
+        else:
+            if mode==&quot;strict&quot;:
+                raise StarError( &quot;In strict merge mode: block %s in old and block %s in new files&quot; % (basekey,key))
+            elif mode==&quot;overlay&quot;:
+                # print &quot;Merging block %s with %s&quot; % (basekey,key)
+                self.dictionary[basekey].merge(new_bc[key],mode,match_att=match_att)
+            else:  
+                raise StarError( &quot;Merge called with unknown mode %s&quot; % mode)
+
+</pre><p>When validating DDL2-type dictionaries against the DDL spec file, we have
+to be able to see all values of parent data items across all save frames
+in order to validate parent-child relations (I've inferred this, but
+<a name="NWD3RaCNp-8">if I ever find a standard document this may turn out to be wrong).  So this</a>
+method is provided to return a list of all values taken by the given
+attribute within all of the blocks inside a block collection.
+<p>
+A flat list is returned, even if looped values happen to occur in a data
+block.  This is because the one routine that calls this method is 
+interested in whether or not a given value occurs, rather than how 
+it occurs or what it occurs with.  We also remove duplicate values.
+<p>
+<pre><a name="NW3RaCNp-2Z0lI2-1" href="#NWD3RaCNp-8"><dfn>&lt;Collect all values of a single key in all blocks&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+def get_all(self,item_name):
+    raw_values = map(lambda a:self[a].get(item_name),self.dictionary.keys())
+    raw_values = filter(lambda a:a != None, raw_values)
+    ret_vals = []
+    for rv in raw_values:
+        if isinstance(rv,ListType):
+            for rvv in rv:
+                if rvv not in ret_vals: ret_vals.append(rvv)
+        else:
+            if rv not in ret_vals: ret_vals.append(rv)
+    return ret_vals
+
+</pre><p><a name="NWD3RaCNp-9">Writing all this stuff out to a string.  We loop over each of the</a>
+individual sections, getting their string representation.  We 
+implement this using the cStringIO module for faster work.  Note that
+the default output comment specifies a CIF 1.1 standard file.
+<p>
+<pre><a name="NW3RaCNp-4IM44V-1" href="#NWD3RaCNp-9"><dfn>&lt;Write out to string representation&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-2">&lt;-U</a>)</b>
+    def WriteOut(self,comment='',wraplength=80,maxoutlength=2048):
+        import cStringIO
+        if not comment:
+            comment = self.header_comment
+        outstring = cStringIO.StringIO()
+        outstring.write(comment)
+        for datablock in self.dictionary.keys():
+            outstring.write('\n' + self.type_tag +datablock+'\n')
+            self.dictionary[datablock].SetOutputLength(wraplength,maxoutlength)
+            outstring.write(str(self.dictionary[datablock]))
+        returnstring =  outstring.getvalue()
+        outstring.close()
+        return returnstring
+
+</pre><p><h2><a name="NWD3RaCNp-A">StarFile</a></h2>
+<p>
+If we are passed a filename, we open it and read it in, assuming that
+it is a conformant STAR file.  A StarFile object is a dictionary of
+StarBlock objects, accessed by block name. 
+Parameter <code>maxoutlength</code> sets the maximum line size for output.  If
+<code>maxoutlength</code> is not specified, it defaults to the maximum input
+length.
+<p>
+<pre><a name="NW3RaCNp-4HFZoA-1" href="#NWD3RaCNp-A"><dfn>&lt;StarFile class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class StarFile(BlockCollection):
+<a name="NW3RaCNp-4HFZoA-1-u1" href="#NWD3RaCNp-B"><i>&lt;Initialise data structures&gt;</i></a>
+<a name="NW3RaCNp-4HFZoA-1-u2" href="#NWD3RaCNp-C"><i>&lt;Set URI&gt;</i></a>
+
+</pre><p>When initialising, we add those parts that are unique to the StarFile as
+<a name="NWD3RaCNp-B">opposed to a simple collection of blocks - i.e. reading in from a file,</a>
+and some line length restrictions.  We don't indent this section in the
+noweb file, so that our comment characters output at the beginning of the
+line.   We allow a <code>blocktype</code> argument so that we can restrict blocks to
+be less than a StarBlock - generally, a CifBlock.
+<p>
+We catch any extra arguments and keyword arguments, as we could re-call
+our initialisation function, which may be a subclass which takes other arguments.
+<p>
+<pre><a name="NW3RaCNp-2KgEaG-1" href="#NWD3RaCNp-B"><dfn>&lt;Initialise data structures&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-A">&lt;-U</a>)</b>
+    def __init__(self,datasource=None,maxinlength=-1,maxoutlength=0,blocktype=StarBlock,**kwargs):
+        BlockCollection.__init__(self,datasource=datasource,element_class=blocktype,type_tag='data_')
+        if isinstance(datasource, StarFile):
+            self.my_uri = datasource.my_uri
+        self.maxinlength = maxinlength      #no restriction
+        if maxoutlength == 0:
+            self.maxoutlength = 2048 
+        else:
+            self.maxoutlength = maxoutlength
+        if type(datasource) is StringType or hasattr(datasource,&quot;read&quot;):
+            newself = ReadStar(datasource,self.maxinlength,**kwargs)
+            # print &quot;Reinjecting by calling %s.__init__ with kwargs %s&quot; % (`self.__init__.im_class`,kwargs)
+            self.__init__.im_class.__init__(self,datasource=newself,maxoutlength=maxoutlength,**kwargs)
+        self.header_comment = \
+&quot;&quot;&quot;#\\#STAR
+##########################################################################
+#               STAR Format file 
+#               Produced by PySTARRW module
+# 
+#  This is a STAR file.  STAR is a superset of the CIF file type.  For
+#  more information, please refer to International Tables for Crystallography,
+#  Volume G, Chapter 2.1
+#
+##########################################################################
+&quot;&quot;&quot;
+</pre><p><a name="NWD3RaCNp-C">A function to make sure we have the correct file location</a>
+<p>
+<pre><a name="NW3RaCNp-3RV8w8-1" href="#NWD3RaCNp-C"><dfn>&lt;Set URI&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-A">&lt;-U</a>)</b>
+    def set_uri(self,my_uri): self.my_uri = my_uri
+
+</pre><p>Reading in a file.  We now use the Yapps2-generated <code>YappsStarParser</code> module to provide grammar
+services.  The structure returned from parsing is a StarFile, with
+possible grammar violations due to duplicate block or item names.
+<p>
+We allow fast reads using the compiled StarScan module
+by passing the option 'flex' to this routine.  We also permit an
+already-opened stream to be passed to us (thanks to Boris Dusek for
+<a name="NWD3RaCNp-D">this contribution).  There are 3 possible syntax variations: very old</a>
+CIF files allowed unquoted data values to begin with open brackets,
+version 1.1 disallowed this, and DDLm-conformant files interpret these
+as actual bracket expressions.  The different grammars are
+selected by a command-line switch.
+<p>
+We save our URL for possible later use in finding files relative to the location of
+this file e.g. with DDLm dictionary imports.
+<p>
+<pre><a name="NW3RaCNp-3xoxiN-1" href="#NWD3RaCNp-D"><dfn>&lt;Read in a STAR file&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar='1.1'):
+    import string
+    if grammar==&quot;1.1&quot;:
+        import YappsStarParser_1_1 as Y
+    elif grammar==&quot;1.0&quot;:
+        import YappsStarParser_1_0 as Y
+    elif grammar==&quot;DDLm&quot;:
+        import YappsStarParser_DDLm as Y
+    if isinstance(filename,basestring):
+        filestream = urlopen(filename)
+    else:
+        filestream = filename   #already opened for us
+    my_uri = &quot;&quot;
+    if hasattr(filestream,&quot;geturl&quot;): 
+        my_uri = filestream.geturl()
+    text = filestream.read()
+    if isinstance(filename,basestring): #we opened it, we close it
+        filestream.close()
+    if not text:      # empty file, return empty block
+        dest.set_uri(my_uri)
+        return dest
+    # we recognise ctrl-Z as end of file
+    endoffile = text.find('\x1a')
+    if endoffile &gt;= 0: 
+        text = text[:endoffile]
+    split = string.split(text,'\n')
+    if maxlength &gt; 0:
+        toolong = filter(lambda a:len(a)&gt;maxlength,split)
+        if toolong:
+            pos = split.index(toolong[0])
+            raise StarError( 'Line %d contains more than %d characters' % (pos+1,maxlength))
+    try: 
+        if scantype == 'standard':
+            parser = Y.StarParser(Y.StarParserScanner(text))
+        else:
+            parser = Y.StarParser(Y.yappsrt.Scanner(None,[],text,scantype='flex'))
+        proto_star = getattr(parser,&quot;input&quot;)()
+    except Y.yappsrt.SyntaxError:
+        errorstring = 'Syntax error in input file: last value parsed was %s' % Y.lastval
+        errorstring = errorstring + '\nParser status: %s' % `parser._scanner`
+        raise StarError( errorstring)
+    # duplication check on all blocks
+    audit_result = map(lambda a:(a,proto_star[a].audit()),proto_star.keys())
+    audit_result = filter(lambda a:len(a[1])&gt;0,audit_result)
+    if audit_result:
+        raise StarError( 'Duplicate keys as follows: %s' % `audit_result`)
+    proto_star.set_uri(my_uri)
+    return proto_star
+
+</pre><p><h2><a name="NWD3RaCNp-E">Collection datatype</a></h2>
+<p>
+DDLm introduced data values which could be lists, tuples or hash tables.  As
+we use lists in the API for loop values, and think this is convenient, we
+define a pseudo collection class to hold CIF lists/tuples/hashes.  Note that
+we have to recursively modify all contents as well.
+<p>
+<pre><a name="NW3RaCNp-1Jbeup-1" href="#NWD3RaCNp-E"><dfn>&lt;Define a collection datatype&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class StarList(list):
+    pass
+
+# Because DDLm makes a tuple from a tuple...
+class StarTuple(tuple):
+    def __new__(cls,*arglist):
+        return tuple.__new__(cls,arglist)
+
+class StarDict(dict):
+    pass
+
+</pre><p><h2>Loop Block class</h2>
+<p>
+<a name="NWD3RaCNp-F">This is the fundamental building block of a StarFile.  We abstract a</a>
+loop to mean a collection of tag value pairs and a collection of 
+zero or more loop blocks (recursive definition).  The values have a
+dimension one less than the values in the loop blocks. 
+<p>
+We store the dimension in the class for convenience.
+<p>
+A Star Block is then also a Loop block with dimension zero.
+<p>
+<pre><a name="NW3RaCNp-2zXei-1" href="#NWD3RaCNp-F"><dfn>&lt;LoopBlock class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class LoopBlock:
+    <a name="NW3RaCNp-2zXei-1-u1" href="#NWD3RaCNp-G"><i>&lt;Initialise Loop Block&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u2" href="#NWD3RaCNp-H"><i>&lt;Add emulation of a mapping type&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u3" href="#NWD3RaCNp-I"><i>&lt;Selection of iterators&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u4" href="#NWD3RaCNp-M"><i>&lt;Insert a nested loop&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u5" href="#NW3RaCNp-2MNyJC-1"><i>&lt;Remove a nested loop&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u6" href="#NWD3RaCNp-N"><i>&lt;Add a comment&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u7" href="#NW3RaCNp-27iSXX-1"><i>&lt;Remove a comment&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u8" href="#NWD3RaCNp-O"><i>&lt;Return value of item&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u9" href="#NWD3RaCNp-b"><i>&lt;Remove a data item&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u10" href="#NWD3RaCNp-c"><i>&lt;Add a data item&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u11" href="#NWD3RaCNp-d"><i>&lt;Check data name for STAR conformance&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u12" href="#NW3RaCNp-1InkQt-1"><i>&lt;Check data item for STAR conformance&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u13" href="#NWD3RaCNp-e"><i>&lt;Regularise data values&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u14" href="#NWD3RaCNp-P"><i>&lt;Get complete looped data&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u15" href="#NW3RaCNp-1Ua6Um-1"><i>&lt;Get nth loop packet&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u16" href="#NWD3RaCNp-R"><i>&lt;Add a packet&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u17" href="#NWD3RaCNp-T"><i>&lt;Remove a packet&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u18" href="#NWD3RaCNp-S"><i>&lt;Get packet by key&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u19" href="#NWD3RaCNp-U"><i>&lt;Get item order&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u20" href="#NWD3RaCNp-V"><i>&lt;Change data item order&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u21" href="#NWD3RaCNp-W"><i>&lt;Return position of data item&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u22" href="#NWD3RaCNp-X"><i>&lt;Collapse to nth packet&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u23" href="#NWD3RaCNp-Y"><i>&lt;Audit for repeated names&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u24" href="#NWD3RaCNp-Z"><i>&lt;Get co-looped names&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u25" href="#NWD3RaCNp-a"><i>&lt;Add to looped data&gt;</i></a>
+    <a name="NW3RaCNp-2zXei-1-u26" href="#NW3RaCNp-4IzxvP-1"><i>&lt;Functions for printing out&gt;</i></a>
+
+</pre><p>If given non-zero data to initialise the block with, we either
+copy (if it is a dictionary) or else initialise each key-value
+pair separately (if tuples).  We take care to include our special
+&quot;loop&quot; key if it is not in the supplied dictionary, but apart from
+this we make no check of the actual conformance of the dictionary
+items. 
+<p>
+The dimension parameter refers to the number of dimenstions of the
+value; zero would be a single value, 1 is a 1-dimensional array, etc.
+<p>
+To manage case insensitivity while preserving the case of items
+that we are passed, we store a list of lower-case keys so that we
+<a name="NWD3RaCNp-G">are not constantly calling the </a><code>lower()</code> method of the strings.  This
+list applies only to the items in the body of the loop, not to any
+items in nested loops.  However, when searching for items and returning
+items, nested loops are searched.
+<p>
+The <code>overwrite</code> argument allows values to be silently replaced, as per a
+normal python dictionary.  However, when reading in from a file, we want to
+detect duplicated values, so we set this to false.  
+<p>
+<pre><a name="NW3RaCNp-47utOa-1" href="#NWD3RaCNp-G"><dfn>&lt;Initialise Loop Block&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def __init__(self,data = (), dimension = 0, maxoutlength=2048, wraplength=80, overwrite=True):
+    # print 'Creating new loop block, dimension %d' % dimension
+    self.block = {}
+    self.loops = []
+    self.no_packets = 0
+    self.item_order = []
+    self.lower_keys = []    #for efficiency
+    self.comment_list = {}
+    self.dimension = dimension
+    self.popout = False         #used during load iteration
+    self.curitem = -1           #used during iteration
+    self.maxoutlength = maxoutlength
+    self.wraplength = wraplength
+    self.overwrite = overwrite
+    if not hasattr(self,'loopclass'):  #in case are derived class
+        self.loopclass = LoopBlock  #when making new loops
+    self.char_check = re.compile(&quot;[][ \n\r\t!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;,re.M)
+    if isinstance(data,(TupleType,ListType)):
+        for item in data:
+            self.AddLoopItem(item)
+    elif isinstance(data,LoopBlock):
+        self.block = data.block.copy() 
+        self.item_order = data.item_order[:]
+        self.lower_keys = data.lower_keys[:]
+        self.comment_list = data.comment_list.copy()
+        self.dimension = data.dimension
+        # loops as well; change loop class 
+        for loopno in range(len(data.loops)):
+            try:
+                placeholder = self.item_order.index(data.loops[loopno])
+            except ValueError:
+                print &quot;Warning: loop %s (%s) in loops, but not in item_order (%s)&quot; % (`data.loops[loopno]`,str(data.loops[loopno]),`self.item_order`)
+                placeholder = -1
+            self.item_order.remove(data.loops[loopno])   #gone
+            newobject = self.loopclass(data.loops[loopno])
+            # print &quot;Recasting and adding loop %s -&gt; %s&quot; % (`data.loops[loopno]`,`newobject`)
+            self.insert_loop(newobject,position=placeholder)
+
+</pre><p><a name="NWD3RaCNp-H">Adding emulation of a mapping type.  We add any of the other</a>
+functions we'd like to emulate.   <code>__len__</code> returns the number
+of items in this block, either in a loop or not.  So it is
+not the simple length of the dictionary.
+<p>
+<pre><a name="NW3RaCNp-PReOa-1" href="#NWD3RaCNp-H"><dfn>&lt;Add emulation of a mapping type&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def __str__(self):
+    return self.printsection()
+
+def __setitem__(self,key,value):
+    # catch a one member loop, for convenience
+    # we assume the key is a string value only
+    self.AddLoopItem((key,value))
+
+def __getitem__(self,key):
+    if isinstance(key,IntType):   #return a packet!!
+        return self.GetPacket(key)        
+    return self.GetLoopItem(key)
+
+def __delitem__(self,key):
+    self.RemoveLoopItem(key)
+
+def __len__(self):
+    blen = len(self.block)
+    for aloop in self.loops:
+        # print 'Aloop is %s' % `aloop`
+        blen = blen + len(aloop)  # also a LoopBlock
+    return blen    
+
+def __nonzero__(self):
+    if self.__len__() &gt; 0: return 1
+    return 0
+
+# keys returns all internal keys
+def keys(self):
+    thesekeys = self.block.keys()
+    for aloop in self.loops:
+        thesekeys.extend(aloop.keys())
+    return thesekeys
+
+def values(self):
+    ourkeys = self.keys()
+    return map(lambda a:self[a],ourkeys)
+
+def items(self):
+    ourkeys = self.keys()
+    return map(lambda a,b:(a,b),self.keys(),self.values())
+
+def has_key(self,key):
+    if key.lower() in self.lower_keys:
+        return 1
+    for aloop in self.loops:
+        if aloop.has_key(key): return 1
+    return 0
+
+def get(self,key,default=None):
+    if self.has_key(key):
+        retval = self.GetLoopItem(key)
+    else:
+        retval = default
+    return retval
+
+def clear(self):
+    self.block = {}
+    self.loops = []
+    self.item_order = []
+    self.lower_keys = []
+    self.no_packets = 0
+
+# doesn't appear to work
+def copy(self):
+    newcopy = self.copy.im_class(dimension = self.dimension)
+    newcopy.block = self.block.copy()
+    newcopy.loops = []
+    newcopy.no_packets = self.no_packets
+    newcopy.item_order = self.item_order[:]
+    newcopy.lower_keys = self.lower_keys[:]
+    for loop in self.loops:
+        try:
+            placeholder = self.item_order.index(loop)
+        except ValueError:
+            print &quot;Warning: loop %s (%s) in loops, but not in item_order (%s)&quot; % (`loop`,str(loop),`self.item_order`)
+            placeholder = -1
+        newcopy.item_order.remove(loop)   #gone
+        newobject = loop.copy()
+        # print &quot;Adding loop %s -&gt; %s&quot; % (`loop`,`newobject`)
+        newcopy.insert_loop(newobject,position=placeholder)
+    return newcopy
+
+# this is not appropriate for subloops.  Instead, the loop block
+# should be accessed directly for update
+ 
+def update(self,adict):
+    for key in adict.keys():
+        self.AddLoopItem((key,adict[key]))
+
+</pre><p><a name="NWD3RaCNp-I">There are two potential ways of running over the data in a LoopBlock: we</a>
+could loop over the set of values in the non-nested values, and return the
+corresponding nested loop packets in a LoopBlock (a one level iterator),
+in which case the calling program decides whether or not it wants to
+dig deeper; or we could recursively expand and loop over all nested loops
+as well.  We set the default behaviour on initialisation to be one-level.
+<p>
+<pre><a name="NW3RaCNp-1zkpL6-1" href="#NWD3RaCNp-I"><dfn>&lt;Selection of iterators&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+<a name="NW3RaCNp-1zkpL6-1-u1" href="#NWD3RaCNp-J"><i>&lt;A load iterator&gt;</i></a>
+<a name="NW3RaCNp-1zkpL6-1-u2" href="#NWD3RaCNp-K"><i>&lt;A recursive iterator&gt;</i></a>
+<a name="NW3RaCNp-1zkpL6-1-u3" href="#NWD3RaCNp-L"><i>&lt;A one-level iterator&gt;</i></a>
+
+</pre><p>When loading values, we want to iterate over the items until
+a &quot;stop_&quot; token is found - this is communicated via the &quot;popout&quot;
+attribute changing to True.  We save the __iter__ method for
+<a name="NWD3RaCNp-J">iterating over packets.  Also, when a new packet is begun, all</a>
+subloops should be extended correspondingly.  We are in a special
+situation where we don't enforce length matching, as we assume
+that things will be loaded in as we go. 
+<p>
+Each yield returns a list which should be appended to with a unitary
+item.  So, as the number of packets increases, we need to make sure
+that the lowest level lists are extended as needed with empty lists.
+<p>
+<pre><a name="NW3RaCNp-2NbPt8-1" href="#NWD3RaCNp-J"><dfn>&lt;A load iterator&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-I">&lt;-U</a>)</b>
+def load_iter(self,coords=[]):
+    count = 0        #to create packet index 
+    while not self.popout:
+        # ok, we have a new packet:  append a list to our subloops
+        for aloop in self.loops:
+            aloop.new_enclosing_packet()
+        for iname in self.item_order:
+            if isinstance(iname,LoopBlock):       #into a nested loop
+                for subitems in iname.load_iter(coords=coords+[count]):
+                    # print 'Yielding %s' % `subitems`
+                    yield subitems
+                # print 'End of internal loop'
+            else:
+                if self.dimension == 0:
+                    # print 'Yielding %s' % `self[iname]`
+                    yield self,self[iname]
+                else:
+                    backval = self.block[iname]
+                    for i in range(len(coords)):
+                       # print 'backval, coords: %s, %s' % (`backval`,`coords`)
+                       backval = backval[coords[i]]
+                    yield self,backval
+        count = count + 1      # count packets
+    self.popout = False        # reinitialise
+    # print 'Finished iterating'
+    yield self,'###Blank###'     #this value should never be used
+
+# an experimental fast iterator for level-1 loops (ie CIF)
+def fast_load_iter(self):
+    targets = map(lambda a:self.block[a],self.item_order)
+    while targets:
+        for target in targets:
+            yield self,target
+
+# Add another list of the required shape to take into account a new outer packet
+def new_enclosing_packet(self):
+    if self.dimension &gt; 1:      #otherwise have a top-level list
+        for iname in self.keys():  #includes lower levels
+            target_list = self[iname]
+            for i in range(3,self.dimension): #dim 2 upwards are lists of lists of... 
+                target_list = target_list[-1]
+            target_list.append([])
+            # print '%s now %s' % (iname,`self[iname]`)
+
+</pre><p>We recursively expand out all values in nested loops and return a 
+simple dictionary type.  Although it only seems to make sense to call
+this from a dimension 0 LoopBlock, if we are not a level 0 LoopBlock, 
+we drill down until we get a simple value to return, then start looping.
+<p>
+<a name="NWD3RaCNp-K">We want to build up a return dictionary by adding keys from the deeper loops,</a>
+but if we simply use the dictionary update method, we will find that we
+have stale keys from previous inner loops.  Therefore, we keep our values as
+(key,value) tuples which we turn into a Star packet at the last moment.
+<p>
+This is now updated to return StarPackets, which are like lists
+except that they also have attributes set.
+<p>
+<pre><a name="NW3RaCNp-wJg3y-1" href="#NWD3RaCNp-K"><dfn>&lt;A recursive iterator&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-I">&lt;-U</a>)</b>
+def recursive_iter(self,dict_so_far={},coord=[]):
+    # print &quot;Recursive iter: coord %s, keys %s, dim %d&quot; % (`coord`,`self.block.keys()`,self.dimension)
+    my_length = 0
+    top_items = self.block.items()
+    top_values = self.block.values()       #same order as items
+    drill_values = self.block.values()
+    for dimup in range(0,self.dimension):  #look higher in the tree
+        if len(drill_values)&gt;0:            #this block has values
+            drill_values=drill_values[0]   #drill in
+        else:
+            raise StarError(&quot;Malformed loop packet %s&quot; % `top_items[0]`)
+    my_length = len(drill_values)
+    if self.dimension == 0:                #top level
+        for aloop in self.loops:
+            for apacket in aloop.recursive_iter():
+                # print &quot;Recursive yielding %s&quot; % `dict(top_items + apacket.items())`
+                prep_yield = StarPacket(top_values+apacket.values())  #straight list
+                for name,value in top_items + apacket.items():
+                    setattr(prep_yield,name,value)
+                yield prep_yield
+    else:                                  #in some loop
+        for i in range(my_length):
+            kvpairs = map(lambda a:(a,self.coord_to_group(a,coord)[i]),self.block.keys())
+            kvvals = map(lambda a:a[1],kvpairs)   #just values
+            # print &quot;Recursive kvpairs at %d: %s&quot; % (i,`kvpairs`)
+            if self.loops:
+              for aloop in self.loops:
+                for apacket in aloop.recursive_iter(coord=coord+[i]):
+                    # print &quot;Recursive yielding %s&quot; % `dict(kvpairs + apacket.items())`
+                    prep_yield = StarPacket(kvvals+apacket.values())
+                    for name,value in kvpairs + apacket.items():
+                        setattr(prep_yield,name,value)
+                    yield prep_yield
+            else:           # we're at the bottom of the tree
+                # print &quot;Recursive yielding %s&quot; % `dict(kvpairs)`
+                prep_yield = StarPacket(kvvals)
+                for name,value in kvpairs:
+                    setattr(prep_yield,name,value)
+                yield prep_yield
+
+# small function to use the coordinates. 
+def coord_to_group(self,dataname,coords):
+      if not isinstance(dataname,StringType):
+         return dataname     # flag inner loop processing
+      newm = self[dataname]          # newm must be a list or tuple
+      for c in coords:
+          # print &quot;Coord_to_group: %s -&gt;&quot; % (`newm`),
+          newm = newm[c]
+          # print `newm`
+      return newm 
+
+</pre><p><a name="NWD3RaCNp-L">Return a series of LoopBlocks with the appropriate packet chosen. This</a>
+does not loop over interior blocks, so called at the top level it just
+returns the whole star block.
+<p>
+<pre><a name="NW3RaCNp-165LjJ-1" href="#NWD3RaCNp-L"><dfn>&lt;A one-level iterator&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-I">&lt;-U</a>)</b>
+def flat_iterator(self):
+    if self.dimension == 0:   
+        yield copy.copy(self)
+    else:
+        my_length = 0
+        top_keys = self.block.keys()
+        if len(top_keys)&gt;0:
+            my_length = len(self.block[top_keys[0]])
+        for pack_no in range(my_length):
+            yield(self.collapse(pack_no))
+        
+</pre><p><a name="NWD3RaCNp-M">Insert a subloop.  Rather than a simple append, we need to register</a>
+the order in which this loop appears, by putting its integer index
+into our item_order array.  We can optionally check for duplicate
+values, which is normally a good idea; however, if we are reading in 
+a file, for efficiency we only do this at the end of input.
+<p>
+<pre><a name="NW3RaCNp-cesw-1" href="#NWD3RaCNp-M"><dfn>&lt;Insert a nested loop&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def insert_loop(self,newloop,position=-1,audit=True):
+    # check that new loop is kosher
+    if newloop.dimension != self.dimension + 1:
+        raise StarError( 'Insertion of loop of wrong nesting level %d, should be %d' % (newloop.dimension, self.dimension+1))
+    self.loops.append(newloop)
+    if audit:
+        dupes = self.audit()
+        if dupes:
+            dupenames = map(lambda a:a[0],dupes)
+            raise StarError( 'Duplicate names: %s' % `dupenames`)
+    if position &gt;= 0:
+        self.item_order.insert(position,newloop)
+    else:
+        self.item_order.append(newloop)
+    # print &quot;Insert loop: item_order now&quot; + `self.item_order`
+
+</pre><pre><a name="NW3RaCNp-2MNyJC-1" href="#NW3RaCNp-2MNyJC-1"><dfn>&lt;Remove a nested loop&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def remove_loop(self,oldloop):
+    # print &quot;Removing %s: item_order %s&quot; % (`oldloop`,self.item_order)
+    # print &quot;Length %d&quot; % len(oldloop)
+    self.item_order.remove(oldloop)
+    self.loops.remove(oldloop)
+ 
+</pre><p><a name="NWD3RaCNp-N">Dealing with comments.  Comments are attached to a data name, and</a>
+will be printed on the line before that name appears.
+<p>
+<pre><a name="NW3RaCNp-4FQhFm-1" href="#NWD3RaCNp-N"><dfn>&lt;Add a comment&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def AddComment(self,itemname,comment):
+    self.comment_list[itemname.lower()] = comment
+
+</pre><pre><a name="NW3RaCNp-27iSXX-1" href="#NW3RaCNp-27iSXX-1"><dfn>&lt;Remove a comment&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def RemoveComment(self,itemname):
+    del self.comment_list[itemname.lower()]
+
+</pre><p><a name="NWD3RaCNp-O">Returning an item value.  Note that a looped block has little</a>
+meaning without all the items in the loop.  Routine <code>GetLoop</code> is
+better in this case.  This is a real time-intensive loop, so we
+initially assume that the key we have been passed is the right
+key (i.e. case is the same) and only check for case if this
+fails.
+<p>
+<pre><a name="NW3RaCNp-1f7ZkH-1" href="#NWD3RaCNp-O"><dfn>&lt;Return value of item&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetLoopItem(self,itemname):
+    # assume case is correct first
+    try:
+        return self.block[itemname]
+    except KeyError:
+        for loop in self.loops:
+            try:
+                return loop[itemname]
+            except KeyError:
+                pass
+    if itemname.lower() not in self.lower_keys:
+        raise KeyError, 'Item %s not in block' % itemname
+    # it is there somewhere, now we need to find it
+    real_keys = self.block.keys()
+    lower_keys = map(lambda a:a.lower(),self.block.keys()) 
+    try:
+        k_index = lower_keys.index(itemname.lower())
+    except ValueError:
+        raise KeyError, 'Item %s not in block' % itemname
+    return self.block[real_keys[k_index]]
+
+</pre><p><a name="NWD3RaCNp-P">This function returns the particular loop block containing the</a>
+specified dataname, so that we can manipulate its contents directly.
+<p>
+<pre><a name="NW3RaCNp-4fpfwH-1" href="#NWD3RaCNp-P"><dfn>&lt;Get complete looped data&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetLoop(self,keyname):
+    if keyname in self.block:        #python 2.2 or above
+        return self
+    for aloop in self.loops:
+        try: 
+            return aloop.GetLoop(keyname)
+        except KeyError:
+            pass
+    raise KeyError, 'Item %s does not exist' % keyname
+
+</pre><p><a name="NWD3RaCNp-Q">Get nth looped packet.  This returns a packet of data, including any</a>
+nested loops.  For a nested loop, we want the set of packets corresponding
+to the nth outer packet; so after picking out the appropriate elements, we
+have to transpose so that we have a packet.
+<p>
+We return a StarPacket object, which looks very much like a list, in order
+to support the proposed DDLm semantics of allowing a particular value to
+be accessed by attribute.
+<p>
+<pre><a name="NW3RaCNp-1HeLdJ-1" href="#NWD3RaCNp-Q"><dfn>&lt;Star packet class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class StarPacket(list):
+    pass
+
+</pre><pre><a name="NW3RaCNp-1Ua6Um-1" href="#NW3RaCNp-1Ua6Um-1"><dfn>&lt;Get nth loop packet&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetPacket(self,index):
+    thispack = StarPacket([])
+    for myitem in self.item_order:
+        if isinstance(myitem,LoopBlock):
+            pack_list = map(lambda b:myitem[b][index],myitem.item_order)
+            # print 'Pack_list -&gt; %s' % `pack_list`
+            thispack.append(pack_list)
+        elif self.dimension==0:
+            thispack.append(self[myitem])
+        else:
+            thispack.append(self[myitem][index])
+            setattr(thispack,myitem,thispack[-1])
+    return thispack 
+
+</pre><p><a name="NWD3RaCNp-R">Adding a packet.  We are passed a StarPacket object, which is just a list which is accessible by attribute.</a>
+As I have not yet produced a proper __init__ or __new__ method to allow creation of a new StarPacket, it is
+advisable to create a new packet by copying an old packet.  This has not been written for nested loops, but
+only for a single-level Cif-style loop. 
+<p>
+<pre><a name="NW3RaCNp-4fpCsE-1" href="#NWD3RaCNp-R"><dfn>&lt;Add a packet&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def AddPacket(self,packet):
+    if self.dimension==0:
+        raise StarError,&quot;Attempt to add packet to top level block&quot;
+    for myitem in self.item_order:
+        self[myitem] = list(self[myitem])   #in case we have stored a tuple
+        self[myitem].append(packet.__getattribute__(myitem))
+    self.no_packets +=1 
+        # print &quot;%s now %s&quot; % (myitem,`self[myitem]`)
+    
+</pre><p>The draft DDLm specification uses square brackets next to a pre-specified
+identifier to mean &quot;the packet containing this key item&quot;.  As the meaning in
+PyCIFRW is always that of a simple table, we instead implement a function which
+<a name="NWD3RaCNp-S">fullfils this role and pre-process the DRel script later to remove the</a>
+square brackets where necessary.   At the LoopBlock level we have no idea as
+to which data name is the key, so that is passed to us from the dictionary
+processing layer.  Note we assume a single key rather than multiple keys for
+this call, and let the calling layer handle multiple or missing packets.
+<p>
+We guarantee to return a single packet, even if multiple packets match.
+Perhaps we should raise an error in this case.
+<p>
+<pre><a name="NW3RaCNp-2pY1mv-1" href="#NWD3RaCNp-S"><dfn>&lt;Get packet by key&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetKeyedPacket(self,keyname,keyvalue):
+    #print &quot;Looking for %s in %s&quot; % (keyvalue, self[keyname])
+    one_pack= filter(lambda a:getattr(a,keyname)==keyvalue,self)
+    if len(one_pack)!=1:
+        raise KeyError, &quot;Bad packet key %s = %s: returned %d packets&quot; % (keyname,keyvalue,len(one_pack))
+    #print &quot;Keyed packet: %s&quot; % one_pack[0]
+    return one_pack[0]
+
+</pre><p><a name="NWD3RaCNp-T">We might also want to remove a packet by key.  We operate on the data</a>
+in place.
+<p>
+<pre><a name="NW3RaCNp-3E3UkD-1" href="#NWD3RaCNp-T"><dfn>&lt;Remove a packet&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def RemoveKeyedPacket(self,keyname,keyvalue):
+    packet_coord = list(self[keyname]).index(keyvalue)
+    loophandle = self.GetLoop(keyname)
+    for packet_entry in loophandle.item_order:
+        loophandle[packet_entry] = list(loophandle[packet_entry])
+        del loophandle[packet_entry][packet_coord]
+    self.no_packets -= 1
+    
+</pre><p><a name="NWD3RaCNp-U">Return order of items - this is just a copy of our item_order array.</a>
+<p>
+<pre><a name="NW3RaCNp-CFZH-1" href="#NWD3RaCNp-U"><dfn>&lt;Get item order&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetItemOrder(self):
+    return self.item_order[:]
+
+</pre><p><a name="NWD3RaCNp-V">Move an item to a different position in the loop.  This only affects</a>
+the printout order.  We allow different capitalisation and have to
+absorb the possibility of nested loops in the order list, and being
+passed a loop reference in the <code>itemname</code> argument.  
+<p>
+<pre><a name="NW3RaCNp-4C252u-1" href="#NWD3RaCNp-V"><dfn>&lt;Change data item order&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def ChangeItemOrder(self,itemname,newpos):
+    testpos = self.GetItemPosition(itemname)
+    del self.item_order[testpos]
+    # so we have an object ready for action
+    self.item_order.insert(newpos,itemname)
+
+</pre><p><a name="NWD3RaCNp-W">A utility function to get the numerical order in the printout</a>
+of the given item.  We have the try: except: clauses in there as
+we may have Loop or Comment classes in our order list.
+<p>
+<pre><a name="NW3RaCNp-2Mtm4B-1" href="#NWD3RaCNp-W"><dfn>&lt;Return position of data item&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetItemPosition(self,itemname):
+    import string
+    def low_case(item):
+        try:
+            return string.lower(item)
+        except AttributeError:
+            return item
+    try:
+        testname = string.lower(itemname)
+    except AttributeError: 
+        testname = itemname
+    lowcase_order = map(low_case,self.item_order)
+    return lowcase_order.index(testname)
+
+</pre><p><a name="NWD3RaCNp-X">This returns a copy, in theory independent (check that) with just</a>
+the nth packet selected, and order preserved.
+<p>
+<pre><a name="NW3RaCNp-24tUP1-1" href="#NWD3RaCNp-X"><dfn>&lt;Collapse to nth packet&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def collapse(self,packet_no):
+    if self.dimension == 0:
+        raise StarError( &quot;Attempt to select non-existent packet&quot;)
+    newlb = LoopBlock(dimension=self.dimension-1)
+    for one_item in self.item_order:
+        if isinstance(one_item,LoopBlock):
+            newlb.insert_loop(one_item.collapse(packet_no))
+        else:
+            # print &quot;Collapse: %s -&gt; %s&quot; % (one_item,`self[one_item][packet_no]`)
+            newlb[one_item] = self[one_item][packet_no] 
+    return newlb
+    
+</pre><p><a name="NWD3RaCNp-Y">This function is typically called once by the topmost loop after reading</a>
+in a complete datablock; if it returns an empty list, that is a guarantee
+that no datanames are repeated within this loop and subloops.  We use the
+sets module for efficiency (when we go to 2.4 support we'll use the builtin
+as well).
+<p>
+<pre><a name="NW3RaCNp-3lrZ7G-1" href="#NWD3RaCNp-Y"><dfn>&lt;Audit for repeated names&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def audit(self):
+    import sets
+    allkeys = self.keys()
+    uniquenames = sets.Set(allkeys)
+    if len(uniquenames) == len(allkeys): return []
+    else:              
+        keycount = map(lambda a:(a,allkeys.count(a)),uniquenames)
+        return filter(lambda a:a[1]&gt;1,keycount)
+    
+</pre><p><a name="NWD3RaCNp-Z">Get co-looped names.  Sometimes we just want names, and will get the</a>
+values ourselves on a need-to-know basis. 
+<p>
+<pre><a name="NW3RaCNp-DFw8B-1" href="#NWD3RaCNp-Z"><dfn>&lt;Get co-looped names&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def GetLoopNames(self,keyname):
+    if keyname in self:
+        return self.keys()
+    for aloop in self.loops:
+        try: 
+            return aloop.GetLoopNames(keyname)
+        except KeyError:
+            pass
+    raise KeyError, 'Item does not exist'
+
+</pre><p><a name="NWD3RaCNp-a">Adding to a loop.  We find the loop containing the dataname that</a>
+we've been passed, and then append all of the (key,values) pairs that we
+are passed in <code>data</code>, which is a dictionary.  We expect that the data 
+have been sorted out for us, unlike when data are passed in <code>AddLoopItem</code>, 
+when there can be both unlooped and looped data in one set.  The dataname 
+passed to this routine is simply a convenient way to refer to the
+loop, and has no other significance.
+<p>
+<pre><a name="NW3RaCNp-1qw5sp-1" href="#NWD3RaCNp-a"><dfn>&lt;Add to looped data&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def AddToLoop(self,dataname,loopdata):
+    thisloop = self.GetLoop(dataname)
+    for itemname,itemvalue in loopdata.items():
+        thisloop[itemname] = itemvalue
+
+</pre><p><a name="NWD3RaCNp-b">Removing a data item.  We delete the item, and if it is looped, and</a>
+nothing is left in the loop, we remove that element of the list. 
+<p>
+<pre><a name="NW3RaCNp-hkG4D-1" href="#NWD3RaCNp-b"><dfn>&lt;Remove a data item&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def RemoveLoopItem(self,itemname):
+    if self.has_key(itemname):
+        testkey = itemname.lower()
+        real_keys = self.block.keys()
+        lower_keys = map(lambda a:a.lower(),real_keys)
+        try:
+            k_index = lower_keys.index(testkey)
+        except ValueError:    #must be in a lower loop
+            for aloop in self.loops:
+                if aloop.has_key(itemname):
+                    # print &quot;Deleting %s (%s)&quot; % (itemname,aloop[itemname])
+                    del aloop[itemname]
+                    if len(aloop)==0:  # all gone
+                       self.remove_loop(aloop)
+                    break
+        else:
+          del self.block[real_keys[k_index]]
+          self.lower_keys.remove(testkey)
+          # now remove the key in the order list
+          for i in range(len(self.item_order)):
+            if isinstance(self.item_order[i],StringType): #may be loop
+                if self.item_order[i].lower()==testkey:
+                    del self.item_order[i]
+                    break
+        if len(self.block)==0:    #no items in loop, length -&gt; 0
+            self.no_packets = 0
+        return        #no duplicates, no more checking needed
+
+</pre><p>Adding a data item.  This routine adds a single data item to a
+pre-existing loop, checking both the dimension and length to make
+sure they match already-existing items.  We make a special exception
+for an empty list on the assumption that it is going to be filled
+manually (in particular, using load_iter during file reading).
+<p>
+If an item is already stored, it will be silently replaced.  Note
+that we can only guarantee this behaviour, and that duplicate items
+are not present, if this is called in the top loop.  If it is called
+as a method of an inner loop, only subloops are visible for checking/
+replacing.  We could
+get around this restriction by being passed a function which would
+fix things up for us.
+<p>
+<a name="NWD3RaCNp-c">We also check for consistency, by making sure the new item is</a>
+not in the block already.  If it is, we replace it (consistent with
+the meaning of square brackets in Python), unless <code>self.overwrite</code>  
+is False, in which case an error is raised.
+<p>
+We skip checking of data values if the <code>precheck</code> value is true- this
+is typically set if the item is being read from a file, and so is already
+checked.
+<p>
+<pre><a name="NW3RaCNp-pVPvQ-1" href="#NWD3RaCNp-c"><dfn>&lt;Add a data item&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def AddLoopItem(self,data,precheck=False,maxlength=-1):
+    # print &quot;Received data %s&quot; % `data`
+    # we accept only tuples, strings and lists!!
+    if isinstance(data[0],(TupleType,ListType)):
+       # internal loop
+       # first we remove any occurences of these datanames in
+       # other loops
+       for one_item in data[0]:
+           if self.has_key(one_item):
+               if not self.overwrite:
+                   raise StarError( 'Attempt to insert duplicate item name %s' % data[0])
+               else:
+                   del self[one_item]
+       newloop = self.loopclass(dimension = self.dimension+1)
+       keyvals = zip(data[0],data[1])
+       for key,val in keyvals:
+           newloop.AddLoopItem((key,val))
+       self.insert_loop(newloop)
+    elif not isinstance(data[0],StringType):
+              raise TypeError, 'Star datanames are strings only (got %s)' % `data[0]`
+    else:
+       if data[1] == [] or get_dim(data[1])[0] == self.dimension:
+           if not precheck:
+               self.check_data_name(data[0],maxlength)    # make sure no nasty characters   
+           # check that we can replace data
+           if not self.overwrite:
+               if self.has_key(data[0]):
+                   raise StarError( 'Attempt to insert duplicate item name %s' % data[0])
+           # now make sure the data is OK type
+           regval = self.regularise_data(data[1])
+           if not precheck:
+               try:
+                   self.check_item_value(regval)
+               except StarError, errmes:
+                   raise StarError( &quot;Item name &quot; + data[0] + &quot; &quot; + `errmes`)
+           if self.dimension &gt; 0:
+               if self.no_packets &lt;= 0:
+                   self.no_packets = len(data[1])  #first item in this loop
+               if len(data[1]) != self.no_packets:
+                   raise StarLengthError, 'Not enough values supplied for %s' % (data[0])
+           try:
+               oldpos = self.GetItemPosition(data[0])
+           except ValueError:
+               oldpos = len(self.item_order)#end of list 
+           self.RemoveLoopItem(data[0])     # may be different case, so have to do this
+           self.block.update({data[0]:regval})  # trust the data is OK
+           self.lower_keys.insert(oldpos,data[0].lower())
+           self.item_order.insert(oldpos,data[0])
+           #    self.lower_keys.append(data[0].lower())
+           #    self.item_order.append(data[0])
+            
+       else:            #dimension mismatch
+           raise StarLengthError, &quot;input data dim %d != required dim %d: %s %s&quot; % (get_dim(data[1])[0],self.dimension,data[0],`data[1]`)
+
+</pre><p><a name="NWD3RaCNp-d">Checking the data names.  The CIF 1.1 standard restricts characters in</a>
+a data name to ASCII 33-126 and there should be a leading underscore.  Items
+are allowed to have the blank characters as well, i.e. ascii 09,10,13 and 32.
+Data items may be lists, which we need to detect before checking.  We assume
+that the item has been regularised before this check is called.
+<p>
+<pre><a name="NW3RaCNp-2llQwK-1" href="#NWD3RaCNp-d"><dfn>&lt;Check data name for STAR conformance&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def check_data_name(self,dataname,maxlength=-1): 
+    if maxlength &gt; 0:
+        if len(dataname)&gt;maxlength:
+            raise StarError( 'Dataname %s exceeds maximum length %d' % (dataname,maxlength))
+    if dataname[0]!='_':
+        raise StarError( 'Dataname ' + dataname + ' does not begin with _')
+    if len (filter (lambda a: ord(a) &lt; 33 or ord(a) &gt; 126, dataname)) &gt; 0:
+        raise StarError( 'Dataname ' + dataname + ' contains forbidden characters')
+
+</pre><pre><a name="NW3RaCNp-1InkQt-1" href="#NW3RaCNp-1InkQt-1"><dfn>&lt;Check data item for STAR conformance&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def check_item_value(self,item):
+    test_item = item
+    if type(item) != TupleType and type(item) != ListType:
+       test_item = [item]         #single item list
+    def check_one (it):
+        if type(it) == StringType:
+            if it=='': return
+            me = self.char_check.match(it)            
+            if not me:
+                raise StarError( 'Bad character in %s' % it)
+            else:
+                if me.span() != (0,len(it)):
+                    raise StarError('Data item &quot;' + it + '&quot;... contains forbidden characters')
+    map(check_one,test_item)
+
+</pre><p><a name="NWD3RaCNp-e">Regularising data.  We want the copy.deepcopy operation to work, so</a>
+we can't have any arrays passed into the master dictionary.  We make
+sure everything goes in either as a single item or as a list/tuple.
+<p>
+<pre><a name="NW3RaCNp-2drhKM-1" href="#NWD3RaCNp-e"><dfn>&lt;Regularise data values&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+def regularise_data(self,dataitem):
+    alrighttypes = [IntType, LongType, 
+                    FloatType, StringType]
+    okmappingtypes = [TupleType, ListType]
+    thistype = type(dataitem)
+    if thistype in alrighttypes or thistype in okmappingtypes:
+        return dataitem
+    if isinstance(dataitem,StarTuple) or \
+       isinstance(dataitem,StarList) or \
+       isinstance(dataitem,StarDict):
+        return dataitem
+    # so try to make into a list
+    try:
+        regval = list(dataitem)
+    except TypeError, value:
+        raise StarError( str(dataitem) + ' is wrong type for data value\n' )
+    return regval
+    
+</pre><p>Dimension of data.  This would ordinarily be the number of nested levels, 
+and if we have a naked string, we have to return zero.  
+We recursively burrow down to the lowest level.  If a list is of zero length,
+we can't burrow any further, so simply return one more than the current level.
+<p>
+We return as well the length of the received packet.  Note that we consider
+dataitems which are *not* tuples or lists to be primitive.  This includes
+<a name="NWD3RaCNp-f">StarLists (which are a single data item) and numpy arrays.  Unfortunately</a>
+this means we have to use the ungainly check involving the __class__ property,
+as StarLists and Tuples are subclasses of list and tuple and will therefore
+count as instances of them.  In the context of DDLm it is probably more
+elegant to define a special class for looped data rather than for primitive
+lists as data items.
+<p>
+This is a method of the module, rather than belonging to any particular class.
+<p>
+<pre><a name="NW3RaCNp-2FJFe9-1" href="#NWD3RaCNp-f"><dfn>&lt;Get data dimension&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+def get_dim(dataitem,current=0,packlen=0):
+    zerotypes = [IntType, LongType, 
+                    FloatType, StringType]
+    if type(dataitem) in zerotypes:
+        return current, packlen
+    if not dataitem.__class__ == ().__class__ and \
+       not dataitem.__class__ == [].__class__:
+       return current, packlen
+    elif len(dataitem)&gt;0: 
+    #    print &quot;Get_dim: %d: %s&quot; % (current,`dataitem`)
+        return get_dim(dataitem[0],current+1,len(dataitem))
+    else: return current+1,0
+    
+
+</pre><pre><a name="NW3RaCNp-4IzxvP-1" href="#NW3RaCNp-4IzxvP-1"><dfn>&lt;Functions for printing out&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-F">&lt;-U</a>)</b>
+<a name="NW3RaCNp-4IzxvP-1-u1" href="#NWD3RaCNp-g"><i>&lt;Set the output length&gt;</i></a>
+<a name="NW3RaCNp-4IzxvP-1-u2" href="#NWD3RaCNp-h"><i>&lt;Print a loop block&gt;</i></a>
+<a name="NW3RaCNp-4IzxvP-1-u3" href="#NWD3RaCNp-i"><i>&lt;Format loop names&gt;</i></a>
+<a name="NW3RaCNp-4IzxvP-1-u4" href="#NWD3RaCNp-j"><i>&lt;Format loop packets&gt;</i></a>
+<a name="NW3RaCNp-4IzxvP-1-u5" href="#NWD3RaCNp-k"><i>&lt;Format a single packet item&gt;</i></a>
+<a name="NW3RaCNp-4IzxvP-1-u6" href="#NWD3RaCNp-l"><i>&lt;Format a string&gt;</i></a>
+
+</pre><p>For non-default output lengths, we include a function which will set
+the internal attribute that controls maximum line length.  As this is
+<a name="NWD3RaCNp-g">a per-block value, this function is most likely called by the StarFile</a>
+object rather than directly.
+<p>
+Two values control output line formatting: <code>self.wraplength</code> and 
+<code>self.maxoutlength</code>.  <code>self.wraplength</code> is the value at which the
+line will be wrapped normally, but long strings will not force an
+internal wrap inside the string; <code>self.maxoutlength</code> is the absolute
+maximum length.
+<p>
+<pre><a name="NW3RaCNp-3qhqWx-1" href="#NWD3RaCNp-g"><dfn>&lt;Set the output length&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def SetOutputLength(self,wraplength=80,maxoutlength=2048):
+    if wraplength &gt; maxoutlength:
+        raise StarError(&quot;Wrap length (requested %d) must be &lt;= Maximum line length (requested %d)&quot; % (wraplength,maxoutlength))
+    self.wraplength = wraplength
+    self.maxoutlength = maxoutlength
+    for loop in self.loops:
+        loop.SetOutputLength(wraplength,maxoutlength)
+
+</pre><p>Printing a section.  We allow an optional order list to be given, in
+case the caller wants to order things in some nice way.  By default, we
+use the item_order dictionary item.  Naturally, looped items are grouped
+together according to their relative order in the order list.
+<p>
+Note that we must be careful to add spaces between data items, especially
+when formatting string loop data, where our string addition could get
+quite hairy.  As we are doing so much concatenation, we use a stringIO
+buffer to speed it up.
+<p>
+Also, it is conceivable that we print an internal loop without the
+enclosing loop.  This means that we cannot assume that we find ourselves
+with a nice simple one-dimensional array after selecting out the matrix
+<a name="NWD3RaCNp-h">coordinate of our current packet.  Therefore, if we are not starting</a>
+out with a zero-dimensional block, we use the contents of coord to make
+our choice for every non-specified dimension.
+<p>
+This routine should not be called recursively.
+<p>
+We attempt some nice formatting by printing non-packet items with an apparent
+tab stop at 40 characters.
+<p>
+<pre><a name="NW3RaCNp-HwelG-1" href="#NWD3RaCNp-h"><dfn>&lt;Print a loop block&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def printsection(self,instring='',blockstart=&quot;&quot;,blockend=&quot;&quot;,indent=0,coord=[]):
+    import cStringIO
+    import string
+    # first make an ordering
+    order = self.item_order[:]
+    # now do it...
+    if not instring:
+        outstring = cStringIO.StringIO()       # the returned string
+    else:
+        outstring = instring
+    if not coord:
+        coords = [0]*(self.dimension-1)
+    else:
+        coords = coord
+    if(len(coords)&lt;self.dimension-1):
+        raise StarError(&quot;Not enough block packet coordinates to uniquely define data&quot;)
+    # print loop delimiter
+    outstring.write(blockstart)
+    while len(order)&gt;0:
+        # print &quot;Order now: &quot; + `order`
+        itemname = order.pop(0)
+        if self.dimension == 0:            # ie value next to tag
+            if not isinstance(itemname,LoopBlock):  #no loop
+               # grab any comment
+               thiscomment = self.comment_list.get(itemname.lower(),'') 
+               itemvalue = self[itemname]
+               if isinstance(itemvalue,StringType):  #need to sanitize
+                     thisstring = self._formatstring(itemvalue)
+               else: thisstring = str(itemvalue)
+               # try for a tabstop at 40
+               if len(itemname)&lt;40 and (len(thisstring)-40 &lt; self.wraplength-1):
+                   itemname = itemname + ' '*(40-len(itemname))
+               else: itemname = itemname + ' '
+               if len(thisstring) + len(itemname) &lt; (self.wraplength-1):
+                     outstring.write('%s%s' % (itemname,thisstring))
+                     if thiscomment:
+                         if len(thiscomment)+len(thisstring)+len(itemname)&lt; (self.wraplength-3):
+                             outstring.write(' #'+thiscomment)
+               else:
+                     outstring.write('%s\n %s' % (itemname, thisstring))
+                     if thiscomment:
+                         if len(thiscomment)+len(thisstring)&lt;(self.wraplength-3):
+                             outstring.write(' #'+thiscomment)
+                         else:
+                             outstring.write('\n#'+thiscomment)
+               outstring.write('\n')
+            else:   # we are asked to print an internal loop block
+                #first make sure we have sensible coords.  Length should be one
+                #less than the current dimension
+                outstring.write(' '*indent); outstring.write('loop_\n')
+                itemname.format_names(outstring,indent+2)
+                itemname.format_packets(outstring,coords,indent+2)
+        else:   # we are a nested loop
+            outstring.write(' '*indent); outstring.write('loop_\n')
+            self.format_names(outstring,indent+2)
+            self.format_packets(outstring,coords,indent+2)
+    if instring: return   #inside a recursion
+    else:
+        returnstring = outstring.getvalue()
+    outstring.close()
+    return returnstring
+
+</pre><p><a name="NWD3RaCNp-i">Formatting a loop section.  We are passed an indent and destination string,</a>
+and are expected to append a list of item names to the string indented by
+the indicated number of spaces.  If we have loops, we add those in too.
+<p>
+<pre><a name="NW3RaCNp-3ipeVs-1" href="#NWD3RaCNp-i"><dfn>&lt;Format loop names&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def format_names(self,outstring,indent=0):
+    temp_order = self.item_order[:]
+    while len(temp_order)&gt;0:
+        itemname = temp_order.pop(0)
+        if isinstance(itemname,StringType):  #(not loop)
+            outstring.write(' ' * indent) 
+            outstring.write(itemname)
+            outstring.write(&quot;\n&quot;)
+        else:                                # a loop
+            outstring.write(' ' * indent) 
+            outstring.write(&quot;loop_\n&quot;)
+            itemname.format_names(outstring,indent+2)
+            outstring.write(&quot; stop_\n&quot;)
+
+</pre><p><a name="NWD3RaCNp-j">Formatting a loop packet.  We are passed an array of coordinates into</a>
+the required packet, of length dim - 1, and have to output the corresponding
+values.  Our final packet will involve collecting the ith value of each 
+item in our particular loop.  Note that we have to be careful with 
+indentation, as the &lt;return&gt;; digraph must be recognised.
+<p>
+<pre><a name="NW3RaCNp-17mPyC-1" href="#NWD3RaCNp-j"><dfn>&lt;Format loop packets&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def format_packets(self,outstring,coordinates,indent=0):
+   import cStringIO
+   import string
+   # get our current group of data
+   # print 'Coords: %s' % `coordinates`
+   alldata = map(lambda a:self.coord_to_group(a,coordinates),self.item_order)
+   # print 'Alldata: %s' % `alldata`
+   packet_data = apply(zip,alldata)
+   # print 'Packet data: %s' % `packet_data`
+   curstring = ''
+   for position in range(len(packet_data)):
+       for point in range(len(packet_data[position])):
+           datapoint = packet_data[position][point]
+           packstring = self.format_packet_item(datapoint,indent)
+           if len(curstring) + len(packstring)&gt; self.wraplength-2: #past end of line with space
+               curstring = curstring + '\n' + ' '*indent + packstring
+           elif curstring == '':
+               curstring = curstring + ' '*indent + packstring
+           else:
+               curstring = curstring + ' ' + packstring
+       outstring.write(curstring + '\n')     #end of one packet
+       curstring = ''
+   outstring.write(' ' + curstring + '\n')    #last time through
+           
+</pre><p><a name="NWD3RaCNp-k">Formatting a single packet item - could be a nested packet!  If we have a</a>
+list of nested packets, we have to transpose first.  Note also that a nested
+packet implies a STAR file, which means there are no line length restrictions.
+We are therefore a bit sloppy with our checking against <code>wraplength</code> and
+<code>maxoutlength</code>.
+<p>
+<pre><a name="NW3RaCNp-3hbSXl-1" href="#NWD3RaCNp-k"><dfn>&lt;Format a single packet item&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def format_packet_item(self,pack_item,indent):
+    # print 'Formatting %s' % `pack_item`
+    curstring = ''
+    if isinstance(pack_item,(StringType,IntType,FloatType,LongType,StarTuple,StarList)):
+       if isinstance(pack_item,StringType):
+           thisstring = self._formatstring(pack_item) #no spaces yet
+           if '\n' in thisstring:    #must have semicolon digraph then 
+               curstring = curstring + thisstring
+               curstring = curstring + (' ' * indent)
+               thisstring = ''
+       else: 
+           thisstring = '%s' % str(pack_item)
+       if len(curstring) + len(thisstring)&gt; self.wraplength-2: #past end of line with space
+           curstring = curstring + '\n' #add the space
+           curstring = curstring + (' ' * indent) + thisstring
+       else: 
+           curstring = curstring + ' ' + thisstring
+    # Now, for each nested loop we call ourselves again
+    # After first outputting the current line
+    else:               # a nested packet
+       if not isinstance(pack_item[0],(ListType,TupleType)):  #base packet
+           item_list = pack_item
+       else:
+           item_list = apply(zip,pack_item)
+       for sub_item in item_list:
+           curstring = curstring + ' ' + self.format_packet_item(sub_item,indent)
+       # stop_ is not issued at the end of each innermost packet
+       if isinstance(pack_item[0],(ListType,TupleType)):
+           curstring = curstring + ' stop_ '
+    return curstring          
+
+</pre><p>Formatting a string.  We make sure that the length of the item value
+is less than <code>self.maxoutlength</code>, or else we should split them, and so on. We check the
+value for terminators and impossible apostrophes and length, before
+deciding whether to print it and the item on a single line.  We try to
+respect carriage returns in the string, if the caller has tried to do
+the formatting for us.  If we are not putting apostrophes around a
+string, we make the first character a space, to avoid problems if the
+first character of a line is a semicolon.
+<p>
+The STAR specification states that embedded quotes are allowed so long
+as they are not followed by a space.  So if we find any quotes followed
+<a name="NWD3RaCNp-l">by spaces we output a semicolon-terminated string to avoid too much</a>
+messing around.  This routine is called very often and could be 
+improved.
+<p>
+We have to catch empty strings as well, which are legal.  Another gotcha 
+concerns 'embedded' strings; if the datavalue begins with a quote, it
+will be output verbatim (and misunderstood) unless spaces elsewhere
+force quotation.
+<p>
+<pre><a name="NW3RaCNp-1m7R1k-1" href="#NWD3RaCNp-l"><dfn>&lt;Format a string&gt;=</dfn></a> <b>(<a href="#NW3RaCNp-4IzxvP-1">&lt;-U</a>)</b>
+def _formatstring(self,instring):
+    import string
+    if len(instring)==0: return &quot;''&quot;
+    if len(instring)&lt; (self.maxoutlength-2) and '\n' not in instring and not ('&quot;' in instring and '\'' in instring):
+        if not ' ' in instring and not '\t' in instring and not '\v' \
+          in instring and not '_' in instring and not (instring[0]==&quot;'&quot; or \
+             instring[0]=='&quot;'):                  # no blanks
+            return instring
+        if not &quot;'&quot; in instring:                                       #use apostrophes
+            return &quot;'%s'&quot; % (instring)
+        elif not &quot;\&quot;&quot; in instring:
+            return '&quot;%s&quot;' % (instring)
+    # is a long one or one that needs semicolons due to carriage returns
+    outstring = &quot;\n;&quot;
+    # if there are returns in the string, try to work with them
+    while 1:
+        retin = string.find(instring,'\n')+1
+        if retin &lt; self.maxoutlength and retin &gt; 0:      # honour this break
+            outstring = outstring + instring[:retin]
+            instring = instring[retin:]
+        elif len(instring)&lt;self.maxoutlength:            # finished
+            outstring = outstring + instring + '\n;\n'
+            break
+        else:                             # find a space
+            for letter in range(self.maxoutlength-1,self.wraplength-1,-1): 
+                if instring[letter] in ' \t\f': break
+            outstring = outstring + instring[:letter+1]
+            outstring = outstring + '\n'
+            instring = instring[letter+1:]            
+    return outstring
+
+</pre><p><h2><a name="NWD3RaCNp-m">Star Block class</a></h2>
+<p>
+A Star Block is simply a LoopBlock with a couple of extras to take care of
+the fact that the topmost level can hold save frames.
+<p>
+<pre><a name="NW3RaCNp-1CvaA8-1" href="#NWD3RaCNp-m"><dfn>&lt;StarBlock class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class StarBlock(LoopBlock):
+    <a name="NW3RaCNp-1CvaA8-1-u1" href="#NWD3RaCNp-n"><i>&lt;Initialise Star Block&gt;</i></a>
+    <a name="NW3RaCNp-1CvaA8-1-u2" href="#NWD3RaCNp-o"><i>&lt;Adjust emulation of mapping type&gt;</i></a>
+
+</pre><p><a name="NWD3RaCNp-n">A Star Block is a Loop Block which can hold save frames in the outermost</a>
+loop.   So essentially the extra value we are adding here is to handle save
+frames.
+<p>
+<pre><a name="NW3RaCNp-2FLK1I-1" href="#NWD3RaCNp-n"><dfn>&lt;Initialise Star Block&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-m">&lt;-U</a>)</b>
+def __init__(self,*pos_args,**keyword_args):
+    LoopBlock.__init__(self,*pos_args,**keyword_args)
+    self.saves = BlockCollection(element_class=LoopBlock,type_tag=&quot;save&quot;)
+
+</pre><p><a name="NWD3RaCNp-o">Emulation of a mapping type.  We catch the saves key and</a>
+redirect it to our saves attribute, and add printing of the
+saves block.
+<p>
+<pre><a name="NW3RaCNp-4DdMOb-1" href="#NWD3RaCNp-o"><dfn>&lt;Adjust emulation of mapping type&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-m">&lt;-U</a>)</b>
+def __getitem__(self,key):
+    if key == &quot;saves&quot;:
+        return self.saves
+    else:
+        return LoopBlock.__getitem__(self,key)
+
+def __setitem__(self,key,value):
+    if key == &quot;saves&quot;:
+        self.saves[key] = value
+    else:
+        LoopBlock.__setitem__(self,key,value)
+
+def clear(self):
+    LoopBlock.clear(self)
+    self.saves = BlockCollection(element_class=LoopBlock,type_tag=&quot;save_&quot;)
+
+def copy(self):
+    newblock = LoopBlock.copy(self)
+    newblock.saves = self.saves.copy()
+    return self.copy.im_class(newblock)   #catch inheritance
+
+def has_key(self,key):
+    if key == &quot;saves&quot;: return 1
+    else: return LoopBlock.has_key(self,key)
+    
+def __str__(self):
+    retstr = ''
+    for sb in self.saves.keys(): 
+        retstr = retstr + '\nsave_%s\n\n' % sb
+        self.saves[sb].SetOutputLength(self.wraplength,self.maxoutlength)
+        retstr = retstr + str(self.saves[sb])
+        retstr = retstr + '\nsave_\n\n'
+    return retstr + LoopBlock.__str__(self)
+
+</pre><pre><a name="NW3RaCNp-2NwwNO-1" href="#NW3RaCNp-2NwwNO-1"><dfn>&lt;Define an error class&gt;=</dfn></a> <b>(<a href="#NWD3RaCNp-1">U-&gt;</a>)</b>
+class StarError(Exception):
+    def __init__(self,value):
+        self.value = value
+    def __str__(self):
+        return '\nStar Format error: '+ self.value 
+
+class StarLengthError(Exception):
+    def __init__(self,value):
+        self.value = value
+    def __str__(self):
+        return '\nStar length error: ' + self.value
+</pre>
+
+<ul>
+<li><a href="#NWD3RaCNp-1"><i>&lt;*&gt;</i></a>: <a href="#NWD3RaCNp-1">D1</a>
+<li><a href="#NWD3RaCNp-J"><i>&lt;A load iterator&gt;</i></a>: <a href="#NWD3RaCNp-I">U1</a>, <a href="#NWD3RaCNp-J">D2</a>
+<li><a href="#NWD3RaCNp-L"><i>&lt;A one-level iterator&gt;</i></a>: <a href="#NWD3RaCNp-I">U1</a>, <a href="#NWD3RaCNp-L">D2</a>
+<li><a href="#NWD3RaCNp-K"><i>&lt;A recursive iterator&gt;</i></a>: <a href="#NWD3RaCNp-I">U1</a>, <a href="#NWD3RaCNp-K">D2</a>
+<li><a href="#NWD3RaCNp-N"><i>&lt;Add a comment&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-N">D2</a>
+<li><a href="#NWD3RaCNp-c"><i>&lt;Add a data item&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-c">D2</a>
+<li><a href="#NWD3RaCNp-6"><i>&lt;Add a new data section&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-6">D2</a>
+<li><a href="#NWD3RaCNp-R"><i>&lt;Add a packet&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-R">D2</a>
+<li><a href="#NWD3RaCNp-H"><i>&lt;Add emulation of a mapping type&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-H">D2</a>
+<li><a href="#NWD3RaCNp-a"><i>&lt;Add to looped data&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-a">D2</a>
+<li><a href="#NWD3RaCNp-o"><i>&lt;Adjust emulation of mapping type&gt;</i></a>: <a href="#NWD3RaCNp-m">U1</a>, <a href="#NWD3RaCNp-o">D2</a>
+<li><a href="#NWD3RaCNp-Y"><i>&lt;Audit for repeated names&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-Y">D2</a>
+<li><a href="#NWD3RaCNp-5"><i>&lt;BC emulation of mapping type&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-5">D2</a>
+<li><a href="#NWD3RaCNp-2"><i>&lt;BlockCollection class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-2">D2</a>
+<li><a href="#NWD3RaCNp-V"><i>&lt;Change data item order&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-V">D2</a>
+<li><a href="#NWD3RaCNp-4"><i>&lt;Check block name lengths&gt;</i></a>: <a href="#NWD3RaCNp-4">D1</a>
+<li><a href="#NW3RaCNp-1InkQt-1"><i>&lt;Check data item for STAR conformance&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NW3RaCNp-1InkQt-1">D2</a>
+<li><a href="#NWD3RaCNp-d"><i>&lt;Check data name for STAR conformance&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-d">D2</a>
+<li><a href="#NWD3RaCNp-X"><i>&lt;Collapse to nth packet&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-X">D2</a>
+<li><a href="#NWD3RaCNp-8"><i>&lt;Collect all values of a single key in all blocks&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-8">D2</a>
+<li><a href="#NW3RaCNp-3wCo6Z-1"><i>&lt;Copyright statement&gt;</i></a>: <a href="#NW3RaCNp-3wCo6Z-1">D1</a>, <a href="#NWD3RaCNp-1">U2</a>
+<li><a href="#NWD3RaCNp-E"><i>&lt;Define a collection datatype&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-E">D2</a>
+<li><a href="#NW3RaCNp-2NwwNO-1"><i>&lt;Define an error class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NW3RaCNp-2NwwNO-1">D2</a>
+<li><a href="#NWD3RaCNp-k"><i>&lt;Format a single packet item&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-k">D2</a>
+<li><a href="#NWD3RaCNp-l"><i>&lt;Format a string&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-l">D2</a>
+<li><a href="#NWD3RaCNp-i"><i>&lt;Format loop names&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-i">D2</a>
+<li><a href="#NWD3RaCNp-j"><i>&lt;Format loop packets&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-j">D2</a>
+<li><a href="#NW3RaCNp-4IzxvP-1"><i>&lt;Functions for printing out&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NW3RaCNp-4IzxvP-1">D2</a>
+<li><a href="#NWD3RaCNp-Z"><i>&lt;Get co-looped names&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-Z">D2</a>
+<li><a href="#NWD3RaCNp-P"><i>&lt;Get complete looped data&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-P">D2</a>
+<li><a href="#NWD3RaCNp-f"><i>&lt;Get data dimension&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-f">D2</a>
+<li><a href="#NWD3RaCNp-U"><i>&lt;Get item order&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-U">D2</a>
+<li><a href="#NW3RaCNp-1Ua6Um-1"><i>&lt;Get nth loop packet&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NW3RaCNp-1Ua6Um-1">D2</a>
+<li><a href="#NWD3RaCNp-S"><i>&lt;Get packet by key&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-S">D2</a>
+<li><a href="#NWD3RaCNp-3"><i>&lt;Initialise BC data structures&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-3">D2</a>
+<li><a href="#NWD3RaCNp-B"><i>&lt;Initialise data structures&gt;</i></a>: <a href="#NWD3RaCNp-A">U1</a>, <a href="#NWD3RaCNp-B">D2</a>
+<li><a href="#NWD3RaCNp-G"><i>&lt;Initialise Loop Block&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-G">D2</a>
+<li><a href="#NWD3RaCNp-n"><i>&lt;Initialise Star Block&gt;</i></a>: <a href="#NWD3RaCNp-m">U1</a>, <a href="#NWD3RaCNp-n">D2</a>
+<li><a href="#NWD3RaCNp-M"><i>&lt;Insert a nested loop&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-M">D2</a>
+<li><a href="#NWD3RaCNp-F"><i>&lt;LoopBlock class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-F">D2</a>
+<li><a href="#NWD3RaCNp-7"><i>&lt;Merge with another block collection&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-7">D2</a>
+<li><a href="#NWD3RaCNp-h"><i>&lt;Print a loop block&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-h">D2</a>
+<li><a href="#NWD3RaCNp-D"><i>&lt;Read in a STAR file&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-D">D2</a>
+<li><a href="#NWD3RaCNp-e"><i>&lt;Regularise data values&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-e">D2</a>
+<li><a href="#NW3RaCNp-27iSXX-1"><i>&lt;Remove a comment&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NW3RaCNp-27iSXX-1">D2</a>
+<li><a href="#NWD3RaCNp-b"><i>&lt;Remove a data item&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-b">D2</a>
+<li><a href="#NW3RaCNp-2MNyJC-1"><i>&lt;Remove a nested loop&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NW3RaCNp-2MNyJC-1">D2</a>
+<li><a href="#NWD3RaCNp-T"><i>&lt;Remove a packet&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-T">D2</a>
+<li><a href="#NWD3RaCNp-W"><i>&lt;Return position of data item&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-W">D2</a>
+<li><a href="#NWD3RaCNp-O"><i>&lt;Return value of item&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-O">D2</a>
+<li><a href="#NWD3RaCNp-I"><i>&lt;Selection of iterators&gt;</i></a>: <a href="#NWD3RaCNp-F">U1</a>, <a href="#NWD3RaCNp-I">D2</a>
+<li><a href="#NWD3RaCNp-g"><i>&lt;Set the output length&gt;</i></a>: <a href="#NW3RaCNp-4IzxvP-1">U1</a>, <a href="#NWD3RaCNp-g">D2</a>
+<li><a href="#NWD3RaCNp-C"><i>&lt;Set URI&gt;</i></a>: <a href="#NWD3RaCNp-A">U1</a>, <a href="#NWD3RaCNp-C">D2</a>
+<li><a href="#NWD3RaCNp-Q"><i>&lt;Star packet class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-Q">D2</a>
+<li><a href="#NWD3RaCNp-m"><i>&lt;StarBlock class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-m">D2</a>
+<li><a href="#NWD3RaCNp-A"><i>&lt;StarFile class&gt;</i></a>: <a href="#NWD3RaCNp-1">U1</a>, <a href="#NWD3RaCNp-A">D2</a>
+<li><a href="#NWD3RaCNp-9"><i>&lt;Write out to string representation&gt;</i></a>: <a href="#NWD3RaCNp-2">U1</a>, <a href="#NWD3RaCNp-9">D2</a>
+</ul>
+<ul>
+</ul>
+</body></html>
+

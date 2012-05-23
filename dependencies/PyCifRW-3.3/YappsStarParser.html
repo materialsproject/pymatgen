@@ -1,0 +1,582 @@
+<!-- this file was generated automatically by noweave; better not edit it-->
+<html><head><title>YappsStarParser.nw</title></head><body>
+Noweb literate programming file for Star grammar and parser specification.
+We are using Amit Patel's excellent context-sensitive Yapps2 parser.  
+This was chosen
+because it enables us to process long semicolon delimited strings without
+running into Python recursion limits.  In the original kjParsing implementation,
+it was impossible to get the lexer to return a single line of text within
+<a name="NWD4WzdcO-1">the semicolon-delimited string as that re would have matched a single line</a>
+of text anywhere in the file.  The resulting very long match expression
+only worked for text strings less than about 9000 characters in length.
+For further information about Yapps2, see 
+http://theory.stanford.edu/&nbsp;amitp/Yapps/
+<p>
+Note there are three targets here: 1.0, 1.1 and DDLm syntax, which differ
+in their treatment of unquoted data values beginning with brackets.
+<p>
+<pre><a name="NW4WzdcO-3ANrmQ-1" href="#NWD4WzdcO-1"><dfn>&lt;1.0_syntax&gt;=</dfn></a>
+from StarFile import *
+from types import *
+import copy
+<a name="NW4WzdcO-3ANrmQ-1-u1" href="#NWD4WzdcO-3"><i>&lt;Helper functions&gt;</i></a>
+%%
+parser StarParser:
+    <a name="NW4WzdcO-3ANrmQ-1-u2" href="#NWD4WzdcO-6"><i>&lt;Regular expressions 1.0&gt;</i></a>
+    <a name="NW4WzdcO-3ANrmQ-1-u3" href="#NWD4WzdcO-8"><i>&lt;Grammar specification 1.1&gt;</i></a>
+%%
+
+</pre><pre><a name="NW4WzdcO-4IfEoe-1" href="#NW4WzdcO-4IfEoe-1"><dfn>&lt;1.1_syntax&gt;=</dfn></a>
+from StarFile import *
+from types import *
+import copy
+<a name="NW4WzdcO-4IfEoe-1-u1" href="#NWD4WzdcO-3"><i>&lt;Helper functions&gt;</i></a>
+%%
+parser StarParser:
+    <a name="NW4WzdcO-4IfEoe-1-u2" href="#NWD4WzdcO-5"><i>&lt;Regular expressions 1.1&gt;</i></a>
+    <a name="NW4WzdcO-4IfEoe-1-u3" href="#NWD4WzdcO-8"><i>&lt;Grammar specification 1.1&gt;</i></a>
+%%
+</pre><p><a name="NWD4WzdcO-2">Note we can make subtle changes to produce different style syntax:</a>
+the following two recipes produce pre 1.1 and DDLm style.
+<p><pre><a name="NW4WzdcO-jazAZ-1" href="#NWD4WzdcO-2"><dfn>&lt;DDLm_syntax&gt;=</dfn></a>
+from StarFile import *
+from types import *
+import copy
+<a name="NW4WzdcO-jazAZ-1-u1" href="#NWD4WzdcO-3"><i>&lt;Helper functions&gt;</i></a>
+%%
+parser StarParser:
+    <a name="NW4WzdcO-jazAZ-1-u2" href="#NWD4WzdcO-4"><i>&lt;Regular expressions DDLm&gt;</i></a>
+    <a name="NW4WzdcO-jazAZ-1-u3" href="#NWD4WzdcO-7"><i>&lt;Grammar specification DDLm&gt;</i></a>
+%%
+</pre><p><a name="NWD4WzdcO-3">Helper functions.</a>
+<p>
+We have a monitor function which we can call to save the last parsed
+value (and print, if we are debugging).   We also have functions for
+stripping off delimiters from strings.  Finally, we match up our
+loops after reading them in.  Note that we have function stripextras,
+which is only for semicolon strings, and stripstring, which is for
+getting rid of the inverted commas.
+<p>
+<pre><a name="NW4WzdcO-2tivfn-1" href="#NWD4WzdcO-3"><dfn>&lt;Helper functions&gt;=</dfn></a> <b>(<a href="#NWD4WzdcO-1">&lt;-U</a> <a href="#NW4WzdcO-4IfEoe-1">&lt;-U</a> <a href="#NWD4WzdcO-2">&lt;-U</a>)</b>
+# An alternative specification for the Cif Parser, based on Yapps2
+# by Amit Patel (http://theory.stanford.edu/~amitp/Yapps)
+#
+# helper code: we define our match tokens
+lastval = ''
+def monitor(location,value):
+    global lastval
+    # print 'At %s: %s' % (location,`value`)
+    lastval = `value`
+    return value
+
+# Strip extras gets rid of leading and trailing whitespace, and
+# semicolons.
+def stripextras(value):
+    # we get rid of semicolons and leading/trailing terminators etc.
+     import re
+     jj = re.compile(&quot;[\n\r\f \t\v]*&quot;)
+     semis = re.compile(&quot;[\n\r\f \t\v]*[\n\r\f]\n*;&quot;)
+     cut = semis.match(value)
+     if cut:        #we have a semicolon-delimited string
+          nv = value[cut.end():len(value)-2]
+          try:
+             if nv[-1]=='\r': nv = nv[:-1]
+          except IndexError:    #empty data value
+             pass
+          return nv 
+     else: 
+          cut = jj.match(value)
+          if cut:
+               return stripstring(value[cut.end():])
+          return value
+
+# helper function to get rid of inverted commas etc.
+
+def stripstring(value):
+     if value:
+         if value[0]== '\'' and value[-1]=='\'':
+           return value[1:-1]
+         if value[0]=='&quot;' and value[-1]=='&quot;':
+           return value[1:-1]
+     return value
+
+# helper function to populate a nested LoopBlock structure given an
+# empty structure together with listed values.   The values are 
+# organised into a list of lists, where each time 'stop' was
+# encountered one list terminates and a new one starts. 
+# For a correctly constructed loop, the final 'popout' will pop out
+# of the iteration completely and raise a StopIteration error.
+#
+# Note that there may be an empty list at the very end of our itemlists,
+# so we remove that if necessary.
+#
+# We optimise for CIF files by loading differently if we have a flat loop
+
+def makeloop(loopstructure,itemlists):
+    if itemlists[-1] == []: itemlists.pop(-1)
+    # print 'Making loop with %s' % `itemlists`
+    if loopstructure.dimension == 1 and loopstructure.loops == []:
+        storage_iter = loopstructure.fast_load_iter()
+    else:
+        storage_iter = loopstructure.load_iter()
+    nowloop = loopstructure
+    for datalist in itemlists:
+       for datavalue in datalist:
+           try:
+               nowloop,target = storage_iter.next()
+           except StopIteration:
+               print &quot;StopIter at %s/%s&quot; % (datavalue,datalist)
+               raise StopIteration
+           # print 'Got %s %s -&gt;' % (`nowloop`,`target`),
+           target.append(datavalue)
+           # print '%s' % `target`
+       # the end of each list is the same as a stop_ token
+       # print 'Saw end of list'
+       nowloop.popout = True
+       nowloop,blank = storage_iter.next()  #execute the pop
+       # print 'discarding %s/%s' % (`nowloop`,`blank`)
+    # print 'Makeloop returning %s' % `loopstructure`
+    return loopstructure
+
+# return an object with the appropriate amount of nesting
+def make_empty(nestlevel):
+    gd = []
+    for i in range(1,nestlevel):
+        gd = [gd]
+    return gd
+
+# this function updates a dictionary first checking for name collisions,
+# which imply that the CIF is invalid.  We need case insensitivity for
+# names. 
+
+# Unfortunately we cannot check loop item contents against non-loop contents
+# in a non-messy way during parsing, as we may not have easy access to previous
+# key value pairs in the context of our call (unlike our built-in access to all 
+# previous loops).
+# For this reason, we don't waste time checking looped items against non-looped
+# names during parsing of a data block.  This would only match a subset of the
+# final items.   We do check against ordinary items, however.
+#
+# Note the following situations:
+# (1) new_dict is empty -&gt; we have just added a loop; do no checking
+# (2) new_dict is not empty -&gt; we have some new key-value pairs
+#
+def cif_update(old_dict,new_dict,loops):
+    old_keys = map(lambda a:a.lower(),old_dict.keys())
+    if new_dict != {}:    # otherwise we have a new loop
+        #print 'Comparing %s to %s' % (`old_keys`,`new_dict.keys()`)
+        for new_key in new_dict.keys():
+            if new_key.lower() in old_keys:
+                raise CifError, &quot;Duplicate dataname or blockname %s in input file&quot; % new_key
+            old_dict[new_key] = new_dict[new_key]
+#
+# this takes two lines, so we couldn't fit it into a one line execution statement...
+def order_update(order_array,new_name):
+    order_array.append(new_name) 
+    return new_name
+
+</pre><p>
+
+The regular expressions aren't quite as easy to deal with as in kjParsing;
+in kjParsing we could pass string variables as re arguments, but here we have
+to have a raw string.  However, we can simplify the BNC specification
+of Nick Spadaccini.   First of all, we do not have to have type I and type 
+II strings, which are distinguished by the presence or absence of a line
+feed directly preceding them and thus by being allowed a semicolon at the
+front or not.  We take care of this by treating as whitespace all terminators
+except for those with a following semicolon, so that a carriage-return-semicolon
+sequence matches the start_sc_line uniquely.
+<p>
+<a name="NWD4WzdcO-4">We include reserved words and save frames, although we semantically utterly</a>
+ignore any save frames that we see - but no syntax error is flagged. The other
+reserved words have no rules defined, so will flag a syntax error.  However,
+as yapps is a context-sensitive parser, it will by default make any word
+found starting with our reserved words into a data value if it occurs in the
+expected position, so we explicity exclude stuff starting with our words
+in the definition of data_value_1.
+<p>
+<pre><a name="NW4WzdcO-48vvh-1" href="#NWD4WzdcO-4"><dfn>&lt;Regular expressions DDLm&gt;=</dfn></a> <b>(<a href="#NWD4WzdcO-2">&lt;-U</a>)</b>
+# first handle whitespace and comments, keeping whitespace
+# before a semicolon
+ignore: &quot;([ \t\n\r](?!;))|[ \t]&quot;
+ignore: &quot;(#.*[\n\r](?!;))|(#.*)&quot;
+# now the tokens
+token LBLOCK:  &quot;(L|l)(O|o)(O|o)(P|p)_&quot;        # loop_
+token GLOBAL: &quot;(G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_&quot;
+token STOP: &quot;(S|s)(T|t)(O|o)(P|p)_&quot;
+token save_heading: &quot;(S|s)(A|a)(V|v)(E|e)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token save_end: &quot;(S|s)(A|a)(V|v)(E|e)_&quot;
+token data_name: &quot;_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot; #_followed by stuff
+token data_heading: &quot;(D|d)(A|a)(T|t)(A|a)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token start_sc_line: &quot;(\n|\r\n);([^\n\r])*(\r\n|\r|\n)+&quot;
+token sc_line_of_text: &quot;[^;\r\n]([^\r\n])*(\r\n|\r|\n)+&quot;
+token end_sc_line: &quot;;&quot;
+token c_r_b: &quot;\)&quot;
+token o_r_b: &quot;\(&quot;
+token c_c_b: &quot;\}&quot;
+token o_c_b: &quot;\{&quot;
+token c_s_b: &quot;\]&quot;
+token o_s_b: &quot;\[&quot;
+token dat_val_nocomma_nosq: &quot;([^\s\&quot;#$,'_\(\{\[\]][^\s,\[\]]*)|'(('(?![\s,]))|([^\n\r\f']))*'+|\&quot;((\&quot;(?![\s,]))|([^\n\r\&quot;]))*\&quot;+&quot;
+token dat_val_internal_sq: &quot;\[([^\s\[\]]*)\]&quot;
+token dat_val_nocomma_nocurl: &quot;([^\s\&quot;#$,'_\(\{\[\]][^\s,}]*)|'(('(?![\s,]))|([^\n\r\f']))*'+|\&quot;((\&quot;(?![\s,]))|([^\n\r\&quot;]))*\&quot;+&quot;
+token dat_val_nocomma_nornd: &quot;([^\s\&quot;#$,'\(\{\[\]][^\s,)]*)|'(('(?![\s,]))|([^\n\r\f']))*'+|\&quot;((\&quot;(?![\s,]))|([^\n\r\&quot;]))*\&quot;+&quot;
+token data_value_1: &quot;((?!(((S|s)(A|a)(V|v)(E|e)_[^\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\s]*)))[^\s\&quot;#$'_\(\{\[\]][^\s]*)|'(('(?=\S))|([^\n\r\f']))*'+|\&quot;((\&quot;(?=\S))|([^\n\r\&quot;]))*\&quot;+&quot;
+token END: '$'
+
+</pre><p><a name="NWD4WzdcO-5">CIF 1.1 does not allow unquoted data values to begin with a bracket character, but does not have bracket expressions</a>
+as such. 
+<p>
+<pre><a name="NW4WzdcO-3DlYFV-1" href="#NWD4WzdcO-5"><dfn>&lt;Regular expressions 1.1&gt;=</dfn></a> <b>(<a href="#NW4WzdcO-4IfEoe-1">&lt;-U</a>)</b>
+# first handle whitespace and comments, keeping whitespace
+# before a semicolon
+ignore: &quot;([ \t\n\r](?!;))|[ \t]&quot;
+ignore: &quot;(#.*[\n\r](?!;))|(#.*)&quot;
+# now the tokens
+token LBLOCK:  &quot;(L|l)(O|o)(O|o)(P|p)_&quot;        # loop_
+token GLOBAL: &quot;(G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_&quot;
+token STOP: &quot;(S|s)(T|t)(O|o)(P|p)_&quot;
+token save_heading: &quot;(S|s)(A|a)(V|v)(E|e)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token save_end: &quot;(S|s)(A|a)(V|v)(E|e)_&quot;
+token data_name: &quot;_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot; #_followed by stuff
+token data_heading: &quot;(D|d)(A|a)(T|t)(A|a)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token start_sc_line: &quot;(\n|\r\n);([^\n\r])*(\r\n|\r|\n)+&quot;
+token sc_line_of_text: &quot;[^;\r\n]([^\r\n])*(\r\n|\r|\n)+&quot;
+token end_sc_line: &quot;;&quot;
+token data_value_1: &quot;((?!(((S|s)(A|a)(V|v)(E|e)_[^\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\s]*)))[^\s\&quot;#$'_\(\{\[\]][^\s]*)|'(('(?=\S))|([^\n\r\f']))*'+|\&quot;((\&quot;(?=\S))|([^\n\r\&quot;]))*\&quot;+&quot;
+token END: '$'
+
+</pre><p><a name="NWD4WzdcO-6">The original CIF specification allowed brackets to begin data values, even if not quoted.  That is the only difference.</a>
+<p>
+<pre><a name="NW4WzdcO-1fFw1Z-1" href="#NWD4WzdcO-6"><dfn>&lt;Regular expressions 1.0&gt;=</dfn></a> <b>(<a href="#NWD4WzdcO-1">&lt;-U</a>)</b>
+# first handle whitespace and comments, keeping whitespace
+# before a semicolon
+ignore: &quot;([ \t\n\r](?!;))|[ \t]&quot;
+ignore: &quot;(#.*[\n\r](?!;))|(#.*)&quot;
+# now the tokens
+token LBLOCK:  &quot;(L|l)(O|o)(O|o)(P|p)_&quot;        # loop_
+token GLOBAL: &quot;(G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_&quot;
+token STOP: &quot;(S|s)(T|t)(O|o)(P|p)_&quot;
+token save_heading: &quot;(S|s)(A|a)(V|v)(E|e)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token save_end: &quot;(S|s)(A|a)(V|v)(E|e)_&quot;
+token data_name: &quot;_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot; #_followed by stuff
+token data_heading: &quot;(D|d)(A|a)(T|t)(A|a)_[][!%&amp;\(\)*+,./:&lt;=&gt;?@0-9A-Za-z\\\\^`{}\|~\&quot;#$';_-]+&quot;
+token start_sc_line: &quot;(\n|\r\n);([^\n\r])*(\r\n|\r|\n)+&quot;
+token sc_line_of_text: &quot;[^;\r\n]([^\r\n])*(\r\n|\r|\n)+&quot;
+token end_sc_line: &quot;;&quot;
+token data_value_1: &quot;((?!(((S|s)(A|a)(V|v)(E|e)_[^\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\s]*)))[^\s\&quot;#$'_][^\s]*)|'(('(?=\S))|([^\n\r\f']))*'+|\&quot;((\&quot;(?=\S))|([^\n\r\&quot;]))*\&quot;+&quot;
+token END: '$'
+
+</pre><p>
+
+The final returned value is a StarFile, with each key a datablock name.  
+The value attached to each key is an entire dictionary for that block. We
+bypass the standard __setitem__ methods to gain precision in checking for
+duplicate blocknames and skipping name checks.
+<p>
+Note in the following grammar that we have adjusted for some yapps idiosyncracies:
+in particular, a nested bracket expression needs to be distinguished from the
+top-level nested bracket expression otherwise the context-sensitive parser 
+will search for all those items which could follow the top level bracket
+expression in nested expressions.  The current version produces slightly
+incorrect error messages in that any type of close bracket is supposedly
+OK, even though only a particular type will be accepted.
+<p>
+<a name="NWD4WzdcO-7">We also have to deal with Dimension-type lists, where there may be square brackets</a>
+as part of the value (e.g. [4[5]]).  This requires catching internal square brackets 
+as well.  The current grammar specification catches only this case i.e. the first 
+element of the array can be of the form xxx[yyy].  No other elements can have this
+form, and there can be no trailing characters.  This form can be allowed for other
+elements by trivial expansion of the current description but, until further notice,
+I don't think it is useful to allow square brackets in list values.
+<p>
+<pre><a name="NW4WzdcO-1uGKSB-1" href="#NWD4WzdcO-7"><dfn>&lt;Grammar specification DDLm&gt;=</dfn></a> <b>(<a href="#NWD4WzdcO-2">&lt;-U</a>)</b>
+# now the rules
+
+rule input: ( (( 
+            dblock         {{allblocks = StarFile(); allblocks.NewBlock(dblock[0],blockcontents=dblock[1],fix=False,replace=False)}}
+            (
+            dblock         {{allblocks.NewBlock(dblock[0],blockcontents=monitor('input',dblock[1]),fix=False,replace=False)}} #
+            )*
+            END                
+            )
+            |
+            (
+            END                 {{allblocks = StarFile()}}
+            )))                   {{return allblocks}}
+
+     rule dblock: ( data_heading {{heading = data_heading[5:];thisblock=StarBlock(overwrite=False)}}# a data heading
+                  (
+                   dataseq&lt;&lt;thisblock&gt;&gt;  
+                  |
+                  save_frame     {{thisblock[&quot;saves&quot;].NewBlock(save_frame[0],save_frame[1],fix=False,replace=True)}}
+                  )*
+                   )                      {{return (heading,monitor('dblock',thisblock))}} # but may be empty
+
+     rule dataseq&lt;&lt;starblock&gt;&gt;:  data&lt;&lt;starblock&gt;&gt; 
+                       (
+                       data&lt;&lt;starblock&gt;&gt;
+                       )*                         
+
+     rule data&lt;&lt;currentblock&gt;&gt;:        top_loop      {{currentblock.insert_loop(top_loop,audit=False)}} 
+                                        | 
+                                        datakvpair    {{currentblock.AddLoopItem(datakvpair[:2],precheck=True)}} #kv pair
+
+     rule datakvpair: data_name data_value {{return [data_name,data_value]}} # name-value
+
+     rule data_value: (data_value_1          {{thisval = stripstring(data_value_1)}}
+                      |
+                      sc_lines_of_text      {{thisval = stripextras(sc_lines_of_text)}}
+                      |
+                      bracket_expression    {{thisval = bracket_expression}}
+                      )                     {{return monitor('data_value',thisval)}}
+
+     rule sc_lines_of_text: start_sc_line   {{lines = start_sc_line}}
+                            (
+                            sc_line_of_text {{lines = lines+sc_line_of_text}}
+                            )*
+                            end_sc_line     {{return monitor('sc_line_of_text',lines+end_sc_line)}}
+
+     rule bracket_expression:  square_bracket_expr   {{return square_bracket_expr}}
+                            |
+                              curly_bracket_expr    {{return 'curly brackets'}}
+                            |
+                              round_bracket_expr    {{return round_bracket_expr}}
+
+     rule nested_bracket_expression:  nest_square_bracket_expr   {{return nest_square_bracket_expr}}
+                            |
+                              nest_curly_bracket_expr    {{return 'curly brackets'}}
+                            |
+                              nest_round_bracket_expr    {{return nest_round_bracket_expr}}
+
+     rule square_bracket_expr: o_s_b 
+                            (
+                              dat_val_nocomma_nosq       {{this_list = [stripstring(dat_val_nocomma_nosq)]}}
+                              (
+                                dat_val_internal_sq      {{this_list[0]+=dat_val_internal_sq}}
+                                (
+                                &quot;\*&quot;                      {{this_list[0]+=&quot;*&quot;}}
+                                )?
+                              )?
+                              |
+                              nested_bracket_expression  {{this_list = [nested_bracket_expression]}}
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nosq       {{this_list.append(stripstring(dat_val_nocomma_nosq))}}
+                              |
+                              nested_bracket_expression  {{this_list.append(nested_bracket_expression)}}
+                              )
+                            ) *
+                               c_s_b                     {{return StarList(this_list)}}
+
+     rule nest_square_bracket_expr: o_s_b 
+                            (
+                              dat_val_nocomma_nosq     {{this_list = [stripstring(dat_val_nocomma_nosq)]}}
+                              |
+                              nested_bracket_expression  {{this_list = [nested_bracket_expression]}}
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nosq       {{this_list.append(stripstring(dat_val_nocomma_nosq))}}
+                              |
+                              nested_bracket_expression  {{this_list.append(nested_bracket_expression)}}
+                              )
+                            ) *
+                               c_s_b                     {{return StarList(this_list)}}
+
+     rule curly_bracket_expr: o_c_b 
+                            (
+                              dat_val_nocomma_nocurl
+                              |
+                              nested_bracket_expression 
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nocurl
+                              |
+                              nested_bracket_expression
+                              )
+                            ) *
+                              c_c_b 
+
+     rule nest_curly_bracket_expr: o_c_b 
+                            (
+                              dat_val_nocomma_nocurl
+                              |
+                              nested_bracket_expression 
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nocurl
+                              |
+                              nested_bracket_expression
+                              )
+                            ) *
+                              c_c_b 
+
+     rule round_bracket_expr: o_r_b 
+                            (
+                              dat_val_nocomma_nornd     {{this_tuple = [stripstring(dat_val_nocomma_nornd)]}}
+                              |
+                              nested_bracket_expression {{this_tuple = [nested_bracket_expression]}}
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nornd     {{this_tuple.append(stripstring(dat_val_nocomma_nornd))}}
+                              |
+                              nested_bracket_expression {{this_tuple.append(nested_bracket_expression)}}
+                              )
+                            ) *
+                              c_r_b                      {{return StarTuple(this_tuple)}}
+
+     rule nest_round_bracket_expr: o_r_b     
+                            (
+                              dat_val_nocomma_nornd  {{this_tuple = [stripstring(dat_val_nocomma_nornd)]}}
+                              |
+                              nested_bracket_expression {{this_tuple = [nested_bracket_expression]}}
+                            )
+                            ( &quot;,&quot;  
+                              (
+                              dat_val_nocomma_nornd   {{this_tuple.append(stripstring(dat_val_nocomma_nornd))}}
+                              |
+                              nested_bracket_expression {{this_tuple.append(nested_bracket_expression)}}
+                              )
+                            ) *
+                              c_r_b     {{return tuple(this_tuple)}}
+
+# due to the inability of the parser to backtrack, we contruct our loops in helper functions,
+# and simply collect data during parsing proper.
+
+     rule top_loop: LBLOCK loopfield loopvalues {{return makeloop(loopfield,loopvalues)}}
+
+# OK: a loopfield is either a sequence of dataname*,loopfield with stop
+# or else dataname,loopfield without stop
+
+     rule loopfield: (            {{toploop=LoopBlock(dimension=1,overwrite=False);curloop=toploop;poploop=None;dim=1}}
+                     (
+                                  ( data_name  )  {{curloop[data_name]=[]}}
+                                  |
+                                  ( LBLOCK   )   {{dim=dim+1;newloop=LoopBlock(dimension=dim,overwrite=False);poploop=curloop;curloop.insert_loop(newloop,audit=False);curloop=newloop}}
+                                  |
+                                  ( STOP   )     {{curloop=poploop;dim=dim-1}}
+                      )*
+                      )                        {{return toploop}} # sequence of data names 
+                         
+
+     rule loopvalues: ( 
+                       (data_value   ) {{dataloop=[[data_value]]}}
+                       ( 
+                       (data_value  ) {{dataloop[-1].append(monitor('loopval',data_value))}}
+                       |
+                       (STOP        )  {{dataloop.append([])}} 
+                       )*             
+                       )              {{return dataloop}}
+
+     rule save_frame: save_heading   {{savehead = save_heading[5:];savebody = StarBlock(overwrite=False) }} 
+                      (
+                      dataseq&lt;&lt;savebody&gt;&gt; 
+                      )*
+                      save_end           {{return (savehead,monitor('save_frame',savebody))}}
+
+
+</pre><p><a name="NWD4WzdcO-8">The CIF 1.1 grammar specification does not include bracket expressions, but does exclude brackets from</a>
+beginning unquoted data values.
+<p>
+<pre><a name="NW4WzdcO-1U4FdD-1" href="#NWD4WzdcO-8"><dfn>&lt;Grammar specification 1.1&gt;=</dfn></a> <b>(<a href="#NWD4WzdcO-1">&lt;-U</a> <a href="#NW4WzdcO-4IfEoe-1">&lt;-U</a>)</b>
+# now the rules
+
+rule input: ( (( 
+            dblock         {{allblocks = StarFile(); allblocks.NewBlock(dblock[0],blockcontents=dblock[1],fix=False,replace=False)}}
+            (
+            dblock         {{allblocks.NewBlock(dblock[0],blockcontents=monitor('input',dblock[1]),fix=False,replace=False)}} #
+            )*
+            END                
+            )
+            |
+            (
+            END                 {{allblocks = StarFile()}}
+            )))                   {{return allblocks}}
+
+     rule dblock: ( data_heading {{heading = data_heading[5:];thisblock=StarBlock(overwrite=False)}}# a data heading
+                  (
+                   dataseq&lt;&lt;thisblock&gt;&gt;  
+                  |
+                  save_frame     {{thisblock[&quot;saves&quot;].NewBlock(save_frame[0],save_frame[1],fix=False,replace=True)}}
+                  )*
+                   )                      {{return (heading,monitor('dblock',thisblock))}} # but may be empty
+
+     rule dataseq&lt;&lt;starblock&gt;&gt;:  data&lt;&lt;starblock&gt;&gt; 
+                       (
+                       data&lt;&lt;starblock&gt;&gt;
+                       )*                         
+
+     rule data&lt;&lt;currentblock&gt;&gt;:        top_loop      {{currentblock.insert_loop(top_loop,audit=False)}} 
+                                        | 
+                                        datakvpair    {{currentblock.AddLoopItem(datakvpair[:2],precheck=True)}} #kv pair
+
+     rule datakvpair: data_name data_value {{return [data_name,data_value]}} # name-value
+
+     rule data_value: (data_value_1          {{thisval = stripstring(data_value_1)}}
+                      |
+                      sc_lines_of_text      {{thisval = stripextras(sc_lines_of_text)}}
+                      )                     {{return monitor('data_value',thisval)}}
+
+     rule sc_lines_of_text: start_sc_line   {{lines = start_sc_line}}
+                            (
+                            sc_line_of_text {{lines = lines+sc_line_of_text}}
+                            )*
+                            end_sc_line     {{return monitor('sc_line_of_text',lines+end_sc_line)}}
+
+# due to the inability of the parser to backtrack, we contruct our loops in helper functions,
+# and simply collect data during parsing proper.
+
+     rule top_loop: LBLOCK loopfield loopvalues {{return makeloop(loopfield,loopvalues)}}
+
+# OK: a loopfield is either a sequence of dataname*,loopfield with stop
+# or else dataname,loopfield without stop
+
+     rule loopfield: (            {{toploop=LoopBlock(dimension=1,overwrite=False);curloop=toploop;poploop=None;dim=1}}
+                     (
+                                  ( data_name  )  {{curloop[data_name]=[]}}
+                                  |
+                                  ( LBLOCK   )   {{dim=dim+1;newloop=LoopBlock(dimension=dim,overwrite=False);poploop=curloop;curloop.insert_loop(newloop,audit=False);curloop=newloop}}
+                                  |
+                                  ( STOP   )     {{curloop=poploop;dim=dim-1}}
+                      )*
+                      )                        {{return toploop}} # sequence of data names 
+                         
+
+     rule loopvalues: ( 
+                       (data_value   ) {{dataloop=[[data_value]]}}
+                       ( 
+                       (data_value  ) {{dataloop[-1].append(monitor('loopval',data_value))}}
+                       |
+                       (STOP        )  {{dataloop.append([])}} 
+                       )*             
+                       )              {{return dataloop}}
+
+     rule save_frame: save_heading   {{savehead = save_heading[5:];savebody = StarBlock(overwrite=False) }} 
+                      (
+                      dataseq&lt;&lt;savebody&gt;&gt; 
+                      )*
+                      save_end           {{return (savehead,monitor('save_frame',savebody))}}
+
+
+</pre>
+
+<ul>
+<li><a href="#NWD4WzdcO-1"><i>&lt;1.0_syntax&gt;</i></a>: <a href="#NWD4WzdcO-1">D1</a>
+<li><a href="#NW4WzdcO-4IfEoe-1"><i>&lt;1.1_syntax&gt;</i></a>: <a href="#NW4WzdcO-4IfEoe-1">D1</a>
+<li><a href="#NWD4WzdcO-2"><i>&lt;DDLm_syntax&gt;</i></a>: <a href="#NWD4WzdcO-2">D1</a>
+<li><a href="#NWD4WzdcO-8"><i>&lt;Grammar specification 1.1&gt;</i></a>: <a href="#NWD4WzdcO-1">U1</a>, <a href="#NW4WzdcO-4IfEoe-1">U2</a>, <a href="#NWD4WzdcO-8">D3</a>
+<li><a href="#NWD4WzdcO-7"><i>&lt;Grammar specification DDLm&gt;</i></a>: <a href="#NWD4WzdcO-2">U1</a>, <a href="#NWD4WzdcO-7">D2</a>
+<li><a href="#NWD4WzdcO-3"><i>&lt;Helper functions&gt;</i></a>: <a href="#NWD4WzdcO-1">U1</a>, <a href="#NW4WzdcO-4IfEoe-1">U2</a>, <a href="#NWD4WzdcO-2">U3</a>, <a href="#NWD4WzdcO-3">D4</a>
+<li><a href="#NWD4WzdcO-6"><i>&lt;Regular expressions 1.0&gt;</i></a>: <a href="#NWD4WzdcO-1">U1</a>, <a href="#NWD4WzdcO-6">D2</a>
+<li><a href="#NWD4WzdcO-5"><i>&lt;Regular expressions 1.1&gt;</i></a>: <a href="#NW4WzdcO-4IfEoe-1">U1</a>, <a href="#NWD4WzdcO-5">D2</a>
+<li><a href="#NWD4WzdcO-4"><i>&lt;Regular expressions DDLm&gt;</i></a>: <a href="#NWD4WzdcO-2">U1</a>, <a href="#NWD4WzdcO-4">D2</a>
+</ul>
+<ul>
+</ul>
+</body></html>
+

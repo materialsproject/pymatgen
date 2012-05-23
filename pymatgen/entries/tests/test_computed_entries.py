@@ -28,26 +28,33 @@ class ComputedEntryTest(unittest.TestCase):
 
     def setUp(self):
         self.entry = ComputedEntry(vasprun.final_structure.composition,
-                                   vasprun.final_energy, parameters = vasprun.incar)
+                                   vasprun.final_energy,
+                                   parameters=vasprun.incar)
+        self.entry2 = ComputedEntry({"Fe":2, "O":3}, 2.3)
+        self.entry3 = ComputedEntry("Fe2O3", 2.3)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)
         self.entry.correction = 1.0
         self.assertAlmostEqual(self.entry.energy, -268.38319884)
+        self.assertAlmostEqual(self.entry3.energy_per_atom, 2.3 / 5)
 
     def test_composition(self):
         self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
+        self.assertEqual(self.entry2.composition.reduced_formula, "Fe2O3")
 
     def test_to_from_dict(self):
         d = self.entry.to_dict
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
+
 class ComputedStructureEntryTest(unittest.TestCase):
 
     def setUp(self):
         self.entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy, parameters = vasprun.incar)
+                                   vasprun.final_energy,
+                                   parameters=vasprun.incar)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)

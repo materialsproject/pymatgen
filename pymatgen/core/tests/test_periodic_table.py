@@ -131,6 +131,7 @@ class  DummySpecieTestCase(unittest.TestCase):
 
     def test_attribute_errors(self):
         x = DummySpecie("X", 2)
+        print x.to_dict
         self.assertRaises(ValueError, x.__setattr__, "d", 1)
         self.assertRaises(ValueError, x.__delattr__, "_symbol")
 

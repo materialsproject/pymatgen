@@ -1,6 +1,6 @@
 '''
 This package contains core modules and classes for representing structures and 
-operations them.
+operations on them.
 '''
 
 __author__ = "Shyue Ping Ong"

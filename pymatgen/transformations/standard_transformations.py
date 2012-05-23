@@ -59,8 +59,10 @@ class IdentityTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'init_args': {}, 'version': __version__ }
-        return output
+        d = {'name' : self.__class__.__name__, 'init_args': {}, 'version': __version__ }
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class RotationTransformation(AbstractTransformation):
@@ -105,9 +107,11 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class OxidationStateDecorationTransformation(AbstractTransformation):
@@ -137,9 +141,11 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'oxidation_states': self.oxi_states}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'oxidation_states': self.oxi_states}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class SupercellTransformation(AbstractTransformation):
@@ -196,9 +202,11 @@ class SupercellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'scaling_matrix': self._matrix}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'scaling_matrix': self._matrix}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class SubstitutionTransformation(AbstractTransformation):
@@ -245,9 +253,11 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'species_map': self._species_map}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'species_map': self._species_map}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class RemoveSpeciesTransformation(AbstractTransformation):
@@ -283,9 +293,11 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'species_to_remove': self._species}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'species_to_remove': self._species}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
@@ -387,9 +399,11 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac, 'algo':self._algo}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'specie_to_remove': self._specie, 'fraction_to_remove': self._frac, 'algo':self._algo}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
@@ -592,9 +606,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {'algo' : self._algo}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'algo' : self._algo}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @property
     def lowest_energy_structure(self):
@@ -730,9 +746,11 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__}
-        output['init_args'] = {}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -776,9 +794,53 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__ }
-        output['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__ }
+        d['init_args'] = {'charge_balance_sp' : self._charge_balance_sp}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+class PerturbStructureTransformation(AbstractTransformation):
+    """
+    This transformation perturbs a structure by a specified distance in random
+    directions. Used for breaking symmetries.
+    """
+
+    def __init__(self, amplitude=0.1):
+        """
+        Args:
+            amplitude:
+                Amplitude of perturbation in angstroms. All sites will be
+                perturbed by exactly that amplitude in a random direction.
+        """
+        self._amp = amplitude
+
+    def apply_transformation(self, structure):
+        editor = StructureEditor(structure)
+        editor.perturb_structure(self._amp)
+        return editor.modified_structure
+
+    def __str__(self):
+        return "Perturb Structure Transformation : Amplitude = {}".format(self._amp)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__ }
+        d['init_args'] = {'amplitude' : self._amp}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class SuperTransformation(AbstractTransformation):
@@ -823,9 +885,11 @@ class SuperTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__ }
-        output['init_args'] = {'transformations' : self._transformations}
-        return output
+        d = {'name' : self.__class__.__name__, 'version': __version__ }
+        d['init_args'] = {'transformations' : self._transformations}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
 
 class MultipleSubstitutionTransformation(object):
@@ -915,46 +979,13 @@ class MultipleSubstitutionTransformation(object):
 
     @property
     def to_dict(self):
-        output = {'name' : self.__class__.__name__, 'version': __version__ }
-        output['init_args'] = {'sp_to_replace' : self._sp_to_replace,
+        d = {'name' : self.__class__.__name__, 'version': __version__ }
+        d['init_args'] = {'sp_to_replace' : self._sp_to_replace,
                                'r_fraction' : self._r_fraction,
                                'substitution_dict' : self._substitution_dict,
                                'charge_balance_species' : self._charge_balance_species}
-        return output
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
-
-def transformation_from_dict(d):
-    """
-    A helper function that simply returns a transformation from a dict
-    representation.
-    
-    Args:
-        d:
-            A dict representation of a transformation with init args.
-    
-    Returns:
-        A properly initialized Transformation object
-    """
-    for trans_modules in ['standard_transformations', 'site_transformations']:
-        mod = __import__('pymatgen.transformations.' + trans_modules, globals(), locals(), [d['name']], -1)
-        if hasattr(mod, d['name']):
-            trans = getattr(mod, d['name'])
-            return trans(**d['init_args'])
-    raise ValueError("Invalid Transformations dict")
-
-
-def transformation_from_json(json_string):
-    """
-    A helper function that can simply get a transformation from a json
-    representation.
-    
-    Args:
-        json_string:
-            A json string representation of a transformation with init args.
-    
-    Returns:
-        A properly initialized Transformation object
-    """
-    jsonobj = json.loads(json_string)
-    return transformation_from_dict(jsonobj)
 

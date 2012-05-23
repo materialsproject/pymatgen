@@ -26,9 +26,9 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
+from pymatgen.serializers.json_coders import MSONable
 
-
-class Site(collections.Mapping, collections.Hashable):
+class Site(collections.Mapping, collections.Hashable, MSONable):
     '''
     A generalized *non-periodic* site. Atoms and occupancies should be a dict
     of element:occupancy or an element, in which case the occupancy default to 
@@ -253,7 +253,10 @@ class Site(collections.Mapping, collections.Hashable):
                 d['occu'] = occu
                 species_list.append(d)
                 species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-        return {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d = {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d):
@@ -268,7 +271,7 @@ class Site(collections.Mapping, collections.Hashable):
         return Site(atoms_n_occu, d['xyz'], properties=props)
 
 
-class PeriodicSite(Site):
+class PeriodicSite(Site, MSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.
@@ -357,7 +360,7 @@ class PeriodicSite(Site):
         """
         if self.lattice != other.lattice:
             return False
-        frac_diff = abs(self._fcoords - other._fcoords) % 1
+        frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
         frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance for a in frac_diff]
         return  all(frac_diff)
 
@@ -510,11 +513,14 @@ class PeriodicSite(Site):
                 d = spec.to_dict
                 d['occu'] = occu
                 species_list.append(d)
-        return {'label': self.species_string, 'species': species_list,
-                'occu': occu, 'xyz':[float(c) for c in self._coords],
-                'abc':[float(c) for c in self._fcoords],
-                'lattice': self._lattice.to_dict,
-                'properties': self._properties}
+        d = {'label': self.species_string, 'species': species_list,
+             'occu': occu, 'xyz':[float(c) for c in self._coords],
+             'abc':[float(c) for c in self._fcoords],
+             'lattice': self._lattice.to_dict,
+             'properties': self._properties}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
 
     @staticmethod
     def from_dict(d, lattice=None):
@@ -730,7 +736,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23), np.dot(v12, v23)) * 180 / math.pi
 
 
-class Structure(SiteCollection):
+class Structure(SiteCollection, MSONable):
     """
     Basic Structure object with periodicity. Essentially a sequence of 
     PeriodicSites having a common lattice. Structure is made to be immutable 
@@ -1102,6 +1108,8 @@ class Structure(SiteCollection):
         Json-serializable dict representation of Structure
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['lattice'] = self._lattice.to_dict
         d['sites'] = [site.to_dict for site in self]
         return d
@@ -1137,7 +1145,7 @@ class Structure(SiteCollection):
         return Structure(lattice, species, coords, site_properties=props)
 
 
-class Molecule(SiteCollection):
+class Molecule(SiteCollection, MSONable):
     """
     Basic Molecule object without periodicity. Essentially a sequence of sites. 
     Molecule is made to be immutable so that they can function as keys in a 
@@ -1214,6 +1222,8 @@ class Molecule(SiteCollection):
         Json-serializable dict representation of Molecule
         """
         d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['sites'] = [site.to_dict for site in self]
         return d
 
@@ -1359,7 +1369,7 @@ class StructureError(Exception):
         return "Structure Error : " + self.msg
 
 
-class Composition (collections.Mapping, collections.Hashable):
+class Composition (collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} dict. 
     Note that the key can be either an Element or a Specie. Elements and Specie
@@ -1779,6 +1789,22 @@ class Composition (collections.Mapping, collections.Hashable):
         reduced_formula = self.reduced_formula
         c = Composition.from_formula(reduced_formula)
         return c.to_dict
+
+    @property
+    def to_data_dict(self):
+        '''
+        Returns a dict with many composition-related properties.
+        
+        Returns:
+            A dict with many keys and values relating to Composition/Formula
+        '''
+        d = {}
+        d['reduced_cell_composition'] = self.to_reduced_dict
+        d['unit_cell_composition'] = self.to_dict
+        d['reduced_cell_formula'] = self.reduced_formula
+        d['elements'] = self.to_dict.keys()
+        d['nelements'] = len(self.to_dict.keys())
+        return d
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):

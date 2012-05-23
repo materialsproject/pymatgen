@@ -17,7 +17,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        self.struct = poscar.struct
+        self.struct = poscar.structure
 
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
@@ -76,7 +76,6 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"], coords)
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
-
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)

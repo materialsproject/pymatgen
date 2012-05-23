@@ -19,14 +19,17 @@ import os
 import re
 import json
 import datetime
-
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import transformation_from_dict
-from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio import Poscar
 from copy import deepcopy
 
-class TransformedStructure(object):
+from pymatgen.core.structure import Structure
+from pymatgen.transformations.transformation_abc import AbstractTransformation
+
+from pymatgen.io.cifio import CifParser
+from pymatgen.io.vaspio import Poscar
+from pymatgen.serializers.json_coders import MSONable
+
+
+class TransformedStructure(MSONable):
     """
     Container object for new structures that include history of transformations.
     
@@ -65,7 +68,7 @@ class TransformedStructure(object):
             self._source = history[0]
             for i in xrange(1, len(history)):
                 self._structures.append(Structure.from_dict(history[i]['input_structure']))
-                self._transformations.append(transformation_from_dict(history[i]))
+                self._transformations.append(AbstractTransformation.from_dict(history[i]))
                 self._transformation_parameters.append(history[i].get('output_parameters', {}))
 
         self._structures.append(structure)
@@ -281,6 +284,8 @@ class TransformedStructure(object):
         Returns a dict representation of the TransformedStructure.
         """
         d = self._structures[-1].to_dict
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
         d['history'] = self.history
         d['version'] = __version__
         d['last_modified'] = str(datetime.datetime.utcnow())
@@ -331,7 +336,7 @@ class TransformedStructure(object):
         if not p.true_names:
             raise ValueError("Transformation can be craeted only from POSCAR strings with proper VASP5 element symbols.")
         raw_string = re.sub("'", "\"", poscar_string)
-        s = p.struct
+        s = p.structure
         source_info = {'source': "uploaded POSCAR", 'datetime':str(datetime.datetime.now()), 'original_file':raw_string}
         return TransformedStructure(s, transformations, [source_info])
 

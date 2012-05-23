@@ -256,8 +256,8 @@ class PoscarTransmuter(StandardTransmuter):
         StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection=extend_collection)
 
     @staticmethod
-    def from_filenames(poscar_filenames, transformations=[], primitive=True,
-                  extend_collection=False):
+    def from_filenames(poscar_filenames, transformations=[],
+                       extend_collection=False):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:

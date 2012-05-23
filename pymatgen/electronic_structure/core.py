@@ -7,7 +7,7 @@ such as the Spin, Orbital, etc.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier"
+__author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -17,6 +17,7 @@ __date__ = "Sep 23, 2011"
 
 
 from pymatgen.util.decorators import cached_class
+
 
 class Spin(object):
     """
@@ -128,7 +129,10 @@ class Orbital(object):
     f2 = _OrbitalImpl("f2", 14)
     f3 = _OrbitalImpl("f3", 15)
 
-    all_orbitals = (s, py, pz, px, dxy, dyz, dz2, dxz, dx2, f_3, f_2, f_1, f0, f1, f2, f3)
+    all_orbitals = (s,
+                    py, pz, px,
+                    dxy, dyz, dz2, dxz, dx2,
+                    f_3, f_2, f_1, f0, f1, f2, f3)
 
     @staticmethod
     def from_vasp_index(i):
