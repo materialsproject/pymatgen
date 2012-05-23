@@ -159,6 +159,8 @@ class Poscar(VaspInput):
             self.velocities = None
             self.predictor_corrector = None
             self.selective_dynamics = None
+        elif name == "temperature":
+            self.set_temperature(value)
         super(Poscar, self).__setattr__(name, value)
 
     @staticmethod
