@@ -27,7 +27,7 @@ class GaussianInput(object):
     """
     def __init__(self, mol, charge=0, spin_multiplicity=1, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
-                 input_parameters=None):
+                 input_parameters=None, link0_parameters=None):
         """
         Args:
             mol:
@@ -54,6 +54,7 @@ class GaussianInput(object):
         self.spin_multiplicity = spin_multiplicity
         self.functional = functional
         self.basis_set = basis_set
+        self.link0_parameters = link0_parameters if link0_parameters else {}
         self.route_parameters = route_parameters if route_parameters else {}
         self.input_parameters = input_parameters if input_parameters else {}
         self.title = title if title else self._mol.composition.formula
@@ -286,13 +287,18 @@ class GaussianInput(object):
                 else:
                     para_str.append(k)
             return joiner.join(para_str)
-
-        output = ["#P {func}/{bset} {route} Test".format(func=self.functional, bset=self.basis_set, route=para_dict_to_string(self.route_parameters))]
+        output = []
+        if self.link0_parameters:
+            output.append(para_dict_to_string(self.link0_parameters, "\n"))
+        output.append("#P {func}/{bset} {route} Test".format(func=self.functional, bset=self.basis_set, route=para_dict_to_string(self.route_parameters)))
         output.append("")
         output.append(self.title)
         output.append("")
         output.append("{} {}".format(self.charge, self.spin_multiplicity))
-        output.append(self.get_zmatrix())
+        if isinstance(self._mol, Molecule):
+            output.append(self.get_zmatrix())
+        else:
+            output.append(str(self._mol))
         output.append("")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("")
