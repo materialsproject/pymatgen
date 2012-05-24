@@ -29,6 +29,7 @@ import ConfigParser
 import numpy as np
 from numpy.linalg import det
 
+from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -77,7 +78,9 @@ class Poscar(VaspInput):
         MD CONTCAR).
         
     .. attribute:: temperature
-        Temperature of velocity Maxwell-Boltzmann initialization. Initialized to -1 (MB hasn't been performed)
+    
+        Temperature of velocity Maxwell-Boltzmann initialization. Initialized
+        to -1 (MB hasn't been performed).
     """
 
     def __init__(self, structure, comment=None, selective_dynamics=None,
@@ -114,7 +117,7 @@ class Poscar(VaspInput):
             self.predictor_corrector = predictor_corrector
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into POSCAR!")
-        
+
         self.temperature = -1
 
     @property
@@ -423,32 +426,44 @@ class Poscar(VaspInput):
                       true_names=d['true_names'],
                       velocities=d.get('velocities', None),
                       predictor_corrector=d.get('predictor_corrector', None))
-        
+
     def set_temperature(self, temperature):
         '''
-        initializes the velocities based on Maxwell-Boltzmann distributions. Removes linear, but not angular drift (same as VASP)
+        Initializes the velocities based on Maxwell-Boltzmann distribution.
+        Removes linear, but not angular drift (same as VASP)
+        
         Scales the energies to the exact temperature (microcanonical ensemble)
-        Velocities are given in A/fs. This is the vasp default when direct/cartesian is not specified (even when positions are given in direct coordinates)
+        Velocities are given in A/fs. This is the vasp default when
+        direct/cartesian is not specified (even when positions are given in
+        direct coordinates)
         
-        Overwrites the imported velocities
+        Overwrites imported velocities, if any.
+        
+        Args:
+            temperature:
+                Temperature in Kelvin.
         '''
-        velocities = np.random.randn(len(self.structure), 3)  # mean 0 variance 1
-        atomic_masses = np.array( [site.species_and_occu.keys()[0].atomic_mass for site in self.structure.sites] ) #in AMU, (N,1) array
-        atomic_masses *= 1.66053886e-27 #in Kg
-        dof = 3*len(self.structure)-3
-        
+        # mean 0 variance 1
+        velocities = np.random.randn(len(self.structure), 3)
+
+        #in AMU, (N,1) array
+        atomic_masses = np.array([site.specie.atomic_mass for site in self.structure])
+        atomic_masses *= AMU_TO_KG #in Kg
+        dof = 3 * len(self.structure) - 3
+
         #scale velocities due to atomic masses
-        velocities = velocities/atomic_masses[:, np.newaxis]**(1/2)  # mean 0 std proportional to sqrt(1/m)
+        #mean 0 std proportional to sqrt(1/m)
+        velocities = velocities / atomic_masses[:, np.newaxis] ** (1 / 2)
 
         #remove linear drift (net momentum)
-        velocities -= np.average(atomic_masses[:, np.newaxis]*velocities, axis=0)/np.average(atomic_masses)
-        
+        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
+
         #scale velocities to get correct temperature
-        energy = np.sum(1/2*atomic_masses*np.sum(velocities**2, axis = 1))
-        scale = (temperature*dof/(2*energy/1.3806503e-23))**(1/2) #boltzmann
-        
+        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities ** 2, axis=1))
+        scale = (temperature * dof / (2 * energy / BOLTZMANN_CONST)) ** (1 / 2) #boltzmann
+
         velocities *= scale * 1e-5  #these are in A/fs
-        
+
         self.temperature = temperature
         self.selective_dynamics = None
         self.predictor_corrector = None

@@ -16,6 +16,7 @@ __date__ = "May 17, 2012"
 import unittest
 import os
 
+from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.io.vaspio import *
 from pymatgen.core.structure import Composition, Structure
 
@@ -124,7 +125,7 @@ direct
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.assertRaises(ValueError, setattr, poscar, 'velocities', [[0, 0, 0]])
-        
+
     def test_velocities(self):
         si = 14
         coords = list()
@@ -136,14 +137,15 @@ direct
         struct = Structure(latt, [si, si], coords)
         poscar = Poscar(struct)
         poscar.set_temperature(900)
-        
+
         v = np.array(poscar.velocities)
-        
+
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7, 'Velocities initialized with a net momentum')
-        
-        temperature = struct._sites[0].species_and_occu.keys()[0].atomic_mass*1.66053886e-27*np.sum(v**2)/(3*1.3806503e-23)*1e10
+
+        temperature = struct[0].specie.atomic_mass * AMU_TO_KG * np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
         self.assertAlmostEqual(temperature, 900, 4, 'Temperature instantiated incorrectly')
+
 
 class IncarTest(unittest.TestCase):
 
