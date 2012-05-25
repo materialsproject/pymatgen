@@ -277,12 +277,12 @@ class StructureEditor(StructureModifier):
             vector = np.random.rand(3)
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector, frac_coords=False)
-            
-    def to_unit_cell(self, tolerance = 0.1):
+
+    def to_unit_cell(self, tolerance=0.1):
         '''
-        returns all the sites to their position inside the unit cell.
-        If there is a site within the tolerance already there, the site is deleted
-        instead of moved
+        Returns all the sites to their position inside the unit cell.
+        If there is a site within the tolerance already there, the site is
+        deleted instead of moved.
         '''
         new_sites = []
         for site in self._sites:
@@ -290,7 +290,7 @@ class StructureEditor(StructureModifier):
             if not distances or min(distances) > tolerance:
                 new_sites.append(site.to_unit_cell)
         self._sites = new_sites
-            
+
     @property
     def original_structure(self):
         return self._original_structure
@@ -315,7 +315,7 @@ class SupercellMaker(StructureModifier):
         """
         Create a supercell.
         
-        Arguments:
+        Args:
             structure:
                 pymatgen.core.structure Structure object.
             scaling_matrix:
