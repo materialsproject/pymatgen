@@ -70,7 +70,7 @@ target:
     db: {db}
     collection: tgt
 """
-        
+     
     def test_noop_yaml_str(self):
         "no-op with YAML string config"
         db = "test_" + self.uniq
