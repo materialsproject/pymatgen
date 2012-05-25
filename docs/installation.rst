@@ -8,31 +8,31 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
-3. scipy 0.10+ - For interpolation, physical constants and other functions. In 
-   particular, scipy.spatial.Delaunay is used for phase diagram construction.
 
 Optional Python Libraries
 -------------------------
 Optional python libraries that are required if you need certain features
 
-1. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
-2. PyCifRW (highly recommended): For reading and writing Crystallographic 
+1. scipy 0.10+ (highly recommended) - For use in Gaussian smearing and phase
+   diagram construction using scipy.spatial.Delaunay.
+2. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
+3. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
    working version is provided in the dependencies directory of pymatgen.
-3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
+4. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
    using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
    packages. Get it at http://spglib.sourceforge.net/ or a working version is
    provided in the dependencies directory of pymatgen.
-4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
+5. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
-5. Atomistic Simulation Environment or ASE : Required for the usage of the 
+6. Atomistic Simulation Environment or ASE : Required for the usage of the 
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and 
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-6. OpenBabel with Python bindings (http://openbabel.org). Required for the
+7. OpenBabel with Python bindings (http://openbabel.org). Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-7. nose - For complete unittesting. This is NOT optional for developers!
+8. nose - For complete unittesting. This is NOT optional for developers!
 
 Optional non-Python programs
 ----------------------------
@@ -40,8 +40,9 @@ Optional non-Python programs
 Optional non-python libraries (because no good pythonic alternative exists at 
 the moment) required only for certain features.
 
-1. Qhull : Needed for bond length analysis (structure_analyzer.py). The executable 
-   qconvex and qvoronoi must be in the path. Get it at http://www.qhull.org/.
+1. Qhull : Needed for bond length analysis (structure_analyzer.py), or if you
+   use the use_external_qhull option in phase diagram generation. The executable
+   qconvex and qvoronoi must be in the path.Get it at http://www.qhull.org/.
 2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
 
