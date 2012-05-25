@@ -21,9 +21,8 @@ __status__ = "Beta"
 from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
-import scipy.constants as sc
-
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.physical_constants import AVOGADROS_CONST
 
 
 class AbstractVoltagePair(object):
@@ -247,7 +246,7 @@ class AbstractElectrode(Sequence, MSONable):
         '''
         pairs_in_range = self._select_in_voltage_range(min_voltage, max_voltage)
         normalization_vol = self.normalization_volume if use_overall_normalization or len(pairs_in_range) == 0 else pairs_in_range[-1].vol_discharge
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1E24 / sc.N_A
+        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / AVOGADROS_CONST
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         '''
