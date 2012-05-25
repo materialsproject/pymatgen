@@ -41,8 +41,9 @@ setup (
   name='pymatgen',
   version='1.9.1',
   packages=find_packages(),
-  install_requires=['numpy>=1.6', 'scipy>=0.10'],
+  install_requires=['numpy>=1.6'],
   extras_require={
+        'phasediagrams' : ['scipy>=0.10'],
         'plotting':  ['matplotlib>=1.1'],
         'ase_adaptor': ['ase>=3.3'],
         'cif':['PyCifRW>=3.3']
