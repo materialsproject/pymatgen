@@ -40,8 +40,9 @@ Optional non-Python programs
 Optional non-python libraries (because no good pythonic alternative exists at 
 the moment) required only for certain features.
 
-1. Qhull : Needed for bond length analysis (structure_analyzer.py). The executable 
-   qconvex and qvoronoi must be in the path. Get it at http://www.qhull.org/.
+1. Qhull : Needed for bond length analysis (structure_analyzer.py), or if you
+   use the use_external_qhull option in phase diagram generation. The executable
+   qconvex and qvoronoi must be in the path.Get it at http://www.qhull.org/.
 2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
 
