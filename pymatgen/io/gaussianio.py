@@ -31,7 +31,8 @@ class GaussianInput(object):
         """
         Args:
             mol:
-                Input molecule
+                Input molecule. If molecule is a single string, it is used as a
+                direct input to the geometry section of the Gaussian input file.
             charge:
                 Charge of the molecule. Defaults to 0.
             spin_multiplicity:

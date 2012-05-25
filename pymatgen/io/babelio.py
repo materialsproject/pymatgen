@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 '''
-Interface class with OpenBabel
+OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 '''
 
 from __future__ import division
@@ -58,10 +61,16 @@ class BabelMolAdaptor(object):
 
     @property
     def pymatgen_mol(self):
+        """
+        Returns pymatgen's Molecule representation.
+        """
         return self._mol
 
     @property
     def openbabel_mol(self):
+        """
+        Returns OpenBabel's OBMol representation.
+        """
         return self._obmol
 
     def write_file(self, filename, file_format="xyz"):
@@ -79,6 +88,18 @@ class BabelMolAdaptor(object):
 
     @staticmethod
     def from_file(filename, file_format="xyz"):
+        """
+        Uses OpenBabel to read a molecule from all supported formats.
+        
+        Args:
+            filename:
+                Filename of file to output
+            file_format:
+                String specifying any OpenBabel supported formats.
+                
+        Returns:
+            BabelMolAdaptor object
+        """
         mol = pb.readfile(file_format, filename).next()
         return BabelMolAdaptor(mol.OBMol)
 

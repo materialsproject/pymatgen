@@ -123,7 +123,7 @@ class Poscar(VaspInput):
     @property
     def struct(self):
         """
-        .. deprecated::
+        .. deprecated:: 1.9.1
     
             For backwards compatibility.
         """
