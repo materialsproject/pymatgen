@@ -1146,6 +1146,12 @@ class Potcar(list, VaspInput):
                       'PW91':'POT_GGA_PAW_PW91'}
     DEFAULT_FUNCTIONAL = "PBE"
 
+    """
+    Cache for PotcarSingles. Results in orders of magnitude faster generation
+    of output when doing high-throughput run generation.
+    """
+    cache = {}
+
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
         """
@@ -1209,14 +1215,14 @@ class Potcar(list, VaspInput):
         """
         return [p.symbol for p in self]
 
-    def set_symbols(self, elements, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
+    def set_symbols(self, symbols, functional=DEFAULT_FUNCTIONAL, sym_potcar_map=None):
         '''
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
         be fetched from a location specified in the environment variable 
         VASP_PSP_DIR or in a pymatgen.cfg or specified explicitly in a map.
         
         Args:
-            elements:
+            symbols:
                 A list of element symbols
             functional:
                 (optional) the functional to use from the config file
@@ -1226,7 +1232,7 @@ class Potcar(list, VaspInput):
                 rather than the config file location.
         '''
         if sym_potcar_map:
-            for el in elements:
+            for el in symbols:
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
             if 'VASP_PSP_DIR' in os.environ:
@@ -1239,15 +1245,20 @@ class Potcar(list, VaspInput):
                 config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
                 VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
             del self[:]
-            for el in elements:
-                f = None
-                if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
-                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
-                if os.path.exists(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR")):
-                    f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR"), 'rb')
-                if f == None:
-                    raise IOError("You do not have the right POTCAR (" + str(el) + ") in your VASP_PSP_DIR")
-                self.append(PotcarSingle(f.read()))
+            for el in symbols:
+                if (el, functional) in Potcar.cache:
+                    self.append(Potcar.cache[(el, functional)])
+                else:
+                    f = None
+                    if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
+                        f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
+                    elif os.path.exists(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR")):
+                        f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR"), 'rb')
+                    if f == None:
+                        raise IOError("You do not have the right POTCAR (" + str(el) + ") in your VASP_PSP_DIR")
+                    psingle = PotcarSingle(f.read())
+                    self.append(psingle)
+                    Potcar.cache[(el, functional)] = psingle
 
 
 class Vasprun(object):
@@ -2756,3 +2767,4 @@ def get_adjusted_fermi_level(run_static, band_structure):
             if not bs_working.is_metal():
                 return e
     return run_static.efermi
+
