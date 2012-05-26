@@ -79,7 +79,7 @@ class PeriodicSiteTest(unittest.TestCase):
         lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        self.assertTrue(site1.distance_and_image_old(site2)[0] == site1.distance_and_image(site2)[0])
+        self.assertAlmostEqual(site1.distance_and_image_old(site2)[0], site1.distance_and_image(site2)[0])
         lattice = Lattice.from_parameters(1, 0.01, 1, 10, 10, 10)
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)

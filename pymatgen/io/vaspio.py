@@ -2755,7 +2755,4 @@ def get_adjusted_fermi_level(run_static, band_structure):
             bs_working._efermi = e
             if not bs_working.is_metal():
                 return e
-
     return run_static.efermi
-
-
