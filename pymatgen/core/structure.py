@@ -433,18 +433,33 @@ class PeriodicSite(Site, MSONable):
                 for which the distance applies.
         """
         if jimage == None:
+            #The following code is heavily vectorized to maximize speed.
+
+            #Get the image adjustment necessary to bring coords to unit_cell.
             adj1 = np.array([-math.floor(i) for i in self._fcoords])
             adj2 = np.array([-math.floor(i) for i in fcoords])
-            mindist = float('inf')
+
+            #Shift coords to unitcell
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
+
+            #Generate set of images required for testing.
             test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] for i in range(3)]
-            for image in itertools.product(*test_set):
-                dist = np.linalg.norm(self._lattice.get_cartesian_coords(coord2 + image - coord1))
-                if dist < mindist:
-                    mindist = dist
-                    jimage = adj2 - adj1 + image
-            return mindist, jimage
+            images = [image for image in itertools.product(*test_set)]
+
+            #Create vectorized cartesian coords tiling for computing distances.
+            vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
+            vec = self._lattice.get_cartesian_coords(vec)
+
+            #Compute distances manually.
+            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
+
+            #Return the minimum distance and the adjusted image corresponding
+            #to the min distance.
+            mindist = min(dist)
+            ind = dist.index(mindist)
+            return mindist, adj2 - adj1 + images[ind]
+
         return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + fcoords - self._fcoords)), jimage
 
     def distance_and_image(self, other, jimage=None):

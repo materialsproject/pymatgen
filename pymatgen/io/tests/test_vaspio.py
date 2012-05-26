@@ -386,8 +386,6 @@ class ChgcarTest(unittest.TestCase):
         self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375 * 2)
 
 
-
-
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
