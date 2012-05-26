@@ -919,27 +919,24 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         pcoords = self._lattice.get_fractional_coords(pt)
-        nxmax = int(math.floor(pcoords[0] + nmax[0]))
-        nxmin = int(math.floor(pcoords[0] - nmax[0]))
-        nymax = int(math.floor(pcoords[1] + nmax[1]))
-        nymin = int(math.floor(pcoords[1] - nmax[1]))
-        nzmax = int(math.floor(pcoords[2] + nmax[2]))
-        nzmin = int(math.floor(pcoords[2] - nmax[2]))
+        axis_ranges = []
+        for i in range(3):
+            rangemax = int(math.floor(pcoords[i] + nmax[i]))
+            rangemin = int(math.floor(pcoords[i] - nmax[i]))
+            axis_ranges.append(range(rangemin, rangemax + 1))
         neighbors = []
         n = len(self._sites)
         site_fcoords = np.array([site.to_unit_cell.frac_coords for site in self._sites])
-        pts = [pt] * n
-        for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
-            submat = [image] * n
-            fcoords = site_fcoords + submat
+        pts = np.array([pt] * n)
+        for image in itertools.product(*axis_ranges):
+            shift = np.array([image] * n)
+            fcoords = site_fcoords + shift
             coords = self._lattice.get_cartesian_coords(fcoords)
-            dists = (coords - pts) ** 2
-            dists = np.sqrt(dists.sum(axis=1))
+            dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
                     neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice, properties=self._sites[i].properties), dists[i]))
-
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -1019,9 +1016,7 @@ class Structure(SiteCollection, MSONable):
         site_coords = np.array(self.cart_coords)
         n = len(self._sites)
         for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
-            for j in range(len(unit_cell_sites)):
-            #for site in unit_cell_sites:
-                site = unit_cell_sites[j]
+            for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
                 coords = self.lattice.get_cartesian_coords(fcoords)
                 submat = [coords] * n
