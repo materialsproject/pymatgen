@@ -48,18 +48,14 @@ benefit of being more readable. The dict representation is also particularly use
 for entering such objects into certain databases, such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you 
-want to save a structure, you may do the following:
-
-::
+want to save a structure, you may do the following::
 
    with open('structure.json','w') as f:
       json.dump(structure.to_dict, f)
 
 Similarly, to get the structure back from a json, you can do the following to
 restore the structure (or any object with a to_dict method) from the json as
-follows:
-
-::
+follows::
 
    with open('structure.json', 'r') as f:
       d = json.load(f)
@@ -84,9 +80,7 @@ version >= 1.9.0.
 
 The PMGJSONEncoder uses the to_dict API of pymatgen to generate the necessary
 dict for converting into json. To use the PMGJSONEncoder, simply add it as the
-*cls* kwarg when using json. For example,
-
-::
+*cls* kwarg when using json. For example,::
 
    json.dumps(object, cls=PMGJSONEncoder)
 
@@ -124,9 +118,7 @@ Creating a Structure manually
 
 This is generally the most painful method. Though sometimes necessary, it is 
 seldom the method you would use.  An example of creating the basic silicon 
-crystal is provided below:
-
-::
+crystal is provided below::
 
    from pymatgen.core.lattice import Lattice
    from pymatgen.core.structure import Structure
@@ -169,9 +161,7 @@ output formats, e.g. the CifWriter in pymatgen.io.cifio. In particular, the
 pymatgen.io.vaspio_set provides a powerful way to generate complete sets of VASP 
 input files from a Structure. In general, most file format conversions can be
 done with a few quick lines of code. For example, to read a POSCAR and write a
-cif:
-
-::
+cif::
 
    from pymatgen.io.vaspio import Poscar
    from pymatgen.io.cifio import CifWriter
