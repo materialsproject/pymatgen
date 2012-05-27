@@ -1247,7 +1247,6 @@ class Potcar(list, VaspInput):
             del self[:]
             for el in symbols:
                 if (el, functional) in Potcar._cache:
-                    print 'from cahce'
                     self.append(Potcar._cache[(el, functional)])
                 else:
                     if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))):
