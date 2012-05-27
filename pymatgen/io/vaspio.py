@@ -1249,16 +1249,16 @@ class Potcar(list, VaspInput):
                 if (el, functional) in Potcar.cache:
                     self.append(Potcar.cache[(el, functional)])
                 else:
-                    f = None
-                    if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz")):
-                        f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, "POTCAR." + el + ".gz"), 'rb')
-                    elif os.path.exists(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR")):
-                        f = file_open_zip_aware(os.path.join(VASP_PSP_DIR, str(el) + "/POTCAR"), 'rb')
-                    if f == None:
-                        raise IOError("You do not have the right POTCAR (" + str(el) + ") in your VASP_PSP_DIR")
-                    psingle = PotcarSingle(f.read())
-                    self.append(psingle)
-                    Potcar.cache[(el, functional)] = psingle
+                    if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))):
+                        fpath = os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))
+                    elif os.path.exists(os.path.join(VASP_PSP_DIR, str(el), "POTCAR")):
+                        fpath = os.path.join(VASP_PSP_DIR, str(el), "POTCAR")
+                    else:
+                        raise IOError("You do not have the right POTCAR with label {} in your VASP_PSP_DIR".format(el))
+                    with file_open_zip_aware(fpath, 'rb') as f:
+                        psingle = PotcarSingle(f.read())
+                        self.append(psingle)
+                        Potcar.cache[(el, functional)] = psingle
 
 
 class Vasprun(object):

@@ -277,6 +277,8 @@ class PotcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
+        potcar = Potcar(["Fe_pv", "O"])
+        self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
         fe_potcar = open(os.path.join(test_dir, 'Fe_POTCAR')).read()
