@@ -1150,7 +1150,7 @@ class Potcar(list, VaspInput):
     Cache for PotcarSingles. Results in orders of magnitude faster generation
     of output when doing high-throughput run generation.
     """
-    cache = {}
+    _cache = {}
 
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
@@ -1246,8 +1246,9 @@ class Potcar(list, VaspInput):
                 VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
             del self[:]
             for el in symbols:
-                if (el, functional) in Potcar.cache:
-                    self.append(Potcar.cache[(el, functional)])
+                if (el, functional) in Potcar._cache:
+                    print 'from cahce'
+                    self.append(Potcar._cache[(el, functional)])
                 else:
                     if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))):
                         fpath = os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))
@@ -1258,7 +1259,7 @@ class Potcar(list, VaspInput):
                     with file_open_zip_aware(fpath, 'rb') as f:
                         psingle = PotcarSingle(f.read())
                         self.append(psingle)
-                        Potcar.cache[(el, functional)] = psingle
+                        Potcar._cache[(el, functional)] = psingle
 
 
 class Vasprun(object):
