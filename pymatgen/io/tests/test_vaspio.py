@@ -270,6 +270,9 @@ class PotcarSingleTest(unittest.TestCase):
                          'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
 
+    def test_from_functional_and_symbols(self):
+        p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
+        self.assertEqual(p.enmax, 271.649)
 
 class PotcarTest(unittest.TestCase):
 

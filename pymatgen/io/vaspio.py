@@ -7,7 +7,7 @@ files, plus the more common Vasp output files are available.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Vincent L Chevrier"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -1055,6 +1055,18 @@ class Kpoints(VaspInput):
         return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
+
+#set the global VASP_PSP_DIR
+VASP_PSP_DIR = None
+if 'VASP_PSP_DIR' in os.environ:
+    VASP_PSP_DIR = os.environ['VASP_PSP_DIR']
+elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__), "pymatgen.cfg")):
+    module_dir = os.path.dirname(pymatgen.__file__)
+    config = ConfigParser.SafeConfigParser()
+    config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+    VASP_PSP_DIR = config.get('VASP', 'pspdir')
+
+
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1071,6 +1083,10 @@ class PotcarSingle(object):
         accessible as attributes in themselves. E.g., potcar.enmax,
         potcar.encut, etc.
     """
+    functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW',
+                      'PW91':'POT_GGA_PAW_PW91'}
+
+
     def __init__(self, data):
         """
         Args:
@@ -1092,6 +1108,21 @@ class PotcarSingle(object):
         writer = open(filename, 'w')
         writer.write(self.__str__() + "\n")
         writer.close()
+
+    @staticmethod
+    def from_file(filename):
+        with file_open_zip_aware(filename, "rb") as f:
+            return PotcarSingle(f.read())
+
+    @staticmethod
+    def from_symbol_and_functional(symbol, functional="PBE"):
+        funcdir = PotcarSingle.functional_dir[functional]
+        paths_to_try = [os.path.join(VASP_PSP_DIR, funcdir, "POTCAR.{}.gz".format(symbol)),
+                        os.path.join(VASP_PSP_DIR, funcdir, symbol, "POTCAR")]
+        for p in paths_to_try:
+            if os.path.exists(p):
+                return PotcarSingle.from_file(p)
+        raise IOError("You do not have the right POTCAR with functional {} and label {} in your VASP_PSP_DIR".format(functional, symbol))
 
     @property
     def symbol(self):
@@ -1142,8 +1173,7 @@ class Potcar(list, VaspInput):
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
     """
-    functional_dir = {'PBE':'POT_GGA_PAW_PBE', 'LDA':'POT_LDA_PAW',
-                      'PW91':'POT_GGA_PAW_PW91'}
+
     DEFAULT_FUNCTIONAL = "PBE"
 
     """
@@ -1231,34 +1261,18 @@ class Potcar(list, VaspInput):
                 is specified, POTCARs will be generated from the given map data
                 rather than the config file location.
         '''
+        del self[:]
         if sym_potcar_map:
             for el in symbols:
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
-            if 'VASP_PSP_DIR' in os.environ:
-                VASP_PSP_DIR = os.path.join(os.environ['VASP_PSP_DIR'], Potcar.functional_dir[functional])
-            else:
-                module_dir = os.path.dirname(pymatgen.__file__)
-                if not os.path.exists(os.path.join(module_dir, "pymatgen.cfg")):
-                    raise IOError("You have not set your VASP_PSP_DIR environment variable, or have a pymatgen.cfg file.")
-                config = ConfigParser.SafeConfigParser()
-                config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-                VASP_PSP_DIR = os.path.join(config.get('VASP', 'pspdir'), Potcar.functional_dir[functional])
-            del self[:]
             for el in symbols:
                 if (el, functional) in Potcar._cache:
                     self.append(Potcar._cache[(el, functional)])
                 else:
-                    if os.path.exists(os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))):
-                        fpath = os.path.join(VASP_PSP_DIR, "POTCAR.{}.gz".format(el))
-                    elif os.path.exists(os.path.join(VASP_PSP_DIR, str(el), "POTCAR")):
-                        fpath = os.path.join(VASP_PSP_DIR, str(el), "POTCAR")
-                    else:
-                        raise IOError("You do not have the right POTCAR with label {} in your VASP_PSP_DIR".format(el))
-                    with file_open_zip_aware(fpath, 'rb') as f:
-                        psingle = PotcarSingle(f.read())
-                        self.append(psingle)
-                        Potcar._cache[(el, functional)] = psingle
+                    p = PotcarSingle.from_symbol_and_functional(el, functional)
+                    self.append(p)
+                    Potcar._cache[(el, functional)] = p
 
 
 class Vasprun(object):
@@ -2767,4 +2781,3 @@ def get_adjusted_fermi_level(run_static, band_structure):
             if not bs_working.is_metal():
                 return e
     return run_static.efermi
-
