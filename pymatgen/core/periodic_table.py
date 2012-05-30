@@ -21,6 +21,7 @@ from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
+
 def _load__pt_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
