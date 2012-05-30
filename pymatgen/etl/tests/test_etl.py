@@ -10,16 +10,41 @@ __email__ = "dkgunter@lbl.gov"
 __date__ = "<DATE>"
 __rcsid__ = "$Id$"
 
-if False: # xxx: until mongodb deps are fixed
-    import os
-    import pymongo
-    import tempfile
-    import time
-    import unittest
+import os
+import tempfile
+import time
+import unittest
 
+def safe_import_pymongo(**connect_kw):
+    """Check whether we can connect to MongoDB.
+    Imports pymongo (with exception guards).
+    
+    Args:
+      - `connect_kw`: passed to pymongo.Connection() function.
+    
+    Returns: pymongo module if True, None if False
+    """
+    pymongo = None
+    try:
+        import pymongo
+        try:
+            pymongo.Connection(**connect_kw)
+        except:
+            pymongo = None
+    except ImportError:
+        pass
+    return pymongo
+
+pymongo = safe_import_pymongo()
+
+
+if pymongo:
+    # this also imports pymongo, so needs to go here:
     from pymatgen.etl import etl
+    
+    """Only do this if MongoDB is available."""
+    class test_etl_db(unittest.TestCase):
 
-    class test_etl(unittest.TestCase):
         def setUp(self):
             self.uniq = str(int(time.time() * 1e6))
             self.dropdb = [ ]
@@ -106,5 +131,5 @@ if False: # xxx: until mongodb deps are fixed
             #print("tgt={}".format(self.tgt))
             self.tgt.insert({"ok":1})
 
-    if __name__ == '__main__':
-        unittest.main()
+if __name__ == '__main__':
+    unittest.main()
