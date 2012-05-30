@@ -7,14 +7,19 @@ __author__ = "Dan Gunter"
 __copyright__ = "Copyright 2012, The Materials Project"
 __maintainer__ = "Dan Gunter"
 __email__ = "dkgunter@lbl.gov"
-__date__ = "25 May 2012"
+__date__ = "29 May 2012"
 __rcsid__ = "$Id$"
 
 import importlib
 from StringIO import StringIO
 import yaml
-import pymongo
 import warnings
+try:
+    import pymongo
+except ImportError:
+    pymongo = None
+    warnings.warn("Failed to import 'pymongo'. "
+    "Database operations will fail with NoneType error.")
 
 class ETLError(Exception):
     def __init__(self, src=None, tgt=None, msg=None, base_exc="None"):
