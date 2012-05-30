@@ -270,6 +270,9 @@ class PotcarSingleTest(unittest.TestCase):
                          'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
 
+    def test_from_functional_and_symbols(self):
+        p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
+        self.assertEqual(p.enmax, 271.649)
 
 class PotcarTest(unittest.TestCase):
 
@@ -277,10 +280,14 @@ class PotcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
+        potcar = Potcar(["Fe_pv", "O"])
+        self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
         fe_potcar = open(os.path.join(test_dir, 'Fe_POTCAR')).read()
-        #specify V instead of Fe - this makes sure the test won't pass if the code just grabs the POTCAR from the config file (the config file would grab the V POTCAR)
+        #specify V instead of Fe - this makes sure the test won't pass if the
+        #code just grabs the POTCAR from the config file (the config file would
+        #grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
