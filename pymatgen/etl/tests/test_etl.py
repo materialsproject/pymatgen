@@ -37,12 +37,13 @@ def safe_import_pymongo(**connect_kw):
 
 pymongo = safe_import_pymongo()
 
+# Tests to run if MongoDB is available
 
 if pymongo:
-    # this also imports pymongo, so needs to go here:
-    from pymatgen.etl import etl
     
-    """Only do this if MongoDB is available."""
+    # Put here because it also imports pymongo
+    from pymatgen.etl import etl
+
     class test_etl_db(unittest.TestCase):
 
         def setUp(self):
