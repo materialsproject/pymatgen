@@ -1121,7 +1121,11 @@ class Structure(SiteCollection, MSONable):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['lattice'] = self._lattice.to_dict
-        d['sites'] = [site.to_dict for site in self]
+        d['sites'] = []
+        for site in self:
+            site_dict = site.to_dict
+            del site_dict['lattice']
+            d['sites'].append(site_dict)
         return d
 
     @staticmethod
