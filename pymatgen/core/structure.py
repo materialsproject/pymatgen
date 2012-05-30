@@ -26,7 +26,8 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
     '''
@@ -246,13 +247,9 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Element):
-                species_list.append({'element': spec.symbol, 'occu': occu})
-            elif isinstance(spec, Specie):
-                d = spec.to_dict
-                d['occu'] = occu
-                species_list.append(d)
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
+            d = spec.to_dict
+            d['occu'] = occu
+            species_list.append(d)
         d = {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
@@ -522,12 +519,9 @@ class PeriodicSite(Site, MSONable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Element):
-                species_list.append({'element': spec.symbol, 'occu': occu})
-            else:
-                d = spec.to_dict
-                d['occu'] = occu
-                species_list.append(d)
+            d = spec.to_dict
+            d['occu'] = occu
+            species_list.append(d)
         d = {'label': self.species_string, 'species': species_list,
              'occu': occu, 'xyz':[float(c) for c in self._coords],
              'abc':[float(c) for c in self._fcoords],

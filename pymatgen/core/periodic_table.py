@@ -493,6 +493,17 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
+    @staticmethod
+    def from_dict(d):
+        return Element(d['element'])
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['element'] = self.symbol
+        return d
 
 class Specie(MSONable):
     """
