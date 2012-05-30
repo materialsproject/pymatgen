@@ -8,7 +8,6 @@ __copyright__ = "Copyright 2012, The Materials Project"
 __maintainer__ = "Dan Gunter"
 __email__ = "dkgunter@lbl.gov"
 __date__ = "29 May 2012"
-__rcsid__ = "$Id$"
 
 import importlib
 from StringIO import StringIO
@@ -30,21 +29,81 @@ class ETLError(Exception):
                 "Base exception: {e}".format(s=src, t=tgt, e=base_exc)
         Exception.__init__(self, s)
 
+class InsertCollection(object):
+    """Wrapper to insert into MongoDB collection
+    """
+    def __init__(self, coll, safe=None, batch=None):
+        self._coll = coll
+        self._safe = safe
+        self._batch_data = [ ]
+        self.set_batch_size(batch)
+        
+    def insert(self, data):
+        if self._batched:
+            self._batch_data.append(data)
+            if len(self._batch_data) >= self._batch_sz:
+                r = self.flush()
+        else:
+            r = self._coll.save(data, sage=self._safe)
+        return r
+
+    save = insert # make these synonyms!
+    
+    def flush(self):
+        """Flush all batched data.
+        """
+        if self._batched:
+            r = self._coll.save(self._batch_data, safe=self._safe)
+            self._batch_data = [ ]
+        return r
+
+    def set_batch_size(self, n):
+        """Set the size of batches to use.
+        """
+        if self._batch_data:
+            self.flush()
+        if batch > 0:
+            self._batched = True
+            self._batch_sz = batch
+        else:
+            self._batched = False
+        
+    def set_safe(self, tf):
+        """Set whether inserts are done in safe-mode, or not.
+        """
+        self._safe = tf
+
 class ETLBase(object):
     """Base class for extract-transform-load.
     """
-    def __init__(self, src=None, tgt=None):
-        self.src, self.tgt = src, tgt
+    
+    # Name of section for 'extra' data from source
+    EXTRA = "external"
+
+    def __init__(self, src=None, tgt=None, insert_safe=True,
+                 insert_batch_size=-1):
+        """Create with source and target MongoDB collections.
+        """
+        self.src = src
+        self.tgt = InsertCollection(tgt, safe=insert_safe,
+                                    batch=insert_batch_size)
         
     def extract_transform_load(self):
         """Subclasses must override this to actually
         perform the operation.
         
+        The transformation will use the instance vars:
+        * src - Source collection
+        * tgt - Target collection
+          
         Returns: None
         Raises: Any Exception
         """
         return None
-        
+
+    def set_batch_size(self, n):
+        self.tgt.set_batch_size(n)
+
 class ETLRunner:
     """Working from a YAML configuration file,
     perform arbitrary extract-transform-load (ETL) operations
