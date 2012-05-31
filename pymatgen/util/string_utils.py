@@ -128,19 +128,6 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     else:
         return str(afloat)
 
-
-def split_formula(f):
-    """Split formula, `f`, as a string into its constituent parts.
-
-    Examples:
-      * CO2 => [ ('C',1), ('O',2) ]
-      * Li2SO4 => [ ('Li', 2), ('S', 1), ('O', 4) ] 
-    """
-    elements = re.findall("[A-Z][a-z]?[0-9]*",f)
-    splits = [re.match("([A-Z][a-z]?)(\d?)",e).groups()
-              for e in elements]
-    return splits
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

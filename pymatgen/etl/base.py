@@ -11,6 +11,7 @@ __date__ = "29 May 2012"
 
 import importlib
 from StringIO import StringIO
+import sys
 import yaml
 import warnings
 try:
@@ -19,6 +20,9 @@ except ImportError:
     pymongo = None
     warnings.warn("Failed to import 'pymongo'. "
     "Database operations will fail with NoneType error.")
+
+# Constants
+STDIN, STDOUT = "STDIN", "STDOUT"
 
 class ETLError(Exception):
     def __init__(self, src=None, tgt=None, msg=None, base_exc="None"):
@@ -29,16 +33,16 @@ class ETLError(Exception):
                 "Base exception: {e}".format(s=src, t=tgt, e=base_exc)
         Exception.__init__(self, s)
 
-class InsertCollection(object):
-    """Wrapper to insert into MongoDB collection
+class CollectionOutputStream(object):
+    """Wrapper to treat MongoDB collection as an output stream
     """
-    def __init__(self, coll, safe=None, batch=None):
+    def __init__(self, coll, safe=False, batch=-1):
         self._coll = coll
         self._safe = safe
         self._batch_data = [ ]
         self.set_batch_size(batch)
         
-    def insert(self, data):
+    def _insert(self, data):
         if self._batched:
             self._batch_data.append(data)
             if len(self._batch_data) >= self._batch_sz:
@@ -47,8 +51,8 @@ class InsertCollection(object):
             r = self._coll.save(data, sage=self._safe)
         return r
 
-    save = insert # make these synonyms!
-    
+    write = _insert
+
     def flush(self):
         """Flush all batched data.
         """
@@ -73,6 +77,42 @@ class InsertCollection(object):
         """
         self._safe = tf
 
+class CollectionInputStream(object):
+    def __init__(self, coll, expr={}):
+        self._coll = coll
+        self._strm = self._coll.find(expr)
+        
+    def __iter__(self):
+        return self._strm
+
+class FileInputStream(object):
+    def __init__(self, f):
+        import simplejson as json
+        self.json = json
+        self._f = f
+        
+    def __iter__(self):
+        return self
+        
+    def next(self):
+        try:
+            obj = self.json.load(self._f)
+        except self.json.JSONDecodeError:
+            raise StopIteration()
+        return obj
+
+class FileOutputStream(object):
+    def __init__(self, f):
+        import simplejson as json
+        self.json = json
+        self._f = f
+        
+    def write(self, obj):
+        return self._f.write(self.json.dumps(obj))
+
+    def flush(self):
+        self._f.flush()
+
 class ETLBase(object):
     """Base class for extract-transform-load.
     """
@@ -80,13 +120,11 @@ class ETLBase(object):
     # Name of section for 'extra' data from source
     EXTRA = "external"
 
-    def __init__(self, src=None, tgt=None, insert_safe=True,
-                 insert_batch_size=-1):
+    def __init__(self, src=None, tgt=None):
         """Create with source and target MongoDB collections.
         """
         self.src = src
-        self.tgt = InsertCollection(tgt, safe=insert_safe,
-                                    batch=insert_batch_size)
+        self.tgt = tgt
         
     def extract_transform_load(self):
         """Subclasses must override this to actually
@@ -101,31 +139,38 @@ class ETLBase(object):
         """
         return None
 
-    def set_batch_size(self, n):
-        self.tgt.set_batch_size(n)
-
 class ETLRunner:
     """Working from a YAML configuration file,
     perform arbitrary extract-transform-load (ETL) operations
     from one or more source collections to a target collection.
     """
+    
+    # Constants
+    NO_VAL = "___none___"
+    IO_FILE, IO_MONGO = 0, 1 # I/O type constants
+    # fields
+    F_FILE, F_COLL, F_DB = "file", "collection", "db"
+    F_MOD, F_CLS = "module", "class"
+    
     # Configuration layout with defaults.
     # If default is 'None' then the value must be provided in the
     # configuration file.
     CONF = {
         "sources" : {
-            "collection" : None,
-            "module" : None,
-            "class" : "ETL",
+            F_FILE : NO_VAL,
+            F_COLL : NO_VAL,
+            F_MOD : None,
+            F_CLS : "ETL",
             "param" : { }
         },
         "target": {
+            F_FILE : NO_VAL,
             "host" : "localhost",
             "port" : 27017,
             "user" : "",
             "password" : "",
-            "db" : None,
-            "collection" : None
+            F_DB : NO_VAL,
+            F_COLL : NO_VAL
         },
     }
 
@@ -142,21 +187,41 @@ class ETLRunner:
         else:
             self._conf = yaml.load(StringIO(conf))
         self.target, self.sources = None, [ ]
+        self.target_io_type, self.source_io_types = None, [ ]
         for section in self.CONF:
             if not section in self._conf:
                 raise ValueError("Missing section: {}".format(section))
             if section == "target":
                 contents = self._conf[section]
-                self.target = self._get_values(section, contents)
+                values = self._get_values(section, contents)
+                if values[self.F_FILE] is self.NO_VAL:
+                    if values[self.F_COLL] is self.NO_VAL or \
+                        values[self.F_COLL] is self.NO_VAL:
+                        raise ValueError("Target must have either '{0}' or "
+                        "'{1}' + '{2}'"
+                        .format(self.F_FILE, self.F_COLL, self.F_DB))
+                    self.target_io_type = self.IO_MONGO
+                else:
+                    self.target_io_type = self.IO_FILE
+                self.target = values
             elif section == "sources":
                 for contents in self._conf[section]:
                     values = self._get_values(section, contents)
+                    if values[self.F_FILE] is self.NO_VAL:
+                        if values[self.F_COLL] is self.NO_VAL:
+                            raise ValueError("Source {2} must have either "
+                            "'{0}' or '{1}'"
+                            .format(self.F_FILE, self.F_COLL,
+                            values[self.F_MOD]))
+                        self.source_io_types.append(self.IO_MONGO)
+                    else:
+                        self.source_io_types.append(self.IO_FILE)
                     self.sources.append(values)
             else:
                 raise ValueError("Unknown section: {}".format(section))
 
     # Helpers for __init__
-    
+
     def _get_values(self, section, data):
         v = { }
         for key, default in self.CONF[section].iteritems():
@@ -172,18 +237,49 @@ class ETLRunner:
         return len(self.sources)
         
     # Run
-    
+
+    def _open_etl(self, fname, mode='r', which="src"):
+        try:
+            if fname == STDIN:
+                obj = sys.stdin
+            elif fname == STDOUT:
+                obj = sys.stdout
+            else:
+                obj = open(fname, mode)
+        except IOError, err:
+            kw = {which: fname, base_exc:err}
+            raise ETLError(**kw)
+        return obj
+        
     def run(self):
         """Run all the ETL operations.
         
         Raises: ETLError
         Returns: Number run
         """
-        dbconn = self._connect()
-        target = dbconn[self.target["collection"]]
+        dbconn = None
+        if self.target_io_type is self.IO_MONGO:
+            dbconn = self._connect()
+            target = CollectionOutputStream(
+                        dbconn[self.target[self.F_COLL]])                        
+        elif self.target_io_type is self.IO_FILE:
+            target = FileOutputStream(self._open_etl(self.target[self.F_FILE],
+                                      mode='w', which='tgt'))
+        else:
+            raise ETLError(src="none", tgt="none",
+                           base_exc="Internal error: "
+                           "Unknown target I/O type {0}"
+                           .format(self.target_io_type))
         n = 0
-        for s in self.sources:
-            source = dbconn[s["collection"]]
+        for s, iot in zip(self.sources, self.source_io_types):
+            if iot is self.IO_MONGO:
+                source = CollectionInputStream(dbconn[s["collection"]])
+            elif iot is self.IO_FILE:
+                source = FileInputStream(self._open_etl(s[self.F_FILE]))
+            else:
+                raise ETLError(src=s, tgt="none",
+                               base_exc="Internal error: "
+                               "Unknown source I/O type {0}".format(iot))
             try:
                 etl_mod = self._load_module(s["module"])
             except ImportError, err:
