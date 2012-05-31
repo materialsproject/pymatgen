@@ -234,6 +234,7 @@ class StructureTest(unittest.TestCase):
                [ 2.3516318, 0.]]
         self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
 
+
 class MoleculeTest(unittest.TestCase):
 
     def setUp(self):
@@ -307,6 +308,7 @@ occupation : 1.00"""
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
         self.assertEqual(mol[0].magmom, 0.5)
+        self.assertEqual(mol.formula, "H4 C1")
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
