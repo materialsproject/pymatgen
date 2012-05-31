@@ -18,9 +18,9 @@ from pymatgen.etl import base as etl
 
 ## Functions
 
-def _build_conf(args):
+def _build_conf_mongo(args):
     """Build a configuration dictionary from the command-line
-    arguments.
+    arguments, using MongoDB collections.
     """
     conf = { 
         "sources" : [ {
@@ -36,6 +36,22 @@ def _build_conf(args):
     }
     return conf
 
+def _build_conf_stream(args):
+    """Build a configuration dictionary from the command-line
+    arguments, using input and output streams.
+    """
+    conf = { 
+        "sources" : [ {
+            "file" : etl.STDIN,
+            "module" : args.src_mod,
+            "class" : args.src_class,
+        } ],
+        "target" : {
+            "file": etl.STDOUT,
+        }
+    }
+    return conf
+
 def main(cmdline=None):
     """Program entry point.
     """
@@ -44,6 +60,7 @@ def main(cmdline=None):
     desc = __doc__
     parser = argparse.ArgumentParser(
                     usage="\n  %(prog)s -c config-file\n"
+                    "  %(prog)s -m MOD [options]< input-file > output-file\n"
                     "  %(prog)s -s/--source COLL -t/--target COLL [options]",
                     description=desc)
     parser.add_argument("-c", "--config", dest="cfg_file", default=None,
@@ -57,7 +74,7 @@ def main(cmdline=None):
                         "in source module (%(default)s)")
     parser.add_argument("-m", "--module", dest="src_mod",
                         metavar="MOD", help="Source module (*)")
-    parser.add_argument("-p", "--eport", dest="tgt_port", type=int,
+    parser.add_argument("-p", "--port", dest="tgt_port", type=int,
                         metavar="NUM", default=27017,
                         help="Database port (%(default)d)")
     parser.add_argument("-s", "--source", dest="src_coll", default=None,
@@ -72,11 +89,14 @@ def main(cmdline=None):
         except IOError, err:
             parser.error("Failed to open '{f}': {e}".format(
                             f=args.cfg_file, e=err))
+    elif args.src_coll is None and args.tgt_coll is None and \
+         args.src_mod is not None:
+         conf = _build_conf_stream(args)
     elif args.src_coll is None or args.tgt_coll is None or \
          args.src_mod is None:
         parser.error("missing required arguments")
     else:
-        conf = _build_conf(args)
+        conf = _build_conf_mongo(args)
     # Run
     runner = etl.ETLRunner(conf)
     result = 0
