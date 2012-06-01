@@ -1179,7 +1179,7 @@ class Structure(SiteCollection, MSONable):
         Returns:
             Structure object
         """
-        lattice = Lattice(d['lattice']['matrix'])
+        lattice = Lattice.from_dict(d['lattice'])
         species = []
         coords = []
         props = {}

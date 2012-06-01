@@ -40,7 +40,7 @@ pymongo = safe_import_pymongo()
 # Tests to run if MongoDB is available
 
 if pymongo:
-    
+
     # Put here because it also imports pymongo
     from pymatgen.etl import etl
 
@@ -50,7 +50,7 @@ if pymongo:
             self.uniq = str(int(time.time() * 1e6))
             self.dropdb = [ ]
             self.rmtemp = [ ]
-        
+
         def tearDown(self):
             # drop temporary databases
             conn = pymongo.Connection()
@@ -65,10 +65,10 @@ if pymongo:
 
         # No-op tests
         # ------------
-    
+
         def test_noop_noyaml(self):
             "no-op with dictionary config"
-            conf = { 
+            conf = {
                 "sources" : [{
                     "collection" : "src1",
                     "module" : ".etl.tests.test_etl",
@@ -83,7 +83,7 @@ if pymongo:
             #
             runner = etl.ETLRunner(conf)
             count = runner.run()
-            self.assert_(count == len(runner)*Noop.NUM_INSERTS)
+            self.assert_(count == len(runner) * Noop.NUM_INSERTS)
 
         _yaml_noop_conf = """
     sources:
@@ -97,7 +97,7 @@ if pymongo:
         db: {db}
         collection: tgt
     """
-     
+
         def test_noop_yaml_str(self):
             "no-op with YAML string config"
             db = "test_" + self.uniq
@@ -106,7 +106,7 @@ if pymongo:
             #
             runner = etl.ETLRunner(conf)
             count = runner.run()
-            self.assert_(count == len(runner)*Noop.NUM_INSERTS)
+            self.assert_(count == len(runner) * Noop.NUM_INSERTS)
 
         def test_noop_yaml_file(self):
             "no-op with YAML file config"
@@ -121,8 +121,8 @@ if pymongo:
             #
             runner = etl.ETLRunner(conf)
             count = runner.run()
-            self.assert_(count == len(runner)*Noop.NUM_INSERTS)
-    
+            self.assert_(count == len(runner) * Noop.NUM_INSERTS)
+
     class Noop(etl.ETLBase):
         """No-op ETL class, except to insert a record to make sure
         the database is really accessible.
