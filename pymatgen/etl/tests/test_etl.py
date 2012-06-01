@@ -42,7 +42,7 @@ pymongo = safe_import_pymongo()
 if pymongo:
     
     # Put here because it also imports pymongo
-    from pymatgen.etl import etl
+    from pymatgen.etl import base as etl
 
     class test_etl_db(unittest.TestCase):
 
@@ -130,7 +130,7 @@ if pymongo:
         NUM_INSERTS = 1
         def extract_transform_load(self):
             #print("tgt={}".format(self.tgt))
-            self.tgt.insert({"ok":1})
+            self.tgt.write({"ok":1})
 
 if __name__ == '__main__':
     unittest.main()
