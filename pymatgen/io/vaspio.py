@@ -1617,6 +1617,13 @@ class Vasprun(object):
         d['input']['lattice_rec'] = self.lattice_rec.to_dict
 
         d['output'] = {}
+
+        # Prevent serializing of Structure instance to str in clean_engine
+        for ionic_step in self.ionic_steps:
+            if 'structure' in ionic_step:
+                if isinstance(ionic_step['structure'], Structure):
+                    ionic_step['structure'] = ionic_step['structure'].to_dict
+
         d['output']['ionic_steps'] = clean_json(self.ionic_steps)
         d['output']['final_energy'] = self.final_energy
         d['output']['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
