@@ -1618,13 +1618,7 @@ class Vasprun(object):
 
         d['output'] = {}
 
-        # Prevent serializing of Structure instance to str in clean_engine
-        for ionic_step in self.ionic_steps:
-            if 'structure' in ionic_step:
-                if isinstance(ionic_step['structure'], Structure):
-                    ionic_step['structure'] = ionic_step['structure'].to_dict
-
-        d['output']['ionic_steps'] = clean_json(self.ionic_steps)
+        d['output']['ionic_steps'] = self.ionic_steps
         d['output']['final_energy'] = self.final_energy
         d['output']['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
         d['output']['crystal'] = self.final_structure.to_dict
@@ -1640,8 +1634,7 @@ class Vasprun(object):
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
         d['output'].update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
-
-        return d
+        return clean_json(d, strict=True)
 
 
 class VasprunHandler(xml.sax.handler.ContentHandler):

@@ -129,7 +129,6 @@ class PMGJSONDecoder(json.JSONDecoder):
         """
         if isinstance(d, dict):
             if 'module' in d and 'class' in d:
-
                 mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])

@@ -15,6 +15,7 @@ __date__ = "May 17, 2012"
 
 import unittest
 import os
+import json
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.io.vaspio import *
@@ -333,6 +334,12 @@ class VasprunTest(unittest.TestCase):
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
+
+    def test_to_dict(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath)
+        #Test that to_dict is json-serializable
+        json.dumps(vasprun.to_dict)
 
 
 class OutcarTest(unittest.TestCase):
