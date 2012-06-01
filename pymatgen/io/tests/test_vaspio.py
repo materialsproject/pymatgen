@@ -341,7 +341,6 @@ class VasprunTest(unittest.TestCase):
         #Test that to_dict is json-serializable
         json.dumps(vasprun.to_dict)
 
-
 class OutcarTest(unittest.TestCase):
 
     def test_init(self):
