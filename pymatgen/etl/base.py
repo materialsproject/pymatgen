@@ -61,7 +61,7 @@ class CollectionOutputStream(object):
             self._batch_data = [ ]
         return r
 
-    def set_batch_size(self, n):
+    def set_batch_size(self, batch):
         """Set the size of batches to use.
         """
         if self._batch_data:
