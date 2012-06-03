@@ -286,19 +286,19 @@ def uniquelines(q):
     
     Returns:
         setoflines:
-            A set of tuple of lines.  E.g., {(1,2), (1,3), (2,3), ....}
+            A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
     '''
     setoflines = set()
     for facets in q:
         for line in itertools.combinations(facets, 2):
-            setoflines.add(tuple(line))
+            setoflines.add(tuple(sorted(line)))
     return setoflines
 
 
 def triangular_coord(coord):
     '''
-    Convert a two component coordinate into a triangle based coordinate system
-    for a prettier phase diagram.
+    Convert a 2D coordinate into a triangle-based coordinate system for a
+    prettier phase diagram.
     
     Args:
         coordinate:
@@ -313,8 +313,8 @@ def triangular_coord(coord):
 
 def tet_coord(coord):
     '''
-    Convert a four component coordinate into a tetrahedron based coordinate system
-    for a prettier phase diagram.
+    Convert a 3D coordinate into a tetrahedron based coordinate system for a
+    prettier phase diagram.
     
     Args:
         coordinate:
