@@ -134,8 +134,8 @@ class InsertionElectrode(AbstractElectrode):
             A list of all entries in the electrode (both stable and unstable),
             ordered by amount of the working ion.
         '''
-        all_entries = list(self.stable_entries())
-        all_entries.extend(self.unstable_entries())
+        all_entries = list(self.get_stable_entries())
+        all_entries.extend(self.get_unstable_entries())
         #sort all entries by amount of working ion ASC
         all_entries = sorted([e for e in all_entries], key=lambda entry: entry.composition.get_atomic_fraction(self.working_ion))
         return all_entries if charge_to_discharge else all_entries.reverse()
