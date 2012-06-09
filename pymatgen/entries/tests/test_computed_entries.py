@@ -32,6 +32,7 @@ class ComputedEntryTest(unittest.TestCase):
                                    parameters=vasprun.incar)
         self.entry2 = ComputedEntry({"Fe":2, "O":3}, 2.3)
         self.entry3 = ComputedEntry("Fe2O3", 2.3)
+        self.entry4 = ComputedEntry("Fe2O3", 2.3, entry_id=1)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)
@@ -47,6 +48,10 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry.to_dict
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
+
+    def test_entry_id(self):
+        self.assertEqual(self.entry4.entry_id, 1)
+        self.assertEqual(self.entry2.entry_id, None)
 
 
 class ComputedStructureEntryTest(unittest.TestCase):
