@@ -92,7 +92,7 @@ class ComputedEntry(PDEntry, MSONable):
     def from_dict(d):
         return ComputedEntry(d['composition'], d['energy'], d['correction'],
                              d.get('parameters', {}), d.get('data', {}),
-                             d.get('entry_id', None))
+                             entry_id=d.get('entry_id', None))
 
     @property
     def to_dict(self):
@@ -138,7 +138,8 @@ class ComputedStructureEntry(ComputedEntry):
 
         ComputedEntry.__init__(self, structure.composition, energy,
                                         correction=correction,
-                                        parameters=parameters, data=data)
+                                        parameters=parameters, data=data,
+                                        entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
@@ -168,5 +169,5 @@ class ComputedStructureEntry(ComputedEntry):
                                       d['energy'], d['correction'],
                                       d.get('parameters', {}),
                                       d.get('data', {}),
-                                      d.get('entry_id', None))
+                                      entry_id=d.get('entry_id', None))
 
