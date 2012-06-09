@@ -21,6 +21,7 @@ from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.serializers.json_coders import MSONable
 
+
 class ComputedEntry(PDEntry, MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
@@ -31,7 +32,7 @@ class ComputedEntry(PDEntry, MSONable):
     """
 
     def __init__(self, composition, energy, correction=0.0, parameters=None,
-                 data=None):
+                 data=None, entry_id=None):
         """
         Args:
             composition:
@@ -50,12 +51,15 @@ class ComputedEntry(PDEntry, MSONable):
             data:
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
+            entry_id:
+                An optional id to uniquely identify the entry.
         """
         comp = Composition(composition)
         PDEntry.__init__(self, comp, energy)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
+        self.entry_id = entry_id
 
     @property
     def energy(self):
@@ -87,7 +91,8 @@ class ComputedEntry(PDEntry, MSONable):
     @staticmethod
     def from_dict(d):
         return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             d.get('parameters', {}), d.get('data', {}))
+                             d.get('parameters', {}), d.get('data', {}),
+                             d.get('entry_id', None))
 
     @property
     def to_dict(self):
@@ -99,6 +104,7 @@ class ComputedEntry(PDEntry, MSONable):
         d['correction'] = self.correction
         d['parameters'] = self.parameters
         d['data'] = self.data
+        d['entry_id'] = self.entry_id
         return d
 
 
@@ -109,7 +115,7 @@ class ComputedStructureEntry(ComputedEntry):
     """
 
     def __init__(self, structure, energy, correction=0.0, parameters=None,
-                 data=None):
+                 data=None, entry_id=None):
         """
         Args:
             structure:
@@ -126,6 +132,8 @@ class ComputedStructureEntry(ComputedEntry):
             data:
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
+            entry_id:
+                An optional id to uniquely identify the entry.
         """
 
         ComputedEntry.__init__(self, structure.composition, energy,
@@ -156,6 +164,9 @@ class ComputedStructureEntry(ComputedEntry):
 
     @staticmethod
     def from_dict(d):
-        return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
-                             d['correction'], d.get('parameters', {}), d.get('data', {}))
+        return ComputedStructureEntry(Structure.from_dict(d['structure']),
+                                      d['energy'], d['correction'],
+                                      d.get('parameters', {}),
+                                      d.get('data', {}),
+                                      d.get('entry_id', None))
 
