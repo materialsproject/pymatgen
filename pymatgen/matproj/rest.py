@@ -159,12 +159,3 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
-
-if __name__ == "__main__":
-    adaptor = MPRestAdaptor("test_dev")
-    entries = adaptor.get_entry_in_chemsys(["Li", "Fe", "O"])
-    from pymatgen.phasediagram.pdmaker import PhaseDiagram
-    pd = PhaseDiagram(entries)
-    from pymatgen.phasediagram.plotter import PDPlotter
-    plotter = PDPlotter(pd)
-    plotter.show()
