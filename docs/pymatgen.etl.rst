@@ -1,10 +1,10 @@
 etl Package
 ===========
 
-:mod:`etl` Module
------------------
+:mod:`base` Module
+------------------
 
-.. automodule:: pymatgen.etl.etl
+.. automodule:: pymatgen.etl.base
     :members:
     :undoc-members:
     :show-inheritance:

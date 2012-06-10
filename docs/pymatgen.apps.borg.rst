@@ -4,7 +4,7 @@ borg Package
 :mod:`borg` Package
 -------------------
 
-.. automodule:: pymatgen.borg
+.. automodule:: pymatgen.apps.borg
     :members:
     :undoc-members:
     :show-inheritance:
@@ -12,7 +12,7 @@ borg Package
 :mod:`hive` Module
 ------------------
 
-.. automodule:: pymatgen.borg.hive
+.. automodule:: pymatgen.apps.borg.hive
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,7 +20,7 @@ borg Package
 :mod:`queen` Module
 -------------------
 
-.. automodule:: pymatgen.borg.queen
+.. automodule:: pymatgen.apps.borg.queen
     :members:
     :undoc-members:
     :show-inheritance:
