@@ -87,8 +87,8 @@ class PeriodicSiteTest(unittest.TestCase):
         site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
         (dist_old, jimage_old) = site1.distance_and_image_old(site2)
         (dist_new, jimage_new) = site1.distance_and_image(site2)
-        self.assertTrue(dist_old >= dist_new, "New distance algo should always give smaller answers!")
-        self.assertFalse((dist_old == dist_new) ^ (jimage_old == jimage_new).all(), "If old dist == new dist, the images returned must be the same!")
+        self.assertTrue(dist_old - dist_new > -1e-8, "New distance algo should always give smaller answers!")
+        self.assertFalse((abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all(), "If old dist == new dist, the images returned must be the same!")
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
