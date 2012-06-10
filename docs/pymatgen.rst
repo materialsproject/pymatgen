@@ -25,6 +25,7 @@ Subpackages
     pymatgen.entries
     pymatgen.etl
     pymatgen.io
+    pymatgen.matproj
     pymatgen.phasediagram
     pymatgen.serializers
     pymatgen.symmetry
