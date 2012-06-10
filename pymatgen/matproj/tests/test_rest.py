@@ -99,5 +99,4 @@ class MPRestAdaptorTest(unittest.TestCase):
             self.assertEqual(d.formula, "Fe2O3")
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
