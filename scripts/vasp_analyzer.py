@@ -12,8 +12,8 @@ import logging
 
 from pymatgen.io.vaspio import Outcar
 from pymatgen.util.string_utils import str_aligned
-from pymatgen.borg.hive import VaspToComputedEntryDrone
-from pymatgen.borg.queen import BorgQueen
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
 

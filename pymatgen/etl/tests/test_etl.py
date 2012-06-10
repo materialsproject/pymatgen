@@ -38,7 +38,6 @@ def safe_import_pymongo(**connect_kw):
 pymongo = safe_import_pymongo()
 
 # Tests to run if MongoDB is available
-
 if pymongo:
 
     # Put here because it also imports pymongo
