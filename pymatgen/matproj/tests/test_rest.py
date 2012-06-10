@@ -92,7 +92,11 @@ class MPRestAdaptorTest(unittest.TestCase):
         self.assertTrue(len(data['response']['results']) > 0)
         self.assertTrue(len(data['response']['results']) <= data['response']['num_results'])
 
-
+    def test_get_exp_data(self):
+        data = self.adaptor.get_exp_data("Fe2O3")
+        self.assertTrue(len(data) > 0)
+        for d in data:
+            self.assertEqual(d.formula, "Fe2O3")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

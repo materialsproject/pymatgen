@@ -114,6 +114,28 @@ class MPRestAdaptor(object):
             entries = MaterialsProjectCompatibility().process_entries(entries)
         return entries
 
+    def get_exp_data(self, formula):
+        """
+        Get a list of ThermoData objects associated with a formula using the
+        Materials Project REST interface.
+        
+        Args:
+            formula:
+                A formula to search for.
+        
+        Returns:
+            List of ThermoData objects.
+        """
+        url = "{}/{}/exp?API_KEY={}".format(self.url, formula, self.api_key)
+        req = urllib2.Request(url)
+        response = urllib2.urlopen(req)
+        data = response.read()
+        data = json.loads(data, cls=PMGJSONDecoder)
+        if data['valid_response']:
+            return data['response']
+        else:
+            raise MPRestError(data['error'])
+
     def mpquery(self, criteria, properties):
         """
         Performs an advanced mpquery, which is a Mongo-like syntax for directly
@@ -131,7 +153,6 @@ class MPRestAdaptor(object):
                 Criteria of the query as a mongo-style dict. For example, 
                 {'elements':{'$in':['Li', 'Na', 'K'], '$all': ['O']},
                 'nelements':2} selects all Li, Na and K oxides
-                
             properties:
                 Properties to request for as a list. For example,
                 ['formula', 'formation_energy_per_atom'] returns the formula
