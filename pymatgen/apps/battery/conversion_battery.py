@@ -21,7 +21,7 @@ from pymatgen.core.structure import Composition
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 class ConversionElectrode(AbstractElectrode):
     """
@@ -217,7 +217,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @staticmethod
     def from_dict(d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
+
         dec = PMGJSONDecoder()
         return ConversionElectrode(dec.process_decoded(d['voltage_pairs']),
                                    dec.process_decoded(d['working_ion_entry']),
@@ -461,7 +461,6 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @staticmethod
     def from_dict(d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
         dec = PMGJSONDecoder()
         working_ion_entry = dec.process_decoded(d['working_ion_entry'])
         balanced_rxn = dec.process_decoded(d['balanced_rxn'])
