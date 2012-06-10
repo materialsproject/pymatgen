@@ -18,6 +18,7 @@ import urllib2
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 import json
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 
 class MPRestAdaptor(object):
@@ -38,7 +39,7 @@ class MPRestAdaptor(object):
         self.url = "http://127.0.0.1:8000/rest"
         self.api_key = api_key
 
-    def get_data(self, formula_or_material_id, prop):
+    def get_data(self, chemsys_formula_id, prop=""):
         """
         Flexible method to get any data using the Materials Project REST
         interface.
@@ -53,7 +54,7 @@ class MPRestAdaptor(object):
         ...
         ]
         """
-        url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, formula_or_material_id, prop, self.api_key)
+        url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, chemsys_formula_id, prop, self.api_key)
         req = urllib2.Request(url)
         response = urllib2.urlopen(req)
         data = response.read()
@@ -61,16 +62,23 @@ class MPRestAdaptor(object):
         if data['valid_response']:
             return data['response']
         else:
-            print data['error']
+            raise MPRestError(data['error'])
 
     def get_structure_by_material_id(self, material_id, final=True):
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
-        return data[0]['structure']
+        return data[0][prop]
 
     def get_entry_by_material_id(self, material_id):
         data = self.get_data(material_id, prop="entry")
         return data[0]["entry"]
+
+    def get_entries_in_chemsys(self, elements, compatible_only=True):
+        data = self.get_data("-".join(elements), prop="entry")
+        entries = [d['entry'] for d in data]
+        if compatible_only:
+            entries = MaterialsProjectCompatibility().process_entries(entries)
+        return entries
 
     def mpquery(self, criteria, properties):
         params = urllib.urlencode({'criteria': criteria, 'properties': properties, 'API_KEY':self.api_key})
@@ -81,22 +89,24 @@ class MPRestAdaptor(object):
         return data
 
 
+class MPRestError(Exception):
+    '''
+    Exception class for MPRestAdaptor.
+    Raised when the query has problems, e.g., bad query format.
+    '''
+
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return "MPRestError Error : " + self.msg
+
 if __name__ == "__main__":
-
     adaptor = MPRestAdaptor("test_dev")
-
-    for prop in MPRestAdaptor.supported_properties:
-        print "{} = {}".format(prop, adaptor.get_data(19017, prop))
-
-    data = adaptor.mpquery(criteria={'elements':{'$in':['Li', 'Na', 'K'], '$all': ['O']}},
-                    properties=['formula', 'energy'])
-
-    print data['response']['num_results']
-    print len(data['response']['results'])
-
-    print adaptor.get_data(19017, '')
-    print adaptor.get_data('Fe2O3', '')
-
-    print adaptor.get_structure_by_material_id(1)
-    print adaptor.get_structure_by_material_id(1, False)
-    print adaptor.get_entry_by_material_id(1)
+    entries = adaptor.get_entry_in_chemsys(["Li", "Fe", "O"])
+    print len(entries)
+    from pymatgen.phasediagram.pdmaker import PhaseDiagram
+    pd = PhaseDiagram(entries)
+    from pymatgen.phasediagram.plotter import PDPlotter
+    plotter = PDPlotter(pd)
+    plotter.show()
