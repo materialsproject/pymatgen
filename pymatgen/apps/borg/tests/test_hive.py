@@ -16,7 +16,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MITCompatibility
 import pymatgen
