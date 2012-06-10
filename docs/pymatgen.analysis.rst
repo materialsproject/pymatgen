@@ -41,3 +41,11 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`thermochemistry` Module
+-----------------------------
+
+.. automodule:: pymatgen.analysis.thermochemistry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
