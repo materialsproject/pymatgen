@@ -49,12 +49,7 @@ class MPRestAdaptor(object):
         Format of REST return is *always* a list of dict (regardless of the
         number of pieces of data returned. The general format is as follows:
         
-        [{
-            'material_id': material_id,
-            'property_name' : value
-        },
-        ...
-        ]
+        [{'material_id': material_id, 'property_name' : value}, ...]
         """
         url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, chemsys_formula_id, prop, self.api_key)
         req = urllib2.Request(url)
