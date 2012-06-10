@@ -88,7 +88,7 @@ class ThermoData(object):
 
     def __repr__(self):
         props = ['formula', 'compound_name', 'phaseinfo', 'type', 'temp_range',
-                 'value', 'method', 'ref']
+                 'value', 'method', 'ref', "uncertainty"]
         output = ["{} : {}".format(k, getattr(self, k)) for k in props]
         return "\n".join(output)
 
