@@ -19,6 +19,9 @@ from pymatgen.matproj.rest import MPRestAdaptor
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
+
 
 class MPRestAdaptorTest(unittest.TestCase):
 
@@ -29,11 +32,14 @@ class MPRestAdaptorTest(unittest.TestCase):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "formula", "pretty_formula", "is_hubbard",
                  "elements", "nelements", "e_above_hull", "hubbards", "is_compatible"]
-        expected_vals = [-191.33404309, -6.83335868179, -2.557874610065714, 28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
-                "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0, {u'Fe': 5.3}, True]
+        expected_vals = [-191.33404309, -6.83335868179, -2.5574286372085706, 28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
+                "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0, {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True]
 
         for (i, prop) in enumerate(props):
-            self.assertAlmostEqual(expected_vals[i], self.adaptor.get_data(19017, prop)[0][prop])
+            if prop != 'hubbards':
+                self.assertAlmostEqual(expected_vals[i], self.adaptor.get_data(19017, prop)[0][prop])
+            else:
+                self.assertEqual(expected_vals[i], self.adaptor.get_data(19017, prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
@@ -97,6 +103,15 @@ class MPRestAdaptorTest(unittest.TestCase):
         self.assertTrue(len(data) > 0)
         for d in data:
             self.assertEqual(d.formula, "Fe2O3")
+
+    def test_get_dos_by_id(self):
+        dos = self.adaptor.get_dos_by_material_id(2254)
+        self.assertIsInstance(dos, CompleteDos)
+
+    def test_get_bandstructure_by_material_id(self):
+        bs = self.adaptor.get_bandstructure_by_material_id(2254)
+        self.assertIsInstance(bs, BandStructureSymmLine)
+
 
 if __name__ == "__main__":
     unittest.main()
