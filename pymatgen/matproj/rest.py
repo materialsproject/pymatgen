@@ -93,6 +93,34 @@ class MPRestAdaptor(object):
         data = self.get_data(material_id, prop="entry")
         return data[0]["entry"]
 
+    def get_dos_by_material_id(self, material_id):
+        """
+        Get a ComputedEntry corresponding to a material_id.
+        
+        Args:
+            material_id:
+                Materials Project material_id (an int).
+        
+        Returns:
+            ComputedEntry object.
+        """
+        data = self.get_data(material_id, prop="dos")
+        return data[0]["dos"]
+
+    def get_bandstructure_by_material_id(self, material_id):
+        """
+        Get a ComputedEntry corresponding to a material_id.
+        
+        Args:
+            material_id:
+                Materials Project material_id (an int).
+        
+        Returns:
+            ComputedEntry object.
+        """
+        data = self.get_data(material_id, prop="bandstructure")
+        return data[0]["bandstructure"]
+
     def get_entries_in_chemsys(self, elements, compatible_only=True):
         """
         Get a list of ComputedEntries in a chemical system. For example,
@@ -180,3 +208,4 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
+
