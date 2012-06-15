@@ -96,7 +96,7 @@ class BorgQueen(object):
             count += 1
             logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
         for d in data:
-            self._data.append(PMGJSONDecoder().process_decoded(d))
+            self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
     def get_data(self):
         """
@@ -132,7 +132,7 @@ def _order_assimilation(args):
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
-        data.append(PMGJSONEncoder().default(newdata))
+        data.append(json.dumps(newdata, cls=PMGJSONEncoder))
     status['count'] += 1
     count = status['count']
     total = status['total']
