@@ -69,14 +69,12 @@ class BorgQueen(object):
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
-
         manager = Manager()
         data = manager.list()
         status = manager.dict()
         status['count'] = 0
         status['total'] = len(valid_paths)
         logger.info('{} valid paths found.'.format(len(valid_paths)))
-
         p = Pool(self._num_drones)
         p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         for d in data:
