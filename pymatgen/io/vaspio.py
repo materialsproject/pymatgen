@@ -2254,6 +2254,7 @@ class Outcar(object):
         d['run_stats'] = self.run_stats
         d['magnetization'] = self.magnetization
         d['charge'] = self.charge
+        d['is_stopped'] = self.is_stopped
         return d
 
 class VolumetricData(object):
