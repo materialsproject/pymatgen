@@ -1759,46 +1759,28 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == 'varray' and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
             self.posstr = StringIO.StringIO()
+
+        if self.read_dos:
+            if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
+                self.read_val = True
+            elif name == "set" and "comment" in attributes:
+                comment = attributes["comment"]
+                self.state["set"] = comment
+                if self.state['partial']:
+                    if comment.startswith("ion"):
+                        self.pdos_ion = int(comment.split(" ")[1])
+                    elif comment.startswith("spin"):
+                        self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+        elif name == "dos":
+            self.dos_energies = None
+            self.tdos = {}
+            self.idos = {}
+            self.pdos = {}
+            self.efermi = None
+            self.read_dos = True
         elif name == "eigenvalues":
-            self.all_calculations_read = False
+            self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
             self.read_eigen = True
-
-    def _init_electronic_structure(self, name, attributes):
-        if self.read_structure:
-            if name == "v" and self.state['varray'] == 'basis':
-                self.read_lattice = True
-            elif name == "v" and self.state['varray'] == 'positions':
-                self.read_positions = True
-            if name == 'v' and self.state['varray'] == 'rec_basis':
-                self.read_rec_lattice = True
-        if name == 'structure':
-            self.latticestr = StringIO.StringIO()
-            self.latticerec = StringIO.StringIO()
-            self.posstr = StringIO.StringIO()
-            self.read_structure = True
-
-        if self.read_electronic_structure:
-            if self.read_dos:
-                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
-                    self.read_val = True
-                elif name == "set" and "comment" in attributes:
-                    comment = attributes["comment"]
-                    self.state["set"] = comment
-                    if self.state['partial']:
-                        if comment.startswith("ion"):
-                            self.pdos_ion = int(comment.split(" ")[1])
-                        elif comment.startswith("spin"):
-                            self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-            elif name == "dos":
-                self.dos_energies = None
-                self.tdos = {}
-                self.idos = {}
-                self.pdos = {}
-                self.efermi = None
-                self.read_dos = True
-            elif name == "eigenvalues":
-                self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
-                self.read_eigen = True
 
     def characters(self, data):
         if self.read_val:
@@ -2091,6 +2073,7 @@ class Outcar(object):
         mag = []
         header = []
         run_stats = {}
+        efermi = None
         for line in lines:
             clean = line.strip()
             if clean == "total charge":
@@ -2116,9 +2099,13 @@ class Outcar(object):
             elif re.search("\((sec|kb)\):", line):
                 tok = line.strip().split(":")
                 run_stats[tok[0].strip()] = float(tok[1].strip())
+            elif re.search("E-fermi\s+:", clean):
+                m = re.search("E-fermi\s*:\s*(\S+)", clean)
+                efermi = float(m.group(1))
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
+        self.efermi = efermi
 
     def read_igpar(self):
         """ 
@@ -2258,6 +2245,16 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['efermi'] = self.efermi
+        d['run_stats'] = self.run_stats
+        d['magnetization'] = self.magnetization
+        d['charge'] = self.charge
+        return d
 
 class VolumetricData(object):
     """
