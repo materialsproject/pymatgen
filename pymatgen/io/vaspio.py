@@ -1485,7 +1485,6 @@ class Vasprun(object):
         """
         return True if self.incar.get('ISPIN', 1) == 2 else False
 
-
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructureSymmLine object
@@ -1590,7 +1589,7 @@ class Vasprun(object):
             us = self.incar.get('LDAUU', self.parameters.get('LDAUU'))
             js = self.incar.get('LDAUJ', self.parameters.get('LDAUJ'))
             if len(us) == len(symbols):
-                d['hubbards'] = { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
+                d['hubbards'] = {symbols[i]:us[i] - js[i] for i in xrange(len(symbols))}
             elif sum(us) == 0 and sum(js) == 0:
                 d['is_hubbard'] = False
                 d['hubbards'] = {}
@@ -1598,12 +1597,8 @@ class Vasprun(object):
                 raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
         else:
             d['hubbards'] = {}
-        if d['is_hubbard']:
-            d['run_type'] = "GGA+U"
-        elif self.parameters.get('LHFCALC', False):
-            d['run_type'] = "HF"
-        else:
-            d['run_type'] = "GGA"
+
+        d['run_type'] = self.run_type
 
         vasp_input = {}
         vasp_input['incar'] = {k:v for k, v in self.incar.items()}
