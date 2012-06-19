@@ -114,6 +114,10 @@ class PeriodicSiteTest(unittest.TestCase):
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
+        site3 = PeriodicSite({"Si":0.5, "Fe":0.5}, np.array([0, 0, 0]), self.lattice)
+        d = site3.to_dict
+        site = PeriodicSite.from_dict(d)
+        self.assertEqual(site.species_and_occu, site3.species_and_occu)
 
 class StructureTest(unittest.TestCase):
 
