@@ -133,9 +133,9 @@ class PMGJSONDecoder(json.JSONDecoder):
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])
                     data = {k:v for k, v in d.items() if k not in ["module", "class"]}
-                    return cls.from_dict(data)
-            else:
-                return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
+                    if hasattr(cls, 'from_dict'):
+                        return cls.from_dict(data)
+            return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
         return d
