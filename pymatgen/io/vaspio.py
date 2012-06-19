@@ -1577,9 +1577,9 @@ class Vasprun(object):
         d['vasp_version'] = self.vasp_version
         d['has_vasp_completed'] = self.converged
         d['nsites'] = len(self.final_structure)
-        d['unit_cell_formula'] = self.final_structure.composition.to_dict
         comp = self.final_structure.composition
-        d['reduced_cell_formula'] = Composition.from_formula(comp.reduced_formula).to_dict
+        d['unit_cell_formula'] = comp.to_dict
+        d['reduced_cell_formula'] = Composition(comp.reduced_formula).to_dict
         d['pretty_formula'] = comp.reduced_formula
         symbols = [re.split("\s+", s)[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
@@ -1605,33 +1605,33 @@ class Vasprun(object):
         else:
             d['run_type'] = "GGA"
 
-        d['input'] = {}
-        d['input']['incar'] = {k:v for k, v in self.incar.items()}
-        d['input']['crystal'] = self.initial_structure.to_dict
-        d['input']['kpoints'] = self.kpoints.to_dict
-        d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
-        d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
-        d['input']['parameters'] = {k:v for k, v in self.parameters.items()}
-        d['input']['lattice_rec'] = self.lattice_rec.to_dict
+        vasp_input = {}
+        vasp_input['incar'] = {k:v for k, v in self.incar.items()}
+        vasp_input['crystal'] = self.initial_structure.to_dict
+        vasp_input['kpoints'] = self.kpoints.to_dict
+        vasp_input['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
+        vasp_input['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vasp_input['parameters'] = {k:v for k, v in self.parameters.items()}
+        vasp_input['lattice_rec'] = self.lattice_rec.to_dict
+        d['input'] = vasp_input
 
-        d['output'] = {}
-
-        d['output']['ionic_steps'] = self.ionic_steps
-        d['output']['final_energy'] = self.final_energy
-        d['output']['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
-        d['output']['crystal'] = self.final_structure.to_dict
-        d['output']['efermi'] = self.efermi
-        #{(kpoint index, Spin.up):array(float)}
-
-        d['output']['eigenvalues'] = {}
+        vasp_output = {}
+        vasp_output['ionic_steps'] = self.ionic_steps
+        vasp_output['final_energy'] = self.final_energy
+        vasp_output['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
+        vasp_output['crystal'] = self.final_structure.to_dict
+        vasp_output['efermi'] = self.efermi
+        vasp_output['eigenvalues'] = {}
         for (index, spin), values in self.eigenvalues.items():
-            if str(index) not in d['output']['eigenvalues']:
-                d['output']['eigenvalues'][str(index)] = {str(spin):values}
+            if str(index) not in vasp_output['eigenvalues']:
+                vasp_output['eigenvalues'][str(index)] = {str(spin):values}
             else:
-                d['output']['eigenvalues'][str(index)][str(spin)] = values
+                vasp_output['eigenvalues'][str(index)][str(spin)] = values
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        d['output'].update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+        vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+        d['output'] = vasp_output
+
         return clean_json(d, strict=True)
 
 
