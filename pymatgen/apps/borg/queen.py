@@ -78,7 +78,7 @@ class BorgQueen(object):
         p = Pool(self._num_drones)
         p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         for d in data:
-            self._data.append(PMGJSONDecoder().process_decoded(d))
+            self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
     def serial_assimilate(self, rootpath):
         """

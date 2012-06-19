@@ -1046,13 +1046,11 @@ class Kpoints(VaspInput):
     def from_dict(d):
         comment = d.get('comment', '')
         generation_style = d.get('generation_style')
-        code = "Kpoints.supported_modes." + generation_style
-        style = eval(code)
         kpts = d.get('kpoints', [[1, 1, 1]])
         kpts_shift = d.get('usershift', [0, 0, 0])
         num_kpts = d.get('nkpoints', 0)
         #coord_type = d.get('coord_type', None)
-        return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
+        return Kpoints(comment=comment, kpts=kpts, style=generation_style, kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
 
