@@ -22,6 +22,7 @@ from scipy.misc import comb
 from pymatgen.core.structure import Structure
 from copy import deepcopy, copy
 import bisect
+from datetime import datetime
 
 
 class EwaldSummation:
@@ -272,6 +273,12 @@ class EwaldMinimizer:
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
+    ALGO_TIME_LIMIT = 3
+    
+    '''
+    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing accuracy) as the 
+    minimizer runs. Attempts to limit the run time to approximately 30 minutes
+    '''
 
     def __init__(self, matrix, m_list, num_to_return = 1, algo = ALGO_FAST):
         '''
@@ -315,6 +322,8 @@ class EwaldMinimizer:
         
         self._finished = False #tag that the recurse function looks at at each level. If a method sets this to true it breaks the recursion and stops the search
 
+        self._start_time = datetime.utcnow()
+        
         self.minimize_matrix()
 
         self._best_m_list = self._output_lists[0][1]
@@ -347,11 +356,7 @@ class EwaldMinimizer:
 
     def best_case(self, matrix, m_list, indices_left):
         '''
-        Computes a best case given a matrix and manipulation list. This is only 
-        used for when there is only one manipulation left calculating a best 
-        case when there are multiple fractions remaining is much more complex 
-        (as sorting and dot products have to be done on each row and it just 
-        generally scales pretty badly).
+        Computes a best case given a matrix and manipulation list.
         
         Args:
             matrix: 
@@ -388,9 +393,18 @@ class EwaldMinimizer:
         step1 = np.sort(interaction_matrix)*(1-fractions)
         step2 = np.sort(np.sum(step1, axis = 1))
         step3 = step2*(1-fractions)
-        interactions = np.sum(step3)
+        interaction_correction = np.sum(step3)
         
-        best_case = np.sum(matrix) + np.inner(sums[::-1],fractions-1) + interactions
+        if self._algo == self.ALGO_TIME_LIMIT:
+            elapsed_time = datetime.utcnow()-self._start_time
+            speedup_parameter = elapsed_time.total_seconds()/1800
+            avg_int = np.sum(interaction_matrix, axis = None)
+            avg_frac = np.average(np.outer(1-fractions,1-fractions))
+            average_correction = avg_int*avg_frac
+            
+            interaction_correction = average_correction*speedup_parameter + interaction_correction*(1-speedup_parameter)
+        
+        best_case = np.sum(matrix) + np.inner(sums[::-1],fractions-1) + interaction_correction
         
         return best_case
         
@@ -436,9 +450,8 @@ class EwaldMinimizer:
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
         
-        if len(m_list) == 1 and m_list[-1][1] > 1:
-            best_case = self.best_case(matrix, m_list, indices)
-            if best_case > self._current_minimum:
+        if len(m_list) == 1 or m_list[-1][1] > 1:
+            if self.best_case(matrix, m_list, indices) > self._current_minimum:
                 return
             
         index = self.get_next_index(matrix, m_list[-1], indices)
@@ -448,7 +461,7 @@ class EwaldMinimizer:
         #make the matrix and new m_list where we do the manipulation to the index that we just got
         matrix2 = np.copy(matrix)
         m_list2 = deepcopy(m_list)
-        output_m_list2 = deepcopy(output_m_list)
+        output_m_list2 = copy(output_m_list)
 
         matrix2[index, :] *= m_list[-1][0]
         matrix2[:, index] *= m_list[-1][0]
