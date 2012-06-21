@@ -2679,6 +2679,11 @@ class Oszicar(object):
         """
         return self.ionic_steps[-1]['F']
 
+    @property
+    def to_dict(self):
+        return {'electronic_steps':self.electronic_steps,
+                'ionic_steps':self.ionic_steps}
+
 
 class VaspParserError(Exception):
     '''
