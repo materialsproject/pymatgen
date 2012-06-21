@@ -71,7 +71,6 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
             self._u_corrections_sulfides = dict()
             self._oxide_u = defaultdict(int)
 
-
     def has_u_element_oxides(self, comp):
         if Element("O") not in comp:
             return False

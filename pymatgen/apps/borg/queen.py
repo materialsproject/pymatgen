@@ -69,18 +69,16 @@ class BorgQueen(object):
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
-
         manager = Manager()
         data = manager.list()
         status = manager.dict()
         status['count'] = 0
         status['total'] = len(valid_paths)
         logger.info('{} valid paths found.'.format(len(valid_paths)))
-
         p = Pool(self._num_drones)
         p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
         for d in data:
-            self._data.append(PMGJSONDecoder().process_decoded(d))
+            self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
     def serial_assimilate(self, rootpath):
         """
@@ -98,7 +96,7 @@ class BorgQueen(object):
             count += 1
             logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
         for d in data:
-            self._data.append(PMGJSONDecoder().process_decoded(d))
+            self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
     def get_data(self):
         """
@@ -134,7 +132,7 @@ def _order_assimilation(args):
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
-        data.append(PMGJSONEncoder().default(newdata))
+        data.append(json.dumps(newdata, cls=PMGJSONEncoder))
     status['count'] += 1
     count = status['count']
     total = status['total']
