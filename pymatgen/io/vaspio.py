@@ -1046,13 +1046,11 @@ class Kpoints(VaspInput):
     def from_dict(d):
         comment = d.get('comment', '')
         generation_style = d.get('generation_style')
-        code = "Kpoints.supported_modes." + generation_style
-        style = eval(code)
         kpts = d.get('kpoints', [[1, 1, 1]])
         kpts_shift = d.get('usershift', [0, 0, 0])
         num_kpts = d.get('nkpoints', 0)
         #coord_type = d.get('coord_type', None)
-        return Kpoints(comment=comment, kpts=kpts, style=style, kpts_shift=kpts_shift, num_kpts=num_kpts)
+        return Kpoints(comment=comment, kpts=kpts, style=generation_style, kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
 
@@ -1487,7 +1485,6 @@ class Vasprun(object):
         """
         return True if self.incar.get('ISPIN', 1) == 2 else False
 
-
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructureSymmLine object
@@ -1579,9 +1576,9 @@ class Vasprun(object):
         d['vasp_version'] = self.vasp_version
         d['has_vasp_completed'] = self.converged
         d['nsites'] = len(self.final_structure)
-        d['unit_cell_formula'] = self.final_structure.composition.to_dict
         comp = self.final_structure.composition
-        d['reduced_cell_formula'] = Composition.from_formula(comp.reduced_formula).to_dict
+        d['unit_cell_formula'] = comp.to_dict
+        d['reduced_cell_formula'] = Composition(comp.reduced_formula).to_dict
         d['pretty_formula'] = comp.reduced_formula
         symbols = [re.split("\s+", s)[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
@@ -1592,7 +1589,7 @@ class Vasprun(object):
             us = self.incar.get('LDAUU', self.parameters.get('LDAUU'))
             js = self.incar.get('LDAUJ', self.parameters.get('LDAUJ'))
             if len(us) == len(symbols):
-                d['hubbards'] = { symbols[i] : us[i] - js[i] for i in xrange(len(symbols))}
+                d['hubbards'] = {symbols[i]:us[i] - js[i] for i in xrange(len(symbols))}
             elif sum(us) == 0 and sum(js) == 0:
                 d['is_hubbard'] = False
                 d['hubbards'] = {}
@@ -1600,40 +1597,36 @@ class Vasprun(object):
                 raise VaspParserError("Length of U value parameters and atomic symbols are mismatched")
         else:
             d['hubbards'] = {}
-        if d['is_hubbard']:
-            d['run_type'] = "GGA+U"
-        elif self.parameters.get('LHFCALC', False):
-            d['run_type'] = "HF"
-        else:
-            d['run_type'] = "GGA"
 
-        d['input'] = {}
-        d['input']['incar'] = {k:v for k, v in self.incar.items()}
-        d['input']['crystal'] = self.initial_structure.to_dict
-        d['input']['kpoints'] = self.kpoints.to_dict
-        d['input']['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
-        d['input']['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
-        d['input']['parameters'] = {k:v for k, v in self.parameters.items()}
-        d['input']['lattice_rec'] = self.lattice_rec.to_dict
+        d['run_type'] = self.run_type
 
-        d['output'] = {}
+        vasp_input = {}
+        vasp_input['incar'] = {k:v for k, v in self.incar.items()}
+        vasp_input['crystal'] = self.initial_structure.to_dict
+        vasp_input['kpoints'] = self.kpoints.to_dict
+        vasp_input['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
+        vasp_input['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vasp_input['parameters'] = {k:v for k, v in self.parameters.items()}
+        vasp_input['lattice_rec'] = self.lattice_rec.to_dict
+        d['input'] = vasp_input
 
-        d['output']['ionic_steps'] = self.ionic_steps
-        d['output']['final_energy'] = self.final_energy
-        d['output']['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
-        d['output']['crystal'] = self.final_structure.to_dict
-        d['output']['efermi'] = self.efermi
-        #{(kpoint index, Spin.up):array(float)}
-
-        d['output']['eigenvalues'] = {}
+        vasp_output = {}
+        vasp_output['ionic_steps'] = self.ionic_steps
+        vasp_output['final_energy'] = self.final_energy
+        vasp_output['final_energy_per_atom'] = self.final_energy / len(self.final_structure)
+        vasp_output['crystal'] = self.final_structure.to_dict
+        vasp_output['efermi'] = self.efermi
+        vasp_output['eigenvalues'] = {}
         for (index, spin), values in self.eigenvalues.items():
-            if str(index) not in d['output']['eigenvalues']:
-                d['output']['eigenvalues'][str(index)] = {str(spin):values}
+            if str(index) not in vasp_output['eigenvalues']:
+                vasp_output['eigenvalues'][str(index)] = {str(spin):values}
             else:
-                d['output']['eigenvalues'][str(index)][str(spin)] = values
+                vasp_output['eigenvalues'][str(index)][str(spin)] = values
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        d['output'].update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+        vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
+        d['output'] = vasp_output
+
         return clean_json(d, strict=True)
 
 
@@ -1696,11 +1689,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         #Nested if loops makes reading much faster.
         if not self.input_read: #reading input parameters
             self._init_input(name, attributes)
-        elif not self.all_calculations_read: #reading calculations and structures.
+        elif not self.all_calculations_read: #reading calculations and structures and eigenvalues.
             self._init_calc(name, attributes)
         else: #Read last part of vasprun, which is dos and eigenvalues if any.
             self._init_electronic_structure(name, attributes)
-
         if self.read_val:
             self.val = StringIO.StringIO()
 
@@ -1736,6 +1728,17 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
                 self.read_positions = True
 
+        if self.read_eigen:
+            if name == "r" and self.state["set"]:
+                self.read_val = True
+            elif name == "set" and "comment" in attributes:
+                comment = attributes["comment"]
+                self.state["set"] = comment
+                if comment.startswith("spin"):
+                    self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+                if comment.startswith("kpoint"):
+                    self.eigen_kpoint = int(comment.split(" ")[1])
+
         if name == "calculation":
             self.step_count += 1
             self.scdata = []
@@ -1749,55 +1752,28 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == 'varray' and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
             self.posstr = StringIO.StringIO()
+
+        if self.read_dos:
+            if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
+                self.read_val = True
+            elif name == "set" and "comment" in attributes:
+                comment = attributes["comment"]
+                self.state["set"] = comment
+                if self.state['partial']:
+                    if comment.startswith("ion"):
+                        self.pdos_ion = int(comment.split(" ")[1])
+                    elif comment.startswith("spin"):
+                        self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+        elif name == "dos":
+            self.dos_energies = None
+            self.tdos = {}
+            self.idos = {}
+            self.pdos = {}
+            self.efermi = None
+            self.read_dos = True
         elif name == "eigenvalues":
-            self.all_calculations_read = True
-
-    def _init_electronic_structure(self, name, attributes):
-        if self.read_structure:
-            if name == "v" and self.state['varray'] == 'basis':
-                self.read_lattice = True
-            elif name == "v" and self.state['varray'] == 'positions':
-                self.read_positions = True
-            if name == 'v' and self.state['varray'] == 'rec_basis':
-                self.read_rec_lattice = True
-        if name == 'structure':
-            self.latticestr = StringIO.StringIO()
-            self.latticerec = StringIO.StringIO()
-            self.posstr = StringIO.StringIO()
-            self.read_structure = True
-
-        if self.read_electronic_structure:
-            if self.read_eigen:
-                if name == "r" and self.state["set"]:
-                    self.read_val = True
-                elif name == "set" and "comment" in attributes:
-                    comment = attributes["comment"]
-                    self.state["set"] = comment
-                    if comment.startswith("spin"):
-                        self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                    if comment.startswith("kpoint"):
-                        self.eigen_kpoint = int(comment.split(" ")[1])
-            elif self.read_dos:
-                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
-                    self.read_val = True
-                elif name == "set" and "comment" in attributes:
-                    comment = attributes["comment"]
-                    self.state["set"] = comment
-                    if self.state['partial']:
-                        if comment.startswith("ion"):
-                            self.pdos_ion = int(comment.split(" ")[1])
-                        elif comment.startswith("spin"):
-                            self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-            elif name == "dos":
-                self.dos_energies = None
-                self.tdos = {}
-                self.idos = {}
-                self.pdos = {}
-                self.efermi = None
-                self.read_dos = True
-            elif name == "eigenvalues":
-                self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
-                self.read_eigen = True
+            self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
+            self.read_eigen = True
 
     def characters(self, data):
         if self.read_val:
@@ -2090,6 +2066,7 @@ class Outcar(object):
         mag = []
         header = []
         run_stats = {}
+        efermi = None
         for line in lines:
             clean = line.strip()
             if clean == "total charge":
@@ -2115,9 +2092,13 @@ class Outcar(object):
             elif re.search("\((sec|kb)\):", line):
                 tok = line.strip().split(":")
                 run_stats[tok[0].strip()] = float(tok[1].strip())
+            elif re.search("E-fermi\s+:", clean):
+                m = re.search("E-fermi\s*:\s*(\S+)", clean)
+                efermi = float(m.group(1))
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
+        self.efermi = efermi
 
     def read_igpar(self):
         """ 
@@ -2257,6 +2238,17 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['efermi'] = self.efermi
+        d['run_stats'] = self.run_stats
+        d['magnetization'] = self.magnetization
+        d['charge'] = self.charge
+        d['is_stopped'] = self.is_stopped
+        return d
 
 class VolumetricData(object):
     """
@@ -2686,6 +2678,11 @@ class Oszicar(object):
         Final energy from run.
         """
         return self.ionic_steps[-1]['F']
+
+    @property
+    def to_dict(self):
+        return {'electronic_steps':self.electronic_steps,
+                'ionic_steps':self.ionic_steps}
 
 
 class VaspParserError(Exception):

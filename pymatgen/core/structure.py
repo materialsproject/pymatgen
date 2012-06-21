@@ -36,7 +36,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     1. Coords are given in standard cartesian coordinates.
     '''
 
-    supported_properties = ('magmom', 'charge')
+    supported_properties = ('magmom', 'charge', 'coordination_no')
 
     def __init__(self, atoms_n_occu, coords, properties=None):
         """

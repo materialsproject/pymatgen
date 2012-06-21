@@ -183,10 +183,11 @@ class PhaseDiagram (object):
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
-            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:
+            if self.get_form_energy(entry) <= -self.FORMATION_ENERGY_TOLERANCE:
                 entries_to_process.append(entry)
             else:
                 logger.debug("Removing positive formation energy entry {}".format(entry))
+        entries_to_process.extend([entry for entry in self._el_refs.values()])
 
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)

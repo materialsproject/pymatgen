@@ -22,6 +22,7 @@ from scipy.misc import comb
 from pymatgen.core.structure import Structure
 from copy import deepcopy, copy
 import bisect
+from datetime import datetime
 
 
 class EwaldSummation:
@@ -272,6 +273,12 @@ class EwaldMinimizer:
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
+    ALGO_TIME_LIMIT = 3
+    
+    '''
+    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing accuracy) as the 
+    minimizer runs. Attempts to limit the run time to approximately 30 minutes
+    '''
 
     def __init__(self, matrix, m_list, num_to_return = 1, algo = ALGO_FAST):
         '''
@@ -293,23 +300,30 @@ class EwaldMinimizer:
                 remove the duplicates later. (duplicate checking in this 
                 process is extremely expensive)
         '''
+        #setup and checking of inputs
         self._matrix = copy(matrix)
         for i in range(len(self._matrix)): #make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
             for j in range(i, len(self._matrix)):
                 value = (self._matrix[i, j] + self._matrix[j, i]) / 2
                 self._matrix[i, j] = value
                 self._matrix[j, i] = value
-        self._m_list = deepcopy(sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True)) #sort the m_list based on number of permutations
-        self._current_minimum = float('inf')
-
-        self._output_lists = []
-        self._num_to_return = num_to_return
+        self._m_list = sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True) #sort the m_list based on number of permutations
         
+        for mlist in self._m_list:
+            if mlist[0]>1:
+                raise ValueError('multiplication fractions must be <= 1')
+        self._current_minimum = float('inf')
+        self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
             raise NotImplementedError('Complete algo not yet implemented for EwaldMinimizer')
+        
+        self._output_lists = []
+        
         self._finished = False #tag that the recurse function looks at at each level. If a method sets this to true it breaks the recursion and stops the search
 
+        self._start_time = datetime.utcnow()
+        
         self.minimize_matrix()
 
         self._best_m_list = self._output_lists[0][1]
@@ -340,60 +354,69 @@ class EwaldMinimizer:
             self._current_minimum = self._output_lists[-1][0]
 
 
-    def best_case(self, matrix, manipulation, indices_left):
+    def best_case(self, matrix, m_list, indices_left):
         '''
-        Computes a best case given a matrix and manipulation list. This is only 
-        used for when there is only one manipulation left calculating a best 
-        case when there are multiple fractions remaining is much more complex 
-        (as sorting and dot products have to be done on each row and it just 
-        generally scales pretty badly).
+        Computes a best case given a matrix and manipulation list.
         
         Args:
             matrix: 
                 the current matrix (with some permutations already performed
-            manipulation: 
-                (multiplication fraction, number_of_indices, indices, species) 
+            m_list: 
+                [(multiplication fraction, number_of_indices, indices, species) ]
                 describing the manipulation
             indices: 
                 set of indices which haven't had a permutation performed on them 
         '''
-        indices = list(indices_left.intersection(manipulation[2])) #only look at the indices that are in the manipulation and haven't been used
-        fraction = manipulation[0]
-        num = manipulation[1]
-
-        sums = [2 * sum(matrix[i, :]) - (1 - fraction) * matrix[i, i] for i in indices]   #compute the sum of each row. the weird prefactor on the self 
-                                                                                #interaction term is to make the math work out because it actually 
-                                                                                #is multiplied by f**2vrather than f like all the other te
-        if fraction < 1:    #we want do the thing that we guess will be most minimizing (to get to a lower current minimum faster). Whether 
-                            #we want to use the most positive or negative row depends on whether we're increasing or decreasing that row
-            next_index = indices[sums.index(max(sums))]
-        else:
-            next_index = indices[sums.index(min(sums))]
-
-        interactions = list(matrix[indices, :][:, indices].flatten()) #compute a list of things that we may have double counted
-
-        if fraction <= 1:    #we use the first part of sorted sums. Whether we want highest or lowest depends on the fraction
-            sums.sort(reverse = True)
-        else:
-            sums.sort()
-        if 2 * fraction - fraction ** 2 <= 1:
-            interactions.sort(reverse = True)
-        else:
-            interactions.sort()
-
-        #compute a best case using the most minimizing row sums and the most minimizing interactions
-        best_case = sum(sum(matrix)) + (fraction - 1) * sum(sums[:num]) + (2 * fraction - fraction ** 2 - 1) * sum(interactions[:num * (num - 1)])
-
-        return best_case, next_index
+        
+        m_indices = []
+        fraction_list = []
+        for m in m_list:
+            m_indices.extend(m[2])
+            fraction_list.extend([m[0]]*m[1])
+        
+        indices = list(indices_left.intersection(m_indices))
+        
+        interaction_matrix = matrix[indices, :][:, indices]
+        
+        fractions = np.zeros(len(interaction_matrix))+1
+        fractions[:len(fraction_list)]=fraction_list
+        fractions = np.sort(fractions)
+        
+        #sum associated with each index (disregarding interactions between indices)
+        sums = 2*np.sum(matrix[indices], axis=1)
+        sums = np.sort(sums)
+        
+        #interaction corrections. Can be reduced to (1-x)(1-y) for x,y in fractions
+        #each element in a column gets multiplied by (1-x), and then the sum of the columns gets 
+        #multiplied by (1-y)
+        #since fractions are less than 1, there is no effect of one choice on the other
+        step1 = np.sort(interaction_matrix)*(1-fractions)
+        step2 = np.sort(np.sum(step1, axis = 1))
+        step3 = step2*(1-fractions)
+        interaction_correction = np.sum(step3)
+        
+        if self._algo == self.ALGO_TIME_LIMIT:
+            elapsed_time = datetime.utcnow()-self._start_time
+            speedup_parameter = elapsed_time.total_seconds()/1800
+            avg_int = np.sum(interaction_matrix, axis = None)
+            avg_frac = np.average(np.outer(1-fractions,1-fractions))
+            average_correction = avg_int*avg_frac
+            
+            interaction_correction = average_correction*speedup_parameter + interaction_correction*(1-speedup_parameter)
+        
+        best_case = np.sum(matrix) + np.inner(sums[::-1],fractions-1) + interaction_correction
+        
+        return best_case
+        
 
     def get_next_index(self, matrix, manipulation, indices_left): #returns an index that should have the most negative effect on the matrix sum
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
-        sums = [2 * sum(matrix[i, :]) - (1 - f) * matrix[i, i] for i in indices]
+        sums = np.sum(matrix[indices], axis = 1)
         if f < 1:
-            next_index = indices[sums.index(max(sums))]
+            next_index = indices[sums.argmax(axis=0)]
         else:
-            next_index = indices[sums.index(min(sums))]
+            next_index = indices[sums.argmin(axis=0)]
 
         return next_index
 
@@ -408,12 +431,6 @@ class EwaldMinimizer:
                 The list of permutations still to be performed
             indices: 
                 Set of indices which haven't had a permutation performed on them
-            fast: 
-                boolean indicating whether shortcuts by looking at the best case are to be used, the default is true
-        
-        Returns:
-            [minimal value, [list of replacements]]
-                Each replacement is a list [index of replaced specie, specie inserted at that index]
         '''
         #check to see if we've found all the solutions that we need
         if self._finished:
@@ -424,7 +441,7 @@ class EwaldMinimizer:
             m_list = copy(m_list)
             m_list.pop()
             if not m_list: #if there are no more manipulations left to do check the value
-                matrix_sum = sum(sum(matrix))
+                matrix_sum = np.sum(matrix)
                 if matrix_sum < self._current_minimum:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
@@ -433,34 +450,29 @@ class EwaldMinimizer:
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
         
-        #get the next index and best case, if there's just one manipulation left
-        index = None
-        if len(m_list) == 1 and m_list[-1][1] > 1:
-            best_case = self.best_case(copy(matrix), m_list[-1], indices)
-            index = best_case[1]
-            if best_case[0] > self._current_minimum:
+        if len(m_list) == 1 or m_list[-1][1] > 1:
+            if self.best_case(matrix, m_list, indices) > self._current_minimum:
                 return
             
-        if index is None:
-            index = self.get_next_index(matrix, m_list[-1], indices)
+        index = self.get_next_index(matrix, m_list[-1], indices)
 
         m_list[-1][2].remove(index)
         
         #make the matrix and new m_list where we do the manipulation to the index that we just got
-        matrix2 = copy(matrix)
+        matrix2 = np.copy(matrix)
         m_list2 = deepcopy(m_list)
-        output_m_list2 = deepcopy(output_m_list)
+        output_m_list2 = copy(output_m_list)
 
         matrix2[index, :] *= m_list[-1][0]
         matrix2[:, index] *= m_list[-1][0]
         output_m_list2.append([index, m_list[-1][3]])
         indices2 = copy(indices)
+        indices2.remove(index)
         m_list2[-1][1] -= 1
 
         #recurse through both the modified and unmodified matrices
-        if index in indices2:
-            indices2.remove(index)
-            self._recurse(matrix2, m_list2, indices2, output_m_list2)
+        
+        self._recurse(matrix2, m_list2, indices2, output_m_list2)
         self._recurse(matrix, m_list, indices, output_m_list)
         
 
