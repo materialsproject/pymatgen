@@ -2067,6 +2067,8 @@ class Outcar(object):
         mag = []
         header = []
         run_stats = {}
+        total_mag = None
+        nelect = None
         efermi = None
         for line in lines:
             clean = line.strip()
@@ -2096,10 +2098,17 @@ class Outcar(object):
             elif re.search("E-fermi\s+:", clean):
                 m = re.search("E-fermi\s*:\s*(\S+)", clean)
                 efermi = float(m.group(1))
+            elif re.search("number of electron\s+\S+", clean):
+                m = re.search("number of electron\s+(\S+)\s+magnetization\s+(\S+)", clean)
+                nelect = float(m.group(1))
+                total_mag = float(m.group(2))
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
+        self.nelect = nelect
+        self.total_mag = total_mag
 
     def read_igpar(self):
         """ 
@@ -2248,6 +2257,8 @@ class Outcar(object):
         d['run_stats'] = self.run_stats
         d['magnetization'] = self.magnetization
         d['charge'] = self.charge
+        d['total_magnetization'] = self.total_mag
+        d['nelect'] = self.nelect
         d['is_stopped'] = self.is_stopped
         return d
 
