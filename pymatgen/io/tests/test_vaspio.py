@@ -360,8 +360,10 @@ class OutcarTest(unittest.TestCase):
         self.assertFalse(outcar.is_stopped)
         self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938, 'Total CPU time used (sec)': 545.142, 'Elapsed time (sec)': 546.709, 'Maximum memory used (kb)': 0.0, 'Average memory used (kb)': 0.0, 'User time (sec)': 544.204})
         self.assertAlmostEqual(outcar.efermi, 2.0112)
-        self.assertIsNotNone(outcar.to_dict)
+        self.assertAlmostEqual(outcar.nelect, 44.9999991)
+        self.assertAlmostEqual(outcar.total_mag, 0.9999998)
 
+        self.assertIsNotNone(outcar.to_dict)
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
