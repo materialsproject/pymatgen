@@ -1363,7 +1363,7 @@ class Vasprun(object):
                             'ionic_steps', 'dos_has_errors']
 
     def __init__(self, filename, ionic_step_skip=None,
-                 read_electronic_structure=True):
+                 parse_dos=True, parse_eigen=True):
         """
         Args:
             filename:
@@ -1384,7 +1384,8 @@ class Vasprun(object):
         self.filename = filename
 
         with file_open_zip_aware(filename) as f:
-            self._handler = VasprunHandler(filename, read_electronic_structure=read_electronic_structure)
+            self._handler = VasprunHandler(filename, parse_dos=parse_dos,
+                                           parse_eigen=parse_eigen)
             if ionic_step_skip == None:
                 self._parser = xml.sax.parse(f, self._handler)
             else:
@@ -1636,9 +1637,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Generally should not be initiatized on its own.
     """
 
-    def __init__(self, filename, read_electronic_structure=True):
+    def __init__(self, filename, parse_dos=True, parse_eigen=True):
         self.filename = filename
-        self.read_electronic_structure = read_electronic_structure
+        self.parse_dos = parse_dos
+        self.parse_eigen = parse_eigen
         self.step_count = 0
         # variables to be filled
         self.vasp_version = None
@@ -1661,7 +1663,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.stress = []
 
         self.input_read = False
-        self.all_calculations_read = False
         self.read_structure = False
         self.read_rec_lattice = False
         self.read_calculation = False
@@ -1689,10 +1690,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         #Nested if loops makes reading much faster.
         if not self.input_read: #reading input parameters
             self._init_input(name, attributes)
-        elif not self.all_calculations_read: #reading calculations and structures and eigenvalues.
+        else: #reading calculations and structures and eigenvalues.
             self._init_calc(name, attributes)
-        else: #Read last part of vasprun, which is dos and eigenvalues if any.
-            self._init_electronic_structure(name, attributes)
         if self.read_val:
             self.val = StringIO.StringIO()
 
@@ -1727,17 +1726,37 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.read_val = True
             elif name == "v" and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
                 self.read_positions = True
-
-        if self.read_eigen:
-            if name == "r" and self.state["set"]:
-                self.read_val = True
-            elif name == "set" and "comment" in attributes:
-                comment = attributes["comment"]
-                self.state["set"] = comment
-                if comment.startswith("spin"):
-                    self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                if comment.startswith("kpoint"):
-                    self.eigen_kpoint = int(comment.split(" ")[1])
+            elif name == "dos" and self.parse_dos:
+                self.dos_energies = None
+                self.tdos = {}
+                self.idos = {}
+                self.pdos = {}
+                self.efermi = None
+                self.read_dos = True
+            elif name == "eigenvalues" and self.parse_eigen:
+                self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
+                self.read_eigen = True
+            elif self.read_eigen:
+                if name == "r" and self.state["set"]:
+                    self.read_val = True
+                elif name == "set" and "comment" in attributes:
+                    comment = attributes["comment"]
+                    self.state["set"] = comment
+                    if comment.startswith("spin"):
+                        self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
+                    if comment.startswith("kpoint"):
+                        self.eigen_kpoint = int(comment.split(" ")[1])
+            elif self.read_dos:
+                if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
+                    self.read_val = True
+                elif name == "set" and "comment" in attributes:
+                    comment = attributes["comment"]
+                    self.state["set"] = comment
+                    if self.state['partial']:
+                        if comment.startswith("ion"):
+                            self.pdos_ion = int(comment.split(" ")[1])
+                        elif comment.startswith("spin"):
+                            self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
 
         if name == "calculation":
             self.step_count += 1
@@ -1752,28 +1771,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == 'varray' and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
             self.posstr = StringIO.StringIO()
-
-        if self.read_dos:
-            if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
-                self.read_val = True
-            elif name == "set" and "comment" in attributes:
-                comment = attributes["comment"]
-                self.state["set"] = comment
-                if self.state['partial']:
-                    if comment.startswith("ion"):
-                        self.pdos_ion = int(comment.split(" ")[1])
-                    elif comment.startswith("spin"):
-                        self.pdos_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-        elif name == "dos":
-            self.dos_energies = None
-            self.tdos = {}
-            self.idos = {}
-            self.pdos = {}
-            self.efermi = None
-            self.read_dos = True
-        elif name == "eigenvalues":
-            self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
-            self.read_eigen = True
 
     def characters(self, data):
         if self.read_val:
@@ -1834,9 +1831,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         elif name == 'varray' and state['varray'] == "forces":
             self.forces = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.forces.shape = (len(self.atomic_symbols), 3)
+            self.read_positions = False
         elif name == 'varray' and state['varray'] == "stress":
             self.stress = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.stress.shape = (3, 3)
+            self.read_positions = False
         elif name == "calculation":
             self.ionic_steps.append({'electronic_steps':self.scdata, 'structure':self.structures[-1], 'forces': self.forces, 'stress':self.stress})
             self.read_calculation = False
@@ -1845,7 +1844,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         if name == "v":
             self.read_positions = False
             self.read_lattice = False
-            self.read_lattice_rec = False
             self.read_rec_lattice = False
         elif name == "structure":
             self.lattice = np.array([float(x) for x in re.split("\s+", self.latticestr.getvalue().strip())])
@@ -1855,6 +1853,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.structures.append(Structure(self.lattice, self.atomic_symbols, self.pos))
             self.lattice_rec = Lattice([float(x) for x in re.split("\s+", self.latticerec.getvalue().strip())])
             self.read_structure = False
+            self.read_positions = False
+            self.read_lattice = False
+            self.read_rec_lattice = False
 
     def _read_dos(self, name):
         state = self.state
