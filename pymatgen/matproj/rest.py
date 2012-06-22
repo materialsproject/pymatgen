@@ -208,4 +208,3 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
-
