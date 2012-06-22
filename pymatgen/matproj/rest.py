@@ -26,30 +26,44 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 class MPRestAdaptor(object):
     """
     A class to conveniently interface with the Materials Project REST interface.
-    
-    TODO
-    dos - Vasp DOS
-    bandstructure - Vasp Bandstructure
-    bandgap - Vasp bandgap
     """
 
-    supported_properties = ["structure", "initial_structure", "final_structure", "energy", "energy_per_atom", "formation_energy_per_atom",
-         "nsites", "formula", "pretty_formula", "is_hubbard",
-         "elements", "nelements", "e_above_hull", "hubbards", "is_compatible", "entry"]
+    supported_properties = ("structure", "initial_structure", "final_structure",
+                            "energy", "energy_per_atom",
+                            "formation_energy_per_atom", "nsites", "formula",
+                            "pretty_formula", "is_hubbard", "elements",
+                            "nelements", "e_above_hull", "hubbards",
+                            "is_compatible", "entry")
 
     def __init__(self, api_key):
+        """
+        Args:
+            api_key:
+                A String API key for accessing the MaterialsProject REST
+                interface. Please apply on the Materials Project website for
+                one.
+        """
         self.url = "http://127.0.0.1:8000/rest"
         self.api_key = api_key
 
     def get_data(self, chemsys_formula_id, prop=""):
         """
         Flexible method to get any data using the Materials Project REST
-        interface.
+        interface. Generally used by other methods for more specific queries.
         
         Format of REST return is *always* a list of dict (regardless of the
         number of pieces of data returned. The general format is as follows:
         
         [{'material_id': material_id, 'property_name' : value}, ...]
+        
+        Args:
+            chemsys_formula_id:
+                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or 
+                materials_id (e.g., 1234).
+            prop:
+                Property to be obtained. Should be one of the
+                MPRestAdaptor.supported_properties. Leave as empty string for a
+                general list of useful properties.
         """
         url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, chemsys_formula_id, prop, self.api_key)
         req = urllib2.Request(url)
@@ -102,7 +116,7 @@ class MPRestAdaptor(object):
                 Materials Project material_id (an int).
         
         Returns:
-            ComputedEntry object.
+            A Dos object.
         """
         data = self.get_data(material_id, prop="dos")
         return data[0]["dos"]
@@ -116,7 +130,7 @@ class MPRestAdaptor(object):
                 Materials Project material_id (an int).
         
         Returns:
-            ComputedEntry object.
+            A Bandstructure object.
         """
         data = self.get_data(material_id, prop="bandstructure")
         return data[0]["bandstructure"]
