@@ -18,8 +18,9 @@ __date__ = "Jun 8, 2012"
 import urllib
 import urllib2
 
-from pymatgen.serializers.json_coders import PMGJSONDecoder
 import json
+
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 
@@ -66,7 +67,7 @@ class MPRestAdaptor(object):
                 general list of useful properties.
         """
         url = "{}/{}/vasp/{}".format(self.url, chemsys_formula_id, prop)
-        req = urllib2.Request(url, headers={"API_KEY":self.api_key})
+        req = urllib2.Request(url, headers={"X_API_KEY":self.api_key})
         try:
             response = urllib2.urlopen(req)
             data = json.loads(response.read(), cls=PMGJSONDecoder)
@@ -169,8 +170,8 @@ class MPRestAdaptor(object):
         Returns:
             List of ThermoData objects.
         """
-        url = "{}/{}/exp?API_KEY={}".format(self.url, formula, self.api_key)
-        req = urllib2.Request(url)
+        url = "{}/{}/exp".format(self.url, formula)
+        req = urllib2.Request(url, headers={"X_API_KEY":self.api_key})
         response = urllib2.urlopen(req)
         data = response.read()
         data = json.loads(data, cls=PMGJSONDecoder)
@@ -204,8 +205,9 @@ class MPRestAdaptor(object):
         Returns:
             List of dict of data.
         """
-        params = urllib.urlencode({'criteria': criteria, 'properties': properties, 'API_KEY':self.api_key})
-        req = urllib2.Request("{}/mpquery".format(self.url), params)
+        params = urllib.urlencode({'criteria': criteria, 'properties': properties})
+        req = urllib2.Request("{}/mpquery".format(self.url), params,
+                              headers={"X_API_KEY":self.api_key})
         response = urllib2.urlopen(req)
         data = response.read()
         data = json.loads(data)
@@ -223,3 +225,4 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
+
