@@ -65,8 +65,8 @@ class MPRestAdaptor(object):
                 MPRestAdaptor.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, chemsys_formula_id, prop, self.api_key)
-        req = urllib2.Request(url)
+        url = "{}/{}/vasp/{}".format(self.url, chemsys_formula_id, prop)
+        req = urllib2.Request(url, headers={"API_KEY":self.api_key})
         try:
             response = urllib2.urlopen(req)
             data = json.loads(response.read(), cls=PMGJSONDecoder)
@@ -223,5 +223,3 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
-
-
