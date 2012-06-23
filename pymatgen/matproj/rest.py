@@ -35,7 +35,7 @@ class MPRestAdaptor(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key):
+    def __init__(self, api_key, url="http://www.materialsproject.org:8080/rest"):
         """
         Args:
             api_key:
@@ -43,7 +43,7 @@ class MPRestAdaptor(object):
                 interface. Please apply on the Materials Project website for
                 one.
         """
-        self.url = "http://127.0.0.1:8000/rest"
+        self.url = url
         self.api_key = api_key
 
     def get_data(self, chemsys_formula_id, prop=""):
@@ -67,12 +67,13 @@ class MPRestAdaptor(object):
         """
         url = "{}/{}/vasp/{}?API_KEY={}".format(self.url, chemsys_formula_id, prop, self.api_key)
         req = urllib2.Request(url)
-        response = urllib2.urlopen(req)
-        data = response.read()
-        data = json.loads(data, cls=PMGJSONDecoder)
-        if data['valid_response']:
-            return data['response']
-        else:
+        try:
+            response = urllib2.urlopen(req)
+            data = json.loads(response.read(), cls=PMGJSONDecoder)
+            if data['valid_response']:
+                return data['response']
+        except urllib2.HTTPError as ex:
+            data = json.loads(ex.read(), cls=PMGJSONDecoder)
             raise MPRestError(data['error'])
 
     def get_structure_by_material_id(self, material_id, final=True):
@@ -222,3 +223,5 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "MPRestError Error : " + self.msg
+
+
