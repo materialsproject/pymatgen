@@ -59,6 +59,7 @@ class PDEntryIOTestCase(unittest.TestCase):
         self.assertEqual(elements, [Element('Li'), Element('Fe'), Element('O')], "Wrong elements!")
         self.assertEqual(len(entries), 492, "Wrong number of entries!")
 
+
 if __name__ == '__main__':
     unittest.main()
 

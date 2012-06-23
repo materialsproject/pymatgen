@@ -14,7 +14,10 @@ __email__ = "shyue@mit.edu"
 __date__ = "Jun 9, 2012"
 
 import unittest
+import os
+import json
 
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.matproj.rest import MPRestAdaptor
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -22,18 +25,69 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
 
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
+
+class MPRestAdaptorMock(MPRestAdaptor):
+    """
+    A mock subclass for the REST adaptor to allow secure testing.
+    """
+
+    def get_data(self, chemsys_formula_id, prop=""):
+
+        if chemsys_formula_id == "Fe-Li-O":
+            filename = os.path.join(test_dir, "{}_{}.json".format("Fe-Li-O", prop))
+            return json.load(open(filename, "r"), cls=PMGJSONDecoder)
+
+        props = ["energy", "energy_per_atom", "formation_energy_per_atom",
+                 "nsites", "formula", "pretty_formula", "is_hubbard",
+                 "elements", "nelements", "e_above_hull", "hubbards", "is_compatible"]
+        expected_vals = [-191.33404309, -6.83335868179, -2.5574286372085706, 28,
+                         {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4}, "LiFePO4",
+                         True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
+                         {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True]
+        try:
+            i = props.index(prop)
+            return [{prop:expected_vals[i]}]
+        except ValueError:
+            if prop in ("structure", "initial_structure", "final_structure"):
+                obj = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ["Si"], [[0, 0, 0]])
+            elif prop == "bandstructure":
+                filename = os.path.join(test_dir, "CaO_2605_bandstructure.json")
+                d = json.load(open(filename, "r"))
+                obj = BandStructureSymmLine.from_dict(d)
+            elif prop == "entry":
+                obj = ComputedEntry("Fe2O3", 0, 0, parameters={'hubbards':{}, "is_hubbard":False, "potcar_symbols":["PBE Fe_pv", "PBE O"]})
+            elif prop == "dos":
+                filename = os.path.join(test_dir, "complete_dos.json")
+                d = json.load(open(filename, "r"))
+                obj = CompleteDos.from_dict(d)
+            return [{prop: obj}]
+
+    def get_exp_data(self, formula):
+        filename = os.path.join(test_dir, "Fe2O3_exp.json")
+        return json.load(open(filename, "r"), cls=PMGJSONDecoder)
+
+    def mpquery(self, criteria, properties):
+        filename = os.path.join(test_dir, "mpquery.json")
+        return json.load(open(filename, "r"), cls=PMGJSONDecoder)
+
 
 class MPRestAdaptorTest(unittest.TestCase):
 
     def setUp(self):
-        self.adaptor = MPRestAdaptor("test_dev")
+        self.adaptor = MPRestAdaptorMock("")
 
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "formula", "pretty_formula", "is_hubbard",
                  "elements", "nelements", "e_above_hull", "hubbards", "is_compatible"]
-        expected_vals = [-191.33404309, -6.83335868179, -2.5574286372085706, 28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
-                "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0, {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True]
+        expected_vals = [-191.33404309, -6.83335868179, -2.5574286372085706, 28,
+                         {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4}, "LiFePO4",
+                         True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
+                         {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True]
 
         for (i, prop) in enumerate(props):
             if prop != 'hubbards':
@@ -50,14 +104,6 @@ class MPRestAdaptorTest(unittest.TestCase):
                 obj = self.adaptor.get_data(19017, prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
-        #Test get all data.
-        self.assertEqual(len(self.adaptor.get_data(19017)[0]), 13)
-
-        #Test formula search
-        data = self.adaptor.get_data('Fe2O3', 'formula')
-        self.assertTrue(len(data) > 1)
-        for d in data:
-            self.assertEqual(Composition(d['formula']).reduced_formula, 'Fe2O3')
 
         #Test chemsys search
         data = self.adaptor.get_data('Fe-Li-O', 'formula')
@@ -78,11 +124,7 @@ class MPRestAdaptorTest(unittest.TestCase):
 
     def test_get_structure_by_material_id(self):
         s1 = self.adaptor.get_structure_by_material_id(19017)
-        s2 = self.adaptor.get_structure_by_material_id(19017, False)
-        self.assertEqual(s1.formula, "Li4 Fe4 P4 O16")
-        self.assertEqual(s2.formula, "Li4 Fe4 P4 O16")
-        #Initial and final structures have different volumes 
-        self.assertNotEqual(s1.volume, s2.volume)
+        self.assertEqual(s1.formula, "Si1")
 
     def test_get_entry_by_material_id(self):
         e = self.adaptor.get_entry_by_material_id(19017)
