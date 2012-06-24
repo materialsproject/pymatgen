@@ -148,6 +148,12 @@ class MPRestAdaptor(object):
         Args:
             elements:
                 List of element symbols, e.g., ["Li", "Fe", "O"].
+            compatible_only:
+                Whether to return only "compatible" entries. Compatible entries
+                are entries that have been processed using the 
+                MaterialsProjectCompatibility class, which performs adjustments
+                to allow mixing of GGA and GGA+U calculations for more accurate
+                phase diagrams and reaction energies.
         
         Returns:
             List of ComputedEntries.
