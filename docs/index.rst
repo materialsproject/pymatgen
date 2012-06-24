@@ -42,12 +42,15 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.9.1)
+Latest Change Log (v2.0.0)
 --------------------------
 
-1. New PDAnalyzer method to generate chemical potential maps.
-2. Enhanced POSCAR class to support parsing of velocities and more formatting
+1. New module (pymatgen.matproj.rest) for interfacing with the MaterialsProject
+   REST interface.
+2. New PDAnalyzer method to generate chemical potential maps.
+3. Enhanced POSCAR class to support parsing of velocities and more formatting
    options.
+4. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2

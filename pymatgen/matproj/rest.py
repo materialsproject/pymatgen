@@ -3,7 +3,11 @@
 '''
 This module provides classes to interface with the Materials Project http REST
 interface to enable the creation of data structures and pymatgen objects using
-Materials Project data. 
+Materials Project data.
+
+To make use of the Materials Project REST interface, you need to be a
+registered user of the MaterialsProject, and apply on the MaterialsProject site
+for an API key. Currently, the http interface is still in limited beta.
 '''
 
 from __future__ import division
@@ -36,7 +40,7 @@ class MPRestAdaptor(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key, url="http://www.materialsproject.org:8080/rest"):
+    def __init__(self, api_key, url="http://www.materialsproject.org/rest"):
         """
         Args:
             api_key:
