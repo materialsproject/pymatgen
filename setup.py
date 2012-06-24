@@ -39,7 +39,7 @@ pymatgen's Google Groups page
 
 setup (
   name='pymatgen',
-  version='1.9.1',
+  version='2.0.0',
   packages=find_packages(),
   install_requires=['numpy>=1.6'],
   extras_require={
