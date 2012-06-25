@@ -74,7 +74,7 @@ class MPRestAdaptor(object):
                 general list of useful properties.
         """
         url = "{}/{}/vasp/{}".format(self.url, chemsys_formula_id, prop)
-        req = urllib2.Request(url, headers={"X_API_KEY":self.api_key})
+        req = urllib2.Request(url, headers={"X-API-KEY":self.api_key})
         try:
             response = urllib2.urlopen(req)
             data = json.loads(response.read(), cls=PMGJSONDecoder)
@@ -184,7 +184,7 @@ class MPRestAdaptor(object):
             List of ThermoData objects.
         """
         url = "{}/{}/exp".format(self.url, formula)
-        req = urllib2.Request(url, headers={"X_API_KEY":self.api_key})
+        req = urllib2.Request(url, headers={"X-API-KEY":self.api_key})
         response = urllib2.urlopen(req)
         data = response.read()
         data = json.loads(data, cls=PMGJSONDecoder)
@@ -220,7 +220,7 @@ class MPRestAdaptor(object):
         """
         params = urllib.urlencode({'criteria': criteria, 'properties': properties})
         req = urllib2.Request("{}/mpquery".format(self.url), params,
-                              headers={"X_API_KEY":self.api_key})
+                              headers={"X-API-KEY":self.api_key})
         response = urllib2.urlopen(req)
         data = response.read()
         data = json.loads(data)
@@ -237,5 +237,4 @@ class MPRestError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "MPRestError Error : " + self.msg
-
+        return "Materials Project REST Error : " + self.msg
