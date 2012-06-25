@@ -246,7 +246,7 @@ class CifWriter:
         block.AddToLoop('_atom_site_type_symbol', {'_atom_site_occupancy':atom_site_occupancy})
 
         self._cf = CifFile.CifFile()
-        self._cf[comp.reduced_formula] = block
+        self._cf[comp.reduced_formula[0:74]] = block  # AJ says: CIF Block names cannot be more than 75 characters or you get an Exception
 
     def __str__(self):
         '''
