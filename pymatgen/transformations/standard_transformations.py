@@ -16,7 +16,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
-import json
 import itertools
 import numpy as np
 from operator import itemgetter

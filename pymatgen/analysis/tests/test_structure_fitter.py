@@ -53,12 +53,12 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
 
         # Test with a structure with a translated point
-
         editor = StructureEditor(self.a)
         site = self.a[0]
         editor.delete_site(0)
-        trans = np.random.randint(0, 1000, 3)
-        editor.insert_site(0, site.species_and_occu, site.frac_coords + trans, False, False)
+        trans = np.random.rand(1, 3)
+
+        editor.insert_site(0, site.species_and_occu, site.frac_coords + trans[0], False, False)
         fitter = StructureFitter(self.b, editor.modified_structure)
         self.assertTrue(fitter.mapping_op != None, "No fit found for translation {}!".format(trans))
 
