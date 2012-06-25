@@ -20,7 +20,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Jun 8, 2012"
 
 import urllib
-import urllib2
+import httplib
 import json
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -39,7 +39,7 @@ class MPRestAdaptor(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key, url="http://www.materialsproject.org/rest"):
+    def __init__(self, api_key, host="http://www.materialsproject.org/"):
         """
         Args:
             api_key:
@@ -51,10 +51,10 @@ class MPRestAdaptor(object):
                 the standard Materials Project REST address, but can be changed
                 to other urls implementing a similar interface.
         """
-        self.url = url
+        self.host = host
         self.api_key = api_key
 
-    def get_data(self, chemsys_formula_id, prop=""):
+    def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
         Flexible method to get any data using the Materials Project REST
         interface. Generally used by other methods for more specific queries.
@@ -68,19 +68,23 @@ class MPRestAdaptor(object):
             chemsys_formula_id:
                 A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or 
                 materials_id (e.g., 1234).
+            data_type:
+                Type of data to return. Currently can either be "vasp" or "exp".
             prop:
                 Property to be obtained. Should be one of the
                 MPRestAdaptor.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        url = "{}/{}/vasp/{}".format(self.url, chemsys_formula_id, prop)
-        req = urllib2.Request(url, headers={"X-API-KEY":self.api_key})
+        headers = {"x-api-key": self.api_key}
+        conn = httplib.HTTPConnection(self.host)
+        url = "/rest/{}/{}/{}".format(chemsys_formula_id, data_type, prop)
         try:
-            response = urllib2.urlopen(req)
+            conn.request("GET", url, headers=headers)
+            response = conn.getresponse()
             data = json.loads(response.read(), cls=PMGJSONDecoder)
             if data['valid_response']:
                 return data['response']
-        except urllib2.HTTPError as ex:
+        except httplib.HTTPException as ex:
             data = json.loads(ex.read(), cls=PMGJSONDecoder)
             raise MPRestError(data['error'])
 
@@ -183,15 +187,7 @@ class MPRestAdaptor(object):
         Returns:
             List of ThermoData objects.
         """
-        url = "{}/{}/exp".format(self.url, formula)
-        req = urllib2.Request(url, headers={"X-API-KEY":self.api_key})
-        response = urllib2.urlopen(req)
-        data = response.read()
-        data = json.loads(data, cls=PMGJSONDecoder)
-        if data['valid_response']:
-            return data['response']
-        else:
-            raise MPRestError(data['error'])
+        return self.get_data(formula, data_type="exp")
 
     def mpquery(self, criteria, properties):
         """
@@ -218,12 +214,13 @@ class MPRestAdaptor(object):
         Returns:
             List of dict of data.
         """
-        params = urllib.urlencode({'criteria': criteria, 'properties': properties})
-        req = urllib2.Request("{}/mpquery".format(self.url), params,
-                              headers={"X-API-KEY":self.api_key})
-        response = urllib2.urlopen(req)
-        data = response.read()
-        data = json.loads(data)
+        params = urllib.urlencode({'criteria': criteria,
+                                   'properties': properties})
+        headers = {"x-api-key": self.api_key}
+        conn = httplib.HTTPConnection(self.host)
+        conn.request("POST", "/rest/mpquery", body=params, headers=headers)
+        response = conn.getresponse()
+        data = json.loads(response.read(), cls=PMGJSONDecoder)
         return data
 
 
@@ -238,3 +235,4 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "Materials Project REST Error : " + self.msg
+
