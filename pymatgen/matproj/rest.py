@@ -21,7 +21,6 @@ __date__ = "Jun 8, 2012"
 
 import urllib
 import urllib2
-
 import json
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder

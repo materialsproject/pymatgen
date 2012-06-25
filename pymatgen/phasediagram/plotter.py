@@ -23,7 +23,7 @@ class PDPlotter(object):
     A plotter class for phase diagrams.
     '''
 
-    def __init__(self, phasediagram):
+    def __init__(self, phasediagram, show_unstable=True):
         """
         Args:
             phasediagram:
@@ -32,6 +32,7 @@ class PDPlotter(object):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         self.lines = uniquelines(self._pd.facets)
+        self.show_unstable = show_unstable
         if self._dim < 2 or self._dim > 4:
             raise ValueError("Only 2-4 components supported!")
 
@@ -147,9 +148,10 @@ class PDPlotter(object):
                 plt.text(legendstart[0], legendstart[1] - 0.05 * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
                 count += 1
 
-        for entry, coords in unstable.items():
-            label = entry.name
-            plt.plot(coords[0], coords[1], 'bx', linewidth=3, markeredgecolor='b', markerfacecolor='b', markersize=10)
+        if self.show_unstable:
+            for entry, coords in unstable.items():
+                label = entry.name
+                plt.plot(coords[0], coords[1], 'bx', linewidth=3, markeredgecolor='b', markerfacecolor='b', markersize=10)
 
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
@@ -210,7 +212,7 @@ class PDPlotter(object):
         import matplotlib.pyplot as plt
         font = FontProperties()
         font.set_weight('bold')
-        font.set_size(20)
+        font.set_size(30)
 
         if dim == 4:
             plt.clf()
