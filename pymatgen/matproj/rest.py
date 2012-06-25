@@ -84,9 +84,10 @@ class MPRestAdaptor(object):
             data = json.loads(response.read(), cls=PMGJSONDecoder)
             if data['valid_response']:
                 return data['response']
+            else:
+                raise MPRestError(data['error'])
         except httplib.HTTPException as ex:
-            data = json.loads(ex.read(), cls=PMGJSONDecoder)
-            raise MPRestError(data['error'])
+            raise MPRestError(str(ex))
 
     def get_structure_by_material_id(self, material_id, final=True):
         """
@@ -235,4 +236,3 @@ class MPRestError(Exception):
 
     def __str__(self):
         return "Materials Project REST Error : " + self.msg
-
