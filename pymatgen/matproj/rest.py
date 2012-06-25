@@ -46,6 +46,10 @@ class MPRestAdaptor(object):
                 A String API key for accessing the MaterialsProject REST
                 interface. Please apply on the Materials Project website for
                 one.
+            url:
+                URL to access the MaterialsProject REST interface. Defaults to
+                the standard Materials Project REST address, but can be changed
+                to other urls implementing a similar interface.
         """
         self.url = url
         self.api_key = api_key
