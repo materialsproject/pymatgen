@@ -28,7 +28,12 @@ def safe_import_pymongo(**connect_kw):
     try:
         import pymongo
         try:
-            pymongo.Connection(**connect_kw)
+            # is mongo there?
+            _conn = pymongo.Connection(**connect_kw)
+            # can I create a DB?
+            _dbname = "dropmeamadeus"
+            _db = _conn[_dbname]
+            _conn.drop_database(_dbname)
         except:
             pymongo = None
     except ImportError:
