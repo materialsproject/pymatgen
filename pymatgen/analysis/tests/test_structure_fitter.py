@@ -27,11 +27,6 @@ class StructureFitterTest(unittest.TestCase):
 
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
         self.a = Structure(lattice, [fe, si], coords)
-        coords = list()
-        coords.append(np.array([0.75, 0.5, 0.2]))
-
-        coords.append(np.array([0.5, 0.5, 0.5]))
-        lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
         self.b = Structure(lattice, [fe, si], coords)
 
     def test_init(self):
@@ -54,11 +49,8 @@ class StructureFitterTest(unittest.TestCase):
 
         # Test with a structure with a translated point
         editor = StructureEditor(self.a)
-        site = self.a[0]
-        editor.delete_site(0)
         trans = np.random.rand(1, 3)
-
-        editor.insert_site(0, site.species_and_occu, site.frac_coords + trans[0], False, False)
+        editor.translate_sites([0, 1], trans[0])
         fitter = StructureFitter(self.b, editor.modified_structure)
         self.assertTrue(fitter.mapping_op != None, "No fit found for translation {}!".format(trans))
 
