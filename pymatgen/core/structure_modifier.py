@@ -654,49 +654,6 @@ class MoleculeEditor(StructureModifier):
         return Molecule(species, coords, False, site_properties=props)
 
 
-class SupercellMaker(StructureModifier):
-    """
-    Makes a supercell
-    """
-
-    def __init__(self, structure, scaling_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
-        """
-        Create a supercell.
-        
-        Args:
-            structure:
-                pymatgen.core.structure Structure object.
-            scaling_matrix:
-                a matrix of transforming the lattice vectors. Defaults to the
-                identity matrix. Has to be all integers. e.g.,
-                [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
-                lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c
-                are the lattice vectors of the original structure. 
-        """
-        self._original_structure = structure
-        old_lattice = structure.lattice
-        scale_matrix = np.array(scaling_matrix)
-        new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
-        new_species = []
-        new_fcoords = []
-        def range_vec(i):
-            return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
-        for site in structure.sites:
-            for (i, j, k) in itertools.product(range_vec(0), range_vec(1), range_vec(2)):
-                new_species.append(site.species_and_occu)
-                fcoords = site.frac_coords
-                coords = old_lattice.get_cartesian_coords(fcoords + np.array([i, j, k]))
-                new_fcoords.append(new_lattice.get_fractional_coords(coords))
-        self._modified_structure = Structure(new_lattice, new_species, new_fcoords, False)
-
-    @property
-    def original_structure(self):
-        return self._original_structure
-
-    @property
-    def modified_structure(self):
-        return self._modified_structure
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
