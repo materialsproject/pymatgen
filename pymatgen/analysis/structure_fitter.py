@@ -18,7 +18,6 @@ import math
 import itertools
 import logging
 import random
-from collections import defaultdict
 
 import numpy as np
 
@@ -50,7 +49,7 @@ class StructureFitter(object):
     EXTREME_FIT = 10000000
 
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
-                 tolerance_atomic_misfit=1.0, supercells_allowed=True,
+                 tolerance_atomic_misfit=0.3, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
                  use_symmetry=False):
         """
@@ -69,7 +68,7 @@ class StructureFitter(object):
             tolerance_cell_misfit : 
                 Tolerance for cell misfit. Default = 0.1
             tolerance_atomic_misfit : 
-                Tolerance for atomic misfit. Default = 1.0.
+                Tolerance for atomic misfit. Default = 0.3.
             supercells_allowed : 
                 Whether supercell structures are allowed.  Default = True.
             anonymized : 
@@ -140,13 +139,13 @@ class StructureFitter(object):
         Compares two structures and give the possible affine mapping that
         transforms one into another.
         """
-        biggest_dist = 0
         logger.debug("Structure a")
         logger.debug(str(a))
         logger.debug("Structure b")
         logger.debug(str(b))
 
-        # Check composition first.  If compositions are not the same, do not need to fit further.
+        # Check composition first.
+        #If compositions are not the same, do not need to fit further.
         if a.composition.reduced_formula != b.composition.reduced_formula or ((a.num_sites != b.num_sites) and not self._supercells_allowed):
             logger.debug('Compositions do not match')
             return None
@@ -155,11 +154,12 @@ class StructureFitter(object):
 
         # Fitting is done by matching sites in one structure (to_fit)
         # to the other (fixed).  
-        # We set the structure with fewer sites as fixed, 
+        # We set the structure with more sites as fixed, 
         # and scale the structures to the same density
         (fixed, to_fit) = self._scale_structures(a, b)
+
         # Defines the atom misfit tolerance
-        tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
+        tol_atoms = self._tolerance_atomic_misfit
         logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
 
         max_sites = float('inf')
@@ -191,7 +191,7 @@ class StructureFitter(object):
         if not found_map: #If simple rotation matching does not work, we have to search and try all rotations.
             logger.debug("Identity matching failed. Finding candidate rotations.")
             #Get candidate rotations
-            cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
+            cand_rot = self._get_candidate_rotations(origin, fixed, shifted_to_fit)
 
             logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
 
@@ -213,7 +213,6 @@ class StructureFitter(object):
 
         logger.debug("Done testing all candidate rotations")
 
-        self._atomic_misfit = biggest_dist / ((3 * 0.7405 * a.volume / (4 * math.pi * a.num_sites)) ** (1 / 3))
         if mapping_op != None:
             rot = mapping_op.rotation_matrix # maps toFit to fixed
             p = sqrt_matrix(np.dot(rot.transpose(), rot))
@@ -266,7 +265,6 @@ class StructureFitter(object):
         if self._mapping_op != None:
             output.append("\tMapping op = " + str(self._mapping_op))
             output.append("\tCell misfit = " + str(self._cell_misfit))
-            output.append("\tAtomic misfit = " + str(self._atomic_misfit))
             if self._anonymized:
                 output.append("Element mapping")
                 output.append("\n".join([str(k) + " -> " + str(v) for k, v in self.el_mapping.items()]))
@@ -275,7 +273,6 @@ class StructureFitter(object):
     def _scale_structures(self, a, b):
         # which structure do we want to fit to the other ?
         # assume that structure b has less sites and switch if needed
-
         self.fixed_is_a = a.num_sites > b.num_sites
         (fixed, to_fit) = (a, b) if self.fixed_is_a else (b, a)
 
@@ -287,7 +284,6 @@ class StructureFitter(object):
         to_fit = Structure(Lattice(to_fit.lattice.matrix * scale), to_fit.species_and_occu, to_fit.frac_coords)
         return (fixed, to_fit)
 
-
     def _get_candidate_rotations(self, origin, fixed, to_fit):
         tol_shear = self._tolerance_cell_misfit
         fixed_basis = fixed.lattice.matrix.transpose()
@@ -297,7 +293,7 @@ class StructureFitter(object):
         shells = []
         for i in range(3):
             dr = lengths[i] * math.sqrt(tol_shear / 2)
-            shell = to_fit.get_neighbors_in_shell(origin.coords, lengths[i], dr)
+            shell = to_fit.get_neighbors_in_shell(np.array([0, 0, 0]), lengths[i], dr)
             logger.debug("shell {} radius={} dr={}".format(i, lengths[i], dr))
             shell = filter(lambda x: x[0].species_and_occu == origin.species_and_occu, shell)
             shell = sorted(shell, key=lambda x: x[1])
@@ -325,7 +321,7 @@ class StructureFitter(object):
 
         for pool in test_rotations:
             # now, can a unitary transformation bring the cell vectors together
-            cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
+            cell_v = np.array([nn.coords for nn in pool]).transpose()
             det = np.linalg.det(cell_v)
             if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
                 continue
@@ -386,21 +382,6 @@ def sqrt_matrix(input_matrix):
 def shear_invariant(matrix):
     return (matrix[0][0] - matrix[1][1]) ** 2 + (matrix[1][1] - matrix[2][2]) ** 2 + (matrix[0][0] - matrix[2][2]) ** 2 + 6 * (matrix[0][1] * matrix[0][1] + matrix[0][2] * matrix[0][2] + matrix[1][2] * matrix[1][2])
 
-def are_sites_unique(sites, allow_periodic_image=True):
-    for (site1, site2) in itertools.combinations(sites, 2):
-        if (allow_periodic_image and site1.is_periodic_image(site2)) or (site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all()):
-            return False
-    return True
-
-def closest_site_to_point(pt, list_of_sites):
-    closest_dist = 1e10
-    for c in list_of_sites:
-        dist = np.linalg.norm(c.coords - pt)
-        if dist < closest_dist:
-            closest = c
-            closest_dist = dist
-    return (closest, closest_dist)
-
 def almost_identity(mat):
     """
     This is to resolve a very very strange bug in numpy that causes random eigen vectors to be returned
@@ -409,12 +390,19 @@ def almost_identity(mat):
     return (abs(mat - np.eye(3)) < 1e-10).all()
 
 
-def compare_structures(s1, s2, tol):
-    mapping = defaultdict(list)
-    for site1 in s1:
-        for site2 in s2:
-            if site1.species_and_occu == site2.species_and_occu and site1.distance(site2) < tol:
-                mapping[site1].append(site2)
-    if all([len(v) == 1 for v in mapping.values()]):
-        return {k:v[0] for k, v in mapping.items()}
+def compare_structures(larger_struct, smaller_struct, tol):
+    assert (len(larger_struct) >= len(smaller_struct)), "Structures are not in the right order!"
+    mapping = {}
+    for site1 in smaller_struct:
+        mapping[site1] = []
+        for site2 in larger_struct:
+            if site1.species_and_occu == site2.species_and_occu:
+                #Map site in larger struct to smaller lattice
+                fcoords = site1.lattice.get_fractional_coords(site2.coords)
+                dist = site1.distance_and_image_from_frac_coords(fcoords)[0]
+                if dist < tol:
+                    mapping[site1].append(site2)
+    num_map = [len(v) for v in mapping.values()]
+    if all([i == num_map[0] for i in num_map]):
+        return mapping
     return None

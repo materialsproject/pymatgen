@@ -39,17 +39,17 @@ class MPRestAdaptor(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key, host="http://www.materialsproject.org/"):
+    def __init__(self, api_key, host="www.materialsproject.org/"):
         """
         Args:
             api_key:
                 A String API key for accessing the MaterialsProject REST
                 interface. Please apply on the Materials Project website for
                 one.
-            url:
-                URL to access the MaterialsProject REST interface. Defaults to
-                the standard Materials Project REST address, but can be changed
-                to other urls implementing a similar interface.
+            host:
+                Url of host to access the MaterialsProject REST interface.
+                Defaults to the standard Materials Project REST address, but
+                can be changed to other urls implementing a similar interface.
         """
         self.host = host
         self.api_key = api_key
