@@ -367,6 +367,85 @@ Usage example - replace Fe with Mn and remove all Li in all structures:
    transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
    structures = transmuter.get_transformed_structures()
 
+pymatgen.matproj.rest - Integration with the Materials Project REST API
+=======================================================================
+
+.. versionadded:: 2.0.0
+
+In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
+tools yet - an adaptor to the Materials Project REST API. The Materials Project
+REST API (currently in a limited beta) was introduced to provide a means for
+users to programmatically query for materials data. This allows users to
+efficiently perform structure manipulatino and analyses without going through
+the web interface.
+
+In parallel, we have coded in the pymatgen.matproj.rest module a MPRestAdaptor,
+a user-friendly adaptor to interface with the MP REST API to obtain useful
+pymatgen objects for further analyses.  To use the MP REST API, a user first
+needs to apply for an api key at the Materials Project website. In the examples
+below, the user's Materials Project API key is designated as "USER_API_KEY".
+
+The MPRestAdaptor provides many convenience methods, but we will just highlight
+a few key methods here.
+
+To obtain information on a material with Materials Project Id 1234, one can use
+the following::
+
+   adaptor = MPRestAdaptor("USER_API_KEY")
+   
+   #Structure for material id
+   structure = adaptor.get_structure_by_material_id(1234) 
+
+   #Dos for material id
+   dos = adaptor.get_dos_by_material_id(1234) 
+
+   #Bandstructure for material id
+   bandstructure = adaptor.get_bandstructure_by_material_id(1234) 
+
+The MP REST interface also allows for query of data by formulas::
+
+   #To get a list of data for all entries having formula Fe2O3   
+   data = adaptor.get_data("Fe2O3")
+   
+   #To get the energies of all entries having formula Fe2O3   
+   energies = adaptor.get_data("Fe2O3", "energy")
+
+Finally, the MPRestAdaptor provides methods to obtain all entries in a
+chemical system. Combined with the borg framework, this provides a
+particularly powerful way to combine one's own calculations with Materials
+Project data for analysis. The code below demonstrates the phase stability of
+a new calculated material can be determined::
+
+   from pymatgen.matproj.rest import MPRestAdaptor
+   from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+   from pymatgen.apps.borg.queen import BorgQueen
+   from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+   from pymatgen.phasediagram.pdmaker import PhaseDiagram
+   from pymatgen.phasediagram.plotter import PDPlotter
+
+   # Assimilate VASP calculations into ComputedEntry object. Let's assume that
+   # the calculations are for a series of new LixFeyOz phases that we want to
+   # know the phase stability.
+   drone = VaspToComputedEntryDrone()
+   queen = BorgQueen(drone, rootpath=".")
+   entries = queen.get_data()
+   
+   # Obtain all existing Li-Fe-O phases using the Materials Project REST API
+   adaptor = MPRestAdaptor("USER_API_KEY")
+   mp_entries = adaptor.get_entries_in_chemsys(["Li", "Fe", "O"])
+   
+   # Combined entry from calculated run with Materials Project entries
+   entries.extend(mp_entries)
+   
+   # Process entries using the MaterialsProjectCompatibility
+   compat = MaterialsProjectCompatibility()
+   entries = compat.process_entries(entries)
+   
+   # Generate and plot Li-Fe-O phase diagram
+   pd = PhaseDiagram(entries)
+   plotter = PDPlotter(pd)
+   plotter.show()
+
 Example scripts
 ===============
 
