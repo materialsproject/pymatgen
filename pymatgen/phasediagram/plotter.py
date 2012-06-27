@@ -18,6 +18,9 @@ import re
 import itertools
 
 
+from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.util.string_utils import latexify
+
 class PDPlotter(object):
     '''
     A plotter class for phase diagrams.
@@ -106,7 +109,8 @@ class PDPlotter(object):
         but since plotting is a fairly expensive library to load and not all 
         machines have matplotlib installed, I have done it this way.
         '''
-        import matplotlib.pyplot as plt
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
@@ -142,16 +146,23 @@ class PDPlotter(object):
                 valign = 'top'
 
             if len(entry.composition.elements) == 1:
-                plt.text(x, coords[1], label, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                plt.text(x, coords[1], latexify(label),
+                         horizontalalignment=halign,
+                         verticalalignment=valign, fontproperties=font)
             else:
-                plt.text(x, coords[1], str(count), horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
-                plt.text(legendstart[0], legendstart[1] - 0.05 * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
+                plt.text(x, coords[1], str(count), horizontalalignment=halign,
+                         verticalalignment=valign, fontproperties=font)
+                plt.text(legendstart[0], legendstart[1] - 0.05 * count,
+                         "{} : {}".format(count, latexify(label)),
+                         horizontalalignment='left', verticalalignment='top',
+                         fontproperties=font)
                 count += 1
 
         if self.show_unstable:
             for entry, coords in unstable.items():
-                label = entry.name
-                plt.plot(coords[0], coords[1], 'bx', linewidth=3, markeredgecolor='b', markerfacecolor='b', markersize=10)
+                plt.plot(coords[0], coords[1], 'bx', linewidth=3,
+                         markeredgecolor='b', markerfacecolor='b',
+                         markersize=10)
 
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
@@ -175,7 +186,8 @@ class PDPlotter(object):
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
+            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b',
+                    markerfacecolor='r', markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
@@ -184,7 +196,7 @@ class PDPlotter(object):
                 ax.text(coords[0], coords[1], coords[2], label)#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
             else:
                 ax.text(coords[0], coords[1], coords[2], str(count))#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
-                newlabels.append(str(count) + " : " + label)
+                newlabels.append("{} : {}".format(count, latexify(label)))
                 count += 1
         plt.figtext(0.01, 0.01, '\n'.join(newlabels))
         ax.axis('off')
@@ -209,7 +221,8 @@ class PDPlotter(object):
 
         # chose a non-GUI backend
         mpl.use('Agg')
-        import matplotlib.pyplot as plt
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(8, 6)
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(30)
@@ -239,7 +252,8 @@ class PDPlotter(object):
             plt.cla()
 
             for x, y in lines:
-                plt.plot(x, y, 'bo-', linewidth=4, markeredgecolor='b', markerfacecolor='r', markersize=12)
+                plt.plot(x, y, 'bo-', linewidth=4, markeredgecolor='b',
+                         markerfacecolor='r', markersize=12)
             if dim == 3:
                 plt.axis('equal')
                 plt.xlim((-0.02, 1.18))
@@ -268,15 +282,97 @@ class PDPlotter(object):
                     valign = 'top'
 
                 if elementref.match(label):
-                    plt.text(x, coords[1], label, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                    plt.text(x, coords[1], latexify(label), horizontalalignment=halign,
+                             verticalalignment=valign, fontproperties=font)
                 else:
-                    plt.text(x, coords[1], str(count), horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
-                    plt.text(legendstart[0], legendstart[1] - legendspacing * count, str(count) + " : " + label, horizontalalignment='left', verticalalignment='top', fontproperties=font)
+                    plt.text(x, coords[1], str(count),
+                             horizontalalignment=halign,
+                             verticalalignment=valign, fontproperties=font)
+                    plt.text(legendstart[0], legendstart[1] - legendspacing * count,
+                             str(count) + " : " + latexify(label),
+                             horizontalalignment='left',
+                             verticalalignment='top', fontproperties=font)
                     count += 1
         f = plt.gcf()
         f.set_size_inches((12, 10))
 
         plt.savefig(stream, format=image_format)
+
+
+    def plot_chempot_range_map(self, elements):
+        """
+        Plot chemical potential range map. Currently works only for 3-component
+        PDs.
+
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li-Co-O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from pymatgen.util.coord_utils import in_coord_list
+        plt = get_publication_quality_plot(12, 8)
+        analyzer = PDAnalyzer(self._pd)
+        chempot_ranges = analyzer.get_chempot_range_map(elements)
+        missing_lines = {}
+
+        for entry, lines in chempot_ranges.items():
+            center_x = 0
+            center_y = 0
+            coords = []
+            for line in lines:
+                (x, y) = line.coords.transpose()
+                plt.plot(x, y, 'k')
+                center_x += sum(x)
+                center_y += sum(y)
+                for coord in line.coords:
+                    if not in_coord_list(coords, coord):
+                        coords.append(coord.tolist())
+                    else:
+                        coords.remove(coord.tolist())
+            comp = entry.composition
+            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
+            if coords and frac_sum < 0.99:
+                missing_lines[entry] = coords
+            else:
+                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines),
+                         latexify(entry.name), fontsize=20)
+
+        ax = plt.gca()
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
+        for entry, coords in missing_lines.items():
+            center_x = 0
+            center_y = 0
+            comp = entry.composition
+            if not comp.is_element:
+                for coord in coords:
+                    x = None
+                    y = None
+                    if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
+                        x = [coord[0], min(xlim)]
+                        y = [coord[1], coord[1]]
+                    elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
+                        x = [coord[0], coord[0]]
+                        y = [coord[1], min(ylim)]
+                    if x and y:
+                        plt.plot(x, y, 'k')
+                        center_x += sum(x)
+                        center_y += sum(y)
+            else:
+                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
+                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
+            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords),
+                     latexify(entry.name), fontsize=20)
+
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
+        plt.tight_layout()
+        plt.show()
+
 
 def uniquelines(q):
     '''
