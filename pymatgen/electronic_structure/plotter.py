@@ -216,16 +216,15 @@ class DosPlotter(object):
 
 
 class BSPlotter(object):
-
     """
-    class used to plot or get data to facilitate the plot of band structure line objects
+    Class to plot or get data to facilitate the plot of band structure objects.
     """
 
     def __init__(self, bs):
         """
-        Arguments:
+        Args:
             bs:
-                A Bandstructure_line object.
+                A BandStructureSymmLine object.
         """
         self._bs = bs
         #Many ab initio codes do not give good results for the highest occupied bands, we therefore only
@@ -239,20 +238,36 @@ class BSPlotter(object):
         
         Args:
             zero_to_efermi:
-                Automatically subtract off the Fermi energy from the eigenvalues and plot (E-Ef)
+                Automatically subtract off the Fermi energy from the eigenvalues
+                and plot.
         
         Returns:
             A dict of the following format:
-                'ticks': a dictionary with the 'distances' at which there is a 
-                kpoint (the x axis) and the labels (None if no label)
-                'energy': a dictionnary storing bands for spin up and spin down data {Spin:[band_index][k_point_index]} as a list (one element for each band) of energy for 
-                each kpoint
-                'vbm': a list of tuples (distance,energy) marking the vbms. The energies are shifted with respect to the fermi level is the option has been selected.
-                'cbm': a list of tuples (distance,energy) marking the cbms. The energies are shifted with respect to the fermi level is the option has been selected.
-                'lattice': the reciprocal lattice
-                'zero_energy': this is the energy used as zero for the plot
-                'band_gap': a string indicating the band gap and it's nature (empty if it's a metal)
-                'is_metal': True if the band structure is metallic (i.e., there is at least one band crossing the fermi level)
+                ticks:
+                    A dict with the 'distances' at which there is a kpoint (the
+                    x axis) and the labels (None if no label)
+                energy:
+                    A dict storing bands for spin up and spin down data 
+                    {Spin:[band_index][k_point_index]} as a list (one element
+                    for each band) of energy for each kpoint.
+                vbm:
+                    A list of tuples (distance,energy) marking the vbms. The
+                    energies are shifted with respect to the fermi level is the
+                    option has been selected.
+                cbm:
+                    A list of tuples (distance,energy) marking the cbms. The
+                    energies are shifted with respect to the fermi level is the
+                    option has been selected.
+                lattice:
+                    The reciprocal lattice.
+                zero_energy:
+                    This is the energy used as zero for the plot.
+                band_gap:
+                    A string indicating the band gap and its nature (empty if
+                    it's a metal).
+                is_metal:
+                    True if the band structure is metallic (i.e., there is at
+                    least one band crossing the fermi level).
         """
         zero_energy = None
 
@@ -282,34 +297,41 @@ class BSPlotter(object):
         cbm_plot = []
 
         for index in cbm['kpoint_index']:
-            cbm_plot.append((self._bs._distance[index], cbm['energy'] - zero_energy if zero_to_efermi else cbm['energy']))
+            cbm_plot.append((self._bs._distance[index],
+                             cbm['energy'] - zero_energy if zero_to_efermi else cbm['energy']))
 
         for index in vbm['kpoint_index']:
-            vbm_plot.append((self._bs._distance[index], vbm['energy'] - zero_energy if zero_to_efermi else vbm['energy']))
+            vbm_plot.append((self._bs._distance[index],
+                             vbm['energy'] - zero_energy if zero_to_efermi else vbm['energy']))
 
         bg = self._bs.get_band_gap()
         direct = "Indirect"
         if bg['direct']:
             direct = "Direct"
 
-        return {'ticks': ticks, 'distances': distance, 'energy': energy, 'vbm':vbm_plot, 'cbm':cbm_plot,
-                'lattice':self._bs._lattice_rec.to_dict, 'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
-                'band_gap':direct + " " + bg['transition'] + " band gap=" + str(bg['energy']) if self._bs.is_metal() == False else ""}
+        return {'ticks': ticks, 'distances': distance, 'energy': energy,
+                'vbm':vbm_plot, 'cbm':cbm_plot,
+                'lattice':self._bs._lattice_rec.to_dict,
+                'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
+                'band_gap': "{} {} bandgap = {}".format(direct, bg['transition'], bg['energy']) if not self._bs.is_metal() else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
-        Show the bandstrucure plot. Blue lines are up spin, red lines are down spin
+        Show the bandstructure plot. Blue lines are up spin, red lines are down
+        spin.
         
         Args:
             file_name:
-                File name to write image to (e.g., plot.eps). If None no image is created
+                File name to write image to (e.g., plot.eps). If None, no image
+                is created.
             zero_to_efermi:
-                Automatically subtract off the Fermi energy from the eigenvalues and plot (E-Ef)
+                Automatically subtract off the Fermi energy from the eigenvalues
+                and plot (E-Ef).
         """
-        import pylab
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
 
-        #rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'], 'size': 20})
         rc('text', usetex=True)
 
         #main internal config options
@@ -320,12 +342,16 @@ class BSPlotter(object):
             e_max = 10
         band_linewidth = 3
 
-        pylab.figure
+        #pylab.figure
         data = self.bs_plot_data(zero_to_efermi)
         for i in range(self._nb_bands):
-                pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.up)][i]], 'b-', linewidth=band_linewidth)
+                plt.plot(data['distances'],
+                         [e for e in data['energy'][str(Spin.up)][i]],
+                         'b-', linewidth=band_linewidth)
                 if self._bs.is_spin_polarized:
-                    pylab.plot(data['distances'], [e for e in data['energy'][str(Spin.down)][i]], 'r-', linewidth=band_linewidth)
+                    plt.plot(data['distances'],
+                             [e for e in data['energy'][str(Spin.down)][i]],
+                             'r-', linewidth=band_linewidth)
 
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
@@ -340,10 +366,10 @@ class BSPlotter(object):
                         logger.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
                     else:
                         logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
-                        pylab.axvline(ticks['distance'][i], color='k')
+                        plt.axvline(ticks['distance'][i], color='k')
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
-                    pylab.axvline(ticks['distance'][i], color='k')
+                    plt.axvline(ticks['distance'][i], color='k')
 
         #Sanitize only plot the uniq values
         uniq_d = []
@@ -365,47 +391,46 @@ class BSPlotter(object):
         logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
         #pylab.gca().set_xticks(ticks['distance'])
         #pylab.gca().set_xticklabels(ticks['label'])
-        pylab.gca().set_xticks(uniq_d)
-        pylab.gca().set_xticklabels(uniq_l)
+        plt.gca().set_xticks(uniq_d)
+        plt.gca().set_xticklabels(uniq_l)
 
         #Main X and Y Labels
-        pylab.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize='large')
+        plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
         ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
-        pylab.ylabel(ylabel, fontsize='large')
+        plt.ylabel(ylabel, fontsize=30)
 
         # Draw Fermi energy, only if not the zero
         if not zero_to_efermi:
             ef = self._bs.efermi
-            pylab.axhline(ef, linewidth=2, color='k')
+            plt.axhline(ef, linewidth=2, color='k')
 
         # X range (K)
         #last distance point
         x_max = data['distances'][-1]
-        pylab.xlim(0, x_max)
+        plt.xlim(0, x_max)
 
         if self._bs.is_metal():
             # Plot A Metal
             if zero_to_efermi:
-                pylab.ylim(e_min, e_max)
+                plt.ylim(e_min, e_max)
             else:
-                pylab.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+                plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
         else:
 
             for cbm in data['cbm']:
-                pylab.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
+                plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
 
             for vbm in data['vbm']:
-                pylab.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
+                plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
 
-            pylab.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
+            plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
 
-        pylab.legend()
+        plt.tight_layout()
         if file_name is not None:
-            pylab.plot()
-            pylab.savefig(file_name)
-            pylab.close()
+            plt.savefig(file_name)
+            plt.close()
         else:
-            pylab.show()
+            plt.show()
 
     def get_ticks(self):
         """
@@ -450,7 +475,8 @@ class BSPlotter(object):
 
     def plot_compare(self, other_plotter):
         """
-        plot two band structure for comparison. One is in red the other in blue (no difference in spins)
+        plot two band structure for comparison. One is in red the other in blue
+        (no difference in spins)
         TODO: still a lot of work to do that nicely!
         """
         import pylab
