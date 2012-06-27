@@ -51,7 +51,7 @@ setup (
   package_data={'pymatgen.core': ['*.json'],
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},
-  author='Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Vincent L Chevrier, Rickard Armiento',
+  author='Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento',
   author_email='shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, wrichard@mit.edu, dkgunter@lbl.gov, vincentchevrier@gmail.com, armiento@mit.edu',
   maintainer='Shyue Ping Ong',
   url='https://github.com/materialsproject/pymatgen/',

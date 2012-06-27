@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname('..'))
 sys.path.insert(0, os.path.dirname('../pymatgen'))
 sys.path.insert(0, os.path.dirname('../..'))
 
+authors = "Shyue Ping Ong, William Davidson Richard, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, Shreyas Cholia"
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -47,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pymatgen'
-copyright = u'2011, Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards'
+copyright = u'2011, ' + authors
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -189,8 +190,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'pymatgen.tex', u'pymatgen Documentation',
-   u'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards', 'manual'),
+  ('index', 'pymatgen.tex', u'pymatgen Documentation', authors, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -220,7 +220,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'pymatgen', u'pymatgen Documentation',
-     [u'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards'], 1)
+     [authors], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -234,7 +234,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'pymatgen', u'pymatgen Documentation',
-   u'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards', 'pymatgen', 'One line description of project.',
+   authors, 'pymatgen', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -252,9 +252,9 @@ texinfo_documents = [
 
 # Bibliographic Dublin Core info.
 epub_title = u'pymatgen'
-epub_author = u'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards'
+epub_author = authors
 epub_publisher = u'Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards'
-epub_copyright = u'2011, Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards'
+epub_copyright = copyright
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
