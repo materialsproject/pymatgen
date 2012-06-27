@@ -129,6 +129,17 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
 
 
 def latexify(formula):
+    """
+    Generates a latex formatted formula. E.g., Fe2O3 is transformed to
+    Fe$_{2}$O$_{3}$.
+    
+    Args:
+        formula:
+            Input formula.
+            
+    Returns:
+        Formula suitable for display as in LaTeX with proper subscripts.
+    """
     return re.sub(r"(\d+)", r'$_{\1}$', formula)
 
 
