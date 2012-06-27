@@ -63,7 +63,8 @@ class PDPlotter(object):
             entry2 = entries[line[1]]
             if self._dim == 2:
                 x = [data[line[0]][0], data[line[1]][0]]
-                y = [pd.get_form_energy_per_atom(entry1), pd.get_form_energy_per_atom(entry2)]
+                y = [pd.get_form_energy_per_atom(entry1),
+                     pd.get_form_energy_per_atom(entry2)]
                 coord = [x, y]
             elif self._dim == 3:
                 coord = triangular_coord(data[line, 0:2])
@@ -83,12 +84,14 @@ class PDPlotter(object):
             if entry not in stable:
                 if self._dim == 2:
                     x = [alldata[i][0], alldata[i][0]]
-                    y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
+                    y = [pd.get_form_energy_per_atom(entry),
+                         pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
                     coord = triangular_coord([alldata[i, 0:2], alldata[i, 0:2]])
                 else:
-                    coord = tet_coord([alldata[i, 0:3], alldata[i, 0:3], alldata[i, 0:3]])
+                    coord = tet_coord([alldata[i, 0:3], alldata[i, 0:3],
+                                       alldata[i, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
@@ -114,7 +117,8 @@ class PDPlotter(object):
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b', markerfacecolor='r', markersize=10)
+            plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b',
+                     markerfacecolor='r', markersize=10)
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
@@ -210,7 +214,8 @@ class PDPlotter(object):
             stream:
                 stream to write to. Can be a file stream or a StringIO stream.
             image_format
-                format for image. Can be any of matplotlib supported formats. Defaults to svg for best results for vector graphics.
+                format for image. Can be any of matplotlib supported formats. 
+                Defaults to svg for best results for vector graphics.
         '''
         (lines, labels, unstable) = self.pd_plot_data
         dim = len(self._pd.elements)
@@ -236,13 +241,16 @@ class PDPlotter(object):
 
             newlabels = list()
             for x, y, z in lines:
-                ax.plot(x, y, z, 'bo-', linewidth=4, markeredgecolor='b', markerfacecolor='r', markersize=12)
+                ax.plot(x, y, z, 'bo-', linewidth=4, markeredgecolor='b',
+                        markerfacecolor='r', markersize=12)
             for coords in sorted(labels.keys()):
                 label = labels[coords].name
                 if elementref.match(label):
-                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
+                    ax.text(coords[0], coords[1], coords[2], label,
+                            fontproperties=font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count), fontproperties=font)
+                    ax.text(coords[0], coords[1], coords[2], str(count),
+                            fontproperties=font)
                     newlabels.append(str(count) + " : " + label)
                     count += 1
             plt.figtext(0.01, 0.01, '\n'.join(newlabels), fontproperties=font)
@@ -282,13 +290,15 @@ class PDPlotter(object):
                     valign = 'top'
 
                 if elementref.match(label):
-                    plt.text(x, coords[1], latexify(label), horizontalalignment=halign,
+                    plt.text(x, coords[1], latexify(label),
+                             horizontalalignment=halign,
                              verticalalignment=valign, fontproperties=font)
                 else:
                     plt.text(x, coords[1], str(count),
                              horizontalalignment=halign,
                              verticalalignment=valign, fontproperties=font)
-                    plt.text(legendstart[0], legendstart[1] - legendspacing * count,
+                    plt.text(legendstart[0],
+                             legendstart[1] - legendspacing * count,
                              str(count) + " : " + latexify(label),
                              horizontalalignment='left',
                              verticalalignment='top', fontproperties=font)
@@ -377,11 +387,13 @@ class PDPlotter(object):
 
 def uniquelines(q):
     '''
-    Given all the facets, convert it into a set of unique lines.  Specifically used for converting convex hull facets into line pairs of coordinates.
+    Given all the facets, convert it into a set of unique lines.  Specifically
+    used for converting convex hull facets into line pairs of coordinates.
     
     Args:
         q:
-            A 2-dim sequence, where each row represents a facet. E.g., [[1,2,3],[3,6,7],...]
+            A 2-dim sequence, where each row represents a facet. E.g., 
+            [[1,2,3],[3,6,7],...]
     
     Returns:
         setoflines:
@@ -422,6 +434,7 @@ def tet_coord(coord):
     Returns:
         coordinates in a tetrahedron-based coordinate system. 
     '''
-    unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0], [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
+    unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0],
+                        [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
