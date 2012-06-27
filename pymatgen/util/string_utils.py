@@ -12,6 +12,8 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
+import re
+
 
 def generate_latex_table(results, header=None):
     """
@@ -124,6 +126,11 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
         return str(int(afloat))
     else:
         return str(afloat)
+
+
+def latexify(formula):
+    return re.sub(r"(\d+)", r'$_{\1}$', formula)
+
 
 if __name__ == "__main__":
     import doctest
