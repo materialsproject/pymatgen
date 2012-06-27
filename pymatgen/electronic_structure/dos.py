@@ -396,7 +396,8 @@ class CompleteDos(Dos):
             for pdos in atom_dos.values():
                 orbital_type = pdos.orbital.orbital_type
                 if orbital_type not in spd_dos:
-                    spd_dos[orbital_type] = Dos(pdos.efermi, pdos.energies, pdos.densities)
+                    spd_dos[orbital_type] = Dos(pdos.efermi, pdos.energies,
+                                                pdos.densities)
                 else:
                     spd_dos[orbital_type] += pdos
         return spd_dos
