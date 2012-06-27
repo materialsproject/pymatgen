@@ -22,7 +22,6 @@ Subpackages
     pymatgen.core
     pymatgen.electronic_structure
     pymatgen.entries
-    pymatgen.etl
     pymatgen.io
     pymatgen.matproj
     pymatgen.phasediagram
