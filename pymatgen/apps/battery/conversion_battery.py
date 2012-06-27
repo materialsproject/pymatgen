@@ -132,11 +132,11 @@ class ConversionElectrode(AbstractElectrode):
         '''
 
         if adjacent_only:
-            return [ConversionElectrode(self._vpairs[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
+            return [self.__class__(self._vpairs[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
         sub_electrodes = []
         for i in xrange(len(self._vpairs)):
             for j in xrange(i, len(self._vpairs)):
-                sub_electrodes.append(ConversionElectrode(self._vpairs[i:j + 1], self._working_ion_entry, self._composition))
+                sub_electrodes.append(self.__class__(self._vpairs[i:j + 1], self._working_ion_entry, self._composition))
         return sub_electrodes
 
     @property
