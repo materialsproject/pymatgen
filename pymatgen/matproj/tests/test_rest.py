@@ -23,7 +23,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.band_structure.band_structure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 import pymatgen
 

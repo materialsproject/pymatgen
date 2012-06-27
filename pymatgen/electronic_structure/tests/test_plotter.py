@@ -18,7 +18,8 @@ import os
 import json
 
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 import pymatgen
 
@@ -44,6 +45,20 @@ class DosPlotterTest(unittest.TestCase):
         d = self.plotter.get_dos_dict()
         for el in ["Li", "Fe", "P", "O"]:
             self.assertIn(el, d)
+
+
+class BSPlotterTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
+            d = json.loads(f.read())
+            self.bs = BandStructureSymmLine.from_dict(d)
+            self.plotter = BSPlotter(self.bs)
+
+    def test_bs_plot_data(self):
+        self.assertEqual(len(self.plotter.bs_plot_data()['distances']), 160, "wrong number of distances")
+        self.assertEqual(self.plotter.bs_plot_data()['ticks']['label'][5], "K", "wrong tick label")
+        self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']), 19, "wrong number of tick labels")
 
 
 if __name__ == "__main__":

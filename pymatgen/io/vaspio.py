@@ -38,7 +38,7 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, PDos
-from pymatgen.electronic_structure.band_structure.band_structure import BandStructure, BandStructureSymmLine, get_reconstructed_band_structure
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
 
