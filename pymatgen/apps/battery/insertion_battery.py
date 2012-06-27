@@ -49,7 +49,8 @@ class InsertionElectrode(AbstractElectrode):
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
 
-        #Prepare to make phase diagram: determine elements and set their energy to be very high
+        #Prepare to make phase diagram: determine elements and set their energy
+        #to be very high
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
 
@@ -256,7 +257,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(InsertionElectrode(all_entries, self.working_ion_entry))
+                battery_list.append(self.__class__(all_entries, self.working_ion_entry))
 
         return battery_list
 

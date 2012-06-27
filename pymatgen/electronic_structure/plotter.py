@@ -31,8 +31,7 @@ class DosPlotter(object):
     Class for plotting DOSes.
     """
 
-    def __init__(self, zero_at_efermi=True, stack=False,
-                 sigma=None):
+    def __init__(self, zero_at_efermi=True, stack=False, sigma=None):
         """
         Args:
             zero_at_efermi:
