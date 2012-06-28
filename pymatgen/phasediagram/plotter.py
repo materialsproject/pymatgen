@@ -350,8 +350,8 @@ class PDPlotter(object):
             if coords and frac_sum < 0.99:
                 missing_lines[entry] = coords
             else:
-                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines),
-                         latexify(entry.name), fontsize=22)
+                xy = (center_x / 2 / len(lines), center_y / 2 / len(lines))
+                plt.annotate(latexify(entry.name), xy, fontsize=22)
 
         ax = plt.gca()
         xlim = ax.get_xlim()
@@ -378,9 +378,9 @@ class PDPlotter(object):
             else:
                 center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
                 center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
-            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords),
-                     latexify(entry.name), horizontalalignment="center",
-                     verticalalignment="center", fontsize=22)
+            xy = (center_x / 2 / len(coords), center_y / 2 / len(coords))
+            plt.annotate(latexify(entry.name), xy, horizontalalignment="center",
+                         verticalalignment="center", fontsize=22)
 
         plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
