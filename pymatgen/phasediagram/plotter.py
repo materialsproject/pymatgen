@@ -125,52 +125,54 @@ class PDPlotter(object):
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(20)
-        count = 1
 
         if len(self._pd.elements) == 3:
             plt.axis('equal')
             plt.xlim((-0.1, 1.2))
             plt.ylim((-0.1, 1.0))
             plt.axis('off')
-            legendstart = [1.0, 0.55]
+            center = (0.5, math.sqrt(3) / 6)
         else:
-            plt.xlim((-0.1, 1.4))
-            legendstart = [1.1, 0.0]
+            allcoords = labels.keys()
+            miny = min([c[1] for c in allcoords])
+            ybuffer = max(abs(miny) * 0.1, 0.1)
+            plt.xlim((-0.1, 1.1))
+            plt.ylim((miny - ybuffer, ybuffer))
+            center = (0.5, miny / 2)
 
-        for coords in sorted(labels.keys()):
+        for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
             label = entry.name
-            x = coords[0]
-            if coords[0] >= math.sqrt(3) / 2:
-                halign = 'left'
-                x += 0.02
+            vec = (np.array(coords) - center)
+            vec = vec / np.linalg.norm(vec) * 10
+            valign = "bottom" if vec[1] > 0 else "top"
+            if vec[0] < -0.01:
+                halign = "right"
+            elif vec[0] > 0.01:
+                halign = "left"
             else:
-                halign = 'right'
-                x += -0.02
-            if coords[1] > 0:
-                valign = 'bottom'
-            else:
-                valign = 'top'
+                halign = "center"
 
-            if len(entry.composition.elements) == 1:
-                plt.text(x, coords[1], latexify(label),
-                         horizontalalignment=halign,
-                         verticalalignment=valign, fontproperties=font)
-            else:
-                plt.text(x, coords[1], str(count), horizontalalignment=halign,
-                         verticalalignment=valign, fontproperties=font)
-                plt.text(legendstart[0], legendstart[1] - 0.05 * count,
-                         "{} : {}".format(count, latexify(label)),
-                         horizontalalignment='left', verticalalignment='top',
-                         fontproperties=font)
-                count += 1
+            plt.annotate(latexify(label), coords, xytext=vec,
+                             textcoords='offset points',
+                             horizontalalignment=halign,
+                             verticalalignment=valign,
+                             fontproperties=font)
 
         if self.show_unstable:
+            font = FontProperties()
+            font.set_size(16)
             for entry, coords in unstable.items():
+                vec = (np.array(coords) - center)
+                vec = vec / np.linalg.norm(vec) * 10
                 plt.plot(coords[0], coords[1], 'bx', linewidth=3,
                          markeredgecolor='b', markerfacecolor='b',
                          markersize=10)
-
+                plt.annotate(latexify(label), coords, xytext=vec,
+                             textcoords='offset points',
+                             horizontalalignment=halign, color="b",
+                             verticalalignment=valign,
+                             fontproperties=font)
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
         plt.show()
