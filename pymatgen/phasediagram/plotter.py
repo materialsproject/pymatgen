@@ -105,11 +105,12 @@ class PDPlotter(object):
         Draws the phase diagram using Matplotlib and show it.
         """
         if self._dim < 4:
-            self._show_2d_plot()
+            plt = self._get_2d_plot()
         elif self._dim == 4:
-            self._show_3d_plot()
+            plt = self._get_3d_plot()
+        plt.show()
 
-    def _show_2d_plot(self):
+    def _get_2d_plot(self):
         '''
         Shows the plot using pylab.  Usually I won't do imports in methods,
         but since plotting is a fairly expensive library to load and not all 
@@ -124,7 +125,7 @@ class PDPlotter(object):
                      markerfacecolor='r', markersize=10)
         font = FontProperties()
         font.set_weight('bold')
-        font.set_size(20)
+        font.set_size(24)
 
         if len(self._pd.elements) == 3:
             plt.axis('equal')
@@ -168,16 +169,16 @@ class PDPlotter(object):
                 plt.plot(coords[0], coords[1], 'bx', linewidth=3,
                          markeredgecolor='b', markerfacecolor='b',
                          markersize=10)
-                plt.annotate(latexify(label), coords, xytext=vec,
+                plt.annotate(latexify(entry.name), coords, xytext=vec,
                              textcoords='offset points',
                              horizontalalignment=halign, color="b",
                              verticalalignment=valign,
                              fontproperties=font)
         F = plt.gcf()
         F.set_size_inches((8, 6.4))
-        plt.show()
+        return plt
 
-    def _show_3d_plot(self):
+    def _get_3d_plot(self):
         '''
         Shows the plot using pylab.  Usually I won't do imports in methods,
         but since plotting is a fairly expensive library to load and not all 
@@ -209,7 +210,7 @@ class PDPlotter(object):
                 count += 1
         plt.figtext(0.01, 0.01, '\n'.join(newlabels))
         ax.axis('off')
-        plt.show()
+        return plt
 
     def write_image(self, stream, image_format="svg"):
         '''
@@ -222,92 +223,11 @@ class PDPlotter(object):
                 format for image. Can be any of matplotlib supported formats. 
                 Defaults to svg for best results for vector graphics.
         '''
-        (lines, labels, unstable) = self.pd_plot_data
-        dim = len(self._pd.elements)
-        elementref = re.compile("^[A-Z][a-z]*$")
-        count = 1
-        import matplotlib as mpl
-        from matplotlib.font_manager import FontProperties
+        if self._dim < 4:
+            plt = self._get_2d_plot()
+        elif self._dim == 4:
+            plt = self._get_3d_plot()
 
-        # chose a non-GUI backend
-        mpl.use('Agg')
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(8, 6)
-        font = FontProperties()
-        font.set_weight('bold')
-        font.set_size(30)
-
-        if dim == 4:
-            plt.clf()
-            plt.cla()
-            import mpl_toolkits.mplot3d.axes3d as p3
-            fig = plt.figure()
-            ax = p3.Axes3D(fig)
-
-            newlabels = list()
-            for x, y, z in lines:
-                ax.plot(x, y, z, 'bo-', linewidth=4, markeredgecolor='b',
-                        markerfacecolor='r', markersize=12)
-            for coords in sorted(labels.keys()):
-                label = labels[coords].name
-                if elementref.match(label):
-                    ax.text(coords[0], coords[1], coords[2], label,
-                            fontproperties=font)
-                else:
-                    ax.text(coords[0], coords[1], coords[2], str(count),
-                            fontproperties=font)
-                    newlabels.append(str(count) + " : " + label)
-                    count += 1
-            plt.figtext(0.01, 0.01, '\n'.join(newlabels), fontproperties=font)
-
-        elif dim < 4 and dim > 1:
-            plt.clf()
-            plt.cla()
-
-            for x, y in lines:
-                plt.plot(x, y, 'bo-', linewidth=4, markeredgecolor='b',
-                         markerfacecolor='r', markersize=12)
-            if dim == 3:
-                plt.axis('equal')
-                plt.xlim((-0.02, 1.18))
-                plt.ylim((-0.1, 1.0))
-                plt.axis('off')
-                legendstart = [1.0, 1.0]
-                legendspacing = 0.05
-            else:
-                plt.xlim((-0.1, 1.4))
-                legendstart = [1.1, 0.0]
-            ymin, ymax = plt.ylim()
-            legendspacing = (ymax - ymin) / len(labels)
-
-            for coords in sorted(labels.keys()):
-                label = labels[coords].name
-                x = coords[0]
-                if coords[0] >= math.sqrt(3) / 2:
-                    halign = 'left'
-                    x += 0.02
-                else:
-                    halign = 'right'
-                    x += -0.02
-                if coords[1] > 0:
-                    valign = 'bottom'
-                else:
-                    valign = 'top'
-
-                if elementref.match(label):
-                    plt.text(x, coords[1], latexify(label),
-                             horizontalalignment=halign,
-                             verticalalignment=valign, fontproperties=font)
-                else:
-                    plt.text(x, coords[1], str(count),
-                             horizontalalignment=halign,
-                             verticalalignment=valign, fontproperties=font)
-                    plt.text(legendstart[0],
-                             legendstart[1] - legendspacing * count,
-                             str(count) + " : " + latexify(label),
-                             horizontalalignment='left',
-                             verticalalignment='top', fontproperties=font)
-                    count += 1
         f = plt.gcf()
         f.set_size_inches((12, 10))
 
