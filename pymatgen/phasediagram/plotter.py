@@ -14,23 +14,25 @@ __date__ = "Sep 23, 2011"
 
 import math
 import numpy as np
-import re
 import itertools
-
 
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
+
 
 class PDPlotter(object):
     '''
     A plotter class for phase diagrams.
     '''
 
-    def __init__(self, phasediagram, show_unstable=True):
+    def __init__(self, phasediagram, show_unstable=False):
         """
         Args:
             phasediagram:
                 A PhaseDiagram object.
+            show_unstable:
+                Whether unstable phases will be plotted as well as red crosses.
+                Defaults to False.
         """
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
@@ -148,7 +150,7 @@ class PDPlotter(object):
             entry = labels[coords]
             label = entry.name
 
-            # The follow defines an offset for the annotatino text emanating
+            # The follow defines an offset for the annotation text emanating
             # from the center of the PD. Results in fairly nice layouts for the
             # most part.
             vec = (np.array(coords) - center)
@@ -209,7 +211,8 @@ class PDPlotter(object):
             entry = labels[coords]
             label = entry.name
             if len(entry.composition.elements) == 1:
-                # commented out options are only for matplotlib 1.0.  Removed them so that most ppl can use this class.
+                # commented out options are only for matplotlib 1.0.  Removed
+                # them so that most ppl can use this class.
                 ax.text(coords[0], coords[1], coords[2], label)#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
             else:
                 ax.text(coords[0], coords[1], coords[2], str(count))#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
