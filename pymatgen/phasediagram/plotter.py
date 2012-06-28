@@ -121,12 +121,15 @@ class PDPlotter(object):
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'bo-', linewidth=3, markeredgecolor='b',
-                     markerfacecolor='r', markersize=10)
+            plt.plot(x, y, 'ko-', linewidth=3, markeredgecolor='k',
+                     markerfacecolor='b', markersize=10)
         font = FontProperties()
         font.set_weight('bold')
         font.set_size(24)
 
+        # Sets a nice layout depending on the type of PD. Also defines a
+        # "center" for the PD, which then allows the annotations to be spread
+        # out in a nice manner.
         if len(self._pd.elements) == 3:
             plt.axis('equal')
             plt.xlim((-0.1, 1.2))
@@ -144,6 +147,10 @@ class PDPlotter(object):
         for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
             label = entry.name
+
+            # The follow defines an offset for the annotatino text emanating
+            # from the center of the PD. Results in fairly nice layouts for the
+            # most part.
             vec = (np.array(coords) - center)
             vec = vec / np.linalg.norm(vec) * 10
             valign = "bottom" if vec[1] > 0 else "top"
@@ -166,8 +173,8 @@ class PDPlotter(object):
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
                 vec = vec / np.linalg.norm(vec) * 10
-                plt.plot(coords[0], coords[1], 'bx', linewidth=3,
-                         markeredgecolor='b', markerfacecolor='b',
+                plt.plot(coords[0], coords[1], 'rx', linewidth=3,
+                         markeredgecolor='r', markerfacecolor='r',
                          markersize=10)
                 plt.annotate(latexify(entry.name), coords, xytext=vec,
                              textcoords='offset points',
