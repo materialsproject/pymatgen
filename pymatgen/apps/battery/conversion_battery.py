@@ -132,7 +132,7 @@ class ConversionElectrode(AbstractElectrode):
         '''
 
         if adjacent_only:
-            return [self.__class__(self._vpairs[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
+            return [self.__class__(self._vpairs[i:i + 1], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
         sub_electrodes = []
         for i in xrange(len(self._vpairs)):
             for j in xrange(i, len(self._vpairs)):
@@ -454,10 +454,10 @@ class ConversionVoltagePair(AbstractVoltagePair):
         output = ["Conversion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula)]
         output.append("Reaction : {}".format(self._rxn))
         output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
+        output.append("frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge))
         output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))
         output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
         return "\n".join(output)
-
 
     @staticmethod
     def from_dict(d):
@@ -471,7 +471,6 @@ class ConversionVoltagePair(AbstractVoltagePair):
                                    d['mass_charge'], d['mass_discharge'],
                                    d['frac_charge'], d['frac_discharge'],
                                    entries_charge, entries_discharge, working_ion_entry)
-
 
     @property
     def to_dict(self):
@@ -491,3 +490,4 @@ class ConversionVoltagePair(AbstractVoltagePair):
         d['entries_charge'] = [e.to_dict for e in self._entries_charge]
         d['entries_discharge'] = [e.to_dict for e in self._entries_discharge]
         return d
+
