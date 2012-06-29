@@ -161,10 +161,15 @@ class StructureFitter(object):
         # E.g., when a structure has been topotatically delithiated or
         # substituted, you actually can get a very fast answer without having
         # to try all rotations.
-        rot = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3),
-                                                                 np.array([0, 0, 0]))
-        (found_map, mapping_op, biggest_dist) = self._test_rotation(rot, origin,
-                                            fixed, shifted_to_fit, tol_atoms)
+
+        simple_rots = self._get_simple_rotations(fixed, to_fit)
+        for rot in simple_rots:
+            rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
+                                                            np.array([0, 0, 0]))
+            (found_map, mapping_op, biggest_dist) = self._test_rotation(rot_op, origin,
+                                                fixed, shifted_to_fit, tol_atoms)
+            if found_map:
+                break
 
         if not found_map:
             #Get candidate rotations
@@ -210,8 +215,8 @@ class StructureFitter(object):
         found_map = False
         mapping_op = None
         biggest_dist = 0
+        logger.debug("Trying candidate rotation : \n" + str(rot))
         for site in fixed:
-            logger.debug("Trying candidate rotation : \n" + str(rot))
             if site.species_and_occu == origin.species_and_occu:
                 shift = site.coords
                 op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
@@ -387,6 +392,20 @@ class StructureFitter(object):
                         cand_rot[r] = shear_invariant(pbis)
 
         return cand_rot
+
+    def _get_simple_rotations(self, fixed, to_fit):
+        a1 = fixed.lattice.angles
+        a2 = to_fit.lattice.angles
+        for i in xrange(3):
+            if abs(a1[i] - a2[i]) > 5:
+                return []
+        fixed_unit_matrix = np.array([row / np.linalg.norm(row) for row in fixed.lattice.matrix])
+        to_fit_unit_matrix = np.array([row / np.linalg.norm(row) for row in to_fit.lattice.matrix])
+        possible_rots = []
+        inv_fixed = np.linalg.inv(fixed_unit_matrix.transpose())
+        for p in itertools.permutations(to_fit_unit_matrix):
+            possible_rots.append(np.dot(np.array(p).transpose(), inv_fixed))
+        return possible_rots
 
     @property
     def fit_found(self):
