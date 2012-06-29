@@ -13,6 +13,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jun 27, 2012"
 
+
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Composition
 from pymatgen.serializers.json_coders import MSONable
@@ -43,21 +44,16 @@ class ExpEntry(PDEntry, MSONable):
         """
         comp = Composition(composition)
         self._thermodata = thermodata
-        self.temperature = temperature
-        PDEntry.__init__(self, comp, 0)
-
-    @property
-    def energy(self):
-        """
-        Returns the enthalpy at a particular temperature.
-        """
-        if self.composition.is_element:
-            return 0
-        enthalpy = 0
+        found = False
+        enthalpy = float('inf')
         for data in self._thermodata:
             if data.type == "fH" and data.value < enthalpy and (data.phaseinfo != 'gas' and data.phaseinfo != 'liquid'):
                 enthalpy = data.value
-        return enthalpy
+                found = True
+        if not found:
+            raise ValueError("List of Thermodata does not contain enthalpy values.")
+        self.temperature = temperature
+        PDEntry.__init__(self, comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {} with energy = {:.4f}".format(self.composition.formula, self.energy)
@@ -79,3 +75,4 @@ class ExpEntry(PDEntry, MSONable):
         d['composition'] = self.composition.to_dict
         d['temperature'] = self.temperature
         return d
+
