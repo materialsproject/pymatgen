@@ -1163,6 +1163,8 @@ class Structure(SiteCollection, MSONable):
         for site in self:
             site_dict = site.to_dict
             del site_dict['lattice']
+            del site_dict['module']
+            del site_dict['class']
             d['sites'].append(site_dict)
         return d
 
