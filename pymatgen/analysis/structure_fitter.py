@@ -49,7 +49,7 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 timeout=600, use_symmetry=False):
+                 timeout=600, symmetry_tol=0):
         """
         Fits two structures.
         All fitting parameters have been set with defaults that should work in
@@ -81,6 +81,11 @@ class StructureFitter(object):
                 FAST_FIT, should work reasonably well in most instances.
             timeout:
                 Time out in seconds. Defaults to 10mins.
+            symmetry_tol:
+                If > 0, symmetry checking is performed on the two structures
+                based on that symmetry tolerance in angstrom. Structures with
+                different symmetries are not fitted to each other. A good value
+                is around 0.1.
         """
 
         self._tolerance_cell_misfit = tolerance_cell_misfit
@@ -95,16 +100,16 @@ class StructureFitter(object):
 
         self._start_time = time.time()
 
-        if use_symmetry:
+        if symmetry_tol:
             from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
-            finder_a = SymmetryFinder(self._structure_a, symprec=tolerance_atomic_misfit)
-            finder_b = SymmetryFinder(self._structure_b, symprec=tolerance_atomic_misfit)
+            finder_a = SymmetryFinder(self._structure_a, symprec=symmetry_tol)
+            finder_b = SymmetryFinder(self._structure_b, symprec=symmetry_tol)
             sg_a = finder_a.get_spacegroup_number()
             sg_b = finder_b.get_spacegroup_number()
             same_sg = sg_a == sg_b
             logger.debug("Spacegroup numbers : A - {}, B - {}".format(sg_a, sg_b))
 
-        if not use_symmetry or same_sg:
+        if not symmetry_tol or same_sg:
             self._mapping_op = None
             if not self._anonymized:
                 self.fit(self._structure_a, self._structure_b)
@@ -130,7 +135,7 @@ class StructureFitter(object):
                             break
                 else:
                     logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")
-        elif use_symmetry:
+        elif symmetry_tol:
             self._mapping_op = None
             logger.debug("Symmetry is different.")
 
