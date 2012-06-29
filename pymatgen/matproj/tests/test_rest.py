@@ -66,7 +66,7 @@ class MPRestAdaptorMock(MPRestAdaptor):
                 obj = CompleteDos.from_dict(d)
             return [{prop: obj}]
 
-    def get_exp_data(self, formula):
+    def get_exp_thermo_data(self, formula):
         filename = os.path.join(test_dir, "Fe2O3_exp.json")
         return json.load(open(filename, "r"), cls=PMGJSONDecoder)
 
@@ -140,8 +140,8 @@ class MPRestAdaptorTest(unittest.TestCase):
         self.assertTrue(len(data['response']['results']) > 0)
         self.assertTrue(len(data['response']['results']) <= data['response']['num_results'])
 
-    def test_get_exp_data(self):
-        data = self.adaptor.get_exp_data("Fe2O3")
+    def test_get_exp_thermo_data(self):
+        data = self.adaptor.get_exp_thermo_data("Fe2O3")
         self.assertTrue(len(data) > 0)
         for d in data:
             self.assertEqual(d.formula, "Fe2O3")

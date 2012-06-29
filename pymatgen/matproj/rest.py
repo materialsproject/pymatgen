@@ -25,7 +25,8 @@ import json
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-
+from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.core.structure import Composition
 
 class MPRestAdaptor(object):
     """
@@ -176,7 +177,7 @@ class MPRestAdaptor(object):
             entries = MaterialsProjectCompatibility().process_entries(entries)
         return entries
 
-    def get_exp_data(self, formula):
+    def get_exp_thermo_data(self, formula):
         """
         Get a list of ThermoData objects associated with a formula using the
         Materials Project REST interface.
@@ -189,6 +190,21 @@ class MPRestAdaptor(object):
             List of ThermoData objects.
         """
         return self.get_data(formula, data_type="exp")
+
+    def get_exp_entry(self, formula):
+        """
+        Returns an ExpEntry object, which is the experimental equivalent of a
+        ComputedEntry and can be used for analyses using experimental data.
+        
+        Args:
+            formula:
+                A formula to search for.
+        
+        Returns:
+            An ExpEntry object.
+        """
+
+        return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def mpquery(self, criteria, properties):
         """
