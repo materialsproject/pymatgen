@@ -1,6 +1,7 @@
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
+from pymatgen import __version__
 
 long_description = """
 Pymatgen (python materials genomics) is the python library that powers the 
@@ -39,9 +40,9 @@ pymatgen's Google Groups page
 
 setup (
   name='pymatgen',
-  version='2.0.0',
+  version=__version__,
   packages=find_packages(),
-  install_requires=['numpy>=1.6'],
+  install_requires=['numpy>=1.5'],
   extras_require={
         'phasediagrams' : ['scipy>=0.10'],
         'plotting':  ['matplotlib>=1.1'],
