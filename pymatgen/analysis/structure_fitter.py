@@ -49,7 +49,7 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 timeout=600):
+                 timeout=600, use_symmetry=False):
         """
         Fits two structures.
         All fitting parameters have been set with defaults that should work in
@@ -92,32 +92,48 @@ class StructureFitter(object):
         #Sort structures first so that they have the same arrangement of species
         self._structure_a = structure_a.get_sorted_structure()
         self._structure_b = structure_b.get_sorted_structure()
-        self._mapping_op = None
+
         self._start_time = time.time()
-        if not self._anonymized:
-            self.fit(self._structure_a, self._structure_b)
-            if self.fit_found:
-                self.el_mapping = {el:el for el in self._structure_a.composition.elements}
-        else:
-            comp_a = structure_a.composition
-            comp_b = structure_b.composition
-            if len(comp_a.elements) == len(comp_b.elements):
-                el_a = comp_a.elements
-                #Create permutations of the specie/elements in structure A 
-                for p in itertools.permutations(el_a):
-                    # Create mapping of the specie/elements in structure B to that of A.
-                    # Then create a modified structure with those elements and try to fit it.
-                    el_mapping = dict(zip(comp_b.elements, p))
-                    logger.debug("Using specie mapping " + str(el_mapping))
-                    mod = StructureEditor(self._structure_b)
-                    mod.replace_species(el_mapping)
-                    self.fit(self._structure_a, mod.modified_structure)
-                    if self._mapping_op != None:
-                        #Store successful element mapping
-                        self.el_mapping = {el_a:el_b for el_b, el_a in el_mapping.items()}
-                        break
+
+        if use_symmetry:
+            from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+            finder_a = SymmetryFinder(self._structure_a, symprec=tolerance_atomic_misfit)
+            finder_b = SymmetryFinder(self._structure_b, symprec=tolerance_atomic_misfit)
+            sg_a = finder_a.get_spacegroup_number()
+            sg_b = finder_b.get_spacegroup_number()
+            same_sg = sg_a == sg_b
+            logger.debug("Spacegroup numbers : A - {}, B - {}".format(sg_a, sg_b))
+
+        if not use_symmetry or same_sg:
+            self._mapping_op = None
+            if not self._anonymized:
+                self.fit(self._structure_a, self._structure_b)
+                if self.fit_found:
+                    self.el_mapping = {el:el for el in self._structure_a.composition.elements}
             else:
-                logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")
+                comp_a = structure_a.composition
+                comp_b = structure_b.composition
+                if len(comp_a.elements) == len(comp_b.elements):
+                    el_a = comp_a.elements
+                    #Create permutations of the specie/elements in structure A 
+                    for p in itertools.permutations(el_a):
+                        # Create mapping of the specie/elements in structure B to that of A.
+                        # Then create a modified structure with those elements and try to fit it.
+                        el_mapping = dict(zip(comp_b.elements, p))
+                        logger.debug("Using specie mapping " + str(el_mapping))
+                        mod = StructureEditor(self._structure_b)
+                        mod.replace_species(el_mapping)
+                        self.fit(self._structure_a, mod.modified_structure)
+                        if self._mapping_op != None:
+                            #Store successful element mapping
+                            self.el_mapping = {el_a:el_b for el_b, el_a in el_mapping.items()}
+                            break
+                else:
+                    logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")
+        elif use_symmetry:
+            self._mapping_op = None
+            logger.debug("Symmetry is different.")
+
 
     def fit(self, a, b):
         """
