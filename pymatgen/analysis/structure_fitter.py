@@ -12,12 +12,13 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Jun 29, 2012"
 
 import math
 import itertools
 import logging
 import random
+import time
 from collections import OrderedDict
 
 import numpy as np
@@ -35,7 +36,8 @@ class StructureFitter(object):
     
     Attributes:
         fit_found - True if a fit was found
-        mapping_op - Operation that maps the two structures onto one another.  None if no fit was found.
+        mapping_op - Operation that maps the two structures onto one another. 
+        None if no fit was found.
         structure_a - First structure
         structure_b - Second structure
     """
@@ -46,14 +48,12 @@ class StructureFitter(object):
 
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
-                 anonymized=False, fitting_accuracy=FAST_FIT, use_symmetry=False):
+                 anonymized=False, fitting_accuracy=FAST_FIT,
+                 timeout=600):
         """
         Fits two structures.
-        All fitting parameters have been set with defaults that should work in most cases.
-        To use, initialize the structure fitter with parameters, and then run fit()
-        E.g.,
-        fitter = StructureFitter(a, b)
-        print fitter
+        All fitting parameters have been set with defaults that should work in
+        most cases.
         
         Args:
             structure_a : 
@@ -79,6 +79,8 @@ class StructureFitter(object):
                     StructureFitter.ACCURATE_FIT
                 to set the tradeoff between accuracy and speed.  The default,
                 FAST_FIT, should work reasonably well in most instances.
+            timeout:
+                Time out in seconds. Defaults to 10mins.
         """
 
         self._tolerance_cell_misfit = tolerance_cell_misfit
@@ -86,11 +88,12 @@ class StructureFitter(object):
         self._supercells_allowed = supercells_allowed
         self._anonymized = anonymized
         self._max_rotations = fitting_accuracy
-        self._use_symmetry = use_symmetry
+        self._timeout = timeout
         #Sort structures first so that they have the same arrangement of species
         self._structure_a = structure_a.get_sorted_structure()
         self._structure_b = structure_b.get_sorted_structure()
         self._mapping_op = None
+        self._start_time = time.time()
         if not self._anonymized:
             self.fit(self._structure_a, self._structure_b)
             if self.fit_found:
@@ -191,10 +194,10 @@ class StructureFitter(object):
                                     origin, fixed, shifted_to_fit, tol_atoms)
                 if found_map:
                     break
-
-            logger.debug("Done testing all candidate rotations")
         else:
             logger.debug("Identity fitting matched!")
+
+        logger.debug("Done testing in {} secs".format(time.time() - self._start_time))
 
         self._atomic_misfit = biggest_dist / ((3 * 0.7405 * a.volume / (4 * math.pi * a.num_sites)) ** (1 / 3))
 
@@ -219,6 +222,9 @@ class StructureFitter(object):
         biggest_dist = 0
         logger.debug("Trying candidate rotation : \n" + str(rot))
         for site in fixed:
+            if time.time() - self._start_time > self._timeout:
+                logger.debug("Timeout reached when testing rotations.")
+                break
             if site.species_and_occu == origin.species_and_occu:
                 shift = site.coords
                 op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
@@ -230,7 +236,7 @@ class StructureFitter(object):
                 for trans in nstruct:
                     cands = fixed.get_sites_in_sphere(trans.coords, tol_atoms_plus)
                     if len(cands) == 0:
-                        logger.debug("No candidates found1")
+                        logger.debug("No candidates found.")
                         all_match = False
                         break
                     cands = sorted(cands, key=lambda a: a[1])
@@ -392,6 +398,9 @@ class StructureFitter(object):
                     pbis = sqrt_matrix(transf)
                     if shear_invariant(pbis) < tol_shear:
                         cand_rot[r] = shear_invariant(pbis)
+            if time.time() - self._start_time > self._timeout:
+                logger.debug("Timeout reached when generating rotations.")
+                break
 
         return cand_rot
 
