@@ -162,6 +162,8 @@ class StructureFitter(object):
         # substituted, you actually can get a very fast answer without having
         # to try all rotations.
 
+        found_map = False
+
         simple_rots = self._get_simple_rotations(fixed, to_fit)
         for rot in simple_rots:
             rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
