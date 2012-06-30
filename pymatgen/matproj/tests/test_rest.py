@@ -18,7 +18,7 @@ import os
 import json
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder
-from pymatgen.matproj.rest import MPRestAdaptor
+from pymatgen.matproj.rest import MPRester
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -30,7 +30,7 @@ import pymatgen
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 
-class MPRestAdaptorMock(MPRestAdaptor):
+class MPResterMock(MPRester):
     """
     A mock subclass for the REST adaptor to allow secure testing.
     """
@@ -75,10 +75,10 @@ class MPRestAdaptorMock(MPRestAdaptor):
         return json.load(open(filename, "r"), cls=PMGJSONDecoder)
 
 
-class MPRestAdaptorTest(unittest.TestCase):
+class MPResterTest(unittest.TestCase):
 
     def setUp(self):
-        self.adaptor = MPRestAdaptorMock("")
+        self.adaptor = MPResterMock("")
 
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",

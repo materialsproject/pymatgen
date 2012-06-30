@@ -7,9 +7,11 @@
 Introduction
 ============
    
-Pymatgen (python materials genomics) is the python library that powers the 
-Materials Project (http://www.materialsproject.org). These are some of the main 
-features:
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. It currently powers the public Materials Project
+(http://www.materialsproject.org), an initiative to make calculated properties
+on a large number of materials available to materials researchers and designers.
+These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule, 
    Structure objects.
@@ -21,14 +23,15 @@ features:
 3. Comprehensive tool to generate and view compositional and grand canonical phase 
    diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
+5. Integration with the Materials Project REST API.
 
-The public version of pymatgen is free (as in free beer) to download and to use. 
-However, we would also like you to help us improve this library by making your 
-own contributions as well.  These contributions can be in the form of
-additional tools or modules you develop, or even simple things such as bug
-reports. Please read the Contributing_ section or contact the maintainer of
-this library (shyue@mit.edu) to find out how to include your contributions
-via github or for bug reports.
+The pymatgen library is free (as in free beer) to download and to use. However,
+we would also like you to help us improve this library by making your own
+contributions as well.  These contributions can be in the form of additional
+tools or modules you develop, or even simple things such as bug reports. Please
+read the Contributing_ section or contact the maintainer of this library
+(shyue@mit.edu) to find out how to include your contributions via github or for
+bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward 
