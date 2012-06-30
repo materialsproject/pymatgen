@@ -28,7 +28,8 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.core.structure import Composition
 
-class MPRestAdaptor(object):
+
+class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST interface.
     """
