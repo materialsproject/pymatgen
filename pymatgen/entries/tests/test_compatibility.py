@@ -32,9 +32,14 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(Composition.from_formula('Fe2O3'), -1, 0.0, parameters={'is_hubbard':True, 'hubbards':{'Fe':5.2, 'O':0}, 'run_type':'GGA+U', 'potcar_symbols':['PAW_PBE Fe_pv 06Sep2000', 'PAW_PBE O 08Apr2002']})
         self.assertIsNone(compat.process_entry(entry))
 
-        #GGA run
+        #GGA run of U
         entry = ComputedEntry(Composition.from_formula('Fe2O3'), -1, 0.0, parameters={'is_hubbard':False, 'hubbards':None, 'run_type':'GGA', 'potcar_symbols':['PAW_PBE Fe_pv 06Sep2000', 'PAW_PBE O 08Apr2002']})
         self.assertIsNone(compat.process_entry(entry))
+
+        #GGA+U run of non-U 
+        entry = ComputedEntry(Composition.from_formula('Al2O3'), -1, 0.0, parameters={'is_hubbard':True, 'hubbards':{'Al':5.3, 'O':0}, 'run_type':'GGA+U', 'potcar_symbols':['PAW_PBE Al 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        self.assertIsNone(compat.process_entry(entry))
+
 
         #Wrong psp
         entry = ComputedEntry(Composition.from_formula('Fe2O3'), -1, 0.0, parameters={'is_hubbard':True, 'hubbards':{'Fe':5.3, 'O':0}, 'run_type':'GGA+U', 'potcar_symbols':['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
