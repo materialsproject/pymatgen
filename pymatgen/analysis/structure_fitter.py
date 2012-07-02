@@ -30,16 +30,21 @@ from pymatgen.core.structure_modifier import StructureEditor
 
 logger = logging.getLogger(__name__)
 
+
 class StructureFitter(object):
     """
-    Class to perform fitting of two structures
+    Class to perform fitting of two structures.
     
     Attributes:
-        fit_found - True if a fit was found
-        mapping_op - Operation that maps the two structures onto one another. 
-        None if no fit was found.
-        structure_a - First structure
-        structure_b - Second structure
+        fit_found:
+            True if a fit was found
+        mapping_op:
+            Operation that maps the two structures onto one another. None if no
+            fit was found.
+        structure_a:
+            First structure
+        structure_b:
+            Second structure
     """
     FAST_FIT = 25000
     NORMAL_FIT = 50000
@@ -51,34 +56,30 @@ class StructureFitter(object):
                  anonymized=False, fitting_accuracy=FAST_FIT,
                  timeout=600, symmetry_tol=0):
         """
-        Fits two structures.
-        All fitting parameters have been set with defaults that should work in
-        most cases.
+        Fits two structures. All fitting parameters have been set with defaults
+        that should work in most cases.
         
         Args:
-            structure_a : 
+            structure_a: 
                 First structure
-            structure_b : 
+            structure_b: 
                 Second structure to try to match with first structure
-            tolerance_cell_misfit : 
+            tolerance_cell_misfit: 
                 Tolerance for cell misfit. Default = 0.1
-            tolerance_atomic_misfit : 
+            tolerance_atomic_misfit: 
                 Tolerance for atomic misfit. Default = 1.0.
-            supercells_allowed : 
+            supercells_allowed: 
                 Whether supercell structures are allowed.  Default = True.
-            anonymized : 
+            anonymized:
                 Whether to attempt matching of different species.  Setting this
                 to true will allow any two structures with the same framework,
                 but different species to match to each other. Default = False.
-            fitting_accuracy : 
+            fitting_accuracy: 
                 An integer setting for the fitting accuracy.  Corresponds to
                 the max number of candidate rotations considered.  Use the
-                static variables, 
-                    StructureFitter.FAST_FIT
-                    StructureFitter.NORMAL_FIT
-                    StructureFitter.ACCURATE_FIT
-                to set the tradeoff between accuracy and speed.  The default,
-                FAST_FIT, should work reasonably well in most instances.
+                static variables FAST_FIT, NORMAL_FIT, ACCURATE_FIT and
+                EXTREME_FIT to set the tradeoff between accuracy and speed. The
+                default FAST_FIT should work reasonably well in most instances.
             timeout:
                 Time out in seconds. Defaults to 10mins.
             symmetry_tol:
