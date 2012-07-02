@@ -19,7 +19,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.transformations.site_transformations import TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
+from pymatgen.transformations.site_transformations import InsertSitesTransformation, TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
 
 class TranslateSitesTransformationTest(unittest.TestCase):
 
@@ -52,6 +52,7 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         t = TranslateSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
+
 
 class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
 
@@ -107,6 +108,37 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         t = RemoveSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
+
+
+class InsertSitesTransformationTest(unittest.TestCase):
+
+    def setUp(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+
+    def test_apply_transformation(self):
+        t = InsertSitesTransformation(["Fe", "Mn"], [[0.1, 0, 0], [0.1, 0.2, 0.2]])
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
+        t = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
+        #Test validate proximity
+        self.assertRaises(ValueError, t.apply_transformation, self.struct)
+
+    def test_to_from_dict(self):
+        d = InsertSitesTransformation(["Fe", "Mn"], [[0.1, 0, 0], [0.1, 0.2, 0.2]]).to_dict
+        t = RemoveSitesTransformation.from_dict(d)
+        s = t.apply_transformation(self.struct)
+        self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
 
 
 class PartialRemoveSitesTransformationTest(unittest.TestCase):

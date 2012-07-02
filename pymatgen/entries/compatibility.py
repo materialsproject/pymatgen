@@ -104,7 +104,6 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
             if not self._valid_potcars.issuperset(psp_settings):
                 return None
 
-
         if comp.is_element:
             #correct all elements that are wrong, e.g. O2 molecule
             if rform in cpdenergies:
@@ -121,6 +120,9 @@ class MaterialsProjectCompatibility(EntryPostProcessor):
                         return None
             entry.correction = correction
             return entry
+        else:
+            if entry.parameters['is_hubbard'] and entry.parameters['hubbards']:
+                return None
 
         return entry
 

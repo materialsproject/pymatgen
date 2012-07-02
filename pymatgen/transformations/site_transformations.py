@@ -25,6 +25,67 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
+
+class InsertSitesTransformation(AbstractTransformation):
+    """
+    This transformation substitutes certain sites with certain species.
+    """
+    def __init__(self, species, coords, coords_are_cartesian=False,
+                 validate_proximity=True):
+        """
+        Args:
+            species:
+                A list of species. e.g., ["Li", "Fe"]
+            coords:
+                A list of coords corresponding to those species. e.g.,
+                [[0,0,0],[0.5,0.5,0.5]].
+            coords_are_cartesian:
+                Set to True if coords are given in cartesian coords. Defaults
+                to False.
+            validate_proximity:
+                Set to False if you do not wish to ensure that added sites are
+                not too close to other sites. Defaults to True.
+        """
+        if len(species) != len(coords):
+            raise ValueError("Species and coords must be the same length!")
+        self._species = species
+        self._coords = coords
+        self._cartesian = coords_are_cartesian
+        self._validate_proximity = validate_proximity
+
+    def apply_transformation(self, structure):
+        editor = StructureEditor(structure)
+        for i, sp in enumerate(self._species):
+            editor.insert_site(i, sp, self._coords[i],
+                               coords_are_cartesian=self._cartesian,
+                               validate_proximity=self._validate_proximity)
+        return editor.modified_structure.get_sorted_structure()
+
+    def __str__(self):
+        return "InsertSiteTransformation : species {}, coords {}".format(self._species, self._coords)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'species': self._species, 'coords': self._coords,
+                          'coords_are_cartesian':self._cartesian,
+                          'validate_proximity': self._validate_proximity}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """
     This transformation substitutes certain sites with certain species.
@@ -48,7 +109,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "ReplaceSiteSpeciesTransformationTransformation :" + ", ".join([k + "->" + v for k, v in self._species_map.items()])
+        return "ReplaceSiteSpeciesTransformation :" + ", ".join([k + "->" + v for k, v in self._species_map.items()])
 
     def __repr__(self):
         return self.__str__()
