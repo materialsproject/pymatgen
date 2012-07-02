@@ -53,7 +53,8 @@ Latest Change Log (v2.0.0)
 2. New PDAnalyzer method to generate chemical potential maps.
 3. Enhanced POSCAR class to support parsing of velocities and more formatting
    options.
-4. Miscellaneous bug fixes and speed improvements.
+4. Reorganization of Bandstructure module.
+5. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
