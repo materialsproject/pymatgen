@@ -416,7 +416,11 @@ class StructureFitter(object):
                 if r not in cand_rot:
                     transf = r.rotation_matrix
                     transf = np.dot(transf.transpose(), transf)
-                    transf = np.eye(3) if almost_identity(transf) else transf
+
+                    #This resolves a very very strange bug in numpy that causes
+                    #random eigenvectors to be returned for matrices very very
+                    #close to the identity matrix.
+                    transf = np.eye(3) if np.allclose(transf, np.eye(3)) else transf
                     pbis = sqrt_matrix(transf)
                     if shear_invariant(pbis) < tol_shear:
                         cand_rot[r] = shear_invariant(pbis)
@@ -476,17 +480,53 @@ def sqrt_matrix(input_matrix):
     result = np.dot(v, temp)
     return result
 
+
 def shear_invariant(matrix):
-    return (matrix[0][0] - matrix[1][1]) ** 2 + (matrix[1][1] - matrix[2][2]) ** 2 + (matrix[0][0] - matrix[2][2]) ** 2 + 6 * (matrix[0][1] * matrix[0][1] + matrix[0][2] * matrix[0][2] + matrix[1][2] * matrix[1][2])
+    """
+    Calcualtes the shear invariant for a matrix.
+    """
+    ans = 0
+    for i, j in itertools.combinations(xrange(3), 2):
+        ans += (matrix[i][i] - matrix[j][j]) ** 2
+        ans += 6 * matrix[i][j] ** 2
+    return ans
+
 
 def are_sites_unique(sites, allow_periodic_image=True):
+    """
+    Checks if the sites are unique.
+    
+    Args:
+        sites:
+            List of sites to check.
+        allow_periodic_image:
+            Whether to allow periodic images of sites to map onto one another.
+    
+    Returns:
+        True if sites are unique, i.e., does not map onto each other.
+    """
     for (site1, site2) in itertools.combinations(sites, 2):
-        if (allow_periodic_image and site1.is_periodic_image(site2)) or (site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all()):
+        if allow_periodic_image and site1.is_periodic_image(site2):
+            return False
+        if site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all():
             return False
     return True
 
+
 def closest_site_to_point(pt, list_of_sites):
-    closest_dist = 1e10
+    """
+    Returns the site from a list of sites that is closest to a point.
+
+    Args:
+        pt:
+            Coordinates of the point.
+        sites:
+            List of sites to check.
+
+    Returns:
+        Site that is closest to the pt.
+    """
+    closest_dist = float('inf')
     for c in list_of_sites:
         dist = np.linalg.norm(c.coords - pt)
         if dist < closest_dist:
@@ -494,9 +534,3 @@ def closest_site_to_point(pt, list_of_sites):
             closest_dist = dist
     return (closest, closest_dist)
 
-def almost_identity(mat):
-    """
-    This is to resolve a very very strange bug in numpy that causes random eigen vectors to be returned
-    for matrices very very close to the identity matrix.  See test_eig for examples.
-    """
-    return (abs(mat - np.eye(3)) < 1e-10).all()
