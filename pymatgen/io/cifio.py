@@ -36,12 +36,14 @@ class CifParser(object):
     Structure object.
     '''
 
-    def __init__(self, filename, occupancy_tolerance = 1.):
+    def __init__(self, filename, occupancy_tolerance=1.):
         """
         Args:
-            filename - cif file name.  bzipped or gzipped cifs are fine too.
-            occupancy_tolerance - If total occupancy of a site is between 1 and occupancy_tolerance,
-                the occupancies will be scaled down to 1
+            filename:
+                Cif filename. bzipped or gzipped cifs are fine too.
+            occupancy_tolerance:
+                If total occupancy of a site is between 1 and 
+                occupancy_tolerance, the occupancies will be scaled down to 1.
         """
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
@@ -50,9 +52,8 @@ class CifParser(object):
         else:
             self._cif = CifFile.ReadCif(filename)
 
-
     @staticmethod
-    def from_string(cif_string, occupancy_tolerance = 1.):
+    def from_string(cif_string, occupancy_tolerance=1.):
         output = StringIO.StringIO()
         output.write(cif_string)
         output.seek(0)
@@ -138,14 +139,14 @@ class CifParser(object):
             coords = self._unique_coords(coord, sympos, primitive, lattice, primlattice)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
-        
+
         #rescale occupancies if necessary
         for species in allspecies:
             totaloccu = sum(species.values())
-            if totaloccu > 1. and totaloccu <= self._occupancy_tolerance:
+            if  1 < totaloccu <= self._occupancy_tolerance:
                 for key, value in species.iteritems():
-                    species[key] = value/totaloccu
-        
+                    species[key] = value / totaloccu
+
         if primitive:
             return Structure(primlattice, allspecies, allcoords).get_sorted_structure()
         else:
@@ -246,14 +247,22 @@ class CifWriter:
 
 
         block['_atom_site_type_symbol'] = atom_site_type_symbol
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_label':atom_site_label})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_symmetry_multiplicity':atom_site_symmetry_multiplicity})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_x':atom_site_fract_x})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_y':atom_site_fract_y})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_fract_z':atom_site_fract_z})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_attached_hydrogens':atom_site_attached_hydrogens})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_B_iso_or_equiv':atom_site_B_iso_or_equiv})
-        block.AddToLoop('_atom_site_type_symbol', {'_atom_site_occupancy':atom_site_occupancy})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_label':atom_site_label})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_symmetry_multiplicity':atom_site_symmetry_multiplicity})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_fract_x':atom_site_fract_x})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_fract_y':atom_site_fract_y})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_fract_z':atom_site_fract_z})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_attached_hydrogens':atom_site_attached_hydrogens})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_B_iso_or_equiv':atom_site_B_iso_or_equiv})
+        block.AddToLoop('_atom_site_type_symbol',
+                        {'_atom_site_occupancy':atom_site_occupancy})
 
         self._cf = CifFile.CifFile()
         self._cf[comp.reduced_formula[0:74]] = block  # AJ says: CIF Block names cannot be more than 75 characters or you get an Exception
@@ -273,14 +282,16 @@ class CifWriter:
 
 def around_diff_num(a, b):
     """
-    Used to compare differences in fractional coordinates, taking into account PBC. 
+    Used to compare differences in fractional coordinates, taking into account
+    PBC. 
     """
     diff_num = abs(a - b)
     return diff_num if diff_num < 0.5 else abs(1 - diff_num)
 
 def coord_in_list(coord, coord_list, tol):
     """
-    Helper method to check if coord is already in a list of coords, subject to a tolerance.
+    Helper method to check if coord is already in a list of coords, subject to
+    a tolerance.
     """
     for c in coord_list:
         diff = np.array([around_diff_num(c[i], coord[i]) for i in xrange(3)])

@@ -37,7 +37,7 @@ from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import CompleteDos, Dos, PDos
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
@@ -1434,8 +1434,7 @@ class Vasprun(object):
         A complete dos object which incorporates the total dos and all projected dos.
         """
         final_struct = self.final_structure
-        pdoss = {final_struct[i]:{Orbital.from_vasp_index(j) : self.pdos[i][j]
-                    for j in range(len(self.pdos[i]))} for i in range(len(self.pdos))}
+        pdoss = {final_struct[i]:pdos for i, pdos in enumerate(self.pdos)}
         return CompleteDos(self.final_structure, self.tdos, pdoss)
 
     @property
@@ -1888,14 +1887,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 all_pdos = []
                 natom = len(self.atomic_symbols)
                 for iatom in xrange(1, natom + 1):
-                    all_pdos.append(list())
+                    all_pdos.append(defaultdict())
                     for iorbital in xrange(self.norbitals):
                         updos = self.pdos[(iatom, iorbital, Spin.up)]
                         downdos = None if (iatom, iorbital, Spin.down) not in self.pdos else self.pdos[(iatom, iorbital, Spin.down)]
                         if downdos:
-                            all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos, Spin.down:downdos}, Orbital.from_vasp_index(iorbital)))
+                            all_pdos[-1][Orbital.from_vasp_index(iorbital)] = {Spin.up:updos, Spin.down:downdos}
                         else:
-                            all_pdos[-1].append(PDos(self.efermi, self.dos_energies, {Spin.up:updos}, Orbital.from_vasp_index(iorbital)))
+                            all_pdos[-1][Orbital.from_vasp_index(iorbital)] = {Spin.up:updos}
                 self.pdos = all_pdos
             elif name == "total":
                 self.tdos = Dos(self.efermi, self.dos_energies, self.tdos)
