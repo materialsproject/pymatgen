@@ -293,7 +293,7 @@ class TransformedStructure(MSONable):
         return d
 
     @staticmethod
-    def from_cif_string(cif_string, transformations=[], primitive=True):
+    def from_cif_string(cif_string, transformations=[], primitive=True, occupancy_tolerance = 1.):
         """
         Generates TransformedStructure from a cif string.
 
@@ -309,8 +309,10 @@ class TransformedStructure(MSONable):
                 to use a non-primitive cell, e.g., if you are trying to generate
                 all possible orderings of partial removals or order a disordered
                 structure.
+            occupancy_tolerance - If total occupancy of a site is between 1 and occupancy_tolerance,
+                the occupancies will be scaled down to 1
         """
-        parser = CifParser.from_string(cif_string)
+        parser = CifParser.from_string(cif_string, occupancy_tolerance)
         raw_string = re.sub("'", "\"", cif_string)
         cif_dict = parser.to_dict
         cif_keys = cif_dict.keys()
