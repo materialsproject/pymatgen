@@ -1921,13 +1921,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return all_matches
 
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={}, m_points=0, factor=1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={},
+                                                   m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting 
         and ranking indeterminate formulas.
         Author: Anubhav Jain
         
-        Arguments:
+        Args:
             fuzzy_formula:
                 A formula string, such as 'co2o3' or 'MN', that may or may not 
                 have multiple interpretations.
@@ -1951,7 +1952,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             ranking indeterminate formulas
             Author: Anubhav Jain
             
-            Arguments:
+            Args:
                 m:
                     a regex match, with the first group being the element and
                     the second group being the amount
