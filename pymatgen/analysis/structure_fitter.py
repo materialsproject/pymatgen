@@ -289,9 +289,9 @@ class StructureFitter(object):
 
                 # it used to be fixed.getNumSites() != nStruct.getNumSites()
                 # so only when the number of sites are different but it's
-                # actually better to allways check the reverse. This
-                # elimininates weird situations where two atoms fit to one (reduced in the
-                # unit cell)
+                # actually better to always check the reverse. This
+                # elimininates weird situations where two atoms fit to one
+                # (reduced in the unit cell)
                 for fixed_site in fixed:
                     cands = nstruct.get_sites_in_sphere(fixed_site.coords, tol_atoms_plus)
                     if len(cands) == 0:
@@ -312,26 +312,26 @@ class StructureFitter(object):
                     if not are_sites_unique(inv_correspondance.values(), False):
                         all_match = False
                         logger.debug("Rejected because two atoms fit to the same site for the inverse")
+                        continue
 
-                if all_match:
                     self.inv_correspondance = inv_correspondance
                     logger.debug("Correspondance for the inverse")
                     for k, v in inv_correspondance.items():
                         logger.debug("{} fits on {}".format(k, v))
 
-                # The smallest correspondance array shouldn't have any equivalent sites
-                if fixed.num_sites != to_fit.num_sites:
-                    logger.debug("Testing sites unique")
-                    if not are_sites_unique(correspondance.values()):
-                        all_match = False
-                        logger.debug("Rejected because the smallest correspondance array has equivallent sites")
-                        break
+                    # The smallest correspondance array shouldn't have any equivalent sites
+                    if fixed.num_sites != to_fit.num_sites:
+                        logger.debug("Testing sites unique")
+                        if not are_sites_unique(correspondance.values()):
+                            all_match = False
+                            logger.debug("Rejected because the smallest correspondance array has equivallent sites")
+                            continue
 
-                if all_match:
                     found_map = True
                     mapping_op = op
                     self.correspondance = correspondance
                     break
+
         return (found_map, mapping_op, biggest_dist)
 
     def __str__(self):
@@ -541,3 +541,4 @@ def are_sites_unique(sites, allow_periodic_image=True):
         if site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all():
             return False
     return True
+
