@@ -36,11 +36,14 @@ class CifParser(object):
     Structure object.
     '''
 
-    def __init__(self, filename):
+    def __init__(self, filename, occupancy_tolerance = 1.):
         """
         Args:
             filename - cif file name.  bzipped or gzipped cifs are fine too.
+            occupancy_tolerance - If total occupancy of a site is between 1 and occupancy_tolerance,
+                the occupancies will be scaled down to 1
         """
+        self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with file_open_zip_aware(filename, "r") as f:
                 self._cif = CifFile.ReadCif(f)
@@ -49,11 +52,11 @@ class CifParser(object):
 
 
     @staticmethod
-    def from_string(cif_string):
+    def from_string(cif_string, occupancy_tolerance = 1.):
         output = StringIO.StringIO()
         output.write(cif_string)
         output.seek(0)
-        return CifParser(output)
+        return CifParser(output, occupancy_tolerance)
 
     def _unique_coords(self, coord_in, sympos, primitive, lattice, primlattice):
         """
@@ -135,7 +138,14 @@ class CifParser(object):
             coords = self._unique_coords(coord, sympos, primitive, lattice, primlattice)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
-
+        
+        #rescale occupancies if necessary
+        for species in allspecies:
+            totaloccu = sum(species.values())
+            if totaloccu > 1. and totaloccu <= self._occupancy_tolerance:
+                for key, value in species.iteritems():
+                    species[key] = value/totaloccu
+        
         if primitive:
             return Structure(primlattice, allspecies, allcoords).get_sorted_structure()
         else:
