@@ -138,7 +138,7 @@ class TransformedStructure(MSONable):
             alts = []
             for x in ranked_list[1:]:
                 struct = x.pop('structure')
-                other_paras = [p for p in self._other_parameters]
+                other_paras = self._other_parameters.copy()
                 hist = self.history
                 actual_transformation = x.pop('transformation', transformation)
                 tdict = actual_transformation.to_dict
