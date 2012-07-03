@@ -350,6 +350,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 self.logger.debug('Average time per combi = {} seconds'.format((timenow - starttime) / count))
                 self.logger.debug('{} symmetrically distinct structures found.'.format(len(all_structures)))
 
+        self.logger.debug('Total symmetrically distinct structures found = {}'.format(len(all_structures)))
         all_structures = sorted(all_structures, key=lambda s: s['energy'])
         return all_structures
 

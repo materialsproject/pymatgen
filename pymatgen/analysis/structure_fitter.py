@@ -276,6 +276,7 @@ class StructureFitter(object):
 
                 if not are_sites_unique(correspondance.values(), False):
                     all_match = False
+                    continue
                 else:
                     for k, v in correspondance.items():
                         logger.debug(str(k) + " fits on " + str(v))
@@ -468,22 +469,51 @@ class StructureFitter(object):
         """Second input structure"""
         return self._structure_b
 
+
 def apply_operation(structure, symmop):
+    """
+    Applies a symmetry operation on a structure.
+    
+    Args:
+        structure:
+            Input structure
+        symmop:
+            SymmOp to apply
+            
+    Returns:
+        Modified structure after applying symmop.
+    """
     editor = StructureEditor(structure)
     editor.apply_operation(symmop)
     return editor.modified_structure
 
-def sqrt_matrix(input_matrix):
-    d, v = np.linalg.eig(input_matrix)
-    diagonalbis = np.array([[d[0] ** 0.5, 0, 0], [0, d[1] ** 0.5, 0], [0, 0, d[2] ** 0.5]])
-    temp = np.dot(diagonalbis, v.transpose())
-    result = np.dot(v, temp)
-    return result
+
+def sqrt_matrix(matrix):
+    """
+    Calculates sqrt matrix for input matrix.
+    
+    Args:
+        matrix:
+            Input matrix
+    
+    Returns:
+        Sqrt matrix.
+    """
+    d, v = np.linalg.eig(matrix)
+    diagonalbis = np.sqrt(d) * np.eye(3)
+    return np.dot(v, np.dot(diagonalbis, v.transpose()))
 
 
 def shear_invariant(matrix):
     """
-    Calcualtes the shear invariant for a matrix.
+    Calculates the shear invariant for a matrix.
+    
+    Args:
+        matrix:
+            Input matrix
+    
+    Returns:
+        Shear invariant
     """
     ans = 0
     for i, j in itertools.combinations(xrange(3), 2):
@@ -511,26 +541,3 @@ def are_sites_unique(sites, allow_periodic_image=True):
         if site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all():
             return False
     return True
-
-
-def closest_site_to_point(pt, list_of_sites):
-    """
-    Returns the site from a list of sites that is closest to a point.
-
-    Args:
-        pt:
-            Coordinates of the point.
-        sites:
-            List of sites to check.
-
-    Returns:
-        Site that is closest to the pt.
-    """
-    closest_dist = float('inf')
-    for c in list_of_sites:
-        dist = np.linalg.norm(c.coords - pt)
-        if dist < closest_dist:
-            closest = c
-            closest_dist = dist
-    return (closest, closest_dist)
-
