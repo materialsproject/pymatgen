@@ -153,15 +153,15 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         remover = OxidationStateRemover(structure)
         return remover.modified_structure
-    
+
     @property
     def inverse(self):
         return None
-    
+
     @property
     def is_one_to_many(self):
         return False
-    
+
     @property
     def to_dict(self):
         d = {'name' : self.__class__.__name__, 'version': __version__}
