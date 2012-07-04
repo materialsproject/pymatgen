@@ -26,6 +26,17 @@ from pymatgen.comp_geometry.simplex import Simplex
 class PDAnalyzer(object):
     """
     A class for performing analyses on Phase Diagrams.
+    
+    The algorithm is based on the work in the following papers:
+    
+    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+       doi:10.1021/cm702327g
+       
+    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430. 
+       doi:10.1016/j.elecom.2010.01.010
     """
 
     numerical_tol = 1e-8
