@@ -5,7 +5,8 @@ __version__ = "2.0.0"
 """
 Useful aliases for commonly used objects and modules.
 """
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure, Molecule, Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen.electronic_structure.core import Spin, Orbital
