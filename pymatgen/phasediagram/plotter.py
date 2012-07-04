@@ -19,6 +19,8 @@ import itertools
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
 
+from scipy.spatial import Delaunay
+
 
 class PDPlotter(object):
     '''
@@ -262,7 +264,7 @@ class PDPlotter(object):
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(elements)
         missing_lines = {}
-
+        all_coords = []
         for entry, lines in chempot_ranges.items():
             center_x = 0
             center_y = 0
@@ -277,6 +279,7 @@ class PDPlotter(object):
                         coords.append(coord.tolist())
                     else:
                         coords.remove(coord.tolist())
+                all_coords.extend(line.coords)
             comp = entry.composition
             frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
             if coords and frac_sum < 0.99:
@@ -288,6 +291,27 @@ class PDPlotter(object):
         ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
+
+        #This is a bit hacky, but it's a way to shade the forbidden chemical
+        #potential regions.
+        all_coords.append([xlim[0], ylim[1]])
+        all_coords.append([xlim[1], ylim[0]])
+        all_coords.append([xlim[0], ylim[0]])
+        delau = Delaunay(all_coords)
+        facets = delau.convex_hull
+        excluded_boundary = []
+        for f in facets:
+            if f[0] == len(all_coords) - 1 or f[1] == len(all_coords) - 1:
+                continue
+            if (all_coords[f[0]][0] != xlim[1] or all_coords[f[1]][0] != xlim[1]) and (all_coords[f[0]][1] != ylim[1] or all_coords[f[1]][1] != ylim[1]):
+                excluded_boundary.append(tuple(all_coords[f[0]]))
+                excluded_boundary.append(tuple(all_coords[f[1]]))
+        excluded_boundary = list(set(excluded_boundary))
+        excluded_boundary = sorted(excluded_boundary, key=lambda c: c[0])
+        excluded_boundary.append((xlim[1], ylim[1]))
+        x = [c[0] for c in excluded_boundary]
+        y = [c[1] for c in excluded_boundary]
+        plt.fill(x, y, '0.80')
 
         for entry, coords in missing_lines.items():
             center_x = 0
