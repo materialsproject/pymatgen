@@ -18,11 +18,9 @@ import os
 import json
 
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from pymatgen import PMGJSONDecoder, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class ExpEntryTest(unittest.TestCase):
 

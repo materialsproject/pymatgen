@@ -15,7 +15,7 @@ __date__ = "Apr 25, 2012"
 
 import unittest
 
-from pymatgen.util.coord_utils import *
+from pymatgen.util.coord_utils import get_linear_interpolated_value, in_coord_list
 
 class CoordUtilsTest(unittest.TestCase):
 
