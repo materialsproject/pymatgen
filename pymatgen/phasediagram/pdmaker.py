@@ -235,8 +235,19 @@ class PhaseDiagram (object):
         self._stable_entries = stable_entries
         self._all_entries_hulldata = self._process_entries_qhulldata(self._all_entries)
 
+    def __repr__(self):
+        return self.__str__()
 
-class GrandPotentialPhaseDiagram (PhaseDiagram):
+    def __str__(self):
+        symbols = [el.symbol for el in self._elements]
+        output = []
+        output.append("{} phase diagram".format("-".join(symbols)))
+        output.append("{} stable phases: ".format(len(self._stable_entries)))
+        output.append(", ".join([entry.name for entry in self._stable_entries]))
+        return "\n".join(output)
+
+
+class GrandPotentialPhaseDiagram(PhaseDiagram):
     '''
     Grand potential phase diagram class taking in elements and entries as inputs.
     '''
@@ -271,11 +282,20 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
         elements = sorted(filteredels)
         super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements, use_external_qhull)
 
+    def __str__(self):
+        symbols = [el.symbol for el in self._elements]
+        output = []
+        output.append("{} grand potential phase diagram with ".format("-".join(symbols)))
+        output[-1] += ", ".join(["u{}={}".format(el, v) for el, v in self.chempots.items()])
+        output.append("{} stable phases: ".format(len(self._stable_entries)))
+        output.append(", ".join([entry.name for entry in self._stable_entries]))
+        return "\n".join(output)
+
 
 class CompoundPhaseDiagram(PhaseDiagram):
     """
-    Experimental feature. Generates phase diagrams from compounds as termninations
-    instead of elements.
+    Experimental feature. Generates phase diagrams from compounds as
+    termninations instead of elements.
     """
 
     def __init__(self, entries, terminal_compositions, use_external_qhull=False):
@@ -297,6 +317,7 @@ def get_comp_matrix_from_comp(compositions, elements, normalize_row=True):
     factor = np.tile(np.sum(comp_matrix, 1), (len(elements), 1)).transpose()
     return comp_matrix / factor
 
+
 def get_comp_matrix(entries, elements, normalize_row=True):
     """
     Helper function to generates a normalized composition matrix from a list of 
@@ -304,12 +325,14 @@ def get_comp_matrix(entries, elements, normalize_row=True):
     """
     return get_comp_matrix_from_comp([entry.composition for entry in entries], elements, normalize_row)
 
+
 def is_coplanar(entries, elements):
     comp_matrix = get_comp_matrix(entries, elements)
     for submatrix in itertools.combinations(comp_matrix, min(len(elements), len(entries))):
         if abs(np.linalg.det(submatrix)) > 1e-5:
             return False
     return True
+
 
 def get_non_coplanar_element_set(entries):
     elements = set()
@@ -319,6 +342,7 @@ def get_non_coplanar_element_set(entries):
             if not is_coplanar(entries, elset):
                 return elset
     return None
+
 
 def get_transformed_entries(entries, elements):
     comp_matrix = get_comp_matrix(entries, elements)
@@ -341,6 +365,7 @@ def get_transformed_entries(entries, elements):
         newentries.append(TransformedPDEntry(comp, scaled_energy, entry))
     return newentries
 
+
 def get_entries_within_compositional_space(entries, terminal_compositions):
     newentries = []
     for entry in entries:
@@ -350,5 +375,4 @@ def get_entries_within_compositional_space(entries, terminal_compositions):
         except:
             pass
     return newentries
-
 
