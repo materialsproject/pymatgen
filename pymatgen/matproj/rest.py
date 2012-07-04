@@ -23,10 +23,11 @@ import urllib
 import httplib
 import json
 
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+
+from pymatgen import PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.core.structure import Composition
+from pymatgen import Composition
 
 
 class MPRester(object):

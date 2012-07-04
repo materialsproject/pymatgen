@@ -306,7 +306,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         self.logger.debug('Performing complete ordering...')
         all_structures = []
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
-        symprec = 0.1
+        symprec = 0.2
         s = SymmetryFinder(structure, symprec=symprec)
         self.logger.debug('Symmetry of structure is determined to be {}.'.format(s.get_spacegroup_symbol()))
         sg = s.get_spacegroup()
