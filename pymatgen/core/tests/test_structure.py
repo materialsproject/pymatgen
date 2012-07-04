@@ -95,7 +95,7 @@ class PeriodicSiteTest(unittest.TestCase):
         self.assertTrue(self.site.is_periodic_image(other), "This other site should be a periodic image.")
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         self.assertFalse(self.site.is_periodic_image(other), "This other site should not be a periodic image.")
-        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2))
+        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2, 60))
         self.assertFalse(self.site.is_periodic_image(other), "Different lattices should result in different periodic sites.")
 
     def test_equality(self):
