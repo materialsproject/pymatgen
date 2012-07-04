@@ -14,15 +14,12 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import logging
-import itertools
 
 from scipy.spatial import Delaunay
 
 from pymatgen.core.structure import Composition
 from pymatgen.command_line.qhull_caller import qconvex
-from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
-from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.phasediagram.entries import GrandPotPDEntry
 
 logger = logging.getLogger(__name__)
 

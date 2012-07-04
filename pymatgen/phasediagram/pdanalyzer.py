@@ -50,7 +50,8 @@ class PDAnalyzer(object):
 
     def _make_comp_matrix(self, complist):
         """
-        Helper function to generates a normalized composition matrix from a list of composition.
+        Helper function to generates a normalized composition matrix from a
+        list of compositions.
         """
         return np.array([[comp.get_atomic_fraction(el) for el in self._pd.elements] for comp in complist])
 
@@ -124,7 +125,8 @@ class PDAnalyzer(object):
                 A PDEntry like object
         
         Returns:
-            (decomp, energy above convex hull)  Stable entries should have energy above hull of 0.
+            (decomp, energy above convex hull)  Stable entries should have
+            energy above hull of 0.
         """
         comp = entry.composition
         eperatom = entry.energy_per_atom
@@ -142,7 +144,8 @@ class PDAnalyzer(object):
             entry - A PDEntry like object
         
         Returns:
-            Energy above convex hull of entry. Stable entries should have energy above hull of 0.
+            Energy above convex hull of entry. Stable entries should have
+            energy above hull of 0.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
@@ -167,6 +170,16 @@ class PDAnalyzer(object):
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
 
     def get_facet_chempots(self, facet):
+        """
+        Calculates the chemical potentials for each element within a facet.
+        
+        Args:
+            facet:
+                Facet of the phase diagram.
+        
+        Returns:
+            { element: chempot } for all elements in the phase diagram.
+        """
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
         m = self._make_comp_matrix(complist)
@@ -203,7 +216,7 @@ class PDAnalyzer(object):
         clean_pots.reverse()
         return tuple(clean_pots)
 
-    def get_element_profile(self, element, comp):
+    def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
         Provides the element evolution data for a composition.
         For example, can be used to analyze Li conversion voltages by varying
@@ -215,6 +228,10 @@ class PDAnalyzer(object):
                 An element. Must be in the phase diagram.
             comp:
                 A Composition
+            comp_tol:
+                The tolerance to use when calculating decompositions. Phases
+                with amounts less than this tolerance are excluded. Defaults to
+                1e-5.
         
         Returns:
             Evolution data as a list of dictionaries of the following format:
@@ -237,10 +254,13 @@ class PDAnalyzer(object):
             return True
 
         for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01}, self._pd.elements)
+            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01},
+                                              self._pd.elements)
             analyzer = PDAnalyzer(gcpd)
-            decomp = [gcentry.original_entry.composition for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
-            decomp_entries = [gcentry.original_entry for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
+            decomp = [gcentry.original_entry.composition for gcentry,
+                      amt in analyzer.get_decomposition(gccomp).items() if amt > comp_tol]
+            decomp_entries = [gcentry.original_entry for gcentry,
+                              amt in analyzer.get_decomposition(gccomp).items() if amt > comp_tol]
 
             if not are_same_decomp(prev_decomp, decomp):
                 if elcomp not in decomp:
