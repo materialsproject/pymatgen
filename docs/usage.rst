@@ -125,7 +125,8 @@ crystal is provided below::
    coords = list()
    coords.append([0,0,0])
    coords.append([0.75,0.5,0.75])
-   lattice = Lattice.from_parameters(a = 3.84, b = 3.84, c = 3.84, alpha = 120, beta = 90, gamma = 60)
+   lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, 
+                                     beta=90, gamma=60)
    struct = Structure(lattice, ["Si", "Si"], coords)
 
 
