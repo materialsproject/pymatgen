@@ -24,10 +24,9 @@ import httplib
 import json
 
 
-from pymatgen import PMGJSONDecoder
+from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen import Composition
 
 
 class MPRester(object):
