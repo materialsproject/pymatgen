@@ -744,13 +744,37 @@ class PrimitiveCellTransformation(AbstractTransformation):
             return new_structure
         else: #if there were no translational symmetry vectors
             return structure
+        
+    def _buergers_cell(self, structure):
+        '''
+        Takes a primitive cell and returns the buergers cell
+        '''
+        matrix = structure.lattice.matrix
+        finished = False
+        while not finished:
+            finished = True
+            for i,j in itertools.permutations(range(3),2):
+                oldnorm = np.linalg.norm(matrix[i])
+                newnorm = np.linalg.norm(matrix[i]+matrix[j])
+                if newnorm < oldnorm:
+                    matrix[i] += matrix[j]
+                    finished = False
+                newnorm = np.linalg.norm(matrix[i]-matrix[j])
+                if newnorm < oldnorm:
+                    matrix[i] -= matrix[j]
+                    finished = False
+        new_lattice = Lattice(matrix)
+        
+        new_structure = Structure(new_lattice, structure.species_and_occu,
+                                      structure.cart_coords, coords_are_cartesian=True)
+        return new_structure
 
     def apply_transformation(self, structure):
         structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         while len(structure2) < len(structure):
             structure = structure2
             structure2 = self._get_more_primitive_structure(structure, self._tolerance)
-        return structure2
+        return self._buergers_cell(structure2)
 
     def __str__(self):
         return "Primitive cell transformation"
