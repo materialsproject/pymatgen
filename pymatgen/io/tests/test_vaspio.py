@@ -332,7 +332,7 @@ class VasprunTest(unittest.TestCase):
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
-        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[(96, 1, 1, Orbital.s, Spin.up)], 0.0032)
+        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[(Spin.up, 0, 0, 96, Orbital.s)], 0.0032)
 
 
     def test_to_dict(self):

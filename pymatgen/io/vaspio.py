@@ -1318,16 +1318,19 @@ class Vasprun(object):
     .. attribute:: eigenvalues 
         
         Available only if parse_eigen=True. Final eigenvalues as a dict of
-        {(kpoint index, spin):[[eigenvalue, occu]]}.
-        This representation is meant as an intermediate representation to be
-        converted into proper objects.
-        
+        {(spin, kpoint index):[[eigenvalue, occu]]}.
+        This representation is based on actual ordering in VASP and is meant as
+        an intermediate representation to be converted into proper objects. The
+        kpoint index is 0-based (unlike the 1-based indexing in VASP).
+  
     .. attribute:: projected_eigenvalues 
         
         Final projected eigenvalues as a dict of
         {(atom index, band index, kpoint index, Orbital, Spin):float}
-        This representation is meant as an intermediate representation to be
-        converted into proper objects.
+        This representation is based on actual ordering in VASP and is meant as
+        an intermediate representation to be converted into proper objects. The
+        kpoint, band and atom indices are 0-based (unlike the 1-based indexing
+        in VASP).
          
     **Vasp inputs**
         
@@ -1638,7 +1641,7 @@ class Vasprun(object):
         vasp_output['crystal'] = self.final_structure.to_dict
         vasp_output['efermi'] = self.efermi
         vasp_output['eigenvalues'] = {}
-        for (index, spin), values in self.eigenvalues.items():
+        for (spin, index), values in self.eigenvalues.items():
             if str(index) not in vasp_output['eigenvalues']:
                 vasp_output['eigenvalues'][str(index)] = {str(spin):values}
             else:
@@ -1676,10 +1679,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.actual_kpoints_weights = []
         self.dos_energies = None
 
-        #  will  be  {(kpoint index, Spin.up): [energy, occu]}
+        #  will  be  {(spin, kpoint index): [[energy, occu]]}
         self.eigenvalues = {}
 
-        #{(atom index, band index, kpoint index, Orbital, Spin):float}
+        #{(spin, kpoint_index, band_index, atom_ind, orb):float}
         self.projected_eigenvalues = {}
 
         self.tdos = {}
@@ -1952,7 +1955,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             tok = re.split("\s+", self.val.getvalue().strip())
             self.raw_data.append([float(i) for i in tok])
         elif name == "set" and str(state["set"]).startswith("kpoint"):
-            self.eigenvalues[(self.eigen_kpoint, self.eigen_spin)] = self.raw_data
+            self.eigenvalues[(self.eigen_spin, self.eigen_kpoint - 1)] = self.raw_data
             self.raw_data = []
         elif name == "eigenvalues":
             logger.debug("Finished reading eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
@@ -1964,10 +1967,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             tok = re.split("\s+", self.val.getvalue().strip())
             self.raw_data.append({Orbital.from_vasp_index(i): float(val) for i, val in enumerate(tok)})
         elif name == "set" and str(state["set"]).startswith("band"):
-            logger.debug("Processing projected eigenvalues for band {}, kpoint {}, spin {}.".format(self.eigen_band, self.eigen_kpoint, self.eigen_spin))
+            logger.debug("Processing projected eigenvalues for band {}, kpoint {}, spin {}.".format(self.eigen_band - 1, self.eigen_kpoint - 1, self.eigen_spin))
             for atom_ind, data in enumerate(self.raw_data):
                 for orb, val in data.items():
-                    self.projected_eigenvalues[(atom_ind, self.eigen_band, self.eigen_kpoint, orb, self.eigen_spin)] = val
+                    self.projected_eigenvalues[(self.eigen_spin, self.eigen_kpoint - 1, self.eigen_band - 1, atom_ind, orb)] = val
             self.raw_data = []
         elif name == "array":
             logger.debug("Finished reading projected eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
