@@ -25,6 +25,7 @@ import xml.sax.handler
 import StringIO
 from collections import defaultdict
 import ConfigParser
+import logging
 
 import numpy as np
 from numpy.linalg import det
@@ -41,6 +42,9 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 import pymatgen
+
+
+logger = logging.getLogger(__name__)
 
 
 class Poscar(VaspInput):
@@ -1313,11 +1317,18 @@ class Vasprun(object):
     
     .. attribute:: eigenvalues 
         
-        Final eigenvalues as a dict of {(kpoint index, spin):[[eigenvalue, occu]]}. 
-        This representation is probably not ideal, but since this is not used
-        anywhere else for now, I leave it as such. Future developers who need
-        to work with this should refactored the object into a sensible structure.
+        Available only if parse_eigen=True. Final eigenvalues as a dict of
+        {(kpoint index, spin):[[eigenvalue, occu]]}.
+        This representation is meant as an intermediate representation to be
+        converted into proper objects.
         
+    .. attribute:: projected_eigenvalues 
+        
+        Final projected eigenvalues as a dict of
+        {(atom index, band index, kpoint index, Orbital, Spin):float}
+        This representation is meant as an intermediate representation to be
+        converted into proper objects.
+         
     **Vasp inputs**
         
     .. attribute:: incar
@@ -1360,10 +1371,11 @@ class Vasprun(object):
                             'kpoints', 'actual_kpoints', 'structures',
                             'actual_kpoints_weights', 'dos_energies',
                             'eigenvalues', 'tdos', 'idos', 'pdos', 'efermi',
-                            'ionic_steps', 'dos_has_errors']
+                            'ionic_steps', 'dos_has_errors',
+                            'projected_eigenvalues']
 
     def __init__(self, filename, ionic_step_skip=None,
-                 parse_dos=True, parse_eigen=True):
+                 parse_dos=True, parse_eigen=True, parse_projected_eigen=False):
         """
         Args:
             filename:
@@ -1375,17 +1387,26 @@ class Vasprun(object):
                 you are not interested in every single ionic step. Note that the
                 initial and final structure of all runs will always be read,
                 regardless of the ionic_step_skip.
-            read_electronic_structure:
-                Whether to read in electronic structure data like dos,
-                eigenvalues and efermi where available. Defaults to True. Set
+            parse_dos:
+                Whether to parse the dos. Defaults to True. Set
                 to False to shave off significant time from the parsing if you
                 are not interested in getting those data.
+            parse_eigen:
+                Whether to parse the eigenvalues. Defaults to True. Set
+                to False to shave off significant time from the parsing if you
+                are not interested in getting those data.
+            parse_projected_eigen:
+                Whether to parse the projected eigenvalues. Defaults to False.
+                Set to True to obtain projected eigenvalues. **Note that this
+                can take an extreme amount of time and memory.** So use this
+                wisely.
         """
         self.filename = filename
 
         with file_open_zip_aware(filename) as f:
             self._handler = VasprunHandler(filename, parse_dos=parse_dos,
-                                           parse_eigen=parse_eigen)
+                                    parse_eigen=parse_eigen,
+                                    parse_projected_eigen=parse_projected_eigen)
             if ionic_step_skip == None:
                 self._parser = xml.sax.parse(f, self._handler)
             else:
@@ -1636,10 +1657,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     Generally should not be initiatized on its own.
     """
 
-    def __init__(self, filename, parse_dos=True, parse_eigen=True):
+    def __init__(self, filename, parse_dos=True, parse_eigen=True,
+                 parse_projected_eigen=False):
         self.filename = filename
         self.parse_dos = parse_dos
         self.parse_eigen = parse_eigen
+        self.parse_projected_eigen = parse_projected_eigen
+
         self.step_count = 0
         # variables to be filled
         self.vasp_version = None
@@ -1651,7 +1675,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.actual_kpoints = []
         self.actual_kpoints_weights = []
         self.dos_energies = None
-        self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
+
+        #  will  be  {(kpoint index, Spin.up): [energy, occu]}
+        self.eigenvalues = {}
+
+        #{(atom index, band index, kpoint index, Orbital, Spin):float}
+        self.projected_eigenvalues = {}
+
         self.tdos = {}
         self.idos = {}
         self.pdos = {}
@@ -1666,6 +1696,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_rec_lattice = False
         self.read_calculation = False
         self.read_eigen = False
+        self.read_projected_eigen = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -1678,7 +1709,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.dos_val = []
         self.idos_val = []
         self.raw_data = []
-        self.dos_has_errors = False #will be set to true if there is an error parsing the Dos.
+
+        #will be set to true if there is an error parsing the Dos.
+        self.dos_has_errors = False
         self.state = defaultdict(bool)
 
     def startElement(self, name, attributes):
@@ -1732,19 +1765,28 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.pdos = {}
                 self.efermi = None
                 self.read_dos = True
-            elif name == "eigenvalues" and self.parse_eigen:
-                self.eigenvalues = {}#  will  be  {(kpoint index, Spin.up):array(float)}
+            elif name == "eigenvalues" and self.parse_eigen and (not self.state['projected']):
+                logger.debug('Start reading eigenvalues. Projected = {}'.format(self.state['projected']))
+                self.eigenvalues = {}
                 self.read_eigen = True
-            elif self.read_eigen:
+            elif name == "eigenvalues" and self.parse_projected_eigen and self.state['projected']:
+                self.projected_eigen = {}
+                self.read_projected_eigen = True
+            elif self.read_eigen or self.read_projected_eigen:
                 if name == "r" and self.state["set"]:
                     self.read_val = True
                 elif name == "set" and "comment" in attributes:
                     comment = attributes["comment"]
                     self.state["set"] = comment
                     if comment.startswith("spin"):
-                        self.eigen_spin = Spin.up if self.state["set"] == "spin 1" else Spin.down
-                    if comment.startswith("kpoint"):
+                        self.eigen_spin = Spin.up if self.state["set"] in ["spin 1", "spin1"] else Spin.down
+                        logger.debug("Reading spin {}".format(self.eigen_spin))
+                    elif comment.startswith("kpoint"):
                         self.eigen_kpoint = int(comment.split(" ")[1])
+                        logger.debug("Reading kpoint {}".format(self.eigen_kpoint))
+                    elif comment.startswith("band"):
+                        self.eigen_band = int(comment.split(" ")[1])
+                        logger.debug("Reading band {}".format(self.eigen_band))
             elif self.read_dos:
                 if (name == "i" and self.state["i"] == "efermi") or (name == "r" and self.state["set"]):
                     self.read_val = True
@@ -1913,6 +1955,22 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.eigenvalues[(self.eigen_kpoint, self.eigen_spin)] = self.raw_data
             self.raw_data = []
         elif name == "eigenvalues":
+            logger.debug("Finished reading eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
+            self.read_eigen = False
+
+    def _read_projected_eigen(self, name):
+        state = self.state
+        if name == "r" and str(state["set"]).startswith("band"):
+            tok = re.split("\s+", self.val.getvalue().strip())
+            self.raw_data.append({Orbital.from_vasp_index(i): float(val) for i, val in enumerate(tok)})
+        elif name == "set" and str(state["set"]).startswith("band"):
+            logger.debug("Processing projected eigenvalues for band {}, kpoint {}, spin {}.".format(self.eigen_band, self.eigen_kpoint, self.eigen_spin))
+            for atom_ind, data in enumerate(self.raw_data):
+                for orb, val in data.items():
+                    self.projected_eigenvalues[(atom_ind, self.eigen_band, self.eigen_kpoint, orb, self.eigen_spin)] = val
+            self.raw_data = []
+        elif name == "array":
+            logger.debug("Finished reading projected eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
             self.read_eigen = False
 
     def endElement(self, name):
@@ -1925,6 +1983,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self._read_dos(name)
             elif self.read_eigen:
                 self._read_eigen(name)
+            elif self.read_projected_eigen:
+                self._read_projected_eigen(name)
             elif self.read_calculation:
                 self._read_calc(name)
         self.state[name] = False
