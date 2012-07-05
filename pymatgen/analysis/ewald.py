@@ -25,7 +25,7 @@ import bisect
 from datetime import datetime
 
 
-class EwaldSummation:
+class EwaldSummation(object):
     """
     Calculates the electrostatic energy of a periodic array of charges using the Ewald technique. 
     References : http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
@@ -40,10 +40,11 @@ class EwaldSummation:
     # taken from convasp. converts unit of q*q/r into eV 
     CONV_FACT = 1e10 * sc.e / (4 * pi * sc.epsilon_0)
 
-    def __init__(self, structure, real_space_cut = -1.0, recip_space_cut = -1.0, eta = -1.0, acc_factor = 8.0):
+    def __init__(self, structure, real_space_cut= -1.0, recip_space_cut= -1.0,
+                 eta= -1.0, acc_factor=8.0):
         """
-        Initializes and calculates the Ewald sum. Default convergence parameters have been
-        specified, but you can override them if you wish.
+        Initializes and calculates the Ewald sum. Default convergence parameters
+        have been specified, but you can override them if you wish.
         
         Args:
             structure: 
@@ -269,18 +270,18 @@ class EwaldMinimizer:
     
     Author - Will Richards
     '''
-    
+
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
     ALGO_TIME_LIMIT = 3
-    
+
     '''
     ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing accuracy) as the 
     minimizer runs. Attempts to limit the run time to approximately 30 minutes
     '''
 
-    def __init__(self, matrix, m_list, num_to_return = 1, algo = ALGO_FAST):
+    def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
         '''
         Args:
             matrix:      
@@ -307,28 +308,28 @@ class EwaldMinimizer:
                 value = (self._matrix[i, j] + self._matrix[j, i]) / 2
                 self._matrix[i, j] = value
                 self._matrix[j, i] = value
-        self._m_list = sorted(m_list, key = lambda x: comb(len(x[2]), x[1]), reverse = True) #sort the m_list based on number of permutations
-        
+        self._m_list = sorted(m_list, key=lambda x: comb(len(x[2]), x[1]), reverse=True) #sort the m_list based on number of permutations
+
         for mlist in self._m_list:
-            if mlist[0]>1:
+            if mlist[0] > 1:
                 raise ValueError('multiplication fractions must be <= 1')
         self._current_minimum = float('inf')
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
             raise NotImplementedError('Complete algo not yet implemented for EwaldMinimizer')
-        
+
         self._output_lists = []
-        
+
         self._finished = False #tag that the recurse function looks at at each level. If a method sets this to true it breaks the recursion and stops the search
 
         self._start_time = datetime.utcnow()
-        
+
         self.minimize_matrix()
 
         self._best_m_list = self._output_lists[0][1]
         self._minimized_sum = self._output_lists[0][0]
-        
+
     def minimize_matrix(self):
         '''
         This method finds and returns the permutations that produce the lowest ewald sum
@@ -367,52 +368,52 @@ class EwaldMinimizer:
             indices: 
                 set of indices which haven't had a permutation performed on them 
         '''
-        
+
         m_indices = []
         fraction_list = []
         for m in m_list:
             m_indices.extend(m[2])
-            fraction_list.extend([m[0]]*m[1])
-        
+            fraction_list.extend([m[0]] * m[1])
+
         indices = list(indices_left.intersection(m_indices))
-        
+
         interaction_matrix = matrix[indices, :][:, indices]
-        
-        fractions = np.zeros(len(interaction_matrix))+1
-        fractions[:len(fraction_list)]=fraction_list
+
+        fractions = np.zeros(len(interaction_matrix)) + 1
+        fractions[:len(fraction_list)] = fraction_list
         fractions = np.sort(fractions)
-        
+
         #sum associated with each index (disregarding interactions between indices)
-        sums = 2*np.sum(matrix[indices], axis=1)
+        sums = 2 * np.sum(matrix[indices], axis=1)
         sums = np.sort(sums)
-        
+
         #interaction corrections. Can be reduced to (1-x)(1-y) for x,y in fractions
         #each element in a column gets multiplied by (1-x), and then the sum of the columns gets 
         #multiplied by (1-y)
         #since fractions are less than 1, there is no effect of one choice on the other
-        step1 = np.sort(interaction_matrix)*(1-fractions)
-        step2 = np.sort(np.sum(step1, axis = 1))
-        step3 = step2*(1-fractions)
+        step1 = np.sort(interaction_matrix) * (1 - fractions)
+        step2 = np.sort(np.sum(step1, axis=1))
+        step3 = step2 * (1 - fractions)
         interaction_correction = np.sum(step3)
-        
+
         if self._algo == self.ALGO_TIME_LIMIT:
-            elapsed_time = datetime.utcnow()-self._start_time
-            speedup_parameter = elapsed_time.total_seconds()/1800
-            avg_int = np.sum(interaction_matrix, axis = None)
-            avg_frac = np.average(np.outer(1-fractions,1-fractions))
-            average_correction = avg_int*avg_frac
-            
-            interaction_correction = average_correction*speedup_parameter + interaction_correction*(1-speedup_parameter)
-        
-        best_case = np.sum(matrix) + np.inner(sums[::-1],fractions-1) + interaction_correction
-        
+            elapsed_time = datetime.utcnow() - self._start_time
+            speedup_parameter = elapsed_time.total_seconds() / 1800
+            avg_int = np.sum(interaction_matrix, axis=None)
+            avg_frac = np.average(np.outer(1 - fractions, 1 - fractions))
+            average_correction = avg_int * avg_frac
+
+            interaction_correction = average_correction * speedup_parameter + interaction_correction * (1 - speedup_parameter)
+
+        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
+
         return best_case
-        
+
 
     def get_next_index(self, matrix, manipulation, indices_left): #returns an index that should have the most negative effect on the matrix sum
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
-        sums = np.sum(matrix[indices], axis = 1)
+        sums = np.sum(matrix[indices], axis=1)
         if f < 1:
             next_index = indices[sums.argmax(axis=0)]
         else:
@@ -420,7 +421,7 @@ class EwaldMinimizer:
 
         return next_index
 
-    def _recurse(self, matrix, m_list, indices, output_m_list = []):
+    def _recurse(self, matrix, m_list, indices, output_m_list=[]):
         '''
         This method recursively finds the minimal permutations using a binary tree search strategy
         
@@ -435,7 +436,7 @@ class EwaldMinimizer:
         #check to see if we've found all the solutions that we need
         if self._finished:
             return
-        
+
         #if we're done with the current manipulation, pop it off. 
         while m_list[-1][1] == 0:
             m_list = copy(m_list)
@@ -445,19 +446,19 @@ class EwaldMinimizer:
                 if matrix_sum < self._current_minimum:
                     self.add_m_list(matrix_sum, output_m_list)
                 return
-        
+
         #if we wont have enough indices left, return
         if m_list[-1][1] > len(indices.intersection(m_list[-1][2])):
             return
-        
+
         if len(m_list) == 1 or m_list[-1][1] > 1:
             if self.best_case(matrix, m_list, indices) > self._current_minimum:
                 return
-            
+
         index = self.get_next_index(matrix, m_list[-1], indices)
 
         m_list[-1][2].remove(index)
-        
+
         #make the matrix and new m_list where we do the manipulation to the index that we just got
         matrix2 = np.copy(matrix)
         m_list2 = deepcopy(m_list)
@@ -471,10 +472,10 @@ class EwaldMinimizer:
         m_list2[-1][1] -= 1
 
         #recurse through both the modified and unmodified matrices
-        
+
         self._recurse(matrix2, m_list2, indices2, output_m_list2)
         self._recurse(matrix, m_list, indices, output_m_list)
-        
+
 
     @property
     def best_m_list(self):
@@ -494,11 +495,19 @@ def compute_average_oxidation_state(site):
     Calculates the average oxidation state of a site
     
     Args:
-        Site to compute average oxidation state
+        site:
+            Site to compute average oxidation state
         
     Returns:
         Average oxidation state of site.
     """
-    return sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
-
+    try:
+        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species_and_occu.items() if sp != None])
+        return avg_oxi
+    except:
+        pass
+    try:
+        return site.charge
+    except AttributeError as ex:
+        raise ValueError("Ewald summation can only be performed on structures that are either oxidation state decorated or have site charges.")
 

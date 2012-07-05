@@ -357,7 +357,7 @@ class PeriodicSite(Site, MSONable):
         Copy of PeriodicSite translated to the unit cell.
         """
         fcoords = [i - math.floor(i) for i in self._fcoords]
-        return PeriodicSite(self._species, fcoords, self._lattice)
+        return PeriodicSite(self._species, fcoords, self._lattice, properties=self._properties)
 
     def is_periodic_image(self, other, tolerance=1e-8):
         """
