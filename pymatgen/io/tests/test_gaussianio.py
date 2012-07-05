@@ -16,11 +16,10 @@ __date__ = "Apr 17, 2012"
 import unittest
 import os
 
-from pymatgen.core.structure import Molecule
-from pymatgen.io.gaussianio import GaussianInput
-import pymatgen
+from pymatgen import Molecule, __file__
+from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 
 class GaussianInputTest(unittest.TestCase):
@@ -73,6 +72,26 @@ EPS=12
         self.assertEqual(gau.route_parameters["geom"], "connectivity")
         self.assertEqual(gau.functional, "b3lyp")
         self.assertEqual(gau.basis_set, "6-311+g(d,p)")
+
+
+class GaussianOutputTest(unittest.TestCase):
+
+    def setUp(self):
+        self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))
+
+    def test_props(self):
+        gau = self.gauout
+        self.assertEqual(len(gau.energies), 3)
+        self.assertAlmostEqual(gau.energies[-1], -39.9768775602)
+        self.assertEqual(len(gau.molecules), 4)
+        for mol in gau.molecules:
+            self.assertEqual(mol.formula, 'H4 C1')
+        self.assertIn("OPT", gau.route)
+        self.assertEqual("Minimum", gau.stationary_type)
+        self.assertEqual("HF", gau.functional)
+        self.assertEqual("3-21G", gau.basis_set)
+        self.assertEqual(17, gau.num_basis_func)
+
 
 if __name__ == "__main__":
     unittest.main()

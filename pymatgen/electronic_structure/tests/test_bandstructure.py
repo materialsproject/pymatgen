@@ -5,13 +5,12 @@ import os
 import json
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
-from pymatgen.core.structure import Lattice
+from pymatgen import Lattice, __file__
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-import pymatgen
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class KpointTest(unittest.TestCase):
 

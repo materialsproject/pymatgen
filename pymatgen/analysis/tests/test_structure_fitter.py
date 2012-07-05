@@ -3,17 +3,13 @@ import os
 import numpy as np
 
 from pymatgen.analysis.structure_fitter import StructureFitter, shear_invariant, sqrt_matrix
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen import Element, Lattice, Structure, __file__
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.cifio import CifParser
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class StructureFitterTest(unittest.TestCase):
 

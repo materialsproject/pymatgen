@@ -19,11 +19,9 @@ import json
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.io.vaspio import *
-from pymatgen.core.structure import Composition, Structure
+from pymatgen import Composition, Structure, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class PoscarTest(unittest.TestCase):
 
@@ -299,7 +297,7 @@ class VasprunTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        vasprun_ggau = Vasprun(filepath2)
+        vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
@@ -334,6 +332,8 @@ class VasprunTest(unittest.TestCase):
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
+        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[(Spin.up, 0, 0, 96, Orbital.s)], 0.0032)
+
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')

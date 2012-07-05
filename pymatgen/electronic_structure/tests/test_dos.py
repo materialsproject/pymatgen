@@ -4,12 +4,10 @@ import unittest
 import os
 import json
 
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen import Spin, Orbital, __file__
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class DosTest(unittest.TestCase):
 
