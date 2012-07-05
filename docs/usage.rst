@@ -44,8 +44,8 @@ objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
 to be extremely fragile with respect to code changes. Pymatgen's to_dict provide
 a means to save your work in a more robust manner, which also has the added
-benefit of being more readable. The dict representation is also particularly useful
-for entering such objects into certain databases, such as MongoDb.
+benefit of being more readable. The dict representation is also particularly
+useful for entering such objects into certain databases, such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you 
 want to save a structure, you may do the following::
@@ -91,8 +91,8 @@ add these keys if they are not present, but for better long term stability
 through the encoder), the easiest way is to add the following to any to_dict
 property::
     
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+   d['module'] = self.__class__.__module__
+   d['class'] = self.__class__.__name__
         
 To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.,
@@ -120,13 +120,13 @@ This is generally the most painful method. Though sometimes necessary, it is
 seldom the method you would use.  An example of creating the basic silicon 
 crystal is provided below::
 
-   from pymatgen.core.lattice import Lattice
-   from pymatgen.core.structure import Structure
+   from pymatgen import Lattice, Structure
    
    coords = list()
    coords.append([0,0,0])
    coords.append([0.75,0.5,0.75])
-   lattice = Lattice.from_parameters(a = 3.84, b = 3.84, c = 3.84, alpha = 120, beta = 90, gamma = 60)
+   lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, 
+                                     beta=90, gamma=60)
    struct = Structure(lattice, ["Si", "Si"], coords)
 
 

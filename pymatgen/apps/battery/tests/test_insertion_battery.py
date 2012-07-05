@@ -17,11 +17,9 @@ import json
 
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen import PMGJSONEncoder, PMGJSONDecoder, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 
 class InsertionElectrodeTest(unittest.TestCase):

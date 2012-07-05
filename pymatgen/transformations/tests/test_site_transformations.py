@@ -17,8 +17,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
+from pymatgen import Lattice, Structure
 from pymatgen.transformations.site_transformations import InsertSitesTransformation, TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
 
 class TranslateSitesTransformationTest(unittest.TestCase):
