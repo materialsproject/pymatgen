@@ -1126,6 +1126,12 @@ class Structure(SiteCollection, MSONable):
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
+        
+        Args:
+            site_properties:
+                Properties to add or override. The properties are specified in
+                the same way as the constructor, i.e., as a dict of the form
+                {property: [values]}.
         """
         sites = self.sites
         props = self.site_properties
