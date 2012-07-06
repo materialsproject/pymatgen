@@ -110,10 +110,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 point. e.g., ['filename']
         """
         self._inc_structure = inc_structure
-        self._parameters = parameters if parameters else ["is_hubbard",
-                                                          "hubbards",
-                                                          "potcar_symbols",
-                                                          "run_type"]
+        self._parameters = set(["is_hubbard", "hubbards", "potcar_symbols",
+                                "run_type"])
+        if parameters:
+            self._parameters.update(parameters)
         self._data = data if data else []
 
     def assimilate(self, path):
@@ -225,12 +225,16 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 Defaults to just the typical "log" extension.
         """
         self._inc_structure = inc_structure
-        self._parameters = parameters if parameters else ["functional",
-                                                          "basis_set", "charge",
-                                                          "spin_mult",
-                                                          'route']
-        self._data = data if data else ['stationary_type',
-                                        'properly_terminated']
+        self._parameters = set(["functional", "basis_set", "charge",
+                                "spin_mult", "route"])
+
+        if parameters:
+            self._parameters.update(parameters)
+
+        self._data = set(['stationary_type', 'properly_terminated'])
+        if data:
+            self._data.update(data)
+
         self._file_extensions = file_extensions
 
     def assimilate(self, path):

@@ -18,8 +18,8 @@ __date__ = "Apr 30, 2012"
 
 
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.structure import Composition
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 
 
 class ComputedEntry(PDEntry, MSONable):
@@ -165,7 +165,7 @@ class ComputedStructureEntry(ComputedEntry):
 
     @staticmethod
     def from_dict(d):
-        return ComputedStructureEntry(Structure.from_dict(d['structure']),
+        return ComputedStructureEntry(PMGJSONDecoder().process_decoded(d['structure']),
                                       d['energy'], d['correction'],
                                       d.get('parameters', {}),
                                       d.get('data', {}),
