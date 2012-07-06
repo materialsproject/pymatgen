@@ -1236,18 +1236,8 @@ class Structure(SiteCollection, MSONable):
             Structure object
         """
         lattice = Lattice.from_dict(d['lattice'])
-        species = []
-        coords = []
-        props = collections.defaultdict(list)
-
-        for site_dict in d['sites']:
-            site = PeriodicSite.from_dict(site_dict, lattice)
-            species.append(site.species_and_occu)
-            coords.append(site.frac_coords)
-            siteprops = site.properties
-            for k, v in siteprops.items():
-                props[k].append(v)
-        return Structure(lattice, species, coords, site_properties=props)
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d['sites']]
+        return Structure.from_sites(sites)
 
 
 class Molecule(SiteCollection, MSONable):
