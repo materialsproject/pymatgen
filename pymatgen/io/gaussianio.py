@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 '''
-This module implements input and output processing from molecules to Gaussian
-Input files.
+This module implements input and output processing from Gaussian.
 '''
 
 from __future__ import division
@@ -312,7 +311,64 @@ class GaussianInput(object):
 
 class GaussianOutput(object):
     """
-    Parser for Gaussian output files. Still in early beta.
+    Parser for Gaussian output files.
+    
+    .. note::
+        
+        Still in early beta.
+        
+        
+    Attributes:
+    
+    .. attribute:: structures
+        
+        All structures from the calculation.
+
+    .. attribute:: energies
+        
+        All energies from the calculation.
+        
+    .. attribute:: properly_terminated
+    
+        True if run has properly terminated
+    
+    .. attribute:: is_pcm
+    
+        True if run is a PCM run.
+        
+    .. attribute:: stationary_type
+    
+        If it is a relaxation run, indicates whether it is a minimum (Minimum)
+        or a saddle point ("Saddle").
+
+    .. attribute:: corrections
+    
+        Thermochemical corrections if this run is a Freq run as a dict. Keys
+        are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy"
+
+    .. attribute:: functional
+        
+        Functional used in the run.
+        
+    .. attribute:: basis_set
+    
+        Basis set used in the run
+        
+    .. attribute:: charge
+    
+        Charge for structure
+        
+    .. attribute:: spin_mult
+    
+        Spin multiplicity for structure
+        
+    .. attribute:: num_basis_func
+    
+        Number of basis functions in the run.
+        
+    .. attribute:: pcm
+    
+        PCM parameters and output if available.
     """
 
     def __init__(self, filename):
@@ -321,8 +377,15 @@ class GaussianOutput(object):
             filename:
                 Filename of Gaussian output file.
         """
-        self.energies = []
         self._parse(filename)
+
+    @property
+    def final_energy(self):
+        return self.energies[-1]
+
+    @property
+    def final_structure(self):
+        return self.structures[-1]
 
     def _parse(self, filename):
 
@@ -344,8 +407,9 @@ class GaussianOutput(object):
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
-        self.molecules = []
+        self.structures = []
         self.corrections = {}
+        self.energies = []
 
         coord_txt = []
         read_coord = 0
@@ -399,7 +463,7 @@ class GaussianOutput(object):
                                     toks = re.split("\s+", l.strip())
                                     sp.append(Element.from_Z(int(toks[1])))
                                     coords.append([float(i) for i in toks[3:6]])
-                                self.molecules.append(Molecule(sp, coords))
+                                self.structures.append(Molecule(sp, coords))
                     elif normal_termination_patt.search(line):
                         self.properly_terminated = True
                     elif (not num_basis_found) and num_basis_func_patt.search(line):
