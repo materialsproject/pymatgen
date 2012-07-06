@@ -151,10 +151,12 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, ["O", "Li"] , coords)
+        s = Structure(self.lattice, ["O", "Li"] , coords, site_properties={'charge':[-2, 1]})
         sorted_s = s.get_sorted_structure()
         self.assertEqual(sorted_s[0].species_and_occu, {Element("Li"):1})
         self.assertEqual(sorted_s[1].species_and_occu, {Element("O"):1})
+        self.assertEqual(sorted_s[0].charge, 1)
+        self.assertEqual(sorted_s[1].charge, -2)
 
     def test_fractional_occupations(self):
         coords = list()
@@ -198,9 +200,17 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(s[0].specie.spin, 3)
 
     def test_site_properties(self):
+        site_props = self.propertied_structure.site_properties
+        self.assertEqual(site_props['magmom'], [5, -5])
         self.assertEqual(self.propertied_structure[0].magmom, 5)
         self.assertEqual(self.propertied_structure[1].magmom, -5)
 
+    def test_copy(self):
+        new_struct = self.propertied_structure.copy(site_properties={'charge':[2, 3]})
+        self.assertEqual(new_struct[0].magmom, 5)
+        self.assertEqual(new_struct[1].magmom, -5)
+        self.assertEqual(new_struct[0].charge, 2)
+        self.assertEqual(new_struct[1].charge, 3)
 
     def test_interpolate(self):
         coords = list()
