@@ -585,9 +585,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     m_list.append(manipulation)
 
         structure = se.modified_structure
-
         matrix = EwaldSummation(structure).total_energy_matrix
-
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
 
         self._all_structures = []
@@ -605,7 +603,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+            self._all_structures.append({'energy':output[0],
+                'energy_above_minimum':(output[0] - lowest_energy) / num_atoms,
+                'structure': se.modified_structure.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures
@@ -744,7 +744,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             return new_structure
         else: #if there were no translational symmetry vectors
             return structure
-        
+
     def _buergers_cell(self, structure):
         '''
         Takes a primitive cell and returns the buergers cell
@@ -753,18 +753,18 @@ class PrimitiveCellTransformation(AbstractTransformation):
         finished = False
         while not finished:
             finished = True
-            for i,j in itertools.permutations(range(3),2):
+            for i, j in itertools.permutations(range(3), 2):
                 oldnorm = np.linalg.norm(matrix[i])
-                newnorm = np.linalg.norm(matrix[i]+matrix[j])
+                newnorm = np.linalg.norm(matrix[i] + matrix[j])
                 if newnorm < oldnorm:
                     matrix[i] += matrix[j]
                     finished = False
-                newnorm = np.linalg.norm(matrix[i]-matrix[j])
+                newnorm = np.linalg.norm(matrix[i] - matrix[j])
                 if newnorm < oldnorm:
                     matrix[i] -= matrix[j]
                     finished = False
         new_lattice = Lattice(matrix)
-        
+
         new_structure = Structure(new_lattice, structure.species_and_occu,
                                       structure.cart_coords, coords_are_cartesian=True)
         return new_structure
