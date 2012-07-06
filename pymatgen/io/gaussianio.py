@@ -377,6 +377,7 @@ class GaussianOutput(object):
             filename:
                 Filename of Gaussian output file.
         """
+        self.filename = filename
         self._parse(filename)
 
     @property
