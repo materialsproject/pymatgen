@@ -15,8 +15,13 @@ __date__ = "Jul 5, 2012"
 
 import itertools
 import logging
+import re
+
+import numpy as np
 
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+
+import pyspglib._spglib as spg
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +58,14 @@ class SymmetryFitter(object):
         logger.debug("Computing spacegroups...")
         for i, s in enumerate(structures):
             finder = SymmetryFinder(s, symm_prec)
-            structure_symm[s] = finder.get_spacegroup_symbol()
+            structure_symm[s] = finder.get_spacegroup_number()
             logger.debug("Structure {} has spacegroup {}".format(i, structure_symm[s]))
 
-        sorted_structures = sorted(structures, key=lambda s: structure_symm[s])
+        sorted_structures = sorted(structures, key=lambda s:-structure_symm[s])
         unique_groups = []
-        for symbol, group in itertools.groupby(sorted_structures,
+        for i, group in itertools.groupby(sorted_structures,
                                                key=lambda s: structure_symm[s]):
-            logger.debug("Processing group of structures with symbol {}".format(symbol))
+            logger.debug("Processing group of structures with sg number {}".format(i))
             subgroups = self._fit_group(group)
             unique_groups.extend(subgroups)
         self.unique_groups = unique_groups
@@ -79,10 +84,12 @@ class SymmetryFitter(object):
             fixed = all_structures[0]
             subgroup = [fixed]
             for to_fit in all_structures[1:]:
-                if self.spacegroup.are_symmetrically_equivalent(fixed, to_fit, symprec=self.symm_prec):
+                if self.spacegroup.are_symmetrically_equivalent(fixed, to_fit,
+                                                        symprec=self.symm_prec):
                     subgroup.append(to_fit)
             all_structures = [s for s in all_structures if s not in subgroup]
             subgroups.append(subgroup)
+        logger.debug("{} subgroups".format(len(subgroups)))
         return subgroups
 
 
