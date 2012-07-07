@@ -174,7 +174,6 @@ class VaspInputSet(AbstractVaspInputSet):
                     elif hasattr(site.specie, 'spin'):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in setting:
-                        print str(site.specie)
                         mag.append(setting.get(str(site.specie)))
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))

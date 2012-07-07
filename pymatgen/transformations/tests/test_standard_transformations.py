@@ -343,7 +343,8 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
 class SymmOrderStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
         struct = p.structure
         expected_ans = [1, 3, 1]
         for i, frac in enumerate([0.25, 0.5, 0.75]):
