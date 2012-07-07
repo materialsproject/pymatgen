@@ -1047,6 +1047,8 @@ class SymmOrderStructureTransformation(AbstractTransformation):
     .. note:: Early alpha, and not completely tested.
     """
 
+    composition_tol = 0.01
+
     def __init__(self, symm_prec=0.1):
         '''
         Args:
@@ -1062,7 +1064,10 @@ class SymmOrderStructureTransformation(AbstractTransformation):
         
         Args:
             structure:
-                Structure to order
+                Structure to order. The disorder in the structure must
+                correspond to integer occupations within a certain tolerance.
+                Otherwise, the code will abort. TODO: Add auto-scaling of
+                compositions to reasonable limits.
             return_ranked_list:
                 Boolean stating whether or not multiple structures are
                 returned. If return_ranked_list is a number, that number of
@@ -1088,17 +1093,32 @@ class SymmOrderStructureTransformation(AbstractTransformation):
         except:
             num_to_return = 1
 
+        if not self.is_good_structure(structure):
+            raise ValueError("Structure must have occupancies which can be resolved to integer occupancies.")
+
+        tol = SymmOrderStructureTransformation.composition_tol
         num_to_return = max(1, num_to_return)
 
         from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
         from pymatgen.analysis.symmetry_fitter import SymmetryFitter
+
+        #Start with determining the symmetry of the input structure, and
+        #obtaining the sites divided into symmetrically equivalent groups.
         finder = SymmetryFinder(structure, self.symm_prec)
         sg = finder.get_spacegroup()
         symmetrized_structure = finder.get_symmetrized_structure()
+
+        #Use the original composition as a target composition
         target_comp = symmetrized_structure.composition
+
+        #Store the original groupings.
         self.original_groups = symmetrized_structure.equivalent_sites
         logger.debug("Original structure has symmetry {}".format(finder.get_spacegroup_symbol()))
-        #self.original_groups = symmetrized_structure.equivalent_sites
+
+        #We only need to order the sites that are disordered. The rest can be
+        #treated as fixed. For disordered sites whose occupancy do not sum to 1,
+        #we add a dummy specie X to stand in for the vacancy. This allows us to
+        #more efficiently choose the species to order.
         sites_to_order = []
         original_ordered_sites = []
         for sites in symmetrized_structure.equivalent_sites:
@@ -1113,15 +1133,20 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                     sites_to_order.append(PeriodicSite(newsp, site.frac_coords,
                                                        site.lattice,
                                                        properties=site.properties))
+
+        #Create a new structure from the disordered sites only.
         disordered_structure = Structure.from_sites(sites_to_order)
         all_structures = [disordered_structure]
 
         while not all([s.is_ordered for s in all_structures]):
+            #We stop only when all structures are ordered.
 
             new_structures = []
 
-            for s in all_structures:
-                finder = SymmetryFinder(s, self.symm_prec)
+            for structure in all_structures:
+                #Now after ordering, the symmetry of the structure may have been
+                #reduced. We need to redo symmetry analysis.
+                finder = SymmetryFinder(structure, self.symm_prec)
                 symmetrized_structure = finder.get_symmetrized_structure()
                 logger.debug("Structure has symmetry {}".format(finder.get_spacegroup_symbol()))
 
@@ -1136,10 +1161,17 @@ class SymmOrderStructureTransformation(AbstractTransformation):
 
                 lattice = symmetrized_structure.lattice
                 for i, sites in enumerate(sites_to_order):
+                    #For each set of symmetrically equivalent sites, we select
+                    #a site. We set one of the occupancies to 1. 
                     logger.debug("Num sites = {}".format(len(sites)))
                     new_sites = [site for site in ordered_sites]
                     selected = sites[0]
                     sp_and_occu = selected.species_and_occu
+                    #Find the species with the lowest occupancy. This ensures
+                    #we find the most efficient selection. E.g., instead of
+                    #selecting 3/4 sites for a species with 0.75 occupancy, we
+                    #select only 1/4 sites for the complement species (typically
+                    #the vacancy) with 0.25 occupancy.
                     sp = min(sp_and_occu.keys(), key=lambda s:sp_and_occu[s])
                     logger.debug("Chosen species = {}".format(sp))
 
@@ -1147,7 +1179,11 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                     for site in ordered_sites:
                         ordered_sp_amt += site.species_and_occu.get(sp, 0)
 
-                    if abs(ordered_sp_amt - target_comp[sp]) < 1e-5:
+                    #If we are already at the target amount for the species,
+                    #we ignore the ordering and set it to the DummySpecie.
+                    #Otherwise, we set add a site with occu 1 for the species to
+                    #the new sites.
+                    if abs(ordered_sp_amt - target_comp[sp]) < tol:
                         logger.debug("Too many Na. Rejecting")
                         new_sites.append(PeriodicSite(DummySpecie("X"),
                                                       selected.frac_coords,
@@ -1159,6 +1195,9 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                                                   lattice,
                                                   properties=selected.properties))
 
+                    #The selected site belongs to an original group of sites.
+                    #We now need to renormalize all sites in the group because
+                    #of the change in composition that has been ordered.
                     group_number = self._find_group(selected)
                     logger.debug("Group number = {}".format(group_number))
                     num_in_group = len(sites)
@@ -1177,20 +1216,35 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                         else:
                             new_sp_and_occu[k] = v * num_in_group - 1
 
-                    logger.debug("Pre-normalized sp and occu = {}".format(new_sp_and_occu))
-                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items() if v > 0.9}
+                    logger.debug("Pre-normalized species = {}".format(new_sp_and_occu))
 
-                    new_sp_and_occu = {k: v / (num_in_group - 1) for k, v in new_sp_and_occu.items()}
-                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items() if v > 0 and abs(v) > 1e-5}
+                    #We get rid of species whose occupancy is going to be less
+                    #than unity.
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items()\
+                                       if v > 0.95}
+
+                    #We now have one less site in the group.
+                    new_sp_and_occu = {k: v / (num_in_group - 1)\
+                                       for k, v in new_sp_and_occu.items()}
+
+                    #We keep only species with occupancies > 0 (within a certain
+                    #tolerance)
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items()\
+                                       if v > tol}
 
                     total_occu = sum(new_sp_and_occu.values())
 
+                    #Sometimes, normalization results in total occu > 1. We need
+                    #to scale those back to 1.
                     if total_occu > 1:
-                        new_sp_and_occu = {k: v / total_occu for k, v in new_sp_and_occu.items()}
+                        new_sp_and_occu = {k: v / total_occu for k, v in\
+                                           new_sp_and_occu.items()}
 
-                    logger.debug("Renormalized sp and occu = {}".format(new_sp_and_occu))
+                    #For other sites in the same group, change to the
+                    #renomalized species.
+                    logger.debug("Renormalized species = {}".format(new_sp_and_occu))
                     for other_site in sites:
-                        if other_site != selected and total_occu > 1e-2:
+                        if other_site != selected and total_occu > tol:
                             logger.debug("Add site {}...".format(sp))
                             new_sites.append(PeriodicSite(new_sp_and_occu,
                                             other_site.frac_coords, lattice,
@@ -1200,12 +1254,13 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                         if i != j:
                             if self._find_group(other_sites[0]) != group_number:
                                 new_sites.extend(other_sites)
-                            elif total_occu > 1e-2:
+                            elif total_occu > tol:
                                 for other_site in other_sites:
                                     new_sites.append(PeriodicSite(new_sp_and_occu,
                                             other_site.frac_coords, lattice,
                                             properties=other_site.properties))
 
+                    #Create a new structure from the sites.
                     new_structure = Structure.from_sites(new_sites)
                     logger.debug("Adding structure = {}".format(new_structure))
                     new_structures.append(new_structure)
@@ -1217,21 +1272,26 @@ class SymmOrderStructureTransformation(AbstractTransformation):
             logger.debug("Number of structures after filtering = {}".format(len(new_structures)))
             all_structures = new_structures
 
+        #As a final post-processing, we remove all the X species we added, and
+        #also sort the structures and determined the final spacegroup info.
         self._all_structures = []
         for structure in all_structures:
-            clean_sites = [site for site in structure if site.specie.symbol != "X"]
-            clean_sites.extend(original_ordered_sites)
-            complete_structure = Structure.from_sites(clean_sites).get_sorted_structure()
+            sites = [site for site in structure if site.specie.symbol != "X"]
+            sites.extend(original_ordered_sites)
+            complete_structure = Structure.from_sites(sites).get_sorted_structure()
             finder = SymmetryFinder(complete_structure, self.symm_prec)
             sg = finder.get_spacegroup_symbol()
             sgnum = finder.get_spacegroup_number()
             self._all_structures.append({'structure': complete_structure,
                                          'spacegroup': sg,
                                          'number': sgnum})
-        self._all_structures = sorted(self._all_structures, key=lambda s:-s['number'])
+
+        #Sort structures by spacegroup number, in descending order.
+        self._all_structures = sorted(self._all_structures,
+                                      key=lambda s:-s['number'])
 
         if return_ranked_list:
-            return self._all_structures
+            return self._all_structures[0:num_to_return]
         else:
             return self._all_structures[0]['structure']
 
@@ -1240,6 +1300,17 @@ class SymmOrderStructureTransformation(AbstractTransformation):
             for s in sites:
                 if s.distance(site) < self.symm_prec:
                     return i
+
+    def is_good_structure(self, structure):
+        sites = structure.sites
+        sites = sorted(sites, key=lambda s:s.species_string)
+        for k, v in itertools.groupby(sites, key=lambda s:s.species_string):
+            subsites = tuple(v)
+            nsites = len(subsites)
+            for occu in subsites[0].species_and_occu.values():
+                if abs(occu * nsites - round(occu * nsites)) / nsites > SymmOrderStructureTransformation.composition_tol:
+                    return False
+        return True
 
     def __str__(self):
         return "SymmOrderStructureTransformation"

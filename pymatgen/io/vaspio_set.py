@@ -131,8 +131,22 @@ class VaspInputSet(AbstractVaspInputSet):
     """
     Standard implementation of VaspInputSet, which can be extended by specific
     implementations.
+    
+    Special consideration should be paid to the way the MAGMOM initialization
+    for the INCAR is done. The initialization differs depending on the type of
+    structure and the configuration settings. The order in which the magmom is
+    determined is as follows:
+    
+    1. If the site itself has a magmom setting, that is used.
+    
+    2. If the species on the site has a spin setting, that is used.
+    
+    3. If the species itself has a particular setting in the config file, that
+       is used, e.g., Mn3+ may have a different magmom than Mn4+.
+    
+    4. Lastly, the element symbol itself is checked in the config file. If
+       there are no settings, VASP's default of 0.6 is used.
     """
-
     def __init__(self, name, config=None):
         self.name = name
         if config is None:
@@ -157,18 +171,6 @@ class VaspInputSet(AbstractVaspInputSet):
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
-                    """
-                    The order in which the magmom is determined is as follows:
-                    1. If the site itself has a magmom setting, that is used.
-                    2. If the species on the site has a spin setting, that is
-                       used.
-                    3. If the species itself has a particular setting in the
-                       config file, that is used, e.g., Mn3+ may have a
-                       a different magmom than Mn4+.
-                    4. Lastly, the element symbol itself is checked in the
-                       config file. If there are no settings, VASP's default of
-                       0.6 is used.
-                    """
                     if hasattr(site, 'magmom'):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, 'spin'):
@@ -191,7 +193,8 @@ class VaspInputSet(AbstractVaspInputSet):
         has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
-            # note that if the user explicitly sets LMAXMIX in settings it will override this logic
+            # note that if the user explicitly sets LMAXMIX in settings it will
+            # override this logic.
             if 'LMAXMIX' not in self.incar_settings.keys():
                 if any([el.Z > 56 for el in structure.composition]):  # contains f-electrons
                     incar['LMAXMIX'] = 6
@@ -224,7 +227,8 @@ class VaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each 
             reciprocal lattice vector proportional to its length. 
         '''
-        return Kpoints.automatic_density(structure, int(self.kpoints_settings['grid_density']))
+        return Kpoints.automatic_density(structure,
+                                   int(self.kpoints_settings['grid_density']))
 
     def __str__(self):
         output = [self.name]
@@ -237,7 +241,6 @@ class VaspInputSet(AbstractVaspInputSet):
                 output.append("%s = %s" % (k, str(v)))
             output.append("")
             count += 1
-
         return "\n".join(output)
 
 
@@ -246,12 +249,12 @@ class MITVaspInputSet(VaspInputSet):
     Standard implementation of VaspInputSet utilizing parameters in the MIT 
     High-throughput project.
     The parameters are chosen specifically for a high-throughput project, 
-    which means in general smaller pseudopotentials were chosen.
+    which means in general pseudopotentials with fewer electrons were chosen.
     
     Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, 
-    T. Mueller, K. A. Persson, G. Ceder (2011). 
-    A high-throughput infrastructure for density functional theory calculations. 
-    Computational Materials Science, 50(8), 2295-2310. 
+    T. Mueller, K. A. Persson, G. Ceder. A high-throughput infrastructure for 
+    density functional theory calculations. Computational Materials Science,
+    2011, 50(8), 2295-2310. 
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
     def __init__(self):
