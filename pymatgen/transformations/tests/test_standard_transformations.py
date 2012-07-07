@@ -343,6 +343,7 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
 class SymmOrderStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
+        order_trans = SymmOrderStructureTransformation()
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
         struct = p.structure
@@ -350,10 +351,13 @@ class SymmOrderStructureTransformationTest(unittest.TestCase):
         for i, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({'Fe': {'Fe':frac}})
             s = trans.apply_transformation(struct)
-            trans = SymmOrderStructureTransformation()
-            alls = trans.apply_transformation(s, 100)
+            alls = order_trans.apply_transformation(s, 100)
             self.assertEquals(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
+
+        trans = SubstitutionTransformation({'Fe': {'Fe':1 / 3}})
+        s = trans.apply_transformation(struct)
+        self.assertRaises(ValueError, order_trans.apply_transformation, s)
 
     def test_to_from_dict(self):
         trans = SymmOrderStructureTransformation()
