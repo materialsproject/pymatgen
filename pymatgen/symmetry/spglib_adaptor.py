@@ -199,7 +199,8 @@ class SymmetryFinder(object):
     def get_symmetrized_structure(self):
         ds = self.get_symmetry_dataset()
         sg = Spacegroup(self.get_spacegroup_symbol(), self.get_spacegroup_number(), self.get_symmetry_operations())
-        return SymmetrizedStructure(self.get_refined_structure(), sg, ds['equivalent_atoms'])
+        #self.get_refined_structure()
+        return SymmetrizedStructure(self._structure, sg, ds['equivalent_atoms'])
 
     def get_refined_structure(self):
         """
