@@ -1221,7 +1221,7 @@ class SymmOrderStructureTransformation(AbstractTransformation):
         for structure in all_structures:
             clean_sites = [site for site in structure if site.specie.symbol != "X"]
             clean_sites.extend(original_ordered_sites)
-            complete_structure = Structure.from_sites(clean_sites)
+            complete_structure = Structure.from_sites(clean_sites).get_sorted_structure()
             finder = SymmetryFinder(complete_structure, self.symm_prec)
             sg = finder.get_spacegroup_symbol()
             sgnum = finder.get_spacegroup_number()

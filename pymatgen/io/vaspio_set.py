@@ -99,24 +99,27 @@ class AbstractVaspInputSet(object):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
+        d = {'INCAR':self.get_incar(structure),
+             'KPOINTS':self.get_kpoints(structure),
+             'POSCAR': self.get_poscar(structure)}
         if generate_potcar:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
-                    'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+            d['POTCAR'] = self.get_potcar(structure)
         else:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
-                    'POSCAR': self.get_poscar(structure), 'POTCAR.spec': "\n".join(self.get_potcar_symbols(structure))}
+            d['POTCAR.spec'] = "\n".join(self.get_potcar_symbols(structure))
+        return d
 
     def write_input(self, structure, output_dir, make_dir_if_not_present=True):
         """
         Writes a set of VASP input to a directory.
         
-        Arguments:
+        Args:
             structure: 
                 Structure object
             output_dir:
                 Directory to output the VASP input files
             make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to be created if it is not present.
+                Set to True if you want the directory (and the whole path) to
+                be created if it is not present.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -154,10 +157,25 @@ class VaspInputSet(AbstractVaspInputSet):
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
+                    """
+                    The order in which the magmom is determined is as follows:
+                    1. If the site itself has a magmom setting, that is used.
+                    2. If the species on the site has a spin setting, that is
+                       used.
+                    3. If the species itself has a particular setting in the
+                       config file, that is used, e.g., Mn3+ may have a
+                       a different magmom than Mn4+.
+                    4. Lastly, the element symbol itself is checked in the
+                       config file. If there are no settings, VASP's default of
+                       0.6 is used.
+                    """
                     if hasattr(site, 'magmom'):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, 'spin'):
                         mag.append(site.specie.spin)
+                    elif str(site.specie) in setting:
+                        print str(site.specie)
+                        mag.append(setting.get(str(site.specie)))
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
