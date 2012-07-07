@@ -1645,7 +1645,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         '''
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -1685,7 +1685,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             return (re.sub("\s", "", self.formula), 1)
 
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
 
         syms = filter(lambda s: sym_amt[s] != 0, syms)
         num_el = len(syms)
