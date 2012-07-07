@@ -126,11 +126,12 @@ class CifParser(object):
                 occu = float_from_string(data['_atom_site_occupancy'][i])
             except:
                 occu = 1
-            coord = (x, y, z)
-            if coord not in coord_to_species:
-                coord_to_species[coord] = {el:occu}
-            else:
-                coord_to_species[coord][el] = occu
+            if occu > 0:
+                coord = (x, y, z)
+                if coord not in coord_to_species:
+                    coord_to_species[coord] = {el:occu}
+                else:
+                    coord_to_species[coord][el] = occu
 
         allspecies = list()
         allcoords = list()
