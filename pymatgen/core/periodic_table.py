@@ -302,7 +302,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x - other._x)
+        return (self.X - other.X)
 
     def __lt__(self, other):
         '''
@@ -310,7 +310,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x < other._x)
+        return (self.X < other.X)
 
     @staticmethod
     def from_Z(z):
