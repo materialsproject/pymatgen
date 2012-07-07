@@ -19,15 +19,18 @@ __date__ = "Sep 23, 2011"
 import itertools
 import numpy as np
 from operator import itemgetter
+import logging
 
+from pymatgen.core.periodic_table import DummySpecie, smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
-from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
+
+logger = logging.getLogger(__name__)
 
 
 class IdentityTransformation(AbstractTransformation):
@@ -1035,3 +1038,227 @@ class MultipleSubstitutionTransformation(object):
         return d
 
 
+class SymmOrderStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure using symmetry. For complete orderings, this
+    generally produces fewer structures that the OrderDisorderedStructure
+    transformation, and at a much faster speed.
+    
+    .. note:: Early alpha, and not completely tested.
+    """
+
+    def __init__(self, symm_prec=0.1):
+        '''
+        Args:
+            symm_prec:
+                Tolerance to use for symmetry
+        '''
+        self.symm_prec = symm_prec
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Return either a single ordered structure or a sequence of all ordered
+        structures.
+        
+        Args:
+            structure:
+                Structure to order
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. This transformation is
+            parsed by the alchemy classes for generating a more specific
+            transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+            
+            The list of ordered structures is ranked by symmetry, with highest
+            symmetry structure (with the highest international number) ranked
+            first.
+        """
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+
+        num_to_return = max(1, num_to_return)
+
+        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+        from pymatgen.analysis.symmetry_fitter import SymmetryFitter
+        finder = SymmetryFinder(structure, self.symm_prec)
+        sg = finder.get_spacegroup()
+        symmetrized_structure = finder.get_symmetrized_structure()
+        target_comp = symmetrized_structure.composition
+        self.original_groups = symmetrized_structure.equivalent_sites
+        logger.debug("Original structure has symmetry {}".format(finder.get_spacegroup_symbol()))
+        #self.original_groups = symmetrized_structure.equivalent_sites
+        sites_to_order = []
+        original_ordered_sites = []
+        for sites in symmetrized_structure.equivalent_sites:
+            if sites[0].is_ordered:
+                original_ordered_sites.extend(sites)
+            else:
+                total_occu = sum(sites[0].species_and_occu.values())
+                newsp = sites[0].species_and_occu
+                if total_occu < 1 - 1e-5:
+                    newsp[DummySpecie('X')] = 1 - total_occu
+                for site in sites:
+                    sites_to_order.append(PeriodicSite(newsp, site.frac_coords,
+                                                       site.lattice,
+                                                       properties=site.properties))
+        disordered_structure = Structure.from_sites(sites_to_order)
+        all_structures = [disordered_structure]
+
+        while not all([s.is_ordered for s in all_structures]):
+
+            new_structures = []
+
+            for s in all_structures:
+                finder = SymmetryFinder(s, self.symm_prec)
+                symmetrized_structure = finder.get_symmetrized_structure()
+                logger.debug("Structure has symmetry {}".format(finder.get_spacegroup_symbol()))
+
+                sites_to_order = []
+                ordered_sites = []
+                for sites in symmetrized_structure.equivalent_sites:
+                    if not sites[0].is_ordered:
+                        sites_to_order.append(sites)
+                    else:
+                        ordered_sites.extend(sites)
+                logger.debug("Num sites to order = {}".format(len(sites_to_order)))
+
+                lattice = symmetrized_structure.lattice
+                for i, sites in enumerate(sites_to_order):
+                    logger.debug("Num sites = {}".format(len(sites)))
+                    new_sites = [site for site in ordered_sites]
+                    selected = sites[0]
+                    sp_and_occu = selected.species_and_occu
+                    sp = min(sp_and_occu.keys(), key=lambda s:sp_and_occu[s])
+                    logger.debug("Chosen species = {}".format(sp))
+
+                    ordered_sp_amt = 0
+                    for site in ordered_sites:
+                        ordered_sp_amt += site.species_and_occu.get(sp, 0)
+
+                    if abs(ordered_sp_amt - target_comp[sp]) < 1e-5:
+                        logger.debug("Too many Na. Rejecting")
+                        new_sites.append(PeriodicSite(DummySpecie("X"),
+                                                      selected.frac_coords,
+                                                  lattice,
+                                                  properties=selected.properties))
+
+                    else:
+                        new_sites.append(PeriodicSite(sp, selected.frac_coords,
+                                                  lattice,
+                                                  properties=selected.properties))
+
+                    group_number = self._find_group(selected)
+                    logger.debug("Group number = {}".format(group_number))
+                    num_in_group = len(sites)
+                    for j, other_sites in enumerate(sites_to_order):
+                        if i != j:
+                            if self._find_group(other_sites[0]) == group_number:
+                                num_in_group += len(other_sites)
+
+                    logger.debug("Num in group = {}".format(num_in_group))
+                    new_sp_and_occu = {}
+
+                    #Renormalize the occupancies of all species in the group
+                    for k, v in selected.species_and_occu.items():
+                        if k != sp:
+                            new_sp_and_occu[k] = v * num_in_group
+                        else:
+                            new_sp_and_occu[k] = v * num_in_group - 1
+
+                    logger.debug("Pre-normalized sp and occu = {}".format(new_sp_and_occu))
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items() if v > 0.9}
+
+                    new_sp_and_occu = {k: v / (num_in_group - 1) for k, v in new_sp_and_occu.items()}
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items() if v > 0 and abs(v) > 1e-5}
+
+                    total_occu = sum(new_sp_and_occu.values())
+
+                    if total_occu > 1:
+                        new_sp_and_occu = {k: v / total_occu for k, v in new_sp_and_occu.items()}
+
+                    logger.debug("Renormalized sp and occu = {}".format(new_sp_and_occu))
+                    for other_site in sites:
+                        if other_site != selected and total_occu > 1e-2:
+                            logger.debug("Add site {}...".format(sp))
+                            new_sites.append(PeriodicSite(new_sp_and_occu,
+                                            other_site.frac_coords, lattice,
+                                            properties=other_site.properties))
+
+                    for j, other_sites in enumerate(sites_to_order):
+                        if i != j:
+                            if self._find_group(other_sites[0]) != group_number:
+                                new_sites.extend(other_sites)
+                            elif total_occu > 1e-2:
+                                for other_site in other_sites:
+                                    new_sites.append(PeriodicSite(new_sp_and_occu,
+                                            other_site.frac_coords, lattice,
+                                            properties=other_site.properties))
+
+                    new_structure = Structure.from_sites(new_sites)
+                    logger.debug("Adding structure = {}".format(new_structure))
+                    new_structures.append(new_structure)
+
+            logger.debug("Number of structures = {}".format(len(new_structures)))
+
+            fitter = SymmetryFitter(new_structures, sg)
+            new_structures = tuple(fitter.get_unique_structures())
+            logger.debug("Number of structures after filtering = {}".format(len(new_structures)))
+            all_structures = new_structures
+
+        self._all_structures = []
+        for structure in all_structures:
+            clean_sites = [site for site in structure if site.specie.symbol != "X"]
+            clean_sites.extend(original_ordered_sites)
+            complete_structure = Structure.from_sites(clean_sites)
+            finder = SymmetryFinder(complete_structure, self.symm_prec)
+            sg = finder.get_spacegroup_symbol()
+            sgnum = finder.get_spacegroup_number()
+            self._all_structures.append({'structure': complete_structure,
+                                         'spacegroup': sg,
+                                         'number': sgnum})
+        self._all_structures = sorted(self._all_structures, key=lambda s:-s['number'])
+
+        if return_ranked_list:
+            return self._all_structures
+        else:
+            return self._all_structures[0]['structure']
+
+    def _find_group(self, site):
+        for (i, sites) in enumerate(self.original_groups):
+            for s in sites:
+                if s.distance(site) < self.symm_prec:
+                    return i
+
+    def __str__(self):
+        return "SymmOrderStructureTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'symm_prec' : self.symm_prec}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
