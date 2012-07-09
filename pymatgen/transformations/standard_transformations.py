@@ -849,6 +849,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         d['class'] = self.__class__.__name__
         return d
 
+
 class PerturbStructureTransformation(AbstractTransformation):
     """
     This transformation perturbs a structure by a specified distance in random

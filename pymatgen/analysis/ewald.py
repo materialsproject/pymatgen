@@ -15,14 +15,15 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
-import numpy as np
-from math import pi, sqrt, log, exp, cos, sin, erfc
-import scipy.constants as sc
-from scipy.misc import comb
-from pymatgen.core.structure import Structure
+from math import pi, sqrt, log, exp, cos, sin, erfc, factorial
+from datetime import datetime
 from copy import deepcopy, copy
 import bisect
-from datetime import datetime
+
+import numpy as np
+
+from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
+from pymatgen.core.structure import Structure
 
 
 class EwaldSummation(object):
@@ -38,7 +39,7 @@ class EwaldSummation(object):
     """
 
     # taken from convasp. converts unit of q*q/r into eV 
-    CONV_FACT = 1e10 * sc.e / (4 * pi * sc.epsilon_0)
+    CONV_FACT = 1e10 * ELECTRON_CHARGE / (4 * pi * EPSILON_0)
 
     def __init__(self, structure, real_space_cut= -1.0, recip_space_cut= -1.0,
                  eta= -1.0, acc_factor=8.0):
@@ -308,6 +309,8 @@ class EwaldMinimizer:
                 value = (self._matrix[i, j] + self._matrix[j, i]) / 2
                 self._matrix[i, j] = value
                 self._matrix[j, i] = value
+        def comb(n, k):
+            return factorial(n) / factorial(k) / factorial(n - k)
         self._m_list = sorted(m_list, key=lambda x: comb(len(x[2]), x[1]), reverse=True) #sort the m_list based on number of permutations
 
         for mlist in self._m_list:
