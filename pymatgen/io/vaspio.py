@@ -1718,7 +1718,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.state = defaultdict(bool)
 
     def startElement(self, name, attributes):
-
         self.state[name] = attributes.get('name', True)
         self.read_val = False
 
@@ -1758,10 +1757,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.read_rec_lattice = True
         elif self.read_calculation:
             if name == "i" and self.state['scstep']:
+                logger.debug('Reading scstep...')
                 self.read_val = True
             elif name == "v" and (self.state['varray'] == "forces" or self.state['varray'] == "stress"):
                 self.read_positions = True
             elif name == "dos" and self.parse_dos:
+                logger.debug('Reading dos...')
                 self.dos_energies = None
                 self.tdos = {}
                 self.idos = {}
@@ -1769,10 +1770,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.efermi = None
                 self.read_dos = True
             elif name == "eigenvalues" and self.parse_eigen and (not self.state['projected']):
-                logger.debug('Start reading eigenvalues. Projected = {}'.format(self.state['projected']))
+                logger.debug('Reading eigenvalues. Projected = {}'.format(self.state['projected']))
                 self.eigenvalues = {}
                 self.read_eigen = True
             elif name == "eigenvalues" and self.parse_projected_eigen and self.state['projected']:
+                logger.debug('Reading projected eigenvalues...')
                 self.projected_eigen = {}
                 self.read_projected_eigen = True
             elif self.read_eigen or self.read_projected_eigen:
@@ -1872,6 +1874,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.scstep[state['i']] = float(self.val.getvalue())
         elif name == 'scstep':
             self.scdata.append(self.scstep)
+            logger.debug('Finished reading scstep...')
         elif name == 'varray' and state['varray'] == "forces":
             self.forces = np.array([float(x) for x in re.split("\s+", self.posstr.getvalue().strip())])
             self.forces.shape = (len(self.atomic_symbols), 3)
@@ -1974,7 +1977,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.raw_data = []
         elif name == "array":
             logger.debug("Finished reading projected eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
-            self.read_eigen = False
+            self.read_projected_eigen = False
 
     def endElement(self, name):
         if not self.input_read:
