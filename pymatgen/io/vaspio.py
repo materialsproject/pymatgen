@@ -1561,10 +1561,10 @@ class Vasprun(object):
         min_eigenvalues = min(neigenvalues)
 
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j + 1)]['up'][i][0] for j in range(len(kpoints))]);
+            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0] for j in range(len(kpoints))]);
         if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j + 1)]['down'][i][0] for j in range(len(kpoints))]);
+                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0] for j in range(len(kpoints))]);
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)

@@ -340,6 +340,22 @@ class VasprunTest(unittest.TestCase):
         vasprun = Vasprun(filepath)
         #Test that to_dict is json-serializable
         json.dumps(vasprun.to_dict)
+        
+    def test_get_band_structure(self):
+        filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
+        vasprun = Vasprun(filepath)
+        bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir, 'KPOINTS_Si_bands'))
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
+        self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
+        self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64], "wrong vbm kpoint index")
+        self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
+        self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands")
+        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        
 
 class OutcarTest(unittest.TestCase):
 
