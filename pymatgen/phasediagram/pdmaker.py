@@ -14,6 +14,7 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import logging
+import warnings
 
 from pymatgen.core.structure import Composition
 from pymatgen.command_line.qhull_caller import qconvex
@@ -266,9 +267,9 @@ class PhaseDiagram (object):
                     delau = Delaunay(self._qhull_data)
                     self._facets = delau.convex_hull
                 except ImportError:
-                    logger.warning("Error importing scipy.spatial."
-                                   "Ignoring use_external_qhull = False and "
-                                   "attempting command-line qhull.")
+                    warnings.warn("Error importing scipy.spatial. "
+                                  "Ignoring use_external_qhull = False and "
+                                  "attempting command-line qhull.")
                     self._facets = qconvex(self._qhull_data)
             else:
                 logger.debug("Computing hull using scipy.spatial.delaunay")
