@@ -589,19 +589,23 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
 def get_reconstructed_band_structure(list_bs, efermi = None):
         """
-        This method takes a list of band structure (divided by branches)
+        This method takes a list of band structures
         and reconstruct one band structure object from all of them
+        
+        this is typically very useful when you split non self consistent
+        band structure runs in several independent jobs and want to merge back the
+        results
         
         Args:
             list_bs:
-                A list of BandStructureSymmLine one for each branch
+                A list of BandStructure
             efermi:
                 The fermi energy of the reconstructed band structure. If none
                 is assigned an average of all the fermi energy in each object
                 in the list_bs is used.
         
         Returns:
-            A BandStructureSymmLine object
+            A BandStructure or BandStructureSymmLine object (depending on the type of the list_bs objects)
         """
         if efermi == None:
             efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
@@ -609,24 +613,28 @@ def get_reconstructed_band_structure(list_bs, efermi = None):
         kpoints = []
         labels_dict = {}
         rec_lattice = list_bs[0]._lattice_rec
-        nb_bands = list_bs[0]._nb_bands
+        nb_bands = min([list_bs[i]._nb_bands for i in range(len(list_bs))])
 
         for bs in list_bs:
             for k in bs._kpoints:
                 kpoints.append(k.frac_coords)
             for k, v in bs._labels_dict.iteritems():
                 labels_dict[k] = v.frac_coords
-        eigenvals = {Spin.up:list_bs[0]._bands[Spin.up]}
+        eigenvals = {Spin.up:[list_bs[0]._bands[Spin.up][i] for i in range(nb_bands)]}
         for i in range(nb_bands):
             #eigenvals[Spin.up].append({'energy':[], 'occup':[]})
             for bs in list_bs[1:]:
                 for e in bs._bands[Spin.up][i]:
                     eigenvals[Spin.up][i].append(e)
         if list_bs[0].is_spin_polarized:
-            eigenvals[Spin.down] = list_bs[0]._bands[Spin.up]
+            eigenvals[Spin.down] = [list_bs[0]._bands[Spin.down][i] for i in range(nb_bands)]
             for i in range(nb_bands):
                 #eigenvals[Spin.down].append({'energy':[], 'occup':[]})
                 for bs in list_bs[1:]:
                     for e in bs._bands[Spin.down][i]:
                         eigenvals[Spin.down][i].append(e)
-        return BandStructureSymmLine(kpoints, eigenvals, rec_lattice, efermi, labels_dict)
+        if isinstance(list_bs[0], BandStructureSymmLine):
+            return BandStructureSymmLine(kpoints, eigenvals, rec_lattice, efermi, labels_dict)
+        else:
+            return BandStructure(kpoints, eigenvals, rec_lattice, efermi, labels_dict)
+
