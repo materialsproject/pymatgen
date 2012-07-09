@@ -287,6 +287,9 @@ class BSPlotter(object):
             energy[str(Spin.up)].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
+                #for j in range(len(self._bs._kpoints)):
+                #    print self._bs._bands[Spin.down][i][j]
+                #print zero_energy
                 energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
 
         vbm = self._bs.get_vbm()
@@ -314,18 +317,19 @@ class BSPlotter(object):
                 'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct, bg['transition'], bg['energy']) if not self._bs.is_metal() else ""}
 
-    def show(self, file_name=None, zero_to_efermi=True):
+    def get_plot(self, zero_to_efermi=True, ylim=None):
         """
-        Show the bandstructure plot. Blue lines are up spin, red lines are down
+        get a matplotlib object for the bandstructure plot. 
+        Blue lines are up spin, red lines are down
         spin.
         
         Args:
-            file_name:
-                File name to write image to (e.g., plot.eps). If None, no image
-                is created.
             zero_to_efermi:
                 Automatically subtract off the Fermi energy from the eigenvalues
                 and plot (E-Ef).
+            ylim
+                specify the y-axis (energy) limits; by default None let the code choose.
+                It is vbm-4 and cbm+4 if insulator efermi-10 and efermi+10 if metal
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -407,29 +411,59 @@ class BSPlotter(object):
         #last distance point
         x_max = data['distances'][-1]
         plt.xlim(0, x_max)
-
-        if self._bs.is_metal():
-            # Plot A Metal
-            if zero_to_efermi:
-                plt.ylim(e_min, e_max)
+        
+        if ylim == None:
+            if self._bs.is_metal():
+                # Plot A Metal
+                if zero_to_efermi:
+                    plt.ylim(e_min, e_max)
+                else:
+                    plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
             else:
-                plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
+    
+                for cbm in data['cbm']:
+                    plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
+    
+                for vbm in data['vbm']:
+                    plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
+    
+                plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
         else:
-
-            for cbm in data['cbm']:
-                plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
-
-            for vbm in data['vbm']:
-                plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
-
-            plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
-
+            plt.ylim(ylim)
+            
         plt.tight_layout()
-        if file_name is not None:
-            plt.savefig(file_name)
-            plt.close()
-        else:
-            plt.show()
+        
+        return plt
+    
+    def show(self,zero_to_efermi=True, ylim=None):
+        """
+        Show the plot using matplotlib.
+        
+        Args:
+            zero_to_efermi:
+                Automatically subtract off the Fermi energy from the eigenvalues
+                and plot (E-Ef).
+            ylim
+                specify the y-axis (energy) limits; by default None let the code choose.
+                It is vbm-4 and cbm+4 if insulator efermi-10 and efermi+10 if metal
+        """
+        plt = self.get_plot(zero_to_efermi, ylim)
+        plt.show()
+        
+    def save_plot(self, filename, img_format="eps", ylim=None):
+        """
+        Save matplotlib plot to a file.
+        
+        Args:
+            filename:
+                Filename to write to.
+            img_format:
+                Image format to use. Defaults to EPS.
+            ylim:
+                Specifies the y-axis limits. 
+        """
+        plt = self.get_plot(ylim)
+        plt.savefig(filename, format=img_format)
 
     def get_ticks(self):
         """
