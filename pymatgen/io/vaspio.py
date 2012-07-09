@@ -1992,7 +1992,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 for orb, val in data.items():
                     self.projected_eigenvalues[(self.eigen_spin, self.eigen_kpoint - 1, self.eigen_band - 1, atom_ind, orb)] = val
             self.raw_data = []
-        elif name == "array":
+        elif name == "projected":
             logger.debug("Finished reading projected eigenvalues. No. eigen = {}".format(len(self.eigenvalues)))
             self.read_projected_eigen = False
 
@@ -2872,3 +2872,4 @@ def get_adjusted_fermi_level(run_static, band_structure):
             if not bs_working.is_metal():
                 return e
     return run_static.efermi
+
