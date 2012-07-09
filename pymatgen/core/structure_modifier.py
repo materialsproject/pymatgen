@@ -114,7 +114,8 @@ class StructureEditor(StructureModifier):
                         new_atom_occu[sp] += amt
                     else:
                         new_atom_occu[sp] = amt
-            return PeriodicSite(new_atom_occu, self._lattice.get_fractional_coords(site.coords),
+            return PeriodicSite(new_atom_occu,
+                                self._lattice.get_fractional_coords(site.coords),
                                 self._lattice, properties=site.properties)
 
         self._sites = map(mod_site, self._sites)
@@ -129,7 +130,8 @@ class StructureEditor(StructureModifier):
             species:
                 A species object  
         """
-        self._sites[index] = PeriodicSite(species_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords),
+        self._sites[index] = PeriodicSite(species_n_occu,
+                                          self._lattice.get_fractional_coords(self._sites[index].coords),
                                           self._lattice,
                                           properties=self._sites[index].properties)
 
@@ -343,17 +345,23 @@ class SupercellMaker(StructureModifier):
         old_lattice = structure.lattice
         scale_matrix = np.array(scaling_matrix)
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
-        new_species = []
-        new_fcoords = []
+        new_sites = []
         def range_vec(i):
             return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
         for site in structure.sites:
             for (i, j, k) in itertools.product(range_vec(0), range_vec(1), range_vec(2)):
-                new_species.append(site.species_and_occu)
                 fcoords = site.frac_coords
                 coords = old_lattice.get_cartesian_coords(fcoords + np.array([i, j, k]))
-                new_fcoords.append(new_lattice.get_fractional_coords(coords))
-        self._modified_structure = Structure(new_lattice, new_species, new_fcoords, False)
+                new_coords = new_lattice.get_fractional_coords(coords)
+                new_site = PeriodicSite(site.species_and_occu, new_coords, new_lattice, properties=site.properties)
+                contains_site = False
+                for s in new_sites:
+                    if s.is_periodic_image(new_site):
+                        contains_site = True
+                        break
+                if not contains_site:
+                    new_sites.append(new_site)
+        self._modified_structure = Structure.from_sites(new_sites)
 
     @property
     def original_structure(self):
