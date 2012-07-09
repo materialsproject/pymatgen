@@ -2788,7 +2788,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             Efermi for bandstructure.
     
     Returns:
-        (bandstructure_up, bandstructure_down)
+        a BandStructure Object
     """
     #ToDo: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
