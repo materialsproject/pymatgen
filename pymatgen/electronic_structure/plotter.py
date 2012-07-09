@@ -608,3 +608,15 @@ class BSPlotter(object):
         plt.show()
         ax.axis("off")
 
+class BSPlotterProjected(BSPlotter):
+    
+    def __init__(self, bs):
+        """
+        Args:
+            bs:
+                A BandStructureSymmLine object with projections.
+        """
+        BSPlotter.__init__(bs)
+    
+    def get_elt_projected_plots(self):
+        print self._bs.get_projection_on_elements()

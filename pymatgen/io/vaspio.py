@@ -1656,9 +1656,9 @@ class Vasprun(object):
             vasp_output['projected_eigenvalues'].append({})
             for spin in vasp_output['eigenvalues'][i]:
                 vasp_output['projected_eigenvalues'][i][spin]=[]
-                for j in range(len(vasp_output['eigenvalues'][i])):
-                    vasp_output['projected_eigenvalues'][i][str(spin)].append({})
-        
+                for j in range(len(vasp_output['eigenvalues'][i][spin])):
+                    vasp_output['projected_eigenvalues'][i][spin].append({})
+        print self.projected_eigenvalues
         for (spin, kpoint_index, band_index, ion_index, orbital), value in self.projected_eigenvalues.items():
             if orbital not in vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]:
                 vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]={orbital:[0.0 for s in range(self.final_structure.nb_sites)]}

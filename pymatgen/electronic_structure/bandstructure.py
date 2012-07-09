@@ -240,6 +240,30 @@ class BandStructure(object):
         """
         return self._nb_bands
     
+    def get_projection_on_elements(self):
+        """
+        return a dictionary of projections on elements in the 
+        {Spin.up:[][{Element}],Spin.down:[][{Element}]} format
+        """
+        #print self._projections.keys()
+        if len(self._projections) == 0:
+            return {}
+        if self.is_spin_polarized:
+            result={Spin.up:[],Spin.down:[]}
+        else:
+            result={Spin.up:[]}
+        for spin in result:
+            result[spin]=[[{str(e):0.0 for e in self._struct.composition.elements} for i in range(len(self._kpoints))] for j in range(self._nb_bands)]
+            #print result[Spin.up]
+            #print result[Spin.up][0][0][Element("Si")]
+            for i in range(self._nb_bands):
+                for j in range(len(self._kpoints)):
+                    for k in range(self._struct.num_sites):
+                        for orb in self._projections[Spin.up][i][j]:
+                            result[spin][i][j][str(self._struct.sites[k].specie)]+=self._projections[spin][i][j][orb][k]
+        #print result
+        return result
+    
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
