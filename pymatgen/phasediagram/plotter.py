@@ -19,8 +19,6 @@ import itertools
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
 
-from scipy.spatial import Delaunay
-
 
 class PDPlotter(object):
     '''
@@ -297,6 +295,7 @@ class PDPlotter(object):
         all_coords.append([xlim[0], ylim[1]])
         all_coords.append([xlim[1], ylim[0]])
         all_coords.append([xlim[0], ylim[0]])
+        from scipy.spatial import Delaunay
         delau = Delaunay(all_coords)
         facets = delau.convex_hull
         excluded_boundary = []
