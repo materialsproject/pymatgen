@@ -353,7 +353,8 @@ class SupercellMaker(StructureModifier):
                 fcoords = site.frac_coords
                 coords = old_lattice.get_cartesian_coords(fcoords + np.array([i, j, k]))
                 new_coords = new_lattice.get_fractional_coords(coords)
-                new_site = PeriodicSite(site.species_and_occu, new_coords, new_lattice, properties=site.properties)
+                new_site = PeriodicSite(site.species_and_occu, new_coords,
+                                        new_lattice, properties=site.properties)
                 contains_site = False
                 for s in new_sites:
                     if s.is_periodic_image(new_site):
