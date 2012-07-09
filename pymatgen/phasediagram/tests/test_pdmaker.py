@@ -27,6 +27,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
 
+
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
     def setUp(self):
