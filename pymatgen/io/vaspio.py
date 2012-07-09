@@ -1565,6 +1565,9 @@ class Vasprun(object):
         if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0] for j in range(len(kpoints))]);
+        
+        
+        
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
@@ -1642,11 +1645,25 @@ class Vasprun(object):
         vasp_output['efermi'] = self.efermi
         vasp_output['eigenvalues'] = {}
         for (spin, index), values in self.eigenvalues.items():
-            if str(index) not in vasp_output['eigenvalues']:
-                vasp_output['eigenvalues'][str(index)] = {str(spin):values}
+            if index not in vasp_output['eigenvalues']:
+                vasp_output['eigenvalues'][index] = {str(spin):values}
             else:
-                vasp_output['eigenvalues'][str(index)][str(spin)] = values
-
+                vasp_output['eigenvalues'][index][str(spin)] = values
+        
+        vasp_output['projected_eigenvalues'] = []
+        
+        for i in range(len(vasp_output['eigenvalues'])):
+            vasp_output['projected_eigenvalues'].append({})
+            for spin in vasp_output['eigenvalues'][i]:
+                vasp_output['projected_eigenvalues'][i][spin]=[]
+                for j in range(len(vasp_output['eigenvalues'][i])):
+                    vasp_output['projected_eigenvalues'][i][str(spin)].append({})
+        
+        for (spin, kpoint_index, band_index, ion_index, orbital), value in self.projected_eigenvalues.items():
+            if orbital not in vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]:
+                vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]={orbital:[0.0 for s in range(self.final_structure.nb_sites)]}
+            else:
+                vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index][orbital][ion_index] = value
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
         vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm, is_gap_direct=is_direct))
         d['output'] = vasp_output
