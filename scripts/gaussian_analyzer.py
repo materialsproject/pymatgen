@@ -8,6 +8,7 @@ Written by Shyue Ping Ong
 import argparse
 import os
 import logging
+import re
 
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
@@ -35,7 +36,7 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
     entries = queen.get_data()
     entries = sorted(entries, key=lambda x:x.parameters['filename'])
     all_data = [(e.parameters['filename'].replace("./", ""),
-                 e.composition.formula,
+                 re.sub("\s+", "", e.composition.formula),
                  "{}".format(e.parameters['charge']),
                  "{}".format(e.parameters['spin_mult']),
                  "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom),
