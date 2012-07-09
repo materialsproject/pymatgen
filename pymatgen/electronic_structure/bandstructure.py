@@ -244,8 +244,9 @@ class BandStructure(object):
         """
         return a dictionary of projections on elements in the 
         {Spin.up:[][{Element}],Spin.down:[][{Element}]} format
+        if there is no projections in the band structure
+        returns an empty dict
         """
-        #print self._projections.keys()
         if len(self._projections) == 0:
             return {}
         if self.is_spin_polarized:
@@ -253,15 +254,12 @@ class BandStructure(object):
         else:
             result={Spin.up:[]}
         for spin in result:
-            result[spin]=[[{str(e):0.0 for e in self._struct.composition.elements} for i in range(len(self._kpoints))] for j in range(self._nb_bands)]
-            #print result[Spin.up]
-            #print result[Spin.up][0][0][Element("Si")]
+            result[spin]=[[{str(e):0.0 for e in self._structure.composition.elements} for i in range(len(self._kpoints))] for j in range(self._nb_bands)]
             for i in range(self._nb_bands):
                 for j in range(len(self._kpoints)):
-                    for k in range(self._struct.num_sites):
+                    for k in range(self._structure.num_sites):
                         for orb in self._projections[Spin.up][i][j]:
-                            result[spin][i][j][str(self._struct.sites[k].specie)]+=self._projections[spin][i][j][orb][k]
-        #print result
+                            result[spin][i][j][str(self._structure.sites[k].specie)]+=self._projections[spin][i][j][orb][k]
         return result
     
 

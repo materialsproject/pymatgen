@@ -1550,29 +1550,39 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
+        dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
         eigenvals = {}
+        p_eigenvals = {}
         if dict_eigen['1'].has_key('up') and dict_eigen['1'].has_key('down') and self.incar['ISPIN'] == 2:
             eigenvals = {Spin.up:[], Spin.down:[]}
+            if len(dict_p_eigen) != 0:
+                p_eigenvals = {Spin.up:[], Spin.down:[]}
         else:
             eigenvals = {Spin.up:[]}
+            if len(dict_p_eigen) != 0:
+                p_eigenvals = {Spin.up:[]}
 
         neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0] for j in range(len(kpoints))]);
+            if len(dict_p_eigen) != 0:
+                p_eigenvals[Spin.up].append([{Orbital.from_string(orb):dict_p_eigen[j]['up'][i][orb] for orb in dict_p_eigen[j]['up'][i]} for j in range(len(kpoints))])
         if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
                 eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0] for j in range(len(kpoints))]);
-        
+                if len(dict_p_eigen) != 0:
+                    p_eigenvals[Spin.down].append([{Orbital.from_string(orb):dict_p_eigen[j]['down'][i][orb] for orb in dict_p_eigen[j]['down'][i]} for j in range(len(kpoints))])
         
         
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict)
+            #print p_eigenvals
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict, structure=self.final_structure, projections=p_eigenvals)
         else:
-            return BandStructure(kpoints, eigenvals, lattice_new, efermi)
+            return BandStructure(kpoints, eigenvals, lattice_new, efermi, structure=self.final_structure, projections=p_eigenvals)
 
     @property
     def eigenvalue_band_properties(self):
@@ -1658,10 +1668,9 @@ class Vasprun(object):
                 vasp_output['projected_eigenvalues'][i][spin]=[]
                 for j in range(len(vasp_output['eigenvalues'][i][spin])):
                     vasp_output['projected_eigenvalues'][i][spin].append({})
-        print self.projected_eigenvalues
         for (spin, kpoint_index, band_index, ion_index, orbital), value in self.projected_eigenvalues.items():
             if orbital not in vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]:
-                vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index]={orbital:[0.0 for s in range(self.final_structure.nb_sites)]}
+                vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index][orbital]=[0.0 for s in range(len(self.final_structure.sites))]
             else:
                 vasp_output['projected_eigenvalues'][kpoint_index][str(spin)][band_index][orbital][ion_index] = value
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
