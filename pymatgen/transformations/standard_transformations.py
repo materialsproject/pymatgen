@@ -855,7 +855,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     directions. Used for breaking symmetries.
     """
 
-    def __init__(self, amplitude=0.1):
+    def __init__(self, amplitude=0.01):
         """
         Args:
             amplitude:
