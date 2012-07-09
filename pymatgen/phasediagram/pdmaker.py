@@ -14,11 +14,10 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import logging
-import warnings
 
 from pymatgen.core.structure import Composition
-from pymatgen.command_line.qhull_caller import qconvex
 from pymatgen.phasediagram.entries import GrandPotPDEntry
+from pymatgen.util.coord_utils import get_convex_hull
 
 logger = logging.getLogger(__name__)
 
@@ -261,20 +260,8 @@ class PhaseDiagram (object):
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            if not self._use_external_qhull:
-                try:
-                    from scipy.spatial import Delaunay
-                    delau = Delaunay(self._qhull_data)
-                    self._facets = delau.convex_hull
-                except ImportError:
-                    warnings.warn("Error importing scipy.spatial. "
-                                  "Ignoring use_external_qhull = False and "
-                                  "attempting command-line qhull.")
-                    self._facets = qconvex(self._qhull_data)
-            else:
-                logger.debug("Computing hull using scipy.spatial.delaunay")
-                self._facets = qconvex(self._qhull_data)
-
+            self._facets = get_convex_hull(self._qhull_data,
+                                           self._use_external_qhull)
             logger.debug("Final facets are\n{}".format(self._facets))
 
             logger.debug("Removing vertical facets...")
