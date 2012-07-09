@@ -164,7 +164,9 @@ class PDAnalyzer(object):
         """
         if entry not in self._pd.stable_entries:
             raise ValueError("Equilibrium reaction energy is available only for stable entries.")
-        entries = [e for e in self._pd.all_entries if e != entry]
+        if entry.is_element:
+            return 0
+        entries = [e for e in self._pd.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self._pd.elements)
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 '''
-This module implements input and output processing from molecules to Gaussian
-Input files.
+This module implements input and output processing from Gaussian.
 '''
 
 from __future__ import division
@@ -312,7 +311,64 @@ class GaussianInput(object):
 
 class GaussianOutput(object):
     """
-    Parser for Gaussian output files. Still in early beta.
+    Parser for Gaussian output files.
+    
+    .. note::
+        
+        Still in early beta.
+        
+        
+    Attributes:
+    
+    .. attribute:: structures
+        
+        All structures from the calculation.
+
+    .. attribute:: energies
+        
+        All energies from the calculation.
+        
+    .. attribute:: properly_terminated
+    
+        True if run has properly terminated
+    
+    .. attribute:: is_pcm
+    
+        True if run is a PCM run.
+        
+    .. attribute:: stationary_type
+    
+        If it is a relaxation run, indicates whether it is a minimum (Minimum)
+        or a saddle point ("Saddle").
+
+    .. attribute:: corrections
+    
+        Thermochemical corrections if this run is a Freq run as a dict. Keys
+        are "Zero-point", "Thermal", "Enthalpy" and "Gibbs Free Energy"
+
+    .. attribute:: functional
+        
+        Functional used in the run.
+        
+    .. attribute:: basis_set
+    
+        Basis set used in the run
+        
+    .. attribute:: charge
+    
+        Charge for structure
+        
+    .. attribute:: spin_mult
+    
+        Spin multiplicity for structure
+        
+    .. attribute:: num_basis_func
+    
+        Number of basis functions in the run.
+        
+    .. attribute:: pcm
+    
+        PCM parameters and output if available.
     """
 
     def __init__(self, filename):
@@ -321,8 +377,16 @@ class GaussianOutput(object):
             filename:
                 Filename of Gaussian output file.
         """
-        self.energies = []
+        self.filename = filename
         self._parse(filename)
+
+    @property
+    def final_energy(self):
+        return self.energies[-1]
+
+    @property
+    def final_structure(self):
+        return self.structures[-1]
 
     def _parse(self, filename):
 
@@ -335,24 +399,25 @@ class GaussianOutput(object):
         scf_patt = re.compile("E\(.*\)\s*=\s*([-\.\d]+)\s+")
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
-
         normal_termination_patt = re.compile("Normal termination of Gaussian")
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
-
         thermo_patt = re.compile("(Zero-point|Thermal) correction(.*)=\s+([\d\.-]+)")
 
         self.properly_terminated = False
-        is_pcm = False
+        self.is_pcm = False
         self.stationary_type = "Minimum"
+        self.structures = []
+        self.corrections = {}
+        self.energies = []
+
         coord_txt = []
         read_coord = 0
         orbitals_txt = []
-        parse_stage = 0;
+        parse_stage = 0
         num_basis_found = False
-        self.molecules = []
-        self.corrections = {}
+
         with openz(filename, "r") as f:
             for line in f:
                 if parse_stage == 0:
@@ -362,7 +427,12 @@ class GaussianOutput(object):
                         self.route = {}
                         for tok in re.split("\s+", line.strip()):
                             sub_tok = tok.strip().split("=")
-                            self.route[sub_tok[0].upper()] = sub_tok[1].upper() if len(sub_tok) > 1 else ""
+                            key = sub_tok[0].upper()
+                            self.route[key] = sub_tok[1].upper() if len(sub_tok) > 1 else ""
+                            m = re.match("(\w+)/([^/]+)", key)
+                            if m:
+                                self.functional = m.group(1)
+                                self.basis_set = m.group(2)
                 elif parse_stage == 1:
                     if charge_mul_patt.search(line):
                         m = charge_mul_patt.search(line)
@@ -371,9 +441,8 @@ class GaussianOutput(object):
                         parse_stage = 2
                 elif parse_stage == 2:
 
-                    if is_pcm:
-                        #checkPCM(line);
-                        pass
+                    if self.is_pcm:
+                        self._check_pcm(line)
 
                     if "FREQ" in self.route and thermo_patt.search(line):
                         m = thermo_patt.search(line)
@@ -395,22 +464,23 @@ class GaussianOutput(object):
                                     toks = re.split("\s+", l.strip())
                                     sp.append(Element.from_Z(int(toks[1])))
                                     coords.append([float(i) for i in toks[3:6]])
-                                self.molecules.append(Molecule(sp, coords))
+                                self.structures.append(Molecule(sp, coords))
                     elif normal_termination_patt.search(line):
                         self.properly_terminated = True
                     elif (not num_basis_found) and num_basis_func_patt.search(line):
                         m = num_basis_func_patt.search(line)
                         self.num_basis_func = int(m.group(1))
                         num_basis_found = True
-                    elif (not is_pcm) and pcm_patt.search(line):
-                        is_pcm = True
+                    elif (not self.is_pcm) and pcm_patt.search(line):
+                        self.is_pcm = True
+                        self.pcm = {}
                     elif ("FREQ" in self.route and "OPT" in self.route and stat_type_patt.search(line)):
                         self.stationary_type = "Saddle"
                     elif mp2_patt.search(line):
                         m = mp2_patt.search(line)
                         self.energies.append(float(m.group(1).replace("D", "E")))
                     elif oniom_patt.search(line):
-                        m = oniom_patt.matcher(line);
+                        m = oniom_patt.matcher(line)
                         self.energies.append(float(m.group(1)))
                     elif scf_patt.search(line):
                         m = scf_patt.search(line)
@@ -420,3 +490,17 @@ class GaussianOutput(object):
                         read_coord = 1
                     elif orbital_patt.search(line):
                         orbitals_txt.append(line)
+
+    def _check_pcm(self, line):
+        energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")
+        total_patt = re.compile("with all non electrostatic terms\s+\S+\s+=\s+(\S*)")
+        parameter_patt = re.compile("(Eps|Numeral density|RSolv|Eps\(inf[inity]*\))\s*=\s*(\S*)")
+
+        if energy_patt.search(line):
+            m = energy_patt.search(line)
+            self.pcm['{} energy'.format(m.group(1))] = float(m.group(2))
+        elif total_patt.search(line):
+            m = total_patt.search(line)
+            self.pcm['Total energy'] = float(m.group(1))
+        elif parameter_patt.search(line):
+            self.pcm[m.group(1)] = float(m.group(2))
