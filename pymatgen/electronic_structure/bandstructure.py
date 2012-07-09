@@ -600,13 +600,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         labels_dict = d['labels_dict']
         
-        if len(d['projections']) != 0:
+        if len(d['projections']) == 0:
             return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi'], labels_dict, structure=None, projections={})
         else:
             return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi']
-                                              , labels_dict, { Spin.from_int(int(spin)) : [[{Orbital.from_string(orb):[d['projections'][spin][i][j][orb][k] for k in range(len(d['projections'][spin][i][j][orb]))]
+                                              , labels_dict, projections={ Spin.from_int(int(spin)) : [[{Orbital.from_string(orb):[d['projections'][spin][i][j][orb][k] for k in range(len(d['projections'][spin][i][j][orb]))]
                                                                                              for orb in d['projections'][spin][i][j]} for j in range(len(d['projections'][spin][i]))]for i in range(len(d['projections'][spin])) ]
-                                                                                              for spin in d['projections']},Structure.from_dict(d['structure']))
+                                                                                              for spin in d['projections']},structure=Structure.from_dict(d['structure']))
 
 
 def get_reconstructed_band_structure(list_bs, efermi = None):
