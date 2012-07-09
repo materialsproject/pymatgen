@@ -6,7 +6,7 @@ This module provides classes for calculating the ewald sum of a structure.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
 __version__ = "1.0"
@@ -28,21 +28,23 @@ from pymatgen.core.structure import Structure
 
 class EwaldSummation(object):
     """
-    Calculates the electrostatic energy of a periodic array of charges using the Ewald technique. 
-    References : http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
+    Calculates the electrostatic energy of a periodic array of charges using
+    the Ewald technique. 
+    Ref: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
     
-    This matrix can be used to do fast calculations of ewald sums after species removal
+    This matrix can be used to do fast calculations of ewald sums after species
+    removal.
     
     E = E_recip + E_real + E_point
     
     Atomic units used in the code, then converted to eV.
     """
 
-    # taken from convasp. converts unit of q*q/r into eV 
+    # Converts unit of q*q/r into eV 
     CONV_FACT = 1e10 * ELECTRON_CHARGE / (4 * pi * EPSILON_0)
 
-    def __init__(self, structure, real_space_cut= -1.0, recip_space_cut= -1.0,
-                 eta= -1.0, acc_factor=8.0):
+    def __init__(self, structure, real_space_cut=None, recip_space_cut=None,
+                 eta=None, acc_factor=8.0):
         """
         Initializes and calculates the Ewald sum. Default convergence parameters
         have been specified, but you can override them if you wish.
@@ -53,17 +55,18 @@ class EwaldSummation(object):
                 Element with oxidation state. Use OxidationStateDecorator in 
                 pymatgen.core.structure_modifier for example.
             real_space_cut: 
-                Real space cutoff radius dictating how many terms are used in the 
-                real space sum. negative means determine automagically using the
-                formula given in gulp 3.1 documentation.
+                Real space cutoff radius dictating how many terms are used in
+                the real space sum. Defaults to None, which means determine
+                automagically using the formula given in gulp 3.1 documentation.
             recip_space_cut: 
-                Reciprocal space cutoff radius. negative means determine automagically using
-                formula given in gulp 3.1 documentation.
+                Reciprocal space cutoff radius. Defaults to None, which means
+                determine automagically using the formula given in gulp 3.1
+                documentation.
             eta: 
-                The screening parameter. negative means determine automatically.
-                calculate_forces: Set to true if forces are desired
+                The screening parameter. Defaults to None, which means
+                determine automatically.
             acc_factor: 
-                No. of significant figures each sum is converged to. See the gulp manual. 
+                No. of significant figures each sum is converged to.
         """
         self._s = structure
         self._vol = structure.volume
@@ -71,20 +74,20 @@ class EwaldSummation(object):
         self._acc_factor = acc_factor
 
         # set screening length
-        self._eta = eta if eta > 0 else (len(structure) * 0.01 / self._vol) ** (1 / 3) * pi
+        self._eta = eta if eta else (len(structure) * 0.01 / self._vol) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and 
         # reciprocal space cutoff radii
         self._accf = sqrt(log(10 ** acc_factor))
 
-        self._rmax = real_space_cut if real_space_cut > 0 else self._accf / self._sqrt_eta
-        self._gmax = recip_space_cut if recip_space_cut > 0 else 2 * self._sqrt_eta * self._accf
+        self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
+        self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
 
         """
         The next few lines pre-compute certain quantities and store them. Ewald
-        summation is rather expensive, and these shortcuts are necessary to obtain
-        several factors of improvement in speedup.
+        summation is rather expensive, and these shortcuts are necessary to
+        obtain several factors of improvement in speedup.
         """
         self._oxi_states = [compute_average_oxidation_state(site) for site in structure]
         self._coords = np.array(self._s.cart_coords)
