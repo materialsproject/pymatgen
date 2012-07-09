@@ -77,6 +77,11 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
 
+        struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
+        incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [4, 3])
+
+
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])

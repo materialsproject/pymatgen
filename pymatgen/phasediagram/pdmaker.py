@@ -15,11 +15,9 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 import logging
 
-from scipy.spatial import Delaunay
-
 from pymatgen.core.structure import Composition
-from pymatgen.command_line.qhull_caller import qconvex
 from pymatgen.phasediagram.entries import GrandPotPDEntry
+from pymatgen.util.coord_utils import get_convex_hull
 
 logger = logging.getLogger(__name__)
 
@@ -262,13 +260,8 @@ class PhaseDiagram (object):
         if len(self._qhull_data) == dim:
             self._facets = [range(len(self._elements))]
         else:
-            if self._use_external_qhull:
-                logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
-                self._facets = qconvex(self._qhull_data)
-            else:
-                logger.debug("Computing hull using scipy.spatial.delaunay")
-                delau = Delaunay(self._qhull_data)
-                self._facets = delau.convex_hull
+            self._facets = get_convex_hull(self._qhull_data,
+                                           self._use_external_qhull)
             logger.debug("Final facets are\n{}".format(self._facets))
 
             logger.debug("Removing vertical facets...")
@@ -283,7 +276,8 @@ class PhaseDiagram (object):
                     count += 1
                     if len(self._qhull_entries[vertex].composition) > 1:
                         is_element_facet = False
-                if abs(np.linalg.det(facetmatrix)) > 1e-8 and (not is_element_facet):
+                if abs(np.linalg.det(facetmatrix)) > 1e-8 and \
+                   (not is_element_facet):
                     finalfacets.append(facet)
                 else:
                     logger.debug("Removing vertical facet : {}".format(facet))
@@ -328,7 +322,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
        doi:10.1016/j.elecom.2010.01.010
     '''
 
-    def __init__(self, entries, chempots, elements=None, use_external_qhull=False):
+    def __init__(self, entries, chempots, elements=None,
+                 use_external_qhull=False):
         """
         Standard constructor for grand potential phase diagram.
         
@@ -361,7 +356,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             if el not in chempots:
                 filteredels.append(el)
         elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements, use_external_qhull)
+        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements,
+                                                         use_external_qhull)
 
     def __str__(self):
         symbols = [el.symbol for el in self._elements]

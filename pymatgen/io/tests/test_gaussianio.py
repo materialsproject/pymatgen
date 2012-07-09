@@ -83,11 +83,14 @@ class GaussianOutputTest(unittest.TestCase):
         gau = self.gauout
         self.assertEqual(len(gau.energies), 3)
         self.assertAlmostEqual(gau.energies[-1], -39.9768775602)
-        self.assertEqual(len(gau.molecules), 4)
-        for mol in gau.molecules:
+        self.assertEqual(len(gau.structures), 4)
+        for mol in gau.structures:
             self.assertEqual(mol.formula, 'H4 C1')
         self.assertIn("OPT", gau.route)
         self.assertEqual("Minimum", gau.stationary_type)
+        self.assertEqual("HF", gau.functional)
+        self.assertEqual("3-21G", gau.basis_set)
+        self.assertEqual(17, gau.num_basis_func)
 
 
 if __name__ == "__main__":
