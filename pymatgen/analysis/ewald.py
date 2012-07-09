@@ -114,34 +114,63 @@ class EwaldSummation(object):
 
     @property
     def reciprocal_space_energy(self):
+        """
+        The reciprocal space energy.
+        """
         return sum(sum(self._recip))
 
     @property
     def reciprocal_space_energy_matrix(self):
+        """
+        The reciprocal space energy matrix. Each matrix element (i, j) 
+        corresponds to the interaction energy between site i and site j in
+        reciprocal space.
+        """
         return self._recip
 
     @property
     def real_space_energy(self):
+        """
+        The real space space energy.
+        """
         return sum(sum(self._real))
 
     @property
     def real_space_energy_matrix(self):
+        """
+        The real space energy matrix. Each matrix element (i, j) corresponds to
+        the interaction energy between site i and site j in real space.
+        """
         return self._real
 
     @property
     def point_energy(self):
+        """
+        The point energy.
+        """
         return sum(self._point)
 
     @property
     def point_energy_matrix(self):
+        """
+        The point space matrix. A diagonal matrix with the point terms for each
+        site in the diagonal elements.
+        """
         return self._point
 
     @property
     def total_energy(self):
+        """
+        The total energy.
+        """
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point)
 
     @property
     def total_energy_matrix(self):
+        """
+        The total energy matrix. Each matrix element (i, j) corresponds to the
+        total interaction energy between site i and site j.
+        """
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
             totalenergy[i, i] += self._point[i]
@@ -149,6 +178,9 @@ class EwaldSummation(object):
 
     @property
     def forces(self):
+        """
+        The forces on each site as a Nx3 matrix. Each row corresponds to a site.
+        """
         return self._forces
 
     def _calc_recip(self):
@@ -194,7 +226,7 @@ class EwaldSummation(object):
                     sina = sin(exparg)
                     sfactor[i, j] = qi * qj * (cosa + sina)
                     """
-                    Uses the property that when sitei and sitej are switched,
+                    Uses the property that when site i and site j are switched,
                     exparg' == - exparg. This implies 
                     cos (exparg') = cos (exparg) and
                     sin (exparg') = - sin (exparg)
@@ -278,12 +310,13 @@ class EwaldMinimizer:
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
-    ALGO_TIME_LIMIT = 3
 
     '''
-    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing accuracy) as the 
-    minimizer runs. Attempts to limit the run time to approximately 30 minutes
+    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
+    accuracy) as the minimizer runs. Attempts to limit the run time to
+    approximately 30 minutes.
     '''
+    ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
         '''
