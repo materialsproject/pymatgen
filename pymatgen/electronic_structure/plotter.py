@@ -616,7 +616,29 @@ class BSPlotterProjected(BSPlotter):
             bs:
                 A BandStructureSymmLine object with projections.
         """
-        BSPlotter.__init__(bs)
+        BSPlotter.__init__(self, bs)
+        
     
-    def get_elt_projected_plots(self):
-        print self._bs.get_projection_on_elements()
+    def get_elt_projected_plots(self, zero_to_efermi=True):
+        proj=self._bs.get_projection_on_elements()
+        data=self.bs_plot_data(zero_to_efermi)
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8)
+        count=1
+        for el in self._bs._structure.composition.elements:
+            plt.subplot(220+count)
+            for i in range(self._nb_bands):
+                bar=[]
+                for j in range(len(proj[Spin.up][i])):
+                    if j%2 == 0:
+                        bar.append(proj[Spin.up][i][j][str(el)])
+                    else:
+                        bar.append(0.0)
+                plt.errorbar(data['distances'],
+                                 [e for e in data['energy'][str(Spin.up)][i]],yerr=bar,fmt='b-')
+            plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
+            plt.title(str(el))
+            count=count+1
+        plt.show()
+        
+        

@@ -1641,6 +1641,8 @@ class Vasprun(object):
         vasp_input['incar'] = {k:v for k, v in self.incar.items()}
         vasp_input['crystal'] = self.initial_structure.to_dict
         vasp_input['kpoints'] = self.kpoints.to_dict
+        #this line is to prevent to break clean_json as it does not handle tuples
+        vasp_input['kpoints']['usershift'] = "("+str(self.kpoints.to_dict['usershift'][0])+","+str(self.kpoints.to_dict['usershift'][1])+","+str(self.kpoints.to_dict['usershift'][2])+")"
         vasp_input['kpoints']['actual_points'] = [{'abc':list(self.actual_kpoints[i]), 'weight':self.actual_kpoints_weights[i]} for i in xrange(len(self.actual_kpoints))]
         vasp_input['potcar'] = [s.split(" ")[1] for s in self.potcar_symbols]
         vasp_input['parameters'] = {k:v for k, v in self.parameters.items()}
