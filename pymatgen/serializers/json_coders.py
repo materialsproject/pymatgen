@@ -108,7 +108,6 @@ class PMGJSONEncoder(json.JSONEncoder):
         except:
             return json.JSONEncoder.default(self, o)
 
-
 class PMGJSONDecoder(json.JSONDecoder):
     """
     A Pymatgen Json Decoder which supports the from_dict API. By default, the

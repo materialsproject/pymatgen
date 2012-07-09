@@ -97,17 +97,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
             parameters:
                 Input parameters to include. It has to be one of the properties
                 supported by the Vasprun object. See pymatgen.io.vaspio Vasprun.
-                The parameters have to be one of python's primitive types,
-                i.e. list, dict of strings and integers. Complex objects such as
-                dos are not supported at this point.
                 If parameters == None, a default set of parameters that are 
                 necessary for typical post-processing will be set.
             data:
                 Output data to include. Has to be one of the properties
-                supported by the Vasprun object. The parameters have to be one
-                of python's primitive types, i.e. list, dict of strings and
-                integers. Complex objects such as dos are not supported at this
-                point. e.g., ['filename']
+                supported by the Vasprun object.
         """
         self._inc_structure = inc_structure
         self._parameters = set(["is_hubbard", "hubbards", "potcar_symbols",
