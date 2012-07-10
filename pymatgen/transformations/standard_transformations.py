@@ -1266,6 +1266,9 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                     logger.debug("Adding structure = {}".format(new_structure))
                     new_structures.append(new_structure)
 
+                    if len(ordered_sites) == 0:
+                        break
+
             logger.debug("Number of structures = {}".format(len(new_structures)))
 
             fitter = SymmetryFitter(new_structures, sg)
