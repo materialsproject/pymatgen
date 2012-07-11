@@ -20,6 +20,7 @@ import itertools
 import numpy as np
 from operator import itemgetter
 import logging
+from collections import defaultdict
 
 from pymatgen.core.periodic_table import DummySpecie, smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -1113,7 +1114,8 @@ class SymmOrderStructureTransformation(AbstractTransformation):
         target_comp = symmetrized_structure.composition
 
         #Store the original groupings.
-        self.original_groups = symmetrized_structure.equivalent_sites
+        self.original_groups = defaultdict(list)
+
         logger.debug("Original structure has symmetry {}".format(finder.get_spacegroup_symbol()))
 
         #We only need to order the sites that are disordered. The rest can be
@@ -1134,6 +1136,9 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                     sites_to_order.append(PeriodicSite(newsp, site.frac_coords,
                                                        site.lattice,
                                                        properties=site.properties))
+                self.original_groups[sites[0].species_string].extend(sites)
+
+        self.original_groups = tuple(self.original_groups.values())
 
         #Create a new structure from the disordered sites only.
         disordered_structure = Structure.from_sites(sites_to_order)
@@ -1266,9 +1271,6 @@ class SymmOrderStructureTransformation(AbstractTransformation):
                     logger.debug("Adding structure = {}".format(new_structure))
                     new_structures.append(new_structure)
 
-                    if len(ordered_sites) == 0:
-                        break
-
             logger.debug("Number of structures = {}".format(len(new_structures)))
 
             fitter = SymmetryFitter(new_structures, sg)
@@ -1277,7 +1279,7 @@ class SymmOrderStructureTransformation(AbstractTransformation):
             all_structures = new_structures
 
         #As a final post-processing, we remove all the X species we added, and
-        #also sort the structures and determined the final spacegroup info.
+        #also sort the structures and determine the final spacegroup info.
         self._all_structures = []
         for structure in all_structures:
             sites = [site for site in structure if site.specie.symbol != "X"]
@@ -1337,3 +1339,5 @@ class SymmOrderStructureTransformation(AbstractTransformation):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
+
+

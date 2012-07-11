@@ -15,13 +15,8 @@ __date__ = "Jul 5, 2012"
 
 import itertools
 import logging
-import re
-
-import numpy as np
 
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
-
-import pyspglib._spglib as spg
 
 logger = logging.getLogger(__name__)
 
@@ -91,5 +86,4 @@ class SymmetryFitter(object):
             subgroups.append(subgroup)
         logger.debug("{} subgroups".format(len(subgroups)))
         return subgroups
-
 

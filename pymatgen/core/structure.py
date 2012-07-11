@@ -360,11 +360,13 @@ class PeriodicSite(Site, MSONable):
         return PeriodicSite(self._species, fcoords, self._lattice,
                             properties=self._properties)
 
-    def is_periodic_image(self, other, tolerance=1e-8):
+    def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
         Returns True if sites are periodic images of each other.
         """
-        if self.lattice != other.lattice:
+        if check_lattice and self.lattice != other.lattice:
+            return False
+        if self.species_and_occu != other.species_and_occu:
             return False
         frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
         frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance \
