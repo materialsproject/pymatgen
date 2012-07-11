@@ -1693,8 +1693,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         num_el = len(syms)
         contains_polyanion = False
         if num_el >= 3:
-            contains_polyanion = (Element(syms[num_el - 1]).X - \
-                                  Element(syms[num_el - 2]).X < 1.65)
+            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X - \
+                                  smart_element_or_specie(syms[num_el - 2]).X < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
         reduced_form = ''
