@@ -25,6 +25,12 @@ from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase diagrams.
+    
+    .. attribute:: name
+        
+        A name for the entry. This is the string shown in the phase diagrams.
+        By default, this is the reduced formula for the composition, but can be
+        set to some other string for display purposes. 
     """
 
     def __init__(self, composition, energy, name=None):
@@ -40,7 +46,7 @@ class PDEntry(MSONable):
         """
         self._energy = energy
         self._composition = composition
-        self._name = name if name else composition.reduced_formula
+        self.name = name if name else composition.reduced_formula
 
     @property
     def energy(self):
@@ -57,13 +63,6 @@ class PDEntry(MSONable):
         return self.energy / self.composition.num_atoms
 
     @property
-    def name(self):
-        """
-        Returns the name for an entry.
-        """
-        return self._name
-
-    @property
     def composition(self):
         """
         Returns the composition.
@@ -78,10 +77,11 @@ class PDEntry(MSONable):
         return self._composition.is_element
 
     def __repr__(self):
-        return "PDEntry with composition %s, energy = %.4f" % (self.composition.__str__(), self.energy)
+        return "PDEntry : {} with energy = {:.4f}".format(self.composition,
+                                                          self.energy)
 
     def __str__(self):
-        return "PDEntry : " + self.composition.__str__()
+        return self.__repr__()
 
     @property
     def to_dict(self):
@@ -90,7 +90,7 @@ class PDEntry(MSONable):
         d['class'] = self.__class__.__name__
         d['composition'] = self._composition.to_dict
         d['energy'] = self._energy
-        d['name'] = self._name
+        d['name'] = self.name
         return d
 
     @staticmethod
@@ -113,7 +113,7 @@ class GrandPotPDEntry(PDEntry):
                 Chemical potential specification as {Element: float}.
             name:
                 Optional parameter to name the entry. Defaults to the reduced
-                chemical formula.
+                chemical formula of the original entry.
         """
         comp = entry.composition
         self._original_entry = entry
@@ -126,6 +126,7 @@ class GrandPotPDEntry(PDEntry):
                 new_comp_map[el] = comp[el]
         newcomposition = Composition(new_comp_map)
         super(GrandPotPDEntry, self).__init__(newcomposition, grandpot, entry.name)
+        self.name = name if name else entry.name
 
     @property
     def original_entry(self):
@@ -133,13 +134,6 @@ class GrandPotPDEntry(PDEntry):
         Original entry.
         '''
         return self._original_entry
-
-    @property
-    def name(self):
-        """
-        Returns the name for an entry.
-        """
-        return self._original_comp.reduced_formula
 
     @property
     def is_element(self):
@@ -161,7 +155,7 @@ class GrandPotPDEntry(PDEntry):
         d['class'] = self.__class__.__name__
         d['entry'] = self._original_entry.to_dict
         d['chempots'] = {el.symbol: u for el, u in self.chempots.items()}
-        d['name'] = self._name
+        d['name'] = self.name
         return d
 
     @staticmethod
@@ -251,7 +245,7 @@ class TransformedPDEntry(PDEntry):
         """
         super(TransformedPDEntry, self).__init__(comp, energy)
         self._original_entry = original_entry
-        self._name = self._original_entry.composition.reduced_formula
+        self.name = original_entry.name
 
     @property
     def original_entry(self):
