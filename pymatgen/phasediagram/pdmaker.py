@@ -373,6 +373,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "\n".join(output)
 
 
+from pymatgen.analysis.reaction_calculator import ReactionError
+
 class CompoundPhaseDiagram(PhaseDiagram):
     """
     Generates phase diagrams from compounds as terminations instead of elements.
@@ -387,18 +389,18 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def transform_entries(self, entries, terminal_compositions):
         newentries = []
         #Map terminal compositions to unique dummy species.
-        dummy_mapping = {comp: DummySpecie('X' + chr(65 + i)) for i, comp in enumerate(terminal_compositions)}
+        dummy_mapping = {comp: DummySpecie('X' + chr(102 + i)) for i, comp in enumerate(terminal_compositions)}
         for entry in entries:
             try:
                 rxn = Reaction(terminal_compositions, [entry.composition])
                 rxn.normalize_to(entry.composition)
-                if all([rxn.get_coeff(comp) <= 0 for comp in terminal_compositions]):
+                if all([rxn.get_coeff(comp) <= 1e-5 for comp in terminal_compositions]):
                     newcomp = {dummy_mapping[comp]:-rxn.get_coeff(comp) for comp in terminal_compositions}
                     newcomp = {k: v for k, v in newcomp.items() if v > 1e-5}
                     transformed_entry = TransformedPDEntry(Composition(newcomp),
                                                            entry.energy, entry)
                     newentries.append(transformed_entry)
-            except Exception as ex:
+            except ReactionError as ex:
                 pass
         return newentries
 
