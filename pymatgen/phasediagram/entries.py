@@ -45,8 +45,8 @@ class PDEntry(MSONable):
                 chemical formula.
         """
         self._energy = energy
-        self._composition = composition
-        self.name = name if name else composition.reduced_formula
+        self._composition = Composition(composition)
+        self.name = name if name else self._composition.reduced_formula
 
     @property
     def energy(self):
@@ -241,21 +241,23 @@ class PDEntryIO(object):
 
 class TransformedPDEntry(PDEntry):
     """
-    Beta object for transforming a PDEntry to a different composition coordinate
-    space. Experimental - may be removed in future releases.
+    This class repesents a TransformedPDEntry, which allows for a PDEntry to be
+    transformed to a different composition coordinate space. It is used in the
+    construction of phase diagrams that do not have elements as the terminal
+    compositions.
     """
 
-    def __init__(self, comp, energy, original_entry):
+    def __init__(self, comp, original_entry):
         """
         Args:
             comp:
-                Composition as a pymatgen.core.structure.Composition
+                Transformed composition as a pymatgen.core.structure.Composition
             energy:
                 Energy for composition.
             original_entry:
                 Original entry that this entry arose from.
         """
-        super(TransformedPDEntry, self).__init__(comp, energy)
+        PDEntry.__init__(self, comp, original_entry.energy)
         self._original_entry = original_entry
         self.name = original_entry.name
 
@@ -274,10 +276,24 @@ class TransformedPDEntry(PDEntry):
             return getattr(self._original_entry, a)
         raise AttributeError(a)
 
-
     def __repr__(self):
-        return "TransformedPDEntry {} with original composition {}, energy = {:.4f}".format(self.composition, self.original_entry.composition,
+        return "TransformedPDEntry {} with original composition {}, energy = {:.4f}".format(self.composition,
+                self.original_entry.composition,
                 self.original_entry.energy)
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['entry'] = self._original_entry.to_dict
+        d['composition'] = self.composition
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        entry = PMGJSONDecoder().process_decoded(d['entry'])
+        return TransformedPDEntry(d['composition'], entry)
