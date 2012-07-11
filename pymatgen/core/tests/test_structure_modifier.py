@@ -29,7 +29,6 @@ class StructureEditorTest(unittest.TestCase):
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
         #self.modifier = StructureEditor(mol)
 
-
     def test_translate_sites(self):
         self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5], frac_coords=True)
         self.assertTrue(np.array_equal(self.modifier.modified_structure.frac_coords[0], np.array([ 0.5, 0.5, 0.5])))

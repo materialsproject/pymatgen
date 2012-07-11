@@ -175,18 +175,20 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90.0, 90.0, 120.0)
 
     @staticmethod
-    def rhombohedral(a):
+    def rhombohedral(a, alpha):
         """
         Convenience constructor for a rhombohedral lattice.
         
         Args:
             a:
                 The *a* lattice parameter of the rhombohedral cell.
+            alpha:
+                Angle for the rhombohedral lattice.
             
         Returns:
             Rhombohedral lattice of dimensions a x a x a.
         """
-        return Lattice.from_parameters(a, a, a, 60.0, 60.0, 60.0)
+        return Lattice.from_parameters(a, a, a, alpha, alpha, alpha)
 
     @staticmethod
     def from_lengths_and_angles(abc, ang):
