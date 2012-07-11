@@ -405,7 +405,8 @@ def get_comp_matrix(entries, elements, normalize_row=True):
     Helper function to generates a normalized composition matrix from a list of 
     composition.
     """
-    return get_comp_matrix_from_comp([entry.composition for entry in entries], elements, normalize_row)
+    return get_comp_matrix_from_comp([entry.composition for entry in entries],
+                                     elements, normalize_row)
 
 
 def is_coplanar(entries, elements):
@@ -453,7 +454,8 @@ def get_entries_within_compositional_space(entries, terminal_compositions):
     for entry in entries:
         try:
             rxn = Reaction(terminal_compositions, [entry.composition])
-            newentries.append(entry)
+            if all([rxn.get_coeff(comp) <= 0 for comp in terminal_compositions]):
+                newentries.append(entry)
         except:
             pass
     return newentries
