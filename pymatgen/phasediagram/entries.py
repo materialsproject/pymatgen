@@ -174,6 +174,7 @@ class GrandPotPDEntry(PDEntry):
             return getattr(self._original_entry, a)
         raise AttributeError(a)
 
+
 class PDEntryIO(object):
     """
     Utility class to export and import PDEntry to and from csv files, as well
@@ -197,7 +198,8 @@ class PDEntryIO(object):
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, 'wb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(open(filename, 'wb'), delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Name'] + elements + ['Energy'])
         for entry in entries:
             row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
@@ -217,7 +219,8 @@ class PDEntryIO(object):
             List of PDEntries
         """
         import csv
-        reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        reader = csv.reader(open(filename, 'rb'), delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
         entries = list()
         header_read = False
         for row in reader:
@@ -270,3 +273,11 @@ class TransformedPDEntry(PDEntry):
         if hasattr(self._original_entry, a):
             return getattr(self._original_entry, a)
         raise AttributeError(a)
+
+
+    def __repr__(self):
+        return "TransformedPDEntry {} with original composition {}, energy = {:.4f}".format(self.composition, self.original_entry.composition,
+                self.original_entry.energy)
+
+    def __str__(self):
+        return self.__repr__()
