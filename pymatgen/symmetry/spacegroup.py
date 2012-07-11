@@ -21,6 +21,7 @@ import numpy as np
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import PeriodicSite
 
+
 class Spacegroup(object):
     """
     Represents a space group, which is a collection of symmetry operations
@@ -64,8 +65,7 @@ class Spacegroup(object):
         """
         def in_sites(site):
             for test_site in sites1:
-                if test_site.species_and_occu == site.species_and_occu and\
-                            test_site.is_periodic_image(site, symprec):
+                if test_site.is_periodic_image(site, symprec, False):
                     return True
             return False
         for op in self._symmops:

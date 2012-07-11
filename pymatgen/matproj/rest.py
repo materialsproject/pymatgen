@@ -41,7 +41,7 @@ class MPRester(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key, host="www.materialsproject.org/"):
+    def __init__(self, api_key, host="www.materialsproject.org"):
         """
         Args:
             api_key:
@@ -78,7 +78,7 @@ class MPRester(object):
                 general list of useful properties.
         """
         headers = {"x-api-key": self.api_key}
-        conn = httplib.HTTPConnection(self.host)
+        conn = httplib.HTTPSConnection(self.host)
         url = "/rest/{}/{}/{}".format(chemsys_formula_id, data_type, prop)
         try:
             conn.request("GET", url, headers=headers)
@@ -235,7 +235,7 @@ class MPRester(object):
         params = urllib.urlencode({'criteria': criteria,
                                    'properties': properties})
         headers = {"x-api-key": self.api_key}
-        conn = httplib.HTTPConnection(self.host)
+        conn = httplib.HTTPSConnection(self.host)
         conn.request("POST", "/rest/mpquery", body=params, headers=headers)
         response = conn.getresponse()
         data = json.loads(response.read(), cls=PMGJSONDecoder)

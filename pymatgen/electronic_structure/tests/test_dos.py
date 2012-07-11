@@ -13,21 +13,23 @@ class DosTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
-            self.dos = Dos.from_dict(json.load(f))
+            self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
-        self.assertAlmostEqual(self.dos.get_gap(), 2.0589, 4)
-        self.assertEqual(len(self.dos.energies), 301)
-        self.assertAlmostEqual(self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0], 2.16815942458015, 7)
-        self.assertAlmostEqual(self.dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        dos = self.dos
+        self.assertAlmostEqual(dos.get_gap(), 2.0589, 4)
+        self.assertEqual(len(dos.energies), 301)
+        self.assertAlmostEqual(dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0], 2.16815942458015, 7)
+        self.assertAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
-        self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.up], 1.744588888888891, 7)
-        self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
-        self.assertRaises(ValueError, self.dos.get_interpolated_value, 1000)
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[Spin.up], 1.744588888888891, 7)
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
+        self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
     def test_get_smeared_densities(self):
-        smeared = self.dos.get_smeared_densities(0.2)
-        dens = self.dos.densities
+        dos = self.dos
+        smeared = dos.get_smeared_densities(0.2)
+        dens = dos.densities
         for spin in Spin.all_spins:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
@@ -39,33 +41,51 @@ class CompleteDosTest(unittest.TestCase):
             self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
-        self.assertAlmostEqual(self.dos.get_gap(), 2.0589, 4, "Wrong gap from dos!")
-        self.assertEqual(len(self.dos.energies), 301)
-        self.assertAlmostEqual(self.dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0], 2.16815942458015, 7)
-        spd_dos = self.dos.get_spd_dos()
+        dos = self.dos
+        self.assertAlmostEqual(dos.get_gap(), 2.0589, 4, "Wrong gap from dos!")
+        self.assertEqual(len(dos.energies), 301)
+        self.assertAlmostEqual(dos.get_interpolated_gap(tol=0.001, abs_tol=False, spin=None)[0], 2.16815942458015, 7)
+        spd_dos = dos.get_spd_dos()
         self.assertEqual(len(spd_dos), 3)
-        el_dos = self.dos.get_element_dos()
+        el_dos = dos.get_element_dos()
         self.assertEqual(len(el_dos), 4)
         sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
         sum_element = None
-        for dos in el_dos.values():
+        for pdos in el_dos.values():
             if sum_element == None:
-                sum_element = dos
+                sum_element = pdos
             else:
-                sum_element += dos
+                sum_element += pdos
 
         #The sums of the SPD or the element doses should be the same.
         self.assertTrue((abs(sum_spd.energies - sum_element.energies) < 0.0001).all())
         self.assertTrue((abs(sum_spd.densities[Spin.up] - sum_element.densities[Spin.up]) < 0.0001).all())
         self.assertTrue((abs(sum_spd.densities[Spin.down] - sum_element.densities[Spin.down]) < 0.0001).all())
 
-        self.assertIsNotNone(self.dos.get_site_dos(self.dos.structure[0]))
-        self.assertIsNotNone(self.dos.get_site_orbital_dos(self.dos.structure[0], Orbital.s))
-        self.assertAlmostEqual(self.dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
+        self.assertIsNotNone(dos.get_site_dos(dos.structure[0]))
+        self.assertIsNotNone(dos.get_site_orbital_dos(dos.structure[0], Orbital.s))
+        self.assertAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
-        self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.up], 1.744588888888891, 7)
-        self.assertAlmostEqual(self.dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
-        self.assertRaises(ValueError, self.dos.get_interpolated_value, 1000)
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[Spin.up], 1.744588888888891, 7)
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[Spin.down], 1.756888888888886, 7)
+        self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
+
+    def test_to_from_dict(self):
+        d = self.dos.to_dict
+        dos = CompleteDos.from_dict(d)
+        el_dos = dos.get_element_dos()
+        self.assertEqual(len(el_dos), 4)
+        spd_dos = dos.get_spd_dos()
+        sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
+        sum_element = None
+        for pdos in el_dos.values():
+            if sum_element == None:
+                sum_element = pdos
+            else:
+                sum_element += pdos
+
+        #The sums of the SPD or the element doses should be the same.
+        self.assertTrue((abs(sum_spd.energies - sum_element.energies) < 0.0001).all())
 
 
 if __name__ == '__main__':

@@ -54,7 +54,7 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 timeout=600, symmetry_tol=0):
+                 timeout=300, symmetry_tol=0):
         """
         Fits two structures. All fitting parameters have been set with defaults
         that should work in most cases.
@@ -81,7 +81,9 @@ class StructureFitter(object):
                 EXTREME_FIT to set the tradeoff between accuracy and speed. The
                 default FAST_FIT should work reasonably well in most instances.
             timeout:
-                Time out in seconds. Defaults to 10mins.
+                Time out in seconds for generating and testing rotations. Note
+                that the same timeout will apply to generating and testing
+                separately. Defaults to 5 mins, which means a total of 10 mins.
             symmetry_tol:
                 If > 0, symmetry checking is performed on the two structures
                 based on that symmetry tolerance in angstrom. Structures with
@@ -201,6 +203,9 @@ class StructureFitter(object):
         if not found_map:
             #Get candidate rotations
             cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
+
+            #Reset the clock.
+            self._start_time = time.time()
 
             logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
             if len(cand_rot) == 0:

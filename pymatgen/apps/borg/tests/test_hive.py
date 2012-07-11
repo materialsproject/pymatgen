@@ -16,7 +16,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, GaussianToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MITCompatibility
 import pymatgen
@@ -52,6 +52,41 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         d = self.structure_drone.to_dict
         drone = VaspToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), VaspToComputedEntryDrone)
+
+
+class GaussianToComputedEntryDroneTest(unittest.TestCase):
+
+    def setUp(self):
+        self.drone = GaussianToComputedEntryDrone(data=["corrections"])
+        self.structure_drone = GaussianToComputedEntryDrone(True)
+
+    def test_get_valid_paths(self):
+        for path in os.walk(test_dir):
+            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+
+
+    def test_assimilate(self):
+        test_file = os.path.join(test_dir, "methane.log")
+        entry = self.drone.assimilate(test_file)
+        for p in ["functional", "basis_set", "charge", "spin_mult", 'route']:
+            self.assertIn(p, entry.parameters)
+        for p in ["corrections"]:
+            self.assertIn(p, entry.data)
+
+        self.assertEqual(entry.composition.reduced_formula, "H4C")
+        self.assertAlmostEqual(entry.energy, -39.9768775602)
+        entry = self.structure_drone.assimilate(test_file)
+        self.assertEqual(entry.composition.reduced_formula, "H4C")
+        self.assertAlmostEqual(entry.energy, -39.9768775602)
+        self.assertIsInstance(entry, ComputedStructureEntry)
+        self.assertIsNotNone(entry.structure)
+        for p in ["properly_terminated", "stationary_type"]:
+            self.assertIn(p, entry.data)
+
+    def test_to_from_dict(self):
+        d = self.structure_drone.to_dict
+        drone = GaussianToComputedEntryDrone.from_dict(d)
+        self.assertEqual(type(drone), GaussianToComputedEntryDrone)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -5,6 +5,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.phasediagram.entries import PDEntryIO
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
 
+
 class PhaseDiagramTest(unittest.TestCase):
 
     def setUp(self):
@@ -26,6 +27,7 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 

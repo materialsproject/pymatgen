@@ -357,13 +357,16 @@ class PeriodicSite(Site, MSONable):
         Copy of PeriodicSite translated to the unit cell.
         """
         fcoords = [i - math.floor(i) for i in self._fcoords]
-        return PeriodicSite(self._species, fcoords, self._lattice)
+        return PeriodicSite(self._species, fcoords, self._lattice,
+                            properties=self._properties)
 
-    def is_periodic_image(self, other, tolerance=1e-8):
+    def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
         Returns True if sites are periodic images of each other.
         """
-        if self.lattice != other.lattice:
+        if check_lattice and self.lattice != other.lattice:
+            return False
+        if self.species_and_occu != other.species_and_occu:
             return False
         frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
         frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance \
@@ -829,6 +832,29 @@ class Structure(SiteCollection, MSONable):
 
         self._sites = tuple(self._sites)
 
+    @staticmethod
+    def from_sites(sites):
+        """
+        Convenience static constructor to make a Structure from a list of sites.
+        
+        Args:
+            sites:
+                Sequence of PeriodicSites. The sites must have the same lattice.
+        """
+        props = collections.defaultdict(list)
+        lattice = None
+        for site in sites:
+            if not lattice:
+                lattice = site.lattice
+            elif site.lattice != lattice:
+                raise ValueError("Sites must belong to the same lattice")
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return Structure(lattice,
+                         [site.species_and_occu for site in sites],
+                         [site.frac_coords for site in sites],
+                         site_properties=props)
+
     @property
     def sites(self):
         """
@@ -850,6 +876,17 @@ class Structure(SiteCollection, MSONable):
         '''
         constant = 1.660468
         return self.composition.weight / self.volume * constant
+
+    @property
+    def site_properties(self):
+        """
+        Returns site properties as a dict of {property: [values]}.
+        """
+        props = collections.defaultdict(list)
+        for site in self._sites:
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return props
 
     def __eq__(self, other):
         if other == None:
@@ -1084,10 +1121,28 @@ class Structure(SiteCollection, MSONable):
         Get a sorted copy of the structure.
         Sites are sorted by the electronegativity of the species.
         """
-        sortedsites = sorted(self.sites)
+        sites = sorted(self.sites)
+        return Structure.from_sites(sites)
+
+    def copy(self, site_properties=None):
+        """
+        Convenience method to get a copy of the structure, with options to add
+        site properties.
+        
+        Args:
+            site_properties:
+                Properties to add or override. The properties are specified in
+                the same way as the constructor, i.e., as a dict of the form
+                {property: [values]}.
+        """
+        sites = self.sites
+        props = self.site_properties
+        if site_properties:
+            props.update(site_properties)
         return Structure(self._lattice,
-                         [site.species_and_occu for site in sortedsites],
-                         [site.frac_coords for site in sortedsites])
+                         [site.species_and_occu for site in sites],
+                         [site.frac_coords for site in sites],
+                         site_properties=props)
 
     def interpolate(self, end_structure, nimages=10):
         '''
@@ -1122,11 +1177,12 @@ class Structure(SiteCollection, MSONable):
         end_coords = np.array(end_structure.frac_coords)
 
         vec = end_coords - start_coords #+ jimage
-        intStructs = [Structure(self.lattice,
+        structs = [Structure(self.lattice,
                                 [site.species_and_occu for site in self._sites],
-                                start_coords + float(x) / float(nimages) * vec)\
+                                start_coords + float(x) / float(nimages) * vec,
+                                site_properties=self.site_properties) \
                                 for x in range(0, nimages + 1)]
-        return intStructs
+        return structs
 
     def __repr__(self):
         outs = []
@@ -1182,21 +1238,8 @@ class Structure(SiteCollection, MSONable):
             Structure object
         """
         lattice = Lattice.from_dict(d['lattice'])
-        species = []
-        coords = []
-        props = {}
-
-        for site_dict in d['sites']:
-            site = PeriodicSite.from_dict(site_dict, lattice)
-            species.append(site.species_and_occu)
-            coords.append(site.frac_coords)
-            siteprops = site.properties
-            for k, v in siteprops.items():
-                if k not in props:
-                    props[k] = [v]
-                else:
-                    props[k].append(v)
-        return Structure(lattice, species, coords, site_properties=props)
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d['sites']]
+        return Structure.from_sites(sites)
 
 
 class Molecule(SiteCollection, MSONable):
@@ -1604,7 +1647,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         '''
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -1644,7 +1687,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             return (re.sub("\s", "", self.formula), 1)
 
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
 
         syms = filter(lambda s: sym_amt[s] != 0, syms)
         num_el = len(syms)

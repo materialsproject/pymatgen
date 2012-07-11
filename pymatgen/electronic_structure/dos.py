@@ -377,7 +377,8 @@ class CompleteDos(Dos):
                     el_dos[el] = pdos
                 else:
                     el_dos[el] = add_densities(el_dos[el], pdos)
-        return {el:Dos(self._efermi, self._energies, densities) for el, densities in el_dos.items()}
+        return {el:Dos(self._efermi, self._energies, densities) for el,
+                densities in el_dos.items()}
 
     @staticmethod
     def from_dict(d):
@@ -392,7 +393,8 @@ class CompleteDos(Dos):
             orb_dos = {}
             for orb_str, odos in d['pdos'][i].items():
                 orb = Orbital.from_string(orb_str)
-                orb_dos[orb] = {Spin.from_int(int(k)):v for k, v in odos['densities'].items()}
+                orb_dos[orb] = {Spin.from_int(int(k)):v for k,
+                                v in odos['densities'].items()}
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)
 
@@ -412,10 +414,10 @@ class CompleteDos(Dos):
         d['pdos'] = []
         if len(self._pdos) > 0:
             for at in self._structure:
-                dd = dict()
-                for pdos in self._pdos[at].values():
-                    dd[str(pdos.orbital)] = {'densities' : {str(int(spin)): list(dens) for spin,
-                                                            dens in pdos.densities.items() }}
+                dd = {}
+                for orb, pdos in self._pdos[at].items():
+                    dd[str(orb)] = {'densities' : {str(int(spin)): list(dens) for spin,
+                                                            dens in pdos.items() }}
                 d['pdos'].append(dd)
             d['atom_dos'] = {str(at): dos.to_dict for at,
                              dos in self.get_element_dos().items()}

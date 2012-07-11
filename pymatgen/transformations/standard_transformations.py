@@ -19,15 +19,19 @@ __date__ = "Sep 23, 2011"
 import itertools
 import numpy as np
 from operator import itemgetter
+import logging
+from collections import defaultdict
 
+from pymatgen.core.periodic_table import DummySpecie, smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
-from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
+
+logger = logging.getLogger(__name__)
 
 
 class IdentityTransformation(AbstractTransformation):
@@ -585,9 +589,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     m_list.append(manipulation)
 
         structure = se.modified_structure
-
         matrix = EwaldSummation(structure).total_energy_matrix
-
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
 
         self._all_structures = []
@@ -605,7 +607,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+            self._all_structures.append({'energy':output[0],
+                'energy_above_minimum':(output[0] - lowest_energy) / num_atoms,
+                'structure': se.modified_structure.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures
@@ -745,12 +749,36 @@ class PrimitiveCellTransformation(AbstractTransformation):
         else: #if there were no translational symmetry vectors
             return structure
 
+    def _buergers_cell(self, structure):
+        '''
+        Takes a primitive cell and returns the buergers cell
+        '''
+        matrix = structure.lattice.matrix
+        finished = False
+        while not finished:
+            finished = True
+            for i, j in itertools.permutations(range(3), 2):
+                oldnorm = np.linalg.norm(matrix[i])
+                newnorm = np.linalg.norm(matrix[i] + matrix[j])
+                if newnorm < oldnorm:
+                    matrix[i] += matrix[j]
+                    finished = False
+                newnorm = np.linalg.norm(matrix[i] - matrix[j])
+                if newnorm < oldnorm:
+                    matrix[i] -= matrix[j]
+                    finished = False
+        new_lattice = Lattice(matrix)
+
+        new_structure = Structure(new_lattice, structure.species_and_occu,
+                                      structure.cart_coords, coords_are_cartesian=True)
+        return new_structure
+
     def apply_transformation(self, structure):
         structure2 = self._get_more_primitive_structure(structure, self._tolerance)
         while len(structure2) < len(structure):
             structure = structure2
             structure2 = self._get_more_primitive_structure(structure, self._tolerance)
-        return structure2
+        return self._buergers_cell(structure2)
 
     def __str__(self):
         return "Primitive cell transformation"
@@ -822,13 +850,14 @@ class ChargeBalanceTransformation(AbstractTransformation):
         d['class'] = self.__class__.__name__
         return d
 
+
 class PerturbStructureTransformation(AbstractTransformation):
     """
     This transformation perturbs a structure by a specified distance in random
     directions. Used for breaking symmetries.
     """
 
-    def __init__(self, amplitude=0.1):
+    def __init__(self, amplitude=0.01):
         """
         Args:
             amplitude:
@@ -1006,6 +1035,307 @@ class MultipleSubstitutionTransformation(object):
                                'r_fraction' : self._r_fraction,
                                'substitution_dict' : self._substitution_dict,
                                'charge_balance_species' : self._charge_balance_species}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+
+class SymmOrderStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure using symmetry. For complete orderings, this
+    generally produces fewer structures that the OrderDisorderedStructure
+    transformation, and at a much faster speed.
+    
+    .. note:: Early alpha, and not completely tested.
+    """
+
+    composition_tol = 0.01
+
+    def __init__(self, symm_prec=0.1):
+        '''
+        Args:
+            symm_prec:
+                Tolerance to use for symmetry
+        '''
+        self.symm_prec = symm_prec
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Return either a single ordered structure or a sequence of all ordered
+        structures.
+        
+        Args:
+            structure:
+                Structure to order. The disorder in the structure must
+                correspond to integer occupations within a certain tolerance.
+                Otherwise, the code will abort. TODO: Add auto-scaling of
+                compositions to reasonable limits.
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. This transformation is
+            parsed by the alchemy classes for generating a more specific
+            transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+            
+            The list of ordered structures is ranked by symmetry, with highest
+            symmetry structure (with the highest international number) ranked
+            first.
+        """
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+
+        if not self.is_good_structure(structure):
+            raise ValueError("Structure must have occupancies which can be resolved to integer occupancies.")
+
+        tol = SymmOrderStructureTransformation.composition_tol
+        num_to_return = max(1, num_to_return)
+
+        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+        from pymatgen.analysis.symmetry_fitter import SymmetryFitter
+
+        #Start with determining the symmetry of the input structure, and
+        #obtaining the sites divided into symmetrically equivalent groups.
+        finder = SymmetryFinder(structure, self.symm_prec)
+        sg = finder.get_spacegroup()
+        symmetrized_structure = finder.get_symmetrized_structure()
+
+        #Use the original composition as a target composition
+        target_comp = symmetrized_structure.composition
+
+        #Store the original groupings.
+        self.original_groups = defaultdict(list)
+
+        logger.debug("Original structure has symmetry {}".format(finder.get_spacegroup_symbol()))
+
+        #We only need to order the sites that are disordered. The rest can be
+        #treated as fixed. For disordered sites whose occupancy do not sum to 1,
+        #we add a dummy specie X to stand in for the vacancy. This allows us to
+        #more efficiently choose the species to order.
+        sites_to_order = []
+        original_ordered_sites = []
+        for sites in symmetrized_structure.equivalent_sites:
+            if sites[0].is_ordered:
+                original_ordered_sites.extend(sites)
+            else:
+                total_occu = sum(sites[0].species_and_occu.values())
+                newsp = sites[0].species_and_occu
+                if total_occu < 1 - 1e-5:
+                    newsp[DummySpecie('X')] = 1 - total_occu
+                for site in sites:
+                    sites_to_order.append(PeriodicSite(newsp, site.frac_coords,
+                                                       site.lattice,
+                                                       properties=site.properties))
+                self.original_groups[sites[0].species_string].extend(sites)
+
+        self.original_groups = tuple(self.original_groups.values())
+
+        #Create a new structure from the disordered sites only.
+        disordered_structure = Structure.from_sites(sites_to_order)
+        all_structures = [disordered_structure]
+
+        while not all([s.is_ordered for s in all_structures]):
+            #We stop only when all structures are ordered.
+
+            new_structures = []
+
+            for structure in all_structures:
+                #Now after ordering, the symmetry of the structure may have been
+                #reduced. We need to redo symmetry analysis.
+                finder = SymmetryFinder(structure, self.symm_prec)
+                symmetrized_structure = finder.get_symmetrized_structure()
+                logger.debug("Structure has symmetry {}".format(finder.get_spacegroup_symbol()))
+
+                sites_to_order = []
+                ordered_sites = []
+                for sites in symmetrized_structure.equivalent_sites:
+                    if not sites[0].is_ordered:
+                        sites_to_order.append(sites)
+                    else:
+                        ordered_sites.extend(sites)
+                logger.debug("Num sites to order = {}".format(len(sites_to_order)))
+
+                lattice = symmetrized_structure.lattice
+                for i, sites in enumerate(sites_to_order):
+                    #For each set of symmetrically equivalent sites, we select
+                    #a site. We set one of the occupancies to 1. 
+                    logger.debug("Num sites = {}".format(len(sites)))
+                    new_sites = [site for site in ordered_sites]
+                    selected = sites[0]
+                    sp_and_occu = selected.species_and_occu
+                    #Find the species with the lowest occupancy. This ensures
+                    #we find the most efficient selection. E.g., instead of
+                    #selecting 3/4 sites for a species with 0.75 occupancy, we
+                    #select only 1/4 sites for the complement species (typically
+                    #the vacancy) with 0.25 occupancy.
+                    sp = min(sp_and_occu.keys(), key=lambda s:sp_and_occu[s])
+                    logger.debug("Chosen species = {}".format(sp))
+
+                    ordered_sp_amt = 0
+                    for site in ordered_sites:
+                        ordered_sp_amt += site.species_and_occu.get(sp, 0)
+
+                    #If we are already at the target amount for the species,
+                    #we ignore the ordering and set it to the DummySpecie.
+                    #Otherwise, we set add a site with occu 1 for the species to
+                    #the new sites.
+                    if abs(ordered_sp_amt - target_comp[sp]) < tol:
+                        logger.debug("Too many Na. Rejecting")
+                        new_sites.append(PeriodicSite(DummySpecie("X"),
+                                                      selected.frac_coords,
+                                                  lattice,
+                                                  properties=selected.properties))
+
+                    else:
+                        new_sites.append(PeriodicSite(sp, selected.frac_coords,
+                                                  lattice,
+                                                  properties=selected.properties))
+
+                    #The selected site belongs to an original group of sites.
+                    #We now need to renormalize all sites in the group because
+                    #of the change in composition that has been ordered.
+                    group_number = self._find_group(selected)
+                    logger.debug("Group number = {}".format(group_number))
+                    num_in_group = len(sites)
+                    for j, other_sites in enumerate(sites_to_order):
+                        if i != j:
+                            if self._find_group(other_sites[0]) == group_number:
+                                num_in_group += len(other_sites)
+
+                    logger.debug("Num in group = {}".format(num_in_group))
+                    new_sp_and_occu = {}
+
+                    #Renormalize the occupancies of all species in the group
+                    for k, v in selected.species_and_occu.items():
+                        if k != sp:
+                            new_sp_and_occu[k] = v * num_in_group
+                        else:
+                            new_sp_and_occu[k] = v * num_in_group - 1
+
+                    logger.debug("Pre-normalized species = {}".format(new_sp_and_occu))
+
+                    #We get rid of species whose occupancy is going to be less
+                    #than unity.
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items()\
+                                       if v > 0.95}
+
+                    #We now have one less site in the group.
+                    new_sp_and_occu = {k: v / (num_in_group - 1)\
+                                       for k, v in new_sp_and_occu.items()}
+
+                    #We keep only species with occupancies > 0 (within a certain
+                    #tolerance)
+                    new_sp_and_occu = {k: v for k, v in new_sp_and_occu.items()\
+                                       if v > tol}
+
+                    total_occu = sum(new_sp_and_occu.values())
+
+                    #Sometimes, normalization results in total occu > 1. We need
+                    #to scale those back to 1.
+                    if total_occu > 1:
+                        new_sp_and_occu = {k: v / total_occu for k, v in\
+                                           new_sp_and_occu.items()}
+
+                    #For other sites in the same group, change to the
+                    #renomalized species.
+                    logger.debug("Renormalized species = {}".format(new_sp_and_occu))
+                    for other_site in sites:
+                        if other_site != selected and total_occu > tol:
+                            logger.debug("Add site {}...".format(sp))
+                            new_sites.append(PeriodicSite(new_sp_and_occu,
+                                            other_site.frac_coords, lattice,
+                                            properties=other_site.properties))
+
+                    for j, other_sites in enumerate(sites_to_order):
+                        if i != j:
+                            if self._find_group(other_sites[0]) != group_number:
+                                new_sites.extend(other_sites)
+                            elif total_occu > tol:
+                                for other_site in other_sites:
+                                    new_sites.append(PeriodicSite(new_sp_and_occu,
+                                            other_site.frac_coords, lattice,
+                                            properties=other_site.properties))
+
+                    #Create a new structure from the sites.
+                    new_structure = Structure.from_sites(new_sites)
+                    logger.debug("Adding structure = {}".format(new_structure))
+                    new_structures.append(new_structure)
+
+            logger.debug("Number of structures = {}".format(len(new_structures)))
+
+            fitter = SymmetryFitter(new_structures, sg)
+            new_structures = tuple(fitter.get_unique_structures())
+            logger.debug("Number of structures after filtering = {}".format(len(new_structures)))
+            all_structures = new_structures
+
+        #As a final post-processing, we remove all the X species we added, and
+        #also sort the structures and determine the final spacegroup info.
+        self._all_structures = []
+        for structure in all_structures:
+            sites = [site for site in structure if site.specie.symbol != "X"]
+            sites.extend(original_ordered_sites)
+            complete_structure = Structure.from_sites(sites).get_sorted_structure()
+            finder = SymmetryFinder(complete_structure, self.symm_prec)
+            sg = finder.get_spacegroup_symbol()
+            sgnum = finder.get_spacegroup_number()
+            self._all_structures.append({'structure': complete_structure,
+                                         'spacegroup': sg,
+                                         'number': sgnum})
+
+        #Sort structures by spacegroup number, in descending order.
+        self._all_structures = sorted(self._all_structures,
+                                      key=lambda s:-s['number'])
+
+        if return_ranked_list:
+            return self._all_structures[0:num_to_return]
+        else:
+            return self._all_structures[0]['structure']
+
+    def _find_group(self, site):
+        for (i, sites) in enumerate(self.original_groups):
+            for s in sites:
+                if s.distance(site) < self.symm_prec:
+                    return i
+
+    def is_good_structure(self, structure):
+        sites = structure.sites
+        sites = sorted(sites, key=lambda s:s.species_string)
+        for k, v in itertools.groupby(sites, key=lambda s:s.species_string):
+            subsites = tuple(v)
+            nsites = len(subsites)
+            for occu in subsites[0].species_and_occu.values():
+                if abs(occu * nsites - round(occu * nsites)) / nsites > SymmOrderStructureTransformation.composition_tol:
+                    return False
+        return True
+
+    def __str__(self):
+        return "SymmOrderStructureTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'symm_prec' : self.symm_prec}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
