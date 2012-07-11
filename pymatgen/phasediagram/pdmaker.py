@@ -14,10 +14,14 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import logging
+import itertools
 
 from pymatgen.core.structure import Composition
-from pymatgen.phasediagram.entries import GrandPotPDEntry
+from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
+from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.reaction_calculator import Reaction
+
 
 logger = logging.getLogger(__name__)
 
