@@ -143,10 +143,12 @@ class GrandPotPDEntry(PDEntry):
         return self._original_comp.is_element
 
     def __repr__(self):
-        return "GrandPotPDEntry with original composition %s, energy = %.4f, %s" % (str(self.original_entry.composition), self.original_entry.energy, ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]))
+        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(self.original_entry.composition,
+                self.original_entry.energy,
+                ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]))
 
     def __str__(self):
-        return "GrandPotPDEntry with original composition " + str(self.original_entry.composition) + " and " + ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
+        return self.__repr__()
 
     @property
     def to_dict(self):
