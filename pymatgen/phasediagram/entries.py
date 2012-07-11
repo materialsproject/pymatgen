@@ -166,6 +166,13 @@ class GrandPotPDEntry(PDEntry):
         entry = PMGJSONDecoder().process_decoded(d['entry'])
         return GrandPotPDEntry(entry, chempots, d['name'])
 
+    def __getattr__(self, a):
+        """
+        Delegate attribute to original entry if available.
+        """
+        if hasattr(self._original_entry, a):
+            return getattr(self._original_entry, a)
+        raise AttributeError(a)
 
 class PDEntryIO(object):
     """
@@ -255,3 +262,11 @@ class TransformedPDEntry(PDEntry):
         Original PDEntry object.
         '''
         return self._original_entry
+
+    def __getattr__(self, a):
+        """
+        Delegate attribute to original entry if available.
+        """
+        if hasattr(self._original_entry, a):
+            return getattr(self._original_entry, a)
+        raise AttributeError(a)
