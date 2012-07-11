@@ -19,7 +19,7 @@ import itertools
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.analysis.reaction_calculator import Reaction
 
 
@@ -373,90 +373,33 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "\n".join(output)
 
 
-
 class CompoundPhaseDiagram(PhaseDiagram):
     """
-    **Experimental feature.** Generates phase diagrams from compounds as
-    termninations instead of elements.
+    Generates phase diagrams from compounds as terminations instead of elements.
     """
 
-    def __init__(self, entries, terminal_compositions, use_external_qhull=False):
-        entries = get_entries_within_compositional_space(entries, terminal_compositions)
-        elset = get_non_coplanar_element_set(entries)
-        els = list(elset)
-        pentries = get_transformed_entries(entries, els)
-        super(CompoundPhaseDiagram, self).__init__(pentries, use_external_qhull=use_external_qhull)
+    def __init__(self, entries, terminal_compositions,
+                 use_external_qhull=False):
+        pentries = self.transform_entries(entries, terminal_compositions)
+        PhaseDiagram.__init__(self, pentries,
+                              use_external_qhull=use_external_qhull)
 
+    def transform_entries(self, entries, terminal_compositions):
+        newentries = []
+        #Map terminal compositions to unique dummy species.
+        dummy_mapping = {comp: DummySpecie('X' + chr(65 + i)) for i, comp in enumerate(terminal_compositions)}
+        for entry in entries:
+            try:
+                rxn = Reaction(terminal_compositions, [entry.composition])
+                rxn.normalize_to(entry.composition)
+                if all([rxn.get_coeff(comp) <= 0 for comp in terminal_compositions]):
+                    newcomp = {dummy_mapping[comp]:-rxn.get_coeff(comp) for comp in terminal_compositions}
+                    newcomp = {k: v for k, v in newcomp.items() if v > 1e-5}
+                    transformed_entry = TransformedPDEntry(Composition(newcomp),
+                                                           entry.energy, entry)
+                    newentries.append(transformed_entry)
+            except Exception as ex:
+                pass
+        return newentries
 
-def get_comp_matrix_from_comp(compositions, elements, normalize_row=True):
-    """
-    Helper function to generates a normalized composition matrix from a list of 
-    composition.
-    """
-    comp_matrix = np.array([[comp.get_atomic_fraction(el) for el in elements] for comp in compositions])
-    if not normalize_row:
-        return comp_matrix
-    factor = np.tile(np.sum(comp_matrix, 1), (len(elements), 1)).transpose()
-    return comp_matrix / factor
-
-
-def get_comp_matrix(entries, elements, normalize_row=True):
-    """
-    Helper function to generates a normalized composition matrix from a list of 
-    composition.
-    """
-    return get_comp_matrix_from_comp([entry.composition for entry in entries],
-                                     elements, normalize_row)
-
-
-def is_coplanar(entries, elements):
-    comp_matrix = get_comp_matrix(entries, elements)
-    for submatrix in itertools.combinations(comp_matrix, min(len(elements), len(entries))):
-        if abs(np.linalg.det(submatrix)) > 1e-5:
-            return False
-    return True
-
-
-def get_non_coplanar_element_set(entries):
-    elements = set()
-    map(elements.update, [entry.composition.elements for entry in entries])
-    for i in xrange(len(elements), 1, -1):
-        for elset in itertools.combinations(elements, i):
-            if not is_coplanar(entries, elset):
-                return elset
-    return None
-
-
-def get_transformed_entries(entries, elements):
-    comp_matrix = get_comp_matrix(entries, elements)
-    newmat = []
-    energies = []
-    for i in xrange(len(elements)):
-        col = comp_matrix[:, i]
-        maxval = max(col)
-        maxind = list(col).index(maxval)
-        newmat.append(comp_matrix[maxind])
-        energies.append(entries[i].energy_per_atom)
-    invm = np.linalg.inv(np.array(newmat).transpose())
-    newentries = []
-    for i in xrange(len(entries)):
-        entry = entries[i]
-        lincomp = np.dot(invm, comp_matrix[i])
-        lincomp = np.around(lincomp, 5)
-        comp = Composition({Element.from_Z(j + 1):lincomp[j] for j in xrange(len(elements))})
-        scaled_energy = entry.energy_per_atom - sum(lincomp * energies)
-        newentries.append(TransformedPDEntry(comp, scaled_energy, entry))
-    return newentries
-
-
-def get_entries_within_compositional_space(entries, terminal_compositions):
-    newentries = []
-    for entry in entries:
-        try:
-            rxn = Reaction(terminal_compositions, [entry.composition])
-            if all([rxn.get_coeff(comp) <= 0 for comp in terminal_compositions]):
-                newentries.append(entry)
-        except:
-            pass
-    return newentries
 
