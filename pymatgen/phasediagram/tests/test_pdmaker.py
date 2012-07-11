@@ -1,9 +1,9 @@
 import unittest
 import os
 
-from pymatgen.core.periodic_table import Element
+from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO
-from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram
+from pymatgen.phasediagram.pdmaker import PhaseDiagram, GrandPotentialPhaseDiagram, CompoundPhaseDiagram
 
 
 class PhaseDiagramTest(unittest.TestCase):
@@ -50,6 +50,35 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+
+
+
+class CompoundPhaseDiagramTest(unittest.TestCase):
+
+    def setUp(self):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        (self.elements, self.entries) = PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
+        self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
+
+    def test_stable_entries(self):
+        stable_formulas = [ent.name for ent in self.pd.stable_entries]
+        expected_stable = ["Fe2O3", "Li5FeO4", "LiFeO2", "Li2O"]
+        for formula in expected_stable:
+            self.assertTrue(formula in stable_formulas, formula + " not in stable entries!")
+
+    def test_get_formation_energy(self):
+        stable_formation_energies = {ent.name:self.pd.get_form_energy(ent) for ent in self.pd.stable_entries}
+        expected_formation_energies = {'Li5FeO4':-7.0773284399999739,
+                                       'Fe2O3':0,
+                                       'LiFeO2':-0.47455929750000081,
+                                       'Li2O':0}
+        for formula, energy in expected_formation_energies.items():
+            self.assertAlmostEqual(energy, stable_formation_energies[formula], 7)
+
+    def test_str(self):
+        self.assertIsNotNone(str(self.pd))
+
+
 
 if __name__ == '__main__':
     unittest.main()

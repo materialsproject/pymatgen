@@ -14,13 +14,12 @@ __date__ = "Sep 23, 2011"
 
 import numpy as np
 import logging
-import itertools
 
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
-from pymatgen.core.periodic_table import Element, DummySpecie
-from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
 logger = logging.getLogger(__name__)
@@ -373,7 +372,6 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "\n".join(output)
 
 
-from pymatgen.analysis.reaction_calculator import ReactionError
 
 class CompoundPhaseDiagram(PhaseDiagram):
     """
@@ -382,26 +380,60 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
     def __init__(self, entries, terminal_compositions,
                  use_external_qhull=False):
+        """
+        Args:
+            entries:
+                Sequence of input entries. For example, if you want a Li2O-P2O5
+                phase diagram, you might have all Li-P-O entries as an input.
+            terminal_compositions:
+                Terminal compositions of phase space. In the Li2O-P2O5 example,
+                these will be the Li2O and P2O5 compositions.
+            use_external_qhull:
+                Similar to PhaseDiagram, set to True if you wish to use external
+                qhull command.
+        """
+        self.original_entries = entries
+        self.terminal_compositions = terminal_compositions
         pentries = self.transform_entries(entries, terminal_compositions)
         PhaseDiagram.__init__(self, pentries,
                               use_external_qhull=use_external_qhull)
 
     def transform_entries(self, entries, terminal_compositions):
-        newentries = []
+        """
+        Method to transform all entries to the composition coordinate in the
+        terminal compositions. If the entry does not fall within the space
+        defined by the terminal compositions, they are excluded. For example,
+        Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
+        compositions are represented by DummySpecies.
+        
+        Args:
+            entries:
+                Sequence of all input entries
+            terminal_compositions:
+                Terminal compositions of phase space.
+        
+        Returns:
+            Sequence of TransformedPDEntries falling within the phase space.
+        """
+        new_entries = []
         #Map terminal compositions to unique dummy species.
         dummy_mapping = {comp: DummySpecie('X' + chr(102 + i)) for i, comp in enumerate(terminal_compositions)}
         for entry in entries:
             try:
                 rxn = Reaction(terminal_compositions, [entry.composition])
                 rxn.normalize_to(entry.composition)
+                #We only allow reactions that have positive amounts of reactants.
                 if all([rxn.get_coeff(comp) <= 1e-5 for comp in terminal_compositions]):
-                    newcomp = {dummy_mapping[comp]:-rxn.get_coeff(comp) for comp in terminal_compositions}
+                    newcomp = {dummy_mapping[comp]:-rxn.get_coeff(comp) \
+                               for comp in terminal_compositions}
                     newcomp = {k: v for k, v in newcomp.items() if v > 1e-5}
                     transformed_entry = TransformedPDEntry(Composition(newcomp),
-                                                           entry.energy, entry)
-                    newentries.append(transformed_entry)
+                                                           entry)
+                    new_entries.append(transformed_entry)
             except ReactionError as ex:
+                #If the reaction can't be balanced, the entry does not fall
+                #into the phase space. We ignore them.
                 pass
-        return newentries
+        return new_entries
 
 
