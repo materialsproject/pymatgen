@@ -6,13 +6,14 @@ This module provides classes to create phase diagrams.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "Jul 11, 2012"
 
 import numpy as np
+import collections
 import logging
 
 from pymatgen.core.structure import Composition
@@ -394,8 +395,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         self.original_entries = entries
         self.terminal_compositions = terminal_compositions
-        pentries = self.transform_entries(entries, terminal_compositions)
-        PhaseDiagram.__init__(self, pentries,
+        (pentries, species_mapping) = self.transform_entries(entries, terminal_compositions)
+        PhaseDiagram.__init__(self, pentries, elements=species_mapping.values(),
                               use_external_qhull=use_external_qhull)
 
     def transform_entries(self, entries, terminal_compositions):
@@ -417,14 +418,17 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         #Map terminal compositions to unique dummy species.
-        dummy_mapping = {comp: DummySpecie('X' + chr(102 + i)) for i, comp in enumerate(terminal_compositions)}
+        sp_mapping = collections.OrderedDict()
+        for i, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecie('X' + chr(102 + i))
+
         for entry in entries:
             try:
                 rxn = Reaction(terminal_compositions, [entry.composition])
                 rxn.normalize_to(entry.composition)
                 #We only allow reactions that have positive amounts of reactants.
                 if all([rxn.get_coeff(comp) <= 1e-5 for comp in terminal_compositions]):
-                    newcomp = {dummy_mapping[comp]:-rxn.get_coeff(comp) \
+                    newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp) \
                                for comp in terminal_compositions}
                     newcomp = {k: v for k, v in newcomp.items() if v > 1e-5}
                     transformed_entry = TransformedPDEntry(Composition(newcomp),
@@ -434,6 +438,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #If the reaction can't be balanced, the entry does not fall
                 #into the phase space. We ignore them.
                 pass
-        return new_entries
+        return (new_entries, sp_mapping)
 
 

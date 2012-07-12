@@ -6,11 +6,11 @@ This module provides classes for plotting PhaseDiagram objects.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "Jun 15, 2012"
 
 import math
 import numpy as np
