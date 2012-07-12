@@ -433,3 +433,13 @@ class InsertionVoltagePair(AbstractVoltagePair):
     @property
     def working_ion_entry(self):
         return self._working_ion_entry
+
+    def __repr__(self):
+        output = ["Insertion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula)]
+        output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
+        output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))
+        output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
+        return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()
