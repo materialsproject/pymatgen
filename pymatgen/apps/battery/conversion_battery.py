@@ -459,6 +459,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
         output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
         return "\n".join(output)
 
+    def __str__(self):
+        return self.__repr__()
+
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
