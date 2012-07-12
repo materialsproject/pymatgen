@@ -8,11 +8,11 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Jul 11 2012"
 
 import logging
 import itertools
@@ -153,23 +153,45 @@ class Reaction(MSONable):
     def normalize_to(self, comp, factor=1):
         """
         Normalizes the reaction to one of the compositions.
-        By default, normalizes such that the composition given has a coefficient of 1.
-        Another factor can be specified.
+        By default, normalizes such that the composition given has a
+        coefficient of 1. Another factor can be specified.
+        
+        Args:
+            comp:
+                Composition to normalize to
+            factor:
+                Factor to normalize to. Defaults to 1.
         """
         scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)] * factor)
         self._coeffs = [c * scale_factor for c in self._coeffs]
 
-    def normalize_to_element(self, element, target_amount=1):
+    def normalize_to_element(self, element, factor=1):
         """
         Normalizes the reaction to one of the elements.
         By default, normalizes such that the amount of the element is 1.
         Another factor can be specified.
+        
+        Args:
+            element:
+                Element to normalize to.
+            factor:
+                Factor to normalize to. Defaults to 1.
         """
         current_element_amount = sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
-        scale_factor = target_amount / current_element_amount
+        scale_factor = factor / current_element_amount
         self._coeffs = [c * scale_factor for c in self._coeffs]
 
     def get_el_amount(self, element):
+        """
+        Returns the amount of the element in the reaction.
+        
+        Args:
+            element:
+                Element in the reaction
+        
+        Returns:
+            Amount of that element in the reaction.
+        """
         return sum([self._all_comp[i][element] * abs(self._coeffs[i]) for i in xrange(len(self._all_comp))]) / 2
 
     @property
@@ -252,6 +274,10 @@ class Reaction(MSONable):
 
     @property
     def normalized_repr(self):
+        """
+        A normalized representation of the reaction. All factors are converted
+        to lowest common factors.
+        """
         return self.normalized_repr_and_factor()[0]
 
     def __repr__(self):
@@ -307,7 +333,7 @@ def smart_float_gcd(list_of_floats):
 
 class ReactionError(Exception):
     '''
-    Exception class for Reactions. Allows more information exception messages
+    Exception class for Reactions. Allows more information in exception messages
     to cover situations not covered by standard exception classes.
     '''
 
