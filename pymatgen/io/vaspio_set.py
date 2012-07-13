@@ -22,7 +22,6 @@ import abc
 import ConfigParser
 import json
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
 
