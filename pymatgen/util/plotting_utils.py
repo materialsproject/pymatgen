@@ -35,10 +35,9 @@ def get_publication_quality_plot(width=8, height=None):
     if not height:
         height = int(width * golden_ratio)
     plt.figure(figsize=(width, height), facecolor='w')
-    plt.ylabel('', fontsize=36)
-    plt.xlabel('', fontsize=36)
-    plt.xticks(fontsize=30)
-    plt.yticks(fontsize=30)
-    plt.title('', fontsize=26)
-
+    plt.ylabel('Y-axis', fontsize=width * 3)
+    plt.xlabel('X-axis', fontsize=width * 3)
+    plt.xticks(fontsize=width * 2)
+    plt.yticks(fontsize=width * 2)
+    plt.title('', fontsize=width * 3)
     return plt

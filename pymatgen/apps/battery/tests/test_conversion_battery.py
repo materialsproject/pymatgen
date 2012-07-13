@@ -41,6 +41,7 @@ class ConversionElectrodeTest(unittest.TestCase):
                                          'capacity_vol': 2132.2069115142394,
                                          'specific_energy': 1841.8103016131706,
                                          'energy_density': 6528.38954147}
+
         for f in formulas:
 
             with open(os.path.join(test_dir, f + "_batt.json"), 'r') as fid:
@@ -75,7 +76,6 @@ class ConversionElectrodeTest(unittest.TestCase):
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v, 2)
-
 
 if __name__ == "__main__":
     unittest.main()
