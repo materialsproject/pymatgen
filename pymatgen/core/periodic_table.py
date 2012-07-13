@@ -21,6 +21,7 @@ from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
+
 def _load__pt_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -301,7 +302,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x - other._x)
+        return (self.X - other.X)
 
     def __lt__(self, other):
         '''
@@ -309,7 +310,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x < other._x)
+        return (self.X < other.X)
 
     @staticmethod
     def from_Z(z):
@@ -493,6 +494,17 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
+    @staticmethod
+    def from_dict(d):
+        return Element(d['element'])
+
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['element'] = self.symbol
+        return d
 
 class Specie(MSONable):
     """

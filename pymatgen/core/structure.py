@@ -28,6 +28,7 @@ from pymatgen.core.periodic_table import Element, Specie, smart_element_or_speci
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
+
 class Site(collections.Mapping, collections.Hashable, MSONable):
     '''
     A generalized *non-periodic* site. Atoms and occupancies should be a dict
@@ -35,7 +36,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     1. Coords are given in standard cartesian coordinates.
     '''
 
-    supported_properties = ('magmom', 'charge')
+    supported_properties = ('magmom', 'charge', 'coordination_no', 'forces')
 
     def __init__(self, atoms_n_occu, coords, properties=None):
         """
@@ -55,7 +56,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
 
         if isinstance(atoms_n_occu, dict):
-            self._species = {smart_element_or_specie(k): v for k, v in atoms_n_occu.items()}
+            self._species = {smart_element_or_specie(k): v \
+                             for k, v in atoms_n_occu.items()}
             totaloccu = sum(self._species.values())
             if totaloccu > 1:
                 raise ValueError("Species occupancies sum to more than 1!")
@@ -67,7 +69,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         self._properties = properties if properties else {}
         for k in self._properties.keys():
             if k not in Site.supported_properties:
-                raise ValueError("{} is not a supported Site property".format(k))
+                raise ValueError("{} is not a supported property".format(k))
 
     @property
     def properties(self):
@@ -110,7 +112,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             return str(self._species.keys()[0])
         else:
             sorted_species = sorted(self._species.keys())
-            return ', '.join(["%s:%.3f" % (str(sp), self._species[sp]) for sp in sorted_species])
+            return ', '.join(["%s:%.3f" % (str(sp), self._species[sp]) \
+                              for sp in sorted_species])
 
     @property
     def species_and_occu(self):
@@ -186,7 +189,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         if other == None:
             return False
-        return self._species == other._species and np.allclose(self._coords, other._coords)
+        return self._species == other._species and \
+               np.allclose(self._coords, other._coords)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -237,7 +241,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return 0
 
     def __str__(self):
-        return "%s %s" % (self._coords, ','.join(["%s %.4f" % (str(atom), occu) for atom, occu in self._species.items()]))
+        return "%s %s" % (self._coords, ','.join(["%s %.4f" % (str(atom), occu)\
+                                     for atom, occu in self._species.items()]))
 
     @property
     def to_dict(self):
@@ -246,14 +251,12 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Element):
-                species_list.append({'element': spec.symbol, 'occu': occu})
-            elif isinstance(spec, Specie):
-                d = spec.to_dict
-                d['occu'] = occu
-                species_list.append(d)
-                species_list.append({'element': spec.symbol, 'occu': occu, 'oxidation_state': spec.oxi_state})
-        d = {'name': self.species_string, 'species': species_list, 'occu': occu, 'xyz':[float(c) for c in self._coords], 'properties': self._properties}
+            d = spec.to_dict
+            d['occu'] = occu
+            species_list.append(d)
+        d = {'name': self.species_string, 'species': species_list,
+             'occu': occu, 'xyz':[float(c) for c in self._coords],
+             'properties': self._properties}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
@@ -265,7 +268,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
+                 else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
         return Site(atoms_n_occu, d['xyz'], properties=props)
@@ -302,11 +306,12 @@ class PeriodicSite(Site, MSONable):
                 {'magmom':5}. Defaults to None.
         """
         self._lattice = lattice
-        self._fcoords = self._lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._fcoords = self._lattice.get_fractional_coords(coords) \
+                        if coords_are_cartesian else coords
 
         if to_unit_cell:
-            for i in range(len(self._fcoords)):
-                self._fcoords[i] = self._fcoords[i] - math.floor(self._fcoords[i])
+            for i, fcoords in enumerate(self._fcoords):
+                self._fcoords[i] = fcoords - math.floor(fcoords)
 
         c_coords = self._lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
@@ -352,20 +357,26 @@ class PeriodicSite(Site, MSONable):
         Copy of PeriodicSite translated to the unit cell.
         """
         fcoords = [i - math.floor(i) for i in self._fcoords]
-        return PeriodicSite(self._species, fcoords, self._lattice)
+        return PeriodicSite(self._species, fcoords, self._lattice,
+                            properties=self._properties)
 
-    def is_periodic_image(self, other, tolerance=1e-8):
+    def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
         Returns True if sites are periodic images of each other.
         """
-        if self.lattice != other.lattice:
+        if check_lattice and self.lattice != other.lattice:
+            return False
+        if self.species_and_occu != other.species_and_occu:
             return False
         frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
-        frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance for a in frac_diff]
+        frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance \
+                     for a in frac_diff]
         return  all(frac_diff)
 
     def __eq__(self, other):
-        return self._species == other._species and self._lattice == other._lattice and np.allclose(self._coords, other._coords)
+        return self._species == other._species and \
+            self._lattice == other._lattice and \
+            np.allclose(self._coords, other._coords)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -406,7 +417,8 @@ class PeriodicSite(Site, MSONable):
         if jimage == None:
             #Old algorithm
             jimage = -np.array(np.around(other._fcoords - self._fcoords), int)
-        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + other._fcoords - self._fcoords)), jimage
+        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + \
+                                    other._fcoords - self._fcoords)), jimage
 
     def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
         """
@@ -433,19 +445,36 @@ class PeriodicSite(Site, MSONable):
                 for which the distance applies.
         """
         if jimage == None:
+            #The following code is heavily vectorized to maximize speed.
+
+            #Get the image adjustment necessary to bring coords to unit_cell.
             adj1 = np.array([-math.floor(i) for i in self._fcoords])
             adj2 = np.array([-math.floor(i) for i in fcoords])
-            mindist = float('inf')
+
+            #Shift coords to unitcell
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
-            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] for i in range(3)]
-            for image in itertools.product(*test_set):
-                dist = np.linalg.norm(self._lattice.get_cartesian_coords(coord2 + image - coord1))
-                if dist < mindist:
-                    mindist = dist
-                    jimage = adj2 - adj1 + image
-            return mindist, jimage
-        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + fcoords - self._fcoords)), jimage
+
+            #Generate set of images required for testing.
+            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] \
+                        for i in range(3)]
+            images = [image for image in itertools.product(*test_set)]
+
+            #Create vectorized cartesian coords tiling for computing distances.
+            vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
+            vec = self._lattice.get_cartesian_coords(vec)
+
+            #Compute distances manually.
+            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
+
+            #Return the minimum distance and the adjusted image corresponding
+            #to the min distance.
+            mindist = min(dist)
+            ind = dist.index(mindist)
+            return mindist, adj2 - adj1 + images[ind]
+
+        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + \
+                                            fcoords - self._fcoords)), jimage
 
     def distance_and_image(self, other, jimage=None):
         """
@@ -481,8 +510,9 @@ class PeriodicSite(Site, MSONable):
                 other site to get distance from.
             jimage:   
                 specific periodic image in terms of lattice translations, 
-                e.g., [1,0,0] implies to take periodic image that is one a-lattice vector away.
-                if jimage == None, the image that is nearest to the site is found.
+                e.g., [1,0,0] implies to take periodic image that is one
+                a-lattice vector away. If jimage == None, the image that is
+                nearest to the site is found.
         
         Returns:
             distance:
@@ -507,12 +537,9 @@ class PeriodicSite(Site, MSONable):
         """
         species_list = []
         for spec, occu in self._species.items():
-            if isinstance(spec, Element):
-                species_list.append({'element': spec.symbol, 'occu': occu})
-            else:
-                d = spec.to_dict
-                d['occu'] = occu
-                species_list.append(d)
+            d = spec.to_dict
+            d['occu'] = occu
+            species_list.append(d)
         d = {'label': self.species_string, 'species': species_list,
              'occu': occu, 'xyz':[float(c) for c in self._coords],
              'abc':[float(c) for c in self._fcoords],
@@ -536,7 +563,8 @@ class PeriodicSite(Site, MSONable):
         """
         atoms_n_occu = {}
         for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu else Element(sp_occu['element'])
+            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
+                 else Element(sp_occu['element'])
             atoms_n_occu[sp] = sp_occu['occu']
         props = d.get('properties', None)
         lattice = lattice if lattice else Lattice.from_dict(d['lattice'])
@@ -733,7 +761,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v3 = self.sites[i].coords - self.sites[j].coords
         v23 = np.cross(v2, v3)
         v12 = np.cross(v1, v2)
-        return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23), np.dot(v12, v23)) * 180 / math.pi
+        return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
+                          np.dot(v12, v23)) * 180 / math.pi
 
 
 class Structure(SiteCollection, MSONable):
@@ -776,7 +805,9 @@ class Structure(SiteCollection, MSONable):
                 Defaults to None for no properties.
         """
         if len(atomicspecies) != len(coords):
-            raise StructureError("The list of atomic species must be of the same length as the list of fractional coordinates.")
+            raise StructureError(("The list of atomic species must be of the",
+                                  "same length as the list of fractional",
+                                  " coordinates."))
 
         if isinstance(lattice, Lattice):
             self._lattice = lattice
@@ -788,14 +819,41 @@ class Structure(SiteCollection, MSONable):
             prop = None
             if site_properties:
                 prop = {k:v[i] for k, v in site_properties.items()}
-            self._sites.append(PeriodicSite(atomicspecies[i], coords[i], self._lattice, to_unit_cell, coords_are_cartesian, properties=prop))
+            self._sites.append(PeriodicSite(atomicspecies[i], coords[i],
+                                            self._lattice, to_unit_cell,
+                                            coords_are_cartesian,
+                                            properties=prop))
 
         if validate_proximity:
             for (s1, s2) in itertools.combinations(self._sites, 2):
                 if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
-                    raise StructureError("Structure contains sites that are less than 0.01 Angstrom apart!")
+                    raise StructureError(("Structure contains sites that are ",
+                                          "less than 0.01 Angstrom apart!"))
 
         self._sites = tuple(self._sites)
+
+    @staticmethod
+    def from_sites(sites):
+        """
+        Convenience static constructor to make a Structure from a list of sites.
+        
+        Args:
+            sites:
+                Sequence of PeriodicSites. The sites must have the same lattice.
+        """
+        props = collections.defaultdict(list)
+        lattice = None
+        for site in sites:
+            if not lattice:
+                lattice = site.lattice
+            elif site.lattice != lattice:
+                raise ValueError("Sites must belong to the same lattice")
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return Structure(lattice,
+                         [site.species_and_occu for site in sites],
+                         [site.frac_coords for site in sites],
+                         site_properties=props)
 
     @property
     def sites(self):
@@ -818,6 +876,17 @@ class Structure(SiteCollection, MSONable):
         '''
         constant = 1.660468
         return self.composition.weight / self.volume * constant
+
+    @property
+    def site_properties(self):
+        """
+        Returns site properties as a dict of {property: [values]}.
+        """
+        props = collections.defaultdict(list)
+        for site in self._sites:
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return props
 
     def __eq__(self, other):
         if other == None:
@@ -904,27 +973,28 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         pcoords = self._lattice.get_fractional_coords(pt)
-        nxmax = int(math.floor(pcoords[0] + nmax[0]))
-        nxmin = int(math.floor(pcoords[0] - nmax[0]))
-        nymax = int(math.floor(pcoords[1] + nmax[1]))
-        nymin = int(math.floor(pcoords[1] - nmax[1]))
-        nzmax = int(math.floor(pcoords[2] + nmax[2]))
-        nzmin = int(math.floor(pcoords[2] - nmax[2]))
+        axis_ranges = []
+        for i in range(3):
+            rangemax = int(math.floor(pcoords[i] + nmax[i]))
+            rangemin = int(math.floor(pcoords[i] - nmax[i]))
+            axis_ranges.append(range(rangemin, rangemax + 1))
         neighbors = []
         n = len(self._sites)
-        site_fcoords = np.array([site.to_unit_cell.frac_coords for site in self._sites])
-        pts = [pt] * n
-        for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
-            submat = [image] * n
-            fcoords = site_fcoords + submat
+        site_fcoords = np.array([site.to_unit_cell.frac_coords \
+                                 for site in self._sites])
+        pts = np.array([pt] * n)
+        for image in itertools.product(*axis_ranges):
+            shift = np.array([image] * n)
+            fcoords = site_fcoords + shift
             coords = self._lattice.get_cartesian_coords(fcoords)
-            dists = (coords - pts) ** 2
-            dists = np.sqrt(dists.sum(axis=1))
+            dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
-                    neighbors.append((PeriodicSite(self._sites[i].species_and_occu, fcoords[i], self._lattice, properties=self._sites[i].properties), dists[i]))
-
+                    nnsite = PeriodicSite(self._sites[i].species_and_occu,
+                                        fcoords[i], self._lattice,
+                                        properties=self._sites[i].properties)
+                    neighbors.append((nnsite, dists[i]))
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -942,7 +1012,8 @@ class Structure(SiteCollection, MSONable):
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
+        nn = self.get_sites_in_sphere(site.coords, r)
+        return [(s, dist) for (s, dist) in nn if site != s]
 
     def get_all_neighbors(self, r, include_index=False):
         """
@@ -990,7 +1061,8 @@ class Structure(SiteCollection, MSONable):
             inymin = int(math.floor(pcoords[1] - nmax[1]))
             inzmax = int(math.floor(pcoords[2] + nmax[2]))
             inzmin = int(math.floor(pcoords[2] - nmax[2]))
-            site_nminmax.append(((inxmin, inxmax), (inymin, inymax), (inzmin, inzmax)))
+            site_nminmax.append(((inxmin, inxmax), (inymin, inymax),
+                                 (inzmin, inzmax)))
 
         nxmin = min([i[0][0] for i in site_nminmax])
         nxmax = max([i[0][1] for i in site_nminmax])
@@ -1003,10 +1075,10 @@ class Structure(SiteCollection, MSONable):
 
         site_coords = np.array(self.cart_coords)
         n = len(self._sites)
-        for image in itertools.product(range(nxmin, nxmax + 1), range(nymin, nymax + 1), range(nzmin, nzmax + 1)):
-            for j in range(len(unit_cell_sites)):
-            #for site in unit_cell_sites:
-                site = unit_cell_sites[j]
+        for image in itertools.product(range(nxmin, nxmax + 1),
+                                       range(nymin, nymax + 1),
+                                       range(nzmin, nzmax + 1)):
+            for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
                 coords = self.lattice.get_cartesian_coords(fcoords)
                 submat = [coords] * n
@@ -1014,10 +1086,13 @@ class Structure(SiteCollection, MSONable):
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in range(n):
-                    if include_index & withindists[i]:
-                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice, properties=site.properties), dists[i], j))
-                    elif withindists[i]:
-                        neighbors[i].append((PeriodicSite(site.species_and_occu, fcoords, site.lattice, properties=site.properties), dists[i]))
+                    if withindists[i]:
+                        nnsite = PeriodicSite(site.species_and_occu, fcoords,
+                                          site.lattice,
+                                          properties=site.properties)
+                        item = (nnsite, dists[i], j) if include_index \
+                               else (nnsite, dists[i])
+                        neighbors[i].append(item)
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr):
@@ -1046,8 +1121,28 @@ class Structure(SiteCollection, MSONable):
         Get a sorted copy of the structure.
         Sites are sorted by the electronegativity of the species.
         """
-        sortedsites = sorted(self.sites)
-        return Structure(self._lattice, [site.species_and_occu for site in sortedsites], [site.frac_coords for site in sortedsites])
+        sites = sorted(self.sites)
+        return Structure.from_sites(sites)
+
+    def copy(self, site_properties=None):
+        """
+        Convenience method to get a copy of the structure, with options to add
+        site properties.
+        
+        Args:
+            site_properties:
+                Properties to add or override. The properties are specified in
+                the same way as the constructor, i.e., as a dict of the form
+                {property: [values]}.
+        """
+        sites = self.sites
+        props = self.site_properties
+        if site_properties:
+            props.update(site_properties)
+        return Structure(self._lattice,
+                         [site.species_and_occu for site in sites],
+                         [site.frac_coords for site in sites],
+                         site_properties=props)
 
     def interpolate(self, end_structure, nimages=10):
         '''
@@ -1065,23 +1160,29 @@ class Structure(SiteCollection, MSONable):
         '''
         #Check length of structures
         if len(self) != len(end_structure):
-            raise ValueError("You are interpolating structures with different lengths!")
+            raise ValueError("Structures have different lengths!")
 
         #Check that both structures have the same lattice
-        if not ((abs(self.lattice.matrix - end_structure.lattice.matrix) < 0.01)).all():
-            raise ValueError("You are interpolating structures with different lattices!")
+        if not np.allclose(self.lattice.matrix, end_structure.lattice.matrix):
+            raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
         for i in range(0, len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
-                raise ValueError("You are interpolating different structures!\nStructure 1:\n" + str(self) + "\nStructure 2\n" + str(end_structure))
+                raise ValueError("Different species!\nStructure 1:\n" + \
+                                 str(self) + "\nStructure 2\n" + \
+                                 str(end_structure))
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
 
         vec = end_coords - start_coords #+ jimage
-        intStructs = [Structure(self.lattice, [site.species_and_occu for site in self._sites], start_coords + float(x) / float(nimages) * vec) for x in range(0, nimages + 1)]
-        return intStructs
+        structs = [Structure(self.lattice,
+                                [site.species_and_occu for site in self._sites],
+                                start_coords + float(x) / float(nimages) * vec,
+                                site_properties=self.site_properties) \
+                                for x in range(0, nimages + 1)]
+        return structs
 
     def __repr__(self):
         outs = []
@@ -1095,11 +1196,14 @@ class Structure(SiteCollection, MSONable):
         outs = ["Structure Summary ({s})".format(s=str(self.composition))]
         outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
         to_s = lambda x : "%0.6f" % x
-        outs.append('abc   : ' + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
-        outs.append('angles: ' + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
+        outs.append('abc   : ' + " ".join([to_s(i).rjust(10) \
+                                           for i in self.lattice.abc]))
+        outs.append('angles: ' + " ".join([to_s(i).rjust(10) \
+                                           for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
+            outs.append(" ".join([str(i + 1), site.species_string,
+                    " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
         return "\n".join(outs)
 
     @property
@@ -1111,7 +1215,13 @@ class Structure(SiteCollection, MSONable):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['lattice'] = self._lattice.to_dict
-        d['sites'] = [site.to_dict for site in self]
+        d['sites'] = []
+        for site in self:
+            site_dict = site.to_dict
+            del site_dict['lattice']
+            del site_dict['module']
+            del site_dict['class']
+            d['sites'].append(site_dict)
         return d
 
     @staticmethod
@@ -1127,22 +1237,9 @@ class Structure(SiteCollection, MSONable):
         Returns:
             Structure object
         """
-        lattice = Lattice(d['lattice']['matrix'])
-        species = []
-        coords = []
-        props = {}
-
-        for site_dict in d['sites']:
-            site = PeriodicSite.from_dict(site_dict, lattice)
-            species.append(site.species_and_occu)
-            coords.append(site.frac_coords)
-            siteprops = site.properties
-            for k, v in siteprops.items():
-                if k not in props:
-                    props[k] = [v]
-                else:
-                    props[k].append(v)
-        return Structure(lattice, species, coords, site_properties=props)
+        lattice = Lattice.from_dict(d['lattice'])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d['sites']]
+        return Structure.from_sites(sites)
 
 
 class Molecule(SiteCollection, MSONable):
@@ -1177,21 +1274,22 @@ class Molecule(SiteCollection, MSONable):
                 Defaults to None for no properties.
         """
         if len(atomicspecies) != len(coords):
-            raise StructureError("The list of atomic species must be of the same length as the list of fractional coordinates.")
+            raise StructureError(("The list of atomic species must be of the",
+                                  " same length as the list of fractional ",
+                                  "coordinates."))
 
-        self._sites = []
+        sites = []
         for i in xrange(len(atomicspecies)):
             prop = None
             if site_properties:
                 prop = {k:v[i] for k, v in site_properties.items()}
-            self._sites.append(Site(atomicspecies[i], coords[i], properties=prop))
-
+            sites.append(Site(atomicspecies[i], coords[i], properties=prop))
         if validate_proximity:
-            for (s1, s2) in itertools.combinations(self._sites, 2):
+            for (s1, s2) in itertools.combinations(sites, 2):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
-                    raise StructureError("Molecule contains sites that are less than 0.01 Angstrom apart!")
-
-        self._sites = tuple(self._sites)
+                    raise StructureError(("Molecule contains sites that are ",
+                                          "less than 0.01 Angstrom apart!"))
+        self._sites = tuple(sites)
 
     @property
     def sites(self):
@@ -1213,7 +1311,8 @@ class Molecule(SiteCollection, MSONable):
         to_s = lambda x : "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string, " ".join([to_s(j).rjust(12) for j in site.coords])]))
+            outs.append(" ".join([str(i + 1), site.species_string,
+                        " ".join([to_s(j).rjust(12) for j in site.coords])]))
         return "\n".join(outs)
 
     @property
@@ -1246,7 +1345,10 @@ class Molecule(SiteCollection, MSONable):
 
         for site_dict in d['sites']:
             sp = site_dict['species']
-            species.append({ Specie(sp['element'], sp['oxidation_state']) if 'oxidation_state' in sp else Element(sp['element'])  : sp['occu'] for sp in site_dict['species']})
+            species.append({ Specie(sp['element'], sp['oxidation_state']) \
+                            if 'oxidation_state' in sp else \
+                            Element(sp['element'])  : sp['occu'] \
+                            for sp in site_dict['species']})
             coords.append(site_dict['xyz'])
             siteprops = site_dict.get('properties', {})
             for k, v in siteprops.items():
@@ -1307,7 +1409,8 @@ class Molecule(SiteCollection, MSONable):
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        return [(s, dist) for (s, dist) in self.get_sites_in_sphere(site.coords, r) if site != s]
+        nn = self.get_sites_in_sphere(site.coords, r)
+        return [(s, dist) for (s, dist) in nn if site != s]
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
@@ -1354,7 +1457,10 @@ class Molecule(SiteCollection, MSONable):
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
         lattice = Lattice.from_parameters(a, b, c, 90, 90, 90)
-        return Structure(lattice, self.species, self.cart_coords, coords_are_cartesian=True, site_properties=self.site_properties)
+        return Structure(lattice, self.species, self.cart_coords,
+                         coords_are_cartesian=True,
+                         site_properties=self.site_properties)
+
 
 class StructureError(Exception):
     '''
@@ -1401,7 +1507,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     """
     Tolerance in distinguishing different composition amounts.
-    1e-8 is fairly tight, but should cut out most floating point arithmetic errors.
+    1e-8 is fairly tight, but should cut out most floating point arithmetic
+    errors.
     """
     amount_tolerance = 1e-8
 
@@ -1409,7 +1516,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     Special formula handling for peroxides and certain elements. This is so that 
     formula output does not write LiO instead of Li2O2 for example.
     """
-    special_formulas = {'LiO':'Li2O2', 'NaO':'Na2O2', 'KO':'K2O2', 'HO':'H2O2', 'O':'O2', 'F':'F2', 'N':'N2', 'Cl':'Cl2', 'H':'H2'}
+    special_formulas = {'LiO':'Li2O2', 'NaO':'Na2O2', 'KO':'K2O2', 'HO':'H2O2',
+                        'O':'O2', 'F':'F2', 'N':'N2', 'Cl':'Cl2', 'H':'H2'}
 
     def __init__(self, *args, **kwargs):
         """
@@ -1419,10 +1527,10 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Args:
             Any form supported by the Python built-in dict() function.
             
-            1. A dict of either {Element/Specie: amount}, {string symbol:amount}, 
-               or {atomic number:amount} or any mixture of these. E.g., 
-               {Element("Li"):2 ,Element("O"):1}, {"Li":2, "O":1}, {3:2, 8:1}
-               all result in a Li2O composition.
+            1. A dict of either {Element/Specie: amount}, 
+               {string symbol:amount}, or {atomic number:amount} or any mixture
+               of these. E.g., {Element("Li"):2 ,Element("O"):1},
+               {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
             2. Keyword arg initialization, similar to a dict, e.g., 
                Compostion(Li = 2, O = 1)
                
@@ -1485,7 +1593,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             if el in self and other[k] <= self[el]:
                 new_el_map[el] -= other[k]
             else:
-                raise ValueError("All elements in subtracted composition must exist in original composition in equal or lesser amount!")
+                raise ValueError(("All elements in subtracted composition must",
+                                  " exist in original composition in equal or ",
+                                  "lesser amount!"))
         return Composition(new_el_map)
 
     def __mul__(self, other):
@@ -1494,7 +1604,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Fe2O3 * 4 -> Fe8O12
         """
         if not (isinstance(other, int) or isinstance(other, float)):
-            raise ValueError("Multiplication of composition can only be done for integers or floats!")
+            raise ValueError("Multiplication can only be done for int/floats!")
         return Composition({el:self[el] * other for el in self})
 
     def __hash__(self):
@@ -1523,7 +1633,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         True if composition is for an element.
         '''
-        positive_amts = [amt for amt in self._elmap.values() if amt > self.amount_tolerance]
+        positive_amts = [amt for amt in self._elmap.values() \
+                         if amt > self.amount_tolerance]
         return len(positive_amts) == 1
 
     def copy(self):
@@ -1536,7 +1647,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         '''
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -1576,13 +1687,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             return (re.sub("\s", "", self.formula), 1)
 
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: Element(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
 
         syms = filter(lambda s: sym_amt[s] != 0, syms)
         num_el = len(syms)
         contains_polyanion = False
         if num_el >= 3:
-            contains_polyanion = (Element(syms[num_el - 1]).X - Element(syms[num_el - 2]).X < 1.65)
+            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X - \
+                                  smart_element_or_specie(syms[num_el - 2]).X < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
         reduced_form = ''
@@ -1629,7 +1741,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     @property
     def reduced_formula(self):
         '''
-        Returns a pretty normalized formula, i.e., LiFePO4 instead of Li4Fe4P4O16.
+        Returns a pretty normalized formula, i.e., LiFePO4 instead of
+        Li4Fe4P4O16.
         '''
         return self.get_reduced_formula_and_factor()[0]
 
@@ -1655,7 +1768,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         Total molecular weight of Composition
         '''
-        return sum([amount * el.atomic_mass for el, amount in self._elmap.items()])
+        return sum([amount * el.atomic_mass \
+                    for el, amount in self._elmap.items()])
 
     def get_atomic_fraction(self, el):
         '''
@@ -1709,7 +1823,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_formula = formula.replace(m.group(), "".join([el + str(amt) for el, amt in unit_sym_dict.items()]))
+            expanded_sym = "".join(["{}{}".format(el, amt) for el, amt in unit_sym_dict.items()])
+            expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
 
@@ -1770,7 +1885,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def to_dict(self):
         '''
         Returns:
-            dict with element symbol and (unreduced) amount e.g. {"Fe": 4.0, "O":6.0}
+            dict with element symbol and (unreduced) amount e.g.,
+            {"Fe": 4.0, "O":6.0}
         '''
         d = {}
         for e, a in self.items():
@@ -1784,7 +1900,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def to_reduced_dict(self):
         '''
         Returns:
-            dict with element symbol and reduced amount e.g. {"Fe": 2.0, "O":3.0}
+            dict with element symbol and reduced amount e.g.,
+            {"Fe": 2.0, "O":3.0}
         '''
         reduced_formula = self.reduced_formula
         c = Composition.from_formula(reduced_formula)
@@ -1807,7 +1924,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return d
 
     @staticmethod
-    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
+                                                       lock_if_strict=True):
         '''
         Takes in a formula where capitilization might not be correctly entered, 
         and suggests a ranked list of potential Composition matches.
@@ -1826,9 +1944,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             A ranked list of potential Composition matches
         '''
 
-        #if we have an exact match and the user specifies lock_if_strict, just return the exact match!
+        #if we have an exact match and the user specifies lock_if_strict, just
+        #return the exact match!
         if lock_if_strict:
-            #the strict composition parsing might throw an error, we can ignore it and just get on with fuzzy matching
+            #the strict composition parsing might throw an error, we can ignore
+            #it and just get on with fuzzy matching
             try:
                 comp = Composition.from_formula(fuzzy_formula)
                 return [comp]
@@ -1844,13 +1964,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return all_matches
 
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={}, m_points=0, factor=1):
+    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={},
+                                                   m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting 
         and ranking indeterminate formulas.
         Author: Anubhav Jain
         
-        Arguments:
+        Args:
             fuzzy_formula:
                 A formula string, such as 'co2o3' or 'MN', that may or may not 
                 have multiple interpretations.
@@ -1864,17 +1985,20 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         
         Returns:
             A list of tuples, with the first element being a Composition and 
-            the second element being the number of points awarded that Composition intepretation
+            the second element being the number of points awarded that
+            Composition intepretation.
         '''
 
         def _parse_chomp_and_rank(m, f, m_dict, m_points):
             '''
-            A helper method for formula parsing that helps in interpreting and ranking indeterminate formulas
+            A helper method for formula parsing that helps in interpreting and
+            ranking indeterminate formulas
             Author: Anubhav Jain
             
-            Arguments:
+            Args:
                 m:
-                    a regex match, with the first group being the element and the second group being the amount
+                    a regex match, with the first group being the element and
+                    the second group being the amount
                 f:
                     The formula part containing the match
                 m_dict:
@@ -1882,8 +2006,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 m_points:
                     Number of points gained from the previously parsed formula
             Returns:
-                A tuple of (f, m_dict, points) where m_dict now contains data from the match and the match has been removed (chomped) from the formula f. The 'goodness'
-                of the match determines the number of points returned for chomping. Returns (None, None, None) if no element could be found...
+                A tuple of (f, m_dict, points) where m_dict now contains data
+                from the match and the match has been removed (chomped) from
+                the formula f. The 'goodness' of the match determines the
+                number of points returned for chomping. Returns
+                (None, None, None) if no element could be found...
             '''
 
             points = 0

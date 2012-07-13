@@ -49,7 +49,8 @@ class InsertionElectrode(AbstractElectrode):
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
 
-        #Prepare to make phase diagram: determine elements and set their energy to be very high
+        #Prepare to make phase diagram: determine elements and set their energy
+        #to be very high
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
 
@@ -134,8 +135,8 @@ class InsertionElectrode(AbstractElectrode):
             A list of all entries in the electrode (both stable and unstable),
             ordered by amount of the working ion.
         '''
-        all_entries = list(self.stable_entries())
-        all_entries.extend(self.unstable_entries())
+        all_entries = list(self.get_stable_entries())
+        all_entries.extend(self.get_unstable_entries())
         #sort all entries by amount of working ion ASC
         all_entries = sorted([e for e in all_entries], key=lambda entry: entry.composition.get_atomic_fraction(self.working_ion))
         return all_entries if charge_to_discharge else all_entries.reverse()
@@ -256,7 +257,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(InsertionElectrode(all_entries, self.working_ion_entry))
+                battery_list.append(self.__class__(all_entries, self.working_ion_entry))
 
         return battery_list
 
@@ -432,3 +433,13 @@ class InsertionVoltagePair(AbstractVoltagePair):
     @property
     def working_ion_entry(self):
         return self._working_ion_entry
+
+    def __repr__(self):
+        output = ["Insertion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula)]
+        output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
+        output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))
+        output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
+        return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()

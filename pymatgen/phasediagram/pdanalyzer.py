@@ -26,6 +26,17 @@ from pymatgen.comp_geometry.simplex import Simplex
 class PDAnalyzer(object):
     """
     A class for performing analyses on Phase Diagrams.
+    
+    The algorithm is based on the work in the following papers:
+    
+    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+       doi:10.1021/cm702327g
+       
+    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430. 
+       doi:10.1016/j.elecom.2010.01.010
     """
 
     numerical_tol = 1e-8
@@ -39,7 +50,8 @@ class PDAnalyzer(object):
 
     def _make_comp_matrix(self, complist):
         """
-        Helper function to generates a normalized composition matrix from a list of composition.
+        Helper function to generates a normalized composition matrix from a
+        list of compositions.
         """
         return np.array([[comp.get_atomic_fraction(el) for el in self._pd.elements] for comp in complist])
 
@@ -113,7 +125,8 @@ class PDAnalyzer(object):
                 A PDEntry like object
         
         Returns:
-            (decomp, energy above convex hull)  Stable entries should have energy above hull of 0.
+            (decomp, energy above convex hull)  Stable entries should have
+            energy above hull of 0.
         """
         comp = entry.composition
         eperatom = entry.energy_per_atom
@@ -131,7 +144,8 @@ class PDAnalyzer(object):
             entry - A PDEntry like object
         
         Returns:
-            Energy above convex hull of entry. Stable entries should have energy above hull of 0.
+            Energy above convex hull of entry. Stable entries should have
+            energy above hull of 0.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
@@ -150,12 +164,24 @@ class PDAnalyzer(object):
         """
         if entry not in self._pd.stable_entries:
             raise ValueError("Equilibrium reaction energy is available only for stable entries.")
-        entries = [e for e in self._pd.all_entries if e != entry]
+        if entry.is_element:
+            return 0
+        entries = [e for e in self._pd.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self._pd.elements)
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
 
     def get_facet_chempots(self, facet):
+        """
+        Calculates the chemical potentials for each element within a facet.
+        
+        Args:
+            facet:
+                Facet of the phase diagram.
+        
+        Returns:
+            { element: chempot } for all elements in the phase diagram.
+        """
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
         m = self._make_comp_matrix(complist)
@@ -192,7 +218,7 @@ class PDAnalyzer(object):
         clean_pots.reverse()
         return tuple(clean_pots)
 
-    def get_element_profile(self, element, comp):
+    def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
         Provides the element evolution data for a composition.
         For example, can be used to analyze Li conversion voltages by varying
@@ -204,6 +230,10 @@ class PDAnalyzer(object):
                 An element. Must be in the phase diagram.
             comp:
                 A Composition
+            comp_tol:
+                The tolerance to use when calculating decompositions. Phases
+                with amounts less than this tolerance are excluded. Defaults to
+                1e-5.
         
         Returns:
             Evolution data as a list of dictionaries of the following format:
@@ -226,10 +256,13 @@ class PDAnalyzer(object):
             return True
 
         for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01}, self._pd.elements)
+            gcpd = GrandPotentialPhaseDiagram(stable_entries, {element:c - 0.01},
+                                              self._pd.elements)
             analyzer = PDAnalyzer(gcpd)
-            decomp = [gcentry.original_entry.composition for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
-            decomp_entries = [gcentry.original_entry for gcentry, amt in analyzer.get_decomposition(gccomp).items() if amt > 1e-5]
+            decomp = [gcentry.original_entry.composition for gcentry,
+                      amt in analyzer.get_decomposition(gccomp).items() if amt > comp_tol]
+            decomp_entries = [gcentry.original_entry for gcentry,
+                              amt in analyzer.get_decomposition(gccomp).items() if amt > comp_tol]
 
             if not are_same_decomp(prev_decomp, decomp):
                 if elcomp not in decomp:
@@ -281,75 +314,4 @@ class PDAnalyzer(object):
                 chempot_ranges[entry] = simplices
 
         return chempot_ranges
-
-    def plot_chempot_range_map(self, elements):
-        """
-        Plot chemical potential range map. Currently works only for 3-component
-        PDs.
-
-        Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
-                [Element("Li"), Element("O")]
-        """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        from pymatgen.util.coord_utils import in_coord_list
-        plt = get_publication_quality_plot(12, 8)
-
-        chempot_ranges = self.get_chempot_range_map(elements)
-        missing_lines = {}
-        for entry, lines in chempot_ranges.items():
-            center_x = 0
-            center_y = 0
-            coords = []
-            for line in lines:
-                (x, y) = line.coords.transpose()
-                plt.plot(x, y, 'k')
-                center_x += sum(x)
-                center_y += sum(y)
-                for coord in line.coords:
-                    if not in_coord_list(coords, coord):
-                        coords.append(coord.tolist())
-                    else:
-                        coords.remove(coord.tolist())
-            comp = entry.composition
-            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
-            if coords and frac_sum < 0.99:
-                missing_lines[entry] = coords
-            else:
-                plt.text(center_x / 2 / len(lines), center_y / 2 / len(lines) , entry.name, fontsize=20)
-
-        ax = plt.gca()
-        xlim = ax.get_xlim()
-        ylim = ax.get_ylim()
-
-        for entry, coords in missing_lines.items():
-            center_x = 0
-            center_y = 0
-            comp = entry.composition
-            if not comp.is_element:
-                for coord in coords:
-                    x = None
-                    y = None
-                    if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
-                        x = [coord[0], min(xlim)]
-                        y = [coord[1], coord[1]]
-                    elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
-                        x = [coord[0], coord[0]]
-                        y = [coord[1], min(ylim)]
-                    if x and y:
-                        plt.plot(x, y, 'k')
-                        center_x += sum(x)
-                        center_y += sum(y)
-            else:
-                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
-                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
-            plt.text(center_x / 2 / len(coords), center_y / 2 / len(coords) , entry.name, fontsize=20)
-
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
-        plt.tight_layout()
-        plt.show()
 

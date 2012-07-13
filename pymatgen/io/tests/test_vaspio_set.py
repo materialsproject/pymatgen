@@ -29,6 +29,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
+
         self.assertEqual(incar['LDAUU'], [5.3, 0, 0])
         self.assertAlmostEqual(incar['EDIFF'], 0.0012)
 
@@ -59,10 +60,15 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         incar = self.paramset.get_incar(struct)
         self.assertNotIn('LDAU', incar)
 
+        #check fluorides
         struct = Structure(lattice, ["Fe", "F"], coords)
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['LDAUU'], [5.3, 0])
         self.assertEqual(incar['MAGMOM'], [5, 0.6])
+
+        struct = Structure(lattice, ["Fe", "F"], coords)
+        incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['LDAUU'], [4.0, 0])
 
         #Make sure this works with species.
         struct = Structure(lattice, ["Fe2+", "O2-"], coords)
@@ -77,13 +83,40 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
 
+        struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
+        incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [4, 3])
+
+        #sulfide vs sulfate test
+
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        coords.append([0.25, 0.5, 0])
+
+        struct = Structure(lattice, ["Fe", "Fe", "S"], coords)
+        incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['LDAUU'], [1.9, 0])
+
+        #Make sure Matproject sulfides are ok.
+        self.assertNotIn('LDAUU', self.paramset.get_incar(struct))
+
+
+        struct = Structure(lattice, ["Fe", "S", "O"], coords)
+        incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
+
+        #Make sure Matproject sulfates are ok.
+        self.assertEqual(self.paramset.get_incar(struct)['LDAUU'], [5.3, 0, 0])
+
+
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mitparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 4]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
 if __name__ == '__main__':

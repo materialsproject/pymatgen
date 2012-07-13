@@ -41,3 +41,19 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`symmetry_fitter` Module
+-----------------------------
+
+.. automodule:: pymatgen.analysis.symmetry_fitter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`thermochemistry` Module
+-----------------------------
+
+.. automodule:: pymatgen.analysis.thermochemistry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -16,10 +16,12 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Apr 30, 2012"
 
+import json
 
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.structure import Composition
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, PMGJSONEncoder
+
 
 class ComputedEntry(PDEntry, MSONable):
     """
@@ -31,7 +33,7 @@ class ComputedEntry(PDEntry, MSONable):
     """
 
     def __init__(self, composition, energy, correction=0.0, parameters=None,
-                 data=None):
+                 data=None, entry_id=None):
         """
         Args:
             composition:
@@ -50,12 +52,15 @@ class ComputedEntry(PDEntry, MSONable):
             data:
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
+            entry_id:
+                An optional id to uniquely identify the entry.
         """
         comp = Composition(composition)
         PDEntry.__init__(self, comp, energy)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
+        self.entry_id = entry_id
 
     @property
     def energy(self):
@@ -86,19 +91,24 @@ class ComputedEntry(PDEntry, MSONable):
 
     @staticmethod
     def from_dict(d):
+        dec = PMGJSONDecoder()
         return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             d.get('parameters', {}), d.get('data', {}))
+                             dec.process_decoded(d.get('parameters', {})),
+                             dec.process_decoded(d.get('data', {})),
+                             entry_id=d.get('entry_id', None))
 
     @property
     def to_dict(self):
+        enc = PMGJSONEncoder()
         d = {}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['energy'] = self.uncorrected_energy
         d['composition'] = self.composition.to_dict
         d['correction'] = self.correction
-        d['parameters'] = self.parameters
-        d['data'] = self.data
+        d['parameters'] = json.loads(json.dumps(self.parameters, cls=PMGJSONEncoder))
+        d['data'] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
+        d['entry_id'] = self.entry_id
         return d
 
 
@@ -109,7 +119,7 @@ class ComputedStructureEntry(ComputedEntry):
     """
 
     def __init__(self, structure, energy, correction=0.0, parameters=None,
-                 data=None):
+                 data=None, entry_id=None):
         """
         Args:
             structure:
@@ -126,11 +136,14 @@ class ComputedStructureEntry(ComputedEntry):
             data:
                 An optional dict of any additional data associated with the
                 entry. Defaults to None.
+            entry_id:
+                An optional id to uniquely identify the entry.
         """
 
         ComputedEntry.__init__(self, structure.composition, energy,
                                         correction=correction,
-                                        parameters=parameters, data=data)
+                                        parameters=parameters, data=data,
+                                        entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
@@ -156,6 +169,10 @@ class ComputedStructureEntry(ComputedEntry):
 
     @staticmethod
     def from_dict(d):
-        return ComputedStructureEntry(Structure.from_dict(d['structure']), d['energy'],
-                             d['correction'], d.get('parameters', {}), d.get('data', {}))
+        dec = PMGJSONDecoder()
+        return ComputedStructureEntry(dec.process_decoded(d['structure']),
+                                      d['energy'], d['correction'],
+                                      dec.process_decoded(d.get('parameters', {})),
+                                      dec.process_decoded(d.get('data', {})),
+                                      entry_id=d.get('entry_id', None))
 

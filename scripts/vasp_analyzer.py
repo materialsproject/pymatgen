@@ -12,8 +12,8 @@ import logging
 
 from pymatgen.io.vaspio import Outcar
 from pymatgen.util.string_utils import str_aligned
-from pymatgen.borg.hive import VaspToComputedEntryDrone
-from pymatgen.borg.queen import BorgQueen
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     parser.add_argument('directories', metavar='dir', default='.', type=str, nargs='*', help='directory to process (default to .)')
     parser.add_argument('-e', '--energies', dest='get_energies', action='store_const', const=True, help='print energies')
     parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs=1, help='print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
-    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const', const=True, help='force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyzer.')
+    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const', const=True, help='force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyze the data.')
     parser.add_argument('-v', '--verbose', dest="verbose", action='store_const', const=True, help='verbose mode. Provides detailed output on progress.')
     parser.add_argument('-p', '--pretty', dest="pretty", action='store_const', const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
 

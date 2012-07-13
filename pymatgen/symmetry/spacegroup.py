@@ -21,6 +21,7 @@ import numpy as np
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import PeriodicSite
 
+
 class Spacegroup(object):
     """
     Represents a space group, which is a collection of symmetry operations
@@ -43,11 +44,11 @@ class Spacegroup(object):
         """
         Given two sets of PeriodicSites, test if they are actually symmetrically
         equivalent under this spacegroup.  Useful, for example, if you want to
-        test if selecting atoms 1 and 2 out of a set of 4 atoms are symmetrically
-        the same as selecting atoms 3 and 4, etc.
+        test if selecting atoms 1 and 2 out of a set of 4 atoms are
+        symmetrically the same as selecting atoms 3 and 4, etc.
         
-        One use is in PartialRemoveSpecie transformation to return only symmetrically
-        distinct arrangements of atoms.
+        One use is in PartialRemoveSpecie transformation to return only
+        symmetrically distinct arrangements of atoms.
         
         Args:
             sites1:
@@ -64,7 +65,7 @@ class Spacegroup(object):
         """
         def in_sites(site):
             for test_site in sites1:
-                if test_site.is_periodic_image(site, symprec):
+                if test_site.is_periodic_image(site, symprec, False):
                     return True
             return False
         for op in self._symmops:
