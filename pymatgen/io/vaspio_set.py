@@ -22,6 +22,7 @@ import abc
 import ConfigParser
 import json
 
+from pymatgen.core.periodic_table import Element
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
 
@@ -165,7 +166,9 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_incar(self, structure):
         incar = Incar()
-        symamt = structure.composition.to_dict
+        comp = structure.composition
+        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
@@ -180,9 +183,9 @@ class VaspInputSet(AbstractVaspInputSet):
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
-            elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                if symamt.get("O", 0) > 0 or symamt.get("F", 0) > 0:
-                    incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
+            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if most_electroneg in setting.keys():
+                    incar[key] = [setting[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
                 else:
                     incar[key] = [0 for sym in poscar.site_symbols]
             elif key == "EDIFF":
@@ -280,3 +283,4 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
     """
     def __init__(self):
         super(MaterialsProjectVaspInputSet, self).__init__("MaterialsProject")
+
