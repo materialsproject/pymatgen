@@ -17,8 +17,8 @@ import unittest
 import os
 import pymatgen
 
-from pymatgen.borg.hive import VaspToComputedEntryDrone
-from pymatgen.borg.queen import BorgQueen
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 

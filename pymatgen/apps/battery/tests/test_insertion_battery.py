@@ -17,11 +17,9 @@ import json
 
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen import PMGJSONEncoder, PMGJSONDecoder, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 
 class InsertionElectrodeTest(unittest.TestCase):
@@ -62,6 +60,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         #test that the proper number of sub-electrodes are returned
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(False, True)), 3)
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(True, True)), 2)
+
+    def test_get_all_entries(self):
+        self.ie_LTO.get_all_entries()
 
     def test_to_from_dict(self):
         d = self.ie_LTO.to_dict

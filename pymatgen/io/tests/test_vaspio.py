@@ -15,14 +15,13 @@ __date__ = "May 17, 2012"
 
 import unittest
 import os
+import json
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.io.vaspio import *
-from pymatgen.core.structure import Composition, Structure
+from pymatgen import Composition, Structure, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class PoscarTest(unittest.TestCase):
 
@@ -270,6 +269,9 @@ class PotcarSingleTest(unittest.TestCase):
                          'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
 
+    def test_from_functional_and_symbols(self):
+        p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
+        self.assertEqual(p.enmax, 271.649)
 
 class PotcarTest(unittest.TestCase):
 
@@ -277,10 +279,14 @@ class PotcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
+        potcar = Potcar(["Fe_pv", "O"])
+        self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
         fe_potcar = open(os.path.join(test_dir, 'Fe_POTCAR')).read()
-        #specify V instead of Fe - this makes sure the test won't pass if the code just grabs the POTCAR from the config file (the config file would grab the V POTCAR)
+        #specify V instead of Fe - this makes sure the test won't pass if the
+        #code just grabs the POTCAR from the config file (the config file would
+        #grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
 
@@ -291,7 +297,7 @@ class VasprunTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        vasprun_ggau = Vasprun(filepath2)
+        vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
@@ -326,7 +332,30 @@ class VasprunTest(unittest.TestCase):
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
+        self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[(Spin.up, 0, 0, 96, Orbital.s)], 0.0032)
 
+
+    def test_to_dict(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath)
+        #Test that to_dict is json-serializable
+        json.dumps(vasprun.to_dict)
+        
+    def test_get_band_structure(self):
+        filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
+        vasprun = Vasprun(filepath)
+        bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir, 'KPOINTS_Si_bands'))
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
+        self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
+        self.assertAlmostEqual(cbm['energy'], 6.2301, "wrong cbm energy")
+        self.assertEqual(cbm['band_index'], {Spin.up: [4], Spin.down: [4]}, "wrong cbm bands")
+        self.assertEqual(vbm['kpoint_index'], [0, 63, 64], "wrong vbm kpoint index")
+        self.assertAlmostEqual(vbm['energy'], 5.6158, "wrong vbm energy")
+        self.assertEqual(vbm['band_index'], {Spin.up: [1, 2, 3], Spin.down: [1, 2, 3]}, "wrong vbm bands")
+        self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
+        self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+        
 
 class OutcarTest(unittest.TestCase):
 
@@ -346,6 +375,11 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.charge, expected_chg, 5, "Wrong charge read from Outcar")
         self.assertFalse(outcar.is_stopped)
         self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938, 'Total CPU time used (sec)': 545.142, 'Elapsed time (sec)': 546.709, 'Maximum memory used (kb)': 0.0, 'Average memory used (kb)': 0.0, 'User time (sec)': 544.204})
+        self.assertAlmostEqual(outcar.efermi, 2.0112)
+        self.assertAlmostEqual(outcar.nelect, 44.9999991)
+        self.assertAlmostEqual(outcar.total_mag, 0.9999998)
+
+        self.assertIsNotNone(outcar.to_dict)
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
@@ -384,8 +418,6 @@ class ChgcarTest(unittest.TestCase):
         #test sum
         chg += chg
         self.assertAlmostEqual(chg.get_integrated_diff(0, 1), -0.00438969322375 * 2)
-
-
 
 
 if __name__ == "__main__":

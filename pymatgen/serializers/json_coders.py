@@ -108,7 +108,6 @@ class PMGJSONEncoder(json.JSONEncoder):
         except:
             return json.JSONEncoder.default(self, o)
 
-
 class PMGJSONDecoder(json.JSONDecoder):
     """
     A Pymatgen Json Decoder which supports the from_dict API. By default, the
@@ -129,14 +128,13 @@ class PMGJSONDecoder(json.JSONDecoder):
         """
         if isinstance(d, dict):
             if 'module' in d and 'class' in d:
-
                 mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])
                     data = {k:v for k, v in d.items() if k not in ["module", "class"]}
-                    return cls.from_dict(data)
-            else:
-                return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
+                    if hasattr(cls, 'from_dict'):
+                        return cls.from_dict(data)
+            return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
         return d

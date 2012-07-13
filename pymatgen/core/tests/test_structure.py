@@ -79,7 +79,7 @@ class PeriodicSiteTest(unittest.TestCase):
         lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        self.assertTrue(site1.distance_and_image_old(site2)[0] == site1.distance_and_image(site2)[0])
+        self.assertAlmostEqual(site1.distance_and_image_old(site2)[0], site1.distance_and_image(site2)[0])
         lattice = Lattice.from_parameters(1, 0.01, 1, 10, 10, 10)
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
@@ -87,15 +87,15 @@ class PeriodicSiteTest(unittest.TestCase):
         site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
         (dist_old, jimage_old) = site1.distance_and_image_old(site2)
         (dist_new, jimage_new) = site1.distance_and_image(site2)
-        self.assertTrue(dist_old >= dist_new, "New distance algo should always give smaller answers!")
-        self.assertFalse((dist_old == dist_new) ^ (jimage_old == jimage_new).all(), "If old dist == new dist, the images returned must be the same!")
+        self.assertTrue(dist_old - dist_new > -1e-8, "New distance algo should always give smaller answers!")
+        self.assertFalse((abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all(), "If old dist == new dist, the images returned must be the same!")
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
         self.assertTrue(self.site.is_periodic_image(other), "This other site should be a periodic image.")
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         self.assertFalse(self.site.is_periodic_image(other), "This other site should not be a periodic image.")
-        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2))
+        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2, 60))
         self.assertFalse(self.site.is_periodic_image(other), "Different lattices should result in different periodic sites.")
 
     def test_equality(self):
@@ -114,6 +114,10 @@ class PeriodicSiteTest(unittest.TestCase):
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
+        site3 = PeriodicSite({"Si":0.5, "Fe":0.5}, np.array([0, 0, 0]), self.lattice)
+        d = site3.to_dict
+        site = PeriodicSite.from_dict(d)
+        self.assertEqual(site.species_and_occu, site3.species_and_occu)
 
 class StructureTest(unittest.TestCase):
 
@@ -147,10 +151,12 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, ["O", "Li"] , coords)
+        s = Structure(self.lattice, ["O", "Li"] , coords, site_properties={'charge':[-2, 1]})
         sorted_s = s.get_sorted_structure()
         self.assertEqual(sorted_s[0].species_and_occu, {Element("Li"):1})
         self.assertEqual(sorted_s[1].species_and_occu, {Element("O"):1})
+        self.assertEqual(sorted_s[0].charge, 1)
+        self.assertEqual(sorted_s[1].charge, -2)
 
     def test_fractional_occupations(self):
         coords = list()
@@ -194,9 +200,17 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(s[0].specie.spin, 3)
 
     def test_site_properties(self):
+        site_props = self.propertied_structure.site_properties
+        self.assertEqual(site_props['magmom'], [5, -5])
         self.assertEqual(self.propertied_structure[0].magmom, 5)
         self.assertEqual(self.propertied_structure[1].magmom, -5)
 
+    def test_copy(self):
+        new_struct = self.propertied_structure.copy(site_properties={'charge':[2, 3]})
+        self.assertEqual(new_struct[0].magmom, 5)
+        self.assertEqual(new_struct[1].magmom, -5)
+        self.assertEqual(new_struct[0].charge, 2)
+        self.assertEqual(new_struct[1].charge, 3)
 
     def test_interpolate(self):
         coords = list()
@@ -233,6 +247,7 @@ class StructureTest(unittest.TestCase):
         ans = [[ 0., 2.3516318],
                [ 2.3516318, 0.]]
         self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
+
 
 class MoleculeTest(unittest.TestCase):
 
@@ -307,6 +322,7 @@ occupation : 1.00"""
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
         self.assertEqual(mol[0].magmom, 0.5)
+        self.assertEqual(mol.formula, "H4 C1")
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)

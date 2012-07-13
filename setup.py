@@ -1,11 +1,14 @@
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
+from pymatgen import __version__
 
 long_description = """
-Pymatgen (python materials genomics) is the python library that powers the 
-Materials Project (http://www.materialsproject.org). These are some of the main 
-features:
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. It currently powers the public Materials Project
+(http://www.materialsproject.org), an initiative to make calculated properties
+on a large number of materials available to materials researchers and designers.
+These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule, 
    Structure objects.
@@ -17,8 +20,9 @@ features:
 3. Comprehensive tool to generate and view compositional and grand canonical phase 
    diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
+5. Integration with the Materials Project REST API.
 
-The public version of pymatgen is free (as in free beer) to download and to use. 
+The pymatgen library is free (as in free beer) to download and to use. 
 However, we would also like you to help us improve this library by making your 
 own contributions as well.  These contributions can be in the form of
 additional tools or modules you develop, or even simple things such as bug
@@ -39,9 +43,9 @@ pymatgen's Google Groups page
 
 setup (
   name='pymatgen',
-  version='1.9.1',
+  version=__version__,
   packages=find_packages(),
-  install_requires=['numpy>=1.6'],
+  install_requires=['numpy>=1.5'],
   extras_require={
         'phasediagrams' : ['scipy>=0.10'],
         'plotting':  ['matplotlib>=1.1'],
@@ -51,7 +55,7 @@ setup (
   package_data={'pymatgen.core': ['*.json'],
                   'pymatgen.io': ['*.cfg'],
                   'pymatgen.vis': ['ElementColorSchemes.cfg']},
-  author='Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Vincent L Chevrier, Rickard Armiento',
+  author='Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Will Richards, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento',
   author_email='shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, geoffroy.hautier@uclouvain.be, wrichard@mit.edu, dkgunter@lbl.gov, vincentchevrier@gmail.com, armiento@mit.edu',
   maintainer='Shyue Ping Ong',
   url='https://github.com/materialsproject/pymatgen/',

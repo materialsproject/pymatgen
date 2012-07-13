@@ -21,7 +21,7 @@ from pymatgen.core.structure import Composition
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 class ConversionElectrode(AbstractElectrode):
     """
@@ -132,11 +132,11 @@ class ConversionElectrode(AbstractElectrode):
         '''
 
         if adjacent_only:
-            return [ConversionElectrode(self._vpairs[i:i + 2], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
+            return [self.__class__(self._vpairs[i:i + 1], self._working_ion_entry, self._composition) for i in xrange(len(self._vpairs))]
         sub_electrodes = []
         for i in xrange(len(self._vpairs)):
             for j in xrange(i, len(self._vpairs)):
-                sub_electrodes.append(ConversionElectrode(self._vpairs[i:j + 1], self._working_ion_entry, self._composition))
+                sub_electrodes.append(self.__class__(self._vpairs[i:j + 1], self._working_ion_entry, self._composition))
         return sub_electrodes
 
     @property
@@ -217,7 +217,7 @@ class ConversionElectrode(AbstractElectrode):
 
     @staticmethod
     def from_dict(d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
+
         dec = PMGJSONDecoder()
         return ConversionElectrode(dec.process_decoded(d['voltage_pairs']),
                                    dec.process_decoded(d['working_ion_entry']),
@@ -454,14 +454,16 @@ class ConversionVoltagePair(AbstractVoltagePair):
         output = ["Conversion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula)]
         output.append("Reaction : {}".format(self._rxn))
         output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
+        output.append("frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge))
         output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))
         output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
         return "\n".join(output)
 
+    def __str__(self):
+        return self.__repr__()
 
     @staticmethod
     def from_dict(d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
         dec = PMGJSONDecoder()
         working_ion_entry = dec.process_decoded(d['working_ion_entry'])
         balanced_rxn = dec.process_decoded(d['balanced_rxn'])
@@ -472,7 +474,6 @@ class ConversionVoltagePair(AbstractVoltagePair):
                                    d['mass_charge'], d['mass_discharge'],
                                    d['frac_charge'], d['frac_discharge'],
                                    entries_charge, entries_discharge, working_ion_entry)
-
 
     @property
     def to_dict(self):
@@ -492,3 +493,4 @@ class ConversionVoltagePair(AbstractVoltagePair):
         d['entries_charge'] = [e.to_dict for e in self._entries_charge]
         d['entries_discharge'] = [e.to_dict for e in self._entries_discharge]
         return d
+

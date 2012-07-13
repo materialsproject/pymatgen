@@ -133,12 +133,13 @@ class TransformedStructure(MSONable):
 
         if return_alternatives and transformation.is_one_to_many:
             starting_struct = self._structures[-1]
-            ranked_list = transformation.apply_transformation(starting_struct, return_ranked_list=return_alternatives)
+            ranked_list = transformation.apply_transformation(starting_struct,
+                                        return_ranked_list=return_alternatives)
             #generate the alternative structures
             alts = []
             for x in ranked_list[1:]:
                 struct = x.pop('structure')
-                other_paras = [p for p in self._other_parameters]
+                other_paras = self._other_parameters.copy()
                 hist = self.history
                 actual_transformation = x.pop('transformation', transformation)
                 tdict = actual_transformation.to_dict
@@ -181,8 +182,8 @@ class TransformedStructure(MSONable):
                 vasp input files from structures
             generate_potcar:
                 Set to False to generate a POTCAR.spec file instead of a POTCAR,
-                which contains the POTCAR labels but not the actual POTCAR. Defaults
-                to True.
+                which contains the POTCAR labels but not the actual POTCAR.
+                Defaults to True.
         """
         d = vasp_input_set.get_all_vasp_input(self._structures[-1], generate_potcar)
         d['transformations.json'] = json.dumps(self.to_dict)
@@ -215,7 +216,7 @@ class TransformedStructure(MSONable):
         output.append("\nTransformation history")
         output.append("------------")
         for i, t in enumerate(self._transformations):
-            output.append(str(t.to_dict) + ' ' + str(self._transformation_parameters[i]))
+            output.append("{} {}".format(t.to_dict, self._transformation_parameters[i]))
         output.append("\nOther parameters")
         output.append("------------")
         output.append(str(self._other_parameters))
@@ -293,7 +294,8 @@ class TransformedStructure(MSONable):
         return d
 
     @staticmethod
-    def from_cif_string(cif_string, transformations=[], primitive=True):
+    def from_cif_string(cif_string, transformations=[], primitive=True,
+                        occupancy_tolerance=1.):
         """
         Generates TransformedStructure from a cif string.
 
@@ -302,15 +304,19 @@ class TransformedStructure(MSONable):
                 Input cif string. Should contain only one structure. For cifs
                 containing multiple structures, please use CifTransmuter.
             transformations:
-                Sequence of transformations to be applied to the input structure.
-            primitive:
-                Option to set if the primitive cell should be extracted. Defaults
-                to True. However, there are certain instances where you might want
-                to use a non-primitive cell, e.g., if you are trying to generate
-                all possible orderings of partial removals or order a disordered
+                Sequence of transformations to be applied to the input
                 structure.
+            primitive:
+                Option to set if the primitive cell should be extracted.
+                Defaults to True. However, there are certain instances where
+                you might want to use a non-primitive cell, e.g., if you are
+                trying to generate all possible orderings of partial removals
+                or order a disordered structure.
+            occupancy_tolerance:
+                If total occupancy of a site is between 1 and
+                occupancy_tolerance, the occupancies will be scaled down to 1.
         """
-        parser = CifParser.from_string(cif_string)
+        parser = CifParser.from_string(cif_string, occupancy_tolerance)
         raw_string = re.sub("'", "\"", cif_string)
         cif_dict = parser.to_dict
         cif_keys = cif_dict.keys()
