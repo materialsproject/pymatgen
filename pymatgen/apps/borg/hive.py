@@ -128,7 +128,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 Or else, a randomly chosen file containing vasprun.xml is chosen.
                 """
                 for fname in vasprun_files:
-                    if os.path.basename(fname) in ["vasprun.xml", "vasprun.xml.gz", "vasprun.xml.bz2"]:
+                    if os.path.basename(fname) in ["vasprun.xml",
+                                                   "vasprun.xml.gz",
+                                                   "vasprun.xml.bz2"]:
                         filepath = fname
                         break
                     if re.search("relax2", fname):
@@ -219,13 +221,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                                     "relax1", "POTCAR*"))[-1]
                 files_to_parse['CONTCAR'] = glob.glob(os.path.join(path,
                                                     "relax2", "CONTCAR*"))[-1]
+                files_to_parse['POSCAR'] = glob.glob(os.path.join(path,
+                                                    "relax1", "POSCAR*"))[-1]
             else:
                 files_to_parse['INCAR'] = glob.glob(os.path.join(path,
                                                                  "INCAR*"))[0]
                 files_to_parse['POTCAR'] = glob.glob(os.path.join(path,
                                                                 "POTCAR*"))[-1]
 
-                for filename in ("CONTCAR", "OSZICAR"):
+                for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
                     files = glob.glob(os.path.join(path, "{}*".format(filename)))
                     if len(files) == 1:
                         files_to_parse[filename] = files[0]
@@ -241,7 +245,10 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                             if os.path.basename(fname) in [filename, filename + ".gz", filename + ".bz2"]:
                                 files_to_parse[filename] = fname
                                 break
-                            if re.search("relax2", fname):
+                            if fname == "POSCAR" and re.search("relax1", fname):
+                                files_to_parse[filename] = fname
+                                break
+                            if (fname in ("CONTCAR", "OSZICAR") and re.search("relax2", fname)):
                                 files_to_parse[filename] = fname
                                 break
                             files_to_parse[filename] = fname
@@ -255,18 +262,24 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             param["potcar_symbols"] = potcar.symbols
             oszicar = Oszicar(files_to_parse['OSZICAR'])
             energy = oszicar.final_energy
+            poscar = Poscar.from_file(files_to_parse['POSCAR'])
             contcar = Poscar.from_file(files_to_parse['CONTCAR'])
             structure = contcar.structure
+            initial_vol = poscar.structure.volume
+            final_vol = contcar.structure.volume
+            delta_volume = (final_vol / initial_vol - 1)
         except Exception as ex:
             logger.debug("error in {}: {}".format(path, ex))
             return None
 
+        data = {'filename':path, 'delta_volume':delta_volume}
+
         if self._inc_structure:
             entry = ComputedStructureEntry(structure, energy, parameters=param,
-                                           data={'filename':path})
+                                           data=data)
         else:
             entry = ComputedEntry(structure.composition, energy,
-                                  parameters=param, data={'filename':path})
+                                  parameters=param, data=data)
         return entry
 
     def __str__(self):
