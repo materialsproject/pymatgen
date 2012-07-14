@@ -12,16 +12,19 @@ import logging
 
 from pymatgen.io.vaspio import Outcar
 from pymatgen.util.string_utils import str_aligned
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
 
-def get_energies(rootdir, reanalyze, verbose, pretty):
+def get_energies(rootdir, reanalyze, verbose, pretty, detailed):
     if verbose:
         FORMAT = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=FORMAT)
-    drone = VaspToComputedEntryDrone(inc_structure=True, data=['filename'])
+    if not detailed:
+        drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
+    else:
+        drone = VaspToComputedEntryDrone(inc_structure=True, data=['filename'])
     ncpus = multiprocessing.cpu_count()
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
@@ -78,11 +81,12 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--force', dest="reanalyze", action='store_const', const=True, help='force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyze the data.')
     parser.add_argument('-v', '--verbose', dest="verbose", action='store_const', const=True, help='verbose mode. Provides detailed output on progress.')
     parser.add_argument('-p', '--pretty', dest="pretty", action='store_const', const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
+    parser.add_argument('-d', '--detailed', dest="detailed", action='store_const', const=True, help='Detailed mode. Parses vasprun.xml instead of separate vasp input. Slower.')
 
     args = parser.parse_args()
     if args.get_energies:
         for d in args.directories:
-            get_energies(d, args.reanalyze, args.verbose, args.pretty)
+            get_energies(d, args.reanalyze, args.verbose, args.pretty, args.detailed)
     if args.ion_list:
         ion_list = list()
         (start, end) = map(int, re.split("-", args.ion_list[0]))

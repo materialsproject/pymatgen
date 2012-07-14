@@ -19,7 +19,7 @@ import re
 import glob
 import logging
 
-from pymatgen.io.vaspio import Vasprun
+from pymatgen.io.vaspio import Vasprun, Incar, Potcar, Poscar, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.serializers.json_coders import MSONable
@@ -85,7 +85,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     1. There can be only one vasp run in each directory.
     2. Directories designated "relax1", "relax2" are considered to be 2 parts of
        an aflow style run, and only "relax2" is parsed.
-       
+    3. The drone parses only the vasprun.xml file.
     """
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
@@ -149,10 +149,12 @@ class VaspToComputedEntryDrone(AbstractDrone):
             data[d] = getattr(vasprun, d)
         if self._inc_structure:
             entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy, parameters=param, data=data)
+                                   vasprun.final_energy, parameters=param,
+                                   data=data)
         else:
             entry = ComputedEntry(vasprun.final_structure.composition,
-                                   vasprun.final_energy, parameters=param, data=data)
+                                   vasprun.final_energy, parameters=param,
+                                   data=data)
         return entry
 
     def get_valid_paths(self, path):
@@ -182,6 +184,105 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def from_dict(d):
         return VaspToComputedEntryDrone(**d['init_args'])
 
+
+
+class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
+    """
+    A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
+    parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
+    smaller and faster to parse. However, much fewer properties are available
+    compared to the standard VaspToComputedEntryDrone.
+    """
+
+    def __init__(self, inc_structure=False):
+        """
+        Args:
+            inc_structure:
+                Set to True if you want ComputedStructureEntries to be returned
+                instead of ComputedEntries. Structure will be parsed from the
+                CONTCAR.
+        """
+        self._inc_structure = inc_structure
+        self._parameters = set(["is_hubbard", "hubbards", "potcar_symbols",
+                                "run_type"])
+
+    def assimilate(self, path):
+        files = os.listdir(path)
+        try:
+            files_to_parse = {}
+            if 'relax1' in files and 'relax2' in files:
+                files_to_parse['INCAR'] = glob.glob(os.path.join(path, "relax1",
+                                                                 "INCAR*"))[0]
+                files_to_parse['OSZICAR'] = glob.glob(os.path.join(path,
+                                                    "relax2", "OSZICAR*"))[0]
+                files_to_parse['POTCAR'] = glob.glob(os.path.join(path,
+                                                    "relax1", "POTCAR*"))[-1]
+                files_to_parse['CONTCAR'] = glob.glob(os.path.join(path,
+                                                    "relax2", "CONTCAR*"))[-1]
+            else:
+                files_to_parse['INCAR'] = glob.glob(os.path.join(path,
+                                                                 "INCAR*"))[0]
+                files_to_parse['POTCAR'] = glob.glob(os.path.join(path,
+                                                                "POTCAR*"))[-1]
+
+                for filename in ("CONTCAR", "OSZICAR"):
+                    files = glob.glob(os.path.join(path, "{}*".format(filename)))
+                    if len(files) == 1:
+                        files_to_parse[filename] = files[0]
+                    elif len(files) > 1:
+                        """
+                        This is a bit confusing, since there maybe be multi-steps. By 
+                        default, assimilate will try to find a file simply named 
+                        filename, filename.bz2, or filename.gz.  Failing which
+                        it will try to get a relax2 from an aflow style run if possible.
+                        Or else, a randomly chosen file containing vasprun.xml is chosen.
+                        """
+                        for fname in files:
+                            if os.path.basename(fname) in [filename, filename + ".gz", filename + ".bz2"]:
+                                files_to_parse[filename] = fname
+                                break
+                            if re.search("relax2", fname):
+                                files_to_parse[filename] = fname
+                                break
+                            files_to_parse[filename] = fname
+
+            param = {}
+            incar = Incar.from_file(files_to_parse['INCAR'])
+            param['hubbards'] = incar.get('LDAUU', {})
+            param['is_hubbard'] = incar.get('LDAU', False) and sum(param['hubbards'].values()) > 0
+            param['run_type'] = "GGA+U" if param['is_hubbard'] else "GGA"
+            potcar = Potcar.from_file(files_to_parse['POTCAR'])
+            param["potcar_symbols"] = potcar.symbols
+            oszicar = Oszicar(files_to_parse['OSZICAR'])
+            energy = oszicar.final_energy
+            contcar = Poscar.from_file(files_to_parse['CONTCAR'])
+            structure = contcar.structure
+        except Exception as ex:
+            logger.debug("error in {}: {}".format(path, ex))
+            return None
+
+        if self._inc_structure:
+            entry = ComputedStructureEntry(structure, energy, parameters=param,
+                                           data={'filename':path})
+        else:
+            entry = ComputedEntry(structure.composition, energy,
+                                  parameters=param, data={'filename':path})
+        return entry
+
+    def __str__(self):
+        return "SimpleVaspToComputedEntryDrone"
+
+    @property
+    def to_dict(self):
+        init_args = {'inc_structure' : self._inc_structure}
+        d = {'init_args': init_args, 'version': __version__ }
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return SimpleVaspToComputedEntryDrone(**d['init_args'])
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
