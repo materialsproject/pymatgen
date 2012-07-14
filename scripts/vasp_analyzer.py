@@ -21,24 +21,31 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed):
     if verbose:
         FORMAT = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=FORMAT)
+
     if not detailed:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True, data=['filename'])
+
     ncpus = multiprocessing.cpu_count()
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists('vasp_analyzer_data.gz') and not reanalyze:
-        msg = 'Using previously assimilated data from vasp_analyzer_data.gz. Use -f to force re-analysis'
+        msg = 'Using previously assimilated data from vasp_analyzer_data.gz.' + \
+              ' Use -f to force re-analysis'
         queen.load_data('vasp_analyzer_data.gz')
     else:
         queen.parallel_assimilate(rootdir)
-        msg = 'Analysis results saved to vasp_analyzer_data.gz for faster subsequent loading.'
+        msg = 'Analysis results saved to vasp_analyzer_data.gz for faster ' + \
+              'subsequent loading.'
         queen.save_data('vasp_analyzer_data.gz')
 
     entries = queen.get_data()
     entries = sorted(entries, key=lambda x:x.data['filename'])
-    all_data = [(e.data['filename'].replace("./", ""), e.composition.formula, "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom), "{:.2f}".format(e.structure.volume)) for e in entries]
+    all_data = [(e.data['filename'].replace("./", ""),
+                 re.sub("\s+", "", e.composition.formula),
+                 "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom),
+                 "{:.2f}".format(e.structure.volume)) for e in entries]
     headers = ("Directory", "Formula", "Energy", "E/Atom", "Vol")
     if pretty:
         from prettytable import PrettyTable
