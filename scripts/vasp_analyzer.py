@@ -121,7 +121,11 @@ if __name__ == "__main__":
                         help='Sort criteria. Defaults to energy / atom.')
 
     args = parser.parse_args()
-    if args.get_energies:
+
+    if not (args.get_energies or args.ion_list):
+        default_energies = True
+
+    if args.get_energies or default_energies:
         for d in args.directories:
             get_energies(d, args.reanalyze, args.verbose, args.pretty,
                          args.detailed, args.sort[0])
