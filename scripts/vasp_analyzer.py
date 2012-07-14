@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 
 """
-A convenience script engine using VaspObjects to do all manner of simple outputs.
-Written by Shyue Ping Ong
+A convenience script engine to read vasp output in a directory tree.
 """
+
+from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Jul 9, 2012"
+
 
 import argparse
 import os
@@ -81,14 +90,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''Convenient vasp run analyzer which can recursively go into a directory to search results.
     Author: Shyue Ping Ong
     Version: 1.0
-    Last updated: Nov 15 2011''')
-    parser.add_argument('directories', metavar='dir', default='.', type=str, nargs='*', help='directory to process (default to .)')
-    parser.add_argument('-e', '--energies', dest='get_energies', action='store_const', const=True, help='print energies')
-    parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs=1, help='print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
-    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const', const=True, help='force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyze the data.')
-    parser.add_argument('-v', '--verbose', dest="verbose", action='store_const', const=True, help='verbose mode. Provides detailed output on progress.')
-    parser.add_argument('-p', '--pretty', dest="pretty", action='store_const', const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
-    parser.add_argument('-d', '--detailed', dest="detailed", action='store_const', const=True, help='Detailed mode. Parses vasprun.xml instead of separate vasp input. Slower.')
+    Last updated: Jul 14 2012''')
+    parser.add_argument('directories', metavar='dir', default='.',
+                        type=str, nargs='*', help='directory to process (default to .)')
+    parser.add_argument('-e', '--energies', dest='get_energies',
+                        action='store_const', const=True, help='print energies')
+    parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs=1,
+                        help='print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
+    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const',
+                        const=True, help='force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyze the data.')
+    parser.add_argument('-v', '--verbose', dest="verbose", action='store_const',
+                        const=True, help='verbose mode. Provides detailed output on progress.')
+    parser.add_argument('-p', '--pretty', dest="pretty", action='store_const',
+                        const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
+    parser.add_argument('-d', '--detailed', dest="detailed", action='store_const',
+                        const=True, help='Detailed mode. Parses vasprun.xml instead of separate vasp input. Slower.')
 
     args = parser.parse_args()
     if args.get_energies:

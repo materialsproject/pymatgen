@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 
 """
-A convenience script engine using VaspObjects to do all manner of simple outputs.
-Written by Shyue Ping Ong
+A convenience script engine to read Gaussian output in a directory tree.
 """
+
+from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Jul 9, 2012"
+
 
 import argparse
 import os
