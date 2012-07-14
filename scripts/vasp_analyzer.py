@@ -25,6 +25,7 @@ from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComput
 from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
+save_file = 'vasp_data.gz'
 
 def get_energies(rootdir, reanalyze, verbose, pretty, detailed):
     if verbose:
@@ -39,15 +40,15 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed):
     ncpus = multiprocessing.cpu_count()
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
-    if os.path.exists('vasp_analyzer_data.gz') and not reanalyze:
-        msg = 'Using previously assimilated data from vasp_analyzer_data.gz.' + \
-              ' Use -f to force re-analysis'
-        queen.load_data('vasp_analyzer_data.gz')
+    if os.path.exists(save_file) and not reanalyze:
+        msg = 'Using previously assimilated data from {}.'.format(save_file) + \
+              ' Use -f to force re-analysis.'
+        queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
-        msg = 'Analysis results saved to vasp_analyzer_data.gz for faster ' + \
+        msg = 'Analysis results saved to {} for faster '.format(save_file) + \
               'subsequent loading.'
-        queen.save_data('vasp_analyzer_data.gz')
+        queen.save_data(save_file)
 
     entries = queen.get_data()
     entries = sorted(entries, key=lambda x:x.data['filename'])

@@ -24,7 +24,7 @@ from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
-save_file = "gaussian_analyzer_data.gz"
+save_file = "gau_data.gz"
 
 def get_energies(rootdir, reanalyze, verbose, pretty):
     if verbose:
@@ -35,7 +35,8 @@ def get_energies(rootdir, reanalyze, verbose, pretty):
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
-        msg = 'Using previously assimilated data from {}. Use -f to force re-analysis'.format(save_file)
+        msg = 'Using previously assimilated data from {}. ' + \
+              'Use -f to force re-analysis'.format(save_file)
         queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
@@ -68,10 +69,14 @@ if __name__ == "__main__":
     Author: Shyue Ping Ong
     Version: 1.0
     Last updated: Jul 6 2012''')
-    parser.add_argument('directories', metavar='dir', default='.', type=str, nargs='*', help='directory to process')
-    parser.add_argument('-v', '--verbose', dest="verbose", action='store_const', const=True, help='verbose mode. Provides detailed output on progress.')
-    parser.add_argument('-p', '--pretty', dest="pretty", action='store_const', const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
-    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const', const=True, help='force reanalysis. Typically, gaussian_analyzer will just reuse a gaussian_analyzer_data.gz if present. This forces the analyzer to reanalyze.')
+    parser.add_argument('directories', metavar='dir', default='.', type=str,
+                        nargs='*', help='directory to process')
+    parser.add_argument('-v', '--verbose', dest="verbose", action='store_const',
+                        const=True, help='verbose mode. Provides detailed output on progress.')
+    parser.add_argument('-p', '--pretty', dest="pretty", action='store_const',
+                        const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
+    parser.add_argument('-f', '--force', dest="reanalyze", action='store_const',
+                        const=True, help='force reanalysis. Typically, gaussian_analyzer will just reuse a gaussian_analyzer_data.gz if present. This forces the analyzer to reanalyze.')
 
     args = parser.parse_args()
     for d in args.directories:
