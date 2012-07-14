@@ -147,15 +147,23 @@ class VaspInputSet(AbstractVaspInputSet):
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
     """
-    def __init__(self, name, config=None):
+    def __init__(self, name, config_file=None):
+        """
+        Args:
+            name:
+                The name in the config file.
+            config_file:
+                The config file to use. If None (the default), a default config
+                file containing Materials Project and MIT parameters is used.
+        """
         self.name = name
-        if config is None:
+        if config_file is None:
             module_dir = os.path.dirname(os.path.abspath(__file__))
-            self._config = ConfigParser.SafeConfigParser()
-            self._config.optionxform = str
-            self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
-        else:
-            self._config = config
+            config_file = os.path.join(module_dir, "VaspInputSets.cfg")
+        self._config = ConfigParser.SafeConfigParser()
+        self._config.optionxform = str
+        self._config.readfp(open(config_file))
+
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name + 'INCAR'))

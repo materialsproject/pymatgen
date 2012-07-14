@@ -2327,6 +2327,7 @@ class Outcar(object):
         d['is_stopped'] = self.is_stopped
         return d
 
+
 class VolumetricData(object):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
