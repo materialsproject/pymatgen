@@ -28,6 +28,7 @@ import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
+
 class SymmetryFinderTest(unittest.TestCase):
 
     def setUp(self):
@@ -44,14 +45,20 @@ class SymmetryFinderTest(unittest.TestCase):
         editor.append_site(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
 
+        parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
+        graphite = parser.get_structures()[0]
+        self.sg4 = SymmetryFinder(graphite, 0.001)
+
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
         self.assertEqual(self.disordered_sg.get_spacegroup_symbol(), "P4_2/nmc")
         self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
+        self.assertEqual(self.sg4.get_spacegroup_symbol(), "R-3m")
 
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
         self.assertEqual(self.disordered_sg.get_spacegroup_number(), 137)
+        self.assertEqual(self.sg4.get_spacegroup_number(), 166)
 
     def test_get_hall(self):
         self.assertEqual(self.sg.get_hall(), '-P 2ac 2n')
