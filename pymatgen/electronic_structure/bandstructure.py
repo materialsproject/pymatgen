@@ -1,0 +1,570 @@
+#!/usr/bin/env python
+
+"""
+This module provides classes to define everything related to band structures.
+"""
+
+__author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Geoffroy Hautier"
+__email__ = "geoffroy@uclouvain.be"
+__status__ = "Development"
+__date__ = "March 14, 2012"
+
+
+import numpy as np
+import math
+from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.serializers.json_coders import MSONable
+
+
+class Kpoint(MSONable):
+    """
+    Class to store kpoint objects. A kpoint is defined with a lattice and frac 
+    or cartesian coordinates syntax similar than the site object in 
+    pymatgen.core.structure.
+    """
+
+    def __init__(self, coords, lattice, to_unit_cell=False,
+                 coords_are_cartesian=False, label=None):
+        """
+        Args:
+            coords:
+                coordinate of the kpoint as a numpy array
+            lattice:
+                a pymatgen.core.lattice.Lattice lattice object representing the reciprocal lattice of the kpoint
+            to_unit_cell:
+                translates fractional coordinate to the basic unit cell, i.e. all fractional coordinates satisfy 0 <= a < 1.
+                Defaults to False.
+            coords_are_cartesian:
+                Boolean indicating if the coordinates given are in cartesian or fractional coordinates (by default fractional)
+            label:
+                the label of the kpoint if any (None by default)
+            
+        """
+        self._lattice = lattice
+        self._fcoords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
+        self._label = label
+
+        if to_unit_cell:
+            for i in xrange(len(self._fcoords)):
+                self._fcoords[i] = self._fcoords[i] - math.floor(self._fcoords[i])
+
+        self._ccoords = lattice.get_cartesian_coords(self._fcoords)
+
+    @property
+    def lattice(self):
+        """
+        The lattice associated with the kpoint. It's a pymatgen.core.lattice.Lattice object
+        """
+        return self._lattice
+
+    @property
+    def label(self):
+        """
+        The label associated with the kpoint
+        """
+        return self._label
+
+    @property
+    def frac_coords(self):
+        """
+        The fractional coordinates of the kpoint as a numpy array
+        """
+        return np.copy(self._fcoords)
+
+    @property
+    def cart_coords(self):
+        """
+        The cartesian coordinates of the kpoint as a numpy array
+        """
+        return np.copy(self._ccoords)
+
+    @property
+    def a(self):
+        """
+        Fractional a coordinate of the kpoint
+        """
+        return self._fcoords[0]
+
+    @property
+    def b(self):
+        """
+        Fractional b coordinate of the kpoint
+        """
+        return self._fcoords[1]
+
+    @property
+    def c(self):
+        """
+        Fractional c coordinate of the kpoint
+        """
+        return self._fcoords[2]
+
+    def __str__(self):
+        """
+        Returns a string with fractional, cartesian coordinates and label
+        """
+        return str(self.frac_coords) + " " + str(self.cart_coords) + " " + str(self.label)
+
+    @property
+    def to_dict(self):
+        """
+        Json-serializable dict representation of a kpoint
+        """
+        d = {'lattice':self.lattice.to_dict, 'fcoords':list(self.frac_coords),
+             'ccoords':list(self.cart_coords), 'label':self.label}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+
+class BandStructure(object):
+    """
+    This is the most generic band structure data possible
+    it's defined by a list of kpoints + energies for each of them
+    """
+
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict={},
+                 coords_are_cartesian=False):
+        """
+        Args:
+            kpoints:
+                list of kpoint as numpy arrays, in frac_coords of the 
+                given lattice by default
+            eigenvals: 
+                dict of energies for spin up and spin down
+                {Spin.up:[][],Spin.down:[][]}, the first index of the array
+                [][] refers to the band and the second to the index of the
+                kpoint. The kpoints are ordered according to the order of the
+                kpoints array. If the band structure is not spin polarized, we
+                only store one data set under Spin.up
+            lattice: 
+                The reciprocal lattice as a pymatgen Lattice object.
+            label_dict:
+                (dict) of {} this link a kpoint (in frac coords or cartesian 
+                coordinates depending on the coords).
+            coords_are_cartesian:
+                Whether coordinates are cartesian.
+            efermi: 
+                fermi energy
+        """
+
+        self._efermi = efermi
+        self._lattice_rec = lattice
+        self._kpoints = []
+        self._labels_dict = {}
+
+        for k in kpoints:
+            #let see if this kpoint has been assigned a label
+            label = None
+            for c in labels_dict:
+                if np.linalg.norm(k - np.array(labels_dict[c])) < 0.0001:
+                    label = c
+                    self._labels_dict[label] = Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian)
+            self._kpoints.append(Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
+
+        self._bands = eigenvals
+        self._nb_bands = len(eigenvals[Spin.up])
+
+        self._is_spin_polarized = False
+        if len(self._bands) == 2:
+            self._is_spin_polarized = True
+
+    @property
+    def kpoints(self):
+        """
+        the list of kpoints (as Kpoint objects) in the band structure
+        """
+        return self._kpoints
+
+    @property
+    def lattice(self):
+        """
+        the lattice of the band structure as a pymatgen Lattice object
+        """
+        return self._lattice_rec
+
+    @property
+    def efermi(self):
+        """
+        the fermi energy
+        """
+        return self._efermi
+
+    @property
+    def is_spin_polarized(self):
+        """
+        True if the band structure is spin-polarized, False otherwise
+        """
+        return self._is_spin_polarized
+    
+
+
+class BandStructureSymmLine(BandStructure, MSONable):
+    """
+    This object stores band structures along selected (symmetry) lines in the
+    Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z) 
+    "branches".
+    """
+
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
+                 coords_are_cartesian=False):
+        """
+        Args:
+            kpoints:
+                list of kpoint as numpy arrays, in frac_coords of the 
+                given lattice by default
+            eigenvals: 
+                dict of energies for spin up and spin down
+                {Spin.up:[][],Spin.down:[][]}, the first index of the array
+                [][] refers to the band and the second to the index of the
+                kpoint. The kpoints are ordered according to the order of the
+                kpoints array. If the band structure is not spin polarized, we
+                only store one data set under Spin.up.
+            lattice: 
+                The reciprocal lattice.
+            efermi: 
+                fermi energy
+            label_dict:
+                (dict) of {} this link a kpoint (in frac coords or cartesian 
+                coordinates depending on the coords).
+            coords_are_cartesian:
+                Whether coordinates are cartesian.
+        """
+        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
+                               labels_dict, coords_are_cartesian)
+        self._distance = []
+        self._branches = []
+        one_group = []
+        branches_tmp = []
+        #get labels and distance for each kpoint
+        previous_kpoint = self._kpoints[0]
+        previous_distance = 0.0
+
+        previous_label = self._kpoints[0].label
+        for i in range(len(self._kpoints)):
+            label = self._kpoints[i].label
+            if label != None and previous_label != None:
+                self._distance.append(previous_distance)
+            else:
+                self._distance.append(np.linalg.norm(self._kpoints[i].cart_coords - previous_kpoint.cart_coords) + previous_distance)
+            previous_kpoint = self._kpoints[i]
+            previous_distance = self._distance[i]
+            if label:
+                if previous_label:
+                    if len(one_group) != 0:
+                        branches_tmp.append(one_group)
+                    one_group = []
+            previous_label = label
+            one_group.append(i)
+
+        if len(one_group) != 0:
+            branches_tmp.append(one_group)
+        for b in branches_tmp:
+            self._branches.append({'start_index':b[0], 'end_index':b[-1], 'name':(self._kpoints[b[0]].label + "-" + self._kpoints[b[-1]].label)})
+
+        self._is_spin_polarized = False
+        if len(self._bands) == 2:
+            self._is_spin_polarized = True
+
+    def get_equivalent_kpoints(self, index):
+        """
+        Returns the list of kpoint indices equivalent (meaning they are the
+        same frac coords) to the given one.
+        
+        Args:
+            index:
+                the kpoint index
+        
+        Returns:
+            a list of equivalent indices
+            
+        TODO: now it uses the label we might want to use coordinates instead 
+        (in case there was a mislabel)
+        """
+        #if the kpoint has no label it can't have a repetition along the band structure line object
+
+        if self._kpoints[index].label == None:
+            return [index]
+
+        list_index_kpoints = []
+        for i in range(len(self._kpoints)):
+            if self._kpoints[i].label == self._kpoints[index].label:
+                list_index_kpoints.append(i)
+
+        return list_index_kpoints
+
+    def get_branch(self, index):
+        """
+        Returns in what branch(es) is the kpoint. There can be several branches.
+        
+        Args:
+            index:
+                the kpoint index
+        
+        Returns:
+            A list of dictionaries [{'name','start_index','end_index','index'}]
+            indicating all branches in which the k_point is. It takes into
+            account the fact that one kpoint (e.g., \Gamma) can be in several
+            branches
+        """
+        to_return = []
+        for i in self.get_equivalent_kpoints(index):
+            for b in self._branches:
+                    if b['start_index'] <= i <= b['end_index']:
+                        to_return.append({'name':b['name'], 'start_index':b['start_index'], 'end_index':b['end_index'], 'index':i})
+        return to_return
+
+    def get_vbm(self):
+        """
+        Returns data about the VBM.
+        
+        Returns:
+            dict as {'band_index','kpoint_index','kpoint','energy'}
+                'band_index':
+                    A dict with spin keys pointing to a list of the indices of
+                    the band containing the VBM (please note that you can have
+                    several bands sharing the VBM) {Spin.up:[],Spin.down:[]}
+                'kpoint_index':
+                    The list of indices in self._kpoints for the kpoint vbm.
+                    Please note that there can be several kpoint_indices
+                    relating to the same kpoint (e.g., Gamma can occur at
+                    different spots in the band structure line plot)
+                'kpoint':
+                    The kpoint (as a kpoint object)
+                'energy':
+                    The energy of the VBM
+        """
+        if self.is_metal():
+            return {'band_index':[], 'kpoint_index':[],
+                'kpoint':[], 'energy':None}
+        max_tmp = -1000.0
+        index = None
+        kpointvbm = None
+        for i in range(self._nb_bands):
+            for j in range(len(self._kpoints)):
+                for spin in self._bands:
+                    if self._bands[spin][i][j] < self._efermi:
+                        if self._bands[spin][i][j] > max_tmp:
+                            max_tmp = self._bands[spin][i][j]
+                            index = j
+                            kpointvbm = self._kpoints[j]
+
+        list_index_kpoints = []
+        if kpointvbm.label != None:
+            for i in range(len(self._kpoints)):
+                if self._kpoints[i].label == kpointvbm.label:
+                    list_index_kpoints.append(i)
+        else:
+            list_index_kpoints.append(index)
+        #get all other bands sharing the vbm
+        list_index_band = {Spin.up:[]}
+        if self.is_spin_polarized:
+            list_index_band = {Spin.up:[], Spin.down:[]}
+        for spin in self._bands:
+            for i in range(self._nb_bands):
+                if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
+                    list_index_band[spin].append(i)
+        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
+                'kpoint':kpointvbm, 'energy':max_tmp}
+
+    def get_cbm(self):
+        """
+        Returns data about the CBM.
+        
+        Returns:
+            {'band_index','kpoint_index','kpoint','energy'}
+                'band_index':
+                    A dict with spin keys pointing to a list of the indices of
+                    the band containing the CBM (please note that you can have
+                    several bands sharing the CBM) {Spin.up:[],Spin.down:[]}
+                'kpoint_index':
+                    The list of indices in self._kpoints for the kpoint vbm.
+                    Please note that there can be several kpoint_indices
+                    relating to the same kpoint (e.g., Gamma can occur at
+                    different spots in the band structure line plot)
+                'kpoint':
+                    The kpoint (as a kpoint object)
+                'energy':
+                    The energy of the CBM
+        """
+        if self.is_metal():
+            return {'band_index':[], 'kpoint_index':[],
+                'kpoint':[], 'energy':None}
+        max_tmp = 1000.0
+        index = None
+        kpointcbm = None
+        for spin in self._bands:
+            for i in range(self._nb_bands):
+                for j in range(len(self._kpoints)):
+                    if self._bands[spin][i][j] > self._efermi:
+                        if self._bands[spin][i][j] < max_tmp:
+                            max_tmp = self._bands[spin][i][j]
+                            index = j
+                            kpointcbm = self._kpoints[j]
+        list_index_kpoints = []
+
+        if kpointcbm.label != None:
+            for i in range(len(self._kpoints)):
+                if self._kpoints[i].label == kpointcbm.label:
+                    list_index_kpoints.append(i)
+        else:
+            list_index_kpoints.append(index)
+        #get all other bands sharing the vbm
+        list_index_band = {Spin.up:[]}
+        if self.is_spin_polarized:
+            list_index_band = {Spin.up:[], Spin.down:[]}
+        for spin in self._bands:
+            for i in range(self._nb_bands):
+                if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
+                    list_index_band[spin].append(i)
+        return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
+                'kpoint':kpointcbm, 'energy':max_tmp}
+
+    def get_band_gap(self):
+        """
+        Returns band gap data.
+        
+        Returns:
+             a dict {'energy','direct','transition'}:
+                'energy':
+                    the band gap energy
+                'direct':
+                    A boolean telling if the gap is direct (True) or not (False)
+                'transition': 
+                    The kpoint labels of the transition (e.g., "\Gamma-X")
+        """
+        if self.is_metal():
+            return {'energy':0.0, 'direct':False, 'transition':None}
+        cbm = self.get_cbm()
+        vbm = self.get_vbm()
+        result = dict(direct=False, energy=0.0, transition=None)
+
+        result['energy'] = cbm['energy'] - vbm['energy']
+
+        if cbm['kpoint'].label == vbm['kpoint'].label or np.linalg.norm(cbm['kpoint'].cart_coords - vbm['kpoint'].cart_coords) < 0.01:
+            result['direct'] = True
+        result['transition'] = '-'.join([str(c.label) if c.label is not None else str("(") + ','.join(['{0:.3f}'.format(c.frac_coords[i]) for i in range(3)]) + str(")") for c in [vbm['kpoint'], cbm['kpoint']]])
+        return result
+
+    def is_metal(self):
+        """
+        Check if the band structure indicates a metal by looking if the fermi
+        level crosses a band.
+        
+        Returns:
+            True if a metal, False if not
+        """
+        #print self._efermi
+        for i in range(self._nb_bands):
+            below = False
+            above = False
+            for j in range(len(self._kpoints)):
+                if self._bands[Spin.up][i][j] < self._efermi:
+                    below = True
+                if self._bands[Spin.up][i][j] > self._efermi:
+                    above = True
+            if above and below:
+                return True
+            if self.is_spin_polarized:
+                below = False
+                above = False
+                for j in range(len(self._kpoints)):
+                    if self._bands[Spin.down][i][j] < self._efermi:
+                        below = True
+                    if self._bands[Spin.down][i][j] > self._efermi:
+                        above = True
+                if above and below:
+                    return True
+        return False
+
+    @property
+    def to_dict(self):
+        """
+        Json-serializable dict representation of BandStructureSymmLine.
+        """
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['lattice_rec'] = self._lattice_rec.to_dict
+        d['efermi'] = self._efermi
+        d['kpoints'] = []
+        #kpoints are not kpoint objects dicts but are frac coords (this makes the dict
+        #smaller and avoids the repetition of the lattice
+        for k in self._kpoints:
+            d['kpoints'].append(k.to_dict['fcoords'])
+        d['branches'] = self._branches
+        d['bands'] = { str(int(spin)) : self._bands[spin] for spin in self._bands}
+        d['is_metal'] = self.is_metal()
+        vbm = self.get_vbm()
+        d['vbm'] = {'energy':vbm['energy'], 'kpoint_index':vbm['kpoint_index'],
+                    'band_index':{str(int(spin)) : vbm['band_index'][spin] for spin in vbm['band_index']}}
+        cbm = self.get_cbm()
+        d['cbm'] = {'energy':vbm['energy'], 'kpoint_index':cbm['kpoint_index'],
+                    'band_index':{str(int(spin)) : cbm['band_index'][spin] for spin in cbm['band_index']}}
+        d['band_gap'] = self.get_band_gap()
+        d['labels_dict'] = {}
+        d['is_spin_polarized'] = self.is_spin_polarized
+        for c in self._labels_dict:
+            d['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Args:
+            A dict with all data for a band structure symm line object.
+            
+        Returns:
+            A BandStructureSymmLine object
+        """
+        labels_dict = d['labels_dict']
+        return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi'], labels_dict)
+
+
+def get_reconstructed_band_structure(list_bs, efermi = None):
+        """
+        This method takes a list of band structure (divided by branches)
+        and reconstruct one band structure object from all of them
+        
+        Args:
+            list_bs:
+                A list of BandStructureSymmLine one for each branch
+            efermi:
+                The fermi energy of the reconstructed band structure. If none
+                is assigned an average of all the fermi energy in each object
+                in the list_bs is used.
+        
+        Returns:
+            A BandStructureSymmLine object
+        """
+        if efermi == None:
+            efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
+
+        kpoints = []
+        labels_dict = {}
+        rec_lattice = list_bs[0]._lattice_rec
+        nb_bands = list_bs[0]._nb_bands
+
+        for bs in list_bs:
+            for k in bs._kpoints:
+                kpoints.append(k.frac_coords)
+            for k, v in bs._labels_dict.iteritems():
+                labels_dict[k] = v.frac_coords
+        eigenvals = {Spin.up:list_bs[0]._bands[Spin.up]}
+        for i in range(nb_bands):
+            #eigenvals[Spin.up].append({'energy':[], 'occup':[]})
+            for bs in list_bs[1:]:
+                for e in bs._bands[Spin.up][i]:
+                    eigenvals[Spin.up][i].append(e)
+        if list_bs[0].is_spin_polarized:
+            eigenvals[Spin.down] = list_bs[0]._bands[Spin.up]
+            for i in range(nb_bands):
+                #eigenvals[Spin.down].append({'energy':[], 'occup':[]})
+                for bs in list_bs[1:]:
+                    for e in bs._bands[Spin.down][i]:
+                        eigenvals[Spin.down][i].append(e)
+        return BandStructureSymmLine(kpoints, eigenvals, rec_lattice, efermi, labels_dict)

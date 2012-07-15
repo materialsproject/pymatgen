@@ -12,6 +12,8 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
+import re
+
 
 def generate_latex_table(results, header=None):
     """
@@ -39,7 +41,6 @@ def generate_latex_table(results, header=None):
     output.append('\\label{mytablelabel}')
     output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' + colstr + '}')
     output.append('\\hline')
-
     output.append("\\\\\n".join(body) + "\\\\")
     output.append('\\hline')
     output.append('\\end{tabular*}')
@@ -89,19 +90,18 @@ def str_aligned(results, header=None):
     stringlengths = list()
     count = 0
     for i in k:
-        colMaxLength = max([len(str(m)) for m in i])
+        col_max_len = max([len(str(m)) for m in i])
         if header != None:
-            colMaxLength = max([len(str(header[count])), colMaxLength])
-        stringlengths.append(colMaxLength)
+            col_max_len = max([len(str(header[count])), col_max_len])
+        stringlengths.append(col_max_len)
         count += 1
-    formatString = "   ".join(["%" + str(d) + "s" for d in stringlengths])
+    format_string = "   ".join(["%" + str(d) + "s" for d in stringlengths])
     returnstr = ''
     if header != None:
-        header_str = formatString % tuple(header)
+        header_str = format_string % tuple(header)
         returnstr += header_str + "\n"
         returnstr += "-" * len(header_str) + "\n"
-
-    return returnstr + "\n".join([formatString % tuple(result) for result in results])
+    return returnstr + "\n".join([format_string % tuple(result) for result in results])
 
 
 def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
@@ -126,6 +126,22 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
         return str(int(afloat))
     else:
         return str(afloat)
+
+
+def latexify(formula):
+    """
+    Generates a latex formatted formula. E.g., Fe2O3 is transformed to
+    Fe$_{2}$O$_{3}$.
+    
+    Args:
+        formula:
+            Input formula.
+            
+    Returns:
+        Formula suitable for display as in LaTeX with proper subscripts.
+    """
+    return re.sub(r"(\d+)", r'$_{\1}$', formula)
+
 
 if __name__ == "__main__":
     import doctest

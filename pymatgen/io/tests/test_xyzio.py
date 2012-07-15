@@ -63,7 +63,7 @@ H -0.513360 0.889165 -0.363000"""
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        struct = poscar.struct
+        struct = poscar.structure
         xyz = XYZ(struct)
         ans = """24
 Fe4 P4 O16

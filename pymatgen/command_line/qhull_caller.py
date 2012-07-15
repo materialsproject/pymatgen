@@ -3,8 +3,6 @@
 '''
 Interface with command line qhull.
 Needs qhull installed. You can get it from http://www.qhull.org/.
-
-As far as we know, no formal Python extension for higher dim hulls exist.
 '''
 
 from __future__ import division
@@ -23,6 +21,7 @@ import itertools
 import math
 
 import numpy as np
+
 
 def run_qhull_command(command, data, proc_command=int, output_skip=1):
     """

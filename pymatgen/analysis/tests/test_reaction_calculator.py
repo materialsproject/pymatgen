@@ -1,6 +1,6 @@
 import unittest
 
-from pymatgen.core.structure import Composition
+from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
 

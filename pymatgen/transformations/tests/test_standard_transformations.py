@@ -19,6 +19,10 @@ import random
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.io.vaspio import Poscar
 
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+
 class TransformationsTest(unittest.TestCase):
 
     def setUp(self):
@@ -124,6 +128,20 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
         self.assertEqual(str(s[0].specie), "Li+")
         self.assertEqual(str(s[2].specie), "O2-")
 
+class OxidationStateRemovalTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        t = OxidationStateRemovalTransformation()
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(str(s[0].specie), "Li")
+        self.assertEqual(str(s[2].specie), "O")
 
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
@@ -157,30 +175,20 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformations_complete_ranking(self):
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
+        s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
+        s = t1.apply_transformation(p.structure)
         t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
-    def test_to_from_dict(self):
-        json_str = json.dumps(PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST).to_dict)
-        t = transformation_from_json(json_str)
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        p = Poscar.from_file(os.path.join(module_dir, 'POSCAR.LiFePO4'))
-        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
-        s = t1.apply_transformation(p.struct)
-        self.assertEqual(len(t.apply_transformation(s)), 26)
 
 class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
@@ -332,12 +340,30 @@ class MultipleSubstitutionTransformationTest(unittest.TestCase):
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         self.assertEqual(len(t.apply_transformation(struct, return_ranked_list=True)), 2)
 
+class SymmOrderStructureTransformationTest(unittest.TestCase):
 
-class TransformationJsonTest(unittest.TestCase):
+    def test_apply_transformation(self):
+        order_trans = SymmOrderStructureTransformation()
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        struct = p.structure
+        expected_ans = [1, 3, 1]
+        for i, frac in enumerate([0.25, 0.5, 0.75]):
+            trans = SubstitutionTransformation({'Fe': {'Fe':frac}})
+            s = trans.apply_transformation(struct)
+            alls = order_trans.apply_transformation(s, 100)
+            self.assertEquals(len(alls), expected_ans[i])
+            self.assertIsInstance(trans.apply_transformation(s), Structure)
 
-    def test_from_json(self):
-        self.assertIsInstance(transformation_from_json('{"name": "IdentityTransformation", "init_args": {}}'), IdentityTransformation)
-        self.assertIsInstance(transformation_from_json('{"name": "RotationTransformation", "init_args": {"angle": 30, "angle_in_radians": false, "axis": [0, 1, 0]}}'), RotationTransformation)
+        trans = SubstitutionTransformation({'Fe': {'Fe':1 / 3}})
+        s = trans.apply_transformation(struct)
+        self.assertRaises(ValueError, order_trans.apply_transformation, s)
+
+    def test_to_from_dict(self):
+        trans = SymmOrderStructureTransformation()
+        d = trans.to_dict
+        trans = SymmOrderStructureTransformation.from_dict(d)
+        self.assertEqual(trans.symm_prec, 0.1)
 
 if __name__ == "__main__":
     unittest.main()

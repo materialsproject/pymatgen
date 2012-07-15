@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from pymatgen.core.structure_modifier import OxidationStateDecorator
+from pymatgen.core.structure_modifier import OxidationStateDecorator, StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.io.vaspio import Poscar
 import numpy as np
@@ -15,9 +15,9 @@ class EwaldSummationTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
-        s = p.struct
+        original_s = p.structure
 
-        modifier = OxidationStateDecorator(s, {"Li":1, "Fe":2, "P":5, "O":-2})
+        modifier = OxidationStateDecorator(original_s, {"Li":1, "Fe":2, "P":5, "O":-2})
         s = modifier.modified_structure
         ham = EwaldSummation(s)
         self.assertAlmostEqual(ham.real_space_energy, -354.91294268, 4, "Real space energy incorrect!")
@@ -30,6 +30,24 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(sum(ham.point_energy_matrix), -790.463835033, 4, "Point space energy matrix incorrect!")
         self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)), -1119.90102291, 2, "Total space energy matrix incorrect!")
         #note that forces are not individually tested, but should work fine.
+
+        self.assertRaises(ValueError, EwaldSummation, original_s)
+        #try sites with charge.
+        charges = []
+        for site in original_s:
+            if site.specie.symbol == "Li":
+                charges.append(1)
+            elif site.specie.symbol == "Fe":
+                charges.append(2)
+            elif site.specie.symbol == "P":
+                charges.append(5)
+            else:
+                charges.append(-2)
+
+        editor = StructureEditor(original_s)
+        editor.add_site_property('charge', charges)
+        ham2 = EwaldSummation(editor.modified_structure)
+        self.assertAlmostEqual(ham2.real_space_energy, -354.91294268, 4, "Real space energy incorrect!")
 
 
 class EwaldMinimizerTest(unittest.TestCase):

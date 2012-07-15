@@ -7,9 +7,11 @@
 Introduction
 ============
    
-Pymatgen (python materials genomics) is the python library that powers the 
-Materials Project (http://www.materialsproject.org). These are some of the main 
-features:
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. It currently powers the public Materials Project
+(http://www.materialsproject.org), an initiative to make calculated properties
+on a large number of materials available to materials researchers and designers.
+These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule, 
    Structure objects.
@@ -21,14 +23,15 @@ features:
 3. Comprehensive tool to generate and view compositional and grand canonical phase 
    diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
+5. Integration with the Materials Project REST API.
 
-The public version of pymatgen is free (as in free beer) to download and to use. 
-However, we would also like you to help us improve this library by making your 
-own contributions as well.  These contributions can be in the form of
-additional tools or modules you develop, or even simple things such as bug
-reports. Please read the Contributing_ section or contact the maintainer of
-this library (shyue@mit.edu) to find out how to include your contributions
-via github or for bug reports.
+The pymatgen library is free (as in free beer) to download and to use. However,
+we would also like you to help us improve this library by making your own
+contributions as well.  These contributions can be in the form of additional
+tools or modules you develop, or even simple things such as bug reports. Please
+read the Contributing_ section or contact the maintainer of this library
+(shyue@mit.edu) to find out how to include your contributions via github or for
+bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward 
@@ -42,14 +45,33 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v1.9.0)
+Latest Change Log (v2.0.0)
 --------------------------
 
-1. Completely new json encoder and decoder that support serialization of almost
-   all pymatgen objects. See `Using pymatgen`_ section for more details.
-2. Simplification to Borg API utilizing the new json API.
-3. Bandstructure classes now support spin-polarized runs.
-4. Beta classes for battery (insertion and conversion) analysis.
+1. Brand new module (pymatgen.matproj.rest) for interfacing with the
+   MaterialsProject REST interface.
+2. Useful aliases for commonly used Objects, similar in style to numpy.
+   Supported objects include Element, Composition, Structure, Molecule, Spin
+   and Orbital. For example, the following will now work::
+   
+      import pymatgen as mg
+      
+      # Elemental Si
+      fe = mg.Element("Si")
+      
+      # Composition of Fe2O3
+      comp = mg.Composition("Fe2O3")
+      
+      # CsCl structure
+      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
+                              [[0, 0, 0], [0.5, 0.5, 0.5]])
+      
+3. New PDAnalyzer method to generate chemical potential maps.
+4. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
+5. Reorganization of Bandstructure module. Beta support for projected
+   bandstructure and eigenvalues in vaspio and electronic_structure.
+6. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
@@ -187,6 +209,34 @@ pymatgen.symmetry
 The symmetry package is based on the excellent spglib developed by Atz Togo. For
 more information, please refer to Atz Togo's site at
 http://spglib.sourceforge.net/.
+
+License
+=======
+
+Pymatgen is released under the MIT License. The terms of the license are as
+follows::
+
+   The MIT License (MIT)
+   Copyright (c) 2011-2012 MIT & LBNL
+   
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+   
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+   
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
 
 Indices and tables
 ==================
