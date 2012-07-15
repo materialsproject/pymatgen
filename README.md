@@ -41,10 +41,14 @@ pymatgen's Google Groups page
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
+3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
+   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
+   packages. From pymatgen v2.1 onwards, pyspglib should be automatically
+   compiled as an extension during the install process via setup.py.
 
 ### Optional Python Libraries ###
 
-Optional python libraries that are required if you need certain features:
+Optional python libraries that are required if you need certain features
 
 1. scipy 0.10+ (highly recommended) - For use in Gaussian smearing and phase
    diagram construction using scipy.spatial.Delaunay.
@@ -52,20 +56,16 @@ Optional python libraries that are required if you need certain features:
 3. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
    working version is provided in the dependencies directory of pymatgen.
-4. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
-   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
-   packages. Get it at http://spglib.sourceforge.net/ or a working version is
-   provided in the dependencies directory of pymatgen.
-5. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
+4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
-6. Atomistic Simulation Environment or ASE : Required for the usage of the 
+5. Atomistic Simulation Environment or ASE : Required for the usage of the 
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and 
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-7. OpenBabel with Python bindings (http://openbabel.org). Required for the
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-8. nose - For complete unittesting. This is NOT optional for developers!
+7. nose - For complete unittesting. This is NOT optional for developers!
 
 ### Optional non-Python programs ###
 
@@ -83,7 +83,7 @@ the moment) required only for certain features.
 
 1. Clone the repo.
 2. Install the necessary python libraries.
-3. (Recommended) Add pymatgen to your PYTHONPATH.
+3. (Recommended) Add pymatgen to your PYTHONPATH or use python setup.py develop.
 4. (Recommended for developers) Copy hooks from the example-hooks directory into 
    the .git/hooks/ directory in your local repo.  
 
@@ -102,10 +102,10 @@ VASP license. The good news is that we have included a setup script to help you
 along.
 
 If you cloned the repo directly from github, you should have a run_me_first.sh 
-file in the root directory of your local repo. Otherwise, you can get it directly 
-from our github site at http://github.com/materialsproject/pymatgen. Run the 
-shell script and follow the instructions. If you have done it correctly, you 
-should get a resources directory with the following directory structure:
+file in the root directory of your local repo. Otherwise, you can get it
+directly from our github site at http://github.com/materialsproject/pymatgen.
+Run the shell script and follow the instructions. If you have done it correctly,
+you should get a resources directory with the following directory structure:
 
 	- psp_resources
 	|- POT_GGA_PAW_PBE

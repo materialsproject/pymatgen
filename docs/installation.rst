@@ -8,6 +8,10 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
+3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
+   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
+   packages. From pymatgen v2.1 onwards, pyspglib should be automatically
+   compiled as an extension during the install process via setup.py.
 
 Optional Python Libraries
 -------------------------
@@ -19,20 +23,16 @@ Optional python libraries that are required if you need certain features
 3. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
    working version is provided in the dependencies directory of pymatgen.
-4. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
-   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
-   packages. Get it at http://spglib.sourceforge.net/ or a working version is
-   provided in the dependencies directory of pymatgen.
-5. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
+4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
-6. Atomistic Simulation Environment or ASE : Required for the usage of the 
+5. Atomistic Simulation Environment or ASE : Required for the usage of the 
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and 
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-7. OpenBabel with Python bindings (http://openbabel.org). Required for the
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-8. nose - For complete unittesting. This is NOT optional for developers!
+7. nose - For complete unittesting. This is NOT optional for developers!
 
 Optional non-Python programs
 ----------------------------
