@@ -129,6 +129,8 @@ crystal is provided below::
                                      beta=90, gamma=60)
    struct = Structure(lattice, ["Si", "Si"], coords)
 
+Note that both elements and species (elements with oxidation states) are
+supported. So both "Fe" and "Fe2+" are valid specifications.
 
 Creating Structures using the pymatgen.io packages
 --------------------------------------------------

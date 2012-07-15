@@ -1775,7 +1775,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         Args:
             el:
-                Element
+                Element or Specie
         
         Returns:
             Atomic fraction for element el in Composition
@@ -1786,7 +1786,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         Args:
             el:
-                Element
+                Element or Specie
         
         Returns:
             Weight fraction for element el in Composition
