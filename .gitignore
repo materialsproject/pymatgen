@@ -2,6 +2,8 @@
 pymatgen.egg-info
 dependencies/spglib-1.2/pyspglib.egg-info
 dependencies/spglib-1.2/build
+*.o
+*.so
 *.pyc
 pymatgen/pymatgen.cfg
 dist
