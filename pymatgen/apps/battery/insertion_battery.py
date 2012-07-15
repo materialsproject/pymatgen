@@ -300,7 +300,15 @@ class InsertionElectrode(AbstractElectrode):
         return self.__repr__()
 
     def __repr__(self):
-        return 'InsertionElectrode with endpoints at %s and %s, average voltage %f, capacity (grav.) %f, capacity (vol.) %f' % (self.fully_charged_entry.composition.reduced_formula, self.fully_discharged_entry.composition.reduced_formula, self.get_average_voltage(), self.get_capacity_grav(), self.get_capacity_vol())
+        output = []
+        output.append('InsertionElectrode with endpoints at {} and {}'.format(
+                       self.fully_charged_entry.composition.reduced_formula,
+                       self.fully_discharged_entry.composition.reduced_formula))
+        output.append('Avg. volt. = {} V, Grav. cap. = {} mAh/g,  Vol. cap. = {}'.format(
+                       self.get_average_voltage(),
+                       self.get_capacity_grav(),
+                       self.get_capacity_vol()))
+        return  '\n'.join(output)
 
     @staticmethod
     def from_dict(d):
@@ -337,61 +345,65 @@ class InsertionVoltagePair(AbstractVoltagePair):
         """
         #initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
-        frame1_dict = entry1.composition.to_dict
-        if working_element.symbol in frame1_dict:
-            del frame1_dict[working_element.symbol]
-        frame1_comp = Composition.from_dict(frame1_dict)
 
-        frame2_dict = entry2.composition.to_dict
-        if working_element.symbol in frame2_dict:
-            del frame2_dict[working_element.symbol]
-        frame2_comp = Composition.from_dict(frame2_dict)
+        entry1_is_charged = entry1.composition.get_atomic_fraction(working_element) \
+                            < entry2.composition.get_atomic_fraction(working_element)
+
+        entry_charge = entry1 if entry1_is_charged else entry2
+        entry_discharge = entry2 if entry1_is_charged else entry1
+
+        comp_charge = entry_charge.composition
+        comp_discharge = entry_discharge.composition
+
+        frame_charge_comp = Composition({el: comp_charge[el] for el in comp_charge if el.symbol != working_element.symbol})
+        frame_discharge_comp = Composition({el: comp_discharge[el] for el in comp_discharge if el.symbol != working_element.symbol})
 
         #Data validation
 
         #check that the ion is just a single element
         if not working_ion_entry.composition.is_element:
-            raise ValueError('VoltagePair: The working ion specified must be an element')
+            raise ValueError('VoltagePair: The working ion specified must be '
+                             'an element')
 
         #check that at least one of the entries contains the working element
-        if not entry1.composition.get_atomic_fraction(working_element) > 0 and not entry2.composition.get_atomic_fraction(working_element) > 0:
-            raise ValueError('VoltagePair: The working ion must be present in one of the entries')
+        if not comp_charge.get_atomic_fraction(working_element) > 0 and \
+           not comp_discharge.get_atomic_fraction(working_element) > 0:
+            raise ValueError('VoltagePair: The working ion must be present in '
+                             'one of the entries')
 
         #check that the entries do not contain the same amount of the working element
-        if entry1.composition.get_atomic_fraction(working_element) == entry2.composition.get_atomic_fraction(working_element):
-            raise ValueError('VoltagePair: The working ion atomic percentage cannot be the same in both the entries')
+        if comp_charge.get_atomic_fraction(working_element) == \
+           comp_discharge.get_atomic_fraction(working_element):
+            raise ValueError('VoltagePair: The working ion atomic percentage '
+                             'cannot be the same in both the entries')
 
         #check that the frameworks of the entries are equivalent other than the amount of working element
-        if not frame1_comp.reduced_formula == frame2_comp.reduced_formula:
-            raise ValueError('VoltagePair: the specified entries must have the same compositional framework')
+        if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
+            raise ValueError('VoltagePair: the specified entries must have the '
+                             'same compositional framework')
 
         #Initialize normalization factors, charged and discharged entries
-        entry1_normalization = frame1_comp.get_reduced_formula_and_factor()[1]
-        entry2_normalization = frame2_comp.get_reduced_formula_and_factor()[1]
 
-        entry1_is_charged = entry1.composition.get_atomic_fraction(working_element) < entry2.composition.get_atomic_fraction(working_element)
+        (self.framework, norm_charge) = frame_charge_comp.get_reduced_composition_and_factor()
+        norm_discharge = frame_discharge_comp.get_reduced_composition_and_factor()[1]
 
-        entry_charge = entry1 if entry1_is_charged else entry2
-        entry_discharge = entry2 if entry1_is_charged else entry1
-        normalization_charge = entry1_normalization if entry1_is_charged else entry2_normalization
-        normalization_discharge = entry2_normalization if entry1_is_charged else entry1_normalization
-
-        self.framework = Composition.from_formula(frame2_comp.get_reduced_formula_and_factor()[0])
         self._working_ion_entry = working_ion_entry
 
         #Initialize normalized properties
-        self._vol_charge = entry_charge.structure.volume / normalization_charge
-        self._vol_discharge = entry_discharge.structure.volume / normalization_discharge
+        self._vol_charge = entry_charge.structure.volume / norm_charge
+        self._vol_discharge = entry_discharge.structure.volume / norm_discharge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition
 
-        self._mass_charge = comp_charge.weight / normalization_charge
-        self._mass_discharge = comp_discharge.weight / normalization_discharge
+        self._mass_charge = comp_charge.weight / norm_charge
+        self._mass_discharge = comp_discharge.weight / norm_discharge
 
-        self._num_ions_transferred = (comp_discharge[working_element] / normalization_discharge) - (comp_charge[working_element] / normalization_charge)
+        self._num_ions_transferred = (comp_discharge[working_element] / norm_discharge) - (comp_charge[working_element] / norm_charge)
 
-        self._voltage = ((entry_charge.energy / normalization_charge) - (entry_discharge.energy / normalization_discharge)) / self._num_ions_transferred + working_ion_entry.energy_per_atom
+        self._voltage = ((entry_charge.energy / norm_charge) - \
+                         (entry_discharge.energy / norm_discharge)) / \
+                         self._num_ions_transferred + working_ion_entry.energy_per_atom
         self._mAh = self._num_ions_transferred * ELECTRON_TO_AMPERE_HOURS * 1000
 
         #Step 4: add (optional) hull and muO2 data
@@ -403,8 +415,18 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         self.entry_charge = entry_charge
         self.entry_discharge = entry_discharge
-        self.normalization_charge = normalization_charge
-        self.normalization_discharge = normalization_discharge
+        self.normalization_charge = norm_charge
+        self.normalization_discharge = norm_discharge
+        self._frac_charge = comp_charge.get_atomic_fraction(working_element)
+        self._frac_discharge = comp_discharge.get_atomic_fraction(working_element)
+
+    @property
+    def frac_charge(self):
+        return self._frac_charge
+
+    @property
+    def frac_discharge(self):
+        return self._frac_discharge
 
     @property
     def voltage(self):
@@ -439,6 +461,8 @@ class InsertionVoltagePair(AbstractVoltagePair):
         output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
         output.append("mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge))
         output.append("vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge))
+        output.append("frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge))
+
         return "\n".join(output)
 
     def __str__(self):
