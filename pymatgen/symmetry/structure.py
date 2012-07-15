@@ -17,6 +17,7 @@ import itertools
 
 from pymatgen.core.structure import Structure
 
+
 class SymmetrizedStructure(Structure):
     """
     This class represents a symmetrized structure, i.e. a structure

@@ -20,7 +20,7 @@ import itertools
 import numpy as np
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import Structure, PeriodicSite, Site, Molecule
 
 
 class StructureModifier(object):
@@ -42,6 +42,7 @@ class StructureModifier(object):
         Returns the original structure.
         '''
         return
+
 
 class StructureEditor(StructureModifier):
     """
@@ -97,12 +98,12 @@ class StructureEditor(StructureModifier):
             new_atom_occu = dict()
             for sp, amt in site.species_and_occu.items():
                 if sp in species_mapping:
-                    if species_mapping[sp].__class__.__name__ in ('Element', 'Specie'):
+                    if isinstance(species_mapping[sp], (Element, Specie)):
                         if species_mapping[sp] in new_atom_occu:
                             new_atom_occu[species_mapping[sp]] += amt
                         else:
                             new_atom_occu[species_mapping[sp]] = amt
-                    elif species_mapping[sp].__class__.__name__ == 'dict':
+                    elif isinstance(species_mapping[sp], dict):
                         for new_sp, new_amt in species_mapping[sp].items():
                             if new_sp in new_atom_occu:
                                 new_atom_occu[new_sp] += amt * new_amt
@@ -113,7 +114,9 @@ class StructureEditor(StructureModifier):
                         new_atom_occu[sp] += amt
                     else:
                         new_atom_occu[sp] = amt
-            return PeriodicSite(new_atom_occu, self._lattice.get_fractional_coords(site.coords), self._lattice)
+            return PeriodicSite(new_atom_occu,
+                                self._lattice.get_fractional_coords(site.coords),
+                                self._lattice, properties=site.properties)
 
         self._sites = map(mod_site, self._sites)
 
@@ -127,7 +130,10 @@ class StructureEditor(StructureModifier):
             species:
                 A species object  
         """
-        self._sites[index] = PeriodicSite(species_n_occu, self._lattice.get_fractional_coords(self._sites[index].coords), self._lattice)
+        self._sites[index] = PeriodicSite(species_n_occu,
+                                          self._lattice.get_fractional_coords(self._sites[index].coords),
+                                          self._lattice,
+                                          properties=self._sites[index].properties)
 
     def remove_species(self, species):
         """
@@ -141,7 +147,9 @@ class StructureEditor(StructureModifier):
         for site in self._sites:
             new_sp_occu = {sp:amt for sp, amt in site.species_and_occu.items() if sp not in species}
             if len(new_sp_occu) > 0:
-                new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords, self._lattice))
+                new_sites.append(PeriodicSite(new_sp_occu, site.frac_coords,
+                                              self._lattice,
+                                              properties=site.properties))
         self._sites = new_sites
 
     def append_site(self, species, coords, coords_are_cartesian=False,
@@ -177,12 +185,15 @@ class StructureEditor(StructureModifier):
             coords_are_cartesian:
                 Whether coordinates are cartesian. Defaults to False.
             validate_proximity:
-                Whether to check if inserted site is too close to an existing site. Defaults to True.
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
         """
         if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice, properties=properties)
+            new_site = PeriodicSite(species, coords, self._lattice,
+                                    properties=properties)
         else:
-            new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords), self._lattice, properties=properties)
+            new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords),
+                                    self._lattice, properties=properties)
 
         if validate_proximity:
             for site in self._sites:
@@ -224,7 +235,7 @@ class StructureEditor(StructureModifier):
         self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
-            return PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(new_cart), self._lattice)
+            return PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(new_cart), self._lattice, properties=site.properties)
         self._sites = map(operate_site, self._sites)
 
     def modify_lattice(self, new_lattice):
@@ -238,7 +249,10 @@ class StructureEditor(StructureModifier):
         self._lattice = new_lattice
         new_sites = []
         for site in self._sites:
-            new_sites.append(PeriodicSite(site.species_and_occu, self._lattice.get_fractional_coords(site.coords), self._lattice))
+            new_sites.append(PeriodicSite(site.species_and_occu,
+                                          self._lattice.get_fractional_coords(site.coords),
+                                          self._lattice,
+                                          properties=site.properties))
         self._sites = new_sites
 
     def translate_sites(self, indices, vector, frac_coords=True):
@@ -261,7 +275,9 @@ class StructureEditor(StructureModifier):
                 fcoords = site.frac_coords + vector
             else:
                 fcoords = self._lattice.get_fractional_coords(site.coords + vector)
-            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice, to_unit_cell=True, coords_are_cartesian=False)
+            new_site = PeriodicSite(site.species_and_occu, fcoords, self._lattice,
+                                    to_unit_cell=True, coords_are_cartesian=False,
+                                    properties=site.properties)
             self._sites[i] = new_site
 
     def perturb_structure(self, distance=0.1):
@@ -277,6 +293,19 @@ class StructureEditor(StructureModifier):
             vector = np.random.rand(3)
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector, frac_coords=False)
+
+    def to_unit_cell(self, tolerance=0.1):
+        '''
+        Returns all the sites to their position inside the unit cell.
+        If there is a site within the tolerance already there, the site is
+        deleted instead of moved.
+        '''
+        new_sites = []
+        for site in self._sites:
+            distances = [close_site.distance(site) for close_site in new_sites]
+            if not distances or min(distances) > tolerance:
+                new_sites.append(site.to_unit_cell)
+        self._sites = new_sites
 
     @property
     def original_structure(self):
@@ -302,7 +331,7 @@ class SupercellMaker(StructureModifier):
         """
         Create a supercell.
         
-        Arguments:
+        Args:
             structure:
                 pymatgen.core.structure Structure object.
             scaling_matrix:
@@ -316,17 +345,24 @@ class SupercellMaker(StructureModifier):
         old_lattice = structure.lattice
         scale_matrix = np.array(scaling_matrix)
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
-        new_species = []
-        new_fcoords = []
+        new_sites = []
         def range_vec(i):
             return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
         for site in structure.sites:
             for (i, j, k) in itertools.product(range_vec(0), range_vec(1), range_vec(2)):
-                new_species.append(site.species_and_occu)
                 fcoords = site.frac_coords
                 coords = old_lattice.get_cartesian_coords(fcoords + np.array([i, j, k]))
-                new_fcoords.append(new_lattice.get_fractional_coords(coords))
-        self._modified_structure = Structure(new_lattice, new_species, new_fcoords, False)
+                new_coords = new_lattice.get_fractional_coords(coords)
+                new_site = PeriodicSite(site.species_and_occu, new_coords,
+                                        new_lattice, properties=site.properties)
+                contains_site = False
+                for s in new_sites:
+                    if s.is_periodic_image(new_site):
+                        contains_site = True
+                        break
+                if not contains_site:
+                    new_sites.append(new_site)
+        self._modified_structure = Structure.from_sites(new_sites)
 
     @property
     def original_structure(self):
@@ -424,6 +460,207 @@ class BasisChange(StructureModifier):
     @property
     def modified_structure(self):
         return self._modified_structure
+
+
+class MoleculeEditor(StructureModifier):
+    """
+    Editor for adding, removing and changing sites from a molecule
+    """
+    DISTANCE_TOLERANCE = 0.01
+
+    def __init__(self, molecule):
+        """
+        Args:
+            molecule:
+                pymatgen.core.structure Molecule object.
+        """
+        self._original_structure = molecule
+        self._sites = list(molecule.sites)
+
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+        
+        Args:
+            property_name:
+                The name of the property to add.
+            values: 
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords, properties=props)
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species in a molecule.
+        
+        Args:
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na 
+                substitution. The second species can be a sp_and_occu dict. 
+                For example, a site with 0.5 Si that is passed the mapping 
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
+        """
+
+        def mod_site(site):
+            new_atom_occu = dict()
+            for sp, amt in site.species_and_occu.items():
+                if sp in species_mapping:
+                    if isinstance(species_mapping[sp], (Element, Specie)):
+                        if species_mapping[sp] in new_atom_occu:
+                            new_atom_occu[species_mapping[sp]] += amt
+                        else:
+                            new_atom_occu[species_mapping[sp]] = amt
+                    elif isinstance(species_mapping[sp], dict):
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            if new_sp in new_atom_occu:
+                                new_atom_occu[new_sp] += amt * new_amt
+                            else:
+                                new_atom_occu[new_sp] = amt * new_amt
+                else:
+                    if sp in new_atom_occu:
+                        new_atom_occu[sp] += amt
+                    else:
+                        new_atom_occu[sp] = amt
+            return Site(new_atom_occu, site.coords, properties=site.properties)
+        self._sites = map(mod_site, self._sites)
+
+    def replace_site(self, index, species_n_occu):
+        """
+        Replace a single site. Takes either a species or a dict of occus
+        
+        Args:
+            index:
+                The index of the site in the _sites list
+            species:
+                A species object  
+        """
+        self._sites[index] = Site(species_n_occu, self._sites[index].coords, properties=self._sites[index].properties)
+
+    def remove_species(self, species):
+        """
+        Remove all occurrences of a species from a molecule.
+        
+        Args:
+            species:
+                species to remove
+        """
+        new_sites = []
+        for site in self._sites:
+            new_sp_occu = {sp:amt for sp, amt in site.species_and_occu.items() if sp not in species}
+            if len(new_sp_occu) > 0:
+                new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties))
+        self._sites = new_sites
+
+    def append_site(self, species, coords, validate_proximity=True):
+        """
+        Append a site to the structure at the end.
+        
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+        """
+        self.insert_site(len(self._sites), species, coords, validate_proximity)
+
+    def insert_site(self, i, species, coords, validate_proximity=True, properties=None):
+        """
+        Insert a site to the structure.
+        
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing site. Defaults to True.
+        """
+        new_site = Site(species, coords, properties=properties)
+
+        if validate_proximity:
+            for site in self._sites:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing site!")
+        self._sites.insert(i, new_site)
+
+    def delete_site(self, i):
+        """
+        Delete site at index i.
+        
+        Args:
+            i:
+                index of site to delete.
+        """
+        del(self._sites[i])
+
+    def delete_sites(self, indices):
+        """
+        Delete sites with at indices.
+        
+        Args:
+            indices:
+                sequence of indices of sites to delete.
+        """
+        self._sites = [self._sites[i] for i in range(len(self._sites)) if i not in indices]
+
+    def translate_sites(self, indices, vector):
+        """
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
+        
+        Args:
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+        """
+        for i in indices:
+            site = self._sites[i]
+            new_site = Site(site.species_and_occu, site.coords + vector, properties=site.properties)
+            self._sites[i] = new_site
+
+    def perturb_structure(self, distance=0.1):
+        '''
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
+        
+        Args:
+            distance:
+                distance in angstroms by which to perturb each site.
+        '''
+        for i in range(len(self._sites)):
+            vector = np.random.rand(3)
+            vector /= np.linalg.norm(vector) / distance
+            self.translate_sites([i], vector)
+
+    @property
+    def original_structure(self):
+        return self._original_structure
+
+    @property
+    def modified_structure(self):
+        coords = [site.coords for site in self._sites]
+        species = [site.species_and_occu for site in self._sites]
+        props = {}
+        if self._sites[0].properties:
+            for k in self._sites[0].properties.keys():
+                props[k] = [site.properties[k] for site in self._sites]
+        return Molecule(species, coords, False, site_properties=props)
 
 
 if __name__ == "__main__":

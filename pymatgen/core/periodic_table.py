@@ -19,6 +19,7 @@ import json
 
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
+from pymatgen.serializers.json_coders import MSONable
 
 
 def _load__pt_data():
@@ -301,7 +302,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x - other._x)
+        return (self.X - other.X)
 
     def __lt__(self, other):
         '''
@@ -309,7 +310,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         '''
-        return (self._x < other._x)
+        return (self.X < other.X)
 
     @staticmethod
     def from_Z(z):
@@ -493,8 +494,19 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
+    @staticmethod
+    def from_dict(d):
+        return Element(d['element'])
 
-class Specie(object):
+    @property
+    def to_dict(self):
+        d = {}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        d['element'] = self.symbol
+        return d
+
+class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Note that optional properties are not checked when comparing
@@ -636,7 +648,7 @@ class Specie(object):
         return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
 
 
-class DummySpecie(Specie):
+class DummySpecie(Specie, MSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special

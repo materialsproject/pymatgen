@@ -3,17 +3,13 @@ import os
 import numpy as np
 
 from pymatgen.analysis.structure_fitter import StructureFitter, shear_invariant, sqrt_matrix
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen import Element, Lattice, Structure, __file__
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.cifio import CifParser
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class StructureFitterTest(unittest.TestCase):
 
@@ -27,11 +23,6 @@ class StructureFitterTest(unittest.TestCase):
 
         lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
         self.a = Structure(lattice, [fe, si], coords)
-        coords = list()
-        coords.append(np.array([0.75, 0.5, 0.2]))
-
-        coords.append(np.array([0.5, 0.5, 0.5]))
-        lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
         self.b = Structure(lattice, [fe, si], coords)
 
     def test_init(self):
@@ -53,12 +44,9 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
 
         # Test with a structure with a translated point
-
         editor = StructureEditor(self.a)
-        site = self.a[0]
-        editor.delete_site(0)
-        trans = np.random.randint(0, 1000, 3)
-        editor.insert_site(0, site.species_and_occu, site.frac_coords + trans, False, False)
+        trans = np.random.rand(1, 3)
+        editor.translate_sites([0, 1], trans[0])
         fitter = StructureFitter(self.b, editor.modified_structure)
         self.assertTrue(fitter.mapping_op != None, "No fit found for translation {}!".format(trans))
 

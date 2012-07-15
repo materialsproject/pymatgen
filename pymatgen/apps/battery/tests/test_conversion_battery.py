@@ -15,15 +15,12 @@ __date__ = "Feb 2, 2012"
 
 import unittest
 import os
+import json
 
-from pymatgen.core.structure import Composition
-
+from pymatgen import Composition, PMGJSONDecoder, __file__
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
-from pymatgen.entries.computed_entries import computed_entries_from_json
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 
 class ConversionElectrodeTest(unittest.TestCase):
@@ -44,12 +41,18 @@ class ConversionElectrodeTest(unittest.TestCase):
                                          'capacity_vol': 2132.2069115142394,
                                          'specific_energy': 1841.8103016131706,
                                          'energy_density': 6528.38954147}
+
         for f in formulas:
 
             with open(os.path.join(test_dir, f + "_batt.json"), 'r') as fid:
-                entries = computed_entries_from_json(fid.read())
+                entries = json.load(fid, cls=PMGJSONDecoder)
 
-            c = ConversionElectrode.from_composition_and_entries(Composition.from_formula(f), entries)
+                #entries = computed_entries_from_json(fid.read())
+
+            # with open(os.path.join(test_dir, f + "_batt.json"), 'w') as fid:
+            #json.dump(entries, fid, cls=PMGJSONEncoder)
+
+            c = ConversionElectrode.from_composition_and_entries(Composition(f), entries)
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
             self.assertEqual(len(c.get_sub_electrodes(False)), sum(xrange(1, c.num_steps + 1)))
             self.assertIsNotNone(str(c))
@@ -66,14 +69,13 @@ class ConversionElectrodeTest(unittest.TestCase):
             d = pair.to_dict
             pair2 = ConversionVoltagePair.from_dict(d)
             for prop in ['voltage', 'mass_charge', 'mass_discharge']:
-                self.assertEqual(getattr(pair, prop), getattr(pair2, prop),2)
+                self.assertEqual(getattr(pair, prop), getattr(pair2, prop), 2)
 
             #Test 
             d = c.to_dict
             electrode = ConversionElectrode.from_dict(d)
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v, 2)
-
 
 if __name__ == "__main__":
     unittest.main()

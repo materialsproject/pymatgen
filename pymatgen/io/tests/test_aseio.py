@@ -32,7 +32,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         if not aio.ase_loaded:
             raise SkipTest("ASE not present. Skipping...")
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        structure = p.struct
+        structure = p.structure
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
         ase_composition = Composition.from_formula(atoms.get_name())
         self.assertEqual(ase_composition, structure.composition)
@@ -41,7 +41,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         if not aio.ase_loaded:
             raise SkipTest("ASE not present. Skipping...")
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        atoms = aio.AseAtomsAdaptor.get_atoms(p.struct)
+        atoms = aio.AseAtomsAdaptor.get_atoms(p.structure)
         self.assertEqual(aio.AseAtomsAdaptor.get_structure(atoms).formula, "Fe4 P4 O16")
 
 

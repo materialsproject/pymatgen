@@ -12,12 +12,13 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Jun 29, 2012"
 
 import math
 import itertools
 import logging
 import random
+import time
 from collections import OrderedDict
 
 import numpy as np
@@ -29,16 +30,17 @@ from pymatgen.core.structure_modifier import StructureEditor
 
 logger = logging.getLogger(__name__)
 
+
 class StructureFitter(object):
     """
-    Class to perform fitting of two structures
+    Class to perform fitting of two structures.
     
     Attributes:
         fit_found:
             True if a fit was found
         mapping_op:
-            Operation that maps the two structures onto one another.  
-            None if no fit was found.
+            Operation that maps the two structures onto one another. None if no
+            fit was found.
         structure_a:
             First structure
         structure_b:
@@ -52,42 +54,41 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 use_symmetry=False):
+                 timeout=300, symmetry_tol=0):
         """
-        Fits two structures. All fitting parameters have been set with defaults 
-        that should work in most cases. To use, initialize the structure fitter
-        with parameters.
-        E.g.,
-        fitter = StructureFitter(a, b)
-        print fitter.fit_found
+        Fits two structures. All fitting parameters have been set with defaults
+        that should work in most cases.
         
         Args:
-            structure_a : 
+            structure_a: 
                 First structure
-            structure_b : 
+            structure_b: 
                 Second structure to try to match with first structure
-            tolerance_cell_misfit : 
+            tolerance_cell_misfit: 
                 Tolerance for cell misfit. Default = 0.1
-            tolerance_atomic_misfit : 
+            tolerance_atomic_misfit: 
                 Tolerance for atomic misfit. Default = 1.0.
-            supercells_allowed : 
+            supercells_allowed: 
                 Whether supercell structures are allowed.  Default = True.
-            anonymized : 
+            anonymized:
                 Whether to attempt matching of different species.  Setting this
                 to true will allow any two structures with the same framework,
                 but different species to match to each other. Default = False.
-            fitting_accuracy : 
+            fitting_accuracy: 
                 An integer setting for the fitting accuracy.  Corresponds to
                 the max number of candidate rotations considered.  Use the
-                static variables, 
-                StructureFitter.FAST_FIT
-                StructureFitter.NORMAL_FIT
-                StructureFitter.ACCURATE_FIT
-                to set the tradeoff between accuracy and speed.  The default, 
-                FAST_FIT, should work reasonably well in most instances.
-            use_symmetry:
-                Whether to use pymatgen.spacegroup to determine the spacegroup
-                first. Eliminates most non-fits. Defaults to True.
+                static variables FAST_FIT, NORMAL_FIT, ACCURATE_FIT and
+                EXTREME_FIT to set the tradeoff between accuracy and speed. The
+                default FAST_FIT should work reasonably well in most instances.
+            timeout:
+                Time out in seconds for generating and testing rotations. Note
+                that the same timeout will apply to generating and testing
+                separately. Defaults to 5 mins, which means a total of 10 mins.
+            symmetry_tol:
+                If > 0, symmetry checking is performed on the two structures
+                based on that symmetry tolerance in angstrom. Structures with
+                different symmetries are not fitted to each other. A good value
+                is around 0.1.
         """
 
         self._tolerance_cell_misfit = tolerance_cell_misfit
@@ -95,16 +96,23 @@ class StructureFitter(object):
         self._supercells_allowed = supercells_allowed
         self._anonymized = anonymized
         self._max_rotations = fitting_accuracy
+        self._timeout = timeout
         #Sort structures first so that they have the same arrangement of species
         self._structure_a = structure_a.get_sorted_structure()
         self._structure_b = structure_b.get_sorted_structure()
-        if use_symmetry:
-            from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
-            finder_a = SymmetryFinder(self._structure_a, symprec=0.1)
-            finder_b = SymmetryFinder(self._structure_b, symprec=0.1)
-            same_sg = finder_a.get_spacegroup_number() == finder_b.get_spacegroup_number()
 
-        if not use_symmetry or same_sg:
+        self._start_time = time.time()
+
+        if symmetry_tol:
+            from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+            finder_a = SymmetryFinder(self._structure_a, symprec=symmetry_tol)
+            finder_b = SymmetryFinder(self._structure_b, symprec=symmetry_tol)
+            sg_a = finder_a.get_spacegroup_number()
+            sg_b = finder_b.get_spacegroup_number()
+            same_sg = sg_a == sg_b
+            logger.debug("Spacegroup numbers : A - {}, B - {}".format(sg_a, sg_b))
+
+        if not symmetry_tol or same_sg:
             self._mapping_op = None
             if not self._anonymized:
                 self.fit(self._structure_a, self._structure_b)
@@ -129,8 +137,8 @@ class StructureFitter(object):
                             self.el_mapping = {el_a:el_b for el_b, el_a in el_mapping.items()}
                             break
                 else:
-                    logger.debug("No. of elements in structures are unequal.")
-        else:
+                    logger.debug("No. of elements in structures are unequal.  Cannot be fitted!")
+        elif symmetry_tol:
             self._mapping_op = None
             logger.debug("Symmetry is different.")
 
@@ -161,7 +169,6 @@ class StructureFitter(object):
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
         logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
-        tol_atoms_plus = 1.1 * tol_atoms
 
         max_sites = float('inf')
         # determine which type of sites to use for the mapping
@@ -174,25 +181,31 @@ class StructureFitter(object):
         # Set the arbitrary origin
         origin = fit_sites[0]
         logger.debug("Origin = " + str(origin))
-        # now that candidate rotations have been found, shift origin of to_fit
-        # because the symmetry operations will be applied from this origin
 
         oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
         shifted_to_fit = apply_operation(to_fit, oshift)
+        # This is cheating, but let's try an identity fit first.  In many situations,
+        # E.g., when a structure has been topotatically delithiated or
+        # substituted, you actually can get a very fast answer without having
+        # to try all rotations.
+
         found_map = False
 
-        # This is cheating, but let's try a simple rotation first.  In many situations,
-        # E.g., when a structure has been topotatically delithiated or substituted, you actually
-        # can get a very fast answer without having to try all rotations.
-        simple_rot = self._get_rot_matrix(fixed, to_fit)
-        if simple_rot is not None:
-            rot = SymmOp.from_rotation_matrix_and_translation_vector(simple_rot, np.array([0, 0, 0]))
-            (found_map, mapping_op) = self._test_rot(rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
+        simple_rots = self._get_simple_rotations(fixed, to_fit)
+        for rot in simple_rots:
+            rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
+                                                            np.array([0, 0, 0]))
+            (found_map, mapping_op, biggest_dist) = self._test_rotation(rot_op, origin,
+                                                fixed, shifted_to_fit, tol_atoms)
+            if found_map:
+                break
 
-        if not found_map: #If simple rotation matching does not work, we have to search and try all rotations.
-            logger.debug("Identity matching failed. Finding candidate rotations.")
+        if not found_map:
             #Get candidate rotations
             cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
+
+            #Reset the clock.
+            self._start_time = time.time()
 
             logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
             if len(cand_rot) == 0:
@@ -204,16 +217,17 @@ class StructureFitter(object):
             sorted_cand_rot = sorted(cand_rot.keys(), key=lambda r: cand_rot[r])
 
             for rot in sorted_cand_rot:
-                (found_map, mapping_op) = self._test_rot(rot, origin, fixed, shifted_to_fit, tol_atoms, tol_atoms_plus)
-
+                (found_map, mapping_op, biggest_dist) = self._test_rotation(rot,
+                                    origin, fixed, shifted_to_fit, tol_atoms)
                 if found_map:
                     break
         else:
-            logger.debug("Identity matching found.")
+            logger.debug("Identity fitting matched!")
 
-        logger.debug("Done testing all candidate rotations")
+        logger.debug("Done testing in {} secs".format(time.time() - self._start_time))
 
         self._atomic_misfit = biggest_dist / ((3 * 0.7405 * a.volume / (4 * math.pi * a.num_sites)) ** (1 / 3))
+
         if mapping_op != None:
             rot = mapping_op.rotation_matrix # maps toFit to fixed
             p = sqrt_matrix(np.dot(rot.transpose(), rot))
@@ -228,22 +242,16 @@ class StructureFitter(object):
             #self._mapping_op = mapping_op
             self._cell_misfit = shear_invariant(p)
 
-    def _get_rot_matrix(self, fixed, to_fit):
-        a1 = fixed.lattice.angles
-        a2 = to_fit.lattice.angles
-        for i in xrange(3):
-            if abs(a1[i] - a2[i]) > 5:
-                return None
-        to_fit_unit_matrix = np.array([row / np.linalg.norm(row) for row in to_fit.lattice.matrix])
-        fixed_unit_matrix = np.array([row / np.linalg.norm(row) for row in fixed.lattice.matrix])
-        return np.dot(to_fit_unit_matrix.transpose(), np.linalg.inv(fixed_unit_matrix.transpose()))
-
-
-    def _test_rot(self, rot, origin, fixed, to_fit, tol_atoms, tol_atoms_plus):
+    def _test_rotation(self, rot, origin, fixed, to_fit, tol_atoms):
+        tol_atoms_plus = 1.1 * tol_atoms
         found_map = False
         mapping_op = None
+        biggest_dist = 0
+        logger.debug("Trying candidate rotation : \n" + str(rot))
         for site in fixed:
-            logger.debug("Trying candidate rotation : \n" + str(rot))
+            if time.time() - self._start_time > self._timeout:
+                logger.debug("Timeout reached when testing rotations.")
+                break
             if site.species_and_occu == origin.species_and_occu:
                 shift = site.coords
                 op = SymmOp.from_rotation_matrix_and_translation_vector(rot.rotation_matrix, shift)
@@ -255,7 +263,7 @@ class StructureFitter(object):
                 for trans in nstruct:
                     cands = fixed.get_sites_in_sphere(trans.coords, tol_atoms_plus)
                     if len(cands) == 0:
-                        logger.debug("No candidates found1")
+                        logger.debug("No candidates found.")
                         all_match = False
                         break
                     cands = sorted(cands, key=lambda a: a[1])
@@ -273,6 +281,7 @@ class StructureFitter(object):
 
                 if not are_sites_unique(correspondance.values(), False):
                     all_match = False
+                    continue
                 else:
                     for k, v in correspondance.items():
                         logger.debug(str(k) + " fits on " + str(v))
@@ -285,9 +294,9 @@ class StructureFitter(object):
 
                 # it used to be fixed.getNumSites() != nStruct.getNumSites()
                 # so only when the number of sites are different but it's
-                # actually better to allways check the reverse. This
-                # elimininates weird situations where two atoms fit to one (reduced in the
-                # unit cell)
+                # actually better to always check the reverse. This
+                # elimininates weird situations where two atoms fit to one
+                # (reduced in the unit cell)
                 for fixed_site in fixed:
                     cands = nstruct.get_sites_in_sphere(fixed_site.coords, tol_atoms_plus)
                     if len(cands) == 0:
@@ -308,28 +317,27 @@ class StructureFitter(object):
                     if not are_sites_unique(inv_correspondance.values(), False):
                         all_match = False
                         logger.debug("Rejected because two atoms fit to the same site for the inverse")
+                        continue
 
-                if all_match:
                     self.inv_correspondance = inv_correspondance
                     logger.debug("Correspondance for the inverse")
                     for k, v in inv_correspondance.items():
                         logger.debug("{} fits on {}".format(k, v))
 
-                # The smallest correspondance array shouldn't have any equivalent sites
-                if fixed.num_sites != to_fit.num_sites:
-                    logger.debug("Testing sites unique")
-                    if not are_sites_unique(correspondance.values()):
-                        all_match = False
-                        logger.debug("Rejected because the smallest correspondance array has equivallent sites")
-                        break
+                    # The smallest correspondance array shouldn't have any equivalent sites
+                    if fixed.num_sites != to_fit.num_sites:
+                        logger.debug("Testing sites unique")
+                        if not are_sites_unique(correspondance.values()):
+                            all_match = False
+                            logger.debug("Rejected because the smallest correspondance array has equivallent sites")
+                            continue
 
-                if all_match:
                     found_map = True
                     mapping_op = op
                     self.correspondance = correspondance
                     break
 
-        return (found_map, mapping_op)
+        return (found_map, mapping_op, biggest_dist)
 
     def __str__(self):
 
@@ -379,9 +387,7 @@ class StructureFitter(object):
             dr = lengths[i] * math.sqrt(tol_shear / 2)
             shell = to_fit.get_neighbors_in_shell(origin.coords, lengths[i], dr)
             logger.debug("shell {} radius={} dr={}".format(i, lengths[i], dr))
-            shell = filter(lambda x: x[0].species_and_occu == origin.species_and_occu, shell)
-            shell = sorted(shell, key=lambda x: x[1])
-            shells.append([site for (site, dist) in shell])
+            shells.append([site for (site, dist) in shell if site.species_and_occu == origin.species_and_occu])
             logger.debug("No. in shell = {}".format(len(shells[-1])))
         # now generate candidate rotations
         cand_rot = {} #Dict of SymmOp : float
@@ -393,7 +399,7 @@ class StructureFitter(object):
             logger.debug("Total rots = {}. Using all rotations.".format(total_rots))
             test_rotations = itertools.product(*shells)
         else:
-            logger.info("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m=total_rots, n=self._max_rotations))
+            logger.warning("Total rots = {m} exceed max_rotations = {n}. Using {n} randomly selected rotations.".format(m=total_rots, n=self._max_rotations))
             def random_rot():
                 considered_rots = []
                 while len(considered_rots) < self._max_rotations:
@@ -404,33 +410,52 @@ class StructureFitter(object):
             test_rotations = random_rot()
 
         for pool in test_rotations:
-            # now, can a unitary transformation bring the cell vectors together
-            cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
-            det = np.linalg.det(cell_v)
-            if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
-                continue
-            rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
-            r = SymmOp.from_rotation_matrix_and_translation_vector(rot, np.array([0, 0, 0]))
+            if all([nn.species_and_occu == origin.species_and_occu for nn in pool]):
+                # now, can a unitary transformation bring the cell vectors together
+                cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
+                det = np.linalg.det(cell_v)
+                if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
+                    continue
+                rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
+                r = SymmOp.from_rotation_matrix_and_translation_vector(rot, np.array([0, 0, 0]))
 
-            if r not in cand_rot:
-                transf = r.rotation_matrix
-                transf = np.dot(transf.transpose(), transf)
-                transf = np.eye(3) if almost_identity(transf) else transf
-                pbis = sqrt_matrix(transf)
-                shear_inv = shear_invariant(pbis)
-                if shear_inv < tol_shear:
-                    cand_rot[r] = shear_inv
-                else:
-                    logging.debug("Shear {} exceeds tol of {}".format(shear_inv, tol_shear))
+                if r not in cand_rot:
+                    transf = r.rotation_matrix
+                    transf = np.dot(transf.transpose(), transf)
+
+                    #This resolves a very very strange bug in numpy that causes
+                    #random eigenvectors to be returned for matrices very very
+                    #close to the identity matrix.
+                    transf = np.eye(3) if np.allclose(transf, np.eye(3)) else transf
+                    pbis = sqrt_matrix(transf)
+                    if shear_invariant(pbis) < tol_shear:
+                        cand_rot[r] = shear_invariant(pbis)
+            if time.time() - self._start_time > self._timeout:
+                logger.debug("Timeout reached when generating rotations.")
+                break
 
         return cand_rot
+
+    def _get_simple_rotations(self, fixed, to_fit):
+        a1 = fixed.lattice.angles
+        a2 = to_fit.lattice.angles
+        for i in xrange(3):
+            if abs(a1[i] - a2[i]) > 5:
+                return []
+        fixed_unit_matrix = np.array([row / np.linalg.norm(row) for row in fixed.lattice.matrix])
+        to_fit_unit_matrix = np.array([row / np.linalg.norm(row) for row in to_fit.lattice.matrix])
+        possible_rots = []
+        inv_fixed = np.linalg.inv(fixed_unit_matrix.transpose())
+        for p in itertools.permutations(to_fit_unit_matrix):
+            possible_rots.append(np.dot(np.array(p).transpose(), inv_fixed))
+        return possible_rots
 
     @property
     def fit_found(self):
         """
         True if a fit was found.
         """
-        return self._mapping_op != None
+        return self.mapping_op != None
 
     @property
     def mapping_op(self):
@@ -441,52 +466,84 @@ class StructureFitter(object):
 
     @property
     def structure_a(self):
-        """
-        First input structure
-        """
+        """First input structure"""
         return self._structure_a
 
     @property
     def structure_b(self):
-        """
-        Second input structure
-        """
+        """Second input structure"""
         return self._structure_b
 
+
 def apply_operation(structure, symmop):
+    """
+    Applies a symmetry operation on a structure.
+    
+    Args:
+        structure:
+            Input structure
+        symmop:
+            SymmOp to apply
+            
+    Returns:
+        Modified structure after applying symmop.
+    """
     editor = StructureEditor(structure)
     editor.apply_operation(symmop)
     return editor.modified_structure
 
-def sqrt_matrix(input_matrix):
-    d, v = np.linalg.eig(input_matrix)
-    diagonalbis = np.array([[d[0] ** 0.5, 0, 0], [0, d[1] ** 0.5, 0], [0, 0, d[2] ** 0.5]])
-    temp = np.dot(diagonalbis, v.transpose())
-    result = np.dot(v, temp)
-    return result
+
+def sqrt_matrix(matrix):
+    """
+    Calculates sqrt matrix for input matrix.
+    
+    Args:
+        matrix:
+            Input matrix
+    
+    Returns:
+        Sqrt matrix.
+    """
+    d, v = np.linalg.eig(matrix)
+    diagonalbis = np.sqrt(d) * np.eye(3)
+    return np.dot(v, np.dot(diagonalbis, v.transpose()))
+
 
 def shear_invariant(matrix):
-    return (matrix[0][0] - matrix[1][1]) ** 2 + (matrix[1][1] - matrix[2][2]) ** 2 + (matrix[0][0] - matrix[2][2]) ** 2 + 6 * (matrix[0][1] * matrix[0][1] + matrix[0][2] * matrix[0][2] + matrix[1][2] * matrix[1][2])
+    """
+    Calculates the shear invariant for a matrix.
+    
+    Args:
+        matrix:
+            Input matrix
+    
+    Returns:
+        Shear invariant
+    """
+    ans = 0
+    for i, j in itertools.combinations(xrange(3), 2):
+        ans += (matrix[i][i] - matrix[j][j]) ** 2
+        ans += 6 * matrix[i][j] ** 2
+    return ans
+
 
 def are_sites_unique(sites, allow_periodic_image=True):
+    """
+    Checks if the sites are unique.
+    
+    Args:
+        sites:
+            List of sites to check.
+        allow_periodic_image:
+            Whether to allow periodic images of sites to map onto one another.
+    
+    Returns:
+        True if sites are unique, i.e., does not map onto each other.
+    """
     for (site1, site2) in itertools.combinations(sites, 2):
-        if (allow_periodic_image and site1.is_periodic_image(site2)) or (site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all()):
+        if allow_periodic_image and site1.is_periodic_image(site2):
+            return False
+        if site1.species_and_occu == site2.species_and_occu and (abs(site1.coords - site2.coords) < 0.1).all():
             return False
     return True
-
-def closest_site_to_point(pt, list_of_sites):
-    closest_dist = 1e10
-    for c in list_of_sites:
-        dist = np.linalg.norm(c.coords - pt)
-        if dist < closest_dist:
-            closest = c
-            closest_dist = dist
-    return (closest, closest_dist)
-
-def almost_identity(mat):
-    """
-    This is to resolve a very very strange bug in numpy that causes random eigen vectors to be returned
-    for matrices very very close to the identity matrix.  See test_eig for examples.
-    """
-    return (abs(mat - np.eye(3)) < 1e-10).all()
 

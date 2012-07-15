@@ -29,7 +29,7 @@ class SpacegroupTest(unittest.TestCase):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        self.structure = p.struct
+        self.structure = p.structure
         self.sg1 = SymmetryFinder(self.structure, 0.001).get_spacegroup()
         self.sg2 = Spacegroup.from_spacegroup_number(62)
 

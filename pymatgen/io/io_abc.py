@@ -16,7 +16,10 @@ __date__ = "$Sep 23, 2011M$"
 
 import abc
 
-class VaspInput(object):
+from pymatgen.serializers.json_coders import MSONable
+
+
+class VaspInput(MSONable):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod

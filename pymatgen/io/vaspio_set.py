@@ -24,6 +24,7 @@ import json
 
 from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
 
+
 class AbstractVaspInputSet(object):
     """
     Abstract base class representing a set of Vasp input parameters.
@@ -98,24 +99,27 @@ class AbstractVaspInputSet(object):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         '''
+        d = {'INCAR':self.get_incar(structure),
+             'KPOINTS':self.get_kpoints(structure),
+             'POSCAR': self.get_poscar(structure)}
         if generate_potcar:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
-                    'POSCAR': self.get_poscar(structure), 'POTCAR': self.get_potcar(structure)}
+            d['POTCAR'] = self.get_potcar(structure)
         else:
-            return {'INCAR':self.get_incar(structure), 'KPOINTS':self.get_kpoints(structure),
-                    'POSCAR': self.get_poscar(structure), 'POTCAR.spec': "\n".join(self.get_potcar_symbols(structure))}
+            d['POTCAR.spec'] = "\n".join(self.get_potcar_symbols(structure))
+        return d
 
     def write_input(self, structure, output_dir, make_dir_if_not_present=True):
         """
         Writes a set of VASP input to a directory.
         
-        Arguments:
+        Args:
             structure: 
                 Structure object
             output_dir:
                 Directory to output the VASP input files
             make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to be created if it is not present.
+                Set to True if you want the directory (and the whole path) to
+                be created if it is not present.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -127,14 +131,39 @@ class VaspInputSet(AbstractVaspInputSet):
     """
     Standard implementation of VaspInputSet, which can be extended by specific
     implementations.
+    
+    Special consideration should be paid to the way the MAGMOM initialization
+    for the INCAR is done. The initialization differs depending on the type of
+    structure and the configuration settings. The order in which the magmom is
+    determined is as follows:
+    
+    1. If the site itself has a magmom setting, that is used.
+    
+    2. If the species on the site has a spin setting, that is used.
+    
+    3. If the species itself has a particular setting in the config file, that
+       is used, e.g., Mn3+ may have a different magmom than Mn4+.
+    
+    4. Lastly, the element symbol itself is checked in the config file. If
+       there are no settings, VASP's default of 0.6 is used.
     """
-
-    def __init__(self, name):
+    def __init__(self, name, config_file=None):
+        """
+        Args:
+            name:
+                The name in the config file.
+            config_file:
+                The config file to use. If None (the default), a default config
+                file containing Materials Project and MIT parameters is used.
+        """
         self.name = name
-        module_dir = os.path.dirname(os.path.abspath(__file__))
+        if config_file is None:
+            module_dir = os.path.dirname(os.path.abspath(__file__))
+            config_file = os.path.join(module_dir, "VaspInputSets.cfg")
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir, "VaspInputSets.cfg")))
+        self._config.readfp(open(config_file))
+
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         self.incar_settings = dict(self._config.items(self.name + 'INCAR'))
@@ -144,7 +173,9 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_incar(self, structure):
         incar = Incar()
-        symamt = structure.composition.to_dict
+        comp = structure.composition
+        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+        most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
             if key == "MAGMOM":
@@ -154,12 +185,14 @@ class VaspInputSet(AbstractVaspInputSet):
                         mag.append(site.magmom)
                     elif hasattr(site.specie, 'spin'):
                         mag.append(site.specie.spin)
+                    elif str(site.specie) in setting:
+                        mag.append(setting.get(str(site.specie)))
                     else:
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
-            elif key in ['LDAUU', 'LDAUJ', 'LDAUL']:
-                if symamt.get("O", 0) > 0 or symamt.get("F", 0) > 0:
-                    incar[key] = [setting.get(sym, 0) for sym in poscar.site_symbols]
+            elif key in ('LDAUU', 'LDAUJ', 'LDAUL'):
+                if most_electroneg in setting.keys():
+                    incar[key] = [setting[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
                 else:
                     incar[key] = [0 for sym in poscar.site_symbols]
             elif key == "EDIFF":
@@ -170,7 +203,8 @@ class VaspInputSet(AbstractVaspInputSet):
         has_u = ("LDAUU" in incar and sum(incar['LDAUU']) > 0)
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
-            # note that if the user explicitly sets LMAXMIX in settings it will override this logic
+            # note that if the user explicitly sets LMAXMIX in settings it will
+            # override this logic.
             if 'LMAXMIX' not in self.incar_settings.keys():
                 if any([el.Z > 56 for el in structure.composition]):  # contains f-electrons
                     incar['LMAXMIX'] = 6
@@ -196,14 +230,15 @@ class VaspInputSet(AbstractVaspInputSet):
 
     def get_kpoints(self, structure):
         '''
-        Writes out a KPOINTS file using the fully automated grid method. Uses Gamma centered meshes 
-        for hexagonal cells and Monkhorst-Pack grids otherwise.
+        Writes out a KPOINTS file using the fully automated grid method. Uses
+        Gamma centered meshes  for hexagonal cells and Monk grids otherwise.
         
         Algorithm: 
             Uses a simple approach scaling the number of divisions along each 
             reciprocal lattice vector proportional to its length. 
         '''
-        return Kpoints.automatic_density(structure, int(self.kpoints_settings['grid_density']))
+        return Kpoints.automatic_density(structure,
+                                   int(self.kpoints_settings['grid_density']))
 
     def __str__(self):
         output = [self.name]
@@ -216,7 +251,6 @@ class VaspInputSet(AbstractVaspInputSet):
                 output.append("%s = %s" % (k, str(v)))
             output.append("")
             count += 1
-
         return "\n".join(output)
 
 
@@ -225,12 +259,12 @@ class MITVaspInputSet(VaspInputSet):
     Standard implementation of VaspInputSet utilizing parameters in the MIT 
     High-throughput project.
     The parameters are chosen specifically for a high-throughput project, 
-    which means in general smaller pseudopotentials were chosen.
+    which means in general pseudopotentials with fewer electrons were chosen.
     
     Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, 
-    T. Mueller, K. A. Persson, G. Ceder (2011). 
-    A high-throughput infrastructure for density functional theory calculations. 
-    Computational Materials Science, 50(8), 2295-2310. 
+    T. Mueller, K. A. Persson, G. Ceder. A high-throughput infrastructure for 
+    density functional theory calculations. Computational Materials Science,
+    2011, 50(8), 2295-2310. 
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
     def __init__(self):
@@ -256,3 +290,4 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
     """
     def __init__(self):
         super(MaterialsProjectVaspInputSet, self).__init__("MaterialsProject")
+

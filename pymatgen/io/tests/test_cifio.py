@@ -4,15 +4,11 @@ import os
 
 import numpy as np
 
-import pymatgen
-
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.vaspio import Poscar
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen import Element, Specie, Lattice, Structure, __file__
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class  CifIOTest(unittest.TestCase):
 
@@ -29,7 +25,7 @@ class  CifIOTest(unittest.TestCase):
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.struct)
+        writer = CifWriter(poscar.structure)
         expected_cif_str = """#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file 

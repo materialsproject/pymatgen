@@ -1,0 +1,1076 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.85">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+
+
+<title> Programming with PyCIFRW and PySTARRW</title>
+ 
+<h1 align="center">Programming with PyCIFRW and PySTARRW </h1>
+
+<div class="p"><!----></div>
+PyCIFRW provides facilities for reading, manipulating and writing
+CIF and STAR files. In addition, CIF files and dictionaries may be
+validated against DDL1/2 dictionaries. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Installing and Initialising PyCIFRW</h2>
+
+<div class="p"><!----></div>
+Assuming python is installed, you can unpack the distribution into
+a temporary directory, and then type "<tt>python setup.py</tt>
+<tt>install</tt>" from within this temporary directory. Upon completion
+of this command, a number files will have been placed into the system
+python packages directory: <tt>CifFile.py</tt>, <tt>StarFile.py,
+yapps_compiled_rt.py</tt> and <tt>YappsStarParser_xx.py</tt>. It is
+then sufficient to import <tt>CifFile.py</tt> into your python session
+or script to access all PyCIFRW functionality: 
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;&nbsp;import&nbsp;CifFile
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Working with CIF files</h2>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Creating a CifFile object</h3>
+
+<div class="p"><!----></div>
+CIF files are represented in PyCIFRW as <tt>CifFile</tt> objects.
+These objects behave identically to Python dictionaries, with some
+additional methods. <tt>CifFile</tt> objects can be created by calling
+the <tt>ReadCif</tt> function on a filename or URL:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;&nbsp;cf&nbsp;=&nbsp;CifFile.ReadCif("mycif.cif")
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;&nbsp;df&nbsp;=&nbsp;CifFile.ReadCif("ftp://ftp.iucr.org/pub/cifdics/cifdic.register")
+</dd>
+</dl>
+Errors are raised if CIF syntax/grammar violations are encountered
+in the input file or line length limits are exceeded.
+
+<div class="p"><!----></div>
+A compiled extension (<tt>StarScan.so</tt>) is available on Linux
+which increases parsing speed by a factor of three or more. To use
+this facility, include the keyword argument <tt>scantype='flex'</tt>
+in <tt>ReadCif</tt>/<tt>ReadStar</tt> commands:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cf&nbsp;=&nbsp;CifFile.ReadCif("mycif.cif",scantype="flex")
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.1.1">
+2.1.1</a>&nbsp;&nbsp;Grammar options</h4>
+
+<div class="p"><!----></div>
+There are two slightly different variations in CIF file syntax. An
+early version of the standard allowed non-quoted data strings to begin
+with bracket characters (e.g. '<tt>(</tt>'). This was disallowed in
+version 1.1 in order to reserve such usage for the upcoming DDLm changes.
+A very few CIF files are produced according to the old standard. Specification
+of the particular version to use is possible with the <tt>grammar</tt>
+keyword:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cf&nbsp;=&nbsp;CifFile.ReadCif('oldcif.cif',grammar='1.0')&nbsp;#oldest&nbsp;CIF&nbsp;syntax&nbsp;
+
+<div class="p"><!----></div>
+cf&nbsp;=&nbsp;CifFile.ReadCif('normcif.cif',grammar='1.1')&nbsp;#current&nbsp;standard&nbsp;(default)
+
+<div class="p"><!----></div>
+cf&nbsp;=&nbsp;CifFile.ReadCif('future.cif',grammar='DDLm')&nbsp;#proposed&nbsp;standard
+</dd>
+</dl>
+Note that the DDLm syntax has not been finalised and is subject to
+change. The most important syntactical addition in DDLm is the use
+of nested, bracketed tuple and list expressions, as in Python. The
+implementation in PyCIFRW is one interpretation of the draft documentation.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.1.2">
+2.1.2</a>&nbsp;&nbsp;Creating a new CifFile</h4>
+
+<div class="p"><!----></div>
+A new <tt>CifFile</tt> object is usually created empty:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cf&nbsp;=&nbsp;CifFile.CifFile()
+</dd>
+</dl>
+You will need to create at least one <tt>CifBlock</tt> object to hold
+your data:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+myblock&nbsp;=&nbsp;CifFile.CifBlock()
+
+<div class="p"><!----></div>
+cf['a_block']&nbsp;=&nbsp;myblock
+</dd>
+</dl>
+A <tt>CifBlock</tt> object may be initialised with another <tt>CifBlock</tt>,
+in which case a copy operation is performed, or with a tuple or list
+of tuples containing key, value pairs. These are inserted into the
+new <tt>CifBlock</tt> using <tt>AddCifItem</tt> (see below).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Manipulating values in a CIF file</h3>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.2.1">
+2.2.1</a>&nbsp;&nbsp;Accessing data</h4>
+
+<div class="p"><!----></div>
+The simplest form of access is using standard Python square bracket
+notation. Data blocks and data names within each data block are referenced
+identically to normal Python dictionaries:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+my_data&nbsp;=&nbsp;cf['a_data_block']['_a_data_name']
+</dd>
+</dl>
+All values are strings with CIF syntactical elements stripped, that
+is, no enclosing quotation marks or semicolons are included in the
+values. The value associated with a <tt>CifFile</tt> dictionary key
+is always a <tt>CifBlock</tt> object. All standard Python dictionary
+methods (e.g. <tt>get, update, items, keys</tt>) are available for
+both <tt>CifFile</tt> and <tt>CifBlock</tt> objects. Note also the
+convenience method <tt>first_block</tt>, which will reference the
+first datablock in a CIF file:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+my_data&nbsp;=&nbsp;cf.first_block()
+</dd>
+</dl>
+If a data name occurs in a loop, a list of string values is returned
+for the value of that dataname - the next section describes ways to
+access looped data.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.2.2">
+2.2.2</a>&nbsp;&nbsp;Tabular ("looped") data</h4>
+
+<div class="p"><!----></div>
+For the purpose of the following examples, we use the following example
+CIF file:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+data_testblock
+
+<div class="p"><!----></div>
+loop_
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;_item_5&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;_item_7&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;_item_6&nbsp;&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;1&nbsp;&nbsp;a&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;2&nbsp;&nbsp;b&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;3&nbsp;&nbsp;c&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;4&nbsp;&nbsp;d&nbsp;&nbsp;8&nbsp;
+</dd>
+</dl>
+PyCIFRW provides a shortcut to return all values taken by a particular
+dataname inside a CIF loop (by using the square bracket notation,
+identically to non-looped data), but more flexibility is provided
+by accessing <tt>CifLoopBlock</tt> objects.
+
+<div class="p"><!----></div>
+A <tt>CifLoopBlock</tt> object can be obtained by callin<tt>g
+CifBlock</tt> method <tt>GetLoop(dataname</tt>). This object provides
+the same methods as a <tt>CifBlock</tt>. For example, <tt>keys()</tt>
+returns a list of datanames in the loop. Additionally, loop packets
+can be accessed by accessing the nth value in the <tt>CifLoopBlock</tt>
+object<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, and values can be obtained from these packets as attributes:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;&nbsp;lb&nbsp;=&nbsp;cb.GetLoop("_item_5")
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;&nbsp;lb[0]
+
+<div class="p"><!----></div>
+['1',&nbsp;'a',&nbsp;'5']
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;&nbsp;lb[0]._item_7
+
+<div class="p"><!----></div>
+'a'
+</dd>
+</dl>
+An alternative way of accessing loop data uses Python iterators, allowing
+the following syntax:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;&nbsp;for&nbsp;a&nbsp;in&nbsp;lb:&nbsp;print&nbsp;`a["_item_7"]`&nbsp;
+
+<div class="p"><!----></div>
+'a'&nbsp;'b'&nbsp;'c'&nbsp;'d'&nbsp;
+</dd>
+</dl>
+Note that in both the above examples the row packet is a copy of the
+looped data, and therefore changes to it will not alter the data read
+from the CIF file, unlike the lists returned when column-based access
+is used.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.2.3">
+2.2.3</a>&nbsp;&nbsp;Key-based table row access (new in 3.2)</h4>
+
+<div class="p"><!----></div>
+Rather than relying on a particular row ordering (remembering that
+row order is not significant in CIF, unlike, for example, XML) or
+iterating through all rows looking for a particular row, it is possible
+to refer to a particular row based on the values taken by a given
+data item, using the <tt>CifLoopBlock</tt> <tt>'GetKeyedPacket'</tt>
+method:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;&nbsp;myrow&nbsp;=&nbsp;lb.GetKeyedPacket('_item_7','c')&nbsp;
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;&nbsp;myrow._item_5
+
+<div class="p"><!----></div>
+'3'
+</dd>
+</dl>
+In this example, the first packet with a value of 'c' for _item_7
+is returned, and packet values can then be accessed using the dataname
+as an attribute of the packet. Note that a <tt>KeyError</tt> is raised
+if more than one packet matches, or no packets match, and that the
+packet returned is a copy of the data read in from the file, and therefore
+can be changed without affecting the data that was read in.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.2.4">
+2.2.4</a>&nbsp;&nbsp;Changing or adding data values</h4>
+
+<div class="p"><!----></div>
+If many operations are going to be performed on a single data block,
+it is convenient to assign that block to a new variable:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb&nbsp;=&nbsp;cf['my_block']
+</dd>
+</dl>
+A new data name and value may be added, or the value of an existing
+name changed, by straight assignment:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb['_new_data_name']&nbsp;=&nbsp;4.5
+
+<div class="p"><!----></div>
+cb['_old_data_name']&nbsp;=&nbsp;'cucumber'
+</dd>
+</dl>
+Old values are overwritten silently. Note that values may be strings
+or numbers. 
+
+<div class="p"><!----></div>
+If a list is given as the value instead of a single string or number,
+a new loop is created containing this one data name, looped. If this
+data name already appeared in a loop, any looped data values which
+may have co-occurred in the loop are deleted. As this is not necessarily
+the desired behaviour, you may wish to access the loop block using
+the <tt>GetLoop</tt> method described above.
+
+<div class="p"><!----></div>
+Alternatively, the <tt>AddCifItem</tt> method can be used to add multiple
+looped and unlooped data items in a single command. <tt>AddCifItem</tt>
+is called with a 2-element tuple argument. The first element of the
+tuple is either a single dataname, or a list or tuple of datanames.
+The second element is either a single value (in the case of a single
+name in the first element) or a list, each element of which is a list
+of values taken by the corresponding dataname in the first element.
+A nested tuple of datanames in the first element together with the
+corresponding nested tuple of lists in the second element will become
+a loop block in the Cif file. In general, however, it will be less
+confusing to create a <tt>CifLoopBlock</tt> object, populate it with
+data items, and then insert it into a <tt>CifBlock</tt> object (see
+below).
+
+<div class="p"><!----></div>
+Another method, <tt>AddToLoop(dataname,newdata),</tt> adds <tt>newdata</tt>
+to the pre-existing loop containing <tt>dataname</tt>, silently overwriting
+duplicate data. <tt>Newdata</tt> should be a Python dictionary of
+dataname - datavalue pairs, with <tt>datavalue</tt> a list of new/replacement
+values.
+
+<div class="p"><!----></div>
+Note that lists (and other listlike objects except packets) returned
+by PyCIFRW actually represent the list currently inside the CifBlock,
+and therefore any modification to them will modify the stored list.
+While this is often the desired behaviour, if you intend to manipulate
+such a list in other parts of your program while preserving the original
+CIF information, you should first copy the list to avoid destroying
+the loop structure:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+mysym&nbsp;=&nbsp;cb['_symmetry_ops'][:]
+
+<div class="p"><!----></div>
+mysym.append('x-1/2,y+1/2,z')
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+
+<b>Changing item order&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+The <tt>ChangeItemOrder</tt> method allows the order in which data
+items appear in the printed file to be changed:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+mycif['testblock'].ChangeItemOrder('_item_5',0)
+</dd>
+</dl>
+will move <tt>_item_5</tt> to the beginning of the datablock. When
+changing the order inside a loop block, the loop block's method must
+be called i.e.:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+aloop&nbsp;=&nbsp;mycif['testblock'].GetLoop('_loop_item_1')
+
+<div class="p"><!----></div>
+aloop.ChangeItemOrder('_loop_item_1',4)
+</dd>
+</dl>
+Note also that the position of a loop within the file can be changed
+in this way as well, simply by passing the <tt>CifLoopBlock</tt> object
+as the first argument:
+
+<div class="p"><!----></div>
+<tt>mycif['testblock'].ChangeItemOrder(aloop,0)</tt>
+
+<div class="p"><!----></div>
+will move the loop block to the beginning of the printed datablock.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.2.5">
+2.2.5</a>&nbsp;&nbsp;Adding and removing table rows (new in 3.2)</h4>
+
+<div class="p"><!----></div>
+It is possible to add a new row into a loop using <tt>AddPacket(packet)</tt>:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+template&nbsp;=&nbsp;aloop.GetKeyedPacket('_item_7','d')
+
+<div class="p"><!----></div>
+template._item_5&nbsp;=&nbsp;'5'
+
+<div class="p"><!----></div>
+template._item_7&nbsp;=&nbsp;'e'
+
+<div class="p"><!----></div>
+template._item_6&nbsp;=&nbsp;'9'
+
+<div class="p"><!----></div>
+aloop.AddPacket(template)
+</dd>
+</dl>
+Note we use an existing packet as a template in this example. If you
+wish to create a packet from scratch, you should instantiate a <tt>StarPacket</tt>:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+import&nbsp;StarFile&nbsp;&nbsp;&nbsp;#installed&nbsp;with&nbsp;PyCIFRW
+
+<div class="p"><!----></div>
+newpack&nbsp;=&nbsp;StarFile.StarPacket()
+
+<div class="p"><!----></div>
+newpack._item_5&nbsp;=&nbsp;'5'&nbsp;&nbsp;
+
+<div class="p"><!----></div>
+...
+
+<div class="p"><!----></div>
+aloop.AddPacket(newpack)
+</dd>
+</dl>
+Note that an error will be raised if the packet attributes do not
+exactly match the item names in the loop.
+
+<div class="p"><!----></div>
+A packet may be removed using the <tt>RemoveKeyedPacket</tt> method: 
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+aloop.RemoveKeyedPacket('_item_7','a')
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+
+<b>Examples using loops&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+Note the above methods for adding, accessing and removing rows in
+pre-existing loops. The following examples show how to perform column-based
+access.
+
+<div class="p"><!----></div>
+<br />&nbsp;&nbsp;&nbsp;<b>Adding/replacing a single item with looped values:&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb['_symmetry']&nbsp;=&nbsp;['x,y,z','-x,-y,-z','x+1/2,y,z']
+</dd>
+</dl>
+results in an output fragment
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+loop_
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_symmetry
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;x,y,z
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;-x,-y,-z
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;x+1/2,y,z
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<br />&nbsp;&nbsp;&nbsp;<b>Adding a complete loop:&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb.AddCifItem(([['_example','_example_detail']],
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[[['123.4','4567.8'],
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;['small&nbsp;cell','large&nbsp;cell']]]))
+</dd>
+</dl>
+results in an output fragment:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+loop_
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example_detail
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;123.4&nbsp;'small&nbsp;cell'
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;4567.8&nbsp;'large&nbsp;cell'
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<br />&nbsp;&nbsp;&nbsp;<b>Appending a new dataname to a pre-existing loop:&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb.AddToLoop(
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'_example',{'_comment':["not&nbsp;that&nbsp;small","Big&nbsp;and&nbsp;beautiful"]}
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+</dd>
+</dl>
+changes the previous output to be
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+loop_
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example_detail
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_comment
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;123.4&nbsp;'small&nbsp;cell'&nbsp;'not&nbsp;that&nbsp;small'
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;4567.8&nbsp;'large&nbsp;cell'&nbsp;'Big&nbsp;and&nbsp;beautiful'
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<br />&nbsp;&nbsp;&nbsp;<b>Changing pre-existing data in a loop:&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cb.AddToLoop('_comment',{'_example':['12.2','12004']})
+
+<div class="p"><!----></div>
+</dd>
+</dl>changes the previous example to
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+loop_
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_example_detail
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;_comment
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;12.2&nbsp;'small&nbsp;cell'&nbsp;'not&nbsp;that&nbsp;small'
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;12004&nbsp;'large&nbsp;cell'&nbsp;'Big&nbsp;and&nbsp;beautiful'
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Writing Cif Files</h3>
+
+<div class="p"><!----></div>
+The <tt>CifFile</tt> method <tt>WriteOut</tt> returns a string which
+may be passed to an open file descriptor:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;outfile&nbsp;=&nbsp;open("mycif.cif")
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;outfile.write(cf.WriteOut())
+</dd>
+</dl>
+An alternative method uses the built-in Python <tt>str()</tt> function:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;outfile.write(str(cf))
+</dd>
+</dl>
+<tt>WriteOut</tt> takes an optional argument, <tt>comment</tt>, which
+should be a string containing a comment which will be placed at the
+top of the output file. This comment string must already contain #
+characters at the beginning of lines:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+&#62;&#62;&#62;outfile.write(cf.WriteOut("#This&nbsp;is&nbsp;a&nbsp;test&nbsp;file"))
+</dd>
+</dl>
+Two additional keyword arguments control line length in the output
+file: <tt>wraplength</tt> and <tt>maxoutlength</tt>. Lines in the
+output file are guaranteed to be shorter than <tt>maxoutlength</tt>
+characters, and PyCIFRW will additionally insert a line break if putting
+two data values or a dataname/datavalue pair together on the same
+line would exceed <tt>wraplength</tt>. In other words, unless data
+values are longer than <tt>maxoutlength</tt> characters long, no line
+breaks will be inserted in the output file. By default, <tt>wraplength</tt>
+= 80 and <tt>maxoutlength</tt> = 2048.
+
+<div class="p"><!----></div>
+These values may be set on a per block/loop basis by calling the <tt>SetOutputLength</tt>
+method of the loop or block.
+
+<div class="p"><!----></div>
+The order of output of items within a <tt>CifFile</tt> or <tt>CifBlock</tt>
+is specified using the <tt>ChangeItemOrder</tt> method (see above).
+The default order is the order that items were inserted or read in
+to the <tt>CifFile/CifBlock</tt>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Dictionaries and Validation</h2>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Dictionaries</h3>
+
+<div class="p"><!----></div>
+DDL dictionaries may also be read into <tt>CifFile</tt> objects. For
+this purpose, <tt>CifBlock</tt> objects automatically support save
+frames (used in DDL2 dictionaries), which are accessed using the <tt>saves</tt>
+key. The value of this key is a collection of <tt>CifBlock</tt> objects
+indexed by save frame name, and available operations are similar to
+those available for a <tt>CifFile</tt>, which is also a collection
+of <tt>CifBlock</tt>s.
+
+<div class="p"><!----></div>
+A <tt>CifDic</tt> object hides the difference between DDL1 dictionaries,
+where all definitions are separate data blocks, and DDL2 dictionaries,
+where all definitions are in save frames of a single data block. A
+<tt>CifDic</tt> is initialised with a single file name or <tt>CifFile</tt>
+object:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+cd&nbsp;=&nbsp;CifFile.CifDic("cif_core.dic")
+</dd>
+</dl>
+Definitions are accessed using the usual notation, e.g. <tt>cd['_atom_site_aniso_label']</tt>.
+Return values are always <tt>CifBlock</tt> objects. Additionally,
+the <tt>CifDic</tt> object contains a number of instance variables
+derived from dictionary global data:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b>dicname</b></dt>
+	<dd> The dictionary name + version as given in the dictionary</dd>
+ <dt><b>diclang</b></dt>
+	<dd> 'DDL1','DDL2', or 'DDLm'</dd>
+ <dt><b>typedic</b></dt>
+	<dd> A Python dictionary matching typecode to compiled regular
+expression</dd>
+</dl>
+<tt>CifDic</tt> objects provide a large number of validation functions,
+which all return a Python dictionary which contains at least the key
+<tt>result</tt>. <tt>result</tt> takes the values <tt>True</tt>, <tt>False</tt>
+or <tt>None</tt> depending on the success, failure or non-applicability
+of each test. In case of failure, additional keys are returned depending
+on the nature of the error.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Validation</h3>
+
+<div class="p"><!----></div>
+A top level function is provided for convenient validation of CIF
+files:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+CifFile.validate("mycif.cif",dic&nbsp;=&nbsp;"cif_core.dic")
+</dd>
+</dl>
+This returns a tuple <tt>(valid_result, no_matches)</tt>. <tt>valid_result</tt>
+and <tt>no_matches</tt> are Python dictionaries indexed by block
+name. For <tt>valid_result</tt>, the value for each block is itself
+a dictionary indexed by <tt>item_name</tt>. The value attached to
+each item name is a list of <tt>(check_function, check_result)</tt>
+tuples, with <tt>check_result</tt> a small dictionary containing
+at least the key <tt>result</tt>. All tests which passed or were not
+applicable are removed from this dictionary, so result is always <tt>False</tt>.
+Additional keys contain auxiliary information depending on the test.
+Each of the items in <tt>no_matches</tt> is a simple list of item
+names which were not found in the dictionary.
+
+<div class="p"><!----></div>
+If a simple validation report is required, the function <tt>validate_report</tt>
+can be called on the output of the above function, printing a simple
+ASCII report. This function can be studied as an example of how to
+process the structure returned by the '<tt>validate</tt>' function.
+
+<div class="p"><!----></div>
+A somewhat nicer interface to validation is provided in the <tt>ValidationResult</tt>
+class (thanks to Boris Dusek), which is initialised with the return
+value from <tt>validate</tt>:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+val_report&nbsp;=&nbsp;ValidationResult(validate("mycif.cif",dic="cif_core.dic"))
+</dd>
+</dl>
+This class provides the <tt>report</tt> method, producing a human-readable
+report, as well as Boolean methods which return whether or not the
+block is valid or if items appear in the block that are not present
+in the dictionary - <tt>is_valid</tt> and <tt>has_no_match_items</tt>
+respectively.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc3.2.1">
+3.2.1</a>&nbsp;&nbsp;Limitations on validation</h4>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> (DDL2 only) When validating data dictionaries themselves, no checks
+are made on group and subgroup consistency (e.g. that a specified
+subgroup is actually defined).
+<div class="p"><!----></div>
+</li>
+
+<li> (DDL1 only) Some <tt>_type_construct</tt> attributes in the DDL1
+spec file are not machine-readable, so values cannot be checked for
+consistency
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.3">
+3.3</a>&nbsp;&nbsp;ValidCifFile objects</h3>
+
+<div class="p"><!----></div>
+A <tt>ValidCifFile</tt> object behaves identically to a <tt>CifFile</tt>
+object with the additional characteristic that it is valid against
+the given dictionary object. Any attempt to set a data value, or add
+or remove a data name, that would invalidate the object raises a <tt>ValidCifFile</tt>
+error. This class is slow, experimental and it is relatively easy
+to get around the validity checks; it is probably more efficient to
+construct a complete file and then run a validity check.
+
+<div class="p"><!----></div>
+Additional keywords for initialisation are:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b>dic</b></dt>
+	<dd> A <tt>CifDic</tt> object to use in validation</dd>
+ <dt><b>diclist</b></dt>
+	<dd> A list of <tt>CifFile</tt> objects or filenames to be
+merged into a <tt>CifDic</tt> object (see below)</dd>
+ <dt><b>mergemode</b></dt>
+	<dd> Choose merging method (one of '<tt>strict</tt>','<tt>overlay</tt>',
+'<tt>replace</tt>')</dd>
+</dl>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.4">
+3.4</a>&nbsp;&nbsp;Merging dictionaries</h3>
+
+<div class="p"><!----></div>
+PyCIFRW provides a top-level function to merge DDL1/2 dictionary files.
+It takes a list of CIF filenames or <tt>CifFile</tt> objects, and
+a <tt>mergemode</tt> keyword argument. CIF files are merged from left
+to right, that is, the second file in the list is merged into the
+first file in the list and so on.
+
+<div class="p"><!----></div>
+For completeness we list the arguments of the <tt>CifFile merge</tt>
+method:
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b>new_block_set</b></dt>
+	<dd> (first argument, no keyword) The new dictionary
+to be merged into the current dictionary</dd>
+ <dt><b>mode</b></dt>
+	<dd> merging mode to use ('<tt>strict</tt>', '<tt>overlay</tt>'
+or '<tt>replace</tt>')</dd>
+ <dt><b>single_block</b></dt>
+	<dd> a two element list <tt>[oldblockname, newblockname]</tt>,
+where <tt>oldblockname</tt> in the current file is merged with <tt>newblockname</tt>
+in the new file. This is useful when blocknames don't match</dd>
+ <dt><b>idblock</b></dt>
+	<dd> This block is ignored when merging - useful when merging
+DDL1 dictionaries in <tt>strict</tt> mode, in which case the <tt>on_this_dictionary</tt>
+block would cause an error.</dd>
+</dl>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc3.4.1">
+3.4.1</a>&nbsp;&nbsp;Limitations on merging</h4>
+
+<div class="p"><!----></div>
+In overlay mode, the COMCIFS recommendations require that, when both
+definitions contain identical attributes which can be looped, the
+merging process should construct those loops and include both sets
+of data in the new loop. 
+
+<div class="p"><!----></div>
+This is not yet implemented in PyCIFRW, as it involves checking the
+DDL1/DDL2 spec to determine which attributes may be looped together.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Working with STAR files</h2>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Creating STAR files</h3>
+
+<div class="p"><!----></div>
+Star files are created entirely analogously to CIF files, using the
+<tt>StarFile</tt> object or <tt>ReadStar</tt> function.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Manipulating values</h3>
+
+<div class="p"><!----></div>
+The usual square bracket notation applies, as for <tt>CifFile</tt>
+and <tt>CifBlock</tt> objects. <tt>StarFiles</tt> are built out of
+<tt>StarBlock</tt> objects in exactly the same way as <tt>CifFile</tt>
+objects are built out of <tt>CifBlock</tt> objects. <tt>StarBlock</tt>
+objects can contain any number of <tt>LoopBlock</tt> objects, which
+represent STAR loop blocks. Crucially, these <tt>LoopBlock</tt> objects
+may contain nested loops, which are also <tt>LoopBlock</tt> objects.
+Loops are inserted into a <tt>LoopBlock</tt> by calling the <tt>insert_loop</tt>
+method, and may be nested to an arbitrary level.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.2.1">
+4.2.1</a>&nbsp;&nbsp;Iterators</h4>
+
+<div class="p"><!----></div>
+Any LoopBlock object has two iterator methods: <tt>recursive_iter</tt>
+and <tt>flat_iterator</tt>. On each call of the iterator created
+by a <tt>recursive_iter</tt> call, a Python dictionary is returned
+with single-valued keys corresponding to a single set of values. If
+there are multiple trees of nested loops in a <tt>LoopBlock</tt>,
+each tree is iterated over separately, as there is no reason that
+looped values inside a second loop block would have any relationship
+with values inside a first loop block. This iterator will thus return
+all possible sets of values for the <tt>LoopBlock</tt>.
+
+<div class="p"><!----></div>
+The <tt>flat_iterator</tt> method does not dig down into nested loops.
+Instead, iterators created from it return a new <tt>LoopBlock</tt>
+with key-value pairs corresponding to a single top-level packet; nested
+loops are included, but they also have only data corresponding to
+the selected top-level packet available. This iterator thus iterates
+through the top-level packets, collapsing the nesting level by one.
+
+<div class="p"><!----></div>
+The default iterator (that used in list comprehensions and for loops)
+for <tt>CifBlocks</tt> (as opposed to <tt>StarBlocks</tt>) is <tt>recursive_iter</tt>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Example programs</h2>
+
+<div class="p"><!----></div>
+A program which uses PyCIFRW for validation, <tt>validate_cif.py</tt>,
+is included in the distribution in the Programs subdirectory. It will
+validate a CIF file (including dictionaries) against one or more dictionaries
+which may be specified by name and version or as a filename on the
+local disk. If name and version are specified, the IUCr canonical
+registry or a local registry is used to find the dictionary and download
+it if necessary.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;Usage</h3>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>
+python&nbsp;validate_cif.py&nbsp;[options]&nbsp;ciffile
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Options</h3>
+
+<div class="p"><!----></div>
+
+<dl compact="compact">
+ <dt><b>-version</b></dt>
+	<dd> show version number and exit</dd>
+ <dt><b>-h,-help</b></dt>
+	<dd> print short help message</dd>
+ <dt><b>-d&nbsp;dirname</b></dt>
+	<dd> directory to find/store dictionary files</dd>
+ <dt><b>-f&nbsp;dictname</b></dt>
+	<dd> filename of locally-stored dictionary</dd>
+ <dt><b>-u&nbsp;version</b></dt>
+	<dd> dictionary version to resolve using registry</dd>
+ <dt><b>-n&nbsp;name</b></dt>
+	<dd> dictionary name to resolve using registry</dd>
+ <dt><b>-s</b></dt>
+	<dd> store downloaded dictionary locally (default True)</dd>
+ <dt><b>-c</b></dt>
+	<dd> fetch and use canonical registry from IUCr</dd>
+ <dt><b>-r&nbsp;registry</b></dt>
+	<dd> location of registry as filename or URL</dd>
+ <dt><b>-t</b></dt>
+	<dd> The file to be checked is itself a DDL2 dictionary</dd>
+</dl>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Further information</h2>
+
+<div class="p"><!----></div>
+The source files are in a literate programming format (noweb) with
+file extension .nw. HTML documentation generated from these files
+and containing both code and copious comments is included in the downloaded
+package. Details of interpretation of the current standards as relates
+to validation can be found in these files.
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a><b>Warning</b>: <i>row order in a CIF loop is arbitrary; while
+PyCIFRW maintains the row order in the input file, there is nothing
+in the CIF standards which mandates this behaviour</i>.
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.85.<br />On  7 Apr 2009, 12:50.</small>
+</html>

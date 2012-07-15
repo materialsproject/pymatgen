@@ -4,7 +4,7 @@
 Created on Jan 25, 2012
 '''
 
-__author__ = "Anubhav Jain"
+__author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Anubhav Jain"
@@ -15,23 +15,20 @@ import unittest
 import os
 import json
 
-from pymatgen.entries.computed_entries import computed_entries_from_json
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from pymatgen import PMGJSONEncoder, PMGJSONDecoder, __file__
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 
 class InsertionElectrodeTest(unittest.TestCase):
 
     def setUp(self):
-        data_Li = '[{"correction": 0.0, "composition": {"Li":1}, "formulasum": "Li1", "energy": -1.90753119}]'
-        self.entry_Li = computed_entries_from_json(data_Li)[0]
+        self.entry_Li = ComputedEntry("Li", -1.90753119)
 
-        data_LTO = open(os.path.join(test_dir, "LiTiO2_batt.json")).readline()
-        self.entries_LTO = computed_entries_from_json(data_LTO)
+        with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
+            self.entries_LTO = json.load(f, cls=PMGJSONDecoder)
 
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
 
@@ -64,6 +61,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(False, True)), 3)
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(True, True)), 2)
 
+    def test_get_all_entries(self):
+        self.ie_LTO.get_all_entries()
+
     def test_to_from_dict(self):
         d = self.ie_LTO.to_dict
         ie = InsertionElectrode.from_dict(d)
@@ -78,6 +78,16 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
         self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
 
+    def test_voltage_pair(self):
+        vpair = self.ie_LTO[0]
+        self.assertAlmostEqual(vpair.voltage, 2.78583901)
+        self.assertAlmostEqual(vpair.mAh, 13400.7411749)
+        self.assertAlmostEqual(vpair.mass_charge, 79.8658)
+        self.assertAlmostEqual(vpair.mass_discharge, 83.3363)
+        self.assertAlmostEqual(vpair.vol_charge, 37.553684467)
+        self.assertAlmostEqual(vpair.vol_discharge, 37.917719932)
+        self.assertAlmostEqual(vpair.frac_charge, 0.0)
+        self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
 
 if __name__ == '__main__':
     unittest.main()

@@ -30,6 +30,11 @@ provided a quick summary of the various modules here:
    A Structure and Molecule are simply a list of PeriodicSites and Site
    respectively. Finally, a Composition is mapping of Element/Specie to amounts.
 
+All units in pymatgen are typically assumed to be in atomic units, i.e.,
+angstroms for lengths, eV for energies, etc. However, most objects do not assume
+any units per se and it should be perfectly fine for the most part no matter
+what units are being used, as long as they are used consistently.
+
 Side-note : to_dict / from_dict
 ===============================
 
@@ -39,22 +44,18 @@ objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
 to be extremely fragile with respect to code changes. Pymatgen's to_dict provide
 a means to save your work in a more robust manner, which also has the added
-benefit of being more readable. The dict representation is also particularly useful
-for entering such objects into certain databases, such as MongoDb.
+benefit of being more readable. The dict representation is also particularly
+useful for entering such objects into certain databases, such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you 
-want to save a structure, you may do the following:
-
-::
+want to save a structure, you may do the following::
 
    with open('structure.json','w') as f:
       json.dump(structure.to_dict, f)
 
 Similarly, to get the structure back from a json, you can do the following to
 restore the structure (or any object with a to_dict method) from the json as
-follows:
-
-::
+follows::
 
    with open('structure.json', 'r') as f:
       d = json.load(f)
@@ -79,9 +80,7 @@ version >= 1.9.0.
 
 The PMGJSONEncoder uses the to_dict API of pymatgen to generate the necessary
 dict for converting into json. To use the PMGJSONEncoder, simply add it as the
-*cls* kwarg when using json. For example,
-
-::
+*cls* kwarg when using json. For example,::
 
    json.dumps(object, cls=PMGJSONEncoder)
 
@@ -92,8 +91,8 @@ add these keys if they are not present, but for better long term stability
 through the encoder), the easiest way is to add the following to any to_dict
 property::
     
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+   d['module'] = self.__class__.__module__
+   d['class'] = self.__class__.__name__
         
 To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.,
@@ -119,17 +118,15 @@ Creating a Structure manually
 
 This is generally the most painful method. Though sometimes necessary, it is 
 seldom the method you would use.  An example of creating the basic silicon 
-crystal is provided below:
+crystal is provided below::
 
-::
-
-   from pymatgen.core.lattice import Lattice
-   from pymatgen.core.structure import Structure
+   from pymatgen import Lattice, Structure
    
    coords = list()
    coords.append([0,0,0])
    coords.append([0.75,0.5,0.75])
-   lattice = Lattice.from_parameters(a = 3.84, b = 3.84, c = 3.84, alpha = 120, beta = 90, gamma = 60)
+   lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, 
+                                     beta=90, gamma=60)
    struct = Structure(lattice, ["Si", "Si"], coords)
 
 
@@ -164,9 +161,7 @@ output formats, e.g. the CifWriter in pymatgen.io.cifio. In particular, the
 pymatgen.io.vaspio_set provides a powerful way to generate complete sets of VASP 
 input files from a Structure. In general, most file format conversions can be
 done with a few quick lines of code. For example, to read a POSCAR and write a
-cif:
-
-::
+cif::
 
    from pymatgen.io.vaspio import Poscar
    from pymatgen.io.cifio import CifWriter
@@ -371,6 +366,85 @@ Usage example - replace Fe with Mn and remove all Li in all structures:
    trans.append(RemoveSpecieTransformation(["Lu"]))
    transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
    structures = transmuter.get_transformed_structures()
+
+pymatgen.matproj.rest - Integration with the Materials Project REST API
+=======================================================================
+
+.. versionadded:: 2.0.0
+
+In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
+tools yet - an adaptor to the Materials Project REST API. The Materials Project
+REST API (currently in a limited beta) was introduced to provide a means for
+users to programmatically query for materials data. This allows users to
+efficiently perform structure manipulatino and analyses without going through
+the web interface.
+
+In parallel, we have coded in the pymatgen.matproj.rest module a MPRestAdaptor,
+a user-friendly adaptor to interface with the MP REST API to obtain useful
+pymatgen objects for further analyses.  To use the MP REST API, a user first
+needs to apply for an api key at the Materials Project website. In the examples
+below, the user's Materials Project API key is designated as "USER_API_KEY".
+
+The MPRestAdaptor provides many convenience methods, but we will just highlight
+a few key methods here.
+
+To obtain information on a material with Materials Project Id 1234, one can use
+the following::
+
+   adaptor = MPRestAdaptor("USER_API_KEY")
+   
+   #Structure for material id
+   structure = adaptor.get_structure_by_material_id(1234) 
+
+   #Dos for material id
+   dos = adaptor.get_dos_by_material_id(1234) 
+
+   #Bandstructure for material id
+   bandstructure = adaptor.get_bandstructure_by_material_id(1234) 
+
+The MP REST interface also allows for query of data by formulas::
+
+   #To get a list of data for all entries having formula Fe2O3   
+   data = adaptor.get_data("Fe2O3")
+   
+   #To get the energies of all entries having formula Fe2O3   
+   energies = adaptor.get_data("Fe2O3", "energy")
+
+Finally, the MPRestAdaptor provides methods to obtain all entries in a
+chemical system. Combined with the borg framework, this provides a
+particularly powerful way to combine one's own calculations with Materials
+Project data for analysis. The code below demonstrates the phase stability of
+a new calculated material can be determined::
+
+   from pymatgen.matproj.rest import MPRestAdaptor
+   from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+   from pymatgen.apps.borg.queen import BorgQueen
+   from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+   from pymatgen.phasediagram.pdmaker import PhaseDiagram
+   from pymatgen.phasediagram.plotter import PDPlotter
+
+   # Assimilate VASP calculations into ComputedEntry object. Let's assume that
+   # the calculations are for a series of new LixFeyOz phases that we want to
+   # know the phase stability.
+   drone = VaspToComputedEntryDrone()
+   queen = BorgQueen(drone, rootpath=".")
+   entries = queen.get_data()
+   
+   # Obtain all existing Li-Fe-O phases using the Materials Project REST API
+   adaptor = MPRestAdaptor("USER_API_KEY")
+   mp_entries = adaptor.get_entries_in_chemsys(["Li", "Fe", "O"])
+   
+   # Combined entry from calculated run with Materials Project entries
+   entries.extend(mp_entries)
+   
+   # Process entries using the MaterialsProjectCompatibility
+   compat = MaterialsProjectCompatibility()
+   entries = compat.process_entries(entries)
+   
+   # Generate and plot Li-Fe-O phase diagram
+   pd = PhaseDiagram(entries)
+   plotter = PDPlotter(pd)
+   plotter.show()
 
 Example scripts
 ===============
