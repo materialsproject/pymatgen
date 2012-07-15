@@ -1,4 +1,6 @@
 import os
+import sys
+
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages, Extension
@@ -81,7 +83,7 @@ setup (
 
 #Compile the spglib dependency.
 
-os.chdir(os.path.join('dependencies','spglib-1.2'))
+os.chdir(os.path.join('dependencies', 'spglib-1.2'))
 
 spgsrcdir = os.path.join('src')
 
@@ -94,11 +96,19 @@ sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
 
 sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
 
+if os.name == "posix" and sys.platform == "darwin":
+    print "Mac OS detected. Compiling without openmp..."
+    extra_compile = []
+    extra_link = []
+else:
+    extra_compile = ['-fopenmp']
+    extra_link = ['-lgomp']
+
 extension = Extension('pyspglib._spglib',
                       include_dirs=include_dirs + get_numpy_include_dirs(),
                       sources=['_spglib.c'] + sources,
-                      extra_compile_args=['-fopenmp'],
-                      extra_link_args=['-lgomp'],
+                      extra_compile_args=extra_compile,
+                      extra_link_args=extra_link
                       )
 
 setup (

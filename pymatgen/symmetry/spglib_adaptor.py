@@ -51,7 +51,10 @@ class SymmetryFinder(object):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
-        self._lattice = structure.lattice.matrix
+
+        #Spglib's convention for the lattice definition is the transpose of the
+        #pymatgen version.
+        self._transposed_latt = structure.lattice.matrix.transpose()
         self._positions = np.array([site.frac_coords for site in structure])
         unique_species = []
         zs = []
@@ -67,7 +70,7 @@ class SymmetryFinder(object):
         self._unique_species = unique_species
         self._numbers = np.array(zs)
 
-        self._spacegroup_data = spg.spacegroup(self._lattice.transpose().copy(),
+        self._spacegroup_data = spg.spacegroup(self._transposed_latt.copy(),
                                                self._positions.copy(),
                                                self._numbers, self._symprec,
                                                self._angle_tol)
@@ -152,7 +155,7 @@ class SymmetryFinder(object):
                 'wyckoffs',
                 'equivalent_atoms')
         dataset = {}
-        for key, data in zip(keys, spg.dataset(self._lattice.transpose().copy(),
+        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
                                                self._positions, self._numbers,
                                                self._symprec, self._angle_tol)):
             dataset[key] = data
@@ -185,7 +188,7 @@ class SymmetryFinder(object):
         translation = np.zeros((multi, 3))
 
         num_sym = spg.symmetry(rotation, translation,
-                               self._lattice.transpose().copy(),
+                               self._transposed_latt.copy(),
                                self._positions, self._numbers, self._symprec,
                                self._angle_tol)
         return (rotation[:num_sym], translation[:num_sym])
@@ -220,7 +223,7 @@ class SymmetryFinder(object):
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
-        lattice = self._lattice.T.copy()
+        lattice = self._transposed_latt.copy()
         pos = np.zeros((num_atom * 4, 3), dtype=float)
         pos[:num_atom] = self._positions.copy()
 
@@ -236,7 +239,6 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
         return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
 
-
     def find_primitive(self):
         """
         A primitive cell in the input cell is searched and returned
@@ -246,7 +248,7 @@ class SymmetryFinder(object):
 
         # Atomic positions have to be specified by scaled positions for spglib.
         positions = self._positions.copy()
-        lattice = self._lattice.T.copy()
+        lattice = self._transposed_latt.copy()
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
         num_atom_prim = spg.primitive(lattice, positions, numbers,
@@ -303,164 +305,3 @@ def get_pointgroup(rotations):
     return spg.pointgroup(rotations)
 
 
-
-'''
-Shyue
------
-TODO : The following methods have not yet been ported over.
- 
-def get_ir_kpoints(kpoint, bulk, is_time_reversal=True, symprec=1e-5):
-    """
-    Retrun irreducible kpoints
-    """
-    mapping = np.zeros(kpoint.shape[0], dtype=int)
-    spg.ir_kpoints(mapping,
-                   kpoint,
-                   bulk.get_cell().T.copy(),
-                   bulk.get_scaled_positions().copy(),
-                   bulk.get_atomic_numbers(),
-                   is_time_reversal * 1,
-                   symprec)
-    return mapping
-  
-def get_ir_reciprocal_mesh(mesh,
-                           bulk,
-                           is_shift=np.zeros(3, dtype=int),
-                           is_time_reversal=True,
-                           symprec=1e-5):
-    """
-    Return k-points mesh and k-point map to the irreducible k-points
-    The symmetry is serched from the input cell.
-    is_shift=[0, 0, 0] gives Gamma center mesh.
-    """
-
-    mapping = np.zeros(np.prod(mesh), dtype=int)
-    mesh_points = np.zeros((np.prod(mesh), 3), dtype=int)
-    spg.ir_reciprocal_mesh(mesh_points,
-                           mapping,
-                           np.array(mesh),
-                           np.array(is_shift),
-                           is_time_reversal * 1,
-                           bulk.get_cell().T.copy(),
-                           bulk.get_scaled_positions().copy(),
-                           bulk.get_atomic_numbers(), symprec)
-  
-    return mapping, mesh_points
-  
-def get_stabilized_reciprocal_mesh(mesh,
-                                   lattice,
-                                   rotations,
-                                   is_shift=np.zeros(3, dtype=int),
-                                   is_time_reversal=True,
-                                   qpoints=np.array([], dtype=float),
-                                   symprec=1e-5):
-    """
-    Return k-point map to the irreducible k-points and k-point grid points .
-
-    The symmetry is searched from the input rotation matrices in real space.
-    The convention of 'lattice' is:
-       [[a_x, a_y, a_z],
-        [b_x, b_y, b_z],
-        [c_x, c_y, c_z]] (ASE convention)
-    Since it has to be passed to the C extention in the following format:
-       [[a_x, b_x, c_x],
-        [a_y, b_y, c_y],
-        [a_z, b_z, c_z]] (spglib convention)
-    Therefore in this method, lattice is transposed.
-    
-    is_shift=[0, 0, 0] gives Gamma center mesh and the values 1 give
-    half mesh distance shifts.
-    """
-    
-    mapping = np.zeros(np.prod(mesh), dtype=int)
-    mesh_points = np.zeros((np.prod(mesh), 3), dtype=int)
-    qpoints = np.array(qpoints, dtype=float)
-    if qpoints.shape == (3,):
-        qpoints = np.array([qpoints])
-    spg.stabilized_reciprocal_mesh(mesh_points,
-                                   mapping,
-                                   np.array(mesh, dtype=int),
-                                   np.array(is_shift, dtype=int),
-                                   is_time_reversal * 1,
-                                   lattice.T.copy(),
-                                   rotations.copy(),
-                                   np.array(qpoints, dtype=float),
-                                   symprec)
-    
-    return mapping, mesh_points
-
-def get_triplets_reciprocal_mesh(mesh,
-                                 lattice,
-                                 pointgroup,
-                                 is_time_reversal=True,
-                                 symprec=1e-5):
-    """
-    Return symmetry reduced triplets (set of addresses) and
-    k-point grid points corresponding to addresses.
-    The k-point grid is accessed by mesh_points[address].
-
-    The symmetry is searched from the input rotation matrices in real space.
-    is_shift=[0, 0, 0] gives Gamma center mesh and the values 1 give
-    half mesh distance shifts.
-    """
-    
-    triplets, weights, mesh_points = \
-        spg.triplets_reciprocal_mesh(np.array(mesh, dtype=int),
-                                     is_time_reversal * 1,
-                                     lattice.T.copy(),
-                                     pointgroup.copy(),
-                                     symprec)
-
-    return np.array(triplets), np.array(weights), np.array(mesh_points)
-
-def get_triplets_reciprocal_mesh_at_q(fixed_grid_number,
-                                      mesh,
-                                      lattice,
-                                      rotations,
-                                      is_time_reversal=True,
-                                      symprec=1e-5):
-
-    weights = np.zeros(np.prod(mesh), dtype=int)
-    third_q = np.zeros(np.prod(mesh), dtype=int)
-    mesh_points = np.zeros((np.prod(mesh), 3), dtype=int)
-    
-
-    spg.triplets_reciprocal_mesh_at_q(weights,
-                                      mesh_points,
-                                      third_q,
-                                      fixed_grid_number,
-                                      np.array(mesh, dtype=int),
-                                      is_time_reversal * 1,
-                                      lattice.T.copy(),
-                                      rotations.copy(),
-                                      symprec)
-
-    return weights, third_q, mesh_points
-        
-
-def extract_triplets_reciprocal_mesh_at_q(fixed_grid_number,
-                                          triplets,
-                                          mesh,
-                                          lattice,
-                                          pointgroup,
-                                          is_time_reversal=True,
-                                          symprec=1e-5):
-
-    triplets_with_q = np.zeros((len(triplets), 3), dtype=int)
-    weights_with_q = np.zeros(len(triplets), dtype=int)
-
-    num_triplets_with_q = \
-        spg.triplets_reciprocal_mesh_at_q_from_triplets(triplets_with_q,
-                                                        weights_with_q,
-                                                        fixed_grid_number,
-                                                        triplets,
-                                                        np.array(mesh, dtype=int),
-                                                        is_time_reversal * 1,
-                                                        lattice.T.copy(),
-                                                        pointgroup.copy(),
-                                                        symprec)
-    
-    return \
-        triplets_with_q[:num_triplets_with_q], \
-        weights_with_q[:num_triplets_with_q]
-'''
