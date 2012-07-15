@@ -1,5 +1,7 @@
 .DS_Store
 pymatgen.egg-info
+dependencies/spglib-1.2/pyspglib.egg-info
+dependencies/spglib-1.2/build
 *.pyc
 pymatgen/pymatgen.cfg
 dist

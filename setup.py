@@ -43,24 +43,6 @@ pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
-spgsrcdir = os.path.join('extensions', 'spglib-1.2', 'src')
-
-include_dirs = [spgsrcdir]
-sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
-    'mathfunc.c', 'pointgroup.c', 'primitive.c', 'refinement.c',
-    'sitesym_database.c', 'site_symmetry.c', 'spacegroup.c', 'spin.c',
-    'spg_database.c', 'spglib.c', 'symmetry.c'
-]
-
-sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
-
-extension = Extension('pyspglib._spglib',
-                      include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=['_spglib.c'] + sources,
-                      extra_compile_args=['-fopenmp'],
-                      extra_link_args=['-lgomp'],
-                      )
-
 setup (
   name='pymatgen',
   packages=find_packages(),
@@ -97,7 +79,27 @@ setup (
   download_url="https://github.com/materialsproject/pymatgen/tarball/master"
 )
 
-os.chdir('lib')
+#Compile the spglib dependency.
+
+os.chdir(os.path.join('dependencies','spglib-1.2'))
+
+spgsrcdir = os.path.join('src')
+
+include_dirs = [spgsrcdir]
+sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
+    'mathfunc.c', 'pointgroup.c', 'primitive.c', 'refinement.c',
+    'sitesym_database.c', 'site_symmetry.c', 'spacegroup.c', 'spin.c',
+    'spg_database.c', 'spglib.c', 'symmetry.c'
+]
+
+sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+
+extension = Extension('pyspglib._spglib',
+                      include_dirs=include_dirs + get_numpy_include_dirs(),
+                      sources=['_spglib.c'] + sources,
+                      extra_compile_args=['-fopenmp'],
+                      extra_link_args=['-lgomp'],
+                      )
 
 setup (
        name='pyspglib',
