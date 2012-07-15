@@ -17,13 +17,21 @@ __date__ = "Jul 12, 2012"
 from collections import OrderedDict
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 
+
 class VoltageProfilePlotter(object):
     """
     A plotter to make voltage profile plots for batteries.
     """
 
-    def __init__(self):
+    def __init__(self, xaxis="capacity"):
+        """
+        Args:
+            xaxis:
+                The quantity to use as the xaxis. Can be either capacity (the
+                default), or the frac_x 
+        """
         self._electrodes = OrderedDict()
+        self.xaxis = xaxis
 
     def add_electrode(self, electrode, label=None):
         """
@@ -41,6 +49,27 @@ class VoltageProfilePlotter(object):
             label = "Electrode {}".format(len(self._electrodes) + 1)
         self._electrodes[label] = electrode
 
+    def get_plot_data(self, electrode):
+        x = []
+        y = []
+        cap = 0
+        most_discharged = electrode[-1].frac_discharge
+        norm = most_discharged / (1 - most_discharged)
+        for vpair in electrode:
+            if self.xaxis == "capacity":
+                x.append(cap)
+                cap += vpair.mAh / electrode.normalization_mass
+                x.append(cap)
+            else:
+                x.append(vpair.frac_charge / (1 - vpair.frac_charge) / norm)
+                x.append(vpair.frac_discharge / (1 - vpair.frac_discharge) / norm)
+            y.extend([vpair.voltage] * 2)
+
+        x.append(x[-1])
+        y.append(0)
+        return (x, y)
+
+
     def get_plot(self, width, height):
         """
         Returns a plot object.
@@ -56,23 +85,14 @@ class VoltageProfilePlotter(object):
         """
         plt = get_publication_quality_plot(width, height)
         for label, electrode in self._electrodes.items():
-            xcoords = []
-            ycoords = []
-            cap = 0
-            for vpair in electrode:
-                xcoords.append(cap)
+            (x, y) = self.get_plot_data(electrode)
+            plt.plot(x, y, '-', linewidth=2, label=label)
 
-                cap += vpair.mAh / electrode.normalization_mass
-                xcoords.append(cap)
-                ycoords.extend([vpair.voltage] * 2)
-
-            xcoords.append(cap)
-            ycoords.append(0)
-
-            plt.plot(xcoords, ycoords, '-', linewidth=2, label=label)
-
-        plt.legend(self._electrodes.keys())
-        plt.xlabel('Capacity (mAh/g)')
+        plt.legend()
+        if self.xaxis == "capacity":
+            plt.xlabel('Capacity (mAh/g)')
+        else:
+            plt.xlabel('Fraction')
         plt.ylabel('Voltage (V)')
         plt.tight_layout()
         return plt

@@ -56,6 +56,14 @@ class AbstractVoltagePair(object):
         return self._vol_discharge
 
     @abstractproperty
+    def frac_charge(self):
+        return self._frac_charge
+
+    @abstractproperty
+    def frac_discharge(self):
+        return self._frac_discharge
+
+    @abstractproperty
     def working_ion_entry(self):
         return self._working_ion_entry
 

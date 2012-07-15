@@ -4,7 +4,7 @@
 Created on Jan 25, 2012
 '''
 
-__author__ = "Anubhav Jain"
+__author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Anubhav Jain"
@@ -78,6 +78,16 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(ie.min_voltage, 0.89702381, 3)
         self.assertAlmostEqual(ie.get_average_voltage(), 1.84143141, 3)
 
+    def test_voltage_pair(self):
+        vpair = self.ie_LTO[0]
+        self.assertAlmostEqual(vpair.voltage, 2.78583901)
+        self.assertAlmostEqual(vpair.mAh, 13400.7411749)
+        self.assertAlmostEqual(vpair.mass_charge, 79.8658)
+        self.assertAlmostEqual(vpair.mass_discharge, 83.3363)
+        self.assertAlmostEqual(vpair.vol_charge, 37.553684467)
+        self.assertAlmostEqual(vpair.vol_discharge, 37.917719932)
+        self.assertAlmostEqual(vpair.frac_charge, 0.0)
+        self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
 
 if __name__ == '__main__':
     unittest.main()
