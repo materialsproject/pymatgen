@@ -1,6 +1,34 @@
 Older versions
 ==============
 
+Version 2.0.0
+-------------
+
+1. Brand new module (pymatgen.matproj.rest) for interfacing with the
+   MaterialsProject REST interface.
+2. Useful aliases for commonly used Objects, similar in style to numpy.
+   Supported objects include Element, Composition, Structure, Molecule, Spin
+   and Orbital. For example, the following will now work::
+   
+      import pymatgen as mg
+      
+      # Elemental Si
+      fe = mg.Element("Si")
+      
+      # Composition of Fe2O3
+      comp = mg.Composition("Fe2O3")
+      
+      # CsCl structure
+      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
+                              [[0, 0, 0], [0.5, 0.5, 0.5]])
+      
+3. New PDAnalyzer method to generate chemical potential maps.
+4. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
+5. Reorganization of Bandstructure module. Beta support for projected
+   bandstructure and eigenvalues in vaspio and electronic_structure.
+6. Miscellaneous bug fixes and speed improvements.
+
 Version 1.9.0
 -------------
 
