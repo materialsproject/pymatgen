@@ -20,30 +20,34 @@ import subprocess
 import numpy as np
 import os
 
+from pymatgen.io.vaspio.vasp_input import Poscar
+
 
 def run_aconvasp_command(command, structure):
     """
     Helper function for calling aconvasp with different arguments
     """
-    from pymatgen.io.vaspio import Poscar
     poscar = Poscar(structure)
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
     return output
 
+
 def get_num_division_kpoints(structure, kppa):
     """
-    get kpoint divisions for a given k-point density (per reciprocal-atom): kppa and a given structure  
+    Get kpoint divisions for a given k-point density (per reciprocal-atom): 
+    kppa and a given structure  
     """
     output = run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)], structure)
     tmp = output[0].rsplit("\n")[6].rsplit(" ")
     return [int(tmp[5]), int(tmp[6]), int(tmp[7])]
 
+
 def get_minkowski_red(structure):
     """
-    get a minkowski reduced structure
+    Get a minkowski reduced structure
     """
-    from pymatgen.io.vaspio import Poscar
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
     started = False
     poscar_string = ""
@@ -78,9 +82,10 @@ def get_vasp_kpoint_file_sym(structure):
             started = False
     return kpoints_string
 
+
 def get_point_group_rec(structure):
     """
-    gets the point group for the reciprocal lattice of the given structure
+    Gets the point group for the reciprocal lattice of the given structure
     """
     run_aconvasp_command(['aconvasp', '--pgroupk'], structure)
     listUc = []
@@ -107,13 +112,13 @@ def get_point_group_rec(structure):
         if count <= 2:
             linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
         if line.find("axis") != -1:
-            axis = np.array([float(line.split()[0]), float(line.split()[1]), float(line.split()[2])])
+            axis = np.array([float(line.split()[0]), float(line.split()[1]),
+                             float(line.split()[2])])
         if(count == 11):
-            listUc.append({'matrix':np.array(linetmp), 'type':type_transf, 'axis':axis, 'schoenflies':schoenflies})
-    
+            listUc.append({'matrix':np.array(linetmp), 'type':type_transf,
+                           'axis':axis, 'schoenflies':schoenflies})
     f.close()
     os.remove("aflow.pgroupk.out")
-    
     return listUc
 
 
