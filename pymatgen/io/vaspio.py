@@ -2518,38 +2518,51 @@ class VolumetricData(object):
             write_spin("diff")
         f.close()
 
-    def _calculate_distance_matrix(self, ind):
-        site = self.structure[ind]
-        a = self.dim
-        distances = dict()
-        for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            pt = np.array([x / a[0], y / a[1] , z / a[2]])
-            distances[(x, y, z)] = site.distance_and_image_from_frac_coords(pt)[0]
-        self._distance_matrix[ind] = distances
-
-    def get_integrated_diff(self, ind, radius):
+    def get_integrated_diff(self, ind, radius, max_radius=None):
         """
-        Get integrated difference of atom index ind up to radius.
+        Get integrated difference of atom index ind up to radius. This can be
+        an extremely computationally intensive process, depending on how many
+        grid points are in the VolumetricData.
         
         Args:
             ind:
                 Index of atom.
             radius:
                 Radius of integration.
+            max_radius:
+                For speed, the code will precompute and cache distances for all
+                gridpoints up to max_radius. If obtaining the integrated charge
+                for the same ind up to a different radius, the code will use
+                the cahced distances, resulting in much faster retrieval of 
+                data. If max_radius is None (the default), half of the minimum
+                cell length is used. For best results, choose a max_radius that 
+                is close to the maximum value that you would be interested in.
             
         Returns:
             Differential integrated charge.
         """
-        #Shortcircuit the data since by definition, this will be zero for non
-        #spin-polarized runs.
+        #For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
             return 0
-        if ind not in self._distance_matrix:
-            self._calculate_distance_matrix(ind)
+
         a = self.dim
+        if ind not in self._distance_matrix or self._distance_matrix[ind]['max_radius'] < radius:
+            coords = []
+            for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
+                coords.append([x / a[0], y / a[1] , z / a[2]])
+            grid_structure = Structure(self.structure.lattice, ["H"] * self.ngridpts, coords)
+            if not max_radius:
+                max_radius = min(self.structure.lattice.abc) / 2
+            sites_dist = grid_structure.get_sites_in_sphere(self.structure[ind].coords, max_radius)
+            self._distance_matrix[ind] = {'max_radius':max_radius, 'data': sites_dist}
+
         intchg = 0
-        for (x, y, z) in itertools.product(xrange(a[0]), xrange(a[1]), xrange(a[2])):
-            if self._distance_matrix[ind][(x, y, z)] < radius:
+        for (site, dist) in self._distance_matrix[ind]['data']:
+            if dist < radius:
+                fcoords = site.to_unit_cell.frac_coords
+                x = int(round(fcoords[0] * a[0]))
+                y = int(round(fcoords[1] * a[1]))
+                z = int(round(fcoords[2] * a[2]))
                 intchg += self.data["diff"][x, y, z]
         return intchg / self.ngridpts
 
@@ -2856,4 +2869,3 @@ def get_adjusted_fermi_level(run_static, band_structure):
             if not bs_working.is_metal():
                 return e
     return run_static.efermi
-

@@ -830,8 +830,6 @@ class Structure(SiteCollection, MSONable):
                     raise StructureError(("Structure contains sites that are ",
                                           "less than 0.01 Angstrom apart!"))
 
-        self._sites = tuple(self._sites)
-
     @staticmethod
     def from_sites(sites):
         """
@@ -860,7 +858,7 @@ class Structure(SiteCollection, MSONable):
         """
         Returns the sites in the Structure. 
         """
-        return self._sites
+        return tuple(self._sites)
 
     @property
     def lattice(self):
@@ -1044,7 +1042,7 @@ class Structure(SiteCollection, MSONable):
             sites contribute to the ewald sum.
         """
 
-        #use same algorithm as getAtomsInSphere to determine supercell but
+        #use same algorithm as get_sites_in_sphere to determine supercell but
         #loop over all atoms in crystal
         recp_len = self.lattice.reciprocal_lattice.abc
         sr = r + 0.15
@@ -2093,6 +2091,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                     #there was a real match
                     for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
                         yield match
+
 
 if __name__ == "__main__":
     import doctest
