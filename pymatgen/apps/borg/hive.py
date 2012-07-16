@@ -19,7 +19,8 @@ import re
 import glob
 import logging
 
-from pymatgen.io.vaspio import Vasprun, Incar, Potcar, Poscar, Oszicar
+from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
+from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.serializers.json_coders import MSONable
