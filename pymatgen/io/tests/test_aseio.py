@@ -18,13 +18,11 @@ import os
 
 from nose.exc import SkipTest
 
-from pymatgen.core.structure import Composition
-from pymatgen.io.vaspio import Poscar
+from pymatgen import Composition, __file__
+from pymatgen.io.vaspio.vasp_input import Poscar
 import pymatgen.io.aseio as aio
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
 class AseAtomsAdaptorTest(unittest.TestCase):
 

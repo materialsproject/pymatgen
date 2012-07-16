@@ -3,7 +3,7 @@ import os
 
 from pymatgen.core.structure_modifier import OxidationStateDecorator, StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 import numpy as np
 
 import pymatgen

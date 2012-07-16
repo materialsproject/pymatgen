@@ -17,7 +17,7 @@ import unittest
 import os
 
 from pymatgen.symmetry.spacegroup import Spacegroup
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
 
 import pymatgen

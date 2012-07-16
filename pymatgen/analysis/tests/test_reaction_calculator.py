@@ -4,10 +4,8 @@ from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
 
-class ReactionTest(unittest.TestCase):
 
-    #def setUp(self):
-    #    pass
+class ReactionTest(unittest.TestCase):
 
     def test_init(self):
 

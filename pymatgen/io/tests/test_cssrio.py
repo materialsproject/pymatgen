@@ -18,7 +18,7 @@ import os
 
 import pymatgen
 from pymatgen.io.cssrio import Cssr
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 

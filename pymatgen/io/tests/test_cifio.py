@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, __file__
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
