@@ -79,13 +79,25 @@ the moment) required only for certain features.
 2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies 
    (structure_vtk.py).  The executable ffmpeg must be in the path.
 
-## Basic Setup ##
+## Basic Setup for Non-developers ##
 
-1. Clone the repo.
-2. Install the necessary python libraries.
-3. (Recommended) Add pymatgen to your PYTHONPATH or use python setup.py develop.
-4. (Recommended for developers) Copy hooks from the example-hooks directory into 
-   the .git/hooks/ directory in your local repo.  
+If you are using pymatgen purely as a library and do not intend to contribute
+code, you may install pymatgen either easy_install or python setup.py.
+
+If you have easy_install in your Python setup, the simplest way to get
+the latest stable release of pymatgen is to do:
+
+	easy_install pymatgen
+	
+If you don't have easy_install, or you prefer to install the latest development
+version of pymatgen, you can download the tarball and then do the following:
+
+	tar -zxvf pymatgen.tar.gz
+	cd pymatgen
+	python setup.py install
+
+You may need to run the above with root privileges on your machine. In addition,
+you may need to install additional python libraries and dependencies.
 
 With these two basic steps, you should be able to use most of the pymatgen code.  
 I recommend that you start by reading some of the unittests in the tests 
@@ -93,6 +105,24 @@ subdirectory for each package.  The unittests demonstrate the expected behavior
 and functionality of the code.
 
 However, some extra functionality do require additional setup, as outlined below.
+
+## Setup for developers ##
+
+There are two categories of developers.  General developers should follow the
+procedures outlined in the pymatgen documentation on collaborative Github 
+workflow to fork a copy of pymatgen to their own Github accounts and cloning it
+into their local machine.
+
+Core developers who have write access to the main Github repo may clone the
+pymatgen repo directly.
+
+For both kinds of developers, it is recommended that after you clone the repo,
+you either add the pymatgen repo to your PYTHONPATH or use
+
+	python setup.py develop
+	
+which will install pymatgen in development mode and install some of the
+necessary dependencies.
 
 ### Generating POTCARs ###
 
