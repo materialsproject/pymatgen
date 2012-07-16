@@ -1493,7 +1493,7 @@ class Oszicar(object):
                 return int(num)
             return float(num)
         header = []
-        with open(filename, 'r') as fid:
+        with file_open_zip_aware(filename, 'r') as fid:
             for line in fid.readlines():
                 m = electronic_pattern.match(line)
                 if m:
