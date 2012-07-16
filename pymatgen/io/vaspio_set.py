@@ -22,7 +22,7 @@ import abc
 import ConfigParser
 import json
 
-from pymatgen.io.vaspio import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 
 
 class AbstractVaspInputSet(object):
