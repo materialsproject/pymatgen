@@ -254,17 +254,22 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
+            poscar = Poscar.from_file(files_to_parse['POSCAR'])
+            contcar = Poscar.from_file(files_to_parse['CONTCAR'])
+
             param = {}
+
             incar = Incar.from_file(files_to_parse['INCAR'])
-            param['hubbards'] = incar.get('LDAUU', {})
+            if 'LDAUU' in incar:
+                param['hubbards'] = dict(zip(poscar.site_symbols, incar['LDAUU']))
+            else:
+                param['hubbards'] = {}
             param['is_hubbard'] = incar.get('LDAU', False) and sum(param['hubbards'].values()) > 0
             param['run_type'] = "GGA+U" if param['is_hubbard'] else "GGA"
             potcar = Potcar.from_file(files_to_parse['POTCAR'])
             param["potcar_symbols"] = potcar.symbols
             oszicar = Oszicar(files_to_parse['OSZICAR'])
             energy = oszicar.final_energy
-            poscar = Poscar.from_file(files_to_parse['POSCAR'])
-            contcar = Poscar.from_file(files_to_parse['CONTCAR'])
             structure = contcar.structure
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
