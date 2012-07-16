@@ -2,15 +2,14 @@
 import unittest
 import os
 
-import pymatgen
-from pymatgen.core.periodic_table import Specie
+
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, MaterialsProjectVaspInputSet
-from pymatgen.io.vaspio import Poscar
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen import Specie, Lattice, Structure, __file__
 from numpy import array
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+
 
 class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 

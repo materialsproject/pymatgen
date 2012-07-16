@@ -19,7 +19,7 @@ import os
 import numpy as np
 
 from pymatgen.core.structure import PeriodicSite
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor

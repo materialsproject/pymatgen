@@ -17,7 +17,7 @@ import unittest
 import random
 
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 
 import pymatgen
 

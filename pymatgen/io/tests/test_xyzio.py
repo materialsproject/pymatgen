@@ -18,7 +18,7 @@ import os
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyzio import XYZ
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
 import pymatgen
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')

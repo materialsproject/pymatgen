@@ -57,14 +57,6 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`vaspio` Module
---------------------
-
-.. automodule:: pymatgen.io.vaspio
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`vaspio_set` Module
 ------------------------
 
@@ -80,4 +72,11 @@ io Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.io.vaspio
 
