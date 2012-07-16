@@ -106,7 +106,7 @@ and functionality of the code.
 
 However, some extra functionality do require additional setup, as outlined below.
 
-## Setup for developers ##
+## Setup for Developers ##
 
 There are two categories of developers.  General developers should follow the
 procedures outlined in the pymatgen documentation on collaborative Github 
@@ -124,7 +124,7 @@ you either add the pymatgen repo to your PYTHONPATH or use
 which will install pymatgen in development mode and install some of the
 necessary dependencies.
 
-### Generating POTCARs ###
+## Generating POTCARs ##
 
 For the code to generate POTCAR files, it needs to know where the VASP 
 pseudopotential files are.  We are not allowed to distribute these under the 
