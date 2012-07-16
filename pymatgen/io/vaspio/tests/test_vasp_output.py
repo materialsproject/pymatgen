@@ -32,8 +32,13 @@ class VasprunTest(unittest.TestCase):
         totalscsteps = sum([len(i['electronic_steps']) for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P', u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'], vasprun.atomic_symbols, "Incorrect symbols read from vasprun.xml")
-        self.assertEquals(vasprun.final_structure.composition.reduced_formula, "LiFe4(PO4)4", "Wrong formula for final structure read.")
+        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P',
+                           u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
+                           u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O'],
+                          vasprun.atomic_symbols,
+                          "Incorrect symbols read from vasprun.xml")
+        self.assertEquals(vasprun.final_structure.composition.reduced_formula,
+                          "LiFe4(PO4)4", "Wrong formula for final structure read.")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
@@ -47,7 +52,11 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vbm, expectedans[2])
         self.assertEqual(direct, expectedans[3])
         self.assertFalse(vasprun.is_hubbard)
-        self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003', u'PAW_PBE O 08Apr2002'])
+        self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003',
+                                                  u'PAW_PBE Fe 06Sep2000',
+                                                  u'PAW_PBE Fe 06Sep2000',
+                                                  u'PAW_PBE P 17Jan2003',
+                                                  u'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints, "Actual kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints_weights, "Actual kpoints weights cannot be read")
@@ -100,7 +109,13 @@ class OutcarTest(unittest.TestCase):
                          {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
                          {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
                          {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
-        expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947}, {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964}, {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
+        expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232},
+                        {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
+                        {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
+                        {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
+                        {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947},
+                        {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
+                        {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
 
         self.assertAlmostEqual(outcar.magnetization, expected_mag, 5, "Wrong magnetization read from Outcar")
         self.assertAlmostEqual(outcar.charge, expected_chg, 5, "Wrong charge read from Outcar")
