@@ -59,9 +59,10 @@ def zopen(filename, *args, **kwargs):
     Returns:
         File handler
     """
-    if filename.split(".")[-1].upper() == "BZ2":
+    file_ext = filename.split(".")[-1].upper()
+    if file_ext == "BZ2":
         return bz2.BZ2File(filename, *args, **kwargs)
-    elif filename.split(".")[-1].upper() == "GZ" or filename.split(".")[-1] == "z":
+    elif file_ext in ("GZ", "Z"):
         return gzip.GzipFile(filename, *args, **kwargs)
     else:
         return open(filename, *args, **kwargs)
