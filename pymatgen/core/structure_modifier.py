@@ -20,7 +20,8 @@ import itertools
 import numpy as np
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, PeriodicSite, Site, Molecule
+from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.core.structure import Structure, Molecule
 
 
 class StructureModifier(object):

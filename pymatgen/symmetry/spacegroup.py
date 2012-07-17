@@ -19,7 +19,7 @@ import glob
 import numpy as np
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import PeriodicSite
+from pymatgen.core.sites import PeriodicSite
 
 
 class Spacegroup(object):
