@@ -24,7 +24,8 @@ from collections import defaultdict
 
 from pymatgen.core.periodic_table import DummySpecie, smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
