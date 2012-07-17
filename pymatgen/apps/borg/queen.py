@@ -19,7 +19,7 @@ import os
 import json
 import logging
 
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 from multiprocessing import Manager, Pool
@@ -114,14 +114,14 @@ class BorgQueen(object):
                 filename ends with gz or bz2, the relevant gzip or bz2
                 compression will be applied.
         """
-        with file_open_zip_aware(filename, "w") as f:
+        with zopen(filename, "w") as f:
             json.dump(list(self._data), f, cls=PMGJSONEncoder)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
-        with file_open_zip_aware(filename, "r") as f:
+        with zopen(filename, "r") as f:
             self._data = json.load(f, cls=PMGJSONDecoder)
 
 

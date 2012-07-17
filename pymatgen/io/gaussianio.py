@@ -21,7 +21,7 @@ import numpy as np
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
-from pymatgen.util.io_utils import file_open_zip_aware as openz
+from pymatgen.util.io_utils import zopen
 
 
 class GaussianInput(object):
@@ -239,7 +239,7 @@ class GaussianInput(object):
         Returns:
             GaussianInput object
         """
-        with openz(filename, "r") as f:
+        with zopen(filename, "r") as f:
             return GaussianInput.from_string(f.read())
 
     def _find_nn_pos_before_site(self, siteindex):
@@ -419,7 +419,7 @@ class GaussianOutput(object):
         num_basis_found = False
         terminated = False
 
-        with openz(filename, "r") as f:
+        with zopen(filename, "r") as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):

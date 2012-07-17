@@ -25,7 +25,7 @@ import CifFile
 import numpy as np
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, Composition
 
@@ -47,7 +47,7 @@ class CifParser(object):
         """
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
-            with file_open_zip_aware(filename, "r") as f:
+            with zopen(filename, "r") as f:
                 self._cif = CifFile.ReadCif(f)
         else:
             self._cif = CifFile.ReadCif(filename)

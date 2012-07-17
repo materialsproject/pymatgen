@@ -29,7 +29,7 @@ from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import file_open_zip_aware, clean_lines
+from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
@@ -200,7 +200,7 @@ class Poscar(VaspInput):
                         names = [sym.split("_")[0] for sym in potcar.symbols]
                     except:
                         names = None
-        with file_open_zip_aware(filename, "r") as f:
+        with zopen(filename, "r") as f:
             return Poscar.from_string(f.read(), names)
 
     @staticmethod
@@ -614,7 +614,7 @@ class Incar(dict, VaspInput):
         Returns:
             Incar object
         """
-        with file_open_zip_aware(filename, "r") as f:
+        with zopen(filename, "r") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         for line in lines:
@@ -913,7 +913,7 @@ class Kpoints(VaspInput):
         Returns:
             Kpoints object
         """
-        with file_open_zip_aware(filename) as f:
+        with zopen(filename) as f:
             lines = [line.strip() for line in f.readlines()]
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
@@ -1105,7 +1105,7 @@ class PotcarSingle(object):
 
     @staticmethod
     def from_file(filename):
-        with file_open_zip_aware(filename, "rb") as f:
+        with zopen(filename, "rb") as f:
             return PotcarSingle(f.read())
 
     @staticmethod
@@ -1210,7 +1210,7 @@ class Potcar(list, VaspInput):
 
     @staticmethod
     def from_file(filename):
-        with file_open_zip_aware(filename, "r") as reader:
+        with zopen(filename, "r") as reader:
             fdata = reader.read()
         potcar = Potcar()
         potcar_strings = re.compile(r"\n{0,1}\s*(.*?End of Dataset)", re.S).findall(fdata)

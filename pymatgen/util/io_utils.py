@@ -20,6 +20,30 @@ import numpy
 
 def file_open_zip_aware(filename, *args, **kwargs):
     """
+    .. deprecated:: 2.1.0
+        This function has been renamed to the much shorter :func:`zopen`. It
+        will be removed in future versions.
+        
+    This wrapper wraps around the bz2, gzip and standard python's open function 
+    to deal intelligently with bzipped, gzipped or standard text files.
+    
+    Args:
+        filename:
+            filename 
+        args:
+            Standard args for python open(..). E.g., 'r' for read, 'w' for
+            write.
+        kwargs:
+            Standard kwargs for python open(..).
+            
+    Returns:
+        File handler
+    """
+    return zopen(filename, *args, **kwargs)
+
+
+def zopen(filename, *args, **kwargs):
+    """
     This wrapper wraps around the bz2, gzip and standard python's open function 
     to deal intelligently with bzipped, gzipped or standard text files.
     
@@ -98,7 +122,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
         if isinstance(entry[0], str):
             entry[0] = re.compile(entry[0])
 
-    reader = file_open_zip_aware(filename)
+    reader = zopen(filename)
     for line in reader:
         for i in range(len(search)):
             match = search[i][0].search(line)

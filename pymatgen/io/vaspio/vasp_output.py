@@ -27,7 +27,7 @@ import logging
 
 import numpy as np
 
-from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk, clean_json
+from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, clean_json
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -168,7 +168,7 @@ class Vasprun(object):
         """
         self.filename = filename
 
-        with file_open_zip_aware(filename) as f:
+        with zopen(filename) as f:
             self._handler = VasprunHandler(filename, parse_dos=parse_dos,
                                     parse_eigen=parse_eigen,
                                     parse_projected_eigen=parse_projected_eigen)
@@ -945,7 +945,7 @@ class Outcar(object):
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
-        with file_open_zip_aware(filename, "r") as f:
+        with zopen(filename, "r") as f:
             lines = f.readlines()
 
         read_charge = False
@@ -1398,7 +1398,7 @@ class VolumetricData(object):
             (poscar, data)
         """
 
-        with file_open_zip_aware(filename) as f:
+        with zopen(filename) as f:
             contents = f.read()
             (poscar_string, grid_data) = re.split("^\s*$", contents,
                                                   flags=re.MULTILINE)
@@ -1443,7 +1443,7 @@ class VolumetricData(object):
                 True if the format is vasp4 compatible
         """
 
-        f = file_open_zip_aware(file_name, 'w')
+        f = zopen(file_name, 'w')
         p = Poscar(self.structure)
         f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
         a = self.dim
@@ -1618,7 +1618,7 @@ class Procar(object):
         return sum(row[4:9])
 
     def _read_file(self, filename):
-        reader = file_open_zip_aware(filename, "r")
+        reader = zopen(filename, "r")
         lines = clean_lines(reader.readlines())
         reader.close()
         self.name = lines[0]
@@ -1689,7 +1689,7 @@ class Oszicar(object):
                 return int(num)
             return float(num)
         header = []
-        with file_open_zip_aware(filename, 'r') as fid:
+        with zopen(filename, 'r') as fid:
             for line in fid.readlines():
                 m = electronic_pattern.match(line)
                 if m:
