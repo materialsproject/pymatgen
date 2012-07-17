@@ -21,7 +21,7 @@ from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.vis.structure_vtk import StructureVis
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 
 parser = argparse.ArgumentParser(description='''Convenient structure file viewer.  Currently only cif and POSCAR formats supported.
 Author: Shyue Ping Ong
@@ -55,7 +55,7 @@ elif file_format == 'cif':
     r = CifParser(filename)
     s = r.get_structures(False)[0]
 else:
-    d = json.load(file_open_zip_aware(filename))
+    d = json.load(zopen(filename))
     ts = TransformedStructure.from_dict(d)
     s = ts.final_structure
 

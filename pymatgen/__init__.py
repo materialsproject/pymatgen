@@ -12,4 +12,4 @@ from pymatgen.core.structure import Structure, Molecule, Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.util.io_utils import file_open_zip_aware as openz
+from pymatgen.util.io_utils import zopen
