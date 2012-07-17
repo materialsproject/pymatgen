@@ -188,7 +188,6 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return VaspToComputedEntryDrone(**d['init_args'])
 
 
-
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     """
     A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
@@ -227,7 +226,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                                                 "POTCAR*"))[-1]
 
                 for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
-                    files = glob.glob(os.path.join(path, "{}*".format(filename)))
+                    files = glob.glob(os.path.join(path, filename + "*"))
                     if len(files) == 1:
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
@@ -278,7 +277,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             delta_volume = (final_vol / initial_vol - 1)
             data = {'filename':path, 'delta_volume':delta_volume}
             if self._inc_structure:
-                entry = ComputedStructureEntry(structure, energy, parameters=param,
+                entry = ComputedStructureEntry(structure, energy,
+                                               parameters=param,
                                                data=data)
             else:
                 entry = ComputedEntry(structure.composition, energy,

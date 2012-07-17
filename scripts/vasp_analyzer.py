@@ -125,8 +125,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if not (args.get_energies or args.ion_list):
-        default_energies = True
+    default_energies = not (args.get_energies or args.ion_list)
 
     if args.get_energies or default_energies:
         for d in args.directories:
