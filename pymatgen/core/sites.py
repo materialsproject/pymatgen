@@ -39,10 +39,15 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         
         Args:
             atoms_n_occu: 
-                dict of elements or species and occupancies. Elements can be 
-                specified as symbols (Fe), atomic numbers (27), or actual 
-                Element objects.  Specie can be specified as Specie objects, 
-                or strings (Fe2+).
+                Species on the site. Can be:
+                
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    disordered structures.
             coords: 
                 Cartesian coordinates of site.
             properties:
@@ -283,7 +288,15 @@ class PeriodicSite(Site, MSONable):
         
         Args:
             atoms_n_occu:
-                dict of elements and occupancies
+                Species on the site. Can be:
+                
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    disordered structures.
             coords:
                 coordinates of site as fractional coordinates or cartesian 
                 coordinates.
