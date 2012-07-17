@@ -42,6 +42,10 @@ class Lattice(MSONable):
                 ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
+                
+                Each row should correspond to a lattice vector.
+                E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
+                lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
 
         self._matrix = np.array(matrix).reshape((3, 3))

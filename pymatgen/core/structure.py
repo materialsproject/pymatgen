@@ -235,7 +235,7 @@ class Structure(SiteCollection, MSONable):
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, atomicspecies, coords, validate_proximity=False,
+    def __init__(self, lattice, species, coords, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
                  site_properties=None):
         """
@@ -243,12 +243,22 @@ class Structure(SiteCollection, MSONable):
         
         Args:
             lattice:
-                pymatgen.core.lattice Lattice object signify the lattice.
-            atomicspecies:
-                list of atomic species. Possible kinds of input include a list 
-                of dict of elements/species and occupancies, a List of 
-                elements/specie specified as actual Element/Specie, Strings 
-                ("Fe", "Fe2+") or atomic numbers (1,56).
+                The lattice, either as a pymatgen.core.lattice.Lattice or simply
+                as any 2D array. Each row should correspond to a lattice vector.
+                E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
+                lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species:
+                List of species on each site. Can take in flexible input,
+                including:
+                
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    disordered structures.
+            
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
@@ -263,7 +273,7 @@ class Structure(SiteCollection, MSONable):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        if len(atomicspecies) != len(coords):
+        if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   "same length as the list of fractional",
                                   " coordinates."))
@@ -274,11 +284,11 @@ class Structure(SiteCollection, MSONable):
             self._lattice = Lattice(lattice)
 
         self._sites = []
-        for i in xrange(len(atomicspecies)):
+        for i in xrange(len(species)):
             prop = None
             if site_properties:
                 prop = {k:v[i] for k, v in site_properties.items()}
-            self._sites.append(PeriodicSite(atomicspecies[i], coords[i],
+            self._sites.append(PeriodicSite(species[i], coords[i],
                                             self._lattice, to_unit_cell,
                                             coords_are_cartesian,
                                             properties=prop))
@@ -708,13 +718,13 @@ class Molecule(SiteCollection, MSONable):
     it can be used like any Python sequence. Iterating through a molecule is
     equivalent to going through the sites in sequence.
     """
-    def __init__(self, atomicspecies, coords, validate_proximity=False,
+    def __init__(self, species, coords, validate_proximity=False,
                  site_properties=None):
         """
         Creates a Molecule.
         
         Args:
-            atomicspecies:
+            species:
                 list of atomic species. Possible kinds of input include a list
                 of dict of elements/species and occupancies, a List of 
                 elements/specie specified as actual Element/Specie, Strings 
@@ -730,17 +740,17 @@ class Molecule(SiteCollection, MSONable):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        if len(atomicspecies) != len(coords):
+        if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   " same length as the list of fractional ",
                                   "coordinates."))
 
         sites = []
-        for i in xrange(len(atomicspecies)):
+        for i in xrange(len(species)):
             prop = None
             if site_properties:
                 prop = {k:v[i] for k, v in site_properties.items()}
-            sites.append(Site(atomicspecies[i], coords[i], properties=prop))
+            sites.append(Site(species[i], coords[i], properties=prop))
         if validate_proximity:
             for (s1, s2) in itertools.combinations(sites, 2):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
