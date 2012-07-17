@@ -79,10 +79,13 @@ Setup for Developers (using github)
 ===================================
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
-2. Install the necessary python libraries.
-3. In your root pymatgen repo directory, type::
 
-   python setup.py develop #You may need to do this with root privileges.
+2. Install the necessary python libraries.
+
+3. In your root pymatgen repo directory, type (you may need to do this with root
+   privileges)::
+
+      python setup.py develop
 
 I recommend that you start by reading some of the unittests in the tests 
 subdirectory for each package.  The unittests demonstrate the expected behavior 

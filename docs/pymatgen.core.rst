@@ -49,6 +49,14 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`sites` Module
+-------------------
+
+.. automodule:: pymatgen.core.sites
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`structure` Module
 -----------------------
 
