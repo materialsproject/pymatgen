@@ -68,16 +68,19 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
                      re.sub("\s+", "", e.composition.formula),
                      "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom),
                      delta_vol))
-    headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
-    if pretty:
-        from prettytable import PrettyTable
-        t = PrettyTable(headers)
-        t.set_field_align("Directory", "l")
-        map(t.add_row, all_data)
-        print t
+    if len(all_data) > 0:
+        headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
+        if pretty:
+            from prettytable import PrettyTable
+            t = PrettyTable(headers)
+            t.set_field_align("Directory", "l")
+            map(t.add_row, all_data)
+            print t
+        else:
+            print str_aligned(all_data, headers)
+        print msg
     else:
-        print str_aligned(all_data, headers)
-    print msg
+        print "No valid vasp run found."
 
 
 def get_magnetizations(mydir, ionList):

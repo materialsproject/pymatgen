@@ -399,7 +399,7 @@ class GaussianOutput(object):
         scf_patt = re.compile("E\(.*\)\s*=\s*([-\.\d]+)\s+")
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
-        normal_termination_patt = re.compile("Normal termination of Gaussian")
+        termination_patt = re.compile("(Normal|Error) termination of Gaussian")
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
@@ -417,6 +417,7 @@ class GaussianOutput(object):
         orbitals_txt = []
         parse_stage = 0
         num_basis_found = False
+        terminated = False
 
         with openz(filename, "r") as f:
             for line in f:
@@ -465,8 +466,11 @@ class GaussianOutput(object):
                                     sp.append(Element.from_Z(int(toks[1])))
                                     coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
-                    elif normal_termination_patt.search(line):
-                        self.properly_terminated = True
+                    elif termination_patt.search(line):
+                        m = termination_patt.search(line)
+                        if m.group(1) == "Normal":
+                            self.properly_terminated = True
+                        terminated = True
                     elif (not num_basis_found) and num_basis_func_patt.search(line):
                         m = num_basis_func_patt.search(line)
                         self.num_basis_func = int(m.group(1))
@@ -490,6 +494,8 @@ class GaussianOutput(object):
                         read_coord = 1
                     elif orbital_patt.search(line):
                         orbitals_txt.append(line)
+        if not terminated:
+            raise IOError("Bad Gaussian output file.")
 
     def _check_pcm(self, line):
         energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy\s+\S+\s+=\s+(\S*)")
