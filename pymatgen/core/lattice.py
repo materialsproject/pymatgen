@@ -53,6 +53,18 @@ class Lattice(MSONable):
         self._md2c = np.transpose(self._matrix)
         self._mc2d = npl.inv(np.transpose(self._matrix))
 
+        lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
+        angles = np.zeros((3), float)
+        for i in xrange(3):
+            j = (i + 1) % 3
+            k = (i + 2) % 3
+            angles[i] = np.dot(self._matrix[j], self._matrix[k]) / \
+                        (lengths[j] * lengths[k])
+        angles = np.arccos(angles) * 180. / pi
+        angles = np.around(angles, 9)
+        self._angles = tuple(angles)
+        self._lengths = tuple(lengths)
+
     @property
     def md2c(self):
         '''Matrix for converting direct to cartesian coordinates'''
@@ -208,7 +220,8 @@ class Lattice(MSONable):
         Returns:
             A Lattice with the specified lattice parameters.
         '''
-        return Lattice.from_parameters(abc[0], abc[1], abc[2], ang[0], ang[1], ang[2])
+        return Lattice.from_parameters(abc[0], abc[1], abc[2],
+                                       ang[0], ang[1], ang[2])
 
     @staticmethod
     def from_parameters(a, b, c, alpha, beta, gamma):
@@ -267,63 +280,56 @@ class Lattice(MSONable):
         """
         Returns the angles (alpha, beta, gamma) of the lattice.
         """
-        return self.lengths_and_angles[1]
+        return self._angles
 
     @property
     def a(self):
         """
         *a* lattice parameter.
         """
-        return self.abc[0]
+        return self._lengths[0]
 
     @property
     def b(self):
         """
         *b* lattice parameter.
         """
-        return self.abc[1]
+        return self._lengths[1]
 
     @property
     def c(self):
         """
         *c* lattice parameter.
         """
-        return self.abc[2]
+        return self._lengths[2]
 
     @property
     def abc(self):
         """
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
-        return self.lengths_and_angles[0]
-
-    def _angle_between(self, x, y):
-        """ 
-        Internal method to calculate the angle between two vectors.
-        """
-        angle_between = 180.0 / np.pi * np.arccos(np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y)))
-        return angle_between
+        return self._lengths
 
     @property
     def alpha(self):
         """
         Angle alpha of lattice.
         """
-        return self._angle_between(self._matrix[1], self._matrix[2])
+        return self._angles[0]
 
     @property
     def beta(self):
         """
         Angle beta of lattice.
         """
-        return self._angle_between(self._matrix[0], self._matrix[2])
+        return self._angles[1]
 
     @property
     def gamma(self):
         """
         Angle gamma of lattice.
         """
-        return self._angle_between(self._matrix[0], self._matrix[1])
+        return self._angles[2]
 
     @property
     def volume(self):
@@ -337,13 +343,7 @@ class Lattice(MSONable):
         '''
         Returns (lattice lengths, lattice angles).
         '''
-        prim = self._matrix
-        lengths = np.sum(prim ** 2, axis=1) ** 0.5
-        angles = np.zeros((3), float)
-        angles[0] = np.arccos(np.dot(prim[1], prim[2]) / (lengths[1] * lengths[2])) * 180. / pi
-        angles[1] = np.arccos(np.dot(prim[2], prim[0]) / (lengths[2] * lengths[0])) * 180. / pi
-        angles[2] = np.arccos(np.dot(prim[0], prim[1]) / (lengths[0] * lengths[1])) * 180. / pi
-        return lengths, np.around(angles, 9)
+        return self._lengths, self._angles
 
     @property
     def reciprocal_lattice(self):
@@ -408,18 +408,18 @@ class Lattice(MSONable):
         Args:
             lattice_type:
                 An alphabet indicating whether the lattice type, P - primitive,
-                R - rhombohedral, A - A-centered, B - B-centered, C - C-centered,
-                I - body-centered, F - F-centered.
+                R - rhombohedral, A - A-centered, B - B-centered,
+                C - C-centered, I - body-centered, F - F-centered.
         """
         if lattice_type == 'P':
             return Lattice(self._matrix)
         conv_to_prim = {
-            'R': np.array([[2 / 3, 1 / 3, 1 / 3], [-1 / 3, 1 / 3, 1 / 3], [-1 / 3, -2 / 3, 1 / 3]]),
-            'A': np.array([[1, 0, 0], [0, 1 / 2, 1 / 2], [0, -1 / 2, 1 / 2]]),
-            'B': np.array([[1 / 2, 0, 1 / 2], [0, 1, 0], [-1 / 2, 0, 1 / 2]]),
-            'C': np.array([[1 / 2, 1 / 2, 0], [-1 / 2, 1 / 2, 0], [0, 0, 1]]),
-            'I': np.array([[-1 / 2, 1 / 2, 1 / 2], [1 / 2, -1 / 2, 1 / 2], [1 / 2, 1 / 2, -1 / 2]]),
-            'F': np.array([[1 / 2, 1 / 2, 0], [0, 1 / 2, 1 / 2], [1 / 2, 0, 1 / 2]])
+            'R': np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
+            'A': np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
+            'B': np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
+            'C': np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
+            'I': np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
+            'F': np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
             }
         return Lattice(np.dot(conv_to_prim[lattice_type], self._matrix))
 
@@ -444,7 +444,8 @@ class Lattice(MSONable):
                 diffvector = np.subtract(a, b)
             else:
                 diffvector = np.add(a, b)
-            if np.linalg.norm(diffvector) < np.linalg.norm(a) or np.linalg.norm(diffvector) < np.linalg.norm(b):
+            if np.linalg.norm(diffvector) < np.linalg.norm(a) or \
+               np.linalg.norm(diffvector) < np.linalg.norm(b):
                 if np.linalg.norm(a) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -457,7 +458,8 @@ class Lattice(MSONable):
                 diffvector = np.subtract(a, c)
             else:
                 diffvector = np.add(a, c)
-            if np.linalg.norm(diffvector) < np.linalg.norm(a) or np.linalg.norm(diffvector) < np.linalg.norm(c):
+            if np.linalg.norm(diffvector) < np.linalg.norm(a) or \
+               np.linalg.norm(diffvector) < np.linalg.norm(c):
                 if(np.linalg.norm(a) < np.linalg.norm(c)):
                     c = diffvector
                 else:
