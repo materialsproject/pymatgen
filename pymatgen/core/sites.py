@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Created on Jul 17, 2012
+This module defines classes representing non-periodic and periodic sites.
 '''
 
 from __future__ import division
