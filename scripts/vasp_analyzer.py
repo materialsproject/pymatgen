@@ -83,23 +83,37 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
         print "No valid vasp run found."
 
 
-def get_magnetizations(mydir, ionList):
-    print "%10s | %7s" % ("Ion", "Magmoms")
-    print "-" * 20
+def get_magnetizations(mydir, ion_list):
+    data = []
+    max_row = 0
     for (parent, subdirs, files) in os.walk(mydir):
         for f in files:
             if re.match("OUTCAR*", f):
-                fullpath = os.path.join(parent, f)
-                outcar = Outcar(fullpath)
-                mags = outcar.magnetization
-                mags = [m['tot'] for m in mags]
-                allIons = xrange(len(mags))
-                print "%16s" % (fullpath.lstrip("./"))
-                if len(ionList) > 0:
-                    allIons = ionList
-                for ion in allIons:
-                    print "%10d | %3.4f" % (ion, mags[ion])
-                print "-" * 20
+                try:
+                    row = []
+                    fullpath = os.path.join(parent, f)
+                    outcar = Outcar(fullpath)
+                    mags = outcar.magnetization
+                    mags = [m['tot'] for m in mags]
+                    all_ions = xrange(len(mags))
+                    row.append(fullpath.lstrip("./"))
+                    if ion_list:
+                        all_ions = ion_list
+                    for ion in all_ions:
+                        row.append(str(mags[ion]))
+                    data.append(row)
+                    if len(all_ions) > max_row:
+                        max_row = len(all_ions)
+                except:
+                    pass
+
+    for d in data:
+        if len(d) < max_row + 1:
+            d.extend([""] * (max_row + 1 - len(d)))
+    headers = ["Filename"]
+    for i in xrange(max_row):
+        headers.append(str(i))
+    print str_aligned(data, headers)
 
 
 if __name__ == "__main__":
@@ -133,7 +147,10 @@ if __name__ == "__main__":
                          args.detailed, args.sort[0])
     if args.ion_list:
         ion_list = list()
-        (start, end) = map(int, re.split("-", args.ion_list[0]))
-        ion_list = range(start, end + 1)
+        if args.ion_list[0] == "All":
+            ion_list = None
+        else:
+            (start, end) = map(int, re.split("-", args.ion_list[0]))
+            ion_list = range(start, end + 1)
         for d in args.directories:
             get_magnetizations(d, ion_list)
