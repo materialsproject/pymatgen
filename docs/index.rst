@@ -45,8 +45,8 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.1.0a)
----------------------------
+Latest Change Log (v2.1.0dev)
+-----------------------------
 
 1. Brand new CompoundPD class that allows the plotting of phase diagrams that
    do not have elements as their terminal points.

@@ -75,7 +75,7 @@ able to generate POTCARs.
 Alternatively, you can setup the above directly structure manually and set the 
 VASP_PSP_DIR environment variable accordingly.
 
-Setup for Developers (using github)
+Setup for Developers (using GitHub)
 ===================================
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
