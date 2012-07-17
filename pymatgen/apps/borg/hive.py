@@ -214,16 +214,12 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         try:
             files_to_parse = {}
             if 'relax1' in files and 'relax2' in files:
-                files_to_parse['INCAR'] = glob.glob(os.path.join(path, "relax1",
-                                                                 "INCAR*"))[0]
-                files_to_parse['OSZICAR'] = glob.glob(os.path.join(path,
-                                                    "relax2", "OSZICAR*"))[0]
-                files_to_parse['POTCAR'] = glob.glob(os.path.join(path,
-                                                    "relax1", "POTCAR*"))[-1]
-                files_to_parse['CONTCAR'] = glob.glob(os.path.join(path,
-                                                    "relax2", "CONTCAR*"))[-1]
-                files_to_parse['POSCAR'] = glob.glob(os.path.join(path,
-                                                    "relax1", "POSCAR*"))[-1]
+                for filename in ("INCAR", "POTCAR", "POSCAR"):
+                    search_str = os.path.join(path, "relax1", filename + "*")
+                    files_to_parse[filename] = glob.glob(search_str)[0]
+                for filename in ("CONTCAR", "OSZICAR"):
+                    search_str = os.path.join(path, "relax2", filename + "*")
+                    files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
                 files_to_parse['INCAR'] = glob.glob(os.path.join(path,
                                                                  "INCAR*"))[0]
@@ -236,20 +232,24 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         """
-                        This is a bit confusing, since there maybe be multi-steps. By 
-                        default, assimilate will try to find a file simply named 
-                        filename, filename.bz2, or filename.gz.  Failing which
-                        it will try to get a relax2 from an aflow style run if possible.
-                        Or else, a randomly chosen file containing vasprun.xml is chosen.
+                        This is a bit confusing, since there maybe be 
+                        multiple steps. By default, assimilate will try to find
+                        a file simply named filename, filename.bz2, or
+                        filename.gz.  Failing which it will try to get a relax2
+                        from an aflow style run if possible. Or else, a
+                        randomly chosen file is chosen.
                         """
                         for fname in files:
-                            if os.path.basename(fname) in [filename, filename + ".gz", filename + ".bz2"]:
+                            if os.path.basename(fname) in [filename,
+                                                           filename + ".gz",
+                                                           filename + ".bz2"]:
                                 files_to_parse[filename] = fname
                                 break
                             if fname == "POSCAR" and re.search("relax1", fname):
                                 files_to_parse[filename] = fname
                                 break
-                            if (fname in ("CONTCAR", "OSZICAR") and re.search("relax2", fname)):
+                            if (fname in ("CONTCAR", "OSZICAR") and \
+                                re.search("relax2", fname)):
                                 files_to_parse[filename] = fname
                                 break
                             files_to_parse[filename] = fname
@@ -261,10 +261,12 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
             incar = Incar.from_file(files_to_parse['INCAR'])
             if 'LDAUU' in incar:
-                param['hubbards'] = dict(zip(poscar.site_symbols, incar['LDAUU']))
+                param['hubbards'] = dict(zip(poscar.site_symbols,
+                                             incar['LDAUU']))
             else:
                 param['hubbards'] = {}
-            param['is_hubbard'] = incar.get('LDAU', False) and sum(param['hubbards'].values()) > 0
+            param['is_hubbard'] = incar.get('LDAU', False) and \
+                                  sum(param['hubbards'].values()) > 0
             param['run_type'] = "GGA+U" if param['is_hubbard'] else "GGA"
             potcar = Potcar.from_file(files_to_parse['POTCAR'])
             param["potcar_symbols"] = potcar.symbols
@@ -274,19 +276,18 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
             delta_volume = (final_vol / initial_vol - 1)
+            data = {'filename':path, 'delta_volume':delta_volume}
+            if self._inc_structure:
+                entry = ComputedStructureEntry(structure, energy, parameters=param,
+                                               data=data)
+            else:
+                entry = ComputedEntry(structure.composition, energy,
+                                      parameters=param, data=data)
+            return entry
+
         except Exception as ex:
             logger.debug("error in {}: {}".format(path, ex))
             return None
-
-        data = {'filename':path, 'delta_volume':delta_volume}
-
-        if self._inc_structure:
-            entry = ComputedStructureEntry(structure, energy, parameters=param,
-                                           data=data)
-        else:
-            entry = ComputedEntry(structure.composition, energy,
-                                  parameters=param, data=data)
-        return entry
 
     def __str__(self):
         return "SimpleVaspToComputedEntryDrone"
@@ -365,15 +366,18 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             data[d] = getattr(gaurun, d)
         if self._inc_structure:
             entry = ComputedStructureEntry(gaurun.final_structure,
-                                   gaurun.final_energy, parameters=param, data=data)
+                                   gaurun.final_energy, parameters=param,
+                                   data=data)
         else:
             entry = ComputedEntry(gaurun.final_structure.composition,
-                                   gaurun.final_energy, parameters=param, data=data)
+                                   gaurun.final_energy, parameters=param,
+                                   data=data)
         return entry
 
     def get_valid_paths(self, path):
         (parent, subdirs, files) = path
-        return [os.path.join(parent, f) for f in files if os.path.splitext(f)[1] in self._file_extensions]
+        return [os.path.join(parent, f) for f in files \
+                if os.path.splitext(f)[1] in self._file_extensions]
 
     def __str__(self):
         return " GaussianToComputedEntryDrone"
