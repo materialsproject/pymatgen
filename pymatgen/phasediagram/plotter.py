@@ -120,7 +120,7 @@ class PDPlotter(object):
         machines have matplotlib installed, I have done it this way.
         '''
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(8, 7)
+        plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
@@ -185,7 +185,8 @@ class PDPlotter(object):
                              verticalalignment=valign,
                              fontproperties=font)
         F = plt.gcf()
-        F.set_size_inches((8, 7))
+        F.set_size_inches((8, 6))
+        plt.subplots_adjust(left=0.05, right=1, top=1, bottom=0.05)
         return plt
 
     def _get_3d_plot(self):
