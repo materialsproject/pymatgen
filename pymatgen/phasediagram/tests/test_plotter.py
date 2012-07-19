@@ -21,7 +21,6 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(lines), 22)
         self.assertEqual(len(labels), len(self.pd.stable_entries), "Incorrect number of lines generated!")
         self.assertEqual(len(unstable_entries), len(self.pd.all_entries) - len(self.pd.stable_entries), "Incorrect number of lines generated!")
-        self.plotter.show()
 
 class UtilityFunctionTest(unittest.TestCase):
 
