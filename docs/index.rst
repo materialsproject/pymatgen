@@ -51,7 +51,8 @@ Latest Change Log (v2.1.0dev)
 1. Brand new CompoundPD class that allows the plotting of phase diagrams that
    do not have elements as their terminal points.
 2. Spglib is now completely integrated as part of the setup.py installation.
-3. Miscellaneous bug fixes and speed improvements.
+3. Major (but completely backwards compatible) refactoring of sites and vaspio.
+4. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
@@ -76,7 +77,7 @@ Alternatively, the bleeding edge developmental version is at the public
 pymatgen github repo at 
 https://github.com/materialsproject/pymatgen/tarball/master. These developmental
 versions are likely to be more buggy, but may contain new features. Note that
-the github versions include test files as well for complete unittesting.
+the GitHub versions include test files as well for complete unittesting.
 
 From the source, you can type::
 
