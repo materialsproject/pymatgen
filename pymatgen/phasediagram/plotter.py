@@ -242,8 +242,7 @@ class PDPlotter(object):
         f = plt.gcf()
         f.set_size_inches((12, 10))
 
-        plt.savefig(stream, format=image_format, bbox_inches='tight',
-                    pad_inches=0)
+        plt.savefig(stream, format=image_format)
 
 
     def plot_chempot_range_map(self, elements):
