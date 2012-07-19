@@ -32,7 +32,7 @@ Optional python libraries that are required if you need certain features
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-7. nose - For complete unittesting. This is NOT optional for developers!
+7. nose - For complete unittesting. This is **not optional for developers**!
 
 Optional non-Python programs
 ----------------------------
@@ -51,9 +51,10 @@ POTCAR Setup for Users
 
 For the code to generate POTCAR files, it needs to know where the VASP 
 pseudopotential files are.  We are not allowed to distribute these under the 
-VASP license. The good news is that we have included a setup script to help you along.
+VASP license. The good news is that we have included a setup script to help you 
+along.
 
-If you cloned the repo directly from github, you should have a run_me_first.sh 
+If you cloned the repo directly from GitHub, you should have a run_me_first.sh 
 file in the root directory of your local repo. Otherwise, you can get it directly 
 from our github site at http://github.com/materialsproject/pymatgen. Run the 
 shell script and follow the instructions. If you have done it correctly, you 
@@ -127,7 +128,6 @@ matplotlib from source.
 	python setup.py build 
 	sudo python setup.py install
 
-
 Solaris 10
 ~~~~~~~~~~
 
@@ -184,8 +184,8 @@ Typical installation with make fails with the following error:
 Simply removing "-Wno-sign-conversion" where it appears in the Makefile and then 
 doing make followed by make install works fine.
 
-VTK (tested on v5.8.0)
-----------------------
+VTK (tested on v5.10.0)
+-----------------------
 
 Mac OS X 10.7
 ~~~~~~~~~~~~~
