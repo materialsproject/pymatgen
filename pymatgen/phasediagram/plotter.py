@@ -186,7 +186,7 @@ class PDPlotter(object):
                              fontproperties=font)
         F = plt.gcf()
         F.set_size_inches((8, 6))
-        plt.subplots_adjust(left=0.05, right=1, top=1, bottom=0.05)
+        plt.subplots_adjust(left=0.07, right=0.98, top=0.98, bottom=0.05)
         return plt
 
     def _get_3d_plot(self):
