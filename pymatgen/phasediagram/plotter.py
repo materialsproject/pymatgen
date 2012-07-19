@@ -146,6 +146,8 @@ class PDPlotter(object):
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
             center = (0.5, miny / 2)
+            plt.xlabel("Fraction")
+            plt.ylabel("Formation energy from end members (eV)")
 
         for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
@@ -186,7 +188,7 @@ class PDPlotter(object):
                              fontproperties=font)
         F = plt.gcf()
         F.set_size_inches((8, 6))
-        plt.subplots_adjust(left=0.07, right=0.98, top=0.98, bottom=0.05)
+        plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return plt
 
     def _get_3d_plot(self):
