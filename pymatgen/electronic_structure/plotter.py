@@ -617,28 +617,242 @@ class BSPlotterProjected(BSPlotter):
                 A BandStructureSymmLine object with projections.
         """
         BSPlotter.__init__(self, bs)
-        
+
+    def _maketicks(self,plt):
+        """
+        utility private method to add ticks to a band structure
+        """
+        ticks = self.get_ticks()
+        #Sanitize only plot the uniq values
+        uniq_d = []
+        uniq_l = []
+        temp_ticks = zip(ticks['distance'], ticks['label'])
+        for i in xrange(len(temp_ticks)):
+            if i == 0:
+                uniq_d.append(temp_ticks[i][0])
+                uniq_l.append(temp_ticks[i][1])
+                logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+            else:
+                if temp_ticks[i][1] == temp_ticks[i - 1][1]:
+                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                else:
+                    logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                    uniq_d.append(temp_ticks[i][0])
+                    uniq_l.append(temp_ticks[i][1])
+
+        logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
+        #pylab.gca().set_xticks(ticks['distance'])
+        #pylab.gca().set_xticklabels(ticks['label'])
+        plt.gca().set_xticks(uniq_d)
+        plt.gca().set_xticklabels(uniq_l)
+
+        for i in range(len(ticks['label'])):
+            if ticks['label'][i] is not None:
+                # don't print the same label twice
+                if i != 0:
+                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                        logger.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
+                    else:
+                        logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                        plt.axvline(ticks['distance'][i], color='k')
+                else:
+                    logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                    plt.axvline(ticks['distance'][i], color='k')
+        return plt
+    
+    def get_projected_plots_dots(self,dictio,zero_to_efermi=True):
+        """
+        returns a pylab plot object with several subplots depending on the elements and orbitals set in dictio
+        for instance {'Cu':['d','s'],'O':['p']} will give projections
+        for Cu on d and s orbitals and on oxygen p
+        The bigger the red dot in the band structure the higher character for the corresponding element and orbital
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        fig_number=0
+        for e in dictio:
+            for o in dictio[e]:
+                fig_number=fig_number+1
+        proj=self._bs.get_projections_on_elts_and_orbitals(dictio)
+        data=self.bs_plot_data(zero_to_efermi)
+        plt = get_publication_quality_plot(12, 8)
+        count=1
+        for el in dictio:
+            for o in dictio[el]:
+                plt.subplot(100*math.ceil(fig_number/2)+20+count)
+                self._maketicks(plt)
+                for i in range(self._nb_bands):
+                    plt.plot(data['distances'],
+                                     [e for e in data['energy'][str(Spin.up)][i]],'k-')
+                    for j in range(len(data['energy'][str(Spin.up)][i])):
+                        plt.plot(data['distances'][j],
+                                     data['energy'][str(Spin.up)][i][j],'ro',
+                                     markersize=proj[Spin.up][i][j][str(el)][o]*15.0)
+                plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
+                plt.title(str(el)+" "+str(o))
+                count=count+1
+        return plt
     
     def get_elt_projected_plots(self, zero_to_efermi=True):
+        """
+        returns a pylab plot object with several subplots each for the band structure
+        projection on each element
+        The bigger the red dot in the band structure the higher character for the corresponding element
+        """
+        proj=self._bs.get_projection_on_elements()
+        data=self.bs_plot_data(zero_to_efermi)
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8)
+        ticks = self.get_ticks()
+        #Sanitize only plot the uniq values
+        uniq_d = []
+        uniq_l = []
+        temp_ticks = zip(ticks['distance'], ticks['label'])
+        for i in xrange(len(temp_ticks)):
+            if i == 0:
+                uniq_d.append(temp_ticks[i][0])
+                uniq_l.append(temp_ticks[i][1])
+                logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+            else:
+                if temp_ticks[i][1] == temp_ticks[i - 1][1]:
+                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                else:
+                    logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                    uniq_d.append(temp_ticks[i][0])
+                    uniq_l.append(temp_ticks[i][1])
+
+        logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
+        #pylab.gca().set_xticks(ticks['distance'])
+        #pylab.gca().set_xticklabels(ticks['label'])
+        plt.gca().set_xticks(uniq_d)
+        plt.gca().set_xticklabels(uniq_l)
+
+        #Main X and Y Labels
+        plt.xlabel(r'Wave vector', fontsize=30)
+        #ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
+        ylabel='Energy (eV)'
+        plt.ylabel(ylabel, fontsize=30)
+        for i in range(len(ticks['label'])):
+            if ticks['label'][i] is not None:
+                # don't print the same label twice
+                if i != 0:
+                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                        logger.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
+                    else:
+                        logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                        plt.axvline(ticks['distance'][i], color='k')
+                else:
+                    logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                    plt.axvline(ticks['distance'][i], color='k')
+        count=1
+        for el in self._bs._structure.composition.elements:
+            plt.subplot(220+count)
+            for i in range(self._nb_bands):
+                #bar=[]
+                #for j in range(len(proj[Spin.up][i])):
+                #    if j%2 == 0:
+                #        bar.append(proj[Spin.up][i][j][str(el)])
+                #    else:
+                #        bar.append(0.0)
+                #plt.errorbar(data['distances'],
+                #                 [e for e in data['energy'][str(Spin.up)][i]],yerr=bar,fmt='b-')
+                plt.plot(data['distances'],
+                                 [e for e in data['energy'][str(Spin.up)][i]],'k-')
+                for j in range(len(data['energy'][str(Spin.up)][i])):
+                    plt.plot(data['distances'][j],
+                                 data['energy'][str(Spin.up)][i][j],'ro',markersize=proj[Spin.up][i][j][str(el)]*15.0)
+            plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
+            plt.title(str(el))
+            count=count+1
+        plt.show()
+        
+    def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
+        """
+        returns a pylab plot object with one plot where the band structure line color depends
+        on the character of the band (along different elements). The elements are given in a certain order by
+        the list elt_ordered and the color order is red, green, blue
+        """
+     	if elt_ordered==None:
+   	   		elt_ordered=self._bs._structure.composition.elements
         proj=self._bs.get_projection_on_elements()
         data=self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         count=1
-        for el in self._bs._structure.composition.elements:
-            plt.subplot(220+count)
-            for i in range(self._nb_bands):
-                bar=[]
-                for j in range(len(proj[Spin.up][i])):
-                    if j%2 == 0:
-                        bar.append(proj[Spin.up][i][j][str(el)])
-                    else:
-                        bar.append(0.0)
-                plt.errorbar(data['distances'],
-                                 [e for e in data['energy'][str(Spin.up)][i]],yerr=bar,fmt='b-')
-            plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
-            plt.title(str(el))
-            count=count+1
-        plt.show()
+        ticks = self.get_ticks()
+        #Sanitize only plot the uniq values
+        uniq_d = []
+        uniq_l = []
+        temp_ticks = zip(ticks['distance'], ticks['label'])
+        for i in xrange(len(temp_ticks)):
+            if i == 0:
+                uniq_d.append(temp_ticks[i][0])
+                uniq_l.append(temp_ticks[i][1])
+                logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+            else:
+                if temp_ticks[i][1] == temp_ticks[i - 1][1]:
+                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                else:
+                    logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                    uniq_d.append(temp_ticks[i][0])
+                    uniq_l.append(temp_ticks[i][1])
+
+        logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
+        #pylab.gca().set_xticks(ticks['distance'])
+        #pylab.gca().set_xticklabels(ticks['label'])
+        plt.gca().set_xticks(uniq_d)
+        plt.gca().set_xticklabels(uniq_l)
+
+        #Main X and Y Labels
+        plt.xlabel(r'Wave vector', fontsize=30)
+        #ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
+        ylabel='Energy (eV)'
+        plt.ylabel(ylabel, fontsize=30)
+        for i in range(len(ticks['label'])):
+			if ticks['label'][i] is not None:
+				# don't print the same label twice
+				if i != 0:
+					if (ticks['label'][i] == ticks['label'][i - 1]):
+						logger.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
+					else:
+						logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+						plt.axvline(ticks['distance'][i], color='k')
+				else:
+					logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+					plt.axvline(ticks['distance'][i], color='k')
+        #for el in self._bs._structure.composition.elements:
+        for i in range(self._nb_bands):
+            #bar=[]
+            #for j in range(len(proj[Spin.up][i])):
+            #    if j%2 == 0:
+            #        bar.append(proj[Spin.up][i][j][str(el)])
+            #    else:
+            #        bar.append(0.0)
+            #plt.errorbar(data['distances'],
+            #                 [e for e in data['energy'][str(Spin.up)][i]],yerr=bar,fmt='b-')
+            #plt.plot(data['distances'],
+            #                 [e for e in data['energy'][str(Spin.up)][i]],'k-')
+            for j in range(len(data['energy'][str(Spin.up)][i])-1):
+                #if j%2!=0:
+                #    continue
+                #print j
+                sum=0.0
+                for el in elt_ordered:
+                    sum=sum+proj[Spin.up][i][j][str(el)]
+                if sum==0.0:
+                    color=[0.0 for e in elt_ordered]
+                else:
+                    color=[proj[Spin.up][i][j][str(el)]/sum for el in elt_ordered]
+                if len(color)==2:
+                    color.append(0.0)
+                    color[2]=color[1]
+                    color[1]=0.0
+                plt.plot([data['distances'][j],data['distances'][j+1]],
+                             [data['energy'][str(Spin.up)][i][j],data['energy'][str(Spin.up)][i][j+1]],
+                             color=color
+                             ,linewidth=3)
+        plt.ylim(data['vbm'][0][1] -4.0, data['cbm'][0][1] + 2.0)
+        #plt.title(str(el))
+        count=count+1
+        return plt
         
         
