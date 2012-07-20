@@ -262,6 +262,33 @@ class BandStructure(object):
                             result[spin][i][j][str(self._structure.sites[k].specie)]+=self._projections[spin][i][j][orb][k]
         return result
     
+    def get_projections_on_elts_and_orbitals(self, dictio):
+        """
+        return a dictionary of projections on elements in the 
+        {Spin.up:[][{Element:{orb:values}}],Spin.down:[][{Element:{orb:values}}]} format
+        the elements with their orbitals of interest is given in dictio
+        as {Element:[orbitals]} for example {'Cu':['d','s']} will give projections
+        for Cu on d and s orbitals
+        if there is no projections in the band structure
+        returns an empty dict
+        """
+        if len(self._projections) == 0:
+            return {}
+        if self.is_spin_polarized:
+            result={Spin.up:[],Spin.down:[]}
+        else:
+            result={Spin.up:[]}
+        for spin in result:
+            result[spin]=[[{str(e):{o:0.0 for o in dictio[e]} for e in dictio} for i in range(len(self._kpoints))] for j in range(self._nb_bands)]
+            for i in range(self._nb_bands):
+                for j in range(len(self._kpoints)):
+                    for k in range(self._structure.num_sites):
+                        for orb in self._projections[Spin.up][i][j]:
+                            if str(self._structure.sites[k].specie) in dictio:
+                                if str(orb)[0] in dictio[str(self._structure.sites[k].specie)]:
+                                    result[spin][i][j][str(self._structure.sites[k].specie)][str(orb)[0]]+=self._projections[spin][i][j][orb][k]
+        return result
+       
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
@@ -441,8 +468,12 @@ class BandStructureSymmLine(BandStructure, MSONable):
             for i in range(self._nb_bands):
                 if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
+        proj={}            
+        if len(self._projections)!=0:
+            proj=self.get_projection_on_elements()[Spin.up][list_index_band[Spin.up][0]][list_index_kpoints[0]]
+        #return self.get_projection_on_elements()[Spin.up][index_band][index_k]
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
-                'kpoint':kpointvbm, 'energy':max_tmp}
+                'kpoint':kpointvbm, 'energy':max_tmp, 'projections':proj}
 
     def get_cbm(self):
         """
