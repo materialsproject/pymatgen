@@ -5,8 +5,9 @@ This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables multienum.x and
-make_str.x available in the path. Please download the library at 
-http://enum.sourceforge.net/ and compile these two executables accordingly.
+makestr.x available in the path. Please download the library at 
+http://enum.sourceforge.net/ and follow the instructions in the README to 
+compile these two executables accordingly.
 
 If you use this module, please cite the following:
 
@@ -19,7 +20,6 @@ multilattices: Application to hcp alloys," Phys. Rev. B 80 014120 (July 2009)
 Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
-
 '''
 
 from __future__ import division
