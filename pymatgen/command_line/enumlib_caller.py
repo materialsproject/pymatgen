@@ -239,21 +239,3 @@ class EnumlibAdaptor(object):
         logger.debug("Read in a total of " + str(num_structs) + " stuctures.")
         return structs
 
-
-if __name__ == "__main__":
-    from pymatgen import __file__
-    from pymatgen.io.cifio import CifParser
-    logging.basicConfig(level=logging.DEBUG)
-    test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
-
-    parser = CifParser(os.path.join(test_dir, "NMC.cif"))
-    struct = parser.get_structures(False)[0]
-    #parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
-    #struct = parser.get_structures(False)[0]
-
-    #from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-    #subtrans = SubstitutionTransformation({'Li':{'Li':0.5}})
-    #adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1)
-    adaptor = EnumlibAdaptor(struct, 1, 3)
-    adaptor.run()
-    print len(adaptor.structures)
