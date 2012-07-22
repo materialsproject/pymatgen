@@ -85,7 +85,9 @@ class EnumlibAdaptor(object):
         Run the enumeration.
         """
         #Create a temporary directory for working.
+        curr_dir = os.getcwd()
         temp_dir = tempfile.mkdtemp()
+
         try:
             #Generate input files
             self._gen_input_file(temp_dir)
@@ -100,6 +102,7 @@ class EnumlibAdaptor(object):
                               limit=2, file=sys.stdout)
         finally:
             shutil.rmtree(temp_dir)
+            os.chdir(curr_dir)
 
     def _gen_input_file(self, working_dir):
         """
