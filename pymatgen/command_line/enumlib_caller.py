@@ -2,8 +2,13 @@
 
 '''
 This module implements an interface to enumlib, Gus Hart's excellent Fortran
-code for enumerating derivative structures. If you use this module, please cite
-the following:
+code for enumerating derivative structures.
+
+This module depends on a compiled enumlib with the executables multienum.x and
+make_str.x available in the path. Please download the library at 
+http://enum.sourceforge.net/ and compile these two executables accordingly.
+
+If you use this module, please cite the following:
 
 Gus L. W. Hart and Rodney W. Forcade, "Algorithm for generating derivative
 structures," Phys. Rev. B 77 224115 (26 June 2008)
@@ -15,8 +20,6 @@ Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
 
-This module depends on a compiled enumlib with the executables multi_enum.x and
-make_str.x available in the path.
 '''
 
 from __future__ import division
