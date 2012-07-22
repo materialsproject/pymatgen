@@ -348,7 +348,7 @@ class SupercellMaker(StructureModifier):
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
         new_sites = []
         def range_vec(i):
-            return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]))
+            return range(max(scale_matrix[:][:, i]) - min(scale_matrix[:][:, i]) + 1)
         for site in structure.sites:
             for (i, j, k) in itertools.product(range_vec(0), range_vec(1), range_vec(2)):
                 fcoords = site.frac_coords
