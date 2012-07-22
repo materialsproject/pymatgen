@@ -120,7 +120,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         The species at the site, i.e., a dict of element and occupancy
         """
-        return self._species
+        return self._species.copy()
 
     @property
     def specie(self):
