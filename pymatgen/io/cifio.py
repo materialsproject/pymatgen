@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Wrapper classes for Cif input and output from pymatgen.core.structure.Structures.
+Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
@@ -85,8 +85,10 @@ class CifParser(object):
             latt_type = "P"
         else:
             latt_type = spacegroup[0]
-        lengths = [float_from_string(data['_cell_length_' + i]) for i in ['a', 'b', 'c']]
-        angles = [float_from_string(data['_cell_angle_' + i]) for i in ['alpha', 'beta', 'gamma']]
+        lengths = [float_from_str(data['_cell_length_' + i]) \
+                   for i in ['a', 'b', 'c']]
+        angles = [float_from_str(data['_cell_angle_' + i]) \
+                  for i in ['alpha', 'beta', 'gamma']]
         lattice = Lattice.from_lengths_and_angles(lengths, angles)
         primlattice = lattice.get_primitive_lattice(latt_type)
         try:
@@ -95,7 +97,8 @@ class CifParser(object):
             try:
                 sympos = data['_symmetry_equiv_pos_as_xyz_']
             except:
-                warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. Defaulting to P1.")
+                warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
+                              "Defaulting to P1.")
                 sympos
         def parse_symbol(sym):
             m = re.search("([A-Z][a-z]*)", sym)
@@ -107,7 +110,8 @@ class CifParser(object):
         try:
             oxi_states = dict()
             for i in xrange(len(data['_atom_type_symbol'])):
-                oxi_states[data['_atom_type_symbol'][i]] = float_from_string(data['_atom_type_oxidation_number'][i])
+                oxi_states[data['_atom_type_symbol'][i]] = \
+                    float_from_str(data['_atom_type_oxidation_number'][i])
         except:
             oxi_states = None
 
@@ -119,11 +123,11 @@ class CifParser(object):
                 el = Specie(symbol, oxi_states[data['_atom_site_type_symbol'][i]])
             else:
                 el = Element(symbol)
-            x = float_from_string(data['_atom_site_fract_x'][i])
-            y = float_from_string(data['_atom_site_fract_y'][i])
-            z = float_from_string(data['_atom_site_fract_z'][i])
+            x = float_from_str(data['_atom_site_fract_x'][i])
+            y = float_from_str(data['_atom_site_fract_y'][i])
+            z = float_from_str(data['_atom_site_fract_z'][i])
             try:
-                occu = float_from_string(data['_atom_site_occupancy'][i])
+                occu = float_from_str(data['_atom_site_occupancy'][i])
             except:
                 occu = 1
             if occu > 0:
@@ -137,7 +141,8 @@ class CifParser(object):
         allcoords = list()
 
         for coord, species in coord_to_species.items():
-            coords = self._unique_coords(coord, sympos, primitive, lattice, primlattice)
+            coords = self._unique_coords(coord, sympos, primitive, lattice,
+                                         primlattice)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
 
@@ -149,9 +154,10 @@ class CifParser(object):
                     species[key] = value / totaloccu
 
         if primitive:
-            return Structure(primlattice, allspecies, allcoords).get_sorted_structure()
+            struct = Structure(primlattice, allspecies, allcoords)
         else:
-            return Structure(lattice, allspecies, allcoords).get_sorted_structure()
+            struct = Structure(lattice, allspecies, allcoords)
+        return struct.get_sorted_structure()
 
     def get_structures(self, primitive=True):
         '''
@@ -211,7 +217,9 @@ class CifWriter:
         fu = int(amt / reduced_comp[Element(el.symbol)])
 
         block['_cell_formula_units_Z'] = str(fu)
-        block.AddCifItem(([['_symmetry_equiv_pos_site_id', '_symmetry_equiv_pos_as_xyz']], [[['1'], ['x, y, z']]]))
+        block.AddCifItem(([['_symmetry_equiv_pos_site_id',
+                            '_symmetry_equiv_pos_as_xyz']],
+                          [[['1'], ['x, y, z']]]))
 
         contains_oxidation = True
         symbol_to_oxinum = dict()
@@ -221,7 +229,10 @@ class CifWriter:
             symbol_to_oxinum = {el.symbol:0 for el in comp.elements}
             contains_oxidation = False
         if contains_oxidation:
-            block.AddCifItem(([['_atom_type_symbol', '_atom_type_oxidation_number']], [[symbol_to_oxinum.keys(), symbol_to_oxinum.values()]]))
+            block.AddCifItem(([['_atom_type_symbol',
+                                '_atom_type_oxidation_number']],
+                              [[symbol_to_oxinum.keys(),
+                                symbol_to_oxinum.values()]]))
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -290,6 +301,7 @@ def around_diff_num(a, b):
     diff_num = abs(a - b)
     return diff_num if diff_num < 0.5 else abs(1 - diff_num)
 
+
 def coord_in_list(coord, coord_list, tol):
     """
     Helper method to check if coord is already in a list of coords, subject to
@@ -301,7 +313,8 @@ def coord_in_list(coord, coord_list, tol):
             return True
     return False
 
-def float_from_string(text):
+
+def float_from_str(text):
     '''
     Remove uncertainty brackets from strings and return the float.
     '''
