@@ -365,5 +365,30 @@ class SymmOrderStructureTransformationTest(unittest.TestCase):
         trans = SymmOrderStructureTransformation.from_dict(d)
         self.assertEqual(trans.symm_prec, 0.1)
 
+
+class EnumerateStructureTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        enum_trans = EnumerateStructureTransformation()
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        struct = p.structure
+        expected_ans = [1, 3, 1]
+        for i, frac in enumerate([0.25, 0.5, 0.75]):
+            trans = SubstitutionTransformation({'Fe': {'Fe':frac}})
+            s = trans.apply_transformation(struct)
+            oxitrans = OxidationStateDecorationTransformation({'Li':1, 'Fe':2,
+                                                              'P':5, 'O':-2})
+            s = oxitrans.apply_transformation(s)
+            alls = enum_trans.apply_transformation(s, 100)
+            self.assertEquals(len(alls), expected_ans[i])
+            self.assertIsInstance(trans.apply_transformation(s), Structure)
+
+    def test_to_from_dict(self):
+        trans = EnumerateStructureTransformation()
+        d = trans.to_dict
+        trans = EnumerateStructureTransformation.from_dict(d)
+        self.assertEqual(trans.symm_prec, 0.1)
+
 if __name__ == "__main__":
     unittest.main()

@@ -205,7 +205,7 @@ class EnumlibAdaptor(object):
                                'struct_enum.out', str(0), str(num_structs - 1)],
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
-        rs.communicate()
+        output = rs.communicate()
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             ordered_structure = Structure.from_sites(self.ordered_sites)
@@ -231,6 +231,6 @@ class EnumlibAdaptor(object):
                     if site.specie.symbol != "X": #We exclude vacancies.
                         sites.append(PeriodicSite(site.species_and_occu, site.frac_coords, super_latt))
                 structs.append(Structure.from_sites(sites))
-        logger.debug("Read in a total of " + str(num_structs) + " stuctures.")
+        logger.debug("Read in a total of " + str(num_structs) + " structures.")
         return structs
 

@@ -112,6 +112,44 @@ class EwaldSummation(object):
             total_energy_matrix[:, i] = 0
         return sum(sum(total_energy_matrix))
 
+    def compute_sub_structure(self, structure):
+        """
+        Gives total ewald energy for an sub structure in the same 
+        lattice. The sub structure must be a subset of the original
+        structure, with possible different charges.
+        """
+        total_energy_matrix = self.total_energy_matrix.copy()
+
+        def find_match(site):
+            for test_site in structure:
+                frac_diff = abs(np.array(site.frac_coords) - np.array(test_site.frac_coords)) % 1
+                frac_diff = [abs(a) < 1e-5 or abs(a) > 1 - 1e-5 \
+                     for a in frac_diff]
+                if all(frac_diff):
+                    return test_site
+            return None
+
+        matches = []
+        for i, site in enumerate(self._s):
+            matching_site = find_match(site)
+            if matching_site:
+                new_charge = compute_average_oxidation_state(matching_site)
+                old_charge = self._oxi_states[i]
+                scaling_factor = new_charge / old_charge
+                matches.append(matching_site)
+            else:
+                scaling_factor = 0
+            total_energy_matrix[i, :] *= scaling_factor
+            total_energy_matrix[:, i] *= scaling_factor
+
+        if len(matches) != len(structure):
+            print "Missing sites."
+            print len(matches)
+            print len(structure)
+            print "unmatched = {}".format([site for site in structure if site not in matches])
+
+        return sum(sum(total_energy_matrix))
+
     @property
     def reciprocal_space_energy(self):
         """
