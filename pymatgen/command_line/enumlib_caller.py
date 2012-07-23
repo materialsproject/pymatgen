@@ -59,7 +59,7 @@ class EnumlibAdaptor(object):
     amount_tol = 1e-5
 
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
-                 symm_prec=0.1, round_occupancies=True):
+                 symm_prec=0.1):
         """
         Args:
             structure:
@@ -70,18 +70,11 @@ class EnumlibAdaptor(object):
                 The maximum cell size wanted. Must be an int. Defaults to 1.
             symm_prec:
                 Symmetry precision. Defaults to 0.1.
-            round_occupancies:
-                If True (the default), the code will try to round occupancies
-                to values consistent with integer amounts in the min_cell_size.
-                For example, if you have a structure that has 2 Li sites in the
-                basic unit cell, and the occupancy of the sites is 0.501, the
-                code will round this to 0.5.
         """
         self._structure = structure
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.symm_prec = symm_prec
-        self.round_occu = round_occupancies
 
     def run(self):
         """
@@ -90,7 +83,7 @@ class EnumlibAdaptor(object):
         #Create a temporary directory for working.
         curr_dir = os.getcwd()
         temp_dir = tempfile.mkdtemp()
-
+        logger.debug("Temp dir : {}".format(temp_dir))
         try:
             #Generate input files
             self._gen_input_file(temp_dir)
@@ -151,10 +144,7 @@ class EnumlibAdaptor(object):
                 for sp in species.keys():
                     index_species.append(sp)
                     sp_label.append(len(index_species) - 1)
-                    if self.round_occu:
-                        index_amounts.append(round(species[sp] * len(sites)))
-                    else:
-                        index_amounts.append(species[sp] * len(sites))
+                    index_amounts.append(species[sp] * len(sites))
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
                     coord_str.append("{} {}".format(coord_format.format(*site.coords),
@@ -164,9 +154,11 @@ class EnumlibAdaptor(object):
         self.ordered_sites = ordered_sites
         self.index_species = index_species
 
+        lattice = self._structure.lattice
+
         output = [self._structure.formula]
         output.append('bulk')
-        for vec in self._structure.lattice.matrix:
+        for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
         output.append("{}".format(len(index_species)))
         output.append("{}".format(len(coord_str)))
@@ -175,7 +167,6 @@ class EnumlibAdaptor(object):
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
         output.append(str(self.symm_prec))
         output.append("partial")
-
         #To get a reasonable number of structures, we fix concentrations to the
         #range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -222,7 +213,8 @@ class EnumlibAdaptor(object):
         for n in range(1, num_structs + 1):
             with open('vasp.{:06d}'.format(n)) as f:
                 data = f.read()
-                data = re.sub("scale factor", "1.0", data)
+                data = re.sub("scale factor", "1", data)
+                data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
                 sub_structure = Poscar.from_string(data, species).structure
 
                 #Enumeration may have resulted in a super lattice. We need to

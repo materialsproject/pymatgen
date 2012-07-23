@@ -281,6 +281,7 @@ class CifWriter:
         with open(filename, 'w') as f:
             f.write(self.__str__())
 
+
 def around_diff_num(a, b):
     """
     Used to compare differences in fractional coordinates, taking into account
