@@ -551,7 +551,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         for species in sites_to_order.values():
             initial_sp = None
-            sorted_keys = sorted(species.keys(), key=lambda x: x is not None and -abs(x.oxi_state) or 1000)
+            sorted_keys = sorted(species.keys(),
+                    key=lambda x: x is not None and -abs(x.oxi_state) or 1000)
             for sp in sorted_keys:
                 if initial_sp is None:
                     initial_sp = sp
@@ -584,7 +585,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         manipulation[2].append(site[1])
 
                     if abs(manipulation[1] - round(manipulation[1])) > .25: #if the # of atoms to remove isn't within .25 of an integer
-                        raise ValueError('Occupancy fractions not consistent with size of unit cell')
+                        raise ValueError('Occupancy fractions not consistent '
+                                        'with size of unit cell')
 
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
@@ -675,7 +677,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
-        grouped_sites = [list(group) for k, group in itertools.groupby(sites, key=lambda site: site.species_string)]
+        grouped_sites = [list(group) for k, group in itertools.groupby(sites,
+                                        key=lambda site: site.species_string)]
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         x = min_site_list[0]
@@ -771,7 +774,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
         new_lattice = Lattice(matrix)
 
         new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords, coords_are_cartesian=True)
+                                      structure.cart_coords,
+                                      coords_are_cartesian=True)
         return new_structure
 
     def apply_transformation(self, structure):
@@ -917,7 +921,8 @@ class SuperTransformation(AbstractTransformation):
             raise ValueError('SuperTransformation has no single best structure output. Must use return_ranked_list')
         structures = []
         for t in self._transformations:
-            structures.append({'transformation': t, 'structure': t.apply_transformation(structure)})
+            structures.append({'transformation': t,
+                               'structure': t.apply_transformation(structure)})
 
         return structures
 
@@ -1337,6 +1342,123 @@ class SymmOrderStructureTransformation(AbstractTransformation):
     def to_dict(self):
         d = {'name' : self.__class__.__name__, 'version': __version__}
         d['init_args'] = {'symm_prec' : self.symm_prec}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+
+class EnumerateStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure using enumlib. For complete orderings, this
+    generally produces fewer structures that the OrderDisorderedStructure
+    transformation, and at a much faster speed.
+    
+    .. note:: Early alpha, and not completely tested.
+    """
+
+    def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1):
+        '''
+        Args:
+            min_cell_size:
+                The minimum cell size wanted. Must be an int. Defaults to 1.
+            max_cell_size:
+                The maximum cell size wanted. Must be an int. Defaults to 1.
+            symm_prec:
+                Tolerance to use for symmetry
+        '''
+        self.symm_prec = symm_prec
+        self.min_cell_size = min_cell_size
+        self.max_cell_size = max_cell_size
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Return either a single ordered structure or a sequence of all ordered
+        structures.
+        
+        Args:
+            structure:
+                Structure to order. The disorder in the structure must
+                correspond to integer occupations within a certain tolerance.
+                Otherwise, the code will abort. TODO: Add auto-scaling of
+                compositions to reasonable limits.
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            the key 'transformation' is reserved for the transformation that
+            was actually applied to the structure. This transformation is
+            parsed by the alchemy classes for generating a more specific
+            transformation history. Any other information will
+            be stored in the transformation_parameters dictionary in the 
+            transmuted structure class.
+            
+            The list of ordered structures is ranked by symmetry, with highest
+            symmetry structure (with the highest international number) ranked
+            first.
+        """
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+        from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+        adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
+                                 max_cell_size=self.max_cell_size,
+                                 symm_prec=self.symm_prec)
+        adaptor.run()
+        structures = adaptor.structures
+        original_latt = structure.lattice
+        ewald_matrices = {}
+        all_structures = []
+        for s in structures:
+            new_latt = s.lattice
+            transformation = np.dot(new_latt.matrix,
+                                    np.linalg.inv(original_latt.matrix))
+            transformation = tuple([tuple([int(round(cell)) for cell in row])\
+                                    for row in transformation])
+            if transformation not in ewald_matrices:
+                maker = SupercellMaker(structure, transformation)
+                ewald = EwaldSummation(maker.modified_structure)
+                ewald_matrices[transformation] = ewald
+            else:
+                ewald = ewald_matrices[transformation]
+            energy = ewald.compute_sub_structure(s)
+            all_structures.append({'num_sites':len(s), 'energy':energy,
+                                   'structure':s})
+
+        def sort_func(s):
+            return s['energy'] / s['num_sites']
+        self._all_structures = sorted(all_structures, key=sort_func)
+
+        if return_ranked_list:
+            return self._all_structures[0:num_to_return]
+        else:
+            return self._all_structures[0]['structure']
+
+    def __str__(self):
+        return "EnumerateStructureTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'symm_prec' : self.symm_prec,
+                          'min_cell_size': self.min_cell_size,
+                          'max_cell_size': self.max_cell_size}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
