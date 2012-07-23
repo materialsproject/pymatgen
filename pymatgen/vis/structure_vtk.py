@@ -25,6 +25,7 @@ import vtk
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure_modifier import SupercellMaker
+from pymatgen.core.structure import Structure
 
 
 class StructureVis(object):
@@ -212,6 +213,8 @@ class StructureVis(object):
         self.ren.RemoveAllViewProps()
         m = SupercellMaker(structure, self.supercell)
         s = m.modified_structure
+        all_sites = [site.to_unit_cell for site in s]
+        s = Structure.from_sites(all_sites)
 
         inc_coords = []
         for site in s:
@@ -320,6 +323,7 @@ class StructureVis(object):
         start_angle = 0
         radius = 0
         total_occu = 0
+
 
         for specie, occu in site.species_and_occu.items():
             radius += occu * (specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius)
