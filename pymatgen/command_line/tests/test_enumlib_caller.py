@@ -16,16 +16,26 @@ __date__ = "Jul 22, 2012"
 import unittest
 import os
 
+from nose.exc import SkipTest
+
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import __file__, Element, Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.util.io_utils import which
+
+
+if which('multienum.x') and which('makestr.x'):
+    enumlib_present = True
+else:
+    enumlib_present = False
 
 
 class EnumlibAdaptorTest(unittest.TestCase):
 
     def test_init(self):
-
+        if not enumlib_present:
+            raise SkipTest("enumlib not present. Skipping...")
         test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))

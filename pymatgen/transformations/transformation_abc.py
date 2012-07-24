@@ -71,7 +71,9 @@ class AbstractTransformation(MSONable):
 
     @staticmethod
     def from_dict(d):
-        for trans_modules in ['standard_transformations', 'site_transformations']:
+        for trans_modules in ['standard_transformations',
+                              'site_transformations',
+                              'advanced_transformations']:
             mod = __import__('pymatgen.transformations.' + trans_modules, globals(), locals(), [d['name']], -1)
             if hasattr(mod, d['name']):
                 trans = getattr(mod, d['name'])
