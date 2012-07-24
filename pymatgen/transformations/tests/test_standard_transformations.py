@@ -358,6 +358,17 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             alls = enum_trans.apply_transformation(s, 100)
             self.assertEquals(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
+            for s in alls:
+                self.assertIn("energy", s)
+
+        #make sure it works for non-oxidation state decorated structure
+        trans = SubstitutionTransformation({'Fe': {'Fe':0.5}})
+        s = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(s, 100)
+        self.assertEquals(len(alls), 3)
+        self.assertIsInstance(trans.apply_transformation(s), Structure)
+        for s in alls:
+            self.assertNotIn("energy", s)
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
