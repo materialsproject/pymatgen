@@ -52,7 +52,10 @@ Latest Change Log (v2.1.0dev)
    do not have elements as their terminal points.
 2. Spglib is now completely integrated as part of the setup.py installation.
 3. Major (but completely backwards compatible) refactoring of sites and vaspio.
-4. Miscellaneous bug fixes and speed improvements.
+4. Added a EnumerateStructureTransformation with optional dependency on the enum
+   library by Gus Hart. This provides a robust way to enumerate derivative
+   structures,
+5. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
