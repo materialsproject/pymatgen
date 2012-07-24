@@ -22,7 +22,7 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
-
+from pymatgen.util.coord_utils import coords_to_unit_cell
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
     '''
@@ -364,8 +364,8 @@ class PeriodicSite(Site, MSONable):
         """
         Copy of PeriodicSite translated to the unit cell.
         """
-        fcoords = [i - math.floor(i) for i in self._fcoords]
-        return PeriodicSite(self._species, fcoords, self._lattice,
+        return PeriodicSite(self._species, coords_to_unit_cell(self._fcoords),
+                            self._lattice,
                             properties=self._properties)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):

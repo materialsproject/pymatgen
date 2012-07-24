@@ -54,7 +54,7 @@ class SymmetryFinder(object):
 
         #Spglib's convention for the lattice definition is the transpose of the
         #pymatgen version.
-        self._transposed_latt = structure.lattice.matrix.transpose()
+        self._transposed_latt = structure.lattice.matrix.transpose().astype(float)
         self._positions = np.array([site.frac_coords for site in structure])
         unique_species = []
         zs = []
@@ -66,10 +66,8 @@ class SymmetryFinder(object):
             except ValueError:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
-
         self._unique_species = unique_species
         self._numbers = np.array(zs)
-
         self._spacegroup_data = spg.spacegroup(self._transposed_latt.copy(),
                                                self._positions.copy(),
                                                self._numbers, self._symprec,
@@ -303,5 +301,4 @@ def get_pointgroup(rotations):
         rotations = np.int_(rotations)
     # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
-
 
