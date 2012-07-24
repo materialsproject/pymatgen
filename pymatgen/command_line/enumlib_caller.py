@@ -55,6 +55,10 @@ logger = logging.getLogger(__name__)
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
+    
+    .. attribute:: structures
+    
+        List of all enumerated structures.
     """
     amount_tol = 1e-5
 
@@ -90,7 +94,10 @@ class EnumlibAdaptor(object):
             #Perform the actual enumeration
             num_structs = self._run_multienum(temp_dir)
             #Read in the enumeration output as structures.
-            self.structures = self._get_structures(temp_dir, num_structs)
+            if num_structs > 0:
+                self.structures = self._get_structures(temp_dir, num_structs)
+            else:
+                raise ValueError("Unable to enumerate structure.")
         except Exception as ex:
             import sys, traceback
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -205,32 +212,45 @@ class EnumlibAdaptor(object):
                                'struct_enum.out', str(0), str(num_structs - 1)],
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
-        output = rs.communicate()
+        rs.communicate()
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             ordered_structure = Structure.from_sites(self.ordered_sites)
-        species = [self.index_species[i] for i in xrange(len(self.index_species))]
+
         for n in range(1, num_structs + 1):
             with open('vasp.{:06d}'.format(n)) as f:
                 data = f.read()
                 data = re.sub("scale factor", "1", data)
                 data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
-                sub_structure = Poscar.from_string(data, species).structure
+                sub_structure = Poscar.from_string(data, self.index_species).structure
 
                 #Enumeration may have resulted in a super lattice. We need to
                 #find the mapping from the new lattice to the old lattice, and
                 #perform supercell construction if necessary.
                 new_latt = sub_structure.lattice
-                transformation = np.dot(new_latt.matrix, np.linalg.inv(original_latt.matrix))
-                transformation = [[int(round(cell)) for cell in row] for row in transformation]
-                logger.debug("Supercell matrix: {}".format(transformation))
-                maker = SupercellMaker(ordered_structure, transformation)
-                sites = [site for site in maker.modified_structure]
-                super_latt = sites[-1].lattice
+
+                sites = []
+
+                if len(self.ordered_sites) > 0:
+                    transformation = np.dot(new_latt.matrix,
+                                            np.linalg.inv(original_latt.matrix))
+                    transformation = [[int(round(cell)) for cell in row] \
+                                      for row in transformation]
+                    logger.debug("Supercell matrix: {}".format(transformation))
+                    maker = SupercellMaker(ordered_structure, transformation)
+                    sites.extend([site.to_unit_cell \
+                                  for site in maker.modified_structure])
+                    super_latt = sites[-1].lattice
+                else:
+                    super_latt = new_latt
+
                 for site in sub_structure:
                     if site.specie.symbol != "X": #We exclude vacancies.
-                        sites.append(PeriodicSite(site.species_and_occu, site.frac_coords, super_latt))
-                structs.append(Structure.from_sites(sites))
-        logger.debug("Read in a total of " + str(num_structs) + " structures.")
+                        sites.append(PeriodicSite(site.species_and_occu,
+                                                  site.frac_coords,
+                                                  super_latt).to_unit_cell)
+                structs.append(Structure.from_sites(sorted(sites)))
+        logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
 

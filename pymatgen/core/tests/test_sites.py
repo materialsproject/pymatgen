@@ -131,6 +131,12 @@ class PeriodicSiteTest(unittest.TestCase):
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, site3.species_and_occu)
 
+    def test_to_unit_cell(self):
+        site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
+        site = site.to_unit_cell
+        val = [0.25, 0.35, 0.46]
+        self.assertTrue(np.allclose(site.frac_coords, val))
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

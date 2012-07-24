@@ -17,7 +17,7 @@ import unittest
 import os
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
-from pymatgen import __file__, Element
+from pymatgen import __file__, Element, Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
@@ -45,6 +45,13 @@ class EnumlibAdaptorTest(unittest.TestCase):
         self.assertEqual(len(structures), 1)
         for s in structures:
             self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.25 / 6.25)
+
+        #Make sure it works for completely disordered structures.
+        struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{'Fe':0.5}],
+                           [[0, 0, 0]])
+        adaptor = EnumlibAdaptor(struct, 1, 2)
+        adaptor.run()
+        self.assertEqual(len(adaptor.structures), 3)
 
 
 if __name__ == '__main__':
