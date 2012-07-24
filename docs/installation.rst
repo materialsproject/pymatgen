@@ -45,7 +45,15 @@ the moment) required only for certain features.
    qconvex and qvoronoi must be in the path.Get it at http://www.qhull.org/.
 2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
-
+3. enum : Needed for the use of EnumerateStructureTransformation and the
+   pymatgen.command_line.enumlib_caller module. This library by Gus Hart
+   provides a robust way to enumerate derivative structures. It can be used to
+   completely enumerate all symmetrically distinct ordered structures of
+   disordered structures via the EnumerateStructureTransformation. The
+   multienum.x and makestr.x executables must be in the path. Get it at
+   http://enum.sourceforge.org and follow the instructions to compile
+   multienum.x and makestr.x.
+   
 POTCAR Setup for Users
 ======================
 

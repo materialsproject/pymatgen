@@ -78,7 +78,14 @@ the moment) required only for certain features.
    path.
 2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies 
    (structure_vtk.py).  The executable ffmpeg must be in the path.
-
+3. [enum](http://enum.sourceforge.org) : Needed for the use of
+   EnumerateStructureTransformation and the pymatgen.command_line.enumlib_caller
+   module. This library by Gus Hart provides a robust way to enumerate
+   derivative structures. It can be used to completely enumerate all
+   symmetrically distinct ordered structures of disordered structures via the
+   EnumerateStructureTransformation. The multienum.x and makestr.x executables
+   must be in the path.
+   
 ## Basic Setup for Non-developers ##
 
 If you are using pymatgen purely as a library and do not intend to contribute
