@@ -16,6 +16,7 @@ import gzip
 import bz2
 import re
 import numpy
+import os
 
 
 def file_open_zip_aware(filename, *args, **kwargs):
@@ -173,3 +174,23 @@ def clean_json(input_json, strict=False):
                 return 'None'
             else:
                 return clean_json(input_json.to_dict, strict=strict)
+
+
+def which(program):
+    """
+    Returns full path to a executable.
+    """
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None

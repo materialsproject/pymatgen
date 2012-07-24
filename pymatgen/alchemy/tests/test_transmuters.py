@@ -16,7 +16,8 @@ __date__ = "Mar 5, 2012"
 import unittest
 import os
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation, SuperTransformation
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation
+from pymatgen.transformations.advanced_transformations import SuperTransformation
 
 import pymatgen
 test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
