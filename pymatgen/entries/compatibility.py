@@ -18,7 +18,7 @@ import os
 import ConfigParser
 from collections import defaultdict
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
 from pymatgen.io.vaspio_set import VaspInputSet
 
@@ -71,6 +71,17 @@ class Compatibility(EntryPostProcessor):
         if compat_type == "GGA":
             self._u_corrections = {}
             self._u_settings = {}
+
+    def requires_hubbard(self, comp):
+        comp = Composition(comp)
+        elements = sorted([el for el in comp.elements if comp[el] > 0],
+                              key=lambda el: el.X)
+        most_electroneg = elements[-1].symbol
+
+        usettings = self._u_settings.get(most_electroneg, {})
+
+        return any([usettings.get(el.symbol, 0) for el in comp.elements])
+
 
     def process_entry(self, entry):
         """

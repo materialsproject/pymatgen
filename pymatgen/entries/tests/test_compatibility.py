@@ -63,6 +63,13 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertEqual(entry.structureid, -8)
         self.assertAlmostEqual(entry.energy, -4.22986844926)
 
+    def test_requires_hubbard(self):
+        compat = MaterialsProjectCompatibility()
+        self.assertTrue(compat.requires_hubbard("Fe2O3"))
+        self.assertTrue(compat.requires_hubbard("FeSO4"))
+        self.assertFalse(compat.requires_hubbard("FeS2"))
+        self.assertFalse(compat.requires_hubbard("Li2O"))
+
 
 class MITCompatibilityTest(unittest.TestCase):
 
@@ -107,6 +114,12 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertEqual(entry.structureid, -8)
         self.assertAlmostEqual(entry.energy, -4.25915626315)
 
+    def test_requires_hubbard(self):
+        compat = MITCompatibility()
+        self.assertTrue(compat.requires_hubbard("Fe2O3"))
+        self.assertTrue(compat.requires_hubbard("FeSO4"))
+        self.assertTrue(compat.requires_hubbard("FeS2"))
+        self.assertFalse(compat.requires_hubbard("Li2O"))
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
