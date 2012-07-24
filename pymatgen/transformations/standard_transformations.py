@@ -657,6 +657,131 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return self._all_structures[0]['structure']
 
 
+class EnumerateStructureTransformation(AbstractTransformation):
+    """
+    Order a disordered structure using enumlib. For complete orderings, this
+    generally produces fewer structures that the OrderDisorderedStructure
+    transformation, and at a much faster speed.
+    
+    .. note:: Early alpha, and not completely tested.
+    """
+
+    def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1):
+        '''
+        Args:
+            min_cell_size:
+                The minimum cell size wanted. Must be an int. Defaults to 1.
+            max_cell_size:
+                The maximum cell size wanted. Must be an int. Defaults to 1.
+            symm_prec:
+                Tolerance to use for symmetry.
+        '''
+        self.symm_prec = symm_prec
+        self.min_cell_size = min_cell_size
+        self.max_cell_size = max_cell_size
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        """
+        Return either a single ordered structure or a sequence of all ordered
+        structures.
+        
+        Args:
+            structure:
+                Structure to order. 
+            return_ranked_list:
+                Boolean stating whether or not multiple structures are
+                returned. If return_ranked_list is a number, that number of
+                structures is returned.
+                
+        Returns:
+            Depending on returned_ranked list, either a transformed structure 
+            or a list of dictionaries, where each dictionary is of the form 
+            {'structure' = .... , 'other_arguments'}
+            
+            The list of ordered structures is ranked by ewald energy / atom, if
+            the input structure is an oxidation state decorated structure.
+            Otherwise, it is ranked by number of sites, with smallest number of
+            sites first.
+        """
+        try:
+            num_to_return = int(return_ranked_list)
+        except:
+            num_to_return = 1
+
+        if structure.is_ordered:
+            raise ValueError("Enumeration can be carried out only on "
+                             "disordered structures!")
+
+        contains_oxidation_state = True
+        for sp in structure.composition.elements:
+            if not hasattr(sp, "oxi_state"):
+                contains_oxidation_state = False
+                break
+
+        adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
+                                 max_cell_size=self.max_cell_size,
+                                 symm_prec=self.symm_prec)
+
+        adaptor.run()
+        structures = adaptor.structures
+        original_latt = structure.lattice
+        inv_latt = np.linalg.inv(original_latt.matrix)
+        ewald_matrices = {}
+        all_structures = []
+        for s in structures:
+            new_latt = s.lattice
+            transformation = np.dot(new_latt.matrix, inv_latt)
+            transformation = tuple([tuple([int(round(cell)) for cell in row])\
+                                    for row in transformation])
+            if contains_oxidation_state:
+                if transformation not in ewald_matrices:
+                    maker = SupercellMaker(structure, transformation)
+                    ewald = EwaldSummation(maker.modified_structure)
+                    ewald_matrices[transformation] = ewald
+                else:
+                    ewald = ewald_matrices[transformation]
+                energy = ewald.compute_sub_structure(s)
+                all_structures.append({'num_sites':len(s), 'energy':energy,
+                                       'structure':s})
+            else:
+                all_structures.append({'num_sites':len(s), 'structure':s})
+
+        def sort_func(s):
+            return s['energy'] / s['num_sites'] if contains_oxidation_state \
+                else s['num_sites']
+
+        self._all_structures = sorted(all_structures, key=sort_func)
+
+        if return_ranked_list:
+            return self._all_structures[0:num_to_return]
+        else:
+            return self._all_structures[0]['structure']
+
+    def __str__(self):
+        return "EnumerateStructureTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        d = {'name' : self.__class__.__name__, 'version': __version__}
+        d['init_args'] = {'symm_prec' : self.symm_prec,
+                          'min_cell_size': self.min_cell_size,
+                          'max_cell_size': self.max_cell_size}
+        d['module'] = self.__class__.__module__
+        d['class'] = self.__class__.__name__
+        return d
+
+
 class PrimitiveCellTransformation(AbstractTransformation):
     """
     This class finds the primitive cell of the input structure. 
@@ -1065,131 +1190,6 @@ class MultipleSubstitutionTransformation(object):
                           'r_fraction' : self._r_fraction,
                           'substitution_dict' : self._substitution_dict,
                         'charge_balance_species' : self._charge_balance_species}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        return d
-
-
-class EnumerateStructureTransformation(AbstractTransformation):
-    """
-    Order a disordered structure using enumlib. For complete orderings, this
-    generally produces fewer structures that the OrderDisorderedStructure
-    transformation, and at a much faster speed.
-    
-    .. note:: Early alpha, and not completely tested.
-    """
-
-    def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1):
-        '''
-        Args:
-            min_cell_size:
-                The minimum cell size wanted. Must be an int. Defaults to 1.
-            max_cell_size:
-                The maximum cell size wanted. Must be an int. Defaults to 1.
-            symm_prec:
-                Tolerance to use for symmetry.
-        '''
-        self.symm_prec = symm_prec
-        self.min_cell_size = min_cell_size
-        self.max_cell_size = max_cell_size
-
-    def apply_transformation(self, structure, return_ranked_list=False):
-        """
-        Return either a single ordered structure or a sequence of all ordered
-        structures.
-        
-        Args:
-            structure:
-                Structure to order. 
-            return_ranked_list:
-                Boolean stating whether or not multiple structures are
-                returned. If return_ranked_list is a number, that number of
-                structures is returned.
-                
-        Returns:
-            Depending on returned_ranked list, either a transformed structure 
-            or a list of dictionaries, where each dictionary is of the form 
-            {'structure' = .... , 'other_arguments'}
-            
-            The list of ordered structures is ranked by ewald energy / atom, if
-            the input structure is an oxidation state decorated structure.
-            Otherwise, it is ranked by number of sites, with smallest number of
-            sites first.
-        """
-        try:
-            num_to_return = int(return_ranked_list)
-        except:
-            num_to_return = 1
-
-        if structure.is_ordered:
-            raise ValueError("Enumeration can be carried out only on "
-                             "disordered structures!")
-
-        contains_oxidation_state = True
-        for sp in structure.composition.elements:
-            if not hasattr("oxi_state", sp):
-                contains_oxidation_state = False
-                break
-
-        adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
-                                 max_cell_size=self.max_cell_size,
-                                 symm_prec=self.symm_prec)
-
-        adaptor.run()
-        structures = adaptor.structures
-        original_latt = structure.lattice
-        inv_latt = np.linalg.inv(original_latt.matrix)
-        ewald_matrices = {}
-        all_structures = []
-        for s in structures:
-            new_latt = s.lattice
-            transformation = np.dot(new_latt.matrix, inv_latt)
-            transformation = tuple([tuple([int(round(cell)) for cell in row])\
-                                    for row in transformation])
-            if contains_oxidation_state:
-                if transformation not in ewald_matrices:
-                    maker = SupercellMaker(structure, transformation)
-                    ewald = EwaldSummation(maker.modified_structure)
-                    ewald_matrices[transformation] = ewald
-                else:
-                    ewald = ewald_matrices[transformation]
-                energy = ewald.compute_sub_structure(s)
-                all_structures.append({'num_sites':len(s), 'energy':energy,
-                                       'structure':s})
-            else:
-                all_structures.append({'num_sites':len(s), 'structure':s})
-
-        def sort_func(s):
-            return s['energy'] / s['num_sites'] if contains_oxidation_state \
-                else s['num_sites']
-
-        self._all_structures = sorted(all_structures, key=sort_func)
-
-        if return_ranked_list:
-            return self._all_structures[0:num_to_return]
-        else:
-            return self._all_structures[0]['structure']
-
-    def __str__(self):
-        return "EnumerateStructureTransformation"
-
-    def __repr__(self):
-        return self.__str__()
-
-    @property
-    def inverse(self):
-        return None
-
-    @property
-    def is_one_to_many(self):
-        return True
-
-    @property
-    def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'symm_prec' : self.symm_prec,
-                          'min_cell_size': self.min_cell_size,
-                          'max_cell_size': self.max_cell_size}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d

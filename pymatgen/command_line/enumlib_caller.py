@@ -222,8 +222,8 @@ class EnumlibAdaptor(object):
                 data = f.read()
                 data = re.sub("scale factor", "1", data)
                 data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
-                sub_structure = Poscar.from_string(data, self.index_species).structure
-
+                poscar = Poscar.from_string(data, self.index_species)
+                sub_structure = poscar.structure
                 #Enumeration may have resulted in a super lattice. We need to
                 #find the mapping from the new lattice to the old lattice, and
                 #perform supercell construction if necessary.
@@ -250,6 +250,7 @@ class EnumlibAdaptor(object):
                                                   site.frac_coords,
                                                   super_latt).to_unit_cell)
                 structs.append(Structure.from_sites(sorted(sites)))
+
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
 
