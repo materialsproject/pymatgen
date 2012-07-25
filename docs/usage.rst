@@ -369,7 +369,7 @@ Usage example - replace Fe with Mn and remove all Li in all structures:
    trans.append(SubstitutionTransformation({"Fe":"Mn"}))
    trans.append(RemoveSpecieTransformation(["Lu"]))
    transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
-   structures = transmuter.get_transformed_structures()
+   structures = transmuter.transformed_structures
 
 pymatgen.matproj.rest - Integration with the Materials Project REST API
 =======================================================================

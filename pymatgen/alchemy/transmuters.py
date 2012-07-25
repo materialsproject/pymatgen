@@ -30,6 +30,10 @@ class StandardTransmuter(object):
     """
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
+    
+    .. attribute: transformed_structures
+    
+        List of all transformed structures.
     """
 
     def __init__(self, transformed_structures, transformations=[],
@@ -45,21 +49,25 @@ class StandardTransmuter(object):
                 transformations. extend_collection can be a number, which
                 determines the maximum branching for each transformation.
         """
-        self._transformed_structures = transformed_structures
+        self.transformed_structures = transformed_structures
         for trans in transformations:
-            self.append_transformation(trans, extend_collection=extend_collection)
+            self.append_transformation(trans,
+                                       extend_collection=extend_collection)
 
     def get_transformed_structures(self):
         """
         Returns all TransformedStructures.
         """
-        return self._transformed_structures
+        import warnings
+        warnings.warn("Use transformed_structures attribute instead",
+                      DeprecationWarning)
+        return self.transformed_structures
 
     def __getitem__(self, index):
-        return self._transformed_structures[index]
+        return self.transformed_structures[index]
 
     def __getattr__(self, name):
-        return [getattr(x, name) for x in self._transformed_structures]
+        return [getattr(x, name) for x in self.transformed_structures]
 
     def undo_last_transformation(self):
         """
@@ -68,7 +76,7 @@ class StandardTransmuter(object):
         Raises:
             IndexError if already at the oldest change.
         """
-        for x in self._transformed_structures:
+        for x in self.transformed_structures:
             x.undo_last_transformation()
 
     def redo_next_transformation(self):
@@ -78,11 +86,11 @@ class StandardTransmuter(object):
         Raises:
             IndexError if already at the latest change.
         """
-        for x in self._transformed_structures:
+        for x in self.transformed_structures:
             x.redo_next_transformation()
 
     def __len__(self):
-        return len(self._transformed_structures)
+        return len(self.transformed_structures)
 
     def append_transformation(self, transformation, extend_collection=False,
                               clear_redo=True):
@@ -109,12 +117,12 @@ class StandardTransmuter(object):
         """
         new_structures = []
 
-        for x in self._transformed_structures:
+        for x in self.transformed_structures:
             new = x.append_transformation(transformation, return_alternatives=extend_collection)
             if new is not None:
                 new_structures.extend(new)
 
-        self._transformed_structures.extend(new_structures)
+        self.transformed_structures.extend(new_structures)
 
     def extend_transformations(self, transformations):
         """
@@ -145,16 +153,17 @@ class StandardTransmuter(object):
                 function to create subdirectory name from transformed_structure.
                 eg. lambda x: x.other_parameters['tags'][0] to use the first tag
         """
-        batch_write_vasp_input(self._transformed_structures, vasp_input_set, output_dir, create_directory, subfolder)
+        batch_write_vasp_input(self.transformed_structures, vasp_input_set,
+                               output_dir, create_directory, subfolder)
 
     def set_parameter(self, key, value):
-        for x in self._transformed_structures:
+        for x in self.transformed_structures:
             x.set_parameter(key, value)
 
     def __str__(self):
         output = ["Current structures"]
         output.append("------------")
-        for x in self._transformed_structures:
+        for x in self.transformed_structures:
             output.append(str(x._structures[-1]))
         return "\n".join(output)
 
@@ -168,11 +177,11 @@ class StandardTransmuter(object):
                 A list of transformed structures or a transmuter.
         '''
         if isinstance(tstructs_or_transmuter, self.__class__):
-            self._transformed_structures.extend(tstructs_or_transmuter._transformed_structures)
+            self.transformed_structures.extend(tstructs_or_transmuter.transformed_structures)
         else:
             for ts in tstructs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
-            self._transformed_structures.extend(tstructs_or_transmuter)
+            self.transformed_structures.extend(tstructs_or_transmuter)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -204,8 +213,12 @@ class CifTransmuter(StandardTransmuter):
                 read_data = True
             if read_data:
                 structure_data[-1].append(line)
-        transformed_structures.extend([TransformedStructure.from_cif_string("\n".join(data), [], primitive) for data in structure_data])
-        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection)
+        for data in structure_data:
+            tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
+                                                           primitive)
+            transformed_structures.append(tstruct)
+        StandardTransmuter.__init__(self, transformed_structures,
+                                    transformations, extend_collection)
 
     @staticmethod
     def from_filenames(filenames, transformations=[], primitive=True,
@@ -230,7 +243,9 @@ class CifTransmuter(StandardTransmuter):
         for fname in filenames:
             with open(fname, "r") as f:
                 allcifs.append(f.read())
-        return CifTransmuter("\n".join(allcifs), transformations, primitive=primitive, extend_collection=extend_collection)
+        return CifTransmuter("\n".join(allcifs), transformations,
+                             primitive=primitive,
+                             extend_collection=extend_collection)
 
 
 class PoscarTransmuter(StandardTransmuter):
@@ -251,9 +266,10 @@ class PoscarTransmuter(StandardTransmuter):
                 Whether to use more than one output structure from one-to-many
                 transformations.
         """
-        transformed_structures = []
-        transformed_structures.append(TransformedStructure.from_poscar_string(poscar_string, []))
-        StandardTransmuter.__init__(self, transformed_structures, transformations, extend_collection=extend_collection)
+        tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
+        StandardTransmuter.__init__(self, [tstruct],
+                                    transformations,
+                                    extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=[],
@@ -261,14 +277,17 @@ class PoscarTransmuter(StandardTransmuter):
         transformed_structures = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                transformed_structures.append(TransformedStructure.from_poscar_string(f.read(), []))
-        return StandardTransmuter(transformed_structures, transformations, extend_collection=extend_collection)
+                tstruct = TransformedStructure.from_poscar_string(f.read(), [])
+                transformed_structures.append(tstruct)
+        return StandardTransmuter(transformed_structures, transformations,
+                                  extend_collection=extend_collection)
 
 
-def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, create_directory=True, subfolder=None):
+def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
+                           create_directory=True, subfolder=None):
     """
-    Batch write vasp input for a sequence of transformed structures to output_dir,
-    following the format output_dir/{group}/{formula}_{number}.
+    Batch write vasp input for a sequence of transformed structures to 
+    output_dir, following the format output_dir/{group}/{formula}_{number}.
     
     Args:
         transformed_structures:
@@ -289,8 +308,10 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir, c
         formula = re.sub("\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir, '{}_{}'.format(formula, dnames_count[subdir + formula] + 1))
+            dirname = os.path.join(output_dir, subdir, '{}_{}'.format(formula,
+                                           dnames_count[subdir + formula] + 1))
         else:
-            dirname = os.path.join(output_dir, '{}_{}'.format(formula, dnames_count[formula] + 1))
+            dirname = os.path.join(output_dir, '{}_{}'.format(formula,
+                                                    dnames_count[formula] + 1))
         s.write_vasp_input(vasp_input_set, dirname, create_directory=True)
         dnames_count[formula] += 1
