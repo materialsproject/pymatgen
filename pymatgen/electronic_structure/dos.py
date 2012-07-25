@@ -56,12 +56,15 @@ class Dos(MSONable):
 
     def get_densities(self, spin=None):
         """
-        Returns the density of states for a particular spin. If Spin is None,
-        the sum of both Spin.up and Spin.down (if they exist) is returned.
+        Returns the density of states for a particular spin.
         
         Args:
             spin:
                 Spin
+                
+        Returns:
+            Returns the density of states for a particular spin. If Spin is
+            None, the sum of all spins is returned.
         """
         if self.densities == None:
             result = None
@@ -83,6 +86,9 @@ class Dos(MSONable):
         Args:
             sigma:
                 Std dev of Gaussian smearing function.
+                
+        Returns:
+            Dict of Gaussian-smeared densities.
         """
         from scipy.ndimage.filters import gaussian_filter1d
         smeared_dens = {}
@@ -258,7 +264,16 @@ class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
     Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
-    a vasprun.xml file. You are unlikely to try to generate this object manually.
+    a vasprun.xml file. You are unlikely to try to generate this object
+    manually.
+    
+    .. attribute:: structure
+
+        Structure associated with the CompleteDos.
+    
+    .. attribute:: pdos
+        
+        Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
 
     def __init__(self, structure, total_dos, pdoss):
@@ -274,19 +289,8 @@ class CompleteDos(Dos):
         self.efermi = total_dos.efermi
         self.energies = total_dos.energies
         self.densities = total_dos.densities
-        self._pdos = pdoss
-        self._structure = structure
-
-    @property
-    def pdos(self):
-        return self._pdos
-
-    @property
-    def structure(self):
-        """
-        Structure associated with the CompleteDos.
-        """
-        return self._structure
+        self.pdos = pdoss
+        self.structure = structure
 
     def get_site_orbital_dos(self, site, orbital):
         """
@@ -301,7 +305,7 @@ class CompleteDos(Dos):
         Returns:
             Dos containing densities for orbital of site.
         """
-        return Dos(self.efermi, self.energies, self._pdos[site][orbital])
+        return Dos(self.efermi, self.energies, self.pdos[site][orbital])
 
     def get_site_dos(self, site):
         """
@@ -315,7 +319,7 @@ class CompleteDos(Dos):
             Dos containing summed orbital densities for site.
         """
         site_dos = None
-        for pdos in self._pdos[site].values():
+        for pdos in self.pdos[site].values():
             if site_dos == None:
                 site_dos = pdos
             else:
@@ -325,7 +329,7 @@ class CompleteDos(Dos):
     def get_site_t2g_eg_resolved_dos(self, site):
         t2g_dos = []
         eg_dos = []
-        for s, atom_dos in self._pdos.items():
+        for s, atom_dos in self.pdos.items():
             if s == site:
                 for orb, pdos in atom_dos.items():
                     if orb in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
@@ -344,7 +348,7 @@ class CompleteDos(Dos):
             dict of {orbital: Dos}, e.g. {'s': Dos object, ...}
         """
         spd_dos = dict()
-        for atom_dos in self._pdos.values():
+        for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
                 orbital_type = orb.orbital_type
                 if orbital_type not in spd_dos:
@@ -362,7 +366,7 @@ class CompleteDos(Dos):
         """
 
         el_dos = dict()
-        for site, atom_dos in self._pdos.items():
+        for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
                 if el not in el_dos:
@@ -399,15 +403,15 @@ class CompleteDos(Dos):
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['efermi'] = self.efermi
-        d['structure'] = self._structure.to_dict
+        d['structure'] = self.structure.to_dict
         d['energies'] = list(self.energies)
         d['densities'] = {str(int(spin)) : list(dens) for spin,
                           dens in self.densities.items()}
         d['pdos'] = []
-        if len(self._pdos) > 0:
-            for at in self._structure:
+        if len(self.pdos) > 0:
+            for at in self.structure:
                 dd = {}
-                for orb, pdos in self._pdos[at].items():
+                for orb, pdos in self.pdos[at].items():
                     dd[str(orb)] = {'densities' : {str(int(spin)): list(dens) for spin,
                                                             dens in pdos.items() }}
                 d['pdos'].append(dd)
@@ -418,7 +422,7 @@ class CompleteDos(Dos):
         return d
 
     def __str__(self):
-        return "Complete DOS for " + str(self._structure)
+        return "Complete DOS for " + str(self.structure)
 
 
 def add_densities(density1, density2):
