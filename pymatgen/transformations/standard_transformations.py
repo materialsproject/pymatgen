@@ -29,13 +29,6 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
-from pymatgen.util.io_utils import which
-
-
-if which('multienum.x') and which('makestr.x'):
-    enumlib_present = True
-else:
-    enumlib_present = False
 
 
 logger = logging.getLogger(__name__)

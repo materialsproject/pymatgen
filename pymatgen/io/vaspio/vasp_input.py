@@ -249,7 +249,6 @@ class Poscar(VaspInput):
             lattice = (-scale / vol) ** (1 / 3) * lattice
         else:
             lattice = scale * lattice
-        lattice = Lattice(lattice)
 
         vasp5_symbols = False
         try:

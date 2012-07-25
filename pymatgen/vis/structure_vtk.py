@@ -91,12 +91,12 @@ class StructureVis(object):
             self.el_color_mapping = element_color_mapping
         else:
             module_dir = os.path.dirname(os.path.abspath(__file__))
-            self._config = ConfigParser.SafeConfigParser()
-            self._config.optionxform = str
-            self._config.readfp(open(os.path.join(module_dir, "ElementColorSchemes.cfg")))
+            config = ConfigParser.SafeConfigParser()
+            config.optionxform = str
+            config.readfp(open(os.path.join(module_dir, "ElementColorSchemes.cfg")))
 
             self.el_color_mapping = {}
-            for (el, color) in self._config.items('VESTA'):
+            for (el, color) in config.items('VESTA'):
                 self.el_color_mapping[el] = [int(i) for i in color.split(",")]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
