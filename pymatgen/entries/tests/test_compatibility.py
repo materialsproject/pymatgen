@@ -69,6 +69,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertTrue(compat.requires_hubbard("FeSO4"))
         self.assertFalse(compat.requires_hubbard("FeS2"))
         self.assertFalse(compat.requires_hubbard("Li2O"))
+        self.assertTrue(compat.requires_hubbard("FeOF"))
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -120,6 +121,8 @@ class MITCompatibilityTest(unittest.TestCase):
         self.assertTrue(compat.requires_hubbard("FeSO4"))
         self.assertTrue(compat.requires_hubbard("FeS2"))
         self.assertFalse(compat.requires_hubbard("Li2O"))
+        self.assertTrue(compat.requires_hubbard("FeOF"))
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
