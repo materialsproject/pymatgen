@@ -259,3 +259,35 @@ make it work:
 With any luck, you should have openbabel with python bindings installed. You can
 test your installation by trying to import openbabel from the python command
 line.
+
+Enumlib (tested as of version of Jul 2012)
+------------------------------------------
+
+Mac OS X 10.7
+~~~~~~~~~~~~~
+
+There does not seem to be any issues with installation as per the instructions
+given by the author. For convenience, the steps are reproduced here:
+
+::
+
+   tar -zxvf enum.tar.gz
+
+   #Compile the symmetry library. Go to the celib/trunk directory:
+   cd celib/trunk
+
+   #Set an environment variable to identify your fortran compiler
+   export F90=gfortran
+   
+   make
+
+   Next, make the enumeration library
+   cd ../../enumlib/trunk
+   make
+
+   # Make the necessary standalone executables
+   make multienum.x
+   make makestr.x
+
+After doing the above, make sure that the multienum.x and makestr.x executables
+are available in your path.
