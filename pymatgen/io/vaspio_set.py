@@ -147,7 +147,7 @@ class VaspInputSet(AbstractVaspInputSet):
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
     """
-    def __init__(self, name, config_file=None):
+    def __init__(self, name, config_file=None, user_incar_settings=None):
         """
         Args:
             name:
@@ -155,6 +155,10 @@ class VaspInputSet(AbstractVaspInputSet):
             config_file:
                 The config file to use. If None (the default), a default config
                 file containing Materials Project and MIT parameters is used.
+            user_incar:
+                User INCAR settings. This allows a user to override INCAR
+                settings, e.g., setting a different MAGMOM for various elements
+                or species.
         """
         self.name = name
         if config_file is None:
@@ -170,6 +174,8 @@ class VaspInputSet(AbstractVaspInputSet):
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             if key in self.incar_settings:
                 self.incar_settings[key] = json.loads(self.incar_settings[key])
+        self.user_incar_settings = user_incar_settings if user_incar_settings \
+                                   else {}
 
     def get_incar(self, structure):
         incar = Incar()
@@ -178,6 +184,8 @@ class VaspInputSet(AbstractVaspInputSet):
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
+            if key in self.user_incar_settings:
+                setting = self.user_incar_settings[key]
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
@@ -267,16 +275,18 @@ class MITVaspInputSet(VaspInputSet):
     2011, 50(8), 2295-2310. 
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
-    def __init__(self):
-        super(MITVaspInputSet, self).__init__("MITMatgen")
+    def __init__(self, user_incar_settings=None):
+        VaspInputSet.__init__(self, "MITMatgen",
+                              user_incar_settings=user_incar_settings)
 
 
 class MITHSEVaspInputSet(VaspInputSet):
     """
     Typical implementation of input set for a HSE run.
     """
-    def __init__(self):
-        super(MITHSEVaspInputSet, self).__init__("MITHSE")
+    def __init__(self, user_incar_settings=None):
+        VaspInputSet.__init__(self, "MITHSE",
+                              user_incar_settings=user_incar_settings)
 
 
 class MaterialsProjectVaspInputSet(VaspInputSet):
@@ -288,6 +298,7 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
     which result in different fitted values (even though the methodology of 
     fitting is exactly the same as the MIT scheme).
     """
-    def __init__(self):
-        super(MaterialsProjectVaspInputSet, self).__init__("MaterialsProject")
+    def __init__(self, user_incar_settings=None):
+        VaspInputSet.__init__(self, "MaterialsProject",
+                              user_incar_settings=user_incar_settings)
 

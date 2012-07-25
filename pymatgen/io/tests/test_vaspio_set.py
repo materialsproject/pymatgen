@@ -21,6 +21,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MaterialsProjectVaspInputSet()
+        self.userparamset = MaterialsProjectVaspInputSet({'MAGMOM':{"Fe":10,
+                                                                    "S":-5,
+                                                                    "Mn3+":100}})
 
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
@@ -86,6 +89,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         incar = self.mitparamset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4, 3])
 
+        self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
+                         [100, 0.6])
+
         #sulfide vs sulfate test
 
         coords = list()
@@ -107,6 +113,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfates are ok.
         self.assertEqual(self.paramset.get_incar(struct)['LDAUU'], [5.3, 0, 0])
+
+        self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
+                         [10, -5, 0.6])
 
 
     def test_get_kpoints(self):
