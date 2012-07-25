@@ -56,10 +56,10 @@ class Element(object):
         object.__setattr__(self, '_x', self._data.get('X', 0))
 
     def __setattr__(self, n, v):
-        raise ValueError("Element is immutable and setting of attributes is not allowed")
+        raise ValueError("Element is immutable.")
 
     def __delattr__(self, n):
-        raise ValueError("Element is immutable and deleting of attributes is not allowed")
+        raise ValueError("Element is immutable.")
 
     @property
     def average_ionic_radius(self):

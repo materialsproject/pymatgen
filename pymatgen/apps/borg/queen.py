@@ -29,9 +29,9 @@ logger = logging.getLogger("BorgQueen")
 
 class BorgQueen(object):
     """
-    The Borg Queen controls the drones to assimilate data in an entire directory
-    substructure. Uses multiprocessing to speed up things considerably. It also
-    contains convenience methods to save and load data between sessions.
+    The Borg Queen controls the drones to assimilate data in an entire 
+    directory tree. Uses multiprocessing to speed up things considerably. It
+    also contains convenience methods to save and load data between sessions.
     """
 
     def __init__(self, drone, rootpath=None, number_of_drones=1):
@@ -68,7 +68,8 @@ class BorgQueen(object):
         logger.info('Scanning for valid paths...')
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs,
+                                                            files)))
         manager = Manager()
         data = manager.list()
         status = manager.dict()
@@ -76,7 +77,8 @@ class BorgQueen(object):
         status['total'] = len(valid_paths)
         logger.info('{} valid paths found.'.format(len(valid_paths)))
         p = Pool(self._num_drones)
-        p.map(_order_assimilation, ((path, self._drone, data, status) for path in valid_paths))
+        p.map(order_assimilation, ((path, self._drone, data, status) \
+                                    for path in valid_paths))
         for d in data:
             self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
@@ -86,7 +88,8 @@ class BorgQueen(object):
         """
         valid_paths = []
         for (parent, subdirs, files) in os.walk(rootpath):
-            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
+            valid_paths.extend(self._drone.get_valid_paths((parent, subdirs,
+                                                            files)))
         data = []
         count = 0
         total = len(valid_paths)
@@ -94,7 +97,8 @@ class BorgQueen(object):
             newdata = self._drone.assimilate(path)
             self._data.append(newdata)
             count += 1
-            logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+            logger.info('{}/{} ({:.2f}%) done'.format(count, total,
+                                                      count / total * 100))
         for d in data:
             self._data.append(json.loads(d, cls=PMGJSONDecoder))
 
@@ -125,7 +129,7 @@ class BorgQueen(object):
             self._data = json.load(f, cls=PMGJSONDecoder)
 
 
-def _order_assimilation(args):
+def order_assimilation(args):
     """
     Internal helper method for BorgQueen to process assimilation
     """
@@ -136,6 +140,7 @@ def _order_assimilation(args):
     status['count'] += 1
     count = status['count']
     total = status['total']
-    logger.info('{}/{} ({:.2f}%) done'.format(count, total, count / total * 100))
+    logger.info('{}/{} ({:.2f}%) done'.format(count, total,
+                                              count / total * 100))
 
 

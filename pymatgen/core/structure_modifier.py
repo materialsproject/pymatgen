@@ -193,7 +193,8 @@ class StructureEditor(StructureModifier):
             new_site = PeriodicSite(species, coords, self._lattice,
                                     properties=properties)
         else:
-            new_site = PeriodicSite(species, self._lattice.get_fractional_coords(coords),
+            new_site = PeriodicSite(species,
+                                    self._lattice.get_fractional_coords(coords),
                                     self._lattice, properties=properties)
 
         if validate_proximity:

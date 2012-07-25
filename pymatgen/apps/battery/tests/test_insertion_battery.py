@@ -56,6 +56,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3)
         self.assertIsNotNone(self.ie_LTO.to_dict_summary(True))
 
+    def test_get_muO2(self):
+        self.assertIsNone(self.ie_LTO.get_max_muO2())
+
     def test_entries(self):
         #test that the proper number of sub-electrodes are returned
         self.assertEqual(len(self.ie_LTO.get_sub_electrodes(False, True)), 3)
