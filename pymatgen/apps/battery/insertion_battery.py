@@ -410,8 +410,8 @@ class InsertionVoltagePair(AbstractVoltagePair):
         self.decomp_e_charge = entry_charge.data['decomposition_energy'] if 'decomposition_energy' in entry_charge.data else None
         self.decomp_e_discharge = entry_discharge.data['decomposition_energy'] if 'decomposition_energy' in entry_discharge.data else None
 
-        self._muO2_charge = entry_charge.data['muO2'] if 'muO2' in entry_charge.data else None
-        self._muO2_discharge = entry_discharge.data['muO2'] if 'muO2' in entry_discharge.data else None
+        self.muO2_charge = entry_charge.data['muO2'] if 'muO2' in entry_charge.data else None
+        self.muO2_discharge = entry_discharge.data['muO2'] if 'muO2' in entry_discharge.data else None
 
         self.entry_charge = entry_charge
         self.entry_discharge = entry_discharge

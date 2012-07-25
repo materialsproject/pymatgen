@@ -24,7 +24,11 @@ class SymmOp(MSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
-    for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation
+    for efficiency. Read: http://en.wikipedia.org/wiki/Affine_transformation.
+    
+    .. attribute:: affine_matrix
+    
+        A 4x4 numpy.array representing the symmetry operation.
     """
 
     def __init__(self, affine_transformation_matrix, tol=0.01):
@@ -43,8 +47,8 @@ class SymmOp(MSONable):
         affine_transformation_matrix = np.array(affine_transformation_matrix)
         if affine_transformation_matrix.shape != (4, 4):
             raise ValueError("Affine Matrix must be a 4x4 numpy array!")
-        self._matrix = affine_transformation_matrix
-        self._tol = tol
+        self.affine_matrix = affine_transformation_matrix
+        self.tol = tol
 
     @staticmethod
     def from_rotation_matrix_and_translation_vector(rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), translation_vec=(0, 0, 0), tol=0.1):
@@ -71,7 +75,7 @@ class SymmOp(MSONable):
         return SymmOp(affine_matrix, tol)
 
     def __eq__(self, other):
-        return (abs(self._matrix - other._matrix) < self._tol).all()
+        return (abs(self.affine_matrix - other._matrix) < self.tol).all()
 
     def __hash__(self):
         return 7
@@ -81,9 +85,9 @@ class SymmOp(MSONable):
 
     def __str__(self):
         output = ["Rot:"]
-        output.append(str(self._matrix[0:3][:, 0:3]))
+        output.append(str(self.affine_matrix[0:3][:, 0:3]))
         output.append("tau")
-        output.append(str(self._matrix[0:3][:, 3]))
+        output.append(str(self.affine_matrix[0:3][:, 3]))
         return "\n".join(output)
 
     def operate(self, point):
@@ -95,7 +99,7 @@ class SymmOp(MSONable):
         """
         affine_point = np.array([point[0], point[1], point[2], 1])
         affine_point[0:3] = point
-        return np.dot(self._matrix, affine_point)[0:3]
+        return np.dot(self.affine_matrix, affine_point)[0:3]
 
     def apply_rotation_only(self, vector):
         """
@@ -124,31 +128,24 @@ class SymmOp(MSONable):
         return False
 
     @property
-    def affine_matrix(self):
-        """
-        A 4x4 numpy.array representing the symmetry operation.
-        """
-        return self._matrix
-
-    @property
     def rotation_matrix(self):
         """
         A 3x3 numpy.array representing the rotation matrix
         """
-        return self._matrix[0:3][:, 0:3]
+        return self.affine_matrix[0:3][:, 0:3]
 
     @property
     def translation_vector(self):
         """
         A rank 1 numpy.array of dim 3 representing the translation vector.
         """
-        return self._matrix[0:3][:, 3]
+        return self.affine_matrix[0:3][:, 3]
 
     def __mul__(self, other):
         """
         Returns a new SymmOp which is equivalent to apply the "other" SymmOp followed by this one.
         """
-        new_matrix = np.dot(self._matrix, other._matrix)
+        new_matrix = np.dot(self.affine_matrix, other._matrix)
         return SymmOp(new_matrix)
 
     @property
@@ -156,7 +153,7 @@ class SymmOp(MSONable):
         """
         Returns inverse of transformation.
         """
-        invr = np.linalg.inv(self._matrix)
+        invr = np.linalg.inv(self.affine_matrix)
         return SymmOp(invr)
 
     @staticmethod
@@ -238,8 +235,8 @@ class SymmOp(MSONable):
         d = {}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
-        d['matrix'] = self._matrix.tolist()
-        d['tolerance'] = self._tol
+        d['matrix'] = self.affine_matrix.tolist()
+        d['tolerance'] = self.tol
         return d
 
     @staticmethod

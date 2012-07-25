@@ -5,7 +5,7 @@ import os
 import json
 
 from pymatgen import Spin, Orbital, __file__
-from pymatgen.electronic_structure.dos import Dos, CompleteDos
+from pymatgen.electronic_structure.dos import CompleteDos
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 

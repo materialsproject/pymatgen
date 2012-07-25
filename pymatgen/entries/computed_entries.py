@@ -99,14 +99,14 @@ class ComputedEntry(PDEntry, MSONable):
 
     @property
     def to_dict(self):
-        enc = PMGJSONEncoder()
         d = {}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         d['energy'] = self.uncorrected_energy
         d['composition'] = self.composition.to_dict
         d['correction'] = self.correction
-        d['parameters'] = json.loads(json.dumps(self.parameters, cls=PMGJSONEncoder))
+        d['parameters'] = json.loads(json.dumps(self.parameters,
+                                                cls=PMGJSONEncoder))
         d['data'] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
         d['entry_id'] = self.entry_id
         return d
