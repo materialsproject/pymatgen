@@ -186,14 +186,18 @@ class TranslateSitesTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "TranslateSitesTransformation for indices {}, vector {} and vector_in_frac_coords = {}".format(self._indices, self._translation_vector, self._frac)
+        return "TranslateSitesTransformation for indices " + \
+            "{}, vector {} and vector_in_frac_coords = {}".format(self._indices,
+                                        self._translation_vector, self._frac)
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return TranslateSitesTransformation(self._indices, [-c for c in self._vector], self._frac)
+        return TranslateSitesTransformation(self._indices,
+                                            [-c for c in self._vector],
+                                            self._frac)
 
     @property
     def is_one_to_many(self):
@@ -254,8 +258,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 A list of list of indices.
                 e.g. [[0, 1], [2, 3, 4, 5]]
             fractions:
-                The corresponding fractions to remove. Must be same length as indices.
-                e.g. [0.5, 0.25]
+                The corresponding fractions to remove. Must be same length as
+                indices. e.g., [0.5, 0.25]
             algo:
                 This parameter allows you to choose the algorithm to perform
                 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
@@ -336,7 +340,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             already_tested = False
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]['energy']
-                if abs((energy - tenergy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(sites_to_remove, tsites, symprec=symprec):
+                if abs((energy - tenergy) / len(s_new)) < 1e-5 and \
+                   sg.are_symmetrically_equivalent(sites_to_remove, tsites,
+                                                   symprec=symprec):
                     already_tested = True
 
             if not already_tested:
@@ -375,7 +381,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             m_list.append([0, num, list(indices), None])
 
         self.logger.debug('Calling EwaldMinimizer...')
-        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return, PartialRemoveSitesTransformation.ALGO_FAST)
+        minimizer = EwaldMinimizer(ewaldmatrix, m_list, num_to_return,
+                                   PartialRemoveSitesTransformation.ALGO_FAST)
         self.logger.debug('Minimizing Ewald took {} seconds.'.format(time.time() - starttime))
 
         all_structures = []
@@ -393,7 +400,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            all_structures.append({'energy':output[0], 'energy_above_minimum':(output[0] - lowest_energy) / num_atoms, 'structure': se.modified_structure.get_sorted_structure()})
+            all_structures.append({'energy':output[0],
+             'energy_above_minimum':(output[0] - lowest_energy) / num_atoms,
+             'structure': se.modified_structure.get_sorted_structure()})
 
         return all_structures
 
@@ -453,7 +462,10 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return opt_s if not return_ranked_list else all_structures[0:num_to_return]
 
     def __str__(self):
-        return "PartialRemoveSitesTransformation : Indices and fraction to remove = {}, ALGO = {}".format(self._specie, self._indices_fraction_dict, self._algo)
+        return "PartialRemoveSitesTransformation : Indices and fraction to " + \
+               "remove = {}, ALGO = {}".format(self._specie,
+                                            self._indices_fraction_dict,
+                                            self._algo)
 
     def __repr__(self):
         return self.__str__()
@@ -469,7 +481,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'indices': self._indices, 'fractions': self._fractions, 'algo':self._algo}
+        d['init_args'] = {'indices': self._indices,
+                          'fractions': self._fractions, 'algo':self._algo}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d

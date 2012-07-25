@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Created on Jul 24, 2012
+This module implements more advanced transformations.
 '''
 
 from __future__ import division

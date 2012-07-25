@@ -75,7 +75,7 @@ class EnumlibAdaptor(object):
             symm_prec:
                 Symmetry precision. Defaults to 0.1.
         """
-        self._structure = structure
+        self.structure = structure
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.symm_prec = symm_prec
@@ -115,7 +115,7 @@ class EnumlibAdaptor(object):
         coord_format = "{:.6f} {:.6f} {:.6f}"
 
         # Using symmetry finder, get the symmetrically distinct sites.
-        fitter = SymmetryFinder(self._structure, self.symm_prec)
+        fitter = SymmetryFinder(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug("Spacegroup {} ({}) with {} distinct sites".format(fitter.get_spacegroup_symbol(),
                      fitter.get_spacegroup_number(), len(symmetrized_structure.equivalent_sites)))
@@ -154,16 +154,17 @@ class EnumlibAdaptor(object):
                     index_amounts.append(species[sp] * len(sites))
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
-                    coord_str.append("{} {}".format(coord_format.format(*site.coords),
-                                                    sp_label))
+                    coord_str.append("{} {}".format(
+                                        coord_format.format(*site.coords),
+                                        sp_label))
                 disordered_sites.append(sites)
 
         self.ordered_sites = ordered_sites
         self.index_species = index_species
 
-        lattice = self._structure.lattice
+        lattice = self.structure.lattice
 
-        output = [self._structure.formula]
+        output = [self.structure.formula]
         output.append('bulk')
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))

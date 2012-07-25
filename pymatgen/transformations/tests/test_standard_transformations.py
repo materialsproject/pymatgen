@@ -283,6 +283,5 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
 
 
-
 if __name__ == "__main__":
     unittest.main()

@@ -57,9 +57,14 @@ class StandardTransmuter(object):
     def get_transformed_structures(self):
         """
         Returns all TransformedStructures.
+        
+        .. deprecated:: v2.1.0
+        
+            Use transformed_structures attribute instead. Will be removed in
+            next version.
         """
         import warnings
-        warnings.warn("Use transformed_structures attribute instead",
+        warnings.warn("Use transformed_structures attribute instead.",
                       DeprecationWarning)
         return self.transformed_structures
 

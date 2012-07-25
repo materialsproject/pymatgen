@@ -41,7 +41,7 @@ __date__ = "Apr 30, 2012"
 import json
 import abc
 
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 
 
 class MSONable(object):
@@ -66,7 +66,8 @@ class MSONable(object):
         implement this static method. Abstract static methods are not
         implemented until Python 3+.
         """
-        raise NotImplementedError("MSONable objects must implement a from_dict static method.")
+        raise NotImplementedError("MSONable objects must implement a from_dict "
+                                  "static method.")
 
     @property
     def to_json(self):
@@ -84,7 +85,7 @@ class MSONable(object):
                 filename to write to. It is recommended that the file extension
                 be ".mson".
         '''
-        with file_open_zip_aware(filename, "wb") as f:
+        with zopen(filename, "wb") as f:
             json.dump(self, f, cls=PMGJSONEncoder)
 
 
@@ -108,6 +109,7 @@ class PMGJSONEncoder(json.JSONEncoder):
         except:
             return json.JSONEncoder.default(self, o)
 
+
 class PMGJSONDecoder(json.JSONDecoder):
     """
     A Pymatgen Json Decoder which supports the from_dict API. By default, the
@@ -128,13 +130,16 @@ class PMGJSONDecoder(json.JSONDecoder):
         """
         if isinstance(d, dict):
             if 'module' in d and 'class' in d:
-                mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
+                mod = __import__(d['module'], globals(), locals(),
+                                 [d['class']], -1)
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])
-                    data = {k:v for k, v in d.items() if k not in ["module", "class"]}
+                    data = {k:v for k, v in d.items() if k not in ["module",
+                                                                   "class"]}
                     if hasattr(cls, 'from_dict'):
                         return cls.from_dict(data)
-            return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
+            return {self.process_decoded(k):self.process_decoded(v) \
+                    for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
         return d
