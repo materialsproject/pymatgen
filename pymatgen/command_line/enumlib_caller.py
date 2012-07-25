@@ -40,6 +40,7 @@ import shutil
 import logging
 
 import numpy as np
+import warnings
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
@@ -104,7 +105,11 @@ class EnumlibAdaptor(object):
             traceback.print_exception(exc_type, exc_value, exc_traceback,
                               limit=2, file=sys.stdout)
         finally:
-            shutil.rmtree(temp_dir)
+            try:
+                shutil.rmtree(temp_dir)
+            except:
+                warnings.warn("Unable to delete temp dir " + \
+                              "{}. Please delete manually".format(temp_dir))
             os.chdir(curr_dir)
 
     def _gen_input_file(self, working_dir):
