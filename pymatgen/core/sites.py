@@ -334,7 +334,7 @@ class PeriodicSite(Site, MSONable):
     @property
     def frac_coords(self):
         """
-        The fractional coordinates of the site as a tuple.
+        A copy of the fractional coordinates of the site.
         """
         return np.copy(self._fcoords)
 

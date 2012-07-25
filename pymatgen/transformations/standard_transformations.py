@@ -875,5 +875,3 @@ class PerturbStructureTransformation(AbstractTransformation):
         d['class'] = self.__class__.__name__
         return d
 
-
-
