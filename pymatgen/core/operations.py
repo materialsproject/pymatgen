@@ -75,7 +75,7 @@ class SymmOp(MSONable):
         return SymmOp(affine_matrix, tol)
 
     def __eq__(self, other):
-        return (abs(self.affine_matrix - other._matrix) < self.tol).all()
+        return (abs(self.affine_matrix - other.affine_matrix) < self.tol).all()
 
     def __hash__(self):
         return 7
@@ -145,7 +145,7 @@ class SymmOp(MSONable):
         """
         Returns a new SymmOp which is equivalent to apply the "other" SymmOp followed by this one.
         """
-        new_matrix = np.dot(self.affine_matrix, other._matrix)
+        new_matrix = np.dot(self.affine_matrix, other.affine_matrix)
         return SymmOp(new_matrix)
 
     @property
