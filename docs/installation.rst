@@ -113,8 +113,8 @@ gcc and other compilers (e.g., Xcode on Macs) already installed.
 Scipy (tested on v0.10.1)
 -------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 Typical installation of Xcode with python setup.py install seems to work fine. 
 The pre-compiled binary for OSX 10.6 also seems to work.
@@ -122,8 +122,8 @@ The pre-compiled binary for OSX 10.6 also seems to work.
 Matplotlib (tested on v1.10)
 ----------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 This setup assumes you have the latest version of python (2.7 as of this is written) 
 and numpy already installed. You will need to set the compiler flags to build 
@@ -223,8 +223,8 @@ With any luck, you should have vtk with the necessary python wrappers installed.
 OpenBabel (tested on v2.3.0)
 ----------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 openbabel must be compiled with python bindings for integration with pymatgen.
 For some reason, openbabel v2.3.1 is harder to compile on Mac OS Lion than I
@@ -248,6 +248,7 @@ make it work:
    called "eigen2", do the following steps.
    
 ::
+
    mv openbabel-2.3.0 ob-src
    mkdir ob-build
    cd ob-build
