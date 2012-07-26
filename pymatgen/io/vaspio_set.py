@@ -21,8 +21,10 @@ import os
 import abc
 import ConfigParser
 import json
+import re
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.cifio import CifWriter
 
 
 class AbstractVaspInputSet(object):
@@ -302,3 +304,47 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
         VaspInputSet.__init__(self, "MaterialsProject",
                               user_incar_settings=user_incar_settings)
 
+
+def batch_write_vasp_input(structures, vasp_input_set, output_dir,
+                           make_dir_if_not_present=True, subfolder=None,
+                           sanitize=False, include_cif=False):
+    """
+    Batch write vasp input for a sequence of structures to 
+    output_dir, following the format output_dir/{group}/{formula}_{number}.
+    
+    Args:
+        structures:
+            Sequence of Structures.
+        vasp_input_set:
+            pymatgen.io.vaspio_set.VaspInputSet like object that creates
+            vasp input files from structures
+        output_dir:
+            Directory to output files
+        create_directory:
+            Create the directory if not present. Defaults to True.
+        subfolder:
+            function to create subdirectory name from structure.
+            Defaults to simply "formula_count".
+        sanitize:
+            Boolean indicating whether to sanitize the structure before
+            writing the VASP input files. Sanitized output are generally easier
+            for viewing and certain forms of analysis. Defaults to False.
+        include_cif:
+            Boolean indication whether to output a CIF as well. CIF files are
+            generally better supported in visualization programs.
+    """
+    for i, s in enumerate(structures):
+        formula = re.sub("\s+", "", s.formula)
+        if subfolder is not None:
+            subdir = subfolder(s)
+            dirname = os.path.join(output_dir, subdir)
+        else:
+            dirname = os.path.join(output_dir, '{}_{}'.format(formula, i))
+        if sanitize:
+            s = s.copy(sanitize=True)
+        vasp_input_set.write_input(s, dirname,
+                                make_dir_if_not_present=make_dir_if_not_present)
+        if include_cif:
+            writer = CifWriter(s)
+            writer.write_file(os.path.join(dirname, "{}_{}.cif".format(formula,
+                                                                       i)))
