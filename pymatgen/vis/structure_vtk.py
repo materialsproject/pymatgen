@@ -72,6 +72,7 @@ class StructureVis(object):
             [ : Decrease poly_radii_tol_factor by 0.05
             ] : Increase poly_radii_tol_factor by 0.05
             r : Reset camera direction
+            o : Orthogonalize structure
             Up/Down : Rotate view along Up direction by 90 clock/anticlockwise
             Left/right : Rotate view along camera direction by 90 clock/anticlockwise
         """
@@ -182,6 +183,11 @@ class StructureVis(object):
 
         self.ren_win.Render()
 
+    def orthongonalize_structure(self):
+        if self.structure != None:
+            self.set_structure(self.structure.copy(sanitize=True))
+        self.ren_win.Render()
+
     def display_help(self):
         """
         Display the help for various keyboard shortcuts.
@@ -194,7 +200,8 @@ class StructureVis(object):
         helptxt.append('[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = ' + str(self.poly_radii_tol_factor))
         helptxt.append('Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise')
         helptxt.append('Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise')
-        helptxt.append('i: Save view to image.png')
+        helptxt.append('s: Save view to image.png')
+        helptxt.append('o: Orthogonalize structure')
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -618,6 +625,9 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             parent.rotate_view(0, -90)
         elif sym == "Right":
             parent.rotate_view(0, 90)
+        elif sym == "o":
+            parent.orthongonalize_structure()
+            parent.redraw()
 
         self.OnKeyPress()
 
