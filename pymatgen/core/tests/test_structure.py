@@ -259,6 +259,11 @@ occupation : 1.00"""
                [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
         self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
 
+    def test_break_bond(self):
+        (mol1, mol2) = self.mol.break_bond(0, 1)
+        self.assertEqual(mol1.formula, "H3 C1")
+        self.assertEqual(mol2.formula, "H1")
+
 
 class CompositionTest(unittest.TestCase):
 
