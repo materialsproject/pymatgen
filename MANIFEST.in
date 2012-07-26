@@ -2,7 +2,6 @@ include *.md *.sh
 recursive-include pymatgen *.py *.json *.cfg
 recursive-include scripts *.py
 recursive-include dependencies *
-exclude pymatgen/pymatgen.cfg
 exclude test_files
 prune **/**/tests
 prune **/**/**/tests

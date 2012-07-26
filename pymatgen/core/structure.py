@@ -28,6 +28,7 @@ from pymatgen.core.periodic_table import Element, Specie, smart_element_or_speci
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
+from pymatgen.core.bonds import CovalentBond
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -789,6 +790,58 @@ class Molecule(SiteCollection, MSONable):
         Returns the sites in the Molecule. 
         """
         return self._sites
+
+    @staticmethod
+    def from_sites(sites):
+        """
+        Convenience static constructor to make a Molecule from a list of sites.
+        
+        Args:
+            sites:
+                Sequence of Sites.
+        """
+        props = collections.defaultdict(list)
+        for site in sites:
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return Molecule([site.species_and_occu for site in sites],
+                        [site.coords for site in sites],
+                        site_properties=props)
+
+    def break_bond(self, ind1, ind2):
+        """
+        Returns two molecules based on breaking the bond between atoms at index
+        ind1 and ind2.
+        """
+        sites = self._sites
+        clusters = [[sites[ind1]], [sites[ind2]]]
+
+        sites = [sites[i] for i in xrange(len(sites)) if i not in (ind1, ind2)]
+
+        def belongs_to_cluster(site, cluster):
+            for test_site in cluster:
+                if CovalentBond.is_bonded(site, test_site):
+                    return True
+            return False
+
+        while len(sites) > 0:
+            unmatched = []
+            for site in sites:
+                found = False
+                for cluster in clusters:
+                    if belongs_to_cluster(site, cluster):
+                        cluster.append(site)
+                        found = True
+                        break
+                if not found:
+                    unmatched.append(site)
+
+            if len(unmatched) == len(sites):
+                raise ValueError("Not all sites are matched!")
+                break
+            sites = unmatched
+
+        return (Molecule.from_sites(cluster) for cluster in clusters)
 
     def __repr__(self):
         outs = []
