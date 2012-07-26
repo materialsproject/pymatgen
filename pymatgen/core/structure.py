@@ -591,7 +591,7 @@ class Structure(SiteCollection, MSONable):
         sites = sorted(self.sites)
         return Structure.from_sites(sites)
 
-    def copy(self, site_properties=None):
+    def copy(self, site_properties=None, sanitize=False):
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
@@ -600,16 +600,41 @@ class Structure(SiteCollection, MSONable):
             site_properties:
                 Properties to add or override. The properties are specified in
                 the same way as the constructor, i.e., as a dict of the form
-                {property: [values]}.
+                {property: [values]}. The properties should be in the order of
+                the *original* structure if you are performing sanitization.
+            sanitize:
+                If True, this method will return a sanitized structure.
+                Sanitization performs a few things: (i) The sites are sorted
+                by electronegativity, (ii) a LLL lattice reduction is carried
+                out to obtain a relatively orthogonalized cell, (iii) all
+                fractional coords for sites are mapped into the unit cell.
+                
+        Returns:
+            A copy of the Structure, with optionally new site_properties and
+            optionally sanitized.
         """
         sites = self.sites
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
-        return Structure(self._lattice,
-                         [site.species_and_occu for site in sites],
-                         [site.frac_coords for site in sites],
-                         site_properties=props)
+        if not sanitize:
+            return Structure(self._lattice,
+                             [site.species_and_occu for site in sites],
+                             [site.frac_coords for site in sites],
+                             site_properties=props)
+        else:
+            reduced_latt = self._lattice.get_lll_reduced_lattice()
+            new_sites = []
+            for i, site in enumerate(sites):
+                frac_coords = reduced_latt.get_fractional_coords(site.coords)
+                site_props = {}
+                for p in props:
+                    site_props[p] = props[p][i]
+                new_sites.append(PeriodicSite(site.species_and_occu, frac_coords,
+                                         reduced_latt, to_unit_cell=True,
+                                         properties=site_props))
+            new_sites = sorted(new_sites)
+            return Structure.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10):
         '''

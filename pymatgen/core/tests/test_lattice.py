@@ -2,7 +2,7 @@
 
 import unittest
 from pymatgen.core.lattice import Lattice
-from numpy import array
+import numpy as np
 
 class  LatticeTestCase(unittest.TestCase):
 
@@ -24,7 +24,7 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertAlmostEqual(lengths[i], 7.81674529, 5, "Wrong primitive lattice obtained!")
             self.assertAlmostEqual(angles[i], 109.47122063, 5, "Wrong primitive lattice obtained!")
 
-        coord = lattice.get_cartesian_coords(array([0.5, 0.5, 0.5]))
+        coord = lattice.get_cartesian_coords(np.array([0.5, 0.5, 0.5]))
         prim_frac = primlatt.get_fractional_coords(coord)
         for i in range(0, 3):
             self.assertAlmostEqual(coord[i], 4.513, 5, "Wrong coord!")
@@ -34,7 +34,7 @@ class  LatticeTestCase(unittest.TestCase):
 
         lengths_c = [ 3.840198, 3.84019885, 3.8401976 ]
         angles_c = [ 119.99998575, 90, 60.00000728]
-        mat_c = array([[3.840198, 0.000000, 0.000000], [1.920099, 3.325710, 0.000000], [0.000000, -2.217138, 3.135509]]) #should give the lengths and angles above
+        mat_c = [[3.840198, 0.000000, 0.000000], [1.920099, 3.325710, 0.000000], [0.000000, -2.217138, 3.135509]] #should give the lengths and angles above
         newlatt = Lattice(mat_c)
         (lengths, angles) = newlatt.lengths_and_angles
         for i in range(0, 3):
@@ -68,6 +68,15 @@ class  LatticeTestCase(unittest.TestCase):
         for i in range(0, 3):
             for j in range(0, 3):
                 self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5, "Lattice constructors do not define a consistent rotation matrix")
+
+    def test_get_lll_reduced_lattice(self):
+        lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
+        reduced_latt = lattice.get_lll_reduced_lattice()
+        self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
+        random_latt = Lattice(np.random.random((3, 3)))
+        if np.linalg.det(random_latt.matrix) > 1e-8:
+            reduced_random_latt = random_latt.get_lll_reduced_lattice()
+            self.assertAlmostEqual(reduced_random_latt.volume, random_latt.volume)
 
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
