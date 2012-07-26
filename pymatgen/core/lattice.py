@@ -488,9 +488,9 @@ class Lattice(MSONable):
 
     def get_lll_reduced_lattice(self, c=2):
         """
-        Performs a LLL lattice reduction to obtain a c-reduced basis. This
-        method returns a basis which is as "good" as possible, with "good"
-        defined by orthongonality of the lattice vectors.
+        Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a 
+        c-reduced basis. This method returns a basis which is as "good" as
+        possible, with "good" defined by orthongonality of the lattice vectors.
         
         Args:
             c:
