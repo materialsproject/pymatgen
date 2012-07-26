@@ -205,7 +205,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             #Ignore elements with zero amounts.
             if self[el] != 0:
                 hashcode += el.Z
-        return hashcode
+        return 7
 
     def __contains__(self, el):
         return el in self._species
