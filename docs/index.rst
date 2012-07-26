@@ -55,7 +55,9 @@ Latest Change Log (v2.1.0dev)
 4. Added a EnumerateStructureTransformation with optional dependency on the enum
    library by Gus Hart. This provides a robust way to enumerate derivative
    structures,
-5. Miscellaneous bug fixes and speed improvements.
+5. Implemented LLL lattice reduction algorithm. Also added option to sanitize
+   a Structure on copy.
+6. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
