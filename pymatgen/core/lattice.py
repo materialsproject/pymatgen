@@ -486,67 +486,63 @@ class Lattice(MSONable):
                 break
         return Lattice([a, b, c])
 
-    def get_lll_reduced_lattice(self, c=2):
+    def get_lll_reduced_lattice(self, delta=0.75):
         """
         Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a 
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthongonality of the lattice vectors.
         
         Args:
-            c:
-                Reduction parameter. Has to satisfy c > 4/3 to find reduced
-                basis in polynomial time. Default of 2 is usually fine.
+            delta:
+                Reduction parameter. Default of 0.75 is usually fine.
                 
         Returns:
             c-reduced lattice. 
         """
-        basis = self._matrix.copy()
+        a = np.transpose(self._matrix.copy())
+        b = np.zeros((3, 3))
         u = np.zeros((3, 3))
-        o = np.zeros((3, 3))
-        for i in xrange(3):
-            u[i, i] = 1
-            o[i] = basis[i]
-            for j in xrange(i):
-                u[j, i] = np.dot(basis[i], o[j]) / np.dot(o[j], o[j])
-                o[i] -= u[j, i] * o[j]
-            reduceb(i, basis, u)
+        m = np.zeros(3)
 
-        i = 0
-        while i < 2:
-            if np.dot(o[i], o[i]) <= \
-                c * np.dot(o[i + 1], o[i + 1]):
-                i = i + 1
+        b[:, 0] = a[:, 0]
+        m[0] = np.dot(b[:, 0], b[:, 0])
+        for i in xrange(1, 3):
+            u[i, 0:i] = np.dot(a[:, i].transpose(), b[:, 0:i]) / m[0:i]
+            b[:, i] = a[:, i] - np.dot(b[:, 0:i], np.transpose(u[i, 0:i]))
+            m[i] = np.dot(b[:, i], b[:, i])
+
+        k = 2
+
+        while k <= 3:
+            # Size reduction
+            for i in xrange(k - 1, 0, -1):
+                q = round(u[k - 1, i - 1])
+                if q != 0:
+                    a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]  # size-reduce the k-th basis vector
+                    uu = list(u[i - 1, 0:(i - 1)])
+                    uu.append(1)
+                    u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu) # update the GS coefficients
+
+            # Check the Lovasz condition
+            if np.dot(b[:, k - 1], b[:, k - 1]) >= (delta - abs(u[k - 1, k - 2]) ** 2) * np.dot(b[:, (k - 2)], b[:, (k - 2)]):
+                k += 1 # increment k if the Lovasz condition holds
             else:
-                o[i + 1] = o[i + 1] + u[i, i + 1] * o[i]
-                u[i, i] = np.dot(basis[i], o[i + 1]) / np.dot(o[i + 1], o[i + 1])
-                u[i + 1, i] = 1
-                u[i, i + 1] = 1
-                u[i + 1, i + 1] = 0
-                o[i] = o[i] - u[i, i] * o[i + 1]
-                swap_rows(u, i, i + 1)
-                swap_rows(o, i, i + 1)
-                swap_rows(basis, i, i + 1)
-                for k in range (i + 2, 3):
-                    u[i, k] = np.dot(basis[k], o[i]) / np.dot(o[i], o[i])
-                    u[i + 1, k] = np.dot(basis[k], o[i + 1]) / np.dot(o[i + 1], o[i + 1])
+                # If the Lovasz condition fails,
+                # swap the k-th and (k-1)-st basis vector
+                v = a[:, k - 1].copy()
+                a[:, k - 1] = a[:, k - 2].copy()
+                a[:, k - 2] = v
+                # update the Gram-Schmidt coefficients
+                for s in xrange(k - 1, k + 1):
+                    u[s - 1, 0:(s - 1)] = np.dot(np.transpose(a[:, s - 1]), b[:, 0:(s - 1)]) / m[0:(s - 1)]
+                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, 0:(s - 1)], np.transpose(u[s - 1, 0:(s - 1)]))
+                    m[s - 1] = np.dot(b[:, s - 1], b[:, s - 1])
 
-                if abs(u[i, i + 1]) > 0.5:
-                    reduceb(i + 1, basis, u)
+                temp1 = np.dot(np.transpose(a[:, k:3]), b[:, (k - 2):k])
+                temp2 = np.diag(m[(k - 2):k])
+                result = np.linalg.lstsq(temp2.T, temp1.T)[0].T
+                u[k:3, (k - 2):k] = result
+                if k > 2:
+                    k -= 1
 
-                i = max(i - 1, 0)
-
-        return Lattice(basis)
-
-def swap_rows(u, i, j):
-    temp = u[i].copy()
-    u[i] = u[j]
-    u[j] = temp
-
-def reduceb (i, b, u):
-    j = i - 1
-    while j >= 0:
-        b[i] = b[i] - round(u[j, i]) * b[j]
-        u[i] = u[i] - round(u[j, i]) * u[j]
-        j = j - 1
-
-
+        return Lattice(a.T)
