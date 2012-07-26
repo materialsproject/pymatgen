@@ -102,6 +102,21 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(new_struct[0].charge, 2)
         self.assertEqual(new_struct[1].charge, 3)
 
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0., 0, 0.0000001])
+
+        structure = Structure(self.lattice, ["O", "Si"], coords,
+                              site_properties={'magmom':[5, -5]})
+
+        new_struct = structure.copy(site_properties={'charge':[2, 3]},
+                                                    sanitize=True)
+        self.assertEqual(new_struct[0].magmom, -5)
+        self.assertEqual(new_struct[1].magmom, 5)
+        self.assertEqual(new_struct[0].charge, 3)
+        self.assertEqual(new_struct[1].charge, 2)
+        self.assertAlmostEqual(new_struct.volume, structure.volume)
+
     def test_interpolate(self):
         coords = list()
         coords.append([0, 0, 0])

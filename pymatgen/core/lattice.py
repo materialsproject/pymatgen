@@ -336,7 +336,7 @@ class Lattice(MSONable):
         """
         Volume of the unit cell.
         """
-        return npl.det(self._matrix)
+        return abs(npl.det(self._matrix))
 
     @property
     def lengths_and_angles(self):
@@ -441,11 +441,12 @@ class Lattice(MSONable):
             take care of c
             """
             if np.dot(a, b) > 0:
-                diffvector = np.subtract(a, b)
+                diffvector = a - b
             else:
-                diffvector = np.add(a, b)
-            if np.linalg.norm(diffvector) < np.linalg.norm(a) or \
-               np.linalg.norm(diffvector) < np.linalg.norm(b):
+                diffvector = a + b
+            diffnorm = np.linalg.norm(diffvector)
+            if diffnorm < np.linalg.norm(a) or \
+               diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(a) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -455,12 +456,13 @@ class Lattice(MSONable):
             take care of b
             """
             if np.dot(a, c) > 0:
-                diffvector = np.subtract(a, c)
+                diffvector = a - c
             else:
-                diffvector = np.add(a, c)
-            if np.linalg.norm(diffvector) < np.linalg.norm(a) or \
-               np.linalg.norm(diffvector) < np.linalg.norm(c):
-                if(np.linalg.norm(a) < np.linalg.norm(c)):
+                diffvector = a + c
+            diffnorm = np.linalg.norm(diffvector)
+            if diffnorm < np.linalg.norm(a) or \
+               diffnorm < np.linalg.norm(c):
+                if np.linalg.norm(a) < np.linalg.norm(c):
                     c = diffvector
                 else:
                     a = diffvector
@@ -469,12 +471,13 @@ class Lattice(MSONable):
             take care of a
             """
             if np.dot(c, b) > 0:
-                diffvector = np.subtract(c, b)
+                diffvector = c - b
             else:
-                diffvector = np.add(c, b)
-            if(np.linalg.norm(diffvector) < np.linalg.norm(c)
-               or np.linalg.norm(diffvector) < np.linalg.norm(b)):
-                if(np.linalg.norm(c) < np.linalg.norm(b)):
+                diffvector = c + b
+            diffnorm = np.linalg.norm(diffvector)
+            if diffnorm < np.linalg.norm(c) or \
+               diffnorm < np.linalg.norm(b):
+                if np.linalg.norm(c) < np.linalg.norm(b):
                     b = diffvector
                 else:
                     c = diffvector
@@ -482,3 +485,68 @@ class Lattice(MSONable):
             if anychange == True:
                 break
         return Lattice([a, b, c])
+
+    def get_lll_reduced_lattice(self, c=2):
+        """
+        Performs a LLL lattice reduction to obtain a c-reduced basis. This
+        method returns a basis which is as "good" as possible, with "good"
+        defined by orthongonality of the lattice vectors.
+        
+        Args:
+            c:
+                Reduction parameter. Has to satisfy c > 4/3 to find reduced
+                basis in polynomial time. Default of 2 is usually fine.
+                
+        Returns:
+            c-reduced lattice. 
+        """
+        basis = self._matrix.copy()
+        u = np.zeros((3, 3))
+        o = np.zeros((3, 3))
+        for i in xrange(3):
+            u[i, i] = 1
+            o[i] = basis[i]
+            for j in xrange(i):
+                u[j, i] = np.dot(basis[i], o[j]) / np.dot(o[j], o[j])
+                o[i] -= u[j, i] * o[j]
+            reduceb(i, basis, u)
+
+        i = 0
+        while i < 2:
+            if np.dot(o[i], o[i]) <= \
+                c * np.dot(o[i + 1], o[i + 1]):
+                i = i + 1
+            else:
+                o[i + 1] = o[i + 1] + u[i, i + 1] * o[i]
+                u[i, i] = np.dot(basis[i], o[i + 1]) / np.dot(o[i + 1], o[i + 1])
+                u[i + 1, i] = 1
+                u[i, i + 1] = 1
+                u[i + 1, i + 1] = 0
+                o[i] = o[i] - u[i, i] * o[i + 1]
+                swap_rows(u, i, i + 1)
+                swap_rows(o, i, i + 1)
+                swap_rows(basis, i, i + 1)
+                for k in range (i + 2, 3):
+                    u[i, k] = np.dot(basis[k], o[i]) / np.dot(o[i], o[i])
+                    u[i + 1, k] = np.dot(basis[k], o[i + 1]) / np.dot(o[i + 1], o[i + 1])
+
+                if abs(u[i, i + 1]) > 0.5:
+                    reduceb(i + 1, basis, u)
+
+                i = max(i - 1, 0)
+
+        return Lattice(basis)
+
+def swap_rows(u, i, j):
+    temp = u[i].copy()
+    u[i] = u[j]
+    u[j] = temp
+
+def reduceb (i, b, u):
+    j = i - 1
+    while j >= 0:
+        b[i] = b[i] - round(u[j, i]) * b[j]
+        u[i] = u[i] - round(u[j, i]) * u[j]
+        j = j - 1
+
+
