@@ -24,7 +24,6 @@ import json
 import re
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.cifio import CifWriter
 
 
 class AbstractVaspInputSet(object):
@@ -345,6 +344,7 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         vasp_input_set.write_input(s, dirname,
                                 make_dir_if_not_present=make_dir_if_not_present)
         if include_cif:
+            from pymatgen.io.cifio import CifWriter
             writer = CifWriter(s)
             writer.write_file(os.path.join(dirname, "{}_{}.cif".format(formula,
                                                                        i)))

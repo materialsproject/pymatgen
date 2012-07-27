@@ -22,7 +22,7 @@ import collections
 def _load_bond_length_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir, "resources", "bond_lengths.json")) as f:
+    with open(os.path.join(module_dir, "bond_lengths.json")) as f:
         data = collections.defaultdict(dict)
         for row in json.load(f):
             els = sorted(row['elements'])

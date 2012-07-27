@@ -56,7 +56,7 @@ setup (
         'ase_adaptor': ['ase>=3.3'],
         'cif':['PyCifRW>=3.3']
   },
-  package_data={'pymatgen.core.resources': ['*.json'],
+  package_data={'pymatgen.core': ['bond_lengths.json', 'periodic_table.json'],
                 'pymatgen.io': ['*.cfg'],
                 'pymatgen.entries': ['*.cfg'],
                 'pymatgen.vis': ['ElementColorSchemes.cfg']},

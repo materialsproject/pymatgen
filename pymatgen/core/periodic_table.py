@@ -25,7 +25,7 @@ from pymatgen.serializers.json_coders import MSONable
 def _load_pt_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir, "resources", "periodic_table.json")) as f:
+    with open(os.path.join(module_dir, "periodic_table.json")) as f:
         return json.load(f)
 
 _pt_data = _load_pt_data()
