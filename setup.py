@@ -45,6 +45,33 @@ pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
+spgsrcdir = os.path.join('dependencies', 'spglib-1.2', 'src')
+
+include_dirs = [spgsrcdir]
+sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
+    'mathfunc.c', 'pointgroup.c', 'primitive.c', 'refinement.c',
+    'sitesym_database.c', 'site_symmetry.c', 'spacegroup.c', 'spin.c',
+    'spg_database.c', 'spglib.c', 'symmetry.c'
+]
+
+sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+
+if os.name == "posix" and sys.platform == "darwin":
+    print "Mac OS detected. Compiling without openmp..."
+    extra_compile = []
+    extra_link = []
+else:
+    extra_compile = ['-fopenmp']
+    extra_link = ['-lgomp']
+
+extension = Extension('pymatgen._spglib',
+                      include_dirs=include_dirs + get_numpy_include_dirs(),
+                      sources=[os.path.join('dependencies', 'spglib-1.2', 
+                               '_spglib.c')] + sources,
+                      extra_compile_args=extra_compile,
+                      extra_link_args=extra_link
+                      )
+
 setup (
   name='pymatgen',
   packages=find_packages(),
@@ -79,46 +106,6 @@ setup (
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules",
   ],
-  download_url="https://github.com/materialsproject/pymatgen/tarball/master"
-)
-
-#Compile the spglib dependency.
-
-os.chdir(os.path.join('dependencies', 'spglib-1.2'))
-
-spgsrcdir = os.path.join('src')
-
-include_dirs = [spgsrcdir]
-sources = ['cell.c', 'debug.c', 'hall_symbol.c', 'kpoint.c', 'lattice.c',
-    'mathfunc.c', 'pointgroup.c', 'primitive.c', 'refinement.c',
-    'sitesym_database.c', 'site_symmetry.c', 'spacegroup.c', 'spin.c',
-    'spg_database.c', 'spglib.c', 'symmetry.c'
-]
-
-sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
-
-if os.name == "posix" and sys.platform == "darwin":
-    print "Mac OS detected. Compiling without openmp..."
-    extra_compile = []
-    extra_link = []
-else:
-    extra_compile = ['-fopenmp']
-    extra_link = ['-lgomp']
-
-extension = Extension('pyspglib._spglib',
-                      include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=['_spglib.c'] + sources,
-                      extra_compile_args=extra_compile,
-                      extra_link_args=extra_link
-                      )
-
-setup (
-       name='pyspglib',
-       version='1.2',
-       description='This is the spglib module.',
-       author='Atsushi Togo',
-       author_email='atz.togo@gmail.com',
-       url='http://spglib.sourceforge.net/',
-       packages=['pyspglib'],
-       ext_modules=[extension]
+  download_url="https://github.com/materialsproject/pymatgen/tarball/master",
+  ext_modules=[extension]
 )
