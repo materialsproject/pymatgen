@@ -23,6 +23,7 @@ from pymatgen import __file__, Element, Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.util.io_utils import which
+from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 
 
 if which('multienum.x') and which('makestr.x'):
@@ -63,6 +64,18 @@ class EnumlibAdaptorTest(unittest.TestCase):
         adaptor.run()
         self.assertEqual(len(adaptor.structures), 3)
 
+        #Make sure it works properly when symmetry is broken by ordered sites.
+        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
+        struct = parser.get_structures(False)[0]
+        subtrans = SubstitutionTransformation({'Li':{'Li':0.25}})
+        s = subtrans.apply_transformation(struct)
+        #REmove some ordered sites to break symmetry.
+        removetrans = RemoveSitesTransformation([4, 7])
+        s = removetrans.apply_transformation(s)
+        adaptor = EnumlibAdaptor(s, 1, 1)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 2)
 
 if __name__ == '__main__':
     unittest.main()
