@@ -303,8 +303,13 @@ class StructureFitter(object):
                         all_match = False
                         break
                     correspondance[trans] = closest
+
                     if closest_dist > biggest_dist:
                         biggest_dist = closest_dist
+
+                    if time.time() - self._start_time > self._timeout:
+                        logger.debug("Timeout reached when testing rotations.")
+                        break
 
                 if not all_match:
                     continue
