@@ -72,7 +72,35 @@ class  LatticeTestCase(unittest.TestCase):
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
+
+        expected_ans = np.array([0.000000, 1.000000, 0.000000,
+                                 1.000000, 0.000000, 1.000000,
+                                 - 2.000000, 0.000000, 1.000000]).reshape((3, 3))
+        self.assertTrue(np.allclose(reduced_latt.matrix, expected_ans))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
+        latt = [7.164750, 2.481942, 0.000000,
+                - 4.298850, 2.481942, 0.000000,
+                0.000000, 0.000000, 14.253000]
+        expected_ans = np.array([-4.298850, 2.481942, 0.000000,
+                                 2.865900, 4.963884, 0.000000,
+                                 0.000000, 0.000000, 14.253000])
+        expected_ans = expected_ans.reshape((3, 3))
+        reduced_latt = Lattice(latt).get_lll_reduced_lattice()
+        self.assertTrue(np.allclose(reduced_latt.matrix,
+                                    expected_ans))
+        self.assertAlmostEqual(reduced_latt.volume, Lattice(latt).volume)
+
+        expected_ans = np.array([0.000000, 10.000000, 10.000000,
+                                 10.000000, 10.000000, 0.000000,
+                                 30.000000, -30.000000, 40.000000]).reshape((3, 3))
+
+        lattice = np.array([100., 0., 10., 10., 10., 20., 10., 10., 10.])
+        lattice = lattice.reshape(3, 3)
+        lattice = Lattice(lattice.T)
+        reduced_latt = lattice.get_lll_reduced_lattice()
+        self.assertTrue(np.allclose(reduced_latt.matrix, expected_ans))
+        self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
+
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
