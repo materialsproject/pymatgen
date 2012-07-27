@@ -9,6 +9,14 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bonds` Module
+-------------------
+
+.. automodule:: pymatgen.core.bonds
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`design_patterns` Module
 -----------------------------
 
