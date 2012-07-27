@@ -157,25 +157,26 @@ class StructureFitter(object):
         logger.debug(str(a))
         logger.debug("Structure b")
         logger.debug(str(b))
-        # Check composition first.  If compositions are not the same, do not need to fit further.
-        if a.composition.reduced_formula != b.composition.reduced_formula or ((a.num_sites != b.num_sites) and not self._supercells_allowed):
+        # Check composition first.  If compositions are not the same, do not
+        # need to fit further.
+        if a.composition.reduced_formula != b.composition.reduced_formula or \
+           ((a.num_sites != b.num_sites) and not self._supercells_allowed):
             logger.debug('Compositions do not match')
             return None
 
         logger.debug('Compositions match')
 
         # This is cheating, but let's try an identity fit first.  
-        #In many situations,
-        # E.g., when a structure has been topotatically delithiated or
-        # substituted, you actually can get a very fast answer without having
-        # to try all rotations.
+        # In many situations, e.g., when a structure has been topotatically
+        # delithiated or substituted, you actually can get a very fast answer 
+        # without having to try all rotations.
         (mapping_op, biggest_dist, oshift) = self.simple_fit(a, b)
 
-        #If we can't do a simple fit, guess we'd have to do the painful process
-        #of finding rotations.
+        # If we can't do a simple fit, guess we'd have to do the painful process
+        # of finding rotations.
         if not mapping_op:
-            #Let's sanitize the structures for fitting. This results in more
-            #orthogonal cells, and typically much faster fitting.
+            # Let's sanitize the structures for fitting. This results in more
+            # orthogonal cells, and typically much faster fitting.
             a = a.copy(sanitize=True)
             b = b.copy(sanitize=True)
 
@@ -191,7 +192,7 @@ class StructureFitter(object):
             logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
 
             max_sites = float('inf')
-            # determine which type of sites to use for the mapping
+            # Determine which type of sites to use for the mapping
             for sp in to_fit.species_and_occu:
                 sp_sites = [site for site in to_fit \
                             if site.species_and_occu == sp]
@@ -204,7 +205,7 @@ class StructureFitter(object):
             logger.debug("Origin = " + str(origin))
 
             oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3),
-                                                                        - origin.coords)
+                                                                - origin.coords)
             shifted_to_fit = apply_operation(to_fit, oshift)
 
             #Get candidate rotations
@@ -252,7 +253,6 @@ class StructureFitter(object):
             self._cell_misfit = shear_invariant(p)
 
     def simple_fit(self, a, b):
-
         # Fitting is done by matching sites in one structure (to_fit)
         # to the other (fixed).  
         # We set the structure with fewer sites as fixed, 
@@ -319,8 +319,10 @@ class StructureFitter(object):
                         break
                     cands = sorted(cands, key=lambda a: a[1])
                     (closest, closest_dist) = cands[0]
-                    if closest_dist > tol_atoms or closest.species_and_occu != trans.species_and_occu:
-                        logger.debug("Closest dist too large! closest dist = {}".format(closest_dist))
+                    if closest_dist > tol_atoms or \
+                       closest.species_and_occu != trans.species_and_occu:
+                        logger.debug("Closest dist too large! " + \
+                                     "Closest dist = {}".format(closest_dist))
                         all_match = False
                         break
                     correspondance[trans] = closest
@@ -479,8 +481,9 @@ class StructureFitter(object):
         for pool in test_rotations:
             if all([nn.species_and_occu == origin.species_and_occu \
                     for nn in pool]):
-                # now, can a unitary transformation bring the cell vectors together
-                cell_v = np.array([nn.coords - origin.coords for nn in pool]).transpose()
+                # Can a unitary transformation bring the cell vectors together?
+                coords = [nn.coords - origin.coords for nn in pool]
+                cell_v = np.array(coords).transpose()
                 det = np.linalg.det(cell_v)
                 if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
                     continue
@@ -492,9 +495,9 @@ class StructureFitter(object):
                     transf = r.rotation_matrix
                     transf = np.dot(transf.transpose(), transf)
 
-                    #This resolves a very very strange bug in numpy that causes
-                    #random eigenvectors to be returned for matrices very very
-                    #close to the identity matrix.
+                    # This resolves a very very strange bug in numpy that causes
+                    # random eigenvectors to be returned for matrices very very
+                    # close to the identity matrix.
                     transf = np.eye(3) if np.allclose(transf, np.eye(3)) \
                                        else transf
                     pbis = sqrt_matrix(transf)
