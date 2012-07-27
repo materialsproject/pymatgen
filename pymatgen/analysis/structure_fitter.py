@@ -153,60 +153,49 @@ class StructureFitter(object):
         logger.debug(str(a))
         logger.debug("Structure b")
         logger.debug(str(b))
-
         # Check composition first.  If compositions are not the same, do not need to fit further.
         if a.composition.reduced_formula != b.composition.reduced_formula or ((a.num_sites != b.num_sites) and not self._supercells_allowed):
             logger.debug('Compositions do not match')
             return None
 
         logger.debug('Compositions match')
+        (mapping_op, biggest_dist, oshift) = self.simple_fit(a, b)
 
-        # Fitting is done by matching sites in one structure (to_fit)
-        # to the other (fixed).  
-        # We set the structure with fewer sites as fixed, 
-        # and scale the structures to the same density
-        (fixed, to_fit) = self._scale_structures(a, b)
-        # Defines the atom misfit tolerance
-        tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
-        logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
+        if not mapping_op:
+            #Let's sanitize the structures for fitting. This results in more
+            #orthogonal cells, and typically much faster fitting.
+            a = a.copy(sanitize=True)
+            b = b.copy(sanitize=True)
 
-        max_sites = float('inf')
-        # determine which type of sites to use for the mapping
-        for sp in to_fit.species_and_occu:
-            sp_sites = [site for site in to_fit if site.species_and_occu == sp]
-            if len(sp_sites) < max_sites:
-                fit_sites = sp_sites
-                max_sites = len(sp_sites)
+            # Fitting is done by matching sites in one structure (to_fit)
+            # to the other (fixed).  
+            # We set the structure with fewer sites as fixed, 
+            # and scale the structures to the same density
+            (fixed, to_fit) = self._scale_structures(a, b)
+            # Defines the atom misfit tolerance
+            tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
+            logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
 
-        # Set the arbitrary origin
-        origin = fit_sites[0]
-        logger.debug("Origin = " + str(origin))
+            max_sites = float('inf')
+            # determine which type of sites to use for the mapping
+            for sp in to_fit.species_and_occu:
+                sp_sites = [site for site in to_fit if site.species_and_occu == sp]
+                if len(sp_sites) < max_sites:
+                    fit_sites = sp_sites
+                    max_sites = len(sp_sites)
 
-        oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
-        shifted_to_fit = apply_operation(to_fit, oshift)
-        # This is cheating, but let's try an identity fit first.  In many situations,
-        # E.g., when a structure has been topotatically delithiated or
-        # substituted, you actually can get a very fast answer without having
-        # to try all rotations.
+            # Set the arbitrary origin
+            origin = fit_sites[0]
+            logger.debug("Origin = " + str(origin))
 
-        found_map = False
+            oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
+            shifted_to_fit = apply_operation(to_fit, oshift)
 
-        simple_rots = self._get_simple_rotations(fixed, to_fit)
-        for rot in simple_rots:
-            rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
-                                                            np.array([0, 0, 0]))
-            (found_map, mapping_op, biggest_dist) = self._test_rotation(rot_op, origin,
-                                                fixed, shifted_to_fit, tol_atoms)
-            if found_map:
-                break
-
-        if not found_map:
             #Get candidate rotations
             cand_rot = self._get_candidate_rotations(origin, fixed, to_fit)
 
             #Reset the clock.
             self._start_time = time.time()
-
             logger.debug(" FOUND {} candidate rotations ".format(len(cand_rot)))
             if len(cand_rot) == 0:
                 logger.debug("No candidate rotations found, returning null. ")
@@ -241,6 +230,47 @@ class StructureFitter(object):
             self._mapping_op = composite_op if self.fixed_is_a else composite_op.inverse
             #self._mapping_op = mapping_op
             self._cell_misfit = shear_invariant(p)
+
+    def simple_fit(self, a, b):
+
+        # Fitting is done by matching sites in one structure (to_fit)
+        # to the other (fixed).  
+        # We set the structure with fewer sites as fixed, 
+        # and scale the structures to the same density
+        (fixed, to_fit) = self._scale_structures(a, b)
+        # Defines the atom misfit tolerance
+        tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
+        logger.debug("Atomic misfit tolerance = %.4f" % (tol_atoms))
+
+        max_sites = float('inf')
+        # determine which type of sites to use for the mapping
+        for sp in to_fit.species_and_occu:
+            sp_sites = [site for site in to_fit if site.species_and_occu == sp]
+            if len(sp_sites) < max_sites:
+                fit_sites = sp_sites
+                max_sites = len(sp_sites)
+
+        # Set the arbitrary origin
+        origin = fit_sites[0]
+        logger.debug("Origin = " + str(origin))
+
+        oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3), -origin.coords)
+        shifted_to_fit = apply_operation(to_fit, oshift)
+        # This is cheating, but let's try an identity fit first.  In many situations,
+        # E.g., when a structure has been topotatically delithiated or
+        # substituted, you actually can get a very fast answer without having
+        # to try all rotations.
+
+        simple_rots = self._get_simple_rotations(fixed, to_fit)
+        for rot in simple_rots:
+            rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
+                                                            np.array([0, 0, 0]))
+            (found_map, mapping_op, biggest_dist) = self._test_rotation(rot_op, origin,
+                                                fixed, shifted_to_fit, tol_atoms)
+            if found_map:
+                return (mapping_op, biggest_dist, oshift)
+
+        return (None, None, None)
 
     def _test_rotation(self, rot, origin, fixed, to_fit, tol_atoms):
         tol_atoms_plus = 1.1 * tol_atoms
