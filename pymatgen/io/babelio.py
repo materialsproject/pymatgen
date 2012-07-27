@@ -100,6 +100,6 @@ class BabelMolAdaptor(object):
         Returns:
             BabelMolAdaptor object
         """
-        mol = pb.readfile(file_format, filename).next()
-        return BabelMolAdaptor(mol.OBMol)
+        mols = list(pb.readfile(file_format, filename))
+        return BabelMolAdaptor(mols[0].OBMol)
 

@@ -45,7 +45,7 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.1.0dev)
+Latest Change Log (v2.1.0)
 -----------------------------
 
 1. Brand new CompoundPD class that allows the plotting of phase diagrams that
@@ -57,7 +57,10 @@ Latest Change Log (v2.1.0dev)
    structures,
 5. Implemented LLL lattice reduction algorithm. Also added option to sanitize
    a Structure on copy.
-6. Miscellaneous bug fixes and speed improvements.
+6. Bug fix for missing Compatibility file in release distribution.
+7. Vastly improved StructureFitter which performs cell reduction where necessary
+   to speed up fitting.
+8. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
