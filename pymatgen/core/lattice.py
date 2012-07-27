@@ -497,61 +497,67 @@ class Lattice(MSONable):
                 Reduction parameter. Default of 0.75 is usually fine.
                 
         Returns:
-            c-reduced lattice. 
+            Reduced lattice. 
         """
-        #Transpose the lattice matrix first. Makes life easier.
+        #Transpose the lattice matrix first so that basis vectors are columns. 
+        #Makes life easier.
         a = np.transpose(self._matrix.copy())
-        b = np.zeros((3, 3))
-        u = np.zeros((3, 3))
-        m = np.zeros(3)
+
+        b = np.zeros((3, 3)) #Vectors after the Gram-Schmidt process
+        u = np.zeros((3, 3)) #Gram-Schmidt coeffieicnts
+        m = np.zeros(3) #These are the norm squared of each vec.
+
+        #We are going to use dot a lot. Let's make an alias.
+        dot = np.dot
 
         b[:, 0] = a[:, 0]
-        m[0] = np.dot(b[:, 0], b[:, 0])
+        m[0] = dot(b[:, 0], b[:, 0])
         for i in xrange(1, 3):
-            u[i, 0:i] = np.dot(a[:, i].transpose(), b[:, 0:i]) / m[0:i]
-            b[:, i] = a[:, i] - np.dot(b[:, 0:i], np.transpose(u[i, 0:i]))
-            m[i] = np.dot(b[:, i], b[:, i])
+            u[i, 0:i] = dot(a[:, i].T, b[:, 0:i]) / m[0:i]
+            b[:, i] = a[:, i] - dot(b[:, 0:i], u[i, 0:i].T)
+            m[i] = dot(b[:, i], b[:, i])
 
         k = 2
 
         while k <= 3:
-            # Size reduction
+            #Size reduction
             for i in xrange(k - 1, 0, -1):
                 q = round(u[k - 1, i - 1])
                 if q != 0:
-                    # size-reduce the k-th basis vector
+                    #Reduce the k-th basis vector
                     a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
                     uu = list(u[i - 1, 0:(i - 1)])
                     uu.append(1)
-                    # update the GS coefficients
+                    #Update the GS coefficients
                     u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
 
-            # Check the Lovasz condition
-            if np.dot(b[:, k - 1], b[:, k - 1]) >= \
+            #Check the Lovasz condition
+            if dot(b[:, k - 1], b[:, k - 1]) >= \
                 (delta - abs(u[k - 1, k - 2]) ** 2) * \
-                        np.dot(b[:, (k - 2)], b[:, (k - 2)]):
-                # Increment k if the Lovasz condition holds
+                             dot(b[:, (k - 2)], b[:, (k - 2)]):
+                #Increment k if the Lovasz condition holds
                 k += 1
             else:
-                # If the Lovasz condition fails,
-                # swap the k-th and (k-1)-st basis vector
+                #If the Lovasz condition fails,
+                #swap the k-th and (k-1)-th basis vector
                 v = a[:, k - 1].copy()
                 a[:, k - 1] = a[:, k - 2].copy()
                 a[:, k - 2] = v
-                # update the Gram-Schmidt coefficients
+                #Update the Gram-Schmidt coefficients
                 for s in xrange(k - 1, k + 1):
-                    u[s - 1, 0:(s - 1)] = np.dot(np.transpose(a[:, s - 1]),
-                                                 b[:, 0:(s - 1)]) / m[0:(s - 1)]
-                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, 0:(s - 1)],
-                                            np.transpose(u[s - 1, 0:(s - 1)]))
-                    m[s - 1] = np.dot(b[:, s - 1], b[:, s - 1])
+                    u[s - 1, 0:(s - 1)] = dot(a[:, s - 1].T,
+                                              b[:, 0:(s - 1)]) / m[0:(s - 1)]
+                    b[:, s - 1] = a[:, s - 1] - dot(b[:, 0:(s - 1)],
+                                                    u[s - 1, 0:(s - 1)].T)
+                    m[s - 1] = dot(b[:, s - 1], b[:, s - 1])
 
                 if k > 2:
                     k -= 1
                 else:
-                    temp1 = np.dot(np.transpose(a[:, k:3]), b[:, (k - 2):k])
-                    temp2 = np.diag(m[(k - 2):k])
-                    result = np.linalg.lstsq(temp2.T, temp1.T)[0].T
+                    # We have to do p/q, so do lstsq(q.T, p.T).T instead.
+                    p = dot(a[:, k:3].T, b[:, (k - 2):k])
+                    q = np.diag(m[(k - 2):k])
+                    result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
         return Lattice(a.T)
