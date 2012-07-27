@@ -499,6 +499,7 @@ class Lattice(MSONable):
         Returns:
             c-reduced lattice. 
         """
+        #Transpose the lattice matrix first. Makes life easier.
         a = np.transpose(self._matrix.copy())
         b = np.zeros((3, 3))
         u = np.zeros((3, 3))
@@ -518,14 +519,19 @@ class Lattice(MSONable):
             for i in xrange(k - 1, 0, -1):
                 q = round(u[k - 1, i - 1])
                 if q != 0:
-                    a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]  # size-reduce the k-th basis vector
+                    # size-reduce the k-th basis vector
+                    a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
                     uu = list(u[i - 1, 0:(i - 1)])
                     uu.append(1)
-                    u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu) # update the GS coefficients
+                    # update the GS coefficients
+                    u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
 
             # Check the Lovasz condition
-            if np.dot(b[:, k - 1], b[:, k - 1]) >= (delta - abs(u[k - 1, k - 2]) ** 2) * np.dot(b[:, (k - 2)], b[:, (k - 2)]):
-                k += 1 # increment k if the Lovasz condition holds
+            if np.dot(b[:, k - 1], b[:, k - 1]) >= \
+                (delta - abs(u[k - 1, k - 2]) ** 2) * \
+                        np.dot(b[:, (k - 2)], b[:, (k - 2)]):
+                # Increment k if the Lovasz condition holds
+                k += 1
             else:
                 # If the Lovasz condition fails,
                 # swap the k-th and (k-1)-st basis vector
@@ -534,15 +540,19 @@ class Lattice(MSONable):
                 a[:, k - 2] = v
                 # update the Gram-Schmidt coefficients
                 for s in xrange(k - 1, k + 1):
-                    u[s - 1, 0:(s - 1)] = np.dot(np.transpose(a[:, s - 1]), b[:, 0:(s - 1)]) / m[0:(s - 1)]
-                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, 0:(s - 1)], np.transpose(u[s - 1, 0:(s - 1)]))
+                    u[s - 1, 0:(s - 1)] = np.dot(np.transpose(a[:, s - 1]),
+                                                 b[:, 0:(s - 1)]) / m[0:(s - 1)]
+                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, 0:(s - 1)],
+                                            np.transpose(u[s - 1, 0:(s - 1)]))
                     m[s - 1] = np.dot(b[:, s - 1], b[:, s - 1])
 
-                temp1 = np.dot(np.transpose(a[:, k:3]), b[:, (k - 2):k])
-                temp2 = np.diag(m[(k - 2):k])
-                result = np.linalg.lstsq(temp2.T, temp1.T)[0].T
-                u[k:3, (k - 2):k] = result
                 if k > 2:
                     k -= 1
+                else:
+                    temp1 = np.dot(np.transpose(a[:, k:3]), b[:, (k - 2):k])
+                    temp2 = np.diag(m[(k - 2):k])
+                    result = np.linalg.lstsq(temp2.T, temp1.T)[0].T
+                    u[k:3, (k - 2):k] = result
 
         return Lattice(a.T)
+
