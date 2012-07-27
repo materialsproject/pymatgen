@@ -4,4 +4,7 @@ recursive-include scripts *.py
 recursive-include dependencies *
 exclude test_files
 prune **/**/tests
+prune dependencies/*/build
+prune dependencies/*/dist
+prune dependencies/*/*egg*
 prune **/**/**/tests
