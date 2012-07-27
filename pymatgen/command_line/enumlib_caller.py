@@ -122,8 +122,10 @@ class EnumlibAdaptor(object):
         # Using symmetry finder, get the symmetrically distinct sites.
         fitter = SymmetryFinder(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
-        logger.debug("Spacegroup {} ({}) with {} distinct sites".format(fitter.get_spacegroup_symbol(),
-                     fitter.get_spacegroup_number(), len(symmetrized_structure.equivalent_sites)))
+        logger.debug("Spacegroup {} ({}) with {} distinct sites"
+                     .format(fitter.get_spacegroup_symbol(),
+                             fitter.get_spacegroup_number(),
+                             len(symmetrized_structure.equivalent_sites)))
 
         """
         Enumlib doesn't work when the number of species get too large. To
@@ -139,14 +141,26 @@ class EnumlibAdaptor(object):
         index_species = []
         index_amounts = []
 
+        #Let's group and sort the sites by symmetry.
+        site_symmetries = []
+        for sites in symmetrized_structure.equivalent_sites:
+            finder = SymmetryFinder(Structure.from_sites(sites), self.symm_prec)
+            sgnum = finder.get_spacegroup_number()
+            site_symmetries.append((sites, sgnum))
+
+        site_symmetries = sorted(site_symmetries, key=lambda s:s[1])
+
         #Stores the ordered sites, which are not enumerated.
+        min_sg_num = site_symmetries[0][1]
         ordered_sites = []
         disordered_sites = []
         coord_str = []
-        for sites in symmetrized_structure.equivalent_sites:
+        min_disordered_sg = 300
+        for (sites, sgnum) in site_symmetries:
             if sites[0].is_ordered:
-                ordered_sites.extend(sites)
+                ordered_sites.append(sites)
             else:
+                min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
                 species = sites[0].species_and_occu
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
@@ -154,9 +168,14 @@ class EnumlibAdaptor(object):
                     #site whose total occupancies don't sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
                 for sp in species.keys():
-                    index_species.append(sp)
-                    sp_label.append(len(index_species) - 1)
-                    index_amounts.append(species[sp] * len(sites))
+                    if sp not in index_species:
+                        index_species.append(sp)
+                        sp_label.append(len(index_species) - 1)
+                        index_amounts.append(species[sp] * len(sites))
+                    else:
+                        ind = index_species.index(sp)
+                        sp_label.append(ind)
+                        index_amounts[ind] += species[sp] * len(sites)
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
                     coord_str.append("{} {}".format(
@@ -164,7 +183,26 @@ class EnumlibAdaptor(object):
                                         sp_label))
                 disordered_sites.append(sites)
 
-        self.ordered_sites = ordered_sites
+        #It could be that some of the ordered sites has a lower symmetry than
+        #the disordered sites.  So we consider the lowest symmetry sites as
+        #disordered in our enumeration.
+        if min_disordered_sg > min_sg_num:
+            logger.debug("Ordered sites have lower symmetry than disordered.")
+            sites = ordered_sites.pop(0)
+            index_species.append(sites[0].specie)
+            index_amounts.append(len(sites))
+            sp_label = len(index_species) - 1
+            logger.debug("Lowest symmetry {} sites are included in enumeration."
+                         .format(sites[0].specie))
+            for site in sites:
+                coord_str.append("{} {}".format(
+                                        coord_format.format(*site.coords),
+                                        sp_label))
+            disordered_sites.append(sites)
+
+        self.ordered_sites = []
+        for sites in ordered_sites:
+            self.ordered_sites.extend(sites)
         self.index_species = index_species
 
         lattice = self.structure.lattice
@@ -259,5 +297,4 @@ class EnumlibAdaptor(object):
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
-
 

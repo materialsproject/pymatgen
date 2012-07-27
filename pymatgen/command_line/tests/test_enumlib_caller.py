@@ -44,7 +44,7 @@ class EnumlibAdaptorTest(unittest.TestCase):
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
         adaptor.run()
         structures = adaptor.structures
-        self.assertEqual(len(structures), 46)
+        self.assertEqual(len(structures), 52)
         for s in structures:
             self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
 
