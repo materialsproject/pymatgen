@@ -195,8 +195,12 @@ class SymmOp(MSONable):
         """
         if isinstance(axis, (tuple, list)):
             axis = np.array(axis)
+
         if isinstance(translation_vec, (tuple, list)):
             vec = np.array(translation_vec)
+        else:
+            vec = translation_vec
+
         a = angle if angle_in_radians else angle * pi / 180
         cosa = cos(a)
         sina = sin(a)
