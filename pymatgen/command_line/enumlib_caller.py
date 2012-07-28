@@ -64,7 +64,7 @@ class EnumlibAdaptor(object):
     amount_tol = 1e-5
 
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
-                 symm_prec=0.1):
+                 symm_prec=0.1, enum_precision_parameter=0.01):
         """
         Args:
             structure:
@@ -75,11 +75,15 @@ class EnumlibAdaptor(object):
                 The maximum cell size wanted. Must be an int. Defaults to 1.
             symm_prec:
                 Symmetry precision. Defaults to 0.1.
+            enum_precision_parameter:
+                Finite precision parameter for enumlib. Default of 0.01 is
+                usually ok, but you might need to tweak it for certain cells.
         """
         self.structure = structure
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.symm_prec = symm_prec
+        self.enum_precision_parameter = enum_precision_parameter
 
     def run(self):
         """
@@ -216,7 +220,7 @@ class EnumlibAdaptor(object):
         output.extend(coord_str)
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
-        output.append(str(self.symm_prec))
+        output.append(str(self.enum_precision_parameter))
         output.append("partial")
         #To get a reasonable number of structures, we fix concentrations to the
         #range expected in the original structure.
