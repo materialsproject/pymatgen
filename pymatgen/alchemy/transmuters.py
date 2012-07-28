@@ -141,7 +141,8 @@ class StandardTransmuter(object):
             self.append_transformation(t)
 
     def write_vasp_input(self, vasp_input_set, output_dir,
-                         create_directory=True, subfolder=None):
+                         create_directory=True, subfolder=None,
+                         include_cif=False):
         """
         Batch write vasp input for a sequence of transformed structures to 
         output_dir, following the format output_dir/{formula}_{number}.
@@ -156,10 +157,14 @@ class StandardTransmuter(object):
                 Create the directory if not present. Defaults to True.
             subfolder:
                 function to create subdirectory name from transformed_structure.
-                eg. lambda x: x.other_parameters['tags'][0] to use the first tag
+                eg. lambda x: x.other_parameters['tags'][0] to use the first tag.
+            include_cif:
+                Boolean indication whether to output a CIF as well. CIF files
+                are generally better supported in visualization programs.
         """
         batch_write_vasp_input(self.transformed_structures, vasp_input_set,
-                               output_dir, create_directory, subfolder)
+                               output_dir, create_directory, subfolder,
+                               include_cif)
 
     def set_parameter(self, key, value):
         for x in self.transformed_structures:
@@ -289,7 +294,8 @@ class PoscarTransmuter(StandardTransmuter):
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
-                           create_directory=True, subfolder=None):
+                           create_directory=True, subfolder=None,
+                           include_cif=False):
     """
     Batch write vasp input for a sequence of transformed structures to 
     output_dir, following the format output_dir/{group}/{formula}_{number}.
@@ -306,7 +312,10 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             Create the directory if not present. Defaults to True.
         subfolder:
             function to create subdirectory name from transformed_structure.
-            eg. lambda x: x.other_parameters['tags'][0] to use the first tag
+            eg. lambda x: x.other_parameters['tags'][0] to use the first tag.
+        include_cif:
+            Boolean indication whether to output a CIF as well. CIF files are
+            generally better supported in visualization programs.
     """
     dnames_count = collections.defaultdict(int)
     for s in transformed_structures:
@@ -319,4 +328,8 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             dirname = os.path.join(output_dir, '{}_{}'.format(formula,
                                                     dnames_count[formula] + 1))
         s.write_vasp_input(vasp_input_set, dirname, create_directory=True)
+        if include_cif:
+            from pymatgen.io.cifio import CifWriter
+            writer = CifWriter(s.final_structure)
+            writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
         dnames_count[formula] += 1
