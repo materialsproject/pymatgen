@@ -19,6 +19,7 @@ import os
 import json
 import collections
 
+
 def _load_bond_length_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -46,7 +47,7 @@ class CovalentBond(object):
     def is_bonded(site1, site2, tol=0.2, bond_order=None):
         """
         Test if two sites are bonded, up to a certain limit.
-        
+
         Args:
             site1:
                 First site
@@ -73,4 +74,3 @@ class CovalentBond(object):
                     return True
             return False
         raise ValueError("No bond data for elements {} - {}".format(*syms))
-

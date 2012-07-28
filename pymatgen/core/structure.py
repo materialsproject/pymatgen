@@ -1500,16 +1500,17 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             except:
                 pass
 
-        all_matches = Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula)
+        all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
         #remove duplicates
         all_matches = list(set(all_matches))
         #sort matches by rank descending
-        all_matches = sorted(all_matches, key=lambda match:match[1], reverse=True)
+        all_matches = sorted(all_matches, key=lambda match:match[1],
+                             reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={},
+    def _comps_from_fuzzy_formula(fuzzy_formula, m_dict={},
                                                    m_points=0, factor=1):
         '''
         A recursive helper method for formula parsing that helps in interpreting 
@@ -1568,7 +1569,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 raise ValueError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
-            #convert the element string to proper [uppercase,lowercase] format and award points if it is already in that format
+            #convert the element string to proper [uppercase,lowercase] format
+            #and award points if it is already in that format
             char1 = el[0]
             char2 = el[1] if len(el) > 1 else ''
 
@@ -1593,24 +1595,31 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         fuzzy_formula = fuzzy_formula.strip()
 
         if len(fuzzy_formula) == 0:
-            #the entire formula has been parsed into m_dict. Return the corresponding Composition and number of points
+            #The entire formula has been parsed into m_dict. Return the
+            #corresponding Composition and number of points
             if m_dict:
                 yield (Composition.from_dict(m_dict), m_points)
         else:
-            #if there is a parenthesis, remove it and match the remaining stuff with the appropriate factor
+            #if there is a parenthesis, remove it and match the remaining stuff
+            #with the appropriate factor
             for mp in re.finditer(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula):
                 mp_points = m_points
                 mp_form = fuzzy_formula
                 mp_dict = dict(m_dict)
                 mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
-                #match the stuff inside the parenthesis with the appropriate factor
-                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
+                #Match the stuff inside the parenthesis with the appropriate
+                #factor
+                for match in Composition._comps_from_fuzzy_formula(
+                            mp.group(1), mp_dict, mp_points, factor=mp_factor):
                     only_me = True
                     #match the stuff outside the parentheses and return the sum
-                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor=1):
+                    for match2 in Composition._comps_from_fuzzy_formula(
+                                        mp_form.replace(mp.group(), " ", 1),
+                                        mp_dict, mp_points, factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
-                    #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses
+                    #if the stuff inside the parenthesis is nothing, then just
+                    #return the stuff inside the parentheses
                     if only_me:
                         yield match
                 return
@@ -1621,10 +1630,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 m_points1 = m_points
                 m_form1 = fuzzy_formula
                 m_dict1 = dict(m_dict)
-                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1,
+                                                  m_form1, m_dict1, m_points1)
                 if m_dict1:
                     #there was a real match
-                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
+                    for match in Composition._comps_from_fuzzy_formula(
+                                        m_form1, m_dict1, m_points1, factor):
                         yield match
 
             #try to match two-letter elements
@@ -1633,10 +1644,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 m_points2 = m_points
                 m_form2 = fuzzy_formula
                 m_dict2 = dict(m_dict)
-                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(
+                                             m2, m_form2, m_dict2, m_points2)
                 if m_dict2:
                     #there was a real match
-                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
+                    for match in Composition._comps_from_fuzzy_formula(
+                                          m_form2, m_dict2, m_points2, factor):
                         yield match
 
 

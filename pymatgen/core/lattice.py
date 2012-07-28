@@ -23,9 +23,9 @@ from pymatgen.serializers.json_coders import MSONable
 
 class Lattice(MSONable):
     '''
-    A lattice object.  Essentially a matrix with conversion matrices. In general,
-    it is assumed that length units are in Angstroms and angles are in degrees
-    unless otherwise stated.
+    A lattice object.  Essentially a matrix with conversion matrices. In
+    general, it is assumed that length units are in Angstroms and angles are in
+    degrees unless otherwise stated.
     '''
 
     def __init__(self, matrix):
@@ -33,7 +33,7 @@ class Lattice(MSONable):
         Create a lattice from any sequence of 9 numbers. Note that the sequence
         is assumed to be read one row at a time. Each row represents one
         lattice vector.
-        
+
         Args:
             matrix:
                 Sequence of numbers in any form. Examples of acceptable
@@ -42,7 +42,7 @@ class Lattice(MSONable):
                 ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
-                
+
                 Each row should correspond to a lattice vector.
                 E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -59,7 +59,7 @@ class Lattice(MSONable):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[i] = np.dot(self._matrix[j], self._matrix[k]) / \
-                        (lengths[j] * lengths[k])
+                (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
@@ -83,25 +83,27 @@ class Lattice(MSONable):
     def get_cartesian_coords(self, fractional_coords):
         """
         Returns the cartesian coordinates given fractional coordinates.
-        
+
         Args:
-            fractional_coords : Fractional coords.
-            
+            Fractional_coords:
+                Fractional coords.
+
         Returns:
-            cartesian coordinates
+            Cartesian coordinates
         """
-        return np.transpose(np.dot(self._md2c, np.transpose(fractional_coords)))
+        return np.transpose(np.dot(self._md2c,
+                                   np.transpose(fractional_coords)))
 
     def get_fractional_coords(self, cart_coords):
         """
-        Returns the fractional coordinates given cartesian coordinates
-        
+        Returns the fractional coordinates given cartesian coordinates.
+
         Args:
             cartesian_coords:
                 Cartesian coords.
-            
+
         Returns:
-            fractional coordinates
+            Fractional coordinates.
         """
         return np.transpose(np.dot(self._mc2d, np.transpose(cart_coords)))
 
@@ -109,11 +111,11 @@ class Lattice(MSONable):
     def cubic(a):
         """
         Convenience constructor for a cubic lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the cubic cell.
-            
+
         Returns:
             Cubic lattice of dimensions a x a x a.
         """
@@ -123,13 +125,13 @@ class Lattice(MSONable):
     def tetragonal(a, c):
         """
         Convenience constructor for a tetragonal lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the tetragonal cell.
             c:
                 The *c* lattice parameter of the tetragonal cell.
-            
+
         Returns:
             Tetragonal lattice of dimensions a x a x c.
         """
@@ -139,7 +141,7 @@ class Lattice(MSONable):
     def orthorhombic(a, b, c):
         """
         Convenience constructor for an orthorhombic lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the orthorhombic cell.
@@ -147,7 +149,7 @@ class Lattice(MSONable):
                 The *b* lattice parameter of the orthorhombic cell.
             c:
                 The *c* lattice parameter of the orthorhombic cell.
-            
+
         Returns:
             Orthorhombic lattice of dimensions a x b x c.
         """
@@ -157,7 +159,7 @@ class Lattice(MSONable):
     def monoclinic(a, b, c, alpha):
         """
         Convenience constructor for a monoclinic lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the monoclinc cell.
@@ -167,7 +169,7 @@ class Lattice(MSONable):
                 The *c* lattice parameter of the monoclinc cell.
             alpha:
                 The *alpha* angle between lattice vectors b and c.
-            
+
         Returns:
             Monoclinic lattice of dimensions a x b x c with angle alpha between
             lattice vectors b and c.
@@ -178,13 +180,13 @@ class Lattice(MSONable):
     def hexagonal(a, c):
         """
         Convenience constructor for a hexagonal lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the hexagonal cell.
             c:
                 The *c* lattice parameter of the hexagonal cell.
-            
+
         Returns:
             Hexagonal lattice of dimensions a x a x c.
         """
@@ -194,13 +196,13 @@ class Lattice(MSONable):
     def rhombohedral(a, alpha):
         """
         Convenience constructor for a rhombohedral lattice.
-        
+
         Args:
             a:
                 The *a* lattice parameter of the rhombohedral cell.
             alpha:
                 Angle for the rhombohedral lattice.
-            
+
         Returns:
             Rhombohedral lattice of dimensions a x a x a.
         """
@@ -210,13 +212,13 @@ class Lattice(MSONable):
     def from_lengths_and_angles(abc, ang):
         '''
         Create a Lattice using unit cell lengths and angles (in degrees).
-        
+
         Args:
             abc:
                 lattice parameters, e.g. (4, 4, 5).
-            ang: 
+            ang:
                 lattice angles in degrees, e.g., (90,90,120).
-                
+
         Returns:
             A Lattice with the specified lattice parameters.
         '''
@@ -227,7 +229,7 @@ class Lattice(MSONable):
     def from_parameters(a, b, c, alpha, beta, gamma):
         '''
         Create a Lattice using unit cell lengths and angles (in degrees).
-        
+
         Args:
             a:
                 The *a* lattice parameter of the monoclinc cell.
@@ -241,7 +243,7 @@ class Lattice(MSONable):
                 The *beta* angle.
             gamma:
                 The *gamma* angle.
-                
+
         Returns:
             A Lattice with the specified lattice parameters.
         '''
@@ -264,7 +266,7 @@ class Lattice(MSONable):
     @staticmethod
     def from_dict(d):
         """
-        Create a Lattice from a dictionary containing the a, b, c, alpha, beta, 
+        Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
         a = d["a"]
@@ -373,7 +375,7 @@ class Lattice(MSONable):
         A lattice is considered to be equal to another if the internal matrix
         representation satisfies np.allclose(matrix1, matrix2) to be True.
         """
-        if other == None:
+        if other is None:
             return False
         return np.allclose(self._matrix, other._matrix)
 
@@ -381,22 +383,23 @@ class Lattice(MSONable):
         return 7
 
     def __str__(self):
-        return '\n'.join([' '.join(["%.6f" % i for i in row]) for row in self._matrix])
+        return '\n'.join([' '.join(["%.6f" % i for i in row])
+                          for row in self._matrix])
 
     @property
     def to_dict(self):
-        '''
-        Json-serialization dict representation of the Lattice.'''
-        d = {
-        'matrix': self._matrix.tolist(),
-        'a': float(self.a),
-        'b': float(self.b),
-        'c': float(self.c),
-        'alpha': float(self.alpha),
-        'beta': float(self.beta),
-        'gamma': float(self.gamma),
-        'volume': float(self.volume),
-        }
+        """""
+        Json-serialization dict representation of the Lattice.
+        """
+        d = {'matrix': self._matrix.tolist(),
+             'a': float(self.a),
+             'b': float(self.b),
+             'c': float(self.c),
+             'alpha': float(self.alpha),
+             'beta': float(self.beta),
+             'gamma': float(self.gamma),
+             'volume': float(self.volume)
+             }
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
@@ -404,7 +407,7 @@ class Lattice(MSONable):
     def get_primitive_lattice(self, lattice_type):
         """
         Returns the primitive lattice of the lattice given the type.
-        
+
         Args:
             lattice_type:
                 An alphabet indicating whether the lattice type, P - primitive,
@@ -420,14 +423,14 @@ class Lattice(MSONable):
             'C': np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
             'I': np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
             'F': np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
-            }
+        }
         return Lattice(np.dot(conv_to_prim[lattice_type], self._matrix))
 
     def get_most_compact_basis_on_lattice(self):
         """
         This method returns the alternative basis corresponding to the shortest
         3 linearly independent translational operations permitted.
-        This tends to create larger angles for every elongated cells and is 
+        This tends to create larger angles for every elongated cells and is
         beneficial for viewing crystal structure (especially when they are
         Niggli cells).
         """
@@ -446,7 +449,7 @@ class Lattice(MSONable):
                 diffvector = a + b
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(a) or \
-               diffnorm < np.linalg.norm(b):
+                    diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(a) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -461,7 +464,7 @@ class Lattice(MSONable):
                 diffvector = a + c
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(a) or \
-               diffnorm < np.linalg.norm(c):
+                    diffnorm < np.linalg.norm(c):
                 if np.linalg.norm(a) < np.linalg.norm(c):
                     c = diffvector
                 else:
@@ -476,38 +479,38 @@ class Lattice(MSONable):
                 diffvector = c + b
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(c) or \
-               diffnorm < np.linalg.norm(b):
+                    diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(c) < np.linalg.norm(b):
                     b = diffvector
                 else:
                     c = diffvector
             anychange = True
-            if anychange == True:
+            if anychange:
                 break
         return Lattice([a, b, c])
 
     def get_lll_reduced_lattice(self, delta=0.75):
         """
-        Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a 
+        Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthongonality of the lattice vectors.
-        
+
         Args:
             delta:
                 Reduction parameter. Default of 0.75 is usually fine.
-                
+
         Returns:
-            Reduced lattice. 
+            Reduced lattice.
         """
-        #Transpose the lattice matrix first so that basis vectors are columns. 
-        #Makes life easier.
+        # Transpose the lattice matrix first so that basis vectors are columns.
+        # Makes life easier.
         a = np.transpose(self._matrix.copy())
 
-        b = np.zeros((3, 3)) #Vectors after the Gram-Schmidt process
-        u = np.zeros((3, 3)) #Gram-Schmidt coeffieicnts
-        m = np.zeros(3) #These are the norm squared of each vec.
+        b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
+        u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
+        m = np.zeros(3)  # These are the norm squared of each vec.
 
-        #We are going to use dot a lot. Let's make an alias.
+        # We are going to use dot a lot. Let's make an alias.
         dot = np.dot
 
         b[:, 0] = a[:, 0]
@@ -520,22 +523,22 @@ class Lattice(MSONable):
         k = 2
 
         while k <= 3:
-            #Size reduction
+            # Size reduction.
             for i in xrange(k - 1, 0, -1):
                 q = round(u[k - 1, i - 1])
                 if q != 0:
-                    #Reduce the k-th basis vector
+                    # Reduce the k-th basis vector.
                     a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
                     uu = list(u[i - 1, 0:(i - 1)])
                     uu.append(1)
-                    #Update the GS coefficients
+                    # Update the GS coefficients.
                     u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
 
-            #Check the Lovasz condition
+            # Check the Lovasz condition.
             if dot(b[:, k - 1], b[:, k - 1]) >= \
-                (delta - abs(u[k - 1, k - 2]) ** 2) * \
-                             dot(b[:, (k - 2)], b[:, (k - 2)]):
-                #Increment k if the Lovasz condition holds
+                    (delta - abs(u[k - 1, k - 2]) ** 2) * \
+                    dot(b[:, (k - 2)], b[:, (k - 2)]):
+                # Increment k if the Lovasz condition holds.
                 k += 1
             else:
                 #If the Lovasz condition fails,
@@ -561,4 +564,3 @@ class Lattice(MSONable):
                     u[k:3, (k - 2):k] = result
 
         return Lattice(a.T)
-

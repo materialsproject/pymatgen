@@ -506,6 +506,7 @@ class Element(object):
         d['element'] = self.symbol
         return d
 
+
 class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
@@ -528,13 +529,14 @@ class Specie(MSONable):
             oxidation_state:
                 Oxidation state of element, e.g., 2 or -2
             properties:
-                Properties associated with the Specie, e.g. 
+                Properties associated with the Specie, e.g.,
                 {'spin':5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
         object.__setattr__(self, '_el', Element(symbol))
         object.__setattr__(self, '_oxi_state', oxidation_state)
-        object.__setattr__(self, '_properties', properties if properties else {})
+        object.__setattr__(self, '_properties',
+                           properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
@@ -548,11 +550,12 @@ class Specie(MSONable):
             raise AttributeError(a)
 
     def __setattr__(self, n, v):
-        raise ValueError("Specie is immutable and setting of attributes is not allowed")
+        raise ValueError("Specie is immutable and setting of attributes is not"
+                         " allowed")
 
     def __delattr__(self, n):
-        raise ValueError("Specie is immutable and deleting of attributes is not allowed")
-
+        raise ValueError("Specie is immutable and deleting of attributes is "
+                         "not allowed")
 
     def __eq__(self, other):
         """
@@ -561,7 +564,8 @@ class Specie(MSONable):
         """
         if not isinstance(other, Specie):
             return False
-        return self.symbol == other.symbol and self._oxi_state == other._oxi_state
+        return self.symbol == other.symbol \
+            and self._oxi_state == other._oxi_state
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -645,7 +649,8 @@ class Specie(MSONable):
 
     @staticmethod
     def from_dict(d):
-        return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
+        return Specie(d['element'], d['oxidation_state'],
+                      d.get('properties', None))
 
 
 class DummySpecie(Specie, MSONable):
@@ -681,10 +686,11 @@ class DummySpecie(Specie, MSONable):
         """
         object.__setattr__(self, '_symbol', symbol)
         object.__setattr__(self, '_oxi_state', oxidation_state)
-        object.__setattr__(self, '_properties', properties if properties else {})
+        object.__setattr__(self, '_properties',
+                           properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
-                raise ValueError("{} is not a supported Specie property".format(k))
+                raise ValueError("{} is not a supported property".format(k))
 
     @property
     def Z(self):
@@ -743,7 +749,9 @@ class DummySpecie(Specie, MSONable):
 
     @staticmethod
     def from_dict(d):
-        return DummySpecie(d['element'], d['oxidation_state'], d.get('properties', None))
+        return DummySpecie(d['element'], d['oxidation_state'],
+                           d.get('properties', None))
+
 
 @singleton
 class PeriodicTable(object):
