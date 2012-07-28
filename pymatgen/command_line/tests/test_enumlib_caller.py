@@ -38,11 +38,11 @@ class EnumlibAdaptorTest(unittest.TestCase):
         if not enumlib_present:
             raise SkipTest("enumlib not present. Skipping...")
         test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
-
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
         struct = parser.get_structures(False)[0]
         subtrans = SubstitutionTransformation({'Li':{'Li':0.5}})
-        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
+        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2,
+                                 enum_precision_parameter=0.1)
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 52)
@@ -50,7 +50,8 @@ class EnumlibAdaptorTest(unittest.TestCase):
             self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
 
         subtrans = SubstitutionTransformation({'Li':{'Li':0.25}})
-        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1)
+        adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1,
+                                 enum_precision_parameter=0.1)
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 1)
@@ -72,10 +73,10 @@ class EnumlibAdaptorTest(unittest.TestCase):
         #REmove some ordered sites to break symmetry.
         removetrans = RemoveSitesTransformation([4, 7])
         s = removetrans.apply_transformation(s)
-        adaptor = EnumlibAdaptor(s, 1, 1)
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01)
         adaptor.run()
         structures = adaptor.structures
-        self.assertEqual(len(structures), 2)
+        self.assertEqual(len(structures), 4)
 
 if __name__ == '__main__':
     unittest.main()
