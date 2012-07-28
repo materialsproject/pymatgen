@@ -52,10 +52,15 @@ class PeriodicSiteTest(unittest.TestCase):
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.si = Element("Si")
-        self.site = PeriodicSite("Fe", np.array([0.25, 0.35, 0.45]), self.lattice)
+        self.site = PeriodicSite("Fe", np.array([0.25, 0.35, 0.45]),
+                                 self.lattice)
         self.site2 = PeriodicSite({"Si":0.5}, np.array([0, 0, 0]), self.lattice)
-        self.assertEquals(self.site2.species_and_occu, {Element('Si'): 0.5}, "Inconsistent site created!")
-        self.propertied_site = PeriodicSite(Specie("Fe", 2), [0.25, 0.35, 0.45], self.lattice, properties={'magmom':5.1, 'charge':4.2})
+        self.assertEquals(self.site2.species_and_occu, {Element('Si'): 0.5},
+                          "Inconsistent site created!")
+        self.propertied_site = PeriodicSite(Specie("Fe", 2), [0.25, 0.35, 0.45],
+                                            self.lattice,
+                                            properties={'magmom':5.1,
+                                                        'charge':4.2})
 
     def test_properties(self):
         """
@@ -104,11 +109,15 @@ class PeriodicSiteTest(unittest.TestCase):
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
-        self.assertTrue(self.site.is_periodic_image(other), "This other site should be a periodic image.")
+        self.assertTrue(self.site.is_periodic_image(other),
+                        "This other site should be a periodic image.")
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
-        self.assertFalse(self.site.is_periodic_image(other), "This other site should not be a periodic image.")
-        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), Lattice.rhombohedral(2, 60))
-        self.assertFalse(self.site.is_periodic_image(other), "Different lattices should result in different periodic sites.")
+        self.assertFalse(self.site.is_periodic_image(other),
+                         "This other site should not be a periodic image.")
+        other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]),
+                             Lattice.rhombohedral(2, 60))
+        self.assertFalse(self.site.is_periodic_image(other),
+                         "Different lattices should result in different periodic sites.")
 
     def test_equality(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
