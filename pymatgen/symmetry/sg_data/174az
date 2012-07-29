@@ -1,7 +1,0 @@
-P-6
-x,            y,            z
--y,           x-y,           z
--x+y,          -x,            z
-x,            y,           -z
--x+y,          -x,           -z
--y,           x-y,          -z

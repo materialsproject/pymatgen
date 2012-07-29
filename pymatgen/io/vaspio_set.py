@@ -310,7 +310,7 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
     """
     Batch write vasp input for a sequence of structures to 
     output_dir, following the format output_dir/{group}/{formula}_{number}.
-    
+
     Args:
         structures:
             Sequence of Structures.

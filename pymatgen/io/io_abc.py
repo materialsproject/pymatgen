@@ -28,4 +28,3 @@ class VaspInput(MSONable):
         Writes the contents to a file.
         '''
         return
-

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Interface with command line aconvasp
-http://aflowlib.org/
-Only tested on Linux
-inspired by Shyue's qhull_caller
+Interface with command line aconvasp. http://aflowlib.org/
+Only tested on Linux. Inspired by Shyue's qhull_caller
 WARNING: you need to have a convasp in your path for this to work
 '''
 
@@ -28,7 +26,8 @@ def run_aconvasp_command(command, structure):
     Helper function for calling aconvasp with different arguments
     """
     poscar = Poscar(structure)
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+    p = subprocess.Popen(command, stdout=subprocess.PIPE,
+                         stdin=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
     return output
@@ -36,10 +35,11 @@ def run_aconvasp_command(command, structure):
 
 def get_num_division_kpoints(structure, kppa):
     """
-    Get kpoint divisions for a given k-point density (per reciprocal-atom): 
-    kppa and a given structure  
+    Get kpoint divisions for a given k-point density (per reciprocal-atom):
+    kppa and a given structure
     """
-    output = run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)], structure)
+    output = run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)],
+                                  structure)
     tmp = output[0].rsplit("\n")[6].rsplit(" ")
     return [int(tmp[5]), int(tmp[6]), int(tmp[7])]
 
@@ -65,7 +65,7 @@ def get_minkowski_red(structure):
 
 def get_vasp_kpoint_file_sym(structure):
     """
-    get a kpoint file ready to be ran in VASP along setries of a structure 
+    get a kpoint file ready to be ran in VASP along setries of a structure
     """
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
     if "ERROR" in output[1]:
@@ -74,7 +74,7 @@ def get_vasp_kpoint_file_sym(structure):
     kpoints_string = ""
     for line in output[0].split("\n"):
         #print line
-        if started or line.find("END") != -1 :
+        if started or line.find("END") != -1:
             kpoints_string = kpoints_string + line + "\n"
         if line.find("KPOINTS TO RUN") != -1:
             started = True
@@ -115,8 +115,8 @@ def get_point_group_rec(structure):
             axis = np.array([float(line.split()[0]), float(line.split()[1]),
                              float(line.split()[2])])
         if(count == 11):
-            listUc.append({'matrix':np.array(linetmp), 'type':type_transf,
-                           'axis':axis, 'schoenflies':schoenflies})
+            listUc.append({'matrix': np.array(linetmp), 'type': type_transf,
+                           'axis': axis, 'schoenflies': schoenflies})
     f.close()
     os.remove("aflow.pgroupk.out")
     return listUc

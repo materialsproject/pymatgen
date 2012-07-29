@@ -28,7 +28,7 @@ class VoltageProfilePlotter(object):
         Args:
             xaxis:
                 The quantity to use as the xaxis. Can be either capacity (the
-                default), or the frac_x 
+                default), or the frac_x.
         """
         self._electrodes = OrderedDict()
         self.xaxis = xaxis
@@ -36,7 +36,7 @@ class VoltageProfilePlotter(object):
     def add_electrode(self, electrode, label=None):
         """
         Add an electrode to the plot.
-        
+
         Args:
             electrode:
                 An electrode. All electrodes satisfying the AbstractElectrode
@@ -62,24 +62,24 @@ class VoltageProfilePlotter(object):
                 x.append(cap)
             else:
                 x.append(vpair.frac_charge / (1 - vpair.frac_charge) / norm)
-                x.append(vpair.frac_discharge / (1 - vpair.frac_discharge) / norm)
+                x.append(vpair.frac_discharge / (1 - vpair.frac_discharge)
+                         / norm)
             y.extend([vpair.voltage] * 2)
 
         x.append(x[-1])
         y.append(0)
         return (x, y)
 
-
     def get_plot(self, width, height):
         """
         Returns a plot object.
-        
+
         Args:
             width:
                 Width of the plot.
             height:
                 Height of the plot.
-                
+
         Returns:
             A matplotlib plot object.
         """
@@ -100,7 +100,7 @@ class VoltageProfilePlotter(object):
     def show(self, width=8, height=6):
         """
         Show the voltage profile plot.
-        
+
         Args:
             width:
                 Width of the plot. Defaults to 8 in.
@@ -112,7 +112,7 @@ class VoltageProfilePlotter(object):
     def save(self, filename, image_format="eps", width=8, height=6):
         """
         Save the plot to an image file.
-        
+
         Args:
             filename:
                 Filename to save to.

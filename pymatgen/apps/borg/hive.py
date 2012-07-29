@@ -22,7 +22,8 @@ import logging
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen.serializers.json_coders import MSONable
 
 logger = logging.getLogger(__name__)
@@ -45,11 +46,11 @@ class AbstractDrone(MSONable):
         Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python's multiprocessing, the object must support
         pymatgen's to_dict for parallel processing.
-        
+
         Args:
             path:
                 directory path
-                
+
         Returns:
             An assimilated object
         '''
@@ -60,17 +61,17 @@ class AbstractDrone(MSONable):
         """
         Checks if path contains valid data for assimilation, and then returns
         the valid paths. The paths returned can be a list of directory or file
-        paths, depending on what kind of data you are assimilating. For example,
-        if you are assimilating VASP runs, you are only interested in
+        paths, depending on what kind of data you are assimilating. For
+        example, if you are assimilating VASP runs, you are only interested in
         directories containing vasprun.xml files. On the other hand, if you are
         interested converting all POSCARs in a directory tree to cifs for
         example, you will want the file paths.
-        
+
         Args:
             path:
                 input path as a tuple generated from os.walk, i.e.,
                 (parent, subdirs, files).
-                
+
         Returns:
             List of valid dir/file paths for assimilation
         """
@@ -79,13 +80,13 @@ class AbstractDrone(MSONable):
 
 class VaspToComputedEntryDrone(AbstractDrone):
     """
-    VaspToEntryDrone assimilates directories containing vasp output to 
+    VaspToEntryDrone assimilates directories containing vasp output to
     ComputedEntry/ComputedStructureEntry objects. There are some restrictions
     on the valid directory structures:
-    
+
     1. There can be only one vasp run in each directory.
-    2. Directories designated "relax1", "relax2" are considered to be 2 parts of
-       an aflow style run, and only "relax2" is parsed.
+    2. Directories designated "relax1", "relax2" are considered to be 2 parts
+       of an aflow style run, and only "relax2" is parsed.
     3. The drone parses only the vasprun.xml file.
     """
 
@@ -97,9 +98,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 instead of ComputedEntries.
             parameters:
                 Input parameters to include. It has to be one of the properties
-                supported by the Vasprun object. See pymatgen.io.vaspio Vasprun.
-                If parameters == None, a default set of parameters that are 
-                necessary for typical post-processing will be set.
+                supported by the Vasprun object. See pymatgen.io.vaspio
+                Vasprun. If parameters == None, a default set of parameters
+                that are necessary for typical post-processing will be set.
             data:
                 Output data to include. Has to be one of the properties
                 supported by the Vasprun object.
@@ -114,7 +115,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def assimilate(self, path):
         files = os.listdir(path)
         if 'relax1' in files and 'relax2' in files:
-            filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
+            filepath = glob.glob(os.path.join(path, "relax2",
+                                              "vasprun.xml*"))[0]
         else:
             vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
             filepath = None
@@ -122,11 +124,12 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 filepath = vasprun_files[0]
             elif len(vasprun_files) > 1:
                 """
-                This is a bit confusing, since there maybe be multi-steps. By 
-                default, assimilate will try to find a file simply named 
+                This is a bit confusing, since there maybe be multi-steps. By
+                default, assimilate will try to find a file simply named
                 vasprun.xml, vasprun.xml.bz2, or vasprun.xml.gz.  Failing which
-                it will try to get a relax2 from an aflow style run if possible.
-                Or else, a randomly chosen file containing vasprun.xml is chosen.
+                it will try to get a relax2 from an aflow style run if
+                possible. Or else, a randomly chosen file containing
+                vasprun.xml is chosen.
                 """
                 for fname in vasprun_files:
                     if os.path.basename(fname) in ["vasprun.xml",
@@ -175,10 +178,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure' : self._inc_structure,
+        init_args = {'inc_structure': self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data}
-        d = {'init_args': init_args, 'version': __version__ }
+        d = {'init_args': init_args, 'version': __version__}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
@@ -231,7 +234,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         """
-                        This is a bit confusing, since there maybe be 
+                        This is a bit confusing, since there maybe be
                         multiple steps. By default, assimilate will try to find
                         a file simply named filename, filename.bz2, or
                         filename.gz.  Failing which it will try to get a relax2
@@ -244,7 +247,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                                            filename + ".bz2"]:
                                 files_to_parse[filename] = fname
                                 break
-                            if fname == "POSCAR" and re.search("relax1", fname):
+                            if fname == "POSCAR" and \
+                                re.search("relax1", fname):
                                 files_to_parse[filename] = fname
                                 break
                             if (fname in ("CONTCAR", "OSZICAR") and \
@@ -275,7 +279,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
             delta_volume = (final_vol / initial_vol - 1)
-            data = {'filename':path, 'delta_volume':delta_volume}
+            data = {'filename': path, 'delta_volume': delta_volume}
             if self._inc_structure:
                 entry = ComputedStructureEntry(structure, energy,
                                                parameters=param,
@@ -294,8 +298,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure' : self._inc_structure}
-        d = {'init_args': init_args, 'version': __version__ }
+        init_args = {'inc_structure': self._inc_structure}
+        d = {'init_args': init_args, 'version': __version__}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d
@@ -307,12 +311,12 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
 class GaussianToComputedEntryDrone(AbstractDrone):
     """
-    GaussianToEntryDrone assimilates directories containing Gaussian output to 
+    GaussianToEntryDrone assimilates directories containing Gaussian output to
     ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
     that Gaussian output files have a ".log" extension.
-    
+
     .. note::
-    
+
         Like the GaussianOutput class, this is still in early beta.
     """
 
@@ -384,11 +388,11 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure' : self._inc_structure,
+        init_args = {'inc_structure': self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data,
                      "file_extensions": self._file_extensions}
-        d = {'init_args': init_args, 'version': __version__ }
+        d = {'init_args': init_args, 'version': __version__}
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
         return d

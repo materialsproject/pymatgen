@@ -1,9 +1,0 @@
-F-42m
-x,            y,            z
--x,           -y,            z
-y,           -x,           -z
--y,            x,           -z
-x,           -y,           -z
--x,            y,           -z
-y,            x,            z
--y,           -x,            z

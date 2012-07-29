@@ -20,7 +20,8 @@ import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, PMGJSONEncoder
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, \
+    PMGJSONEncoder
 
 
 class ComputedEntry(PDEntry, MSONable):
@@ -44,8 +45,8 @@ class ComputedEntry(PDEntry, MSONable):
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
             correction:
-                A correction to be applied to the energy. This is used to modify
-                the energy for certain analyses. Defaults to 0.0.
+                A correction to be applied to the energy. This is used to
+                modify the energy for certain analyses. Defaults to 0.0.
             parameters:
                 An optional dict of parameters associated with the entry.
                 Defaults to None.
@@ -77,17 +78,19 @@ class ComputedEntry(PDEntry, MSONable):
         return super(ComputedEntry, self).energy
 
     def __repr__(self):
-        return "ComputedEntry {} with energy = {:.4f}, correction = {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
+        output = ["ComputedEntry {}".format(self.composition.formula)]
+        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
+        output.append("Correction = {:.4f}".format(self.correction))
+        output.append("Parameters:")
+        for k, v in self.parameters.items():
+            output.append("{} = {}".format(k, v))
+        output.append("Data:")
+        for k, v in self.data.items():
+            output.append("{} = {}".format(k, v))
+        return "\n".join(output)
 
     def __str__(self):
-        outputstr = [self.__repr__()]
-        outputstr.append("Parameters:")
-        for k, v in self.parameters.items():
-            outputstr.append("{} = {}".format(k, v))
-        outputstr.append("Data:")
-        for k, v in self.data.items():
-            outputstr.append("{} = {}".format(k, v))
-        return "\n".join(outputstr)
+        return self.__repr__()
 
     @staticmethod
     def from_dict(d):
@@ -114,7 +117,7 @@ class ComputedEntry(PDEntry, MSONable):
 
 class ComputedStructureEntry(ComputedEntry):
     """
-    A heavier version of ComputedEntry which contains a structure as well. The 
+    A heavier version of ComputedEntry which contains a structure as well. The
     structure is needed for some analyses.
     """
 
@@ -128,8 +131,8 @@ class ComputedStructureEntry(ComputedEntry):
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
             correction:
-                A correction to be applied to the energy. This is used to modify
-                the energy for certain analyses. Defaults to 0.0.
+                A correction to be applied to the energy. This is used to
+                modify the energy for certain analyses. Defaults to 0.0.
             parameters:
                 An optional dict of parameters associated with the entry.
                 Defaults to None.
@@ -147,17 +150,19 @@ class ComputedStructureEntry(ComputedEntry):
         self.structure = structure
 
     def __repr__(self):
-        return "ComputedStructureEntry {} with energy = {:.4f}, correction = {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
+        output = ["ComputedStructureEntry {}".format(self.composition.formula)]
+        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
+        output.append("Correction = {:.4f}".format(self.correction))
+        output.append("Parameters:")
+        for k, v in self.parameters.items():
+            output.append("{} = {}".format(k, v))
+        output.append("Data:")
+        for k, v in self.data.items():
+            output.append("{} = {}".format(k, v))
+        return "\n".join(output)
 
     def __str__(self):
-        outputstr = [self.__repr__()]
-        outputstr.append("Parameters:")
-        for k, v in self.parameters.items():
-            outputstr.append("{} = {}".format(k, v))
-        outputstr.append("Data:")
-        for k, v in self.data.items():
-            outputstr.append("{} = {}".format(k, v))
-        return "\n".join(outputstr)
+        return self.__repr__()
 
     @property
     def to_dict(self):
@@ -172,7 +177,7 @@ class ComputedStructureEntry(ComputedEntry):
         dec = PMGJSONDecoder()
         return ComputedStructureEntry(dec.process_decoded(d['structure']),
                                       d['energy'], d['correction'],
-                                      dec.process_decoded(d.get('parameters', {})),
+                                      dec.process_decoded(d.get('parameters',
+                                                                {})),
                                       dec.process_decoded(d.get('data', {})),
                                       entry_id=d.get('entry_id', None))
-

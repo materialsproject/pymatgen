@@ -28,6 +28,7 @@ from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.io_utils import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure, Composition
+from pymatgen.core.operations import SymmOp
 
 
 class CifParser(object):
@@ -42,7 +43,7 @@ class CifParser(object):
             filename:
                 Cif filename. bzipped or gzipped cifs are fine too.
             occupancy_tolerance:
-                If total occupancy of a site is between 1 and 
+                If total occupancy of a site is between 1 and
                 occupancy_tolerance, the occupancies will be scaled down to 1.
         """
         self._occupancy_tolerance = occupancy_tolerance
@@ -59,14 +60,13 @@ class CifParser(object):
         output.seek(0)
         return CifParser(output, occupancy_tolerance)
 
-    def _unique_coords(self, coord_in, sympos, primitive, lattice, primlattice):
+    def _unique_coords(self, coord_in, primitive, lattice, primlattice):
         """
         Generate unique coordinates using coord and symmetry positions.
         """
         coords = list()
-        (x, y, z) = coord_in
-        for gen in sympos:
-            coord = eval(gen)
+        for op in self.symmetry_operations:
+            coord = op.operate(coord_in)
             if primitive:
                 cart = lattice.get_cartesian_coords(np.array(coord))
                 coord = primlattice.get_fractional_coords(cart)
@@ -100,6 +100,8 @@ class CifParser(object):
                 warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
                               "Defaulting to P1.")
                 sympos
+        self.symmetry_operations = parse_symmetry_operations(sympos)
+
         def parse_symbol(sym):
             m = re.search("([A-Z][a-z]*)", sym)
             if m:
@@ -120,7 +122,8 @@ class CifParser(object):
         for i in xrange(len(data['_atom_site_type_symbol'])):
             symbol = parse_symbol(data['_atom_site_type_symbol'][i])
             if oxi_states != None:
-                el = Specie(symbol, oxi_states[data['_atom_site_type_symbol'][i]])
+                el = Specie(symbol,
+                            oxi_states[data['_atom_site_type_symbol'][i]])
             else:
                 el = Element(symbol)
             x = float_from_str(data['_atom_site_fract_x'][i])
@@ -133,7 +136,7 @@ class CifParser(object):
             if occu > 0:
                 coord = (x, y, z)
                 if coord not in coord_to_species:
-                    coord_to_species[coord] = {el:occu}
+                    coord_to_species[coord] = {el: occu}
                 else:
                     coord_to_species[coord][el] = occu
 
@@ -141,7 +144,7 @@ class CifParser(object):
         allcoords = list()
 
         for coord, species in coord_to_species.items():
-            coords = self._unique_coords(coord, sympos, primitive, lattice,
+            coords = self._unique_coords(coord, primitive, lattice,
                                          primlattice)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
@@ -163,15 +166,17 @@ class CifParser(object):
         '''
         Return list of structures in CIF file. primitive boolean sets whether a
         conventional cell structure or primitive cell structure is returned.
-        
+
         Args:
             primitive:
-                Set to False to return conventional unit cells. Defaults to True.
-        
+                Set to False to return conventional unit cells. Defaults to
+                True.
+
         Returns:
             List of Structures.
         '''
-        return [self._get_structure(v, primitive) for k, v in self._cif.items()]
+        return [self._get_structure(v, primitive)
+                for k, v in self._cif.items()]
 
     @property
     def to_dict(self):
@@ -224,9 +229,9 @@ class CifWriter:
         contains_oxidation = True
         symbol_to_oxinum = dict()
         try:
-            symbol_to_oxinum = {str(el):el.oxi_state for el in comp.elements}
+            symbol_to_oxinum = {str(el): el.oxi_state for el in comp.elements}
         except:
-            symbol_to_oxinum = {el.symbol:0 for el in comp.elements}
+            symbol_to_oxinum = {el.symbol: 0 for el in comp.elements}
             contains_oxidation = False
         if contains_oxidation:
             block.AddCifItem(([['_atom_type_symbol',
@@ -257,27 +262,31 @@ class CifWriter:
                 atom_site_occupancy.append(str(occu))
                 count += 1
 
-
         block['_atom_site_type_symbol'] = atom_site_type_symbol
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_label':atom_site_label})
+                        {'_atom_site_label': atom_site_label})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_symmetry_multiplicity':atom_site_symmetry_multiplicity})
+                        {'_atom_site_symmetry_multiplicity':
+                         atom_site_symmetry_multiplicity})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_fract_x':atom_site_fract_x})
+                        {'_atom_site_fract_x': atom_site_fract_x})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_fract_y':atom_site_fract_y})
+                        {'_atom_site_fract_y': atom_site_fract_y})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_fract_z':atom_site_fract_z})
+                        {'_atom_site_fract_z': atom_site_fract_z})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_attached_hydrogens':atom_site_attached_hydrogens})
+                        {'_atom_site_attached_hydrogens':
+                         atom_site_attached_hydrogens})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_B_iso_or_equiv':atom_site_B_iso_or_equiv})
+                        {'_atom_site_B_iso_or_equiv':
+                         atom_site_B_iso_or_equiv})
         block.AddToLoop('_atom_site_type_symbol',
-                        {'_atom_site_occupancy':atom_site_occupancy})
+                        {'_atom_site_occupancy': atom_site_occupancy})
 
         self._cf = CifFile.CifFile()
-        self._cf[comp.reduced_formula[0:74]] = block  # AJ says: CIF Block names cannot be more than 75 characters or you get an Exception
+        # AJ says: CIF Block names cannot be more than 75 characters or you
+        # get an Exception
+        self._cf[comp.reduced_formula[0:74]] = block
 
     def __str__(self):
         '''
@@ -296,7 +305,7 @@ class CifWriter:
 def around_diff_num(a, b):
     """
     Used to compare differences in fractional coordinates, taking into account
-    PBC. 
+    PBC.
     """
     diff_num = abs(a - b)
     return diff_num if diff_num < 0.5 else abs(1 - diff_num)
@@ -320,3 +329,25 @@ def float_from_str(text):
     '''
     return float(re.sub('\(\d+\)', '', text))
 
+
+def parse_symmetry_operations(symmops_str):
+    ops = []
+    for op_str in symmops_str:
+        rot_matrix = np.zeros((3, 3))
+        trans = np.zeros(3)
+        toks = op_str.strip().split(",")
+        for i, tok in enumerate(toks):
+            for m in re.finditer("([\+\-]*)\s*([x-z\d]+)\/*(\d*)", tok):
+                factor = -1 if m.group(1) == "-" else 1
+                if m.group(2) in ("x", "y", "z"):
+                    j = ord(m.group(2)) - 120
+                    rot_matrix[i, j] = factor
+                else:
+                    num = float(m.group(2))
+                    if m.group(3) != "":
+                        num = num / float(m.group(3))
+                    trans[i] = factor * num
+        op = SymmOp.from_rotation_matrix_and_translation_vector(rot_matrix,
+                                                                trans)
+        ops.append(op)
+    return ops

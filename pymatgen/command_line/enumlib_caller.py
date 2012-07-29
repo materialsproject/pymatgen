@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-'''
-This module implements an interface to enumlib, Gus Hart's excellent Fortran
+"""
+This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables multienum.x and
-makestr.x available in the path. Please download the library at 
-http://enum.sourceforge.net/ and follow the instructions in the README to 
+makestr.x available in the path. Please download the library at
+http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
 
 If you use this module, please cite the following:
@@ -15,12 +15,12 @@ Gus L. W. Hart and Rodney W. Forcade, "Algorithm for generating derivative
 structures," Phys. Rev. B 77 224115 (26 June 2008)
 
 Gus L. W. Hart and Rodney W. Forcade, "Generating derivative structures from
-multilattices: Application to hcp alloys," Phys. Rev. B 80 014120 (July 2009) 
+multilattices: Application to hcp alloys," Phys. Rev. B 80 014120 (July 2009)
 
 Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
-'''
+"""
 
 from __future__ import division
 
@@ -56,9 +56,9 @@ logger = logging.getLogger(__name__)
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
-    
+
     .. attribute:: structures
-    
+
         List of all enumerated structures.
     """
     amount_tol = 1e-5
@@ -103,8 +103,9 @@ class EnumlibAdaptor(object):
                 self.structures = self._get_structures(temp_dir, num_structs)
             else:
                 raise ValueError("Unable to enumerate structure.")
-        except Exception as ex:
-            import sys, traceback
+        except Exception:
+            import sys
+            import traceback
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback,
                               limit=2, file=sys.stdout)
@@ -132,7 +133,7 @@ class EnumlibAdaptor(object):
                              len(symmetrized_structure.equivalent_sites)))
 
         """
-        Enumlib doesn't work when the number of species get too large. To
+        Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
         and exclude the ordered sites from the enumeration. The fact that
         different disordered sites with the exact same species may belong to
@@ -145,14 +146,15 @@ class EnumlibAdaptor(object):
         index_species = []
         index_amounts = []
 
-        #Let's group and sort the sites by symmetry.
+        #Let"s group and sort the sites by symmetry.
         site_symmetries = []
         for sites in symmetrized_structure.equivalent_sites:
-            finder = SymmetryFinder(Structure.from_sites(sites), self.symm_prec)
+            finder = SymmetryFinder(Structure.from_sites(sites),
+                                    self.symm_prec)
             sgnum = finder.get_spacegroup_number()
             site_symmetries.append((sites, sgnum))
 
-        site_symmetries = sorted(site_symmetries, key=lambda s:s[1])
+        site_symmetries = sorted(site_symmetries, key=lambda s: s[1])
 
         #Stores the ordered sites, which are not enumerated.
         min_sg_num = site_symmetries[0][1]
@@ -169,7 +171,7 @@ class EnumlibAdaptor(object):
                 species = sites[0].species_and_occu
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     #Let us first make add a dummy element for every single
-                    #site whose total occupancies don't sum to 1.
+                    #site whose total occupancies don"t sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
@@ -196,7 +198,7 @@ class EnumlibAdaptor(object):
             index_species.append(sites[0].specie)
             index_amounts.append(len(sites))
             sp_label = len(index_species) - 1
-            logger.debug("Lowest symmetry {} sites are included in enumeration."
+            logger.debug("Lowest symmetry {} sites are included in enum."
                          .format(sites[0].specie))
             for site in sites:
                 coord_str.append("{} {}".format(
@@ -212,7 +214,7 @@ class EnumlibAdaptor(object):
         lattice = self.structure.lattice
 
         output = [self.structure.formula]
-        output.append('bulk')
+        output.append("bulk")
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
         output.append("{}".format(len(index_species)))
@@ -232,7 +234,8 @@ class EnumlibAdaptor(object):
                                                 int(round(conc * 100)), 100))
             else:
                 min_conc = int(math.floor(conc * 100))
-                output.append("{} {} {}".format(min_conc - 1, min_conc + 1, 100))
+                output.append("{} {} {}".format(min_conc - 1, min_conc + 1,
+                                                100))
         output.append("")
         logger.debug("Generated input file:\n{}".format("\n".join(output)))
         with open(os.path.join(working_dir, "struct_enum.in"), "w") as f:
@@ -240,7 +243,7 @@ class EnumlibAdaptor(object):
 
     def _run_multienum(self, working_dir):
         os.chdir(working_dir)
-        p = subprocess.Popen(['multienum.x'],
+        p = subprocess.Popen(["multienum.x"],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
         output = p.communicate()[0]
@@ -256,17 +259,19 @@ class EnumlibAdaptor(object):
 
     def _get_structures(self, working_dir, num_structs):
         structs = []
-        rs = subprocess.Popen(['makestr.x',
-                               'struct_enum.out', str(0), str(num_structs - 1)],
+        rs = subprocess.Popen(["makestr.x",
+                               "struct_enum.out", str(0),
+                               str(num_structs - 1)],
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
         rs.communicate()
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             ordered_structure = Structure.from_sites(self.ordered_sites)
+            inv_org_latt = np.linalg.inv(original_latt.matrix)
 
         for n in range(1, num_structs + 1):
-            with open('vasp.{:06d}'.format(n)) as f:
+            with open("vasp.{:06d}".format(n)) as f:
                 data = f.read()
                 data = re.sub("scale factor", "1", data)
                 data = re.sub("(\d+)-(\d+)", r"\1 -\2", data)
@@ -280,8 +285,7 @@ class EnumlibAdaptor(object):
                 sites = []
 
                 if len(self.ordered_sites) > 0:
-                    transformation = np.dot(new_latt.matrix,
-                                            np.linalg.inv(original_latt.matrix))
+                    transformation = np.dot(new_latt.matrix, inv_org_latt)
                     transformation = [[int(round(cell)) for cell in row] \
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
@@ -293,7 +297,7 @@ class EnumlibAdaptor(object):
                     super_latt = new_latt
 
                 for site in sub_structure:
-                    if site.specie.symbol != "X": #We exclude vacancies.
+                    if site.specie.symbol != "X":  # We exclude vacancies.
                         sites.append(PeriodicSite(site.species_and_occu,
                                                   site.frac_coords,
                                                   super_latt).to_unit_cell)
@@ -301,4 +305,3 @@ class EnumlibAdaptor(object):
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
-
