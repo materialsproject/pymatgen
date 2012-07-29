@@ -2,7 +2,7 @@
 
 """
 This module defines PDEntry, which wraps information (composition and energy)
-necessary to create phase diagrams. 
+necessary to create phase diagrams.
 """
 
 from __future__ import division
@@ -25,12 +25,12 @@ from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase diagrams.
-    
+
     .. attribute:: name
-        
+
         A name for the entry. This is the string shown in the phase diagrams.
         By default, this is the reduced formula for the composition, but can be
-        set to some other string for display purposes. 
+        set to some other string for display purposes.
     """
 
     def __init__(self, composition, energy, name=None):
@@ -118,14 +118,16 @@ class GrandPotPDEntry(PDEntry):
         comp = entry.composition
         self._original_entry = entry
         self._original_comp = comp
-        grandpot = entry.energy - sum([comp[el] * pot for el, pot in chempots.items()])
+        grandpot = entry.energy - sum([comp[el] * pot
+                                       for el, pot in chempots.items()])
         self.chempots = chempots
         new_comp_map = dict()
         for el in comp.elements:
             if el not in chempots:
                 new_comp_map[el] = comp[el]
         newcomposition = Composition(new_comp_map)
-        super(GrandPotPDEntry, self).__init__(newcomposition, grandpot, entry.name)
+        super(GrandPotPDEntry, self).__init__(newcomposition, grandpot,
+                                              entry.name)
         self.name = name if name else entry.name
 
     @property
@@ -143,9 +145,12 @@ class GrandPotPDEntry(PDEntry):
         return self._original_comp.is_element
 
     def __repr__(self):
-        return "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(self.original_entry.composition,
-                self.original_entry.energy,
-                ' '.join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]))
+        chempot_str = ' '.join(["mu_%s = %.4f" % (el, mu)
+                                for el, mu in self.chempots.items()])
+        return "GrandPotPDEntry with original composition " + \
+            "{}, energy = {:.4f}, {}".format(self.original_entry.composition,
+                                             self.original_entry.energy,
+                                             chempot_str)
 
     def __str__(self):
         return self.__repr__()
@@ -185,7 +190,7 @@ class PDEntryIO(object):
     def to_csv(filename, entries, latexify_names=False):
         """
         Exports PDEntries to a csv
-        
+
         Args:
             filename:
                 Filename to write to.
@@ -202,7 +207,8 @@ class PDEntryIO(object):
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Name'] + elements + ['Energy'])
         for entry in entries:
-            row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+            row = [entry.name if not latexify_names
+                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
             row.extend([entry.composition[el] for el in elements])
             row.append(entry.energy)
             writer.writerow(row)
@@ -211,7 +217,7 @@ class PDEntryIO(object):
     def from_csv(filename):
         """
         Imports PDEntries from a csv
-        
+
         Args:
             filename - Filename to import from.
 
@@ -251,7 +257,7 @@ class TransformedPDEntry(PDEntry):
         """
         Args:
             comp:
-                Transformed composition as a pymatgen.core.structure.Composition
+                Transformed composition as a Composition.
             energy:
                 Energy for composition.
             original_entry:
@@ -277,9 +283,11 @@ class TransformedPDEntry(PDEntry):
         raise AttributeError(a)
 
     def __repr__(self):
-        return "TransformedPDEntry {} with original composition {}, energy = {:.4f}".format(self.composition,
-                self.original_entry.composition,
-                self.original_entry.energy)
+        output = ["TransformedPDEntry {}".format(self.composition)]
+        output.append(" with original composition {}"
+                      .format(self.original_entry.composition))
+        output.append(", E = {:.4f}".format(self.original_entry.energy))
+        return "".join(output)
 
     def __str__(self):
         return self.__repr__()
