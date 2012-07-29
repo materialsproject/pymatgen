@@ -1237,6 +1237,15 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 formula.append(s + formula_double_format(sym_amt[s], False))
         return ' '.join(formula)
 
+    @property
+    def reduced_composition(self):
+        """
+        Returns the reduced composition,i.e. amounts normalized by greatest
+        common denominator. e.g., Composition("FePO4") for
+        Composition("Fe4P4O16").
+        """
+        return self.get_reduced_composition_and_factor()[0]
+
     def get_reduced_composition_and_factor(self):
         '''
         Returns a normalized composition and a multiplicative factor,

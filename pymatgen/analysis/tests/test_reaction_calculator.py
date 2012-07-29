@@ -1,7 +1,8 @@
 import unittest
 
 from pymatgen import Composition
-from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, ReactionError, ComputedReaction
+from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
+    ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -9,7 +10,8 @@ class ReactionTest(unittest.TestCase):
 
     def test_init(self):
 
-        reactants = [Composition.from_formula("Fe"), Composition.from_formula("O2")]
+        reactants = [Composition.from_formula("Fe"),
+                     Composition.from_formula("O2")]
         products = [Composition.from_formula("Fe2O3")]
         rxn = Reaction(reactants, products)
         self.assertEquals(str(rxn), "2.000 Fe + 1.500 O2 -> 1.000 Fe2O3", "Wrong reaction obtained!")
@@ -159,7 +161,5 @@ class ComputedReactionTest(unittest.TestCase):
         new_rxn = ComputedReaction.from_dict(d)
         self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
 
-
 if __name__ == '__main__':
     unittest.main()
-
