@@ -68,7 +68,10 @@ class ThermoData(object):
 
     @staticmethod
     def from_dict(data):
-        return ThermoData(data['type'], data['compound_name'], data['phaseinfo'], data['formula'], data['value'], data['ref'], data['method'], data['temp_range'], data.get('uncertainty', None))
+        return ThermoData(data['type'], data['compound_name'],
+                          data['phaseinfo'], data['formula'],
+                          data['value'], data['ref'], data['method'],
+                          data['temp_range'], data.get('uncertainty', None))
 
     @property
     def to_dict(self):
@@ -93,4 +96,10 @@ class ThermoData(object):
         return "\n".join(output)
 
     def __str__(self):
-        return self.type + "_" + self.formula + "_" + self.phaseinfo + " = " + str(self.value) + ", Valid T : " + str(self.temp_range) + ", ref: " + self.ref
+
+        return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(self.type,
+                                                              self.formula,
+                                                              self.phaseinfo,
+                                                              self.value,
+                                                              self.temp_range,
+                                                              self.ref)
