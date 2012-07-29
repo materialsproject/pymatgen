@@ -21,9 +21,11 @@ from nose.exc import SkipTest
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import __file__, Element, Structure
 from pymatgen.io.cifio import CifParser
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.transformations.standard_transformations import \
+    SubstitutionTransformation
 from pymatgen.util.io_utils import which
-from pymatgen.transformations.site_transformations import RemoveSitesTransformation
+from pymatgen.transformations.site_transformations import \
+    RemoveSitesTransformation
 
 
 if which('multienum.x') and which('makestr.x'):
@@ -37,19 +39,21 @@ class EnumlibAdaptorTest(unittest.TestCase):
     def test_init(self):
         if not enumlib_present:
             raise SkipTest("enumlib not present. Skipping...")
-        test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+        test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', 'test_files')
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
         struct = parser.get_structures(False)[0]
-        subtrans = SubstitutionTransformation({'Li':{'Li':0.5}})
+        subtrans = SubstitutionTransformation({'Li': {'Li': 0.5}})
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2,
                                  enum_precision_parameter=0.1)
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 52)
         for s in structures:
-            self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
+            self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")),
+                                   0.5 / 6.5)
 
-        subtrans = SubstitutionTransformation({'Li':{'Li':0.25}})
+        subtrans = SubstitutionTransformation({'Li': {'Li': 0.25}})
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1,
                                  enum_precision_parameter=0.1)
         adaptor.run()
@@ -68,7 +72,7 @@ class EnumlibAdaptorTest(unittest.TestCase):
         #Make sure it works properly when symmetry is broken by ordered sites.
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
         struct = parser.get_structures(False)[0]
-        subtrans = SubstitutionTransformation({'Li':{'Li':0.25}})
+        subtrans = SubstitutionTransformation({'Li': {'Li': 0.25}})
         s = subtrans.apply_transformation(struct)
         #REmove some ordered sites to break symmetry.
         removetrans = RemoveSitesTransformation([4, 7])
@@ -80,4 +84,3 @@ class EnumlibAdaptorTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

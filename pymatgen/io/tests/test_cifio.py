@@ -4,18 +4,21 @@ import os
 
 import numpy as np
 
-from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.io.cifio import CifParser, CifWriter, parse_symmetry_operations
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, __file__
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
+
 
 class  CifIOTest(unittest.TestCase):
 
     def test_CifParser(self):
         parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
         for s in parser.get_structures(True):
-            self.assertEqual(s.formula, "Li4 Fe4 P4 O16", "Incorrectly parsed cif.")
+            self.assertEqual(s.formula, "Li4 Fe4 P4 O16",
+                             "Incorrectly parsed cif.")
 
         #test for disordered structures
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
@@ -94,7 +97,8 @@ loop_
    O  O24  1  0.956628  0.250000  0.292862  0  .  1
  
 """
-        self.assertEqual(str(writer), expected_cif_str, "Incorrectly generated cif string")
+        self.assertEqual(str(writer), expected_cif_str,
+                         "Incorrectly generated cif string")
 
     def test_disordered(self):
         si = Element("Si")
@@ -102,7 +106,9 @@ loop_
         coords = list()
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
-        lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                    [1.9200989668, 3.3257101909, 0.00],
+                                    [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [si, {si:0.5, n:0.5}], coords)
         writer = CifWriter(struct)
         ans = """#\#CIF1.1
@@ -220,6 +226,15 @@ loop_
    N3-  N4  1  0.500000  0.500000  0.500000  0  .  1
 """
         self.assertEqual(str(writer).strip(), ans.strip())
+
+
+class HelperFunctionTest(unittest.TestCase):
+
+    def test_parse_symmetry_operations(self):
+        toks = ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2',
+                'y+1/2, -x+1/2, z+1/2', '-x-1/2, y-1/2, -z-1/2', ]
+        print parse_symmetry_operations(toks)
+
 
 if __name__ == '__main__':
     unittest.main()

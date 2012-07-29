@@ -22,6 +22,8 @@ import math
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.io_utils import clean_json
+from pymatgen.command_line.qhull_caller import qvertex_target, \
+    get_lines_voronoi
 
 logger = logging.getLogger('BSPlotter')
 
@@ -35,15 +37,16 @@ class DosPlotter(object):
         """
         Args:
             zero_at_efermi:
-                Whether to shift all Dos to have zero energy at the fermi energy.
-                Defaults to True.
+                Whether to shift all Dos to have zero energy at the fermi
+                energy. Defaults to True.
             stack:
                 Whether to plot the DOS as a stacked area graph
             key_sort_func:
                 function used to sort the dos_dict keys.
             sigma:
-                A float specifying a standard deviation for Gaussian smearing the 
-                DOS for nicer looking plots. Defaults to None for no smearing.
+                A float specifying a standard deviation for Gaussian smearing
+                the DOS for nicer looking plots. Defaults to None for no
+                smearing.
         """
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
@@ -53,23 +56,26 @@ class DosPlotter(object):
     def add_dos(self, label, dos):
         """
         Adds a dos for plotting.
-        
+
         Args:
             label:
                 label for the DOS. Must be unique.
             dos:
                 Dos object
         """
-        energies = dos.energies - dos.efermi if self.zero_at_efermi else dos.energies
-        densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
+        energies = dos.energies - dos.efermi if self.zero_at_efermi \
+            else dos.energies
+        densities = dos.get_smeared_densities(self.sigma) if self.sigma \
+            else dos.densities
         efermi = dos.efermi
-        self._doses[label] = {'energies':energies, 'densities': densities, 'efermi':efermi}
+        self._doses[label] = {'energies': energies, 'densities': densities,
+                              'efermi': efermi}
 
     def add_dos_dict(self, dos_dict, key_sort_func=None):
         """
-        Add a dictionary of doses, with an optional sorting function for the 
+        Add a dictionary of doses, with an optional sorting function for the
         keys.
-        
+
         Args:
             dos_dict:
                 dict of {label: Dos}
@@ -88,7 +94,7 @@ class DosPlotter(object):
         Returns the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
-        
+
         Returns:
             Dict of dos data. Generally of the form, {label: {'energies':..,
             'densities': {'up':...}, 'efermi':efermi}}
@@ -98,13 +104,13 @@ class DosPlotter(object):
     def get_plot(self, xlim=None, ylim=None):
         """
         Get a matplotlib plot showing the DOS.
-        
+
         Args:
             xlim:
-                Specifies the x-axis limits. Set to None for automatic 
+                Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim:
-                Specifies the y-axis limits. 
+                Specifies the y-axis limits.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -121,7 +127,8 @@ class DosPlotter(object):
             energies = dos['energies']
             densities = dos['densities']
             if not y:
-                y = {Spin.up: np.zeros(energies.shape), Spin.down: np.zeros(energies.shape)}
+                y = {Spin.up: np.zeros(energies.shape),
+                     Spin.down: np.zeros(energies.shape)}
             newdens = {}
             for spin in [Spin.up, Spin.down]:
                 if spin in densities:
@@ -157,7 +164,9 @@ class DosPlotter(object):
                 plt.plot(x, y, color=color_order[i % 4], label=str(key))
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
-                plt.plot([self._doses[key]['efermi'], self._doses[key]['efermi']], ylim, color_order[i % 4] + '--', linewidth=2)
+                plt.plot([self._doses[key]['efermi'],
+                          self._doses[key]['efermi']], ylim,
+                         color_order[i % 4] + '--', linewidth=2)
 
         plt.xlabel('Energies (eV)')
         plt.ylabel('Density of states')
@@ -167,7 +176,8 @@ class DosPlotter(object):
             plt.ylim(ylim)
         else:
             xlim = plt.xlim()
-            relevanty = [p[1] for p in allpts if p[0] > xlim[0] and p[0] < xlim[1]]
+            relevanty = [p[1] for p in allpts
+                         if p[0] > xlim[0] and p[0] < xlim[1]]
             plt.ylim((min(relevanty), max(relevanty)))
 
         if self.zero_at_efermi:
@@ -184,17 +194,17 @@ class DosPlotter(object):
     def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
         """
         Save matplotlib plot to a file.
-        
+
         Args:
             filename:
                 Filename to write to.
             img_format:
                 Image format to use. Defaults to EPS.
             xlim:
-                Specifies the x-axis limits. Set to None for automatic 
+                Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim:
-                Specifies the y-axis limits. 
+                Specifies the y-axis limits.
         """
         plt = self.get_plot(xlim, ylim)
         plt.savefig(filename, format=img_format)
@@ -202,13 +212,13 @@ class DosPlotter(object):
     def show(self, xlim=None, ylim=None):
         """
         Show the plot using matplotlib.
-        
+
         Args:
             xlim:
-                Specifies the x-axis limits. Set to None for automatic 
+                Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim:
-                Specifies the y-axis limits. 
+                Specifies the y-axis limits.
         """
         plt = self.get_plot(xlim, ylim)
         plt.show()
@@ -226,27 +236,27 @@ class BSPlotter(object):
                 A BandStructureSymmLine object.
         """
         self._bs = bs
-        #Many ab initio codes do not give good results for the highest occupied bands, we therefore only
-        #give 90% of the bands for plotting
+        #Many ab initio codes do not give good results for the highest
+        #occupied bands, we therefore only give 90% of the bands for plotting
         self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
 
     def bs_plot_data(self, zero_to_efermi=True):
 
         """
         Get the data nicely formatted for a plot
-        
+
         Args:
             zero_to_efermi:
-                Automatically subtract off the Fermi energy from the eigenvalues
-                and plot.
-        
+                Automatically subtract off the Fermi energy from the
+                eigenvalues and plot.
+
         Returns:
             A dict of the following format:
                 ticks:
                     A dict with the 'distances' at which there is a kpoint (the
                     x axis) and the labels (None if no label)
                 energy:
-                    A dict storing bands for spin up and spin down data 
+                    A dict storing bands for spin up and spin down data
                     {Spin:[band_index][k_point_index]} as a list (one element
                     for each band) of energy for each kpoint.
                 vbm:
@@ -279,15 +289,21 @@ class BSPlotter(object):
             zero_energy = 0.0
 
         energy = {str(Spin.up): []}
+        kpoints = self._bs._kpoints
         if self._bs.is_spin_polarized:
             energy = {str(Spin.up): [], str(Spin.down): []}
-        distance = [self._bs._distance[j] for j in range(len(self._bs._kpoints))]
+        distance = [self._bs._distance[j]
+                    for j in range(len(kpoints))]
         ticks = self.get_ticks()
         for i in range(self._nb_bands):
-            energy[str(Spin.up)].append([self._bs._bands[Spin.up][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+            energy[str(Spin.up)].append([self._bs._bands[Spin.up][i][j]
+                                         - zero_energy
+                                         for j in range(len(kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-                energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
+                energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j]
+                                               - zero_energy
+                                               for j in range(len(kpoints))])
 
         vbm = self._bs.get_vbm()
         cbm = self._bs.get_cbm()
@@ -297,11 +313,13 @@ class BSPlotter(object):
 
         for index in cbm['kpoint_index']:
             cbm_plot.append((self._bs._distance[index],
-                             cbm['energy'] - zero_energy if zero_to_efermi else cbm['energy']))
+                             cbm['energy'] - zero_energy if zero_to_efermi \
+                             else cbm['energy']))
 
         for index in vbm['kpoint_index']:
             vbm_plot.append((self._bs._distance[index],
-                             vbm['energy'] - zero_energy if zero_to_efermi else vbm['energy']))
+                             vbm['energy'] - zero_energy if zero_to_efermi \
+                             else vbm['energy']))
 
         bg = self._bs.get_band_gap()
         direct = "Indirect"
@@ -309,23 +327,26 @@ class BSPlotter(object):
             direct = "Direct"
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
-                'vbm':vbm_plot, 'cbm':cbm_plot,
-                'lattice':self._bs._lattice_rec.to_dict,
-                'zero_energy':zero_energy, 'is_metal':self._bs.is_metal(),
-                'band_gap': "{} {} bandgap = {}".format(direct, bg['transition'], bg['energy']) if not self._bs.is_metal() else ""}
+                'vbm': vbm_plot, 'cbm': cbm_plot,
+                'lattice': self._bs._lattice_rec.to_dict,
+                'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
+                'band_gap': "{} {} bandgap = {}".format(direct,
+                                                        bg['transition'],
+                                                        bg['energy'])
+                if not self._bs.is_metal() else ""}
 
     def show(self, file_name=None, zero_to_efermi=True):
         """
         Show the bandstructure plot. Blue lines are up spin, red lines are down
         spin.
-        
+
         Args:
             file_name:
                 File name to write image to (e.g., plot.eps). If None, no image
                 is created.
             zero_to_efermi:
-                Automatically subtract off the Fermi energy from the eigenvalues
-                and plot (E-Ef).
+                Automatically subtract off the Fermi energy from the
+                eigenvalues and plot (E-Ef).
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -355,19 +376,25 @@ class BSPlotter(object):
         ticks = self.get_ticks()
         # ticks is dict wit keys: distances (array floats), labels (array str)
         logger.debug("ticks {t}".format(t=ticks))
-        logger.debug("ticks has {n} distances and {m} labels".format(n=len(ticks['distance']), m=len(ticks['label'])))
+        logger.debug("ticks has {n} distances and {m} labels"
+                     .format(n=len(ticks['distance']), m=len(ticks['label'])))
         # Draw lines for BZ boundries
         for i in range(len(ticks['label'])):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
                     if (ticks['label'][i] == ticks['label'][i - 1]):
-                        logger.debug("already print label... skipping label {i}".format(i=ticks['label'][i]))
+                        logger.debug("already printed... skipping label {i}"
+                                     .format(i=ticks['label'][i]))
                     else:
-                        logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                        logger.debug("Adding a line at {d} for label {l}"
+                                     .format(d=ticks['distance'][i],
+                                             l=ticks['label'][i]))
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
-                    logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
+                    logger.debug("Adding a line at {d} for label {l}"
+                                 .format(d=ticks['distance'][i],
+                                         l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
 
         #Sanitize only plot the uniq values
@@ -378,12 +405,16 @@ class BSPlotter(object):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
-                logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                logger.debug("Adding label {l} at {d}"
+                             .format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
             else:
                 if temp_ticks[i][1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                    logger.debug("Skipping label {i}"
+                                 .format(i=temp_ticks[i][1]))
                 else:
-                    logger.debug("Adding label {l} at {d}".format(l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                    logger.debug("Adding label {l} at {d}"
+                                 .format(l=temp_ticks[i][0],
+                                         d=temp_ticks[i][1]))
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
@@ -395,7 +426,8 @@ class BSPlotter(object):
 
         #Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
+        ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
+            else r'$\mathrm{Energy\ (eV)}$'
         plt.ylabel(ylabel, fontsize=30)
 
         # Draw Fermi energy, only if not the zero
@@ -434,9 +466,9 @@ class BSPlotter(object):
     def get_ticks(self):
         """
         Get all ticks and labels for a band structure plot.
-        
+
         Returns:
-            A dict with 
+            A dict with
                 'distance': a list of distance at which ticks should be set.
                 'label': a list of label for each of those ticks.
         """
@@ -452,7 +484,8 @@ class BSPlotter(object):
                     if i >= b['start_index'] and i <= b['end_index']:
                         this_branch = b['name']
                         break
-                if c.label != previous_label and previous_branch != this_branch:
+                if c.label != previous_label \
+                    and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
@@ -486,8 +519,8 @@ class BSPlotter(object):
                 pylab.plot(data['distances'], data[spin][i], 'b-', linewidth=3)
         for spin in data_other:
             for i in range(self._nb_bands):
-                pylab.plot(data['distances'], data_other[spin][i], 'r--', linewidth=3)
-
+                pylab.plot(data['distances'], data_other[spin][i], 'r--',
+                           linewidth=3)
 
         ticks = self.get_ticks()
 
@@ -502,7 +535,6 @@ class BSPlotter(object):
         pylab.legend()
 
     def plot_brillouin(self):
-        import pymatgen.command_line.qhull_caller
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         mpl.rcParams['legend.fontsize'] = 10
@@ -539,18 +571,20 @@ class BSPlotter(object):
                     if list_k_points[-1][2] < min_z:
                         min_z = list_k_points[-1][0]
 
-        vertex = pymatgen.command_line.qhull_caller.qvertex_target(list_k_points, 13)
-        lines = pymatgen.command_line.qhull_caller.get_lines_voronoi(vertex)
+        vertex = qvertex_target(list_k_points, 13)
+        lines = get_lines_voronoi(vertex)
 
         for i in range(len(lines)):
             vertex1 = lines[i]['start']
             vertex2 = lines[i]['end']
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='k')
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
+                    [vertex1[2], vertex2[2]], color='k')
 
         for b in self._bs._branches:
             vertex1 = self._bs._kpoints[b['start_index']].cart_coords
             vertex2 = self._bs._kpoints[b['end_index']].cart_coords
-            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]], [vertex1[2], vertex2[2]], color='r', linewidth=3)
+            ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
+                    [vertex1[2], vertex2[2]], color='r', linewidth=3)
 
         for k in self._bs._kpoints:
             if k.label:
@@ -558,8 +592,10 @@ class BSPlotter(object):
                 if k.label.startswith("\\") or k.label.find("_") != -1:
                     label = "$" + k.label + "$"
                 off = 0.01
-                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off, k.cart_coords[2] + off, label, color='b', size='25')
-                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]], [k.cart_coords[2]], color='b')
+                ax.text(k.cart_coords[0] + off, k.cart_coords[1] + off,
+                        k.cart_coords[2] + off, label, color='b', size='25')
+                ax.scatter([k.cart_coords[0]], [k.cart_coords[1]],
+                           [k.cart_coords[2]], color='b')
 
         # make ticklabels and ticklines invisible
         for a in ax.w_xaxis.get_ticklines() + ax.w_xaxis.get_ticklabels():
@@ -573,4 +609,3 @@ class BSPlotter(object):
 
         plt.show()
         ax.axis("off")
-

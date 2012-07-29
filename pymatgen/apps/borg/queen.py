@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 '''
-This module defines the BorgQueen class, which manages drones to assimilate 
-data using Python's multiprocessing. 
+This module defines the BorgQueen class, which manages drones to assimilate
+data using Python's multiprocessing.
 '''
 
 from __future__ import division
@@ -29,7 +29,7 @@ logger = logging.getLogger("BorgQueen")
 
 class BorgQueen(object):
     """
-    The Borg Queen controls the drones to assimilate data in an entire 
+    The Borg Queen controls the drones to assimilate data in an entire
     directory tree. Uses multiprocessing to speed up things considerably. It
     also contains convenience methods to save and load data between sessions.
     """
@@ -40,7 +40,7 @@ class BorgQueen(object):
             drone:
                 The drone to use for assimilation
             rootpath:
-                The root directory to start assimilation. Leave it as None if 
+                The root directory to start assimilation. Leave it as None if
                 you want to do assimilation later, or is using the BorgQueen
                 to load previously assimilated data.
             number_of_drones:
@@ -111,7 +111,7 @@ class BorgQueen(object):
     def save_data(self, filename):
         """
         Save the assimilated data to a file.
-        
+
         Args:
             filename:
                 filename to save the assimilated data to. Note that if the
@@ -142,5 +142,3 @@ def order_assimilation(args):
     total = status['total']
     logger.info('{}/{} ({:.2f}%) done'.format(count, total,
                                               count / total * 100))
-
-
