@@ -21,11 +21,13 @@ import logging
 
 from pymatgen.io.vaspio import Outcar
 from pymatgen.util.string_utils import str_aligned
-from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, VaspToComputedEntryDrone
+from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
+    VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 
 save_file = 'vasp_data.gz'
+
 
 def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
     if verbose:
@@ -36,14 +38,15 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True,
-                                         data=['filename', 'initial_structure'])
+                                         data=['filename',
+                                               'initial_structure'])
 
     ncpus = multiprocessing.cpu_count()
     logging.info('Detected {} cpus'.format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
-        msg = 'Using previously assimilated data from {}.'.format(save_file) + \
-              ' Use -f to force re-analysis.'
+        msg = 'Using previously assimilated data from {}.'.format(save_file) \
+            + ' Use -f to force re-analysis.'
         queen.load_data(save_file)
     else:
         queen.parallel_assimilate(rootdir)
@@ -53,9 +56,9 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
 
     entries = queen.get_data()
     if sort == "energy_per_atom":
-        entries = sorted(entries, key=lambda x:x.energy_per_atom)
+        entries = sorted(entries, key=lambda x: x.energy_per_atom)
     elif sort == "filename":
-        entries = sorted(entries, key=lambda x:x.data['filename'])
+        entries = sorted(entries, key=lambda x: x.data['filename'])
 
     all_data = []
     for e in entries:
@@ -122,19 +125,30 @@ if __name__ == "__main__":
     Version: 1.0
     Last updated: Jul 14 2012''')
     parser.add_argument('directories', metavar='dir', default='.',
-                        type=str, nargs='*', help='directory to process (default to .)')
+                        type=str, nargs='*',
+                        help='directory to process (default to .)')
     parser.add_argument('-e', '--energies', dest='get_energies',
                         action='store_true', help='Print energies')
     parser.add_argument('-m', '--mag', dest="ion_list", type=str, nargs=1,
-                        help='Print magmoms. ION LIST can be a range (e.g., 1-2) or the string "All" for all ions.')
+                        help='Print magmoms. ION LIST can be a range '
+                        '(e.g., 1-2) or the string "All" for all ions.')
     parser.add_argument('-f', '--force', dest="reanalyze", action='store_true',
-                        help='Force reanalysis. Typically, vasp_analyzer will just reuse a vasp_analyzer_data.gz if present. This forces the analyzer to reanalyze the data.')
+                        help='Force reanalysis. Typically, vasp_analyzer'
+                        ' will just reuse a vasp_analyzer_data.gz if present. '
+                        'This forces the analyzer to reanalyze the data.')
     parser.add_argument('-v', '--verbose', dest="verbose", action='store_true',
-                        help='verbose mode. Provides detailed output on progress.')
+                        help='verbose mode. Provides detailed output on '
+                        'progress.')
     parser.add_argument('-p', '--pretty', dest="pretty", action='store_const',
-                        const=True, help='pretty mode. Uses prettytable to format output. Must have prettytable module installed.')
-    parser.add_argument('-d', '--detailed', dest="detailed", action='store_true', help='Detailed mode. Parses vasprun.xml instead of separate vasp input. Slower.')
-    parser.add_argument('-s', '--sort', dest="sort", type=str, nargs=1, default=['energy_per_atom'],
+                        const=True, help='pretty mode. Uses prettytable to '
+                        'format output. Must have prettytable module '
+                        'installed.')
+    parser.add_argument('-d', '--detailed', dest="detailed",
+                        action='store_true',
+                        help='Detailed mode. Parses vasprun.xml instead of '
+                        'separate vasp input. Slower.')
+    parser.add_argument('-s', '--sort', dest="sort", type=str, nargs=1,
+                        default=['energy_per_atom'],
                         help='Sort criteria. Defaults to energy / atom.')
 
     args = parser.parse_args()
