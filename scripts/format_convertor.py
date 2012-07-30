@@ -18,14 +18,19 @@ import argparse
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
 
-parser = argparse.ArgumentParser(description='''Convenient file format convertor. 
+parser = argparse.ArgumentParser(description='''
+Convenient file format convertor.
 Author: Shyue Ping Ong
 Version: 1.0
 Last updated: Oct 26 2011''')
-parser.add_argument('input_file', metavar='input file', type=str, nargs=1, help='input file')
-parser.add_argument('output_file', metavar='output file', type=str, nargs=1, help='output file')
+parser.add_argument('input_file', metavar='input file', type=str, nargs=1,
+                    help='input file')
+parser.add_argument('output_file', metavar='output file', type=str, nargs=1,
+                    help='output file')
 
-parser.add_argument('-c', '--conversion', dest='conversion', type=str, nargs=1, choices=['poscar2cif', 'cif2poscar'], default='poscar2cif', help='Format conversion desired. ')
+parser.add_argument('-c', '--conversion', dest='conversion', type=str, nargs=1,
+                    choices=['poscar2cif', 'cif2poscar'], default='poscar2cif',
+                    help='Format conversion desired.')
 
 args = parser.parse_args()
 try:
