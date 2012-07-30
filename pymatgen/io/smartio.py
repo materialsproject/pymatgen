@@ -14,22 +14,37 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 29, 2012"
 
+import re
+import os
+
 from pymatgen.io.vaspio import Vasprun, Poscar
 from pymatgen.io.cifio import CifParser
+from pymatgen.io.cssrio import Cssr
 
 
 def read_structure(filename):
     """
     Reads a structure based on file extension. For example, anything ending in
     a "cif" is assumed to be a Crystallographic Information Format file.
+
+    Args:
+        filename:
+            A filename to read from.
+
+    Returns:
+        A Structure object.
     """
-    lower_filename = filename.lower()
-    if lower_filename.endswith(".cif"):
+    lower_filename = os.path.basename(filename).lower()
+    if re.search("\.cif", lower_filename):
         parser = CifParser(filename)
         return parser.get_structures(True)[0]
     elif lower_filename.startswith("poscar") \
         or lower_filename.startswith("contcar"):
-        return Poscar(filename).structure
-    elif lower_filename.startswith("vasprun"):
+        return Poscar.from_file(filename, False).structure
+    elif re.search("vasprun.*\.xml.*", lower_filename):
         return Vasprun(filename).final_structure
+    elif re.search("\.cssr", lower_filename):
+        cssr = Cssr.from_file(filename)
+        return cssr.structure
+
     raise ValueError("Unrecognized file extension!")
