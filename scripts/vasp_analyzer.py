@@ -65,11 +65,13 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
         if not detailed:
             delta_vol = "{:.2f}".format(e.data['delta_volume'] * 100)
         else:
-            delta_vol = e.structure.volume / e.data['initial_structure'].volume - 1
+            delta_vol = e.structure.volume / \
+                e.data['initial_structure'].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data['filename'].replace("./", ""),
                      re.sub("\s+", "", e.composition.formula),
-                     "{:.5f}".format(e.energy), "{:.5f}".format(e.energy_per_atom),
+                     "{:.5f}".format(e.energy),
+                     "{:.5f}".format(e.energy_per_atom),
                      delta_vol))
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
@@ -120,7 +122,9 @@ def get_magnetizations(mydir, ion_list):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='''Convenient vasp run analyzer which can recursively go into a directory to search results.
+    parser = argparse.ArgumentParser(description='''
+    Convenient vasp run analyzer which can recursively go into a directory to
+    search results.
     Author: Shyue Ping Ong
     Version: 1.0
     Last updated: Jul 14 2012''')

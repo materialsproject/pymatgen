@@ -114,7 +114,7 @@ class DosPlotter(object):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
-        color_order = ['r', 'b', 'g', 'c']
+        color_order = ['r', 'b', 'g', 'c', 'm', 'k']
 
         y = None
         alldensities = []
@@ -159,9 +159,11 @@ class DosPlotter(object):
                     y.extend(densities)
             allpts.extend(zip(x, y))
             if self.stack:
-                plt.fill(x, y, color=color_order[i % 4], label=str(key))
+                plt.fill(x, y, color=color_order[i % len(color_order)],
+                         label=str(key))
             else:
-                plt.plot(x, y, color=color_order[i % 4], label=str(key))
+                plt.plot(x, y, color=color_order[i % len(color_order)],
+                         label=str(key))
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 plt.plot([self._doses[key]['efermi'],

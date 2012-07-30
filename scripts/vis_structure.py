@@ -23,17 +23,27 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.vis.structure_vtk import StructureVis
 from pymatgen.util.io_utils import zopen
 
-parser = argparse.ArgumentParser(description='''Convenient structure file viewer.  Currently only cif and POSCAR formats supported.
+
+parser = argparse.ArgumentParser(description='''
+Convenient structure file viewer.  Currently only cif and POSCAR formats
+supported.
 Author: Shyue Ping Ong
 Version: 1.0
 Last updated: Nov 29 2011''')
-parser.add_argument('input_file', metavar='input file', type=str, nargs=1, help='input file')
+parser.add_argument('input_file', metavar='input file', type=str, nargs=1,
+                    help='input file')
 
-parser.add_argument('-f', '--format', dest='format', type=str, nargs=1, choices=['cif', 'poscar', 'mpjson'], default='poscar', help='Format of input file. Defaults to POSCAR')
-parser.add_argument('-e', '--exclude_bonding', dest='exclude_bonding', type=str, nargs=1, help='List of elements to exclude from bonding analysis. E.g., Li,Na')
+parser.add_argument('-f', '--format', dest='format', type=str, nargs=1,
+                    choices=['cif', 'poscar', 'mpjson'], default='poscar',
+                    help='Format of input file. Defaults to POSCAR')
+parser.add_argument('-e', '--exclude_bonding', dest='exclude_bonding',
+                    type=str, nargs=1,
+                    help='List of elements to exclude from bonding ' + \
+                    'analysis. E.g., Li,Na')
 
 args = parser.parse_args()
-excluded_bonding_elements = args.exclude_bonding[0].split(',') if args.exclude_bonding else []
+excluded_bonding_elements = args.exclude_bonding[0].split(',') \
+    if args.exclude_bonding else []
 
 file_format = args.format
 filename = args.input_file[0]
