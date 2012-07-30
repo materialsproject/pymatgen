@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 def get_publication_quality_plot(width=8, height=None):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
-    
+
     Args:
         width:
             Width of plot in inches. Defaults to 8in.

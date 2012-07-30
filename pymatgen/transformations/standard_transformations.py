@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-'''
-This module defines standard transformations which transforms a structure into 
-another structure. Standard transformations operate in a structure-wide manner, 
+"""
+This module defines standard transformations which transforms a structure into
+another structure. Standard transformations operate in a structure-wide manner,
 rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
-'''
+"""
 
 from __future__ import division
 
@@ -26,9 +26,11 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, OxidationStateDecorator, OxidationStateRemover
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, \
+    OxidationStateDecorator, OxidationStateRemover
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
+from pymatgen.transformations.site_transformations import \
+    PartialRemoveSitesTransformation
 
 
 logger = logging.getLogger(__name__)
@@ -63,10 +65,10 @@ class IdentityTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'init_args': {},
-             'version': __version__ }
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "init_args": {},
+             "version": __version__}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -116,10 +118,11 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'axis': self._axis, 'angle':self._angle, 'angle_in_radians':self._angle_in_radians}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"axis": self._axis, "angle": self._angle,
+                          "angle_in_radians": self._angle_in_radians}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -132,7 +135,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         """
         Args:
             oxidation_states
-                Oxidation states supplied as a dict, e.g., {'Li':1, 'O':-2}
+                Oxidation states supplied as a dict, e.g., {"Li":1, "O":-2}
         """
         self.oxi_states = oxidation_states
 
@@ -150,11 +153,12 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'oxidation_states': self.oxi_states}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"oxidation_states": self.oxi_states}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
+
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
     """
@@ -174,11 +178,12 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
+
 
 class SupercellTransformation(AbstractTransformation):
     """
@@ -189,21 +194,22 @@ class SupercellTransformation(AbstractTransformation):
         """
         Args:
             scaling_matrix:
-                a matrix of transforming the lattice vectors. Defaults to the 
-                identity matrix. Has to be all integers. e.g., 
+                a matrix of transforming the lattice vectors. Defaults to the
+                identity matrix. Has to be all integers. e.g.,
                 [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
-                lattice vectors a' = 2a + b, b' = 3b, c' = c where a, b, and c
-                are the lattice vectors of the original structure. 
+                lattice vectors a" = 2a + b, b" = 3b, c" = c where a, b, and c
+                are the lattice vectors of the original structure.
         """
         self._matrix = scaling_matrix
 
     @staticmethod
     def from_scaling_factors(scale_a=1, scale_b=1, scale_c=1):
         """
-        Convenience method to get a SupercellTransformation from a simple series
-        of three numbers for scaling each lattice vector. Equivalent to calling
-        the normal with [[scale_a, 0, 0], [0, scale_b, 0], [0, 0, scale_c]]
-        
+        Convenience method to get a SupercellTransformation from a simple
+        series of three numbers for scaling each lattice vector. Equivalent to
+        calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
+        [0, 0, scale_c]]
+
         Args:
             scale_a:
                 Scaling factor for lattice direction a. Defaults to 1.
@@ -220,7 +226,8 @@ class SupercellTransformation(AbstractTransformation):
         return maker.modified_structure
 
     def __str__(self):
-        return "Supercell Transformation with scaling matrix {}".format(self._matrix)
+        return "Supercell Transformation with scaling matrix " + \
+            "{}".format(self._matrix)
 
     def __repr__(self):
         return self.__str__()
@@ -235,10 +242,10 @@ class SupercellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'scaling_matrix': self._matrix}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"scaling_matrix": self._matrix}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -250,11 +257,12 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         Args:
             species_map:
-                A dict containing the species mapping in string-string pairs. 
-                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions 
+                A dict containing the species mapping in string-string pairs.
+                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions
                 can be done. Overloaded to accept sp_and_occu dictionary
-                E.g. {'Si: {'Ge':0.75, 'C':0.25} }, which substitutes a single
-                species with multiple species to generate a disordered structure.
+                E.g. {"Si: {"Ge":0.75, "C":0.25} }, which substitutes a single
+                species with multiple species to generate a disordered
+                structure.
         """
         self._species_map = species_map
 
@@ -262,7 +270,7 @@ class SubstitutionTransformation(AbstractTransformation):
         species_map = {}
         for k, v in self._species_map.items():
             if isinstance(v, dict):
-                value = {smart_element_or_specie(x):y for x, y in v.items()}
+                value = {smart_element_or_specie(x): y for x, y in v.items()}
             else:
                 value = smart_element_or_specie(v)
             species_map[smart_element_or_specie(k)] = value
@@ -272,14 +280,16 @@ class SubstitutionTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Substitution Transformation :" + \
-            ", ".join([k + "->" + str(v) for k, v in self._species_map.items()])
+            ", ".join([k + "->" + str(v)
+                       for k, v in self._species_map.items()])
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return SubstitutionTransformation({v:k for k, v in self._species_map.items()})
+        inverse_map = {v: k for k, v in self._species_map.items()}
+        return SubstitutionTransformation(inverse_map)
 
     @property
     def is_one_to_many(self):
@@ -287,10 +297,10 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'species_map': self._species_map}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"species_map": self._species_map}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -302,13 +312,14 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         """
         Args:
             species_to_remove:
-                List of species to remove. E.g., ["Li", "Mn"] 
+                List of species to remove. E.g., ["Li", "Mn"]
         """
         self._species = species_to_remove
 
     def apply_transformation(self, structure):
         editor = StructureEditor(structure)
-        map(editor.remove_species, [[smart_element_or_specie(sp)] for sp in self._species])
+        map(editor.remove_species, [[smart_element_or_specie(sp)]
+                                    for sp in self._species])
         return editor.modified_structure
 
     def __str__(self):
@@ -327,45 +338,45 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'species_to_remove': self._species}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"species_to_remove": self._species}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
     """
     Remove fraction of specie from a structure.
-    
-    Requires an oxidation state decorated structure for ewald sum to be 
+
+    Requires an oxidation state decorated structure for ewald sum to be
     computed.
-    
+
     Given that the solution to selecting the right removals is NP-hard, there
     are several algorithms provided with varying degrees of accuracy and speed.
     The options are as follows:
-    
+
     ALGO_FAST:
-        This is a highly optimized algorithm to quickly go through the search 
+        This is a highly optimized algorithm to quickly go through the search
         tree. It is guaranteed to find the optimal solution, but will return
         only a single lowest energy structure. Typically, you will want to use
         this.
-    
+
     ALGO_COMPLETE:
-        The complete algo ensures that you get all symmetrically distinct 
+        The complete algo ensures that you get all symmetrically distinct
         orderings, ranked by the estimated Ewald energy. But this can be an
         extremely time-consuming process if the number of possible orderings is
         very large. Use this if you really want all possible orderings. If you
         want just the lowest energy ordering, ALGO_FAST is accurate and faster.
-        
+
     ALGO_BEST_FIRST:
-        This algorithm is for ordering the really large cells that defeats even 
+        This algorithm is for ordering the really large cells that defeats even
         ALGO_FAST.  For example, if you have 48 sites of which you want to
-        remove 16 of them, the number of possible orderings is around 2 x 10^12.
-        ALGO_BEST_FIRST shortcircuits the entire search tree by removing the 
-        highest energy site first, then followed by the next highest energy
-        site, and so on.  It is guaranteed to find a solution in a reasonable
-        time, but it is also likely to be highly inaccurate. 
+        remove 16 of them, the number of possible orderings is around
+        2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by
+        removing the highest energy site first, then followed by the next
+        highest energy site, and so on.  It is guaranteed to find a solution
+        in a reasonable time, but it is also likely to be highly inaccurate.
     """
 
     ALGO_FAST = 0
@@ -391,7 +402,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         Apply the transformation.
-        
+
         Args:
             structure:
                 input structure
@@ -399,17 +410,17 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
                 Boolean stating whether or not multiple structures are
                 returned. If return_ranked_list is an int, that number of
                 structures is returned.
-                
+
         Returns:
-            Depending on returned_ranked list, either a transformed structure 
+            Depending on returned_ranked list, either a transformed structure
             or
-            a list of dictionaries, where each dictionary is of the form 
-            {'structure' = .... , 'other_arguments'}
-            the key 'transformation' is reserved for the transformation that
-            was actually applied to the structure. 
+            a list of dictionaries, where each dictionary is of the form
+            {"structure" = .... , "other_arguments"}
+            the key "transformation" is reserved for the transformation that
+            was actually applied to the structure.
             This transformation is parsed by the alchemy classes for generating
             a more specific transformation history. Any other information will
-            be stored in the transformation_parameters dictionary in the 
+            be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
         sp = smart_element_or_specie(self._specie)
@@ -424,7 +435,10 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return True
 
     def __str__(self):
-        return "PartialRemoveSpecieTransformation : Species to remove = {}, Fraction to remove = {}, ALGO = {}".format(self._specie, self._frac, self._algo)
+        spec_str = ["Species = {}".format(self._specie)]
+        spec_str.append("Fraction to remove = {}".format(self._frac))
+        spec_str.append("ALGO = {}".format(self._algo))
+        return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
 
     def __repr__(self):
         return self.__str__()
@@ -435,40 +449,40 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'specie_to_remove': self._specie,
-                          'fraction_to_remove': self._frac, 'algo':self._algo}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"specie_to_remove": self._specie,
+                          "fraction_to_remove": self._frac, "algo": self._algo}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
     """
     Order a disordered structure. The disordered structure must be oxidation
-    state decorated for ewald sum to be computed. No attempt is made to perform 
+    state decorated for ewald sum to be computed. No attempt is made to perform
     symmetry determination to reduce the number of combinations.
-    
-    Hence, attempting to performing ordering on a large number of disordered 
-    sites may be extremely expensive. The time scales approximately with the 
-    number of possible combinations. The algorithm can currently compute 
+
+    Hence, attempting to performing ordering on a large number of disordered
+    sites may be extremely expensive. The time scales approximately with the
+    number of possible combinations. The algorithm can currently compute
     approximately 5,000,000 permutations per minute.
-    
-    Also, simple rounding of the occupancies are performed, with no attempt 
+
+    Also, simple rounding of the occupancies are performed, with no attempt
     made to achieve a target composition.  This is usually not a problem for
-    most ordering problems, but there can be times where rounding errors may 
+    most ordering problems, but there can be times where rounding errors may
     result in structures that do not have the desired composition.
     This second step will be implemented in the next iteration of the code.
-    
-    If multiple fractions for a single species are found for different sites, 
-    these will be treated separately if the difference is above a threshold 
+
+    If multiple fractions for a single species are found for different sites,
+    these will be treated separately if the difference is above a threshold
     tolerance. currently this is .1
-    
-    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites 
-    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7] 
-    will be filled, even though a lower energy combination might be found by 
+
+    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
+    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+    will be filled, even though a lower energy combination might be found by
     putting all lithium in sites [4,5,6,7].
-    
+
     USE WITH CARE.
     """
 
@@ -477,14 +491,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_BEST_FIRST = 2
 
     def __init__(self, algo=ALGO_FAST):
-        '''
+        """
         Args:
             num_structures:
                 maximum number of structures to return
             mev_cutoff:
                 maximum mev per atom above the minimum energy ordering for a
                 structure to be returned
-        '''
+        """
         self._algo = algo
         self._all_structures = []
 
@@ -492,10 +506,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         """
         For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
-        consistent with the method signature of the other transformations.  
+        consistent with the method signature of the other transformations.
         However, all structures are stored in the  all_structures attribute in
         the transformation object for easy access.
-        
+
         Args:
             structure:
                 Oxidation state decorated disordered structure to order
@@ -503,17 +517,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 Boolean stating whether or not multiple structures are
                 returned. If return_ranked_list is a number, that number of
                 structures is returned.
-                
+
         Returns:
-            Depending on returned_ranked list, either a transformed structure 
+            Depending on returned_ranked list, either a transformed structure
             or
-            a list of dictionaries, where each dictionary is of the form 
-            {'structure' = .... , 'other_arguments'}
-            the key 'transformation' is reserved for the transformation that
-            was actually applied to the structure. 
+            a list of dictionaries, where each dictionary is of the form
+            {"structure" = .... , "other_arguments"}
+            the key "transformation" is reserved for the transformation that
+            was actually applied to the structure.
             This transformation is parsed by the alchemy classes for generating
             a more specific transformation history. Any other information will
-            be stored in the transformation_parameters dictionary in the 
+            be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
         ordered_sites = []
@@ -533,7 +547,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     len(site.species_and_occu) == 1:
                 ordered_sites.append(site)
             else:
-                species = tuple([sp for sp, occu in site.species_and_occu.items()])
+                species = tuple([sp for sp, occu
+                                 in site.species_and_occu.items()])
                 #group the sites by the list of species on that site
                 for sp, occu in site.species_and_occu.items():
                     if species not in sites_to_order:
@@ -544,16 +559,17 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         sites_to_order[species][sp].append([occu, i])
 
                 total_occu = sum(site.species_and_occu.values())
-                #if the total occupancy on a site is less than one, add 
-                #a list with None as the species (for removal)   
+                #if the total occupancy on a site is less than one, add
+                #a list with None as the species (for removal)
                 if total_occu < 1:
                     if None not in sites_to_order[species]:
                         sites_to_order[species][None] = [[1 - total_occu, i]]
                     else:
-                        sites_to_order[species][None].append([1 - total_occu, i])
+                        sites_to_order[species][None].append([1 - total_occu,
+                                                              i])
 
         """
-        Create a list of [multiplication fraction, number of replacements, 
+        Create a list of [multiplication fraction, number of replacements,
         [indices], replacement species]
         """
 
@@ -583,21 +599,22 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     for site in site_list:
                         if site[0] - prev_fraction > .1:
                             """
-                            tolerance for creating a new group of sites. 
+                            tolerance for creating a new group of sites.
                             if site occupancies are similar, they will be put
-                            in a group where the fraction has to be consistent 
+                            in a group where the fraction has to be consistent
                             over the whole.
                             """
                             manipulation[1] = int(round(manipulation[1]))
                             m_list.append(manipulation)
-                            manipulation = [oxi / initial_sp.oxi_state, 0, [], sp]
+                            manipulation = [oxi / initial_sp.oxi_state, 0, [],
+                                            sp]
                         prev_fraction = site[0]
                         manipulation[1] += site[0]
                         manipulation[2].append(site[1])
-                    #if the # of atoms to remove isn't within .25 of an integer
+                    #if the # of atoms to remove isn"t within .25 of an integer
                     if abs(manipulation[1] - round(manipulation[1])) > .25:
-                        raise ValueError('Occupancy fractions not consistent '
-                                        'with size of unit cell')
+                        raise ValueError("Occupancy fractions not consistent "
+                                        "with size of unit cell")
 
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
@@ -613,7 +630,9 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         for output in ewald_m.output_lists:
             se = StructureEditor(structure)
-            del_indices = [] #do deletions afterwards because they screw up the indices of the structure
+            # do deletions afterwards because they screw up the indices of the
+            # structure
+            del_indices = []
 
             for manipulation in output[1]:
                 if manipulation[1] is None:
@@ -621,14 +640,15 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append({'energy':output[0],
-                'energy_above_minimum':(output[0] - lowest_energy) / num_atoms,
-                'structure': se.modified_structure.get_sorted_structure()})
+            self._all_structures.append({"energy": output[0],
+                "energy_above_minimum": (output[0]
+                                         - lowest_energy) / num_atoms,
+                "structure": se.modified_structure.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures
         else:
-            return self._all_structures[0]['structure']
+            return self._all_structures[0]["structure"]
 
     def __str__(self):
         return "Order disordered structure transformation"
@@ -646,22 +666,20 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'algo' : self._algo}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"algo": self._algo}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
     @property
     def lowest_energy_structure(self):
-        return self._all_structures[0]['structure']
-
-
+        return self._all_structures[0]["structure"]
 
 
 class PrimitiveCellTransformation(AbstractTransformation):
     """
-    This class finds the primitive cell of the input structure. 
+    This class finds the primitive cell of the input structure.
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
@@ -669,19 +687,19 @@ class PrimitiveCellTransformation(AbstractTransformation):
         self._tolerance = tolerance
 
     def _get_more_primitive_structure(self, structure, tolerance):
-        '''
-        This finds a smaller unit cell than the input. Sometimes it doesn't
+        """
+        This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is called until it
         is unable to find a smaller cell.
-        
+
         The method works by finding transformational symmetries for all sites
         and then using that translational symmetry instead of one of the
         lattice basis vectors if more than one vector is found (usually the
         case for large cells) the one with the smallest norm is used.
-        
+
         Things are done in fractional coordinates because its easier to
         translate back to the unit cell.
-        '''
+        """
 
         #convert tolerance to fractional coordinates
         tol_a = tolerance / structure.lattice.a
@@ -690,8 +708,9 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
-        grouped_sites = [list(group) for k, group in itertools.groupby(sites,
-                                        key=lambda site: site.species_string)]
+        grouped_sites = [list(a[1]) for a
+                         in itertools.groupby(sites,
+                                              key=lambda s: s.species_string)]
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         x = min_site_list[0]
@@ -706,21 +725,23 @@ class PrimitiveCellTransformation(AbstractTransformation):
             for j in range(len(possible_vectors)):
                 p_v = possible_vectors[j]
                 fit = False
-                if p_v is not None: #have to test that adding vector to a site finds a similar site
+                # test that adding vector to a site finds a similar site
+                if p_v is not None:
                     test_location = x.frac_coords + p_v
-                    possible_locations = [site.frac_coords for site in sites \
-                            if site.species_and_occu == x.species_and_occu and \
+                    possible_locations = [site.frac_coords for site in sites
+                            if site.species_and_occu == x.species_and_occu and
                             not x == site]
                     for p_l in possible_locations:
                         diff = .5 - abs((test_location - p_l) % 1 - .5)
-                        if diff[0] < tol_a and diff[1] < tol_b and diff[2] < tol_c:
+                        if diff[0] < tol_a and diff[1] < tol_b and \
+                                diff[2] < tol_c:
                             fit = True
                             break
                     if not fit:
                         possible_vectors[j] = None
 
-        #vectors that haven't been removed from possible_vectors are symmetry 
-        #vectors convert these to the shortest representation of the vector           
+        #vectors that haven"t been removed from possible_vectors are symmetry
+        #vectors convert these to the shortest representation of the vector
         symmetry_vectors = [.5 - abs((x - .5) % 1) for x in possible_vectors \
                             if x is not None]
         if symmetry_vectors:
@@ -738,7 +759,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
             #create a structure with the new lattice
             new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords, coords_are_cartesian=True)
+                                      structure.cart_coords,
+                                      coords_are_cartesian=True)
 
             #update sites and tolerances for new structure
             sites = list(new_structure.sites)
@@ -753,8 +775,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
                 fit = False
                 for new_site in new_sites:
                     if site.species_and_occu == new_site.species_and_occu:
-                        diff = .5 - abs((site.frac_coords - new_site.frac_coords) % 1 - .5)
-                        if diff[0] < tol_a and diff[1] < tol_b and diff[2] < tol_c:
+                        diff = .5 - abs((site.frac_coords
+                                         - new_site.frac_coords) % 1 - .5)
+                        if diff[0] < tol_a and diff[1] < tol_b and \
+                                diff[2] < tol_c:
                             fit = True
                             break
                 if not fit:
@@ -762,17 +786,19 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
             #recreate the structure with just these sites
             new_structure = Structure(new_structure.lattice,
-                                      [site.species_and_occu for site in new_sites],
-                                      [(site.frac_coords + .001) % 1 - .001 for site in new_sites])
+                                      [site.species_and_occu
+                                       for site in new_sites],
+                                      [(site.frac_coords + .001) % 1 - .001
+                                       for site in new_sites])
 
             return new_structure
-        else: #if there were no translational symmetry vectors
+        else:  # if there were no translational symmetry vectors
             return structure
 
     def _buergers_cell(self, structure):
-        '''
+        """
         Takes a primitive cell and returns the buergers cell
-        '''
+        """
         matrix = structure.lattice.matrix
         finished = False
         while not finished:
@@ -819,10 +845,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -847,7 +873,8 @@ class PerturbStructureTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "Perturb Structure Transformation : Amplitude = {}".format(self._amp)
+        return "PerturbStructureTransformation : " + \
+            "Amplitude = {}".format(self._amp)
 
     def __repr__(self):
         return self.__str__()
@@ -862,9 +889,8 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name' : self.__class__.__name__, 'version': __version__ }
-        d['init_args'] = {'amplitude' : self._amp}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"amplitude": self._amp}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
-
