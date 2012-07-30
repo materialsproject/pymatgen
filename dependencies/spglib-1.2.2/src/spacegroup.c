@@ -77,6 +77,8 @@ Symmetry * spa_get_conventional_symmetry(SPGCONST double transform_mat[3][3],
 					 const Centering centering,
 					 const Symmetry *primitive_sym)
 {
+  debug_print("spa_get_conventional_symmetry:\n");
+  
   return get_conventional_symmetry(transform_mat,
 				   centering,
 				   primitive_sym);
@@ -211,12 +213,21 @@ static int get_hall_number_local(double origin_shift[3],
   double trans_mat[3][3];
   Symmetry * conv_symmetry;
 
+  debug_print("get_hall_number_local:\n");
+  debug_print("primitive->lattice:\n");
+  debug_print_matrix_d3(primitive->lattice);
+  
   *centering = ptg_get_transformation_matrix(trans_mat,
 					     symmetry->rot,
 					     symmetry->size);
+
   mat_multiply_matrix_d3(conv_lattice,
 			 primitive->lattice,
 			 trans_mat);
+
+  debug_print("conv_lattice:\n");
+  debug_print_matrix_d3(conv_lattice);
+
   conv_symmetry = get_conventional_symmetry(trans_mat,
 					    *centering,
 					    symmetry);
@@ -226,6 +237,8 @@ static int get_hall_number_local(double origin_shift[3],
 				    conv_lattice,
 				    conv_symmetry,
 				    symprec);
+
+  
   sym_free_symmetry(conv_symmetry);
 
   return hall_number;
@@ -240,6 +253,27 @@ static Symmetry * get_conventional_symmetry(SPGCONST double transform_mat[3][3],
   double tmp_matrix_d3[3][3], shift[4][3];
   double symmetry_rot_d3[3][3], primitive_sym_rot_d3[3][3];
   Symmetry *symmetry;
+
+#ifdef DEBUG
+  debug_print("get_conventional_symmetry:\n");
+  debug_print("transformation matrix:\n");
+  for (i = 0; i < 3; i++) {
+    debug_print("%f %f %f\n",
+		transform_mat[i][0],
+		transform_mat[i][1],
+		transform_mat[i][2]);
+  }
+  debug_print("orig sym size: %d\n", primitive_sym->size);
+  
+  for (i = 0; i < primitive_sym->size; i++) {
+    debug_print("--- %d ---\n", i + 1);
+    debug_print_matrix_i3(primitive_sym->rot[i]);
+    debug_print("%f %f %f\n",
+		primitive_sym->trans[i][0],
+		primitive_sym->trans[i][1],
+		primitive_sym->trans[i][2]);
+  }
+#endif
 
   size = primitive_sym->size;
 
@@ -268,7 +302,8 @@ static Symmetry * get_conventional_symmetry(SPGCONST double transform_mat[3][3],
     mat_inverse_matrix_d3(tmp_matrix_d3,
 			  transform_mat,
 			  0);
-    mat_multiply_matrix_vector_d3(symmetry->trans[i], tmp_matrix_d3,
+    mat_multiply_matrix_vector_d3(symmetry->trans[i],
+				  tmp_matrix_d3,
 				  primitive_sym->trans[i]);
   }
 

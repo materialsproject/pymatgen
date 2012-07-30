@@ -1,3 +1,31 @@
+2012-07-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.2
+	* lattice.c (get_centering):
+
+	Tranformation A-centring monoclinic lattice to C-centring
+	monoclinic lattice preserving b-axis is not well handled and now
+	the matrix 'monocli_a2c' is used for it.
+
+2012-07-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.1
+	* pointgroup.c (laue_one_axis):
+
+	Transformation matrix is expected to be always positive, but it
+	was not correctly implemented.
+
+2012-05-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* refinement.c (reduce_symmetry_in_frame):
+
+	Fix memory leak by freeing lattice_trans.
+
+2012-04-26  Atsushi Togo  <atz.togo@gmail.com>
+
+	The numbering of the hall symbol is included in the 'struct
+	SpglibDataset'. This starts from 1 to 530.
+
 2012-04-25  Atsushi Togo  <atz.togo@gmail.com>
 
 	* spglib.c, spglib.h:

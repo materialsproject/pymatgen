@@ -1,4 +1,4 @@
-/* spglib.h version 1.2 */
+/* spglib.h version 1.2.1 */
 /* Copyright (C) 2008 Atsushi Togo */
 
 #ifndef __spglib_H__
@@ -59,6 +59,7 @@
 
 typedef struct {
   int spacegroup_number;
+  int hall_number;
   char international_symbol[11];
   char hall_symbol[17];
   double transformation_matrix[3][3]; /* bravais_lattice = T * original_lattice */

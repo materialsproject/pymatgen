@@ -118,6 +118,8 @@ static Cell * refine_cell(SPGCONST Cell * cell,
   Symmetry *conv_sym;
   Spacegroup spacegroup;
 
+  debug_print("refine_cell:\n");
+  
   primitive = prm_get_primitive(cell, symprec);
   
   if (primitive->size == 0) {
@@ -128,6 +130,7 @@ static Cell * refine_cell(SPGCONST Cell * cell,
 
   tolerance = prm_get_current_tolerance();
   spacegroup = spa_get_spacegroup_with_primitive(primitive, tolerance);
+
   wyckoffs = (int*)malloc(sizeof(int) * primitive->size);
   equiv_atoms = (int*)malloc(sizeof(int) * primitive->size);
   conv_prim = get_bravais_exact_positions_and_lattice(wyckoffs,
@@ -142,6 +145,14 @@ static Cell * refine_cell(SPGCONST Cell * cell,
 
   conv_sym = get_db_symmetry(spacegroup.hall_number);
   bravais = expand_positions(conv_prim, conv_sym);
+
+  debug_print("primitive cell in refine_cell:\n");
+  debug_print_matrix_d3(primitive->lattice);
+  debug_print("conventional lattice in refine_cell:\n");
+  debug_print_matrix_d3(conv_prim->lattice);
+  debug_print("bravais lattice in refine_cell:\n");
+  debug_print_matrix_d3(bravais->lattice);
+  
   cel_free_cell(conv_prim);
   sym_free_symmetry(conv_sym);
   cel_free_cell(primitive);
@@ -338,7 +349,12 @@ static int get_conventional_lattice(double lattice[3][3],
 static void set_monocli(double lattice[3][3],
 			SPGCONST double metric[3][3])
 {
+  /* Lattice is expected to be C centring */
   double a, b, c, beta;
+
+  debug_print("set_monocli:\n");
+  debug_print_matrix_d3(metric);
+
   a = sqrt(metric[0][0]);
   b = sqrt(metric[1][1]);
   c = sqrt(metric[2][2]);
@@ -347,6 +363,9 @@ static void set_monocli(double lattice[3][3],
   beta = acos(metric[0][2] / a / c);
   lattice[2][0] = a * cos(beta);
   lattice[0][0] = a * sin(beta);
+
+  debug_print("beta %f\n", beta);
+  debug_print_matrix_d3(lattice);
 }
 			 
 static void set_ortho(double lattice[3][3],
@@ -693,6 +712,7 @@ static Symmetry * reduce_symmetry_in_frame(const int frame[3],
   
 
  ret:
+  mat_free_VecDBL(lattice_trans);
   mat_free_VecDBL(pure_trans);
   sym_free_symmetry(t_sym);
 
