@@ -49,7 +49,7 @@ sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
            "spg_database.c", "spglib.c", "symmetry.c"]
 sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
 
-if os.name == "posix" and sys.platform == "darwin":
+if os.name == "posix" and sys.platform in ("darwin", "sunos5"):
     print "Mac OS detected. Compiling without openmp..."
     extra_compile = []
     extra_link = []
@@ -59,7 +59,7 @@ else:
 
 extension = Extension("pymatgen._spglib",
                       include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join("dependencies", "spglib-1.2",
+                      sources=[os.path.join("dependencies", "spglib-1.2.2",
                                "_spglib.c")] + sources,
                       extra_compile_args=extra_compile,
                       extra_link_args=extra_link
