@@ -649,6 +649,7 @@ static SpglibDataset * get_dataset(SPGCONST double lattice[3][3],
   if (spacegroup.number > 0) {
     /* Spacegroup type, transformation matrix, origin shift */
     dataset->spacegroup_number = spacegroup.number;
+    dataset->hall_number = spacegroup.hall_number;
     strcpy(dataset->international_symbol, spacegroup.international_short);
     strcpy(dataset->hall_symbol, spacegroup.hall_symbol);
     mat_inverse_matrix_d3(inv_mat, lattice, tolerance);

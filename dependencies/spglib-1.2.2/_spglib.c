@@ -90,66 +90,67 @@ static PyObject * get_dataset(PyObject *self, PyObject *args)
 			      symprec,
 			      angle_tolerance);
 
-  array = PyList_New(0);
+  array = PyList_New(9);
 
   /* Space group number, international symbol, hall symbol */
-  PyList_Append(array, PyInt_FromLong((long) dataset->spacegroup_number));
-  PyList_Append(array, PyString_FromString(dataset->international_symbol));
-  PyList_Append(array, PyString_FromString(dataset->hall_symbol));
+  PyList_SetItem(array, 0, PyInt_FromLong((long) dataset->spacegroup_number));
+  PyList_SetItem(array, 1, PyString_FromString(dataset->international_symbol));
+  PyList_SetItem(array, 2, PyString_FromString(dataset->hall_symbol));
 
   /* Transformation matrix */
-  mat = PyList_New(0);
+  mat = PyList_New(3);
   for (i = 0; i < 3; i++) {
-    vec = PyList_New(0);
+    vec = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      PyList_Append(vec, PyFloat_FromDouble(dataset->transformation_matrix[i][j]));
+      PyList_SetItem(vec, j, PyFloat_FromDouble(dataset->transformation_matrix[i][j]));
     }
-    PyList_Append(mat, vec);
+    PyList_SetItem(mat, i, vec);
   }
-  PyList_Append(array, mat);
+  PyList_SetItem(array, 3, mat);
 
   /* Origin shift */
-  vec = PyList_New(0);
+  vec = PyList_New(3);
   for (i = 0; i < 3; i++) {
-    PyList_Append(vec, PyFloat_FromDouble(dataset->origin_shift[i]));
+    PyList_SetItem(vec, i, PyFloat_FromDouble(dataset->origin_shift[i]));
   }
-  PyList_Append(array, vec);
+  PyList_SetItem(array, 4, vec);
 
   /* Rotation matrices */
-  rot = PyList_New(0);
+  rot = PyList_New(dataset->n_operations);
   for (i = 0; i < dataset->n_operations; i++) {
-    mat = PyList_New(0);
+    mat = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      vec = PyList_New(0);
+      vec = PyList_New(3);
       for (k = 0; k < 3; k++) {
-	PyList_Append(vec, PyInt_FromLong((long) dataset->rotations[i][j][k]));
+	PyList_SetItem(vec, k, PyInt_FromLong((long) dataset->rotations[i][j][k]));
       }
-      PyList_Append(mat, vec);
+      PyList_SetItem(mat, j, vec);
     }
-    PyList_Append(rot, mat);
+    PyList_SetItem(rot, i, mat);
   }
-  PyList_Append(array, rot);
+  PyList_SetItem(array, 5, rot);
 
   /* Translation vectors */
-  trans = PyList_New(0);
+  trans = PyList_New(dataset->n_operations);
   for (i = 0; i < dataset->n_operations; i++) {
-    vec = PyList_New(0);
+    vec = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      PyList_Append(vec, PyFloat_FromDouble(dataset->translations[i][j]));
+      PyList_SetItem(vec, j, PyFloat_FromDouble(dataset->translations[i][j]));
     }
-    PyList_Append(trans, vec);
+    PyList_SetItem(trans, i, vec);
   }
-  PyList_Append(array, trans);
+  PyList_SetItem(array, 6, trans);
 
   /* Wyckoff letters, Equivalent atoms */
-  wyckoffs = PyList_New(0);
-  equiv_atoms = PyList_New(0);
+  wyckoffs = PyList_New(dataset->n_atoms);
+  equiv_atoms = PyList_New(dataset->n_atoms);
   for (i = 0; i < dataset->n_atoms; i++) {
-    PyList_Append(wyckoffs, PyInt_FromLong((long) dataset->wyckoffs[i]));
-    PyList_Append(equiv_atoms, PyInt_FromLong((long) dataset->equivalent_atoms[i]));
+    PyList_SetItem(wyckoffs, i, PyInt_FromLong((long) dataset->wyckoffs[i]));
+    PyList_SetItem(equiv_atoms, i, PyInt_FromLong((long) dataset->equivalent_atoms[i]));
   }
-  PyList_Append(array, wyckoffs);
-  PyList_Append(array, equiv_atoms);
+  PyList_SetItem(array, 7, wyckoffs);
+  PyList_SetItem(array, 8, equiv_atoms);
+  spg_free_dataset(dataset);
 
   return array;
 }
@@ -219,19 +220,19 @@ static PyObject * get_pointgroup(PyObject *self, PyObject *args)
   const int ptg_num = spg_get_pointgroup(symbol, trans_mat, rot, num_rot);
 
   /* Transformation matrix */
-  mat = PyList_New(0);
+  mat = PyList_New(3);
   for (i = 0; i < 3; i++) {
-    vec = PyList_New(0);
+    vec = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      PyList_Append(vec, PyInt_FromLong((long)trans_mat[i][j]));
+      PyList_SetItem(vec, j, PyInt_FromLong((long)trans_mat[i][j]));
     }
-    PyList_Append(mat, vec);
+    PyList_SetItem(mat, i, vec);
   }
 
-  array = PyList_New(0);
-  PyList_Append(array, PyString_FromString(symbol));
-  PyList_Append(array, PyInt_FromLong((long) ptg_num));
-  PyList_Append(array, mat);
+  array = PyList_New(3);
+  PyList_SetItem(array, 0, PyString_FromString(symbol));
+  PyList_SetItem(array, 1, PyInt_FromLong((long) ptg_num));
+  PyList_SetItem(array, 2, mat);
 
   return array;
 }
@@ -650,7 +651,7 @@ static PyObject * get_triplets_reciprocal_mesh(PyObject *self, PyObject *args)
 			&symprec))
     return NULL;
 
-  int i, j, k;
+  int i, j, k, num_grid;
   PyObject * triplets, * weights, *tp, *ret_array, *mesh_points;
 
   int mesh_int[3];
@@ -678,31 +679,34 @@ static PyObject * get_triplets_reciprocal_mesh(PyObject *self, PyObject *args)
 				     rot,
 				     symprec);
 
-  ret_array = PyList_New(0);
-  triplets = PyList_New(0);
-  weights = PyList_New(0);
-  mesh_points = PyList_New(0);
+  num_grid = mesh_int[0] * mesh_int[1] * mesh_int[2];
+  ret_array = PyList_New(3);
+  triplets = PyList_New(spg_triplets->size);
+  weights = PyList_New(spg_triplets->size);
+  mesh_points = PyList_New(num_grid);
   
   for (i = 0; i < spg_triplets->size; i++) {
-    tp = PyList_New(0);
+    tp = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      PyList_Append(tp, PyInt_FromLong((long) spg_triplets->triplets[i][j]));
+      PyList_SetItem(tp, j,
+		     PyInt_FromLong((long) spg_triplets->triplets[i][j]));
     }
-    PyList_Append(triplets, tp);
-    PyList_Append(weights, PyInt_FromLong((long) spg_triplets->weights[i]));
+    PyList_SetItem(triplets, i, tp);
+    PyList_SetItem(weights, i, PyInt_FromLong((long) spg_triplets->weights[i]));
   }
 
-  for (i = 0; i < mesh_int[0]*mesh_int[1]*mesh_int[2]; i++) {
-    tp = PyList_New(0);
+  for (i = 0; i < num_grid; i++) {
+    tp = PyList_New(3);
     for (j = 0; j < 3; j++) {
-      PyList_Append(tp, PyInt_FromLong((long) spg_triplets->mesh_points[i][j]));
+      PyList_SetItem(tp, j,
+		     PyInt_FromLong((long) spg_triplets->mesh_points[i][j]));
     }
-    PyList_Append(mesh_points, tp);
+    PyList_SetItem(mesh_points, i, tp);
   }
 
-  PyList_Append(ret_array, triplets);
-  PyList_Append(ret_array, weights);
-  PyList_Append(ret_array, mesh_points);
+  PyList_SetItem(ret_array, 0, triplets);
+  PyList_SetItem(ret_array, 1, weights);
+  PyList_SetItem(ret_array, 2, mesh_points);
 
   spg_free_triplets(spg_triplets);
 

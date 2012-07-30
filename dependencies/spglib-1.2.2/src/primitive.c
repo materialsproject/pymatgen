@@ -170,6 +170,8 @@ static Cell * get_cell_with_smallest_lattice(SPGCONST Cell * cell,
   double min_lat[3][3], trans_mat[3][3], inv_lat[3][3];
   Cell * smallest_cell;
 
+  debug_print("get_cell_with_smallest_lattice:\n");
+  
   if (lat_smallest_lattice_vector(min_lat,
 				  cell->lattice,
 				  symprec)) {
@@ -201,6 +203,8 @@ static Cell * get_primitive(int * mapping_table,
   int multi;
   double prim_lattice[3][3];
   Cell * primitive;
+
+  debug_print("get_primitive:\n");
 
   /* Primitive lattice vectors are searched. */
   /* To be consistent, sometimes tolerance is decreased iteratively. */

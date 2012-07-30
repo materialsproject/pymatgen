@@ -1,4 +1,4 @@
-/* hall_symbol.c */
+ /* hall_symbol.c */
 /* Copyright (C) 2010 Atsushi Togo */
 
 #include <stdio.h>
@@ -2092,131 +2092,131 @@ static int tetra_generators[][3][9] = {
 
 
 
-static int find_hall_symbol( double origin_shift[3],
-			     const Centering centering,
-			     SPGCONST Symmetry *symmetry );
-static int is_hall_symbol( double shift[3],
-			   const int hall_number,
-			   SPGCONST Symmetry *symmetry,
-			   Centering centering,
-			   SPGCONST int generators[3][9],
-			   SPGCONST double VSpU[3][9] );
-static int is_hall_symbol_cubic( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 Centering centering );
-static int is_hall_symbol_hexa( double shift[3],
-				SPGCONST Symmetry *symmetry );
-static int is_hall_symbol_rhombo( double shift[3],
-				  SPGCONST Symmetry *symmetry );
-static int is_hall_symbol_trigonal( double shift[3],
-				    SPGCONST Symmetry *symmetry );
-static int is_hall_symbol_tetra( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 const Centering centering );
-static int is_hall_symbol_ortho( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 const Centering centering );
-static int is_hall_symbol_monocli( double shift[3],
-				   SPGCONST Symmetry *symmetry,
-				   const Centering centering );
-static int is_hall_symbol_tricli( double shift[3],
-				  SPGCONST Symmetry *symmetry );
-static int get_translations( double trans[3][3],
-			     SPGCONST Symmetry *symmetry,
-			     SPGCONST int rot[3][3][3] );
-static void transform_translation( double trans_reduced[3],
-				   const Centering centering,
-				   const double trans[3] );
-static void transform_translation_inverse( double trans[3],
-					   const Centering centering,
-					   const double trans_reduced[3] );
-static int get_origin_shift( double shift[3],
-			     const int hall_number,
-			     SPGCONST int rot[3][3][3],
-			     SPGCONST double trans[3][3],
-			     const Centering centering,
-			     SPGCONST double VSpU[3][9] );
-static void unpack_generators( int rot[3][3][3], int generators[3][9] );
-static int set_dw( double dw[3],
-		   const int operation_index[2],
-		   SPGCONST int rot[3][3],
-		   const double trans[3],
-		   const Centering centering );
-static int is_match_database( const int hall_number,
-			      const double shift[3],
-			      SPGCONST Symmetry *symmetry );
+static int find_hall_symbol(double origin_shift[3],
+			    const Centering centering,
+			    SPGCONST Symmetry *symmetry);
+static int is_hall_symbol(double shift[3],
+			  const int hall_number,
+			  SPGCONST Symmetry *symmetry,
+			  Centering centering,
+			  SPGCONST int generators[3][9],
+			  SPGCONST double VSpU[3][9]);
+static int is_hall_symbol_cubic(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				Centering centering);
+static int is_hall_symbol_hexa(double shift[3],
+			       SPGCONST Symmetry *symmetry);
+static int is_hall_symbol_rhombo(double shift[3],
+				 SPGCONST Symmetry *symmetry);
+static int is_hall_symbol_trigonal(double shift[3],
+				   SPGCONST Symmetry *symmetry);
+static int is_hall_symbol_tetra(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				const Centering centering);
+static int is_hall_symbol_ortho(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				const Centering centering);
+static int is_hall_symbol_monocli(double shift[3],
+				  SPGCONST Symmetry *symmetry,
+				  const Centering centering);
+static int is_hall_symbol_tricli(double shift[3],
+				 SPGCONST Symmetry *symmetry);
+static int get_translations(double trans[3][3],
+			    SPGCONST Symmetry *symmetry,
+			    SPGCONST int rot[3][3][3]);
+static void transform_translation(double trans_reduced[3],
+				  const Centering centering,
+				  const double trans[3]);
+static void transform_translation_inverse(double trans[3],
+					  const Centering centering,
+					  const double trans_reduced[3]);
+static int get_origin_shift(double shift[3],
+			    const int hall_number,
+			    SPGCONST int rot[3][3][3],
+			    SPGCONST double trans[3][3],
+			    const Centering centering,
+			    SPGCONST double VSpU[3][9]);
+static void unpack_generators(int rot[3][3][3], int generators[3][9]);
+static int set_dw(double dw[3],
+		  const int operation_index[2],
+		  SPGCONST int rot[3][3],
+		  const double trans[3],
+		  const Centering centering);
+static int is_match_database(const int hall_number,
+			     const double shift[3],
+			     SPGCONST Symmetry *symmetry);
 
 /* Used for passing to functions in deep */
 static double tolerance;
 static double lattice[3][3];
 
-int hal_get_hall_symbol( double origin_shift[3],
-			 const Centering centering,
-			 double bravais_lattice[3][3],
-			 SPGCONST Symmetry *symmetry,
-			 const double symprec )
+int hal_get_hall_symbol(double origin_shift[3],
+			const Centering centering,
+			double bravais_lattice[3][3],
+			SPGCONST Symmetry *symmetry,
+			const double symprec)
 {
   int hall_number;
 
   /* Pass tolerance and Bravais lattice to the function in deep */
-  mat_copy_matrix_d3( lattice, bravais_lattice );
+  mat_copy_matrix_d3(lattice, bravais_lattice);
   tolerance = symprec;
 
-  hall_number = find_hall_symbol( origin_shift, centering, symmetry );
+  hall_number = find_hall_symbol(origin_shift, centering, symmetry);
 
   /* In the case of Pa-3 (205), Bravais lattice may change. */
-  mat_copy_matrix_d3( bravais_lattice, lattice );
+  mat_copy_matrix_d3(bravais_lattice, lattice);
   
   return hall_number;
 }
 
-static int find_hall_symbol( double origin_shift[3],
-			     const Centering centering,
-			     SPGCONST Symmetry *symmetry )
+static int find_hall_symbol(double origin_shift[3],
+			    const Centering centering,
+			    SPGCONST Symmetry *symmetry)
 {
   int hall_number = 0;
 
   /* CUBIC IT: 195-230, Hall: 489-530 */
-  hall_number = is_hall_symbol_cubic( origin_shift,
-				      symmetry,
-				      centering );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_cubic(origin_shift,
+				     symmetry,
+				     centering);
+  if (hall_number) { goto end; }
 
   /* HEXA, IT: 168-194, Hall: 462-488 */
-  hall_number = is_hall_symbol_hexa( origin_shift, symmetry );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_hexa(origin_shift, symmetry);
+  if (hall_number) { goto end; }
 
   /* TRIGO, IT: 143-167, Hall: 430-461 */
-  hall_number = is_hall_symbol_trigonal( origin_shift, symmetry );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_trigonal(origin_shift, symmetry);
+  if (hall_number) { goto end; }
 
   /* RHOMB, IT: 143-167, Hall: 430-461 */
-  hall_number = is_hall_symbol_rhombo( origin_shift, symmetry );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_rhombo(origin_shift, symmetry);
+  if (hall_number) { goto end; }
 
   /* TETRA, IT: 75-142, Hall: 349-429 */
-  hall_number = is_hall_symbol_tetra( origin_shift, symmetry, centering );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_tetra(origin_shift, symmetry, centering);
+  if (hall_number) { goto end; }
   
   /* ORTHO, IT: 16-74, Hall: 108-348 */
-  hall_number = is_hall_symbol_ortho( origin_shift, symmetry, centering );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_ortho(origin_shift, symmetry, centering);
+  if (hall_number) { goto end; }
 
   /* MONOCLI, IT: 3-15, Hall: 3-107 */
-  hall_number = is_hall_symbol_monocli( origin_shift, symmetry, centering );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_monocli(origin_shift, symmetry, centering);
+  if (hall_number) { goto end; }
 
   /* TRICLI, IT: 1-2, Hall: 1-2 */
-  hall_number = is_hall_symbol_tricli( origin_shift, symmetry );
-  if ( hall_number ) { goto end; }
+  hall_number = is_hall_symbol_tricli(origin_shift, symmetry);
+  if (hall_number) { goto end; }
 
  end:
   return hall_number;
 }
 
-static int is_hall_symbol_cubic( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 Centering centering )
+static int is_hall_symbol_cubic(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				Centering centering)
 {
   int i, hall_number;
   Symmetry *conv_symmetry;
@@ -2224,63 +2224,63 @@ static int is_hall_symbol_cubic( double shift[3],
 			     { 0,-1, 0 },
 			     { 1, 0, 0 } };
 
-  for ( i = 0; i < 24; i++) {
-    for ( hall_number = 489; hall_number < 531; hall_number++ ) {
+  for (i = 0; i < 24; i++) {
+    for (hall_number = 489; hall_number < 531; hall_number++) {
       /* Special case of Pa-3 (205) */
-      if ( hall_number==501 ) {
-	if ( is_hall_symbol( shift,
-			     501,
-			     symmetry,
-			     centering,
-			     cubic_generators[i],
-			     cubic_VSpU[i] ) ) { goto found; }
+      if (hall_number==501) {
+	if (is_hall_symbol(shift,
+			   501,
+			   symmetry,
+			   centering,
+			   cubic_generators[i],
+			   cubic_VSpU[i])) { goto found; }
 
 	/* Try another basis */
-	conv_symmetry = spa_get_conventional_symmetry( trans_mat,
-						       centering,
-						       symmetry );
+	conv_symmetry = spa_get_conventional_symmetry(trans_mat,
+						      centering,
+						      symmetry);
 	
-	if ( is_hall_symbol( shift,
-			     501,
-			     conv_symmetry,
-			     centering,
-			     cubic_generators[i],
-			     cubic_VSpU[i] ) ) {
+	if (is_hall_symbol(shift,
+			   501,
+			   conv_symmetry,
+			   centering,
+			   cubic_generators[i],
+			   cubic_VSpU[i])) {
 	  /* Lattice is multiplied by transformation matrix. */
-	  mat_multiply_matrix_d3( lattice,
-				  lattice,
-				  trans_mat );
+	  mat_multiply_matrix_d3(lattice,
+				 lattice,
+				 trans_mat);
 	  goto found; }
 
-	sym_free_symmetry( conv_symmetry );
+	sym_free_symmetry(conv_symmetry);
 	continue;
       }
       
-      if ( centering==NO_CENTER ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     cubic_generators[i],
-			     cubic_VSpU[i] ) ) { goto found; }
+      if (centering==NO_CENTER) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   cubic_generators[i],
+			   cubic_VSpU[i])) { goto found; }
       }
 
-      if ( centering==BODY ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     cubic_generators[i],
-			     cubic_I_VSpU[i] ) ) { goto found; }
+      if (centering==BODY) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   cubic_generators[i],
+			   cubic_I_VSpU[i])) { goto found; }
       }
 
-      if ( centering==FACE ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     cubic_generators[i],
-			     cubic_F_VSpU[i] ) ) { goto found; }
+      if (centering==FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   cubic_generators[i],
+			   cubic_F_VSpU[i])) { goto found; }
       }
     }
   }
@@ -2292,19 +2292,20 @@ static int is_hall_symbol_cubic( double shift[3],
 
 }
 
-static int is_hall_symbol_hexa( double shift[3],
-				SPGCONST Symmetry *symmetry )
+static int is_hall_symbol_hexa(double shift[3],
+			       SPGCONST Symmetry *symmetry)
 {
   int i, hall_number;
 
-  for ( i = 0; i < 12; i++) {
-    for ( hall_number = 462; hall_number < 489; hall_number++ ) {
-      if ( is_hall_symbol( shift,
-			   hall_number,
-			   symmetry,
-			   NO_CENTER,
-			   hexa_generators[i],
-			   hexa_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 12; i++) {
+    debug_print("Hexa generator No. %d\n", i + 1);
+    for (hall_number = 462; hall_number < 489; hall_number++) {
+      if (is_hall_symbol(shift,
+			 hall_number,
+			 symmetry,
+			 NO_CENTER,
+			 hexa_generators[i],
+			 hexa_VSpU[i])) {goto found;}
     }
   }
 
@@ -2314,19 +2315,19 @@ static int is_hall_symbol_hexa( double shift[3],
   return hall_number;
 }
 
-static int is_hall_symbol_trigonal( double shift[3],
-				    SPGCONST Symmetry *symmetry )
+static int is_hall_symbol_trigonal(double shift[3],
+				   SPGCONST Symmetry *symmetry)
 {
   int i, hall_number;
 
-  for ( i = 0; i < 20; i++) {
-    for ( hall_number = 430; hall_number < 462; hall_number++ ) {
-      if ( is_hall_symbol( shift,
-			   hall_number,
-			   symmetry,
-			   NO_CENTER,
-			   trigo_generators[i],
-			   trigo_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 20; i++) {
+    for (hall_number = 430; hall_number < 462; hall_number++) {
+      if (is_hall_symbol(shift,
+			 hall_number,
+			 symmetry,
+			 NO_CENTER,
+			 trigo_generators[i],
+			 trigo_VSpU[i])) { goto found; }
     }
   }
 
@@ -2337,19 +2338,19 @@ static int is_hall_symbol_trigonal( double shift[3],
 
 }
 
-static int is_hall_symbol_rhombo( double shift[3],
-				  SPGCONST Symmetry *symmetry )
+static int is_hall_symbol_rhombo(double shift[3],
+				 SPGCONST Symmetry *symmetry)
 {
   int i, hall_number;
 
-  for ( i = 0; i < 20; i++) {
-    for ( hall_number = 430; hall_number < 462; hall_number++ ) {
-      if ( is_hall_symbol( shift,
-			   hall_number,
-			   symmetry,
-			   NO_CENTER,
-			   rhombo_generators[i],
-			   rhombo_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 20; i++) {
+    for (hall_number = 430; hall_number < 462; hall_number++) {
+      if (is_hall_symbol(shift,
+			 hall_number,
+			 symmetry,
+			 NO_CENTER,
+			 rhombo_generators[i],
+			 rhombo_VSpU[i])) { goto found; }
     }
   }
 
@@ -2360,30 +2361,30 @@ static int is_hall_symbol_rhombo( double shift[3],
 
 }
 
-static int is_hall_symbol_tetra( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 const Centering centering )
+static int is_hall_symbol_tetra(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				const Centering centering)
 {
   int i,  hall_number;
 
-  for ( i = 0; i < 12; i++) {
-    for ( hall_number = 349; hall_number < 429; hall_number++ ) {
-      if ( centering==NO_CENTER ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     tetra_generators[i],
-			     tetra_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 12; i++) {
+    for (hall_number = 349; hall_number < 429; hall_number++) {
+      if (centering==NO_CENTER) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   tetra_generators[i],
+			   tetra_VSpU[i])) { goto found; }
       }
 
-      if ( centering==BODY ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     tetra_generators[i],
-			     tetra_I_VSpU[i] ) ) { goto found; }
+      if (centering==BODY) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   tetra_generators[i],
+			   tetra_I_VSpU[i])) { goto found; }
       }
     }
   }
@@ -2394,67 +2395,67 @@ static int is_hall_symbol_tetra( double shift[3],
   return hall_number;
 }
 
-static int is_hall_symbol_ortho( double shift[3],
-				 SPGCONST Symmetry *symmetry,
-				 const Centering centering )
+static int is_hall_symbol_ortho(double shift[3],
+				SPGCONST Symmetry *symmetry,
+				const Centering centering)
 {
   int hall_number;
   int i;
 
-  for ( i = 0; i < 12; i++) {
-    for ( hall_number = 108; hall_number < 348; hall_number++ ) {
-      if ( centering==NO_CENTER ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 12; i++) {
+    for (hall_number = 108; hall_number < 348; hall_number++) {
+      if (centering==NO_CENTER) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_VSpU[i])) { goto found; }
       }
 
-      if ( centering==BODY ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_I_VSpU[i] ) ) { goto found; }
+      if (centering==BODY) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_I_VSpU[i])) { goto found; }
       }
 
-      if ( centering==FACE ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_F_VSpU[i] ) ) { goto found; }
+      if (centering==FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_F_VSpU[i])) { goto found; }
       }
 
-      if ( centering==A_FACE ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_A_VSpU[i] ) ) { goto found; }
+      if (centering==A_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_A_VSpU[i])) { goto found; }
       }
 
-      if ( centering==B_FACE ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_B_VSpU[i] ) ) { goto found; }
+      if (centering==B_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_B_VSpU[i])) { goto found; }
       }
 
-      if ( centering==C_FACE ) {
-	if ( is_hall_symbol( shift,
-			     hall_number,
-			     symmetry,
-			     centering,
-			     ortho_generators[i],
-			     ortho_C_VSpU[i] ) ) { goto found; }
+      if (centering==C_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   ortho_generators[i],
+			   ortho_C_VSpU[i])) { goto found; }
       }
     }
   }
@@ -2466,58 +2467,58 @@ static int is_hall_symbol_ortho( double shift[3],
 
 }
 
-static int is_hall_symbol_monocli( double shift[3],
-				   SPGCONST Symmetry *symmetry,
-				   const Centering centering )
+static int is_hall_symbol_monocli(double shift[3],
+				  SPGCONST Symmetry *symmetry,
+				  const Centering centering)
 {
   int hall_number;
   int i;
 
-  for ( i = 0; i < 12; i++) {
-    for ( hall_number = 3; hall_number < 108; hall_number++ ) {
-      if ( centering==NO_CENTER ) {
-	if ( is_hall_symbol( shift,
-			      hall_number,
-			      symmetry,
-			      centering,
-			      monocli_generators[i],
-			      monocli_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 12; i++) {
+    for (hall_number = 3; hall_number < 108; hall_number++) {
+      if (centering==NO_CENTER) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   monocli_generators[i],
+			   monocli_VSpU[i])) {goto found;}
       }
 
-      if ( centering==A_FACE ) {
-	if ( is_hall_symbol( shift,
-			      hall_number,
-			      symmetry,
-			      centering,
-			      monocli_generators[i],
-			      monocli_A_VSpU[i] ) ) { goto found; }
+      if (centering==A_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   monocli_generators[i],
+			   monocli_A_VSpU[i])) {goto found;}
       }
 
-      if ( centering==B_FACE ) {
-	if ( is_hall_symbol( shift,
-			      hall_number,
-			      symmetry,
-			      centering,
-			      monocli_generators[i],
-			      monocli_B_VSpU[i] ) ) { goto found; }
+      if (centering==B_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   monocli_generators[i],
+			   monocli_B_VSpU[i])) {goto found;}
       }
 
-      if ( centering==C_FACE ) {
-	if ( is_hall_symbol( shift,
-			      hall_number,
-			      symmetry,
-			      centering,
-			      monocli_generators[i],
-			      monocli_C_VSpU[i] ) ) { goto found; }
+      if (centering==C_FACE) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   monocli_generators[i],
+			   monocli_C_VSpU[i])) {goto found;}
       }
 
-      if ( centering==BODY ) {
-	if ( is_hall_symbol( shift,
-			      hall_number,
-			      symmetry,
-			      centering,
-			      monocli_generators[i],
-			      monocli_I_VSpU[i] ) ) { goto found; }
+      if (centering==BODY) {
+	if (is_hall_symbol(shift,
+			   hall_number,
+			   symmetry,
+			   centering,
+			   monocli_generators[i],
+			   monocli_I_VSpU[i])) {goto found;}
       }
 
     
@@ -2530,19 +2531,19 @@ static int is_hall_symbol_monocli( double shift[3],
 
 }
 
-static int is_hall_symbol_tricli( double shift[3],
-				  SPGCONST Symmetry *symmetry )
+static int is_hall_symbol_tricli(double shift[3],
+				 SPGCONST Symmetry *symmetry)
 {
   int i, hall_number;
 
-  for ( i = 0; i < 2; i++) {
-    for ( hall_number = 1; hall_number < 3; hall_number++ ) {
-      if ( is_hall_symbol( shift,
-			    hall_number,
-			    symmetry,
-			    NO_CENTER,
-			    tricli_generators[i],
-			    tricli_VSpU[i] ) ) { goto found; }
+  for (i = 0; i < 2; i++) {
+    for (hall_number = 1; hall_number < 3; hall_number++) {
+      if (is_hall_symbol(shift,
+			 hall_number,
+			 symmetry,
+			 NO_CENTER,
+			 tricli_generators[i],
+			 tricli_VSpU[i])) { goto found; }
     }
   }
 
@@ -2553,62 +2554,62 @@ static int is_hall_symbol_tricli( double shift[3],
 
 }
 
-static void unpack_generators( int rot[3][3][3], int generators[3][9] )
+static void unpack_generators(int rot[3][3][3], int generators[3][9])
 {
   int i, j, k;
-  for ( i = 0; i < 3; i++ ) {
-    for ( j = 0; j < 3; j++ ) {
-      for ( k = 0; k < 3; k++ ) {
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      for (k = 0; k < 3; k++) {
 	rot[i][j][k] = generators[i][j*3+k];
       }
     }
   }
 }
 
-static int is_hall_symbol( double shift[3],
-			   const int hall_number,
-			   SPGCONST Symmetry *symmetry,
-			   Centering centering,
-			   SPGCONST int generators[3][9],
-			   SPGCONST double VSpU[3][9] )
+static int is_hall_symbol(double shift[3],
+			  const int hall_number,
+			  SPGCONST Symmetry *symmetry,
+			  Centering centering,
+			  SPGCONST int generators[3][9],
+			  SPGCONST double VSpU[3][9])
 {
   int is_origin_shift;
   int operation_index[2];
   int rot[3][3][3];
   double trans[3][3];
 
-  unpack_generators( rot, generators );
+  unpack_generators(rot, generators);
 
   debug_print("Start Hall symbol check\n");
   debug_print("Generators\n");
-  debug_print_matrix_i3( rot[0] );
-  debug_print_matrix_i3( rot[1] );
-  debug_print_matrix_i3( rot[2] );
+  debug_print_matrix_i3(rot[0]);
+  debug_print_matrix_i3(rot[1]);
+  debug_print_matrix_i3(rot[2]);
   debug_print("Test Hall symbol #%d.\n", hall_number);
 
-  spgdb_get_operation_index( operation_index, hall_number );
-  if ( ! ( operation_index[0] == symmetry->size ) ) {
-    debug_print("Hall symbol #%d doesn't match.\n", hall_number );
+  spgdb_get_operation_index(operation_index, hall_number);
+  if (! (operation_index[0] == symmetry->size)) {
+    debug_print("Hall symbol #%d doesn't match.\n", hall_number);
     goto not_found;
   }
 
-  if ( get_translations( trans, symmetry, rot ) ) {
-    is_origin_shift = get_origin_shift( shift,
-					hall_number,
-					rot,
-					trans,
-					centering,
-					VSpU );
+  if (get_translations(trans, symmetry, rot)) {
+    is_origin_shift = get_origin_shift(shift,
+				       hall_number,
+				       rot,
+				       trans,
+				       centering,
+				       VSpU);
 
     debug_print("origin shift: %f %f %f\n",
 		shift[0],
 		shift[1],
 		shift[2]);
 
-    if ( is_origin_shift ) {
-      if ( is_match_database( hall_number,
-			      shift,
-			      symmetry ) ) {
+    if (is_origin_shift) {
+      if (is_match_database(hall_number,
+			    shift,
+			    symmetry)) {
 	debug_print("Match with database %d\n", hall_number);
 	goto found;
       }
@@ -2625,9 +2626,9 @@ static int is_hall_symbol( double shift[3],
   return 1;
 }
 
-static int get_translations( double trans[3][3],
-			     SPGCONST Symmetry *symmetry,
-			     SPGCONST int rot[3][3][3] )
+static int get_translations(double trans[3][3],
+			    SPGCONST Symmetry *symmetry,
+			    SPGCONST int rot[3][3][3])
 {
   int i, j;
   int is_found;
@@ -2635,24 +2636,24 @@ static int get_translations( double trans[3][3],
 				     { 0, 0, 0 }, 
 				     { 0, 0, 0 }, };
 
-  for ( i = 0; i < 3; i++ ) {
-    for ( j = 0; j < 3; j++ ) {
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
       trans[i][j] = 0;
     }
   }
 
-  for ( i = 0; i < 3; i++ ) {
-    if ( mat_check_identity_matrix_i3( rot[i], zero ) ) { continue; }
+  for (i = 0; i < 3; i++) {
+    if (mat_check_identity_matrix_i3(rot[i], zero)) { continue; }
     is_found = 0;
-    for ( j = 0; j < symmetry->size; j++ ) {
-      if ( mat_check_identity_matrix_i3( symmetry->rot[j], rot[i] ) ) {
-	mat_copy_vector_d3( trans[i], symmetry->trans[j] );
+    for (j = 0; j < symmetry->size; j++) {
+      if (mat_check_identity_matrix_i3(symmetry->rot[j], rot[i])) {
+	mat_copy_vector_d3(trans[i], symmetry->trans[j]);
 	is_found = 1;
-	debug_print("trans%d found! %f %f %f\n", i, trans[i][0], trans[i][1], trans[i][2] );
+	debug_print("trans%d found! %f %f %f\n", i, trans[i][0], trans[i][1], trans[i][2]);
 	break;
       }
     }
-    if ( ! is_found ) {
+    if (! is_found) {
       goto not_found;
     }
   }
@@ -2665,9 +2666,9 @@ static int get_translations( double trans[3][3],
   return 0;
 }
 
-static void transform_translation( double trans_reduced[3],
-				   const Centering centering,
-				   const double trans[3] )
+static void transform_translation(double trans_reduced[3],
+				  const Centering centering,
+				  const double trans[3])
 {
   int i;
   static int M_bcc[3][3] = {
@@ -2696,37 +2697,37 @@ static void transform_translation( double trans_reduced[3],
     { 0, 0, 1 },
   };
 
-  switch ( centering ) {
+  switch (centering) {
   case NO_CENTER:
-    mat_copy_vector_d3( trans_reduced, trans );
+    mat_copy_vector_d3(trans_reduced, trans);
     break;
   case BODY:
-    mat_multiply_matrix_vector_id3( trans_reduced, M_bcc, trans );
+    mat_multiply_matrix_vector_id3(trans_reduced, M_bcc, trans);
     break;
   case FACE:
-    mat_multiply_matrix_vector_id3( trans_reduced, M_fcc, trans );
+    mat_multiply_matrix_vector_id3(trans_reduced, M_fcc, trans);
     break;
   case A_FACE:
-    mat_multiply_matrix_vector_id3( trans_reduced, M_ac, trans );
+    mat_multiply_matrix_vector_id3(trans_reduced, M_ac, trans);
     break;
   case B_FACE:
-    mat_multiply_matrix_vector_id3( trans_reduced, M_bc, trans );
+    mat_multiply_matrix_vector_id3(trans_reduced, M_bc, trans);
     break;
   case C_FACE:
-    mat_multiply_matrix_vector_id3( trans_reduced, M_cc, trans );
+    mat_multiply_matrix_vector_id3(trans_reduced, M_cc, trans);
     break;
   default:
     break;
   }
 
-  for ( i = 0; i < 3; i++ ) {
-    trans_reduced[i] -= mat_Nint( trans_reduced[i] );
+  for (i = 0; i < 3; i++) {
+    trans_reduced[i] -= mat_Nint(trans_reduced[i]);
   }
 }
 
-static void transform_translation_inverse( double trans[3],
-					   const Centering centering,
-					   const double trans_reduced[3] )
+static void transform_translation_inverse(double trans[3],
+					  const Centering centering,
+					  const double trans_reduced[3])
 {
   int i;
   static double M_bcc_inv[3][3] = {
@@ -2755,40 +2756,40 @@ static void transform_translation_inverse( double trans[3],
     { 0.0, 0.0, 1.0},
   };
 
-  switch ( centering ) {
+  switch (centering) {
   case NO_CENTER:
-    mat_copy_vector_d3( trans, trans_reduced );
+    mat_copy_vector_d3(trans, trans_reduced);
     break;
   case BODY:
-    mat_multiply_matrix_vector_d3( trans, M_bcc_inv, trans_reduced );
+    mat_multiply_matrix_vector_d3(trans, M_bcc_inv, trans_reduced);
     break;
   case FACE:
-    mat_multiply_matrix_vector_d3( trans, M_fcc_inv, trans_reduced );
+    mat_multiply_matrix_vector_d3(trans, M_fcc_inv, trans_reduced);
     break;
   case A_FACE:
-    mat_multiply_matrix_vector_d3( trans, M_ac_inv, trans_reduced );
+    mat_multiply_matrix_vector_d3(trans, M_ac_inv, trans_reduced);
     break;
   case B_FACE:
-    mat_multiply_matrix_vector_d3( trans, M_bc_inv, trans_reduced );
+    mat_multiply_matrix_vector_d3(trans, M_bc_inv, trans_reduced);
     break;
   case C_FACE:
-    mat_multiply_matrix_vector_d3( trans, M_cc_inv, trans_reduced );
+    mat_multiply_matrix_vector_d3(trans, M_cc_inv, trans_reduced);
     break;
   default:
     break;
   }
 
-  for ( i = 0; i < 3; i++ ) {
-    trans[i] -= mat_Nint( trans[i] );
+  for (i = 0; i < 3; i++) {
+    trans[i] -= mat_Nint(trans[i]);
   }
 }
 
-static int get_origin_shift( double shift[3],
-			     const int hall_number,
-			     SPGCONST int rot[3][3][3],
-			     SPGCONST double trans[3][3],
-			     const Centering centering,
-			     SPGCONST double VSpU[3][9] )
+static int get_origin_shift(double shift[3],
+			    const int hall_number,
+			    SPGCONST int rot[3][3][3],
+			    SPGCONST double trans[3][3],
+			    const Centering centering,
+			    SPGCONST double VSpU[3][9])
 {
   int i, j;
   int operation_index[2];
@@ -2796,19 +2797,19 @@ static int get_origin_shift( double shift[3],
 
   debug_print("*** get_origin_shift ***\n");
 
-  spgdb_get_operation_index( operation_index, hall_number );
+  spgdb_get_operation_index(operation_index, hall_number);
 
   /* The obtained dw is reduced to that of primitve cell by centerings. */
-  for ( i = 0; i < 3; i++ ) {
+  for (i = 0; i < 3; i++) {
     /* Zero matrix is the sign to set dw 0 */
-    if ( mat_get_determinant_i3( rot[i] ) == 0 ) {
-      for ( j = 0; j < 3; j++ ) {
+    if (mat_get_determinant_i3(rot[i]) == 0) {
+      for (j = 0; j < 3; j++) {
 	dw[i*3+j] = 0;
       }
     } else {
-      if ( set_dw( tmp_dw, operation_index,
-		   rot[i], trans[i], centering ) ) {
-	for ( j = 0; j < 3; j++ ) {
+      if (set_dw(tmp_dw, operation_index,
+		 rot[i], trans[i], centering)) {
+	for (j = 0; j < 3; j++) {
 	  dw[i*3+j] = tmp_dw[j];
 	}
       } else {
@@ -2820,8 +2821,8 @@ static int get_origin_shift( double shift[3],
 
 #ifdef DEBUG
   printf("VSpU\n");
-  for ( i = 0; i < 3; i++ ) {
-    for ( j = 0; j < 9; j++ ) {
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 9; j++) {
       printf("%4.1f ", VSpU[i][j]);
     }
     printf("\n");
@@ -2829,14 +2830,14 @@ static int get_origin_shift( double shift[3],
 #endif
 
   /* VSpU*dw is given for the primitive cell if there is centering. */
-  for ( i = 0; i < 3; i++ ) {
+  for (i = 0; i < 3; i++) {
     tmp_shift[i] = 0;
-    for ( j = 0; j < 9; j++ ) {
+    for (j = 0; j < 9; j++) {
       tmp_shift[i] += VSpU[i][j] * dw[j];
     }
   }
   /* Transform VSpU*dw to that of the conventional unit cell. */
-  transform_translation_inverse( shift, centering, tmp_shift );
+  transform_translation_inverse(shift, centering, tmp_shift);
 
   return 1;
 
@@ -2844,37 +2845,37 @@ static int get_origin_shift( double shift[3],
   return 0;
 }
 
-static int set_dw( double dw[3],
-		   const int operation_index[2],
-		   SPGCONST int rot[3][3],
-		   const double trans[3],
-		   const Centering centering )
+static int set_dw(double dw[3],
+		  const int operation_index[2],
+		  SPGCONST int rot[3][3],
+		  const double trans[3],
+		  const Centering centering)
 {
   int i, j;
   int rot_db[3][3];
   double trans_db[3], tmp_dw[3];
 
   debug_print("Generator\n");
-  debug_print_matrix_i3( rot );
+  debug_print_matrix_i3(rot);
 
-  for ( i = 0; i < operation_index[0]; i++ ) {
+  for (i = 0; i < operation_index[0]; i++) {
     /* rotation matrix matching and set difference of translations */
-    spgdb_get_operation( rot_db, trans_db, operation_index[1] + i );
+    spgdb_get_operation(rot_db, trans_db, operation_index[1] + i);
 
-    if ( mat_check_identity_matrix_i3( rot_db, rot ) ) {
-      for ( j = 0; j < 3; j++ ) {
+    if (mat_check_identity_matrix_i3(rot_db, rot)) {
+      for (j = 0; j < 3; j++) {
 	tmp_dw[j] = trans_db[j] - trans[j];
       }
       /* Transform dw to that of primitive cell if there is centering. */
-      transform_translation( dw, centering, tmp_dw );
+      transform_translation(dw, centering, tmp_dw);
 
       debug_print("trans(db): %f %f %f\n",
-		  trans_db[0], trans_db[1], trans_db[2] );
+		  trans_db[0], trans_db[1], trans_db[2]);
       debug_print("trans    : %f %f %f\n",
-		  trans[0], trans[1], trans[2] );
+		  trans[0], trans[1], trans[2]);
 
       debug_print("dw       : %f %f %f\n",
-		  dw[0], dw[1], dw[2] );
+		  dw[0], dw[1], dw[2]);
 
       goto found;
     }
@@ -2887,9 +2888,9 @@ static int set_dw( double dw[3],
   return 1;
 }
 
-static int is_match_database( const int hall_number,
-			      const double origin_shift[3],
-			      SPGCONST Symmetry *symmetry )
+static int is_match_database(const int hall_number,
+			     const double origin_shift[3],
+			     SPGCONST Symmetry *symmetry)
 {
   int i, j, k, is_found;
   int operation_index[2];
@@ -2897,56 +2898,56 @@ static int is_match_database( const int hall_number,
   int found_list[192];
   double trans_db[3], conv_trans[3], tmp_vec[3];
 
-  spgdb_get_operation_index( operation_index, hall_number );
+  spgdb_get_operation_index(operation_index, hall_number);
 
-  for ( i = 0; i < symmetry->size; i++ ) { found_list[i] = 0; }
+  for (i = 0; i < symmetry->size; i++) { found_list[i] = 0; }
 
-  for ( i = 0; i < symmetry->size; i++ ) {
+  for (i = 0; i < symmetry->size; i++) {
     is_found = 0;
-    for ( j = 0; j < operation_index[0]; j++ ) {
+    for (j = 0; j < operation_index[0]; j++) {
       /* rotation matrix matching and set difference of translations */
-      spgdb_get_operation( rot_db, trans_db, operation_index[1]+j );
+      spgdb_get_operation(rot_db, trans_db, operation_index[1]+j);
 
-      if ( mat_check_identity_matrix_i3( symmetry->rot[i], rot_db ) ) {
-	mat_multiply_matrix_vector_id3( tmp_vec, rot_db, origin_shift );
-	for ( k = 0; k < 3; k++ ) {
+      if (mat_check_identity_matrix_i3(symmetry->rot[i], rot_db)) {
+	mat_multiply_matrix_vector_id3(tmp_vec, rot_db, origin_shift);
+	for (k = 0; k < 3; k++) {
 	  conv_trans[k] = tmp_vec[k] + symmetry->trans[i][k] - origin_shift[k];
 	}
 	
-	if ( cel_is_overlap( conv_trans,
-			     trans_db,
-			     lattice,
-			     tolerance ) && ( ! found_list[j] ) ) {
+	if (cel_is_overlap(conv_trans,
+			   trans_db,
+			   lattice,
+			   tolerance) && (! found_list[j])) {
 	  found_list[j] = 1;
 	  is_found = 1;
 	  
 	  debug_print("---match!(%d)---\n", i+1);
-	  debug_print_matrix_i3( rot_db );
+	  debug_print_matrix_i3(rot_db);
 	  debug_print("trans(db)   : %f %f %f\n",
-		      trans_db[0], trans_db[1], trans_db[2] );
+		      trans_db[0], trans_db[1], trans_db[2]);
 	  debug_print("trans       : %f %f %f\n",
 		      symmetry->trans[i][0],
 		      symmetry->trans[i][1],
-		      symmetry->trans[i][2] );
+		      symmetry->trans[i][2]);
 	  debug_print("trans (conv): %f %f %f\n",
-		      conv_trans[0], conv_trans[1], conv_trans[2] );
+		      conv_trans[0], conv_trans[1], conv_trans[2]);
 
 	  break;
 	} else {
 	  ;
 	  debug_print("---not match!(%d)---\n", i+1);
-	  debug_print_matrix_i3( rot_db );
-	  debug_print("trans(db): %f %f %f\n", trans_db[0], trans_db[1], trans_db[2] );
+	  debug_print_matrix_i3(rot_db);
+	  debug_print("trans(db): %f %f %f\n", trans_db[0], trans_db[1], trans_db[2]);
 	  debug_print("trans    : %f %f %f\n",
 		      symmetry->trans[i][0],
 		      symmetry->trans[i][1],
-		      symmetry->trans[i][2] );
+		      symmetry->trans[i][2]);
 	  debug_print("trans (conv): %f %f %f\n",
-		      conv_trans[0], conv_trans[1], conv_trans[2] );
+		      conv_trans[0], conv_trans[1], conv_trans[2]);
 	}
       }
     }
-    if ( ! is_found ) {
+    if (! is_found) {
       goto not_found;
     }
   }

@@ -9,32 +9,35 @@
 
 #define INT_PREC 0.1
 
-static double identity[3][3] = { { 1, 0, 0 },
-				 { 0, 1, 0 },
-				 { 0, 0, 1 } };
-static double monocli_i2c[3][3] = { { 1, 0, 0 },
-				    { 0, 1, 0 },
-				    { 1, 0,-1 } };
+static double identity[3][3] = {{ 1, 0, 0 },
+				{ 0, 1, 0 },
+				{ 0, 0, 1 }};
+static double monocli_i2c[3][3] = {{ 1, 0, 0 },
+				   { 0, 1, 0 },
+				   { 1, 0,-1 }};
+static double monocli_a2c[3][3] = {{ 0, 0, 1 },
+				   { 0,-1, 0 },
+				   { 1, 0, 0 }};
 #ifdef DEBUG
-static double tetra_f2i_c2p[3][3] = { { 0.5,-0.5, 0.0 },
-				      { 0.5, 0.5, 0.0 },
-				      { 0.0, 0.0, 1.0 } };
-static double hexa_h2p[3][3] = { { 2./3,-1./3, 0.0 },
-				 { 1./3, 1./3, 0.0 },
-				 {  0.0,  0.0, 1.0 } };
+static double tetra_f2i_c2p[3][3] = {{ 0.5,-0.5, 0.0 },
+				     { 0.5, 0.5, 0.0 },
+				     { 0.0, 0.0, 1.0 }};
+static double hexa_h2p[3][3] = {{ 2./3,-1./3, 0.0 },
+				{ 1./3, 1./3, 0.0 },
+				{  0.0,  0.0, 1.0 }};
 #endif
-static double rhombo_obverse[3][3] = { { 2./3,-1./3,-1./3 },
-				       { 1./3, 1./3,-2./3 },
-				       { 1./3, 1./3, 1./3 } };
-static double rhomb_reverse[3][3] = { { 1./3,-2./3, 1./3 },
-				      { 2./3,-1./3,-1./3 },
-				      { 1./3, 1./3, 1./3 } };
-static double a2c[3][3] = { { 0, 0, 1 },
-			    { 1, 0, 0 },
-			    { 0, 1, 0 } };
-static double b2c[3][3] = { { 0, 1, 0 },
-			    { 0, 0, 1 },
-			    { 1, 0, 0 } };
+static double rhombo_obverse[3][3] = {{ 2./3,-1./3,-1./3 },
+				      { 1./3, 1./3,-2./3 },
+				      { 1./3, 1./3, 1./3 }};
+static double rhomb_reverse[3][3] = {{ 1./3,-2./3, 1./3 },
+				     { 2./3,-1./3,-1./3 },
+				     { 1./3, 1./3, 1./3 }};
+static double a2c[3][3] = {{ 0, 0, 1 },
+			   { 1, 0, 0 },
+			   { 0, 1, 0 }};
+static double b2c[3][3] = {{ 0, 1, 0 },
+			   { 0, 0, 1 },
+			   { 1, 0, 0 }};
 
 static Centering get_centering(double correction_mat[3][3],
 			       SPGCONST int transform_mat[3][3],
@@ -54,6 +57,7 @@ int lat_smallest_lattice_vector(double min_lattice[3][3],
 				SPGCONST double lattice[3][3],
 				const double symprec)
 {
+  debug_print("lat_smallest_lattice_vector:\n");
   return get_Delaunay_reduction(min_lattice, lattice, symprec);
 }
 
@@ -82,7 +86,12 @@ static Centering get_centering(double correction_mat[3][3],
   if (det == 1) { centering = NO_CENTER; }
   if (det == 2) { centering = get_base_center(transform_mat);
     if (centering == A_FACE) {
-      mat_copy_matrix_d3(correction_mat, a2c);
+      if (laue == LAUE2M) {
+	debug_print("Monocli A to C\n");
+	mat_copy_matrix_d3(correction_mat, monocli_a2c);
+      } else {
+	mat_copy_matrix_d3(correction_mat, a2c);
+      }
       centering = C_FACE;
     }
     if (centering == B_FACE) {
@@ -90,6 +99,7 @@ static Centering get_centering(double correction_mat[3][3],
       centering = C_FACE;
     }
     if (laue == LAUE2M && centering == BODY) {
+      debug_print("Monocli I to C\n");
       mat_copy_matrix_d3(correction_mat, monocli_i2c);
       centering = C_FACE;
     }

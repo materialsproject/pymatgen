@@ -49,9 +49,9 @@ static int relative_axes[][3] = {
   {-1,-1, 1},
 };
 
-static int identity[3][3] = { { 1, 0, 0 },
-			      { 0, 1, 0 },
-			      { 0, 0, 1 } };
+static int identity[3][3] = {{1, 0, 0},
+			     {0, 1, 0},
+			     {0, 0, 1}};
 
 static int get_index_with_least_atoms(const Cell *cell);
 static VecDBL * get_translation(SPGCONST int rot[3][3],
@@ -646,11 +646,14 @@ static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,
   double metric[3][3], metric_orig[3][3];
   PointSymmetry lattice_sym;
 
+  debug_print("get_lattice_symmetry:\n");
+
   if (! lat_smallest_lattice_vector(min_lattice,
 				    cell->lattice,
 				    symprec)) {
     goto err;
   }
+
   mat_get_metric(metric_orig, min_lattice);
 
   num_sym = 0;
@@ -665,9 +668,6 @@ static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,
 	mat_multiply_matrix_di3(lattice, min_lattice, axes);
 	mat_get_metric(metric, lattice);
 	
-	/* if (mat_check_identity_matrix_d3(metric, */
-	/* 				 metric_orig, */
-	/* 				 symprec)) { */
 	if (is_identity_metric(metric, metric_orig, symprec)) {
 	  mat_copy_matrix_i3(lattice_sym.rot[num_sym], axes);
 	  num_sym++;
