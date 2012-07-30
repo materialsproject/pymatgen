@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-'''
-An interface to the excellent spglib library by Atsushi Togo 
+"""
+An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
 
 v1.0 - Now works with both ordered and disordered structure.
 
 .. note::
-    This is a *beta* version. Not all spglib functions are implemented. 
-'''
+    This is a *beta* version. Not all spglib functions are implemented.
+"""
 
 from __future__ import division
 
@@ -52,14 +52,17 @@ class SymmetryFinder(object):
         self._angle_tol = angle_tolerance
         self._structure = structure
 
-        #Spglib's convention for the lattice definition is the transpose of the
+        #Spglib"s convention for the lattice definition is the transpose of the
         #pymatgen version.
-        self._transposed_latt = structure.lattice.matrix.transpose().astype(float)
+        self._transposed_latt = structure.lattice.matrix.transpose()
+        #Spglib requires numpy floats.
+        self._transposed_latt = self._transposed_latt.astype(float)
         self._positions = np.array([site.frac_coords for site in structure])
         unique_species = []
         zs = []
 
-        for species, g in itertools.groupby(structure, key=lambda site: site.species_and_occu):
+        for species, g in itertools.groupby(structure,
+                                            key=lambda s: s.species_and_occu):
             try:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
@@ -78,7 +81,7 @@ class SymmetryFinder(object):
         Return space group in international table symbol and number
         as a string.
         """
-        # Atomic positions have to be specified by scaled positions for spglib.    
+        # Atomic positions have to be specified by scaled positions for spglib.
         return Spacegroup(self.get_spacegroup_symbol(),
                           self.get_spacegroup_number(),
                           self.get_symmetry_operations())
@@ -93,24 +96,24 @@ class SymmetryFinder(object):
 
     def get_hall(self):
         ds = self.get_symmetry_dataset()
-        return ds['hall']
+        return ds["hall"]
 
     def get_pointgroup(self):
         ds = self.get_symmetry_dataset()
-        return get_pointgroup(ds['rotations'])[0].strip()
+        return get_pointgroup(ds["rotations"])[0].strip()
 
     def get_crystal_system(self):
         n = self.get_spacegroup_number()
 
         f = lambda i, j: i <= n <= j
         cs = {}
-        cs['triclinic'] = (1, 2)
-        cs['monoclinic'] = (3, 15)
-        cs['orthorhombic'] = (16, 74)
-        cs['tetragonal'] = (75, 142)
-        cs['trigonal'] = (143, 167)
-        cs['hexagonal'] = (168, 194)
-        cs['cubic'] = (195, 230)
+        cs["triclinic"] = (1, 2)
+        cs["monoclinic"] = (3, 15)
+        cs["orthorhombic"] = (16, 74)
+        cs["tetragonal"] = (75, 142)
+        cs["trigonal"] = (143, 167)
+        cs["hexagonal"] = (168, 194)
+        cs["cubic"] = (195, 230)
 
         crystal_sytem = None
 
@@ -123,59 +126,62 @@ class SymmetryFinder(object):
     def get_symmetry_dataset(self):
         """
         Returns the symmetry dataset as a dict.
-        
+
         Returns:
-            number: 
+            number:
                 International space group number
-            international: 
+            international:
                 International symbol
-            hall: 
+            hall:
                 Hall symbol
-            transformation_matrix: 
-                Transformation matrix from lattice of input cell to Bravais lattice
+            transformation_matrix:
+                Transformation matrix from lattice of input cell to Bravais
+                lattice
                 L^bravais = L^original * Tmat
-            origin shift: 
-                Origin shift in the setting of 'Bravais lattice'
+            origin shift:
+                Origin shift in the setting of "Bravais lattice"
             rotations, translations:
-                Rotation matrices and translation vectors. 
+                Rotation matrices and translation vectors.
                 Space group operations are obtained by
                 [(r,t) for r, t in zip(rotations, translations)]
             wyckoffs:
                   Wyckoff letters
         """
-        keys = ('number',
-                'international',
-                'hall',
-                'transformation_matrix',
-                'origin_shift',
-                'rotations',
-                'translations',
-                'wyckoffs',
-                'equivalent_atoms')
+        keys = ("number",
+                "international",
+                "hall",
+                "transformation_matrix",
+                "origin_shift",
+                "rotations",
+                "translations",
+                "wyckoffs",
+                "equivalent_atoms")
         dataset = {}
         for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
                                                self._positions, self._numbers,
-                                               self._symprec, self._angle_tol)):
+                                               self._symprec,
+                                               self._angle_tol)):
             dataset[key] = data
 
-        dataset['international'] = dataset['international'].strip()
-        dataset['hall'] = dataset['hall'].strip()
-        dataset['transformation_matrix'] = np.array(dataset['transformation_matrix'])
-        dataset['origin_shift'] = np.array(dataset['origin_shift'])
-        dataset['rotations'] = np.array(dataset['rotations'])
-        dataset['translations'] = np.array(dataset['translations'])
+        dataset["international"] = dataset["international"].strip()
+        dataset["hall"] = dataset["hall"].strip()
+        dataset["transformation_matrix"] = \
+            np.array(dataset["transformation_matrix"])
+        dataset["origin_shift"] = np.array(dataset["origin_shift"])
+        dataset["rotations"] = np.array(dataset["rotations"])
+        dataset["translations"] = np.array(dataset["translations"])
         letters = "abcdefghijklmnopqrstuvwxyz"
-        dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
-        dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'])
+        dataset["wyckoffs"] = [letters[x] for x in dataset["wyckoffs"]]
+        dataset["equivalent_atoms"] = np.array(dataset["equivalent_atoms"])
 
         return dataset
 
     def get_symmetry(self):
         """
         Return symmetry operations as hash.
-        Hash key 'rotations' gives the numpy integer array
+        Hash key "rotations" gives the numpy integer array
         of the rotation matrices for scaled positions
-        Hash key 'translations' gives the numpy float64 array
+        Hash key "translations" gives the numpy float64 array
         of the translation vectors in scaled positions
         """
 
@@ -204,7 +210,8 @@ class SymmetryFinder(object):
                 rot = np.dot(self._structure.lattice.md2c, np.dot(rot,
                                                 self._structure.lattice.mc2d))
                 trans = np.dot(self._structure.lattice.md2c, trans)
-            symmops.append(SymmOp.from_rotation_matrix_and_translation_vector(rot, trans))
+            op = SymmOp.from_rotation_matrix_and_translation_vector(rot, trans)
+            symmops.append(op)
         return symmops
 
     def get_symmetrized_structure(self):
@@ -213,7 +220,8 @@ class SymmetryFinder(object):
                         self.get_spacegroup_number(),
                         self.get_symmetry_operations())
         #self.get_refined_structure()
-        return SymmetrizedStructure(self._structure, sg, ds['equivalent_atoms'])
+        return SymmetrizedStructure(self._structure, sg,
+                                    ds["equivalent_atoms"])
 
     def get_refined_structure(self):
         """
@@ -257,11 +265,13 @@ class SymmetryFinder(object):
         if num_atom_prim > 0:
             return Structure(lattice.T, species, positions[:num_atom_prim])
         else:
-            #Not sure if we should return None or just return the full structure.
+            #Not sure if we should return None or just return the full
+            #structure.
             return None
 
+
 def get_pointgroup(rotations):
-    """    
+    """
     Return point group in international table symbol and number.
     The symbols are mapped to the numbers as follows:
     1   "1    "
@@ -297,8 +307,7 @@ def get_pointgroup(rotations):
     31  "-43m "
     32  "m-3m "
     """
-    if rotations.dtype == 'float64':
+    if rotations.dtype == "float64":
         rotations = np.int_(rotations)
     # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
-

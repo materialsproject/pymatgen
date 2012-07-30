@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module contains classes to wrap Python VTK to make nice molecular plots.
-'''
+"""
 
 from __future__ import division
 
@@ -39,9 +39,9 @@ class StructureVis(object):
         """
         Args:
             element_color_mapping:
-                Optional color mapping for the elements, as a dict of 
+                Optional color mapping for the elements, as a dict of
                 {symbol: rgb tuple}. For example, {"Fe": (255,123,0), ....}
-                If None is specified, a default based on Jmol's color scheme 
+                If None is specified, a default based on Jmol"s color scheme
                 is used.
             show_unit_cell:
                 Set to False to not show the unit cell boundaries. Defaults to
@@ -53,15 +53,15 @@ class StructureVis(object):
             poly_radii_tol_factor:
                 The polyhedron and bonding code uses the ionic radii of the
                 elements or species to determine if two atoms are bonded. This
-                specifies a tolerance scaling factor such that atoms which are 
-                (1 + poly_radii_tol_factor) * sum of ionic radii apart are still
-                considered as bonded.
+                specifies a tolerance scaling factor such that atoms which are
+                (1 + poly_radii_tol_factor) * sum of ionic radii apart are
+                still considered as bonded.
             excluded_bonding_elements:
                 List of atom types to exclude from bonding determination.
                 Defaults to an empty list. Useful when trying to visualize a
                 certain atom type in the framework (e.g., Li in a Li-ion
                 battery cathode material).
-                
+
         Useful keyboard shortcuts implemented.
             h : Show help
             A/a : Increase/decrease cell by one unit vector in a-direction
@@ -74,7 +74,8 @@ class StructureVis(object):
             r : Reset camera direction
             o : Orthogonalize structure
             Up/Down : Rotate view along Up direction by 90 clock/anticlockwise
-            Left/right : Rotate view along camera direction by 90 clock/anticlockwise
+            Left/right : Rotate view along camera direction by 90
+            clock/anticlockwise
         """
         # create a rendering window and renderer
         self.ren = vtk.vtkRenderer()
@@ -94,10 +95,11 @@ class StructureVis(object):
             module_dir = os.path.dirname(os.path.abspath(__file__))
             config = ConfigParser.SafeConfigParser()
             config.optionxform = str
-            config.readfp(open(os.path.join(module_dir, "ElementColorSchemes.cfg")))
+            config.readfp(open(os.path.join(module_dir,
+                                            "ElementColorSchemes.cfg")))
 
             self.el_color_mapping = {}
-            for (el, color) in config.items('VESTA'):
+            for (el, color) in config.items("VESTA"):
                 self.el_color_mapping[el] = [int(i) for i in color.split(",")]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
@@ -111,11 +113,10 @@ class StructureVis(object):
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
 
-
     def rotate_view(self, axis_ind=0, angle=0):
         """
         Rotate the camera view.
-        
+
         Args:
             axis_ind:
                 Index of axis to rotate. Defaults to 0, i.e., a-axis.
@@ -135,7 +136,7 @@ class StructureVis(object):
                     image_format="png"):
         """
         Save render window to an image.
-        
+
         Arguments:
             filename:
                 filename to save to. Defaults to image.png.
@@ -152,7 +153,7 @@ class StructureVis(object):
         else:
             writer = vtk.vtkPNGWriter()
 
-        render_large.SetMagnification(magnification);
+        render_large.SetMagnification(magnification)
         writer.SetFileName(filename)
 
         writer.SetInputConnection(render_large.GetOutputPort())
@@ -163,7 +164,7 @@ class StructureVis(object):
     def redraw(self, reset_camera=False):
         """
         Redraw the render window.
-        
+
         Args:
             reset_camera:
                 Set to True to reset the camera to a pre-determined default for
@@ -192,16 +193,20 @@ class StructureVis(object):
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = ['h : Toggle help']
-        helptxt.append('A/a, B/b or C/c : Increase/decrease cell by one a, b or c unit vector')
-        helptxt.append('# : Toggle showing of polyhedrons')
-        helptxt.append('-: Toggle showing of bonds')
-        helptxt.append('r : Reset camera direction')
-        helptxt.append('[/]: Decrease or increase poly_radii_tol_factor by 0.05. Value = ' + str(self.poly_radii_tol_factor))
-        helptxt.append('Up/Down: Rotate view along Up direction by 90 clockwise/anticlockwise')
-        helptxt.append('Left/right: Rotate view along camera direction by 90 clockwise/anticlockwise')
-        helptxt.append('s: Save view to image.png')
-        helptxt.append('o: Orthogonalize structure')
+        helptxt = ["h : Toggle help"]
+        helptxt.append("A/a, B/b or C/c : Increase/decrease cell by one a," + \
+                       " b or c unit vector")
+        helptxt.append("# : Toggle showing of polyhedrons")
+        helptxt.append("-: Toggle showing of bonds")
+        helptxt.append("r : Reset camera direction")
+        helptxt.append("[/]: Decrease or increase poly_radii_tol_factor " + \
+                       "by 0.05. Value = " + str(self.poly_radii_tol_factor))
+        helptxt.append("Up/Down: Rotate view along Up direction by 90 " + \
+                       "clockwise/anticlockwise")
+        helptxt.append("Left/right: Rotate view along camera direction by " + \
+                       "90 clockwise/anticlockwise")
+        helptxt.append("s: Save view to image.png")
+        helptxt.append("o: Orthogonalize structure")
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -209,7 +214,7 @@ class StructureVis(object):
     def set_structure(self, structure, reset_camera=True):
         """
         Add a structure to the visualizer.
-        
+
         Args:
             structure:
                 structure to visualize
@@ -229,7 +234,7 @@ class StructureVis(object):
             inc_coords.append(site.coords)
 
         count = 0
-        labels = ['a', 'b', 'c']
+        labels = ["a", "b", "c"]
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
         matrix = s.lattice.matrix
 
@@ -247,25 +252,31 @@ class StructureVis(object):
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(s.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
+
             def contains_anion(site):
-                for sp, occu in site.species_and_occu.items():
+                for sp in site.species_and_occu.keys():
                     if sp.symbol == anion.symbol:
                         return True
                 return False
+
             anion_radius = anion.average_ionic_radius
             for site in s:
                 exclude = False
                 max_radius = 0
                 color = np.array([0, 0, 0])
                 for sp, occu in site.species_and_occu.items():
-                    if sp.symbol in self.excluded_bonding_elements or sp == anion:
+                    if sp.symbol in self.excluded_bonding_elements \
+                            or sp == anion:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color = color + \
+                        occu * np.array(self.el_color_mapping.get(sp.symbol,
+                                                                  [0, 0, 0]))
 
                 if not exclude:
-                    max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius) / 100
+                    max_radius = (1 + self.poly_radii_tol_factor) * \
+                        (max_radius + anion_radius) / 100
                     nn = structure.get_neighbors(site, max_radius)
                     nn_sites = []
                     for nnsite, dist in nn:
@@ -290,7 +301,8 @@ class StructureVis(object):
         if reset_camera:
             #Adjust the camera for best viewing
             lengths = s.lattice.abc
-            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
+            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
+                lengths[0] * 3.5
             camera.SetPosition(pos)
             camera.SetViewUp(matrix[2])
         camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
@@ -320,9 +332,9 @@ class StructureVis(object):
         """
         Add a site to the render window. The site is displayed as a sphere, the
         color of which is determined based on the element. Partially occupied
-        sites are displayed as a single element color, though the site info 
+        sites are displayed as a single element color, though the site info
         still shows the partial occupancy.
-        
+
         Args:
             site:
                 Site to add.
@@ -331,9 +343,11 @@ class StructureVis(object):
         radius = 0
         total_occu = 0
 
-
         for specie, occu in site.species_and_occu.items():
-            radius += occu * (specie.ionic_radius if isinstance(specie, Specie) and specie.ionic_radius else specie.average_ionic_radius)
+            radius += occu * (specie.ionic_radius
+                              if isinstance(specie, Specie)
+                              and specie.ionic_radius
+                              else specie.average_ionic_radius)
             total_occu += occu
 
         def add_partial_sphere(start, end, specie):
@@ -363,12 +377,13 @@ class StructureVis(object):
             start_angle = start_angle + 360 * occu
 
         if total_occu < 1:
-            add_partial_sphere(start_angle, start_angle + 360 * (1 - total_occu), None)
+            add_partial_sphere(start_angle, start_angle
+                               + 360 * (1 - total_occu), None)
 
     def add_text(self, coords, text, color=(0, 0, 0)):
         """
         Add text at a coordinate.
-        
+
         Args:
             coords:
                 Coordinates to add text at.
@@ -392,7 +407,7 @@ class StructureVis(object):
     def add_line(self, start, end, color=(0.5, 0.5, 0.5), width=1):
         """
         Adds a line.
-        
+
         Args:
             start:
                 Starting coordinates for line.
@@ -423,11 +438,10 @@ class StructureVis(object):
         actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
 
-
     def add_polyhedron(self, neighbors, center, color):
         """
         Adds a polyhedron.
-        
+
         Args:
             neighbors:
                 Neighbors of the polyhedron (the vertices).
@@ -462,7 +476,7 @@ class StructureVis(object):
     def add_bonds(self, neighbors, center):
         """
         Adds bonds for a site.
-        
+
         Args:
             neighbors:
                 Neighbors of the site.
@@ -499,7 +513,7 @@ class StructureVis(object):
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
 
-        def annotate_pick(object, event):
+        def annotate_pick(obj, event):
             if picker.GetCellId() < 0 and not self.show_help:
                 self.helptxt_actor.VisibilityOff()
             else:
@@ -507,7 +521,15 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     output = []
                     for site in self.mapper_map[mapper]:
-                        output.append("%2s - (%.3f, %.3f, %.3f) [%.3f, %.3f, %.3f]" % (site.species_string, site.a, site.b, site.c, site.x, site.y, site.z))
+                        row = ["{} - ".format(site.species_string)]
+                        row.append(", "
+                                   .join(["{:.3f}".format(c)
+                                          for c in site.frac_coords]))
+                        row.append("[" +
+                                   ", ".join(["{:.3f}".format(c)
+                                              for c in site.coords]) +
+                                   "]")
+                        output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
                     self.helptxt_actor.SetPosition(10, 10)
                     self.helptxt_actor.VisibilityOn()
@@ -532,7 +554,7 @@ class StructureVis(object):
         follower.SetCamera(self.ren.GetActiveCamera())
         follower.VisibilityOff()
 
-        def annotate_pick(object, event):
+        def annotate_pick(obj, event):
             if picker.GetCellId() < 0:
                 follower.VisibilityOff()
             else:
@@ -541,14 +563,15 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     site = self.mapper_map[mapper]
                     output = [site.species_string]
-                    output.append("Frac. coords: %.4f %.4f %.4f" % (site.a, site.b, site.c))
+                    output.append("Frac. coords: " +
+                                  " ".join(["{:.4f}".format(c)
+                                            for c in site.frac_coords]))
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
         picker.AddObserver("EndPickEvent", annotate_pick)
         self.picker = picker
         self.iren.SetPicker(picker)
-
 
 
 class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
@@ -584,10 +607,10 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         parent = self.parent
         sym = parent.iren.GetKeySym()
         #print sym
-        if sym in 'ABCabc':
-            if sym == 'A':
+        if sym in "ABCabc":
+            if sym == "A":
                 parent.supercell[0][0] += 1
-            elif sym == 'B':
+            elif sym == "B":
                 parent.supercell[1][1] += 1
             elif sym == "C":
                 parent.supercell[2][2] += 1
@@ -598,22 +621,23 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             elif sym == "c":
                 parent.supercell[2][2] = max(parent.supercell[2][2] - 1, 1)
             parent.redraw()
-        elif sym == 'numbersign':
+        elif sym == "numbersign":
             parent.show_polyhedron = not parent.show_polyhedron
             parent.redraw()
-        elif sym == 'minus':
+        elif sym == "minus":
             parent.show_bonds = not parent.show_bonds
             parent.redraw()
-        elif sym == 'bracketleft':
-            parent.poly_radii_tol_factor -= 0.05 if parent.poly_radii_tol_factor > 0 else 0
+        elif sym == "bracketleft":
+            parent.poly_radii_tol_factor -= 0.05 \
+                if parent.poly_radii_tol_factor > 0 else 0
             parent.redraw()
-        elif sym == 'bracketright':
+        elif sym == "bracketright":
             parent.poly_radii_tol_factor += 0.05
             parent.redraw()
-        elif sym == 'h':
+        elif sym == "h":
             parent.show_help = not parent.show_help
             parent.redraw()
-        elif sym == 'r':
+        elif sym == "r":
             parent.redraw(True)
         elif sym == "s":
             parent.write_image("image.png")
@@ -632,10 +656,11 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate=10000, quality=5):
+def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
+               bitrate=10000, quality=5):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
-    
+
     Arguments:
         structures:
             sequence of structures
@@ -649,7 +674,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
             Video bitate.  Defaults to 10000 (fairly high quality).
         quality:
             A quality scale. Defaults to 5.
-        
+
     """
     vis = StructureVis()
     vis.show_help = False
@@ -661,5 +686,6 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.set_structure(s)
         vis.write_image(filename.format(i), 3)
     filename = "image%0" + str(sigfig) + "d.png"
-    args = ["ffmpeg", "-y", "-qscale", str(quality), "-r", str(fps), "-b", str(bitrate), "-i", filename, output_filename]
-    p = subprocess.Popen(args)
+    args = ["ffmpeg", "-y", "-qscale", str(quality), "-r", str(fps), "-b",
+            str(bitrate), "-i", filename, output_filename]
+    subprocess.Popen(args)

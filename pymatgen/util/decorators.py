@@ -36,15 +36,15 @@ def cached_class(klass):
     """
     Decorator to cache class instances by constructor arguments.
     This results in a class that behaves like a singleton for each
-    set of constructor arguments, ensuring efficiency. 
-    
-    Note that this should be used for *immutable classes only*.  Having 
+    set of constructor arguments, ensuring efficiency.
+
+    Note that this should be used for *immutable classes only*.  Having
     a cached mutable class makes very little sense.  For efficiency,
-    avoid using this decorator for situations where there are many 
+    avoid using this decorator for situations where there are many
     constructor arguments permutations.
-      
+
     The keywords argument dictionary is converted to a tuple because
-    dicts are mutable; keywords themselves are strings and 
+    dicts are mutable; keywords themselves are strings and
     so are always hashable, but if any arguments (keyword
     or positional) are non-hashable, that set of arguments
     is not cached.
@@ -56,6 +56,7 @@ def cached_class(klass):
         # The wraps decorator can't do this because __doc__
         # isn't writable once the class is created
         __doc__ = klass.__doc__
+
         def __new__(cls, *args, **kwds):
             key = (cls,) + args + tuple(kwds.items())
             if key not in cache:
@@ -67,20 +68,23 @@ def cached_class(klass):
 
 def logged(level=logging.DEBUG):
     """
-    Useful logging decorator. If a method is logged, the beginning and end of 
+    Useful logging decorator. If a method is logged, the beginning and end of
     the method call will be logged at a pre-specified level.
-    
+
     Args:
         level:
             Level to log method at. Defaults to DEBUG.
     """
     def wrap(f):
         logger = logging.getLogger("{}.{}".format(f.__module__, f.__name__))
-        def wrapped_f(*args, **kwargs):
 
-            logger.log(level, "Called at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+        def wrapped_f(*args, **kwargs):
+            logger.log(level, "Called at {} with args = {} and kwargs = {}"
+                       .format(datetime.datetime.now(), args, kwargs))
             data = f(*args, **kwargs)
-            logger.log(level, "Done at {} with args = {} and kwargs = {}".format(datetime.datetime.now(), args, kwargs))
+            logger.log(level, "Done at {} with args = {} and kwargs = {}"
+                       .format(datetime.datetime.now(), args, kwargs))
             return data
+
         return wrapped_f
     return wrap
