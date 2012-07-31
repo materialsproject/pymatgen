@@ -8,8 +8,6 @@ dependencies/spglib-1.2/build
 *.pyc
 pymatgen/pymatgen.cfg
 dist
-_templates
-_static
 _build
 build
 .project
