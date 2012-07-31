@@ -104,7 +104,7 @@ Using pymatgen
 ==============
 
 .. figure:: _static/overview.jpg
-   :width: 80%
+   :width: 100%
    :alt: pymatgen overview
    :align: center
    
