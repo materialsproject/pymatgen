@@ -20,12 +20,12 @@ These are some of the main features:
 1. Highly flexible classes for the representation of Element, Site, Molecule, 
    Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files 
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information file 
-   format. This includes generating Structure objects from vasp input and
+   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
+   file format. This includes generating Structure objects from vasp input and
    output. There is also support for Gaussian input files and XYZ file for
    molecules.
-3. Comprehensive tool to generate and view compositional and grand canonical phase 
-   diagrams.
+3. Comprehensive tool to generate and view compositional and grand canonical
+   phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
@@ -103,10 +103,34 @@ dependencies needed, where to get them and how to install them.
 Using pymatgen
 ==============
 
+.. figure:: _static/overview.jpg
+   :width: 80%
+   :alt: pymatgen overview
+   :align: center
+   
+   Overview of typical workflow for pymatgen.
+
+The figure above provides an overview of the functionality in pymatgen. A
+typical workflow would involve a user converting data (structure, calculations,
+etc.) from various sources (first principles calculations, crystallographic and
+molecule input files, Materials Project, etc.) into Python objects using
+pymatgen's io packages, which are then used to perform further structure
+manipulation or analyses. Users are strongly encouraged to explore the
+detailed :doc:`usage pages </usage>` (toc given below), and 
+:doc:`the API docs </modules>`. 
+
+.. toctree::
+   :maxdepth: 2 
+   
+   usage
+
+Aliases
+-------
+
 From version 2.0.0 of pymatgen, useful aliases for commonly used Objects are
 now provided, similar in style to numpy. Supported objects include Element,
-Composition, Structure, Molecule, Spin and Orbital. Here are some quick examples
-of the core capabilities and objects::
+Composition, Structure, Molecule, Spin and Orbital. Here are some quick
+examples of the core capabilities and objects::
 
    >>> from pymatgen import Element, Composition, Lattice, Structure
    >>>
@@ -145,14 +169,7 @@ of the core capabilities and objects::
    >>> poscar = Poscar(structure)
    >>> poscar.write_file("POSCAR")
 
-The above illustrates only the most basic capabilities of pymatgen. Users are
-strongly encouraged to explore the detailed :doc:`usage pages </usage>` (toc
-given below), and :doc:`the API docs </modules>`. 
-
-.. toctree::
-   :maxdepth: 2 
-   
-   usage
+The above illustrates only the most basic capabilities of pymatgen. 
 
 Contributing
 ============
