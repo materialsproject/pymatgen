@@ -79,7 +79,7 @@ class CifParser(object):
         """
         Generate structure from part of the cif.
         """
-        spacegroup = data['_symmetry_space_group_name_H-M']
+        spacegroup = data.get('_symmetry_space_group_name_H-M', 'P1')
 
         if len(spacegroup) == 0:
             latt_type = "P"
