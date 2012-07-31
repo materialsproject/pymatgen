@@ -108,7 +108,7 @@ Using pymatgen
    :alt: pymatgen overview
    :align: center
    
-   Overview of typical workflow for pymatgen.
+   Overview of a typical workflow for pymatgen.
 
 The figure above provides an overview of the functionality in pymatgen. A
 typical workflow would involve a user converting data (structure, calculations,
