@@ -3,6 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: _static/pymatgen.png
+   :width: 300 px
+   :alt: pymatgen
+   :align: center
 
 Introduction
 ============
@@ -45,22 +49,17 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.1.2)
+Latest Change Log (v2.1.3dev)
 -----------------------------
 
-1. Brand new CompoundPD class that allows the plotting of phase diagrams that
-   do not have elements as their terminal points.
-2. Spglib is now completely integrated as part of the setup.py installation.
-3. Major (but completely backwards compatible) refactoring of sites and vaspio.
-4. Added a EnumerateStructureTransformation with optional dependency on the enum
-   library by Gus Hart. This provides a robust way to enumerate derivative
-   structures,
-5. Implemented LLL lattice reduction algorithm. Also added option to sanitize
-   a Structure on copy.
-6. Bug fix for missing Compatibility file in release distribution.
-7. Vastly improved StructureFitter which performs cell reduction where necessary
-   to speed up fitting.
-8. Miscellaneous bug fixes and speed improvements.
+1. New smartio module that intelligently reads structure input files based on
+   file extension.
+2. Spglib_adaptor module has been renamed to finder for brevity.
+3. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
+   Mac OS X and Solaris.
+4. Major cleanup of code for PEP8 compliance.
+5. Cssr module now supports reading of input files.
+6. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2

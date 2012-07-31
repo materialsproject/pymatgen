@@ -7,7 +7,7 @@ An interface to the excellent spglib library by Atsushi Togo
 v1.0 - Now works with both ordered and disordered structure.
 
 .. note::
-    This is a *beta* version. Not all spglib functions are implemented.
+    Not all spglib functions are implemented.
 """
 
 from __future__ import division

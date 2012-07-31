@@ -27,6 +27,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.symmetry.finder import SymmetryFinder
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,6 @@ class StructureFitter(object):
         self._start_time = time.time()
 
         if symmetry_tol:
-            from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
             finder_a = SymmetryFinder(self._structure_a, symprec=symmetry_tol)
             finder_b = SymmetryFinder(self._structure_b, symprec=symmetry_tol)
             sg_a = finder_a.get_spacegroup_number()
@@ -373,7 +373,8 @@ class StructureFitter(object):
                     inv_correspondance[fixed_site] = closest
 
                 if all_match:
-                    if not are_sites_unique(inv_correspondance.values(), False):
+                    if not are_sites_unique(inv_correspondance.values(),
+                                            False):
                         all_match = False
                         logger.debug("Rejected because two atoms fit to the "
                                      "same site for the inverse")
