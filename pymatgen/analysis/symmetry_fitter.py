@@ -16,7 +16,7 @@ __date__ = "Jul 5, 2012"
 import itertools
 import logging
 
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+from pymatgen.symmetry.finder import SymmetryFinder
 
 logger = logging.getLogger(__name__)
 
@@ -26,15 +26,15 @@ class SymmetryFitter(object):
     The SymmetryFitter class is used to compare a sequence of structures and
     group them according to whether they are similar under a particular
     spacegroup.
-    
+
     This class is still *EXPERIMENTAL*. Use with care.
-    
+
     Attributes:
-    
+
     .. attribute:: unique_groups
-        
+
         All unique groups of structures under the spacegroup, given as
-        [[struct1, struct2,...], ...]    
+        [[struct1, struct2,...], ...]
     """
 
     def __init__(self, structures, spacegroup, symm_prec=0.1):
@@ -54,13 +54,15 @@ class SymmetryFitter(object):
         for i, s in enumerate(structures):
             finder = SymmetryFinder(s, symm_prec)
             structure_symm[s] = finder.get_spacegroup_number()
-            logger.debug("Structure {} has spacegroup {}".format(i, structure_symm[s]))
+            logger.debug("Structure {} has spacegroup {}"
+                         .format(i, structure_symm[s]))
 
         sorted_structures = sorted(structures, key=lambda s:-structure_symm[s])
         unique_groups = []
         for i, group in itertools.groupby(sorted_structures,
-                                               key=lambda s: structure_symm[s]):
-            logger.debug("Processing group of structures with sg number {}".format(i))
+                                          key=lambda s: structure_symm[s]):
+            logger.debug("Processing group of structures with sg number {}"
+                         .format(i))
             subgroups = self._fit_group(group)
             unique_groups.extend(subgroups)
         self.unique_groups = unique_groups
@@ -80,10 +82,9 @@ class SymmetryFitter(object):
             subgroup = [fixed]
             for to_fit in all_structures[1:]:
                 if self.spacegroup.are_symmetrically_equivalent(fixed, to_fit,
-                                                        symprec=self.symm_prec):
+                                                    symprec=self.symm_prec):
                     subgroup.append(to_fit)
             all_structures = [s for s in all_structures if s not in subgroup]
             subgroups.append(subgroup)
         logger.debug("{} subgroups".format(len(subgroups)))
         return subgroups
-

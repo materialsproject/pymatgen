@@ -17,7 +17,7 @@ import argparse
 
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+from pymatgen.symmetry.finder import SymmetryFinder
 
 desc = '''
 Convenient structure spacegroup determination.  Currently only cif and POSCAR

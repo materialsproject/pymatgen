@@ -45,7 +45,7 @@ import warnings
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.core.periodic_table import DummySpecie
 

@@ -17,7 +17,7 @@ import unittest
 import os
 
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+from pymatgen.symmetry.finder import SymmetryFinder
 
 import pymatgen
 

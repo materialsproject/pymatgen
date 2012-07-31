@@ -327,7 +327,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures = []
-        from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+        from pymatgen.symmetry.finder import SymmetryFinder
         symprec = 0.2
         s = SymmetryFinder(structure, symprec=symprec)
         self.logger.debug("Symmetry of structure is determined to be {}."

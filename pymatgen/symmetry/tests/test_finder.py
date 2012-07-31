@@ -20,13 +20,14 @@ import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder, get_pointgroup
+from pymatgen.symmetry.finder import SymmetryFinder, get_pointgroup
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor
 
 import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
+                        '..', 'test_files')
 
 
 class SymmetryFinderTest(unittest.TestCase):
@@ -51,7 +52,8 @@ class SymmetryFinderTest(unittest.TestCase):
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
-        self.assertEqual(self.disordered_sg.get_spacegroup_symbol(), "P4_2/nmc")
+        self.assertEqual(self.disordered_sg.get_spacegroup_symbol(),
+                         "P4_2/nmc")
         self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
         self.assertEqual(self.sg4.get_spacegroup_symbol(), "R-3m")
 
@@ -86,9 +88,11 @@ class SymmetryFinderTest(unittest.TestCase):
             for site in self.structure:
                 newfrac = fop.operate(site.frac_coords)
                 newcart = op.operate(site.coords)
-                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
+                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart),
+                                            newfrac))
                 found = False
-                newsite = PeriodicSite(site.species_and_occu, newcart, latt, coords_are_cartesian=True)
+                newsite = PeriodicSite(site.species_and_occu, newcart, latt,
+                                       coords_are_cartesian=True)
                 for testsite in self.structure:
                     if newsite.is_periodic_image(testsite, 1e-3):
                         found = True
@@ -101,7 +105,7 @@ class SymmetryFinderTest(unittest.TestCase):
         refined = self.disordered_sg.get_refined_structure()
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
-        self.assertEqual(refined.lattice.a , refined.lattice.b)
+        self.assertEqual(refined.lattice.a, refined.lattice.b)
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -126,7 +130,9 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.alpha, 120)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
-        self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume / 4.0)
+        self.assertAlmostEqual(primitive_structure.lattice.volume,
+                               structure.lattice.volume / 4.0)
+
 
 class HelperFunctionsTest(unittest.TestCase):
 
