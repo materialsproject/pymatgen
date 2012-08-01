@@ -8,7 +8,7 @@ from   pymatgen.io.cifio                     import CifParser, CifWriter
 from   pymatgen.core.structure               import Structure, Site, PeriodicSite
 
 
-cif_file='../test_files/CoO19128.cif'
+cif_file='../test_files/CeO_10688.cif'
 central_atom='O'
 
 r=CifParser(cif_file)
