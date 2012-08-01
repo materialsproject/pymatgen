@@ -25,14 +25,17 @@ class SymmetrizedStructure(Structure):
     """
 
     def __init__(self, refined_structure, spacegroup, equivalent_positions):
-        super(SymmetrizedStructure, self).__init__(refined_structure.lattice,
-                                                   [site.species_and_occu for site in refined_structure],
-                                                   refined_structure.frac_coords)
+        Structure.__init__(self, refined_structure.lattice,
+                           [site.species_and_occu
+                            for site in refined_structure],
+                           refined_structure.frac_coords)
 
         self._spacegroup = spacegroup
         site_map = zip(self._sites, equivalent_positions)
         site_map = sorted(site_map, key=lambda x: x[1])
-        self._equivalent_sites = [[x[0] for x in g] for k, g in itertools.groupby(site_map, key=lambda x: x[1])]
+        self._equivalent_sites = [[x[0] for x in g] \
+                                  for k, g in itertools.groupby(site_map,
+                                                        key=lambda x: x[1])]
 
     @property
     def equivalent_sites(self):
@@ -41,11 +44,11 @@ class SymmetrizedStructure(Structure):
     def find_equivalent_sites(self, site):
         """
         Finds all symmetrically equivalent sites for a particular site
-        
+
         Args:
             site:
                 A site in the structure
-                
+
         Returns:
             A list of all symmetrically equivalent sites.
         """

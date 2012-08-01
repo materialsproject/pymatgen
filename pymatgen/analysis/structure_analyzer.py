@@ -46,15 +46,15 @@ class VoronoiCoordFinder:
 
     def get_voronoi_polyhedra(self, n):
         """
-        Gives a weighted polyhedra around a site. This uses the voronoi 
+        Gives a weighted polyhedra around a site. This uses the voronoi
         construction with solid angle weights.
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'Keeffe, Acta Cryst. (1979). A35, 772-775
-        
-        Args: 
+
+        Args:
             n:
                 site index
-        
+
         Returns:
             A dictionary of sites sharing a common Voronoi facet with the site
             n and their solid angle weights
@@ -64,7 +64,7 @@ class VoronoiCoordFinder:
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(center.coords,
                                             VoronoiCoordFinder.default_cutoff)
-        neighbors = [i[0] for i in sorted(neighbors, key=lambda s : s[1])]
+        neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         closest = qvoronoi(qvoronoi_input)
         all_vertices = qvertex(qvoronoi_input)
@@ -77,7 +77,9 @@ class VoronoiCoordFinder:
                 result.append(neighbors[closest[i][2]])
                 for j in range(3, len(closest[i])):
                     if closest[i][j] == 0:
-                        raise RuntimeError("This structure is pathological, infinite vertex in the voronoi construction ");
+                        raise RuntimeError("This structure is pathological,"
+                                           " infinite vertex in the voronoi "
+                                           "construction")
                     facets.append(all_vertices[closest[i][j] - 1])
 
                 angle.append(solid_angle(center.coords, facets))
@@ -94,8 +96,8 @@ class VoronoiCoordFinder:
     def get_coordination_number(self, n):
         """
         Returns the coordination number of site with index n.
-        
-        Args: 
+
+        Args:
             n:
                 site index
         """
@@ -103,9 +105,10 @@ class VoronoiCoordFinder:
 
     def get_coordinated_sites(self, n, tol=0, target=None):
         """
-        Returns the sites that are in the coordination radius of site with index n.
-        
-        Args: 
+        Returns the sites that are in the coordination radius of site with
+        index n.
+
+        Args:
             n:
                 Site number.
             tol:
@@ -113,7 +116,7 @@ class VoronoiCoordFinder:
                 considered a neighbor.
             Target:
                 Target element
-            
+
         Returns:
             Sites coordinating input site.
         """
@@ -128,13 +131,13 @@ def solid_angle(center, coords):
     """
     Helper method to calculate the solid angle of a set of coords from the
     center.
-    
+
     Args:
         center:
             Center to measure solid angle from.
         coords:
             List of coords to determine solid angle.
-            
+
     Returns:
         The solid angle.
     """
@@ -143,23 +146,24 @@ def solid_angle(center, coords):
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
-    phi = sum([math.acos(-np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))) for i in range(len(n) - 1)])
+    phi = sum([math.acos(-np.dot(n[i], n[i + 1])
+                         / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
+               for i in range(len(n) - 1)])
     return phi + (3 - len(r)) * math.pi
-
 
 
 def contains_peroxide(structure, relative_cutoff=1.2):
     """
     Determines if a structure contains peroxide anions.
-    
+
     Args:
         structure:
             Input structure.
         relative_cutoff:
             The peroxide bond distance is 1.49 Angstrom. Relative_cutoff * 1.49
             stipulates the maximum distance two O atoms must be to each other
-            to be considered a peroxide. 
-    
+            to be considered a peroxide.
+
     Returns:
         Boolean indicating if structure contains a peroxide anion.
     """
@@ -175,4 +179,3 @@ def contains_peroxide(structure, relative_cutoff=1.2):
             return True
 
     return False
-

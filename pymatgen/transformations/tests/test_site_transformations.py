@@ -20,6 +20,7 @@ import numpy as np
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.site_transformations import InsertSitesTransformation, TranslateSitesTransformation, ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, PartialRemoveSitesTransformation
 
+
 class TranslateSitesTransformationTest(unittest.TestCase):
 
     def setUp(self):

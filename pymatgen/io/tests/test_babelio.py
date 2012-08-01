@@ -24,7 +24,8 @@ from pymatgen.io.babelio import BabelMolAdaptor
 
 import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
+                        '..', 'test_files')
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -36,7 +37,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
-                  [-0.513360 , 0.889165 , -0.363000]]
+                  [-0.513360, 0.889165, -0.363000]]
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
         adaptor = BabelMolAdaptor(mol)
         obmol = adaptor.openbabel_mol
@@ -48,7 +49,9 @@ class BabelMolAdaptorTest(unittest.TestCase):
     def test_from_file(self):
         if not babelio.babel_loaded:
             raise SkipTest("OpenBabel not present. Skipping...")
-        adaptor = BabelMolAdaptor.from_file(os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
+        adaptor = BabelMolAdaptor.from_file(os.path.join(test_dir,
+                                                         "Ethane_e.pdb"),
+                                            "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
 

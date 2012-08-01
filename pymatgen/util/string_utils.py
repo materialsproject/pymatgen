@@ -18,11 +18,11 @@ import re
 def generate_latex_table(results, header=None):
     """
     Generates a string latex table from a sequence of sequence.
-    
+
     Args:
         result: 2d sequence of arbitrary types.
         header: optional header
-        
+
     Returns:
         String representation of Latex table with data.
     """
@@ -39,7 +39,8 @@ def generate_latex_table(results, header=None):
     output.append('\\begin{table}[htp]')
     output.append('\\caption{Enter caption}')
     output.append('\\label{mytablelabel}')
-    output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' + colstr + '}')
+    output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' +
+                  colstr + '}')
     output.append('\\hline')
     output.append("\\\\\n".join(body) + "\\\\")
     output.append('\\hline')
@@ -56,18 +57,19 @@ def str_delimited(results, header=None, delimiter="\t"):
     a,b,c
     d,e,f
     1,2,3
-    
+
     Args:
         result: 2d sequence of arbitrary types.
         header: optional header
-        
+
     Returns:
         Aligned string output in a table-like format.
     """
     returnstr = ''
     if header != None:
         returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join([delimiter.join([str(m) for m in result]) for result in results])
+    return returnstr + "\n".join([delimiter.join([str(m) for m in result])
+                                  for result in results])
 
 
 def str_aligned(results, header=None):
@@ -78,11 +80,11 @@ def str_aligned(results, header=None):
     a    b   cz
     d   ez    f
     1    2    3
-    
+
     Args:
         result: 2d sequence of arbitrary types.
         header: optional header
-        
+
     Returns:
         Aligned string output in a table-like format.
     """
@@ -101,14 +103,15 @@ def str_aligned(results, header=None):
         header_str = format_string % tuple(header)
         returnstr += header_str + "\n"
         returnstr += "-" * len(header_str) + "\n"
-    return returnstr + "\n".join([format_string % tuple(result) for result in results])
+    return returnstr + "\n".join([format_string % tuple(result)
+                                  for result in results])
 
 
 def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     """
     This function is used to make pretty formulas by formatting the amounts.
     Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
-    
+
     Args:
         afloat:
             a float
@@ -116,7 +119,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
             if true, floats of 1 are ignored.
         tol:
             Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
-    
+
     Returns:
         A string representation of the float for formulas.
     """
@@ -132,11 +135,11 @@ def latexify(formula):
     """
     Generates a latex formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
-    
+
     Args:
         formula:
             Input formula.
-            
+
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
     """

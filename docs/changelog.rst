@@ -1,6 +1,51 @@
 Older versions
 ==============
 
+Version 2.1.2
+-------------
+
+1. Brand new CompoundPD class that allows the plotting of phase diagrams that
+   do not have elements as their terminal points.
+2. Spglib is now completely integrated as part of the setup.py installation.
+3. Major (but completely backwards compatible) refactoring of sites and vaspio.
+4. Added a EnumerateStructureTransformation with optional dependency on the enum
+   library by Gus Hart. This provides a robust way to enumerate derivative
+   structures,
+5. Implemented LLL lattice reduction algorithm. Also added option to sanitize
+   a Structure on copy.
+6. Bug fix for missing Compatibility file in release distribution.
+7. Vastly improved StructureFitter which performs cell reduction where necessary
+   to speed up fitting.
+8. Miscellaneous bug fixes and speed improvements.
+
+Version 2.0.0
+-------------
+
+1. Brand new module (pymatgen.matproj.rest) for interfacing with the
+   MaterialsProject REST interface.
+2. Useful aliases for commonly used Objects, similar in style to numpy.
+   Supported objects include Element, Composition, Structure, Molecule, Spin
+   and Orbital. For example, the following will now work::
+   
+      import pymatgen as mg
+      
+      # Elemental Si
+      fe = mg.Element("Si")
+      
+      # Composition of Fe2O3
+      comp = mg.Composition("Fe2O3")
+      
+      # CsCl structure
+      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
+                              [[0, 0, 0], [0.5, 0.5, 0.5]])
+      
+3. New PDAnalyzer method to generate chemical potential maps.
+4. Enhanced POSCAR class to support parsing of velocities and more formatting
+   options.
+5. Reorganization of Bandstructure module. Beta support for projected
+   bandstructure and eigenvalues in vaspio and electronic_structure.
+6. Miscellaneous bug fixes and speed improvements.
+
 Version 1.9.0
 -------------
 

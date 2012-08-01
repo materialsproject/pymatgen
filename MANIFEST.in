@@ -1,8 +1,11 @@
 include *.md *.sh
+include distribute_setup.py
 recursive-include pymatgen *.py *.json *.cfg
 recursive-include scripts *.py
 recursive-include dependencies *
-exclude pymatgen/pymatgen.cfg
 exclude test_files
 prune **/**/tests
+prune dependencies/*/build
+prune dependencies/*/dist
+prune dependencies/*/*egg*
 prune **/**/**/tests

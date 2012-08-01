@@ -16,11 +16,14 @@ __date__ = "Jan 24, 2012"
 import unittest
 import os
 
-import pymatgen
 from pymatgen.io.cssrio import Cssr
-from pymatgen.io.vaspio import Poscar
+from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen import __file__
+from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                            'test_files')
+
 
 class CssrTest(unittest.TestCase):
 
@@ -60,6 +63,12 @@ class CssrTest(unittest.TestCase):
 23 O 0.9034 0.7500 0.2587
 24 O 0.9566 0.2500 0.2929"""
         self.assertEqual(str(self.cssr), expected_string)
+
+    def test_from_file(self):
+        filename = os.path.join(test_dir, "Si.cssr")
+        cssr = Cssr.from_file(filename)
+        self.assertIsInstance(cssr.structure, Structure)
+
 
 if __name__ == "__main__":
     unittest.main()

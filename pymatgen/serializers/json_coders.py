@@ -23,10 +23,10 @@ objects are supported as well.
     PMGJSONEncoder will add these keys if they are not present, but for better
     long term stability, the easiest way is to add the following to any to_dict
     property::
-    
+
         d['module'] = self.__class__.__module__
         d['class'] = self.__class__.__name__
-    
+
 '''
 
 from __future__ import division
@@ -41,7 +41,7 @@ __date__ = "Apr 30, 2012"
 import json
 import abc
 
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 
 
 class MSONable(object):
@@ -66,7 +66,8 @@ class MSONable(object):
         implement this static method. Abstract static methods are not
         implemented until Python 3+.
         """
-        raise NotImplementedError("MSONable objects must implement a from_dict static method.")
+        raise NotImplementedError("MSONable objects must implement a from_dict"
+                                  " static method.")
 
     @property
     def to_json(self):
@@ -77,21 +78,21 @@ class MSONable(object):
 
     def write_to_json_file(self, filename):
         '''
-        Writes the mson representation to a file. 
-        
+        Writes the mson representation to a file.
+
         Args:
             filename:
                 filename to write to. It is recommended that the file extension
                 be ".mson".
         '''
-        with file_open_zip_aware(filename, "wb") as f:
+        with zopen(filename, "wb") as f:
             json.dump(self, f, cls=PMGJSONEncoder)
 
 
 class PMGJSONEncoder(json.JSONEncoder):
     """
     A Pymatgen Json Encoder which supports the to_dict API.
-    
+
     Usage:
         Add it as a *cls* keyword when using json.dump
         json.dumps(object, cls=PMGJSONEncoder)
@@ -108,14 +109,16 @@ class PMGJSONEncoder(json.JSONEncoder):
         except:
             return json.JSONEncoder.default(self, o)
 
+
 class PMGJSONDecoder(json.JSONDecoder):
     """
     A Pymatgen Json Decoder which supports the from_dict API. By default, the
-    decoder attempts to find a module and name associated with a dict. If found,
-    the decoder will generate a Pymatgen as a priority.  If that fails, the
-    original decoded dictionary from the string is returned. Note that nested
-    lists and dicts containing pymatgen object will be decoded correctly as well.
-    
+    decoder attempts to find a module and name associated with a dict. If
+    found, the decoder will generate a Pymatgen as a priority.  If that fails,
+    the original decoded dictionary from the string is returned. Note that
+    nested lists and dicts containing pymatgen object will be decoded correctly
+    as well.
+
     Usage:
         Add it as a *cls* keyword when using json.load
         json.loads(json_string, cls=PMGJSONDecoder)
@@ -128,13 +131,16 @@ class PMGJSONDecoder(json.JSONDecoder):
         """
         if isinstance(d, dict):
             if 'module' in d and 'class' in d:
-                mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
+                mod = __import__(d['module'], globals(), locals(),
+                                 [d['class']], -1)
                 if hasattr(mod, d['class']):
                     cls = getattr(mod, d['class'])
-                    data = {k:v for k, v in d.items() if k not in ["module", "class"]}
+                    data = {k: v for k, v in d.items() if k not in ["module",
+                                                                    "class"]}
                     if hasattr(cls, 'from_dict'):
                         return cls.from_dict(data)
-            return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
+            return {self.process_decoded(k): self.process_decoded(v) \
+                    for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
         return d
@@ -142,4 +148,3 @@ class PMGJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         d = json.JSONDecoder.decode(self, s)
         return self.process_decoded(d)
-
