@@ -862,6 +862,24 @@ class Molecule(SiteCollection, MSONable):
 
         return (Molecule.from_sites(cluster) for cluster in clusters)
 
+    def get_covalent_bonds(self, tol=0.2):
+        """
+        Determines the covalent bonds in a molecule.
+
+        Args:
+            tol:
+                The tol to determine bonds in a structure. See
+                CovalentBond.is_bonded.
+
+        Returns:
+            List of bonds
+        """
+        bonds = []
+        for site1, site2 in itertools.combinations(self._sites, 2):
+            if CovalentBond.is_bonded(site1, site2, tol):
+                bonds.append(CovalentBond(site1, site2))
+        return bonds
+
     def __repr__(self):
         outs = []
         outs.append("Molecule Summary")
