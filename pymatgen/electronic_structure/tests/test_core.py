@@ -4,6 +4,7 @@ import unittest
 
 from pymatgen.electronic_structure.core import Orbital, Spin
 
+
 class SpinTest(unittest.TestCase):
 
     def test_init(self):
@@ -18,6 +19,7 @@ class SpinTest(unittest.TestCase):
     def test_cached(self):
         self.assertEquals(id(Spin.from_int(1)), id(Spin.up))
 
+
 class OrbitalTest(unittest.TestCase):
 
     def test_init(self):
@@ -30,4 +32,3 @@ class OrbitalTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

@@ -172,11 +172,12 @@ class Vasprun(object):
         self.filename = filename
 
         with zopen(filename) as f:
-            self._handler = VasprunHandler(filename, parse_dos=parse_dos,
-                                           parse_eigen=parse_eigen,
-                                           parse_projected_eigen=
-                                           parse_projected_eigen)
-            if ionic_step_skip == None:
+            self._handler = VasprunHandler(
+                filename, parse_dos=parse_dos,
+                parse_eigen=parse_eigen,
+                parse_projected_eigen=parse_projected_eigen
+            )
+            if ionic_step_skip is None:
                 self._parser = xml.sax.parse(f, self._handler)
             else:
                 #remove parts of the xml file and parse the string
@@ -198,7 +199,7 @@ class Vasprun(object):
         True if a relaxation run is converged.  Always True for a static run.
         """
         return len(self.structures) - 2 < self.parameters["NSW"] or \
-               self.parameters["NSW"] == 0
+            self.parameters["NSW"] == 0
 
     @property
     def final_energy(self):
@@ -314,20 +315,20 @@ class Vasprun(object):
             raise VaspParserError("Band structure runs have to be non-self "
                                   "consistent (ICHARG=11)")
 
-        if efermi == None:
+        if efermi is None:
             efermi = self.efermi
 
         kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
         #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
-        kpoints = [np.array(self.actual_kpoints[i]) \
+        kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict["output"]["eigenvalues"]
 
         eigenvals = {}
         if "up" in dict_eigen["1"] and "down" in dict_eigen["1"] \
-           and self.incar["ISPIN"] == 2:
+                and self.incar["ISPIN"] == 2:
             eigenvals = {Spin.up: [], Spin.down: []}
         else:
             eigenvals = {Spin.up: []}
@@ -336,11 +337,11 @@ class Vasprun(object):
         min_eigenvalues = min(neigenvalues)
 
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]["up"][i][0] \
+            eigenvals[Spin.up].append([dict_eigen[str(j)]["up"][i][0]
                                        for j in range(len(kpoints))])
         if Spin.down in eigenvals:
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]["down"][i][0] \
+                eigenvals[Spin.down].append([dict_eigen[str(j)]["down"][i][0]
                                              for j in range(len(kpoints))])
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
@@ -391,7 +392,7 @@ class Vasprun(object):
             us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
             js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
             if len(us) == len(symbols):
-                d["hubbards"] = {symbols[i]: us[i] - js[i] \
+                d["hubbards"] = {symbols[i]: us[i] - js[i]
                                  for i in xrange(len(symbols))}
             elif sum(us) == 0 and sum(js) == 0:
                 d["is_hubbard"] = False
@@ -409,8 +410,8 @@ class Vasprun(object):
         vasp_input["crystal"] = self.initial_structure.to_dict
         vasp_input["kpoints"] = self.kpoints.to_dict
         actual_kpts = [{"abc":list(self.actual_kpoints[i]),
-                        "weight":self.actual_kpoints_weights[i]} \
-                        for i in xrange(len(self.actual_kpoints))]
+                        "weight":self.actual_kpoints_weights[i]}
+                       for i in xrange(len(self.actual_kpoints))]
         vasp_input["kpoints"]["actual_points"] = actual_kpts
         vasp_input["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vasp_input["parameters"] = {k: v for k, v in self.parameters.items()}
@@ -515,11 +516,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.val = StringIO.StringIO()
 
     def _init_input(self, name, attributes):
-        if (name == "i" or name == "v") and (self.state["incar"] or \
-                                             self.state["parameters"]):
+        if (name == "i" or name == "v") and \
+                (self.state["incar"] or self.state["parameters"]):
             self.incar_param = attributes["name"]
             self.param_type = "float" if "type" not in attributes \
-                                      else attributes["type"]
+                else attributes["type"]
             self.read_val = True
         elif name == "v" and self.state["kpoints"]:
             self.read_val = True
@@ -529,11 +530,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.kpoints.style = attributes["param"]
             self.kpoints.kpts = []
             self.kpoints.kpts_shift = [0, 0, 0]
-        elif name == "c" and (self.state["array"] == "atoms" or \
-                              self.state["array"] == "atomtypes"):
+        elif name == "c" and \
+                (self.state["array"] == "atoms" or
+                 self.state["array"] == "atomtypes"):
             self.read_val = True
         elif name == "i" and self.state["i"] == "version" and \
-                                          self.state["generator"]:
+                self.state["generator"]:
             self.read_val = True
 
     def _init_calc(self, name, attributes):
@@ -548,7 +550,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             if name == "i" and self.state["scstep"]:
                 logger.debug("Reading scstep...")
                 self.read_val = True
-            elif name == "v" and (self.state["varray"] == "forces" or \
+            elif name == "v" and (self.state["varray"] == "forces" or
                                   self.state["varray"] == "stress"):
                 self.read_positions = True
             elif name == "dos" and self.parse_dos:
@@ -560,13 +562,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.efermi = None
                 self.read_dos = True
             elif name == "eigenvalues" and self.parse_eigen and \
-                 (not self.state["projected"]):
+                    (not self.state["projected"]):
                 logger.debug("Reading eigenvalues. Projected = {}"
                              .format(self.state["projected"]))
                 self.eigenvalues = {}
                 self.read_eigen = True
             elif name == "eigenvalues" and self.parse_projected_eigen and \
-                 self.state["projected"]:
+                    self.state["projected"]:
                 logger.debug("Reading projected eigenvalues...")
                 self.projected_eigen = {}
                 self.read_projected_eigen = True
@@ -615,7 +617,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.latticerec = StringIO.StringIO()
             self.posstr = StringIO.StringIO()
             self.read_structure = True
-        elif name == "varray" and (self.state["varray"] == "forces" or \
+        elif name == "varray" and (self.state["varray"] == "forces" or
                                    self.state["varray"] == "stress"):
             self.posstr = StringIO.StringIO()
 
@@ -670,19 +672,26 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.filename, self.incar_param)
             elif state["kpoints"]:
                 if state["varray"] == "kpointlist":
-                    self.actual_kpoints.append([float(x) \
-                        for x in re.split("\s+", self.val.getvalue().strip())])
+                    self.actual_kpoints.append([float(x)
+                                                for x in
+                                                re.split("\s+",
+                                                         self.val.getvalue()
+                                                         .strip())])
                 if state["varray"] == "weights":
                     val = float(self.val.getvalue())
                     self.actual_kpoints_weights.append(val)
                 if state["v"] == "divisions":
-                    self.kpoints.kpts = [[int(x) \
-                        for x in re.split("\s+", self.val.getvalue().strip())]]
+                    self.kpoints.kpts = [[int(x)
+                                          for x in re.split("\s+",
+                                                            self.val.getvalue()
+                                                            .strip())]]
                 elif state["v"] == "usershift":
-                    self.kpoints.kpts_shift = [float(x) \
-                        for x in re.split("\s+", self.val.getvalue().strip())]
+                    self.kpoints.kpts_shift = [float(x)
+                                               for x in
+                                               re.split("\s+", self.val
+                                                        .getvalue().strip())]
                 elif state["v"] == "genvec1" or state["v"] == "genvec2" or \
-                     state["v"] == "genvec3" or state["v"] == "shift":
+                        state["v"] == "genvec3" or state["v"] == "shift":
                     setattr(self.kpoints, state["v"],
                             [float(x)
                              for x in re.split("\s+",
@@ -696,13 +705,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.scdata.append(self.scstep)
             logger.debug("Finished reading scstep...")
         elif name == "varray" and state["varray"] == "forces":
-            self.forces = np.array([float(x) for x in re.split("\s+",
-                                            self.posstr.getvalue().strip())])
+            self.forces = np.array([float(x)
+                                    for x in re.split("\s+", self.posstr
+                                                      .getvalue().strip())])
             self.forces.shape = (len(self.atomic_symbols), 3)
             self.read_positions = False
         elif name == "varray" and state["varray"] == "stress":
             self.stress = np.array([float(x) for x in re.split("\s+",
-                                            self.posstr.getvalue().strip())])
+                                    self.posstr.getvalue().strip())])
             self.stress.shape = (3, 3)
             self.read_positions = False
         elif name == "calculation":
@@ -719,10 +729,10 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_rec_lattice = False
         elif name == "structure":
             self.lattice = np.array([float(x) for x in re.split("\s+",
-                                        self.latticestr.getvalue().strip())])
+                                     self.latticestr.getvalue().strip())])
             self.lattice.shape = (3, 3)
             self.pos = np.array([float(x) for x in re.split("\s+",
-                                            self.posstr.getvalue().strip())])
+                                 self.posstr.getvalue().strip())])
             self.pos.shape = (len(self.atomic_symbols), 3)
             self.structures.append(Structure(self.lattice, self.atomic_symbols,
                                              self.pos))
@@ -739,17 +749,17 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             if name == "i" and state["i"] == "efermi":
                 self.efermi = float(self.val.getvalue().strip())
             elif name == "r" and state["total"] and \
-                                    str(state["set"]).startswith("spin"):
+                    str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.dos_energies_val.append(float(tok[0]))
                 self.dos_val.append(float(tok[1]))
                 self.idos_val.append(float(tok[2]))
             elif name == "r" and state["partial"] and \
-                                    str(state["set"]).startswith("spin"):
+                    str(state["set"]).startswith("spin"):
                 tok = re.split("\s+", self.val.getvalue().strip())
                 self.raw_data.append([float(i) for i in tok[1:]])
             elif name == "set" and state["total"] and \
-                                    str(state["set"]).startswith("spin"):
+                    str(state["set"]).startswith("spin"):
                 spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.tdos[spin] = self.dos_val
                 self.idos[spin] = self.dos_val
@@ -758,7 +768,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.dos_val = []
                 self.idos_val = []
             elif name == "set" and state["partial"] and \
-                                    str(state["set"]).startswith("spin"):
+                    str(state["set"]).startswith("spin"):
                 spin = Spin.up if state["set"] == "spin 1" else Spin.down
                 self.norbitals = len(self.raw_data[0])
                 for i in xrange(self.norbitals):
@@ -807,7 +817,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         state = self.state
         if name == "r" and str(state["set"]).startswith("band"):
             tok = re.split("\s+", self.val.getvalue().strip())
-            self.raw_data.append({Orbital.from_vasp_index(i): float(val) \
+            self.raw_data.append({Orbital.from_vasp_index(i): float(val)
                                   for i, val in enumerate(tok)})
         elif name == "set" and str(state["set"]).startswith("band"):
             logger.debug("Processing projected eigenvalues for " +
@@ -891,7 +901,7 @@ def parse_v_parameters(val_type, val, filename, param_name):
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
             val = parse_from_incar(filename, param_name)
-            if val == None:
+            if val is None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
         val = [i for i in re.split("\s+", val)]
@@ -902,7 +912,7 @@ def parse_v_parameters(val_type, val, filename, param_name):
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
             val = parse_from_incar(filename, param_name)
-            if val == None:
+            if val is None:
                 raise IOError("Error in parsing vasprun.xml")
     return val
 
@@ -1001,7 +1011,7 @@ class Outcar(object):
                     if m:
                         to_append = charge if read_charge else mag
                         data = re.findall("[\d\.\-]+", clean)
-                        to_append.append({header[i]: float(data[i]) \
+                        to_append.append({header[i]: float(data[i])
                                           for i in xrange(1, len(header))})
             elif line.find("soft stop encountered!  aborting job") != -1:
                 self.is_stopped = True
@@ -1128,10 +1138,12 @@ class Outcar(object):
 
             micro_pyawk(self.filename, search, self)
 
-            if self.er_ev[Spin.up] != None and self.er_ev[Spin.down] != None:
+            if self.er_ev[Spin.up] is not None and \
+                    self.er_ev[Spin.down] is not None:
                 self.er_ev_tot = self.er_ev[Spin.up] + self.er_ev[Spin.down]
 
-            if self.er_bp[Spin.up] != None and self.er_bp[Spin.down] != None:
+            if self.er_bp[Spin.up] is not None and \
+                    self.er_bp[Spin.down] is not None:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
 
         except:
@@ -1218,7 +1230,7 @@ class Outcar(object):
                 results.born[results.born_ion] = np.zeros((3, 3))
 
             search.append(["ion +([0-9]+)", lambda results,
-                           line: results.born_ion != None, born_ion])
+                           line: results.born_ion is not None, born_ion])
 
             def born_data(results, match):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
@@ -1353,9 +1365,9 @@ class VolumetricData(object):
         """
         if not self._spin_data:
             spin_data = dict()
-            spin_data[Spin.up] = 0.5 * (self.data["total"] + \
+            spin_data[Spin.up] = 0.5 * (self.data["total"] +
                                         self.data.get("diff", 0))
-            spin_data[Spin.down] = 0.5 * (self.data["total"] - \
+            spin_data[Spin.down] = 0.5 * (self.data["total"] -
                                           self.data.get("diff", 0))
             self._spin_data = spin_data
         return self._spin_data
@@ -1521,7 +1533,7 @@ class VolumetricData(object):
 
         a = self.dim
         if ind not in self._distance_matrix or \
-           self._distance_matrix[ind]["max_radius"] < radius:
+                self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
@@ -1661,7 +1673,7 @@ class Procar(object):
                 index = int(linefloatdata.pop(0))
                 if index in self.data:
                     self.data[index] = self.data[index] + \
-                                       np.array(linefloatdata) * weight
+                        np.array(linefloatdata) * weight
                 else:
                     self.data[index] = np.array(linefloatdata) * weight
 
@@ -1717,7 +1729,7 @@ class Oszicar(object):
                 m = electronic_pattern.match(line)
                 if m:
                     toks = re.split("\s+", m.group(1).strip())
-                    data = {header[i]: smart_convert(header[i], toks[i]) \
+                    data = {header[i]: smart_convert(header[i], toks[i])
                             for i in xrange(len(toks))}
                     if toks[0] == "1":
                         electronic_steps.append([data])
@@ -1796,9 +1808,10 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
     #ToDo: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
         #get all branch dir names
-        branch_dir_names = [os.path.abspath(d) \
-                        for d in glob.glob("{i}/branch_*".format(i=dir_name)) \
-                        if os.path.isdir(d)]
+        branch_dir_names = [os.path.abspath(d)
+                            for d in glob.glob("{i}/branch_*"
+                                               .format(i=dir_name))
+                            if os.path.isdir(d)]
 
         #sort by the directory name (e.g, branch_10)
         sort_by = lambda x: int(x.split("_")[-1])

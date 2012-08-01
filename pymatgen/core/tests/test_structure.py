@@ -150,7 +150,7 @@ class StructureTest(unittest.TestCase):
                               site_properties={'magmom': [5, -5]})
 
         new_struct = structure.copy(site_properties={'charge': [2, 3]},
-                                                    sanitize=True)
+                                    sanitize=True)
         self.assertEqual(new_struct[0].magmom, -5)
         self.assertEqual(new_struct[1].magmom, 5)
         self.assertEqual(new_struct[0].charge, 3)
@@ -304,7 +304,8 @@ occupation : 1.00"""
     def test_get_dist_matrix(self):
         ans = [[0.0, 1.089, 1.08899995636, 1.08900040717, 1.08900040717],
                [1.089, 0.0, 1.77832952654, 1.7783298026, 1.7783298026],
-               [1.08899995636, 1.77832952654, 0.0, 1.77833003783, 1.77833003783],
+               [1.08899995636, 1.77832952654, 0.0, 1.77833003783,
+                1.77833003783],
                [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
                [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
         self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
@@ -328,14 +329,33 @@ class CompositionTest(unittest.TestCase):
         self.comp.append(Composition.from_formula("Li1.5Si0.5"))
 
         self.indeterminate_comp = []
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"))
-        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("Co1",
+                                                                       True)
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("Co1",
+                                                                       False)
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("co2o3")
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("ncalu")
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("calun")
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula(
+                "liCoo2n (pO4)2")
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula(
+                "(co)2 (PO)4")
+        )
+        self.indeterminate_comp.append(
+            Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
     def test_init_(self):
         self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
@@ -407,7 +427,8 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(all_natoms, correct_num_atoms)
 
     def test_weight(self):
-        correct_weights = [417.427086, 187.63876199999999, 180.81469, 91.7616, 612.3258, 1302.430172, 24.454250000000002]
+        correct_weights = [417.427086, 187.63876199999999, 180.81469, 91.7616,
+                           612.3258, 1302.430172, 24.454250000000002]
         all_weights = [c.weight for c in self.comp]
         self.assertAlmostEqual(all_weights, correct_weights, 5)
 
@@ -421,9 +442,11 @@ class CompositionTest(unittest.TestCase):
                          "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
-        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2', 'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5']
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2',
+                             'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5']
         for i in xrange(len(self.comp)):
-            self.assertEqual(self.comp[i].anonymized_formula, expected_formulas[i])
+            self.assertEqual(self.comp[i].anonymized_formula,
+                             expected_formulas[i])
 
     def test_get_wt_fraction(self):
         correct_wt_frac = {"Li": 0.0498841610868, "Fe": 0.267567687258,
@@ -483,7 +506,9 @@ class CompositionTest(unittest.TestCase):
             other_z = random.randint(1, 92)
         comp2 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
         self.assertEqual(comp1, comp2,
-                         "Composition equality test failed. %s should be equal to %s" % (comp1.formula, comp2.formula))
+                         "Composition equality test failed. " +
+                         "%s should be equal to %s" % (comp1.formula,
+                                                       comp2.formula))
         self.assertEqual(comp1.__hash__(), comp2.__hash__(),
                          "Hashcode equality test failed!")
 
