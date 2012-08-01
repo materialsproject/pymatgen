@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 """
-This module provides classes used to define a structure, such as Site,
-PeriodicSite, Structure, and Composition.
+This module provides classes used to define a non-periodic molecule and a
+
+periodic structure.
 """
 
 from __future__ import division
@@ -24,551 +25,12 @@ from fractions import gcd
 
 import numpy as np
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, smart_element_or_specie
+from pymatgen.core.periodic_table import Element, Specie, \
+    smart_element_or_specie
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
-
-
-class Site(collections.Mapping, collections.Hashable, MSONable):
-    '''
-    A generalized *non-periodic* site. Atoms and occupancies should be a dict
-    of element:occupancy or an element, in which case the occupancy default to 
-    1. Coords are given in standard cartesian coordinates.
-    '''
-
-    supported_properties = ('magmom', 'charge', 'coordination_no', 'forces')
-
-    def __init__(self, atoms_n_occu, coords, properties=None):
-        """
-        Create a *non-periodic* site.
-        
-        Args:
-            atoms_n_occu: 
-                dict of elements or species and occupancies. Elements can be 
-                specified as symbols (Fe), atomic numbers (27), or actual 
-                Element objects.  Specie can be specified as Specie objects, 
-                or strings (Fe2+).
-            coords: 
-                Cartesian coordinates of site.
-            properties:
-                Properties associated with the site as a dict, e.g. 
-                {'magmom':5}. Defaults to None.
-        """
-
-        if isinstance(atoms_n_occu, dict):
-            self._species = {smart_element_or_specie(k): v \
-                             for k, v in atoms_n_occu.items()}
-            totaloccu = sum(self._species.values())
-            if totaloccu > 1:
-                raise ValueError("Species occupancies sum to more than 1!")
-            self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
-        else:
-            self._species = {smart_element_or_specie(atoms_n_occu):1}
-            self._is_ordered = True
-        self._coords = coords
-        self._properties = properties if properties else {}
-        for k in self._properties.keys():
-            if k not in Site.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
-
-    @property
-    def properties(self):
-        """
-        Returns a view of properties as a dict.
-        """
-        return {k:v for k, v in self._properties.items()}
-
-    def __getattr__(self, a):
-        if a in self._properties:
-            return self._properties[a]
-        raise AttributeError(a)
-
-    def distance(self, other):
-        """
-        Get distance between two sites.
-        
-        Args:
-            other:
-                Other site.
-        """
-        return np.linalg.norm(other.coords - self.coords)
-
-    def distance_from_point(self, pt):
-        """
-        Returns distance between the site and a point in space.
-        
-        Args:
-            pt:
-                cartesian coordinates of point.
-        """
-        return np.linalg.norm(np.array(pt) - np.array(self._coords))
-
-    @property
-    def species_string(self):
-        """
-        String representation of species on the site.
-        """
-        if self._is_ordered:
-            return str(self._species.keys()[0])
-        else:
-            sorted_species = sorted(self._species.keys())
-            return ', '.join(["%s:%.3f" % (str(sp), self._species[sp]) \
-                              for sp in sorted_species])
-
-    @property
-    def species_and_occu(self):
-        """
-        The species at the site, i.e., a dict of element and occupancy
-        """
-        return self._species
-
-    @property
-    def specie(self):
-        """
-        .. deprecated:: 1.0
-            Use :func:`species_and_occu` instead.
-            
-        The Specie/Element at the site. Only works for ordered sites. Otherwise 
-        an AttributeError is raised. Use this property sparingly.  Robust
-        design should make use of the property species_and_occu instead.
-        
-        Raises:
-            AttributeError if Site is not ordered.
-        """
-        if not self._is_ordered:
-            raise AttributeError("specie property only works for ordered sites!")
-        return self._species.keys()[0]
-
-    @property
-    def coords(self):
-        """
-        A copy of the cartesian coordinates of the site as a numpy array.
-        """
-        return np.copy(self._coords)
-
-    @property
-    def is_ordered(self):
-        """
-        True if site is an ordered site, i.e., with a single species with 
-        occupancy 1.
-        """
-        return self._is_ordered
-
-    @property
-    def x(self):
-        """
-        Cartesian x coordinate
-        """
-        return self._coords[0]
-
-    @property
-    def y(self):
-        """
-        Cartesian y coordinate
-        """
-        return self._coords[1]
-
-    @property
-    def z(self):
-        """
-        Cartesian z coordinate
-        """
-        return self._coords[2]
-
-    def __getitem__(self, el):
-        '''
-        Get the occupancy for element
-        '''
-        return self._species[el]
-
-    def __eq__(self, other):
-        """
-        Site is equal to another site if the species and occupancies are the 
-        same, and the coordinates are the same to some tolerance.  numpy
-        function `allclose` is used to determine if coordinates are close.
-        """
-        if other == None:
-            return False
-        return self._species == other._species and \
-               np.allclose(self._coords, other._coords)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        '''
-        Minimally effective hash function that just distinguishes between Sites 
-        with different elements.
-        '''
-        hashcode = 0
-        for el in self._species.keys():
-            #Ignore elements with zero amounts.
-            if self[el] != 0:
-                hashcode += el.Z
-        return hashcode
-
-    def __contains__(self, el):
-        return el in self._species
-
-    def __len__(self):
-        return len(self._species)
-
-    def __iter__(self):
-        return self._species.__iter__()
-
-    def __repr__(self):
-        outs = []
-        outs.append("Non-periodic Site")
-        outs.append("xyz        : (%0.4f, %0.4f, %0.4f)" % tuple(self.coords))
-        for k, v in self._species.items():
-            outs.append("element    : %s" % k.symbol)
-            outs.append("occupation : %0.2f" % v)
-        return "\n".join(outs)
-
-    def __cmp__(self, other):
-        '''
-        Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is 
-        automatically sorted in LiFePO4.
-        '''
-        def avg_electroneg(sps):
-            return sum([sp.X * occu for sp, occu in sps.items()])
-
-        if avg_electroneg(self._species) < avg_electroneg(other._species):
-            return -1
-        if avg_electroneg(self._species) > avg_electroneg(other._species):
-            return 1
-        return 0
-
-    def __str__(self):
-        return "%s %s" % (self._coords, ','.join(["%s %.4f" % (str(atom), occu)\
-                                     for atom, occu in self._species.items()]))
-
-    @property
-    def to_dict(self):
-        """
-        Json-serializable dict representation for Site.
-        """
-        species_list = []
-        for spec, occu in self._species.items():
-            d = spec.to_dict
-            d['occu'] = occu
-            species_list.append(d)
-        d = {'name': self.species_string, 'species': species_list,
-             'occu': occu, 'xyz':[float(c) for c in self._coords],
-             'properties': self._properties}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        """
-        Create Site from dict representation
-        """
-        atoms_n_occu = {}
-        for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
-                 else Element(sp_occu['element'])
-            atoms_n_occu[sp] = sp_occu['occu']
-        props = d.get('properties', None)
-        return Site(atoms_n_occu, d['xyz'], properties=props)
-
-
-class PeriodicSite(Site, MSONable):
-    """
-    Extension of generic Site object to periodic systems.
-    PeriodicSite includes a lattice system.
-    """
-
-    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell=False,
-                 coords_are_cartesian=False, properties=None):
-        """
-        Create a periodic site.
-        
-        Args:
-            atoms_n_occu:
-                dict of elements and occupancies
-            coords:
-                coordinates of site as fractional coordinates or cartesian 
-                coordinates.
-            lattice:
-                Lattice associated with the site
-            to_unit_cell:
-                translates fractional coordinate to the basic unit cell, i.e. 
-                all fractional coordinates satisfy 0 <= a < 1. Defaults to 
-                False.
-            coords_are_cartesian:
-                Set to True if you are providing cartesian coordinates. 
-                Defaults to False.
-            properties:
-                Properties associated with the PeriodicSite as a dict, e.g. 
-                {'magmom':5}. Defaults to None.
-        """
-        self._lattice = lattice
-        self._fcoords = self._lattice.get_fractional_coords(coords) \
-                        if coords_are_cartesian else coords
-
-        if to_unit_cell:
-            for i, fcoords in enumerate(self._fcoords):
-                self._fcoords[i] = fcoords - math.floor(fcoords)
-
-        c_coords = self._lattice.get_cartesian_coords(self._fcoords)
-        Site.__init__(self, atoms_n_occu, c_coords, properties)
-
-    @property
-    def lattice(self):
-        """
-        The lattice associated with the site.
-        """
-        return self._lattice
-
-    @property
-    def frac_coords(self):
-        """
-        The fractional coordinates of the site as a tuple.
-        """
-        return np.copy(self._fcoords)
-
-    @property
-    def a(self):
-        """
-        Fractional a coordinate
-        """
-        return self._fcoords[0]
-
-    @property
-    def b(self):
-        """
-        Fractional b coordinate
-        """
-        return self._fcoords[1]
-
-    @property
-    def c(self):
-        """
-        Fractional c coordinate
-        """
-        return self._fcoords[2]
-
-    @property
-    def to_unit_cell(self):
-        """
-        Copy of PeriodicSite translated to the unit cell.
-        """
-        fcoords = [i - math.floor(i) for i in self._fcoords]
-        return PeriodicSite(self._species, fcoords, self._lattice,
-                            properties=self._properties)
-
-    def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
-        """
-        Returns True if sites are periodic images of each other.
-        """
-        if check_lattice and self.lattice != other.lattice:
-            return False
-        if self.species_and_occu != other.species_and_occu:
-            return False
-        frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
-        frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance \
-                     for a in frac_diff]
-        return  all(frac_diff)
-
-    def __eq__(self, other):
-        return self._species == other._species and \
-            self._lattice == other._lattice and \
-            np.allclose(self._coords, other._coords)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def distance_and_image_old(self, other, jimage=None):
-        """
-        .. deprecated:: 1.0
-            Use :func:`distance_and_image` instead. This code is kept for 
-            information reasons. A new version has been written which is more 
-            accurate, but at a higher computational cost.
-        
-        Gets distance between two sites assuming periodic boundary conditions.
-        If the index jimage of two sites atom j is not specified it selects the 
-        j image nearest to the i atom and returns the distance and jimage
-        indices in terms of lattice vector translations. If the index jimage of
-        atom j is specified it returns the distance between the i atom and the
-        specified jimage atom, the given jimage is also returned.
-        
-        Args:
-            other:
-                other site to get distance from.
-            jimage:
-                specific periodic image in terms of lattice translations, 
-                e.g., [1,0,0] implies to take periodic image that is one 
-                a-lattice vector away. If jimage == None, the image that is 
-                nearest to the site is found.
-        
-        Returns:
-            (distance, jimage):
-                distance and periodic lattice translations of the other site 
-                for which the distance applies.
-        
-        .. note::
-            Assumes the primitive cell vectors are sufficiently not skewed such 
-            that the condition \|a\|cos(ab_angle) < \|b\| for all possible cell
-            vector pairs. ** this method does not check this condition **
-        """
-        if jimage == None:
-            #Old algorithm
-            jimage = -np.array(np.around(other._fcoords - self._fcoords), int)
-        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + \
-                                    other._fcoords - self._fcoords)), jimage
-
-    def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
-        """
-        Gets distance between site and a fractional coordinate assuming 
-        periodic boundary conditions. If the index jimage of two sites atom j 
-        is not specified it selects the j image nearest to the i atom and
-        returns the distance and jimage indices in terms of lattice vector 
-        translations. If the index jimage of atom j is specified it returns the
-        distance between the i atom and the specified jimage atom, the given 
-        jimage is also returned.
-        
-        Args:
-            fcoords:
-                fcoords to get distance from.
-            jimage:
-                specific periodic image in terms of lattice translations, 
-                e.g., [1,0,0] implies to take periodic image that is one 
-                a-lattice vector away. If jimage == None, the image that is
-                nearest to the site is found.
-        
-        Returns:
-            (distance, jimage):
-                distance and periodic lattice translations of the other site
-                for which the distance applies.
-        """
-        if jimage == None:
-            #The following code is heavily vectorized to maximize speed.
-
-            #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.array([-math.floor(i) for i in self._fcoords])
-            adj2 = np.array([-math.floor(i) for i in fcoords])
-
-            #Shift coords to unitcell
-            coord1 = self._fcoords + adj1
-            coord2 = fcoords + adj2
-
-            #Generate set of images required for testing.
-            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1] \
-                        for i in range(3)]
-            images = [image for image in itertools.product(*test_set)]
-
-            #Create vectorized cartesian coords tiling for computing distances.
-            vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
-            vec = self._lattice.get_cartesian_coords(vec)
-
-            #Compute distances manually.
-            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-
-            #Return the minimum distance and the adjusted image corresponding
-            #to the min distance.
-            mindist = min(dist)
-            ind = dist.index(mindist)
-            return mindist, adj2 - adj1 + images[ind]
-
-        return np.linalg.norm(self.lattice.get_cartesian_coords(jimage + \
-                                            fcoords - self._fcoords)), jimage
-
-    def distance_and_image(self, other, jimage=None):
-        """
-        Gets distance and instance between two sites assuming periodic boundary 
-        conditions. If the index jimage of two sites atom j is not specified it
-        selects the j image nearest to the i atom and returns the distance and 
-        jimage indices in terms of lattice vector translations. If the index
-        jimage of atom j is specified it returns the distance between the ith
-        atom and the specified jimage atom, the given jimage is also returned.
-        
-        Args:
-            other:
-                other site to get distance from.
-            jimage:
-                specific periodic image in terms of lattice translations, 
-                e.g., [1,0,0] implies to take periodic image that is one 
-                a-lattice vector away. If jimage == None, the image that is 
-                nearest to the site is found.
-        
-        Returns:
-            (distance, jimage):
-                distance and periodic lattice translations of the other site 
-                for which the distance applies.
-        """
-        return self.distance_and_image_from_frac_coords(other._fcoords, jimage)
-
-    def distance(self, other, jimage=None):
-        """
-        Get distance between two sites assuming periodic boundary conditions.
-        
-        Args:
-            other:
-                other site to get distance from.
-            jimage:   
-                specific periodic image in terms of lattice translations, 
-                e.g., [1,0,0] implies to take periodic image that is one
-                a-lattice vector away. If jimage == None, the image that is
-                nearest to the site is found.
-        
-        Returns:
-            distance:
-                distance between the two sites
-        
-        """
-        return self.distance_and_image(other, jimage)[0]
-
-    def __repr__(self):
-        outs = []
-        outs.append("Periodic Site")
-        outs.append("abc : (%0.4f, %0.4f, %0.4f)" % tuple(self._fcoords))
-        for k, v in self._species.items():
-            outs.append("element    : %s" % k.symbol)
-            outs.append("occupation : %0.2f" % v)
-        return "\n".join(outs)
-
-    @property
-    def to_dict(self):
-        """
-        Json-serializable dict representation of PeriodicSite.
-        """
-        species_list = []
-        for spec, occu in self._species.items():
-            d = spec.to_dict
-            d['occu'] = occu
-            species_list.append(d)
-        d = {'label': self.species_string, 'species': species_list,
-             'occu': occu, 'xyz':[float(c) for c in self._coords],
-             'abc':[float(c) for c in self._fcoords],
-             'lattice': self._lattice.to_dict,
-             'properties': self._properties}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d, lattice=None):
-        """
-        Create PeriodicSite from dict representation.
-        
-        Args:
-            d:
-                dict representation of PeriodicSite
-            lattice:
-                Optional lattice to override lattice specified in d. Useful for
-                ensuring all sites in a structure share the same lattice.
-        """
-        atoms_n_occu = {}
-        for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
-                 else Element(sp_occu['element'])
-            atoms_n_occu[sp] = sp_occu['occu']
-        props = d.get('properties', None)
-        lattice = lattice if lattice else Lattice.from_dict(d['lattice'])
-        return PeriodicSite(atoms_n_occu, d['abc'], lattice, properties=props)
+from pymatgen.core.sites import Site, PeriodicSite
+from pymatgen.core.bonds import CovalentBond
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -577,7 +39,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
-    periodicity) and Structure (a collection of PeriodicSites, i.e., 
+    periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
 
@@ -586,7 +48,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     @abc.abstractproperty
     def sites(self):
         """
-        Returns an iterator for the sites in the Structure. 
+        Returns an iterator for the sites in the Structure.
+
         """
         for site in self._sites:
             yield site
@@ -631,7 +94,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     @property
     def site_properties(self):
         """
-        Returns the site properties as a dict of sequences. E.g., 
+        Returns the site properties as a dict of sequences. E.g.,
+
         {'magmom': (5,-5), 'charge': (-4,4)}.
         """
         props = collections.defaultdict(list)
@@ -703,8 +167,10 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     @property
     def is_ordered(self):
         """
-        Checks if structure is ordered, meaning no partial occupancies in any 
-        of the sites. 
+        Checks if structure is ordered, meaning no partial occupancies in any
+
+        of the sites.
+
         """
         for site in self.sites:
             if not site.is_ordered:
@@ -714,7 +180,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def get_angle(self, i, j, k):
         """
         Returns angle specified by three sites.
-         
+
         Args:
             i:
                 Index of first site
@@ -722,7 +188,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
                 Index of second site
             k:
                 Index of third site
-        
+
         Returns:
             Angle in degrees.
         """
@@ -742,7 +208,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def get_dihedral(self, i, j, k, l):
         """
         Returns dihedral angle specified by four sites.
-         
+
         Args:
             i:
                 Index of first site
@@ -752,7 +218,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
                 Index of third site
             l:
                 Index of fourth site
-                
+
         Returns:
             Dihedral angle in degrees.
         """
@@ -767,44 +233,53 @@ class SiteCollection(collections.Sequence, collections.Hashable):
 
 class Structure(SiteCollection, MSONable):
     """
-    Basic Structure object with periodicity. Essentially a sequence of 
-    PeriodicSites having a common lattice. Structure is made to be immutable 
-    so that they can function as keys in a dict. Modifications should be done 
-    by making a new Structure using the structure_modifier module or your own 
-    methods. Structure extends Sequence and Hashable, which means that in many 
-    cases, it can be used like any Python sequence. Iterating through a 
+    Basic Structure object with periodicity. Essentially a sequence of
+    PeriodicSites having a common lattice. Structure is made to be immutable
+    so that they can function as keys in a dict. Modifications should be done
+    by making a new Structure using the structure_modifier module or your own
+    methods. Structure extends Sequence and Hashable, which means that in many
+    cases, it can be used like any Python sequence. Iterating through a
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, atomicspecies, coords, validate_proximity=False,
+    def __init__(self, lattice, species, coords, validate_proximity=False,
                  to_unit_cell=False, coords_are_cartesian=False,
                  site_properties=None):
         """
         Create a periodic structure.
-        
+
         Args:
             lattice:
-                pymatgen.core.lattice Lattice object signify the lattice.
-            atomicspecies:
-                list of atomic species. Possible kinds of input include a list 
-                of dict of elements/species and occupancies, a List of 
-                elements/specie specified as actual Element/Specie, Strings 
-                ("Fe", "Fe2+") or atomic numbers (1,56).
+                The lattice, either as a pymatgen.core.lattice.Lattice or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species:
+                List of species on each site. Can take in flexible input,
+                including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    disordered structures.
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang 
+                Whether to check if there are sites that are less than 1 Ang
                 apart. Defaults to False.
             coords_are_cartesian:
-                Set to True if you are providing coordinates in cartesian 
+                Set to True if you are providing coordinates in cartesian
                 coordinates. Defaults to False.
             site_properties:
-                Properties associated with the sites as a dict of sequences, 
+                Properties associated with the sites as a dict of sequences,
                 e.g., {'magmom':[5,5,5,5]}. The sequences have to be the same
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        if len(atomicspecies) != len(coords):
+        if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   "same length as the list of fractional",
                                   " coordinates."))
@@ -815,11 +290,11 @@ class Structure(SiteCollection, MSONable):
             self._lattice = Lattice(lattice)
 
         self._sites = []
-        for i in xrange(len(atomicspecies)):
+        for i in xrange(len(species)):
             prop = None
             if site_properties:
-                prop = {k:v[i] for k, v in site_properties.items()}
-            self._sites.append(PeriodicSite(atomicspecies[i], coords[i],
+                prop = {k: v[i] for k, v in site_properties.items()}
+            self._sites.append(PeriodicSite(species[i], coords[i],
                                             self._lattice, to_unit_cell,
                                             coords_are_cartesian,
                                             properties=prop))
@@ -830,16 +305,14 @@ class Structure(SiteCollection, MSONable):
                     raise StructureError(("Structure contains sites that are ",
                                           "less than 0.01 Angstrom apart!"))
 
-        self._sites = tuple(self._sites)
-
     @staticmethod
     def from_sites(sites):
         """
-        Convenience static constructor to make a Structure from a list of sites.
-        
+        Convenience constructor to make a Structure from a list of sites.
+
         Args:
             sites:
-                Sequence of PeriodicSites. The sites must have the same lattice.
+                Sequence of PeriodicSites. Sites must have the same lattice.
         """
         props = collections.defaultdict(list)
         lattice = None
@@ -858,9 +331,10 @@ class Structure(SiteCollection, MSONable):
     @property
     def sites(self):
         """
-        Returns the sites in the Structure. 
+        Returns the sites in the Structure.
+
         """
-        return self._sites
+        return tuple(self._sites)
 
     @property
     def lattice(self):
@@ -889,7 +363,7 @@ class Structure(SiteCollection, MSONable):
         return props
 
     def __eq__(self, other):
-        if other == None:
+        if other is None:
             return False
         if len(self) != len(other):
             return False
@@ -902,7 +376,7 @@ class Structure(SiteCollection, MSONable):
         return not self.__eq__(other)
 
     def __hash__(self):
-        #for now, just use the composition hash code.
+        # For now, just use the composition hash code.
         return self.composition.__hash__()
 
     @property
@@ -921,22 +395,23 @@ class Structure(SiteCollection, MSONable):
 
     def get_distance(self, i, j, jimage=None):
         """
-        Get distance between site i and j assuming periodic boundary conditions.
-        If the index jimage of two sites atom j is not specified it selects the 
-        j image nearest to the i atom and returns the distance and jimage 
-        indices in terms of lattice vector translations if the index jimage of 
-        atom j is specified it returns the distance between the i atom and the 
-        specified jimage atom.
-        
+        Get distance between site i and j assuming periodic boundary
+        conditions. If the index jimage of two sites atom j is not specified it
+        selects the jimage nearest to the i atom and returns the distance and
+        jimage indices in terms of lattice vector translations if the index
+        jimage of atom j is specified it returns the distance between the i
+        atom and the specified jimage atom.
+
         Args:
             i:
                 Index of first site
             j:
                 Index of second site
             jimage:
-                Number of lattice translations in each lattice direction. 
+                Number of lattice translations in each lattice direction.
+
                 Default is None for nearest image.
-        
+
         Returns:
             distance
         """
@@ -944,27 +419,27 @@ class Structure(SiteCollection, MSONable):
 
     def get_sites_in_sphere(self, pt, r):
         '''
-        Find all sites within a sphere from the point. This includes sites 
+        Find all sites within a sphere from the point. This includes sites
         in other periodic images.
-        
-        Algorithm: 
-        
-        1. place sphere of radius r in crystal and determine minimum supercell 
-           (parallelpiped) which would contain a sphere of radius r. for this 
-           we need the projection of a_1 on a unit vector perpendicular 
-           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to determine 
-           how many a_1's it will take to contain the sphere. 
-           
+
+        Algorithm:
+
+        1. place sphere of radius r in crystal and determine minimum supercell
+           (parallelpiped) which would contain a sphere of radius r. for this
+           we need the projection of a_1 on a unit vector perpendicular
+           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+           determine how many a_1's it will take to contain the sphere.
+
            Nxmax = r * length_of_b_1 / (2 Pi)
-        
+
         2. keep points falling within r.
-        
+
         Args:
             pt:
                 cartesian coordinates of center of sphere.
             r:
                 radius of sphere.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -980,7 +455,7 @@ class Structure(SiteCollection, MSONable):
             axis_ranges.append(range(rangemin, rangemax + 1))
         neighbors = []
         n = len(self._sites)
-        site_fcoords = np.array([site.to_unit_cell.frac_coords \
+        site_fcoords = np.array([site.to_unit_cell.frac_coords
                                  for site in self._sites])
         pts = np.array([pt] * n)
         for image in itertools.product(*axis_ranges):
@@ -992,22 +467,22 @@ class Structure(SiteCollection, MSONable):
             for i in range(n):
                 if withindists[i]:
                     nnsite = PeriodicSite(self._sites[i].species_and_occu,
-                                        fcoords[i], self._lattice,
-                                        properties=self._sites[i].properties)
+                                          fcoords[i], self._lattice,
+                                          properties=self._sites[i].properties)
                     neighbors.append((nnsite, dists[i]))
         return neighbors
 
     def get_neighbors(self, site, r):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the 
+        Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
-        
+
         Args:
             site:
                 site, which is the center of the sphere.
             r:
                 radius of sphere.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -1020,32 +495,35 @@ class Structure(SiteCollection, MSONable):
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
         Use this method if you are planning on looping over all sites in the
-        crystal. If you only want neighbors for a particular site, use the 
+        crystal. If you only want neighbors for a particular site, use the
+
         method get_neighbors as it may not have to build such a large supercell
         However if you are looping over all sites in the crystal, this method
-        is more efficient since it only performs one pass over a large enough 
+        is more efficient since it only performs one pass over a large enough
+
         supercell to contain all possible atoms out to a distance r.
         The return type is a [(site, dist) ...] since most of the time,
         subsequent processing requires the distance.
-        
+
         Args:
             r:
-                radius of sphere. 
+                radius of sphere.
+
             include_index:
                 boolean that determines whether the non-supercell site index
                 is included in the returned data
-        
+
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
-            [[(site, dist, index) ...], ..] 
-            Index only supplied if include_index = true
+            [[(site, dist, index) ...], ..]
+            Index only supplied if include_index = True.
             The index is the index of the site in the original (non-supercell)
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
         """
 
-        #use same algorithm as getAtomsInSphere to determine supercell but
-        #loop over all atoms in crystal
+        # Use same algorithm as get_sites_in_sphere to determine supercell but
+        # loop over all atoms in crystal
         recp_len = self.lattice.reciprocal_lattice.abc
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
@@ -1088,26 +566,26 @@ class Structure(SiteCollection, MSONable):
                 for i in range(n):
                     if withindists[i]:
                         nnsite = PeriodicSite(site.species_and_occu, fcoords,
-                                          site.lattice,
-                                          properties=site.properties)
-                        item = (nnsite, dists[i], j) if include_index \
-                               else (nnsite, dists[i])
+                                              site.lattice,
+                                              properties=site.properties)
+                        item = (nnsite, dists[i], j) if include_index\
+                            else (nnsite, dists[i])
                         neighbors[i].append(item)
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
-        Returns all sites in a shell centered on origin (coords) between radii 
+        Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
-        
+
         Args:
             origin:
                 cartesian coordinates of center of sphere.
             r:
                 inner radius of shell.
-            dr: 
+            dr:
                 width of shell.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -1124,37 +602,63 @@ class Structure(SiteCollection, MSONable):
         sites = sorted(self.sites)
         return Structure.from_sites(sites)
 
-    def copy(self, site_properties=None):
+    def copy(self, site_properties=None, sanitize=False):
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
-        
+
         Args:
             site_properties:
                 Properties to add or override. The properties are specified in
                 the same way as the constructor, i.e., as a dict of the form
-                {property: [values]}.
+                {property: [values]}. The properties should be in the order of
+                the *original* structure if you are performing sanitization.
+            sanitize:
+                If True, this method will return a sanitized structure.
+                Sanitization performs a few things: (i) The sites are sorted
+                by electronegativity, (ii) a LLL lattice reduction is carried
+                out to obtain a relatively orthogonalized cell, (iii) all
+                fractional coords for sites are mapped into the unit cell.
+
+        Returns:
+            A copy of the Structure, with optionally new site_properties and
+            optionally sanitized.
         """
         sites = self.sites
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
-        return Structure(self._lattice,
-                         [site.species_and_occu for site in sites],
-                         [site.frac_coords for site in sites],
-                         site_properties=props)
+        if not sanitize:
+            return Structure(self._lattice,
+                             [site.species_and_occu for site in sites],
+                             [site.frac_coords for site in sites],
+                             site_properties=props)
+        else:
+            reduced_latt = self._lattice.get_lll_reduced_lattice()
+            new_sites = []
+            for i, site in enumerate(sites):
+                frac_coords = reduced_latt.get_fractional_coords(site.coords)
+                site_props = {}
+                for p in props:
+                    site_props[p] = props[p][i]
+                new_sites.append(PeriodicSite(site.species_and_occu,
+                                              frac_coords, reduced_latt,
+                                              to_unit_cell=True,
+                                              properties=site_props))
+            new_sites = sorted(new_sites)
+            return Structure.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10):
         '''
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
-        
+
         Args:
             end_structure:
                 structure to interpolate between this structure and end.
             nimages:
                 number of interpolation images. Defaults to 10 images.
-        
+
         Returns:
             List of interpolated structures.
         '''
@@ -1169,19 +673,19 @@ class Structure(SiteCollection, MSONable):
         #Check that both structures have the same species
         for i in range(0, len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
-                raise ValueError("Different species!\nStructure 1:\n" + \
-                                 str(self) + "\nStructure 2\n" + \
+                raise ValueError("Different species!\nStructure 1:\n" +
+                                 str(self) + "\nStructure 2\n" +
                                  str(end_structure))
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
 
-        vec = end_coords - start_coords #+ jimage
+        vec = end_coords - start_coords
         structs = [Structure(self.lattice,
-                                [site.species_and_occu for site in self._sites],
-                                start_coords + float(x) / float(nimages) * vec,
-                                site_properties=self.site_properties) \
-                                for x in range(0, nimages + 1)]
+                             [site.species_and_occu for site in self._sites],
+                             start_coords + float(x) / float(nimages) * vec,
+                             site_properties=self.site_properties)
+                   for x in range(0, nimages + 1)]
         return structs
 
     def __repr__(self):
@@ -1194,16 +698,18 @@ class Structure(SiteCollection, MSONable):
 
     def __str__(self):
         outs = ["Structure Summary ({s})".format(s=str(self.composition))]
-        outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
-        to_s = lambda x : "%0.6f" % x
-        outs.append('abc   : ' + " ".join([to_s(i).rjust(10) \
+        outs.append("Reduced Formula: {}"
+                    .format(self.composition.reduced_formula))
+        to_s = lambda x: "%0.6f" % x
+        outs.append('abc   : ' + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.abc]))
-        outs.append('angles: ' + " ".join([to_s(i).rjust(10) \
+        outs.append('angles: ' + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
             outs.append(" ".join([str(i + 1), site.species_string,
-                    " ".join([to_s(j).rjust(12) for j in site.frac_coords])]))
+                                  " ".join([to_s(j).rjust(12)
+                                            for j in site.frac_coords])]))
         return "\n".join(outs)
 
     @property
@@ -1227,13 +733,13 @@ class Structure(SiteCollection, MSONable):
     @staticmethod
     def from_dict(d):
         """
-        Reconstitute a Structure object from a dict representation of Structure 
+        Reconstitute a Structure object from a dict representation of Structure
         created using to_dict.
-        
+
         Args:
-            d: 
+            d:
                 dict representation of structure.
-        
+
         Returns:
             Structure object
         """
@@ -1244,46 +750,51 @@ class Structure(SiteCollection, MSONable):
 
 class Molecule(SiteCollection, MSONable):
     """
-    Basic Molecule object without periodicity. Essentially a sequence of sites. 
-    Molecule is made to be immutable so that they can function as keys in a 
+    Basic Molecule object without periodicity. Essentially a sequence of sites.
+    Molecule is made to be immutable so that they can function as keys in a
     dict. Modifications should be done by making a new Molecule.
-    Molecule extends Sequence and Hashable, which means that in many cases, 
+    Molecule extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a molecule is
     equivalent to going through the sites in sequence.
     """
-    def __init__(self, atomicspecies, coords, validate_proximity=False,
+
+    def __init__(self, species, coords, validate_proximity=False,
                  site_properties=None):
         """
         Creates a Molecule.
-        
+
         Args:
-            atomicspecies:
+            species:
                 list of atomic species. Possible kinds of input include a list
-                of dict of elements/species and occupancies, a List of 
-                elements/specie specified as actual Element/Specie, Strings 
+                of dict of elements/species and occupancies, a List of
+
+                elements/specie specified as actual Element/Specie, Strings
+
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords:
                 list of cartesian coordinates of each species.
             validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang 
+                Whether to check if there are sites that are less than 1 Ang
+
                 apart. Defaults to False.
             site_properties:
-                Properties associated with the sites as a dict of sequences, 
+                Properties associated with the sites as a dict of sequences,
+
                 e.g., {'magmom':[5,5,5,5]}. The sequences have to be the same
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        if len(atomicspecies) != len(coords):
+        if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   " same length as the list of fractional ",
                                   "coordinates."))
 
         sites = []
-        for i in xrange(len(atomicspecies)):
+        for i in xrange(len(species)):
             prop = None
             if site_properties:
-                prop = {k:v[i] for k, v in site_properties.items()}
-            sites.append(Site(atomicspecies[i], coords[i], properties=prop))
+                prop = {k: v[i] for k, v in site_properties.items()}
+            sites.append(Site(species[i], coords[i], properties=prop))
         if validate_proximity:
             for (s1, s2) in itertools.combinations(sites, 2):
                 if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
@@ -1294,9 +805,80 @@ class Molecule(SiteCollection, MSONable):
     @property
     def sites(self):
         """
-        Returns the sites in the Molecule. 
+        Returns the sites in the Molecule.
+
         """
         return self._sites
+
+    @staticmethod
+    def from_sites(sites):
+        """
+        Convenience static constructor to make a Molecule from a list of sites.
+
+        Args:
+            sites:
+                Sequence of Sites.
+        """
+        props = collections.defaultdict(list)
+        for site in sites:
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return Molecule([site.species_and_occu for site in sites],
+                        [site.coords for site in sites],
+                        site_properties=props)
+
+    def break_bond(self, ind1, ind2):
+        """
+        Returns two molecules based on breaking the bond between atoms at index
+        ind1 and ind2.
+        """
+        sites = self._sites
+        clusters = [[sites[ind1]], [sites[ind2]]]
+
+        sites = [sites[i] for i in xrange(len(sites)) if i not in (ind1, ind2)]
+
+        def belongs_to_cluster(site, cluster):
+            for test_site in cluster:
+                if CovalentBond.is_bonded(site, test_site):
+                    return True
+            return False
+
+        while len(sites) > 0:
+            unmatched = []
+            for site in sites:
+                found = False
+                for cluster in clusters:
+                    if belongs_to_cluster(site, cluster):
+                        cluster.append(site)
+                        found = True
+                        break
+                if not found:
+                    unmatched.append(site)
+
+            if len(unmatched) == len(sites):
+                raise ValueError("Not all sites are matched!")
+                break
+            sites = unmatched
+
+        return (Molecule.from_sites(cluster) for cluster in clusters)
+
+    def get_covalent_bonds(self, tol=0.2):
+        """
+        Determines the covalent bonds in a molecule.
+
+        Args:
+            tol:
+                The tol to determine bonds in a structure. See
+                CovalentBond.is_bonded.
+
+        Returns:
+            List of bonds
+        """
+        bonds = []
+        for site1, site2 in itertools.combinations(self._sites, 2):
+            if CovalentBond.is_bonded(site1, site2, tol):
+                bonds.append(CovalentBond(site1, site2))
+        return bonds
 
     def __repr__(self):
         outs = []
@@ -1307,8 +889,8 @@ class Molecule(SiteCollection, MSONable):
 
     def __str__(self):
         outs = ["Molecule Summary ({s})".format(s=str(self.composition))]
-        outs.append("Reduced Formula: " + str(self.composition.reduced_formula))
-        to_s = lambda x : "%0.6f" % x
+        outs.append("Reduced Formula: " + self.composition.reduced_formula)
+        to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
             outs.append(" ".join([str(i + 1), site.species_string,
@@ -1331,11 +913,11 @@ class Molecule(SiteCollection, MSONable):
         """
         Reconstitute a Molecule object from a dict representation created using
         to_dict.
-        
+
         Args:
-            d: 
+            d:
                 dict representation of Molecule.
-        
+
         Returns:
             Molecule object
         """
@@ -1345,9 +927,9 @@ class Molecule(SiteCollection, MSONable):
 
         for site_dict in d['sites']:
             sp = site_dict['species']
-            species.append({ Specie(sp['element'], sp['oxidation_state']) \
-                            if 'oxidation_state' in sp else \
-                            Element(sp['element'])  : sp['occu'] \
+            species.append({Specie(sp['element'], sp['oxidation_state'])
+                            if 'oxidation_state' in sp else
+                            Element(sp['element']): sp['occu']
                             for sp in site_dict['species']})
             coords.append(site_dict['xyz'])
             siteprops = site_dict.get('properties', {})
@@ -1361,13 +943,13 @@ class Molecule(SiteCollection, MSONable):
     def get_distance(self, i, j):
         """
         Get distance between site i and j.
-        
+
         Args:
             i:
                 Index of first site
             j:
                 Index of second site
-        
+
         Returns:
             Distance between the two sites.
         """
@@ -1376,13 +958,13 @@ class Molecule(SiteCollection, MSONable):
     def get_sites_in_sphere(self, pt, r):
         '''
         Find all sites within a sphere from a point.
-                
+
         Args:
             pt:
                 cartesian coordinates of center of sphere.
             r:
                 radius of sphere.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -1396,15 +978,15 @@ class Molecule(SiteCollection, MSONable):
 
     def get_neighbors(self, site, r):
         """
-        Get all neighbors to a site within a sphere of radius r.  Excludes the 
+        Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
-        
+
         Args:
             site:
                 site, which is the center of the sphere.
             r:
                 radius of sphere.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -1414,17 +996,17 @@ class Molecule(SiteCollection, MSONable):
 
     def get_neighbors_in_shell(self, origin, r, dr):
         """
-        Returns all sites in a shell centered on origin (coords) between radii 
+        Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
-        
+
         Args:
             origin:
                 cartesian coordinates of center of sphere.
             r:
                 inner radius of shell.
-            dr: 
+            dr:
                 width of shell.
-        
+
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
@@ -1438,7 +1020,7 @@ class Molecule(SiteCollection, MSONable):
         Creates a Structure from a Molecule by putting the Molecule in a box.
         Useful for creating Structure for calculating molecules using periodic
         codes.
-        
+
         Args:
             a:
                 a-lattice parameter.
@@ -1446,7 +1028,7 @@ class Molecule(SiteCollection, MSONable):
                 b-lattice parameter.
             c:
                 c-lattice parameter.
-                
+
         Returns:
             Structure containing molecule in a box.
         """
@@ -1477,19 +1059,20 @@ class StructureError(Exception):
 
 class Composition (collections.Mapping, collections.Hashable, MSONable):
     """
-    Represents a Composition, which is essentially a {element:amount} dict. 
+    Represents a Composition, which is essentially a {element:amount} dict.
+
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
     would be put in separate keys. This differentiation is deliberate to
     support using Composition to determine the fraction of a particular Specie.
-    
+
     Works almost completely like a standard python dictionary, except that
-    __getitem__ is overridden to return 0 when an element is not found 
+    __getitem__ is overridden to return 0 when an element is not found.
     (somewhat like a defaultdict, except it is immutable).
-    
-    Also adds more convenience methods relevant to compositions, e.g., 
+
+    Also adds more convenience methods relevant to compositions, e.g.,
     get_fraction.
-    
+
     >>> comp = Composition("LiFePO4")
     >>> comp.get_atomic_fraction(Element("Li"))
     0.14285714285714285
@@ -1513,29 +1096,32 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     amount_tolerance = 1e-8
 
     """
-    Special formula handling for peroxides and certain elements. This is so that 
-    formula output does not write LiO instead of Li2O2 for example.
+    Special formula handling for peroxides and certain elements. This is so
+    that formula output does not write LiO instead of Li2O2 for example.
     """
-    special_formulas = {'LiO':'Li2O2', 'NaO':'Na2O2', 'KO':'K2O2', 'HO':'H2O2',
-                        'O':'O2', 'F':'F2', 'N':'N2', 'Cl':'Cl2', 'H':'H2'}
+    special_formulas = {'LiO': 'Li2O2', 'NaO': 'Na2O2', 'KO': 'K2O2',
+                        'HO': 'H2O2', 'O': 'O2', 'F': 'F2', 'N': 'N2',
+                        'Cl': 'Cl2', 'H': 'H2'}
 
     def __init__(self, *args, **kwargs):
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
-        
+
         Args:
             Any form supported by the Python built-in dict() function.
-            
-            1. A dict of either {Element/Specie: amount}, 
+
+            1. A dict of either {Element/Specie: amount},
+
                {string symbol:amount}, or {atomic number:amount} or any mixture
                of these. E.g., {Element("Li"):2 ,Element("O"):1},
                {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
-            2. Keyword arg initialization, similar to a dict, e.g., 
+            2. Keyword arg initialization, similar to a dict, e.g.,
+
                Compostion(Li = 2, O = 1)
-               
-            In addition, the Composition constructor also allows a single string
-            as an input formula. E.g., Composition("Li2O").
+
+            In addition, the Composition constructor also allows a single
+            string as an input formula. E.g., Composition("Li2O").
         """
         if len(args) == 1 and isinstance(args[0], basestring):
             elmap = self._parse_formula(args[0])
@@ -1566,10 +1152,10 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def __add__(self, other):
         """
-        Adds two compositions. For example, an Fe2O3 composition + an FeO 
+        Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        new_el_map = {el:self[el] for el in self}
+        new_el_map = {el: self[el] for el in self}
         for k in other.keys():
             el = smart_element_or_specie(k)
             if el in self:
@@ -1580,22 +1166,22 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def __sub__(self, other):
         """
-        Subtracts two compositions. For example, an Fe2O3 composition - an FeO 
+        Subtracts two compositions. For example, an Fe2O3 composition - an FeO
         composition gives an FeO2 composition.
-        
+
         Raises:
-            ValueError if the subtracted composition is greater than the 
+            ValueError if the subtracted composition is greater than the
             original composition in any of its elements.
         """
-        new_el_map = {el:self[el] for el in self}
+        new_el_map = {el: self[el] for el in self}
         for k in other.keys():
             el = smart_element_or_specie(k)
             if el in self and other[k] <= self[el]:
                 new_el_map[el] -= other[k]
             else:
-                raise ValueError(("All elements in subtracted composition must",
-                                  " exist in original composition in equal or ",
-                                  "lesser amount!"))
+                raise ValueError(("All elements in subtracted composition "
+                                  "must exist in original composition in "
+                                  "equal or lesser amount!"))
         return Composition(new_el_map)
 
     def __mul__(self, other):
@@ -1605,11 +1191,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         if not (isinstance(other, int) or isinstance(other, float)):
             raise ValueError("Multiplication can only be done for int/floats!")
-        return Composition({el:self[el] * other for el in self})
+        return Composition({el: self[el] * other for el in self})
 
     def __hash__(self):
         '''
-        Minimally effective hash function that just distinguishes between 
+        Minimally effective hash function that just distinguishes between
         Compositions with different elements.
         '''
         hashcode = 0
@@ -1633,7 +1219,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         True if composition is for an element.
         '''
-        positive_amts = [amt for amt in self._elmap.values() \
+        positive_amts = [amt for amt in self._elmap.values()
                          if amt > self.amount_tolerance]
         return len(positive_amts) == 1
 
@@ -1647,7 +1233,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         '''
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
+        syms = sorted(sym_amt.keys(),
+                      key=lambda s: smart_element_or_specie(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -1657,8 +1244,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     @property
     def alphabetical_formula(self):
         '''
-        Returns a formula string, with elements sorted by alphabetically 
-        e.g. Fe4 Li4 O16 P4.
+        Returns a formula string, with elements sorted by alphabetically
+        e.g., Fe4 Li4 O16 P4.
         '''
         sym_amt = self.to_dict
         syms = sorted(sym_amt.keys())
@@ -1668,9 +1255,18 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 formula.append(s + formula_double_format(sym_amt[s], False))
         return ' '.join(formula)
 
+    @property
+    def reduced_composition(self):
+        """
+        Returns the reduced composition,i.e. amounts normalized by greatest
+        common denominator. e.g., Composition("FePO4") for
+        Composition("Fe4P4O16").
+        """
+        return self.get_reduced_composition_and_factor()[0]
+
     def get_reduced_composition_and_factor(self):
         '''
-        Returns a normalized composition and a multiplicative factor, 
+        Returns a normalized composition and a multiplicative factor,
         i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
         (formula, factor) = self.get_reduced_formula_and_factor()
@@ -1678,7 +1274,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def get_reduced_formula_and_factor(self):
         '''
-        Returns a pretty normalized formula and a multiplicative factor, i.e., 
+        Returns a pretty normalized formula and a multiplicative factor, i.e.,
         Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
         is_int = lambda x: x == int(x)
@@ -1687,14 +1283,16 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             return (re.sub("\s", "", self.formula), 1)
 
         sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(), key=lambda s: smart_element_or_specie(s).X)
+        syms = sorted(sym_amt.keys(),
+                      key=lambda s: smart_element_or_specie(s).X)
 
         syms = filter(lambda s: sym_amt[s] != 0, syms)
         num_el = len(syms)
         contains_polyanion = False
         if num_el >= 3:
-            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X - \
-                                  smart_element_or_specie(syms[num_el - 2]).X < 1.65)
+            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X
+                                  - smart_element_or_specie(syms[num_el - 2]).X
+                                  < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
         reduced_form = ''
@@ -1717,15 +1315,15 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 normamt = sym_amt[s] / factor / polyfactor
                 if normamt != 1.0:
                     if normamt != int(normamt):
-                        polyfactor = 1;
-                        break;
+                        polyfactor = 1
+                        break
 
             poly_form = ""
 
             for i in range(n, num_el):
                 s = syms[i]
                 normamt = sym_amt[s] / factor / polyfactor
-                poly_form += s + formula_double_format(normamt);
+                poly_form += s + formula_double_format(normamt)
 
             if polyfactor != 1:
                 reduced_form += "({}){}".format(poly_form, int(polyfactor))
@@ -1768,15 +1366,15 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         Total molecular weight of Composition
         '''
-        return sum([amount * el.atomic_mass \
+        return sum([amount * el.atomic_mass
                     for el, amount in self._elmap.items()])
 
     def get_atomic_fraction(self, el):
         '''
         Args:
             el:
-                Element
-        
+                Element or Specie
+
         Returns:
             Atomic fraction for element el in Composition
         '''
@@ -1786,8 +1384,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         '''
         Args:
             el:
-                Element
-        
+                Element or Specie
+
         Returns:
             Weight fraction for element el in Composition
         '''
@@ -1798,7 +1396,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Args:
             formula:
                 A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
-        
+
         Returns:
             Composition with that formula.
         '''
@@ -1823,17 +1421,17 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_sym = "".join(["{}{}".format(el, amt) for el, amt in unit_sym_dict.items()])
+            expanded_sym = "".join(["{}{}".format(el, amt)
+                                    for el, amt in unit_sym_dict.items()])
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
-
 
     @staticmethod
     def from_formula(formula):
         '''
         .. deprecated:: 1.6.1
-        
+
         Use Composition(formula) instead.
         '''
         return Composition(formula)
@@ -1841,8 +1439,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     @property
     def anonymized_formula(self):
         """
-        An anonymized formula. Unique species are arranged in ordering of 
-        increasing amounts and assigned ascending alphabets. Useful for 
+        An anonymized formula. Unique species are arranged in ordering of
+        increasing amounts and assigned ascending alphabets. Useful for
         prototyping formulas. For example, all stoichiometric perovskites have
         anonymized_formula ABC3.
         """
@@ -1869,12 +1467,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     @staticmethod
     def from_dict(d):
         '''
-        Creates a composition from a dict generated by to_dict. Strictly not 
+        Creates a composition from a dict generated by to_dict. Strictly not
         necessary given that the standard constructor already takes in such an
         input, but this method preserves the standard pymatgen API of having
         from_dict methods to reconstitute objects generated by to_dict. Allows
         for easier introspection.
-        
+
         Args:
             d:
                 {symbol: amount} dict.
@@ -1911,7 +1509,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def to_data_dict(self):
         '''
         Returns a dict with many composition-related properties.
-        
+
         Returns:
             A dict with many keys and values relating to Composition/Formula
         '''
@@ -1927,19 +1525,22 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
                                                        lock_if_strict=True):
         '''
-        Takes in a formula where capitilization might not be correctly entered, 
+        Takes in a formula where capitilization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
         Author: Anubhav Jain
-        
+
         Args:
             fuzzy_formula:
-                A formula string, such as 'co2o3' or 'MN', that may or may not 
+                A formula string, such as 'co2o3' or 'MN', that may or may not
+
                 have multiple interpretations
             lock_if_strict:
-                If true, a properly entered formula will only return the one 
-                correct interpretation. For example, 'Co1' will only return 
+                If true, a properly entered formula will only return the one
+
+                correct interpretation. For example, 'Co1' will only return
+
                 'Co1' if true, but will return both 'Co1' and 'C1 O1' if false.
-        
+
         Returns:
             A ranked list of potential Composition matches
         '''
@@ -1955,36 +1556,37 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             except:
                 pass
 
-        all_matches = Composition._recursive_compositions_from_fuzzy_formula(fuzzy_formula)
+        all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
         #remove duplicates
         all_matches = list(set(all_matches))
         #sort matches by rank descending
-        all_matches = sorted(all_matches, key=lambda match:match[1], reverse=True)
+        all_matches = sorted(all_matches,
+                             key=lambda match: match[1], reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 
     @staticmethod
-    def _recursive_compositions_from_fuzzy_formula(fuzzy_formula, m_dict={},
-                                                   m_points=0, factor=1):
+    def _comps_from_fuzzy_formula(fuzzy_formula, m_dict={}, m_points=0,
+                                  factor=1):
         '''
-        A recursive helper method for formula parsing that helps in interpreting 
-        and ranking indeterminate formulas.
+        A recursive helper method for formula parsing that helps in
+        interpreting and ranking indeterminate formulas.
         Author: Anubhav Jain
-        
+
         Args:
             fuzzy_formula:
-                A formula string, such as 'co2o3' or 'MN', that may or may not 
+                A formula string, such as 'co2o3' or 'MN', that may or may not
                 have multiple interpretations.
             m_dict:
-                A symbol:amt dictionary from the previously parsed formula
+                A symbol:amt dictionary from the previously parsed formula.
             m_points:
-                Number of points gained from the previously parsed formula
+                Number of points gained from the previously parsed formula.
             factor:
-                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the 
-                fuzzy_formula with a coefficient of 2
-        
+                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the
+                fuzzy_formula with a coefficient of 2.
+
         Returns:
-            A list of tuples, with the first element being a Composition and 
+            A list of tuples, with the first element being a Composition and
             the second element being the number of points awarded that
             Composition intepretation.
         '''
@@ -1994,7 +1596,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             A helper method for formula parsing that helps in interpreting and
             ranking indeterminate formulas
             Author: Anubhav Jain
-            
+
             Args:
                 m:
                     a regex match, with the first group being the element and
@@ -2005,6 +1607,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                     A symbol:amt dictionary from the previously parsed formula
                 m_points:
                     Number of points gained from the previously parsed formula
+
             Returns:
                 A tuple of (f, m_dict, points) where m_dict now contains data
                 from the match and the match has been removed (chomped) from
@@ -2014,8 +1617,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             '''
 
             points = 0
-            points_first_capital = 100  # points awarded if the first element of the element is correctly specified as a capital
-            points_second_lowercase = 100  # points awarded if the second letter of the element is correctly specified as lowercase
+            # Points awarded if the first element of the element is correctly
+            # specified as a capital
+            points_first_capital = 100
+            # Points awarded if the second letter of the element is correctly
+            # specified as lowercase
+            points_second_lowercase = 100
 
             #get element and amount from regex match
             el = m.group(1)
@@ -2023,7 +1630,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 raise ValueError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
-            #convert the element string to proper [uppercase,lowercase] format and award points if it is already in that format
+            #convert the element string to proper [uppercase,lowercase] format
+            #and award points if it is already in that format
             char1 = el[0]
             char2 = el[1] if len(el) > 1 else ''
 
@@ -2048,24 +1656,38 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         fuzzy_formula = fuzzy_formula.strip()
 
         if len(fuzzy_formula) == 0:
-            #the entire formula has been parsed into m_dict. Return the corresponding Composition and number of points
+            #The entire formula has been parsed into m_dict. Return the
+            #corresponding Composition and number of points
             if m_dict:
                 yield (Composition.from_dict(m_dict), m_points)
         else:
-            #if there is a parenthesis, remove it and match the remaining stuff with the appropriate factor
+            #if there is a parenthesis, remove it and match the remaining stuff
+            #with the appropriate factor
             for mp in re.finditer(r"\(([^\(\)]+)\)([\.\d]*)", fuzzy_formula):
                 mp_points = m_points
-                mp_form = fuzzy_formula
+                mp_form = fuzzy_formula.replace(mp.group(), " ", 1)
                 mp_dict = dict(m_dict)
                 mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
-                #match the stuff inside the parenthesis with the appropriate factor
-                for match in Composition._recursive_compositions_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
+                #Match the stuff inside the parenthesis with the appropriate
+                #factor
+                for match in \
+                    Composition._comps_from_fuzzy_formula(mp.group(1),
+                                                          mp_dict,
+                                                          mp_points,
+                                                          factor=mp_factor):
                     only_me = True
-                    #match the stuff outside the parentheses and return the sum
-                    for match2 in Composition._recursive_compositions_from_fuzzy_formula(mp_form.replace(mp.group(), " ", 1), mp_dict, mp_points, factor=1):
+                    # Match the stuff outside the parentheses and return the
+                    # sum.
+
+                    for match2 in \
+                        Composition._comps_from_fuzzy_formula(mp_form,
+                                                              mp_dict,
+                                                              mp_points,
+                                                              factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
-                    #if the stuff inside the parenthesis is nothing, then just return the stuff inside the parentheses
+                    #if the stuff inside the parenthesis is nothing, then just
+                    #return the stuff inside the parentheses
                     if only_me:
                         yield match
                 return
@@ -2076,10 +1698,15 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 m_points1 = m_points
                 m_form1 = fuzzy_formula
                 m_dict1 = dict(m_dict)
-                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
+                (m_form1, m_dict1, m_points1) = \
+                    _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
                 if m_dict1:
                     #there was a real match
-                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
+                    for match in \
+                        Composition._comps_from_fuzzy_formula(m_form1,
+                                                              m_dict1,
+                                                              m_points1,
+                                                              factor):
                         yield match
 
             #try to match two-letter elements
@@ -2088,10 +1715,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 m_points2 = m_points
                 m_form2 = fuzzy_formula
                 m_dict2 = dict(m_dict)
-                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
+                (m_form2, m_dict2, m_points2) = \
+                    _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
                 if m_dict2:
                     #there was a real match
-                    for match in Composition._recursive_compositions_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
+                    for match in \
+                        Composition._comps_from_fuzzy_formula(m_form2, m_dict2,
+                                                              m_points2,
+                                                              factor):
                         yield match
 
 if __name__ == "__main__":

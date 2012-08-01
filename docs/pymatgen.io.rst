@@ -57,10 +57,10 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`vaspio` Module
---------------------
+:mod:`smartio` Module
+---------------------
 
-.. automodule:: pymatgen.io.vaspio
+.. automodule:: pymatgen.io.smartio
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,4 +80,11 @@ io Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.io.vaspio
 

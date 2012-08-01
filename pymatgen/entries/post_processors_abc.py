@@ -16,6 +16,7 @@ __date__ = "Oct 6, 2011"
 
 import abc
 
+
 class EntryPostProcessor(object):
     __metaclass__ = abc.ABCMeta
 
@@ -23,12 +24,12 @@ class EntryPostProcessor(object):
     def process_entry(self, entry):
         """
         Process a single entry.
-        
+
         Args:
             entry - An ComputedEntry object.
-        
+
         Returns:
-            An processed entry. None if entry is not compatible within the 
+            An processed entry. None if entry is not compatible within the
             processing scheme.
         """
         return
@@ -37,13 +38,13 @@ class EntryPostProcessor(object):
     def process_entries(self, entries):
         """
         Process a sequence of entries.
-        
+
         Args:
             entries - A sequence of ComputedEntries.
-        
+
         Returns:
-            An list of processed entries.  ComputedEntries in the original list which 
-            are not compatible with the processing scheme are excluded.
+            An list of processed entries.  ComputedEntries in the original list
+            which are not compatible with the processing scheme are excluded.
         """
         return
 

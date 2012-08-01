@@ -25,9 +25,9 @@ class ExpEntry(PDEntry, MSONable):
     An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
     phase diagram generation and reaction calculation.
-    
-    Current version works only with solid phases and at 298K. Further extensions
-    for temperature dependence are planned.
+
+    Current version works only with solid phases and at 298K. Further
+    extensions for temperature dependence are planned.
     """
 
     def __init__(self, composition, thermodata, temperature=298):
@@ -47,16 +47,19 @@ class ExpEntry(PDEntry, MSONable):
         found = False
         enthalpy = float('inf')
         for data in self._thermodata:
-            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo != 'gas' and data.phaseinfo != 'liquid'):
+            if data.type == "fH" and data.value < enthalpy and \
+                (data.phaseinfo != 'gas' and data.phaseinfo != 'liquid'):
                 enthalpy = data.value
                 found = True
         if not found:
-            raise ValueError("List of Thermodata does not contain enthalpy values.")
+            raise ValueError("List of Thermodata does not contain enthalpy "
+                             "values.")
         self.temperature = temperature
         PDEntry.__init__(self, comp, enthalpy)
 
     def __repr__(self):
-        return "ExpEntry {} with energy = {:.4f}".format(self.composition.formula, self.energy)
+        return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
+                                                     self.energy)
 
     def __str__(self):
         return self.__repr__()
@@ -75,4 +78,3 @@ class ExpEntry(PDEntry, MSONable):
         d['composition'] = self.composition.to_dict
         d['temperature'] = self.temperature
         return d
-

@@ -8,6 +8,10 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
+3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
+   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
+   packages. From pymatgen v2.1 onwards, pyspglib should be automatically
+   compiled as an extension during the install process via setup.py.
 
 Optional Python Libraries
 -------------------------
@@ -19,20 +23,16 @@ Optional python libraries that are required if you need certain features
 3. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
    working version is provided in the dependencies directory of pymatgen.
-4. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
-   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
-   packages. Get it at http://spglib.sourceforge.net/ or a working version is
-   provided in the dependencies directory of pymatgen.
-5. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
+4. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal 
    structures using the pymatgen.vis package.
-6. Atomistic Simulation Environment or ASE : Required for the usage of the 
+5. Atomistic Simulation Environment or ASE : Required for the usage of the 
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and 
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-7. OpenBabel with Python bindings (http://openbabel.org). Required for the
+6. OpenBabel with Python bindings (http://openbabel.org). Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-8. nose - For complete unittesting. This is NOT optional for developers!
+7. nose - For complete unittesting. This is **not optional for developers**!
 
 Optional non-Python programs
 ----------------------------
@@ -45,15 +45,24 @@ the moment) required only for certain features.
    qconvex and qvoronoi must be in the path.Get it at http://www.qhull.org/.
 2. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable 
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
-
+3. enum : Needed for the use of EnumerateStructureTransformation and the
+   pymatgen.command_line.enumlib_caller module. This library by Gus Hart
+   provides a robust way to enumerate derivative structures. It can be used to
+   completely enumerate all symmetrically distinct ordered structures of
+   disordered structures via the EnumerateStructureTransformation. The
+   multienum.x and makestr.x executables must be in the path. Get it at
+   http://enum.sourceforge.org and follow the instructions to compile
+   multienum.x and makestr.x.
+   
 POTCAR Setup for Users
 ======================
 
 For the code to generate POTCAR files, it needs to know where the VASP 
 pseudopotential files are.  We are not allowed to distribute these under the 
-VASP license. The good news is that we have included a setup script to help you along.
+VASP license. The good news is that we have included a setup script to help you 
+along.
 
-If you cloned the repo directly from github, you should have a run_me_first.sh 
+If you cloned the repo directly from GitHub, you should have a run_me_first.sh 
 file in the root directory of your local repo. Otherwise, you can get it directly 
 from our github site at http://github.com/materialsproject/pymatgen. Run the 
 shell script and follow the instructions. If you have done it correctly, you 
@@ -75,14 +84,17 @@ able to generate POTCARs.
 Alternatively, you can setup the above directly structure manually and set the 
 VASP_PSP_DIR environment variable accordingly.
 
-Setup for Developers (using github)
+Setup for Developers (using GitHub)
 ===================================
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
+
 2. Install the necessary python libraries.
-3. (Recommended) Add pymatgen to your PYTHONPATH.
-4. (Recommended) Copy hooks from the example-hooks directory into the .git/hooks/ 
-   directory in your local repo.  
+
+3. In your root pymatgen repo directory, type (you may need to do this with root
+   privileges)::
+
+      python setup.py develop
 
 I recommend that you start by reading some of the unittests in the tests 
 subdirectory for each package.  The unittests demonstrate the expected behavior 
@@ -101,8 +113,8 @@ gcc and other compilers (e.g., Xcode on Macs) already installed.
 Scipy (tested on v0.10.1)
 -------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 Typical installation of Xcode with python setup.py install seems to work fine. 
 The pre-compiled binary for OSX 10.6 also seems to work.
@@ -110,8 +122,8 @@ The pre-compiled binary for OSX 10.6 also seems to work.
 Matplotlib (tested on v1.10)
 ----------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 This setup assumes you have the latest version of python (2.7 as of this is written) 
 and numpy already installed. You will need to set the compiler flags to build 
@@ -123,7 +135,6 @@ matplotlib from source.
 	export LDFLAGS="-arch x86_64 -L/usr/X11/lib" 
 	python setup.py build 
 	sudo python setup.py install
-
 
 Solaris 10
 ~~~~~~~~~~
@@ -181,8 +192,8 @@ Typical installation with make fails with the following error:
 Simply removing "-Wno-sign-conversion" where it appears in the Makefile and then 
 doing make followed by make install works fine.
 
-VTK (tested on v5.8.0)
-----------------------
+VTK (tested on v5.10.0)
+-----------------------
 
 Mac OS X 10.7
 ~~~~~~~~~~~~~
@@ -212,8 +223,8 @@ With any luck, you should have vtk with the necessary python wrappers installed.
 OpenBabel (tested on v2.3.0)
 ----------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.8
+~~~~~~~~~~~~~~~~~~~~
 
 openbabel must be compiled with python bindings for integration with pymatgen.
 For some reason, openbabel v2.3.1 is harder to compile on Mac OS Lion than I
@@ -237,6 +248,7 @@ make it work:
    called "eigen2", do the following steps.
    
 ::
+
    mv openbabel-2.3.0 ob-src
    mkdir ob-build
    cd ob-build
@@ -247,3 +259,35 @@ make it work:
 With any luck, you should have openbabel with python bindings installed. You can
 test your installation by trying to import openbabel from the python command
 line.
+
+Enumlib (tested as of version of Jul 2012)
+------------------------------------------
+
+Mac OS X 10.7
+~~~~~~~~~~~~~
+
+There does not seem to be any issues with installation as per the instructions
+given by the author. For convenience, the steps are reproduced here:
+
+::
+
+   tar -zxvf enum.tar.gz
+
+   #Compile the symmetry library. Go to the celib/trunk directory:
+   cd celib/trunk
+
+   #Set an environment variable to identify your fortran compiler
+   export F90=gfortran
+   
+   make
+
+   Next, make the enumeration library
+   cd ../../enumlib/trunk
+   make
+
+   # Make the necessary standalone executables
+   make multienum.x
+   make makestr.x
+
+After doing the above, make sure that the multienum.x and makestr.x executables
+are available in your path.

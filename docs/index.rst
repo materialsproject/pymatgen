@@ -3,6 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: _static/pymatgen.png
+   :width: 300 px
+   :alt: pymatgen
+   :align: center
 
 Introduction
 ============
@@ -16,12 +20,12 @@ These are some of the main features:
 1. Highly flexible classes for the representation of Element, Site, Molecule, 
    Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files 
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information file 
-   format. This includes generating Structure objects from vasp input and
+   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
+   file format. This includes generating Structure objects from vasp input and
    output. There is also support for Gaussian input files and XYZ file for
    molecules.
-3. Comprehensive tool to generate and view compositional and grand canonical phase 
-   diagrams.
+3. Comprehensive tool to generate and view compositional and grand canonical
+   phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
@@ -45,32 +49,16 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.0.0)
---------------------------
+Latest Change Log (v2.1.3dev)
+-----------------------------
 
-1. Brand new module (pymatgen.matproj.rest) for interfacing with the
-   MaterialsProject REST interface.
-2. Useful aliases for commonly used Objects, similar in style to numpy.
-   Supported objects include Element, Composition, Structure, Molecule, Spin
-   and Orbital. For example, the following will now work::
-   
-      import pymatgen as mg
-      
-      # Elemental Si
-      fe = mg.Element("Si")
-      
-      # Composition of Fe2O3
-      comp = mg.Composition("Fe2O3")
-      
-      # CsCl structure
-      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
-                              [[0, 0, 0], [0.5, 0.5, 0.5]])
-      
-3. New PDAnalyzer method to generate chemical potential maps.
-4. Enhanced POSCAR class to support parsing of velocities and more formatting
-   options.
-5. Reorganization of Bandstructure module. Beta support for projected
-   bandstructure and eigenvalues in vaspio and electronic_structure.
+1. New smartio module that intelligently reads structure input files based on
+   file extension.
+2. Spglib_adaptor module has been renamed to finder for brevity.
+3. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
+   Mac OS X and Solaris.
+4. Major cleanup of code for PEP8 compliance.
+5. Cssr module now supports reading of input files.
 6. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
@@ -96,11 +84,9 @@ Alternatively, the bleeding edge developmental version is at the public
 pymatgen github repo at 
 https://github.com/materialsproject/pymatgen/tarball/master. These developmental
 versions are likely to be more buggy, but may contain new features. Note that
-the github versions include test files as well for complete unittesting.
+the GitHub versions include test files as well for complete unittesting.
 
-From the source, you can type:
-
-::
+From the source, you can type::
 
    python setup.py install
 
@@ -117,10 +103,73 @@ dependencies needed, where to get them and how to install them.
 Using pymatgen
 ==============
 
+.. figure:: _static/overview.jpg
+   :width: 100%
+   :alt: pymatgen overview
+   :align: center
+   
+   Overview of a typical workflow for pymatgen.
+
+The figure above provides an overview of the functionality in pymatgen. A
+typical workflow would involve a user converting data (structure, calculations,
+etc.) from various sources (first principles calculations, crystallographic and
+molecule input files, Materials Project, etc.) into Python objects using
+pymatgen's io packages, which are then used to perform further structure
+manipulation or analyses. Users are strongly encouraged to explore the
+detailed :doc:`usage pages </usage>` (toc given below), and 
+:doc:`the API docs </modules>`. 
+
 .. toctree::
    :maxdepth: 2 
    
    usage
+
+Aliases
+-------
+
+From version 2.0.0 of pymatgen, useful aliases for commonly used Objects are
+now provided, similar in style to numpy. Supported objects include Element,
+Composition, Structure, Molecule, Spin and Orbital. Here are some quick
+examples of the core capabilities and objects::
+
+   >>> from pymatgen import Element, Composition, Lattice, Structure
+   >>>
+   >>> si = Element("Si")
+   >>> si.atomic_mass
+   28.0855
+   >>> si.melting_point
+   u'1687 K'
+   >>>
+   >>> comp = Composition("Fe2O3")
+   >>> comp.weight
+   159.6882
+   >>> comp[Element("Fe")]
+   2.0
+   >>> comp.get_atomic_fraction(Element("Fe"))
+   0.4
+   >>>
+   >>> structure = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], 
+   ...                               [[0, 0, 0], [0.5, 0.5, 0.5]])
+   >>> structure.volume
+   74.088000000000008
+   >>> structure[0]
+   Periodic Site
+   abc : (0.0000, 0.0000, 0.0000)
+   element    : Cs
+   occupation : 1.00
+   >>> 
+   >>> #Integrated symmetry tools from spglib.
+   ... from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+   >>> finder = SymmetryFinder(structure)
+   >>> finder.get_spacegroup_symbol()
+   'Pm-3m'
+   >>>
+   >>> #Writing out a POSCAR file for VASP calculations.
+   ... from pymatgen.io.vaspio import Poscar
+   >>> poscar = Poscar(structure)
+   >>> poscar.write_file("POSCAR")
+
+The above illustrates only the most basic capabilities of pymatgen. 
 
 Contributing
 ============
