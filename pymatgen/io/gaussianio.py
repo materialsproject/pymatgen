@@ -236,8 +236,8 @@ class GaussianInput(object):
 
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
-                            basis_set=basis_set, route_parameters=route_paras,
-                            input_parameters=input_paras)
+                             basis_set=basis_set, route_parameters=route_paras,
+                             input_parameters=input_paras)
 
     @staticmethod
     def from_file(filename):

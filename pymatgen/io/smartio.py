@@ -39,7 +39,7 @@ def read_structure(filename):
         parser = CifParser(filename)
         return parser.get_structures(True)[0]
     elif lower_filename.startswith("poscar") \
-        or lower_filename.startswith("contcar"):
+            or lower_filename.startswith("contcar"):
         return Poscar.from_file(filename, False).structure
     elif re.search("vasprun.*\.xml.*", lower_filename):
         return Vasprun(filename).final_structure
