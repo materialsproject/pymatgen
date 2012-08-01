@@ -24,7 +24,7 @@ import ConfigParser
 import json
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.feffio import FeffAtoms, Feff_tags, FeffPot, Header
+from pymatgen.io.feffio import FeffAtoms, FeffTags, FeffPot, Header
 
 class AbstractFeffInputSet(object):
     """
@@ -136,7 +136,8 @@ class FeffInputSet(AbstractFeffInputSet):
         """
         Creates header string from cif file and structure object
         """
-        header=Header(structure,cif_file)
+        space_number, space_group=Header.from_cif_file(structure, cif_file)
+        header=Header(structure,cif_file, space_number, space_group)
         return header.get_string()
 
     def get_fefftags(self, calc_type):
@@ -146,9 +147,9 @@ class FeffInputSet(AbstractFeffInputSet):
         from FeffInputSets.cfg file
         """
         if calc_type == "XANES":
-            fefftags = Feff_tags(self.xanes_settings)
+            fefftags = FeffTags(self.xanes_settings)
         else:
-            fefftags = Feff_tags(self.exafs_settings)
+            fefftags = FeffTags(self.exafs_settings)
         return fefftags
 
     def get_feffPot(self, structure, central_atom):
