@@ -108,7 +108,7 @@ class Poscar(VaspInput):
             self.structure = structure
             self.true_names = true_names
             self.selective_dynamics = selective_dynamics
-            self.comment = structure.formula if comment == None else comment
+            self.comment = structure.formula if comment is None else comment
             self.velocities = velocities
             self.predictor_corrector = predictor_corrector
         else:
@@ -149,7 +149,7 @@ class Poscar(VaspInput):
             if value:
                 dim = np.array(value).shape
                 if dim[1] != 3 or dim[0] != len(self.structure):
-                    raise ValueError(name + " array must be same length as" + \
+                    raise ValueError(name + " array must be same length as" +
                                      " the structure.")
         elif name == "structure":
             #If we set a new structure, we should discard the velocities and
@@ -661,8 +661,8 @@ class Incar(dict, VaspInput):
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
         int_keys = ("NSW", "NELMIN", "ISIF", "IBRION", "ISPIN", "ICHARG",
-                         "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                         "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
+                    "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
+                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -1003,7 +1003,7 @@ class Kpoints(VaspInput):
                                  float(m.group(3))])
                     labels.append(m.group(4).strip())
             return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
-                 kpts=kpts, coord_type=coord_type, labels=labels)
+                           kpts=kpts, coord_type=coord_type, labels=labels)
 
         #Assume explicit KPOINTS if all else fails.
         style = Kpoints.supported_modes.Cartesian if style == "ck" \
@@ -1034,9 +1034,9 @@ class Kpoints(VaspInput):
             pass
 
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
-                 kpts=kpts, kpts_weights=kpts_weights,
-                 tet_number=tet_number, tet_weight=tet_weight,
-                 tet_connections=tet_connections)
+                       kpts=kpts, kpts_weights=kpts_weights,
+                       tet_number=tet_number, tet_weight=tet_weight,
+                       tet_connections=tet_connections)
 
     def write_file(self, filename):
         """
@@ -1218,7 +1218,7 @@ class PotcarSingle(object):
         a_caps = a.upper()
         if a_caps in self.keywords:
             return self.keywords[a_caps] if a_caps not in floatkeywords \
-                    else float(self.keywords[a_caps].split()[0])
+                else float(self.keywords[a_caps].split()[0])
         raise AttributeError(a)
 
 

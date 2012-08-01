@@ -173,7 +173,7 @@ class VaspInputSet(AbstractVaspInputSet):
             if key in self.incar_settings:
                 self.incar_settings[key] = json.loads(self.incar_settings[key])
         self.user_incar_settings = user_incar_settings if user_incar_settings \
-                                   else {}
+            else {}
 
     def get_incar(self, structure):
         incar = Incar()
@@ -248,8 +248,8 @@ class VaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         '''
-        return Kpoints.automatic_density(structure,
-                                   int(self.kpoints_settings['grid_density']))
+        dens = int(self.kpoints_settings['grid_density'])
+        return Kpoints.automatic_density(structure, dens)
 
     def __str__(self):
         output = [self.name]
