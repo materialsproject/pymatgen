@@ -74,3 +74,9 @@ class CovalentBond(object):
                     return True
             return False
         raise ValueError("No bond data for elements {} - {}".format(*syms))
+
+    def __repr__(self):
+        output = ["Covalent bond"]
+        output.append("between {}".format(self.site1))
+        output.append("and {}".format(self.site2))
+        return " ".join(output)
