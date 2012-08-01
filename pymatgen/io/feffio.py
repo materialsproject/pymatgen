@@ -29,12 +29,13 @@ import warnings
 import xml.sax.handler
 import StringIO
 import CifFile
-from collections import defaultdict
 import ConfigParser
-
 import numpy as np
+
+
 from scipy import *
-#from numpy.linalg import det
+from collections import defaultdict
+from pymatgen.symmetry.spglib_adaptor import *
 from operator import itemgetter
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import FeffInput
@@ -43,7 +44,7 @@ from pymatgen.util.io_utils import file_open_zip_aware, clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import CompleteDos, Dos, PDos
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.core.lattice import Lattice
 import pymatgen
 
@@ -58,7 +59,7 @@ class Header(FeffInput):
     TITLE cif file name: CoO19128.cif
     TITLE Structure Summary: (Co2 O2)
     TITLE Reduced formula: CoO
-    TITLE space group: P1
+    TITLE space group: P1,   space number: 1
     TITLE abc: 3.297078 3.297078 5.254213
     TITLE angles: 90.0 90.0 120.0
     TITLE sites: 4
@@ -68,7 +69,7 @@ class Header(FeffInput):
     * 4 O     0.333333     0.666667     0.378675
     """
 
-    def __init__(self, struct, cif_file="", comment=None, true_names=True):
+    def __init__(self, struct, cif_file, space_number, space_group, comment=None, true_names=True):
         """
         Argument:
             struct:
@@ -88,14 +89,39 @@ class Header(FeffInput):
             self.comment = struct.formula if comment == None else comment
         else:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
-        if cif_file == "":
+        if space_group == "":
             self._space_group='P 1'
             self._space_number='1'
         else:
-            cifdata=CifFile.ReadCif(cif_file)
-            b=cifdata.get(cifdata.keys()[0])
-            self._space_group = b.get('_symmetry_space_group_name_H-M')
-            self._space_number= b.get('_symmetry_Int_Tables_number')
+            self._space_group=space_group
+            self._space_number=space_number
+
+
+
+    @staticmethod
+    def from_cif_file(struct, cif_file):
+        '''
+        Static method to return space group
+        and number from a cif_file
+        
+        For some reason cif_files generated from
+        materials project all have P1 space group
+        Until this is corrected will us spglib
+        to find space group
+        '''
+        
+        cifdata=CifFile.ReadCif(cif_file)
+        b=cifdata.get(cifdata.keys()[0])
+        space_group = b.get('_symmetry_space_group_name_H-M')
+        space_number= b.get('_symmetry_Int_Tables_number')
+        
+        sym=SymmetryFinder(struct)
+        data=sym.get_symmetry_dataset()
+        space_number = data['number']
+        space_group = data['international']
+        
+        return [space_number, space_group]
+            
 
     @property
     def site_symbols(self):
@@ -146,7 +172,7 @@ class Header(FeffInput):
         header=header + "TITLE cif file name:  " + self.cif_file +"\n"
         header=header + "TITLE Structure Summary:  " + str(self.struct.composition) + "\n"
         header=header + "TITLE Reduced formula:  " + self.struct.composition.reduced_formula + "\n"
-        header=header + "TITLE space group: (" + self.space_group + "), space number  (" + self.space_number + ")\n"
+        header=header + "TITLE space group: (" + self.space_group + "), space number:  (" + str(self.space_number) + ")\n"
         header=header + "TITLE abc:" + " ".join([to_s(i).rjust(10) for i in self.struct.lattice.abc]) + "\n"
         header=header + "TITLE angles:" + " ".join([to_s(i).rjust(10) for i in self.struct.lattice.angles]) + "\n"
         header=header + "TITLE sites: " + str(self.struct.num_sites) + "\n"
@@ -424,7 +450,7 @@ class FeffAtoms(FeffInput):
         for i in range(0,end):
 
            atom=sphere[i][0]
-           atm=atom.species_string
+           atm=re.sub(r'[^aA-zZ]+', '' ,atom.species_string)
            ipot=self.pot_dict[atm]
            x=atom.coords[0]-xshift
            y=atom.coords[1]-yshift
@@ -466,7 +492,7 @@ VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL", "REA
                    "CORRECTIONS", "SIG2", "SIG3", "MBCONV", "SFCONV", "RCONV", "SELF", "SFSE", "MAGIC")
 
 
-class Feff_tags(dict, FeffInput):
+class FeffTags(dict, FeffInput):
     """
     feff_tag object for reading and writing PARAMETER files
     """
@@ -478,7 +504,7 @@ class Feff_tags(dict, FeffInput):
         Arguments:
             params - A set of input parameters as a dictionary.
         """
-        super(Feff_tags, self).__init__()
+        super(FeffTags, self).__init__()
         self.update(params)
 
     def __setitem__(self, key, val):
@@ -488,7 +514,7 @@ class Feff_tags(dict, FeffInput):
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
             warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
-        super(Feff_tags, self).__setitem__(key.strip(), Feff_tags.proc_val(key.strip(), val.strip()) if isinstance(val, basestring) else val)
+        super(FeffTags, self).__setitem__(key.strip(), FeffTags.proc_val(key.strip(), val.strip()) if isinstance(val, basestring) else val)
 
     @property
     def to_dict(self):
@@ -496,7 +522,7 @@ class Feff_tags(dict, FeffInput):
 
     @staticmethod
     def from_dict(d):
-        i = Feff_tags()
+        i = FeffTags()
         for k, v in d.items():
             i[k] = v
         return i
@@ -532,7 +558,7 @@ class Feff_tags(dict, FeffInput):
 
     def write_file(self, filename):
         """
-        Write Feff_tags to a Feff parameter tag file.
+        Write FeffTags to a Feff parameter tag file.
         
         Arguments:
             filename:
@@ -560,7 +586,7 @@ class Feff_tags(dict, FeffInput):
             if m:
                 key = m.group(1).strip()
                 val = m.group(2).strip()
-                val = Feff_tags.proc_val(key, val)
+                val = FeffTags.proc_val(key, val)
                 if (key <> "ATOMS") and (key <> "POTENTIALS") and (key <> "END") and (key <> "TITLE"):
                     feff_tags[key] = val
         return feff_tags
@@ -647,16 +673,16 @@ class Feff_tags(dict, FeffInput):
 
     def __add__(self, other):
         """
-        Add all the values of another Feff_tags object to this object
-        Facilitates the use of "standard" Feff_tags
+        Add all the values of another FeffTags object to this object
+        Facilitates the use of "standard" FeffTags
         """
         params = {k:v for k, v in self.items()}
         for k, v in other.items():
             if k in self and v != self[k]:
-                raise ValueError("Feff_tags have conflicting values!")
+                raise ValueError("FeffTags have conflicting values!")
             else:
                 params[k] = v
-        return Feff_tags(params)
+        return FeffTags(params)
 
 class FeffPot(FeffInput):
     """
@@ -869,7 +895,7 @@ class FeffLdos(object):
 
     Default attributes:
         pdos: 
-            List of list of PDos objects. Access as pdos[atomindex][orbitalindex]
+            List of list of pdos objects. Access as pdos[atomindex][orbitalindex]
         charge:
             Charge on each ion as a tuple of dict, e.g., ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232}, ...)
         efermi:
@@ -934,7 +960,9 @@ class FeffLdos(object):
         '''
         Reads in Feff ldos files into numpy array
         then creates ldos dictionary of sites and raw data
+
         '''
+
         self.ldos={}
         for i in range(1, len(self.pot_dict)+1):
             
@@ -957,7 +985,6 @@ class FeffLdos(object):
         constructs pdos from raw ldos data
         '''
         all_pdos=[]
-        pdos={}
         vorb={'s':Orbital.s, 'p':Orbital.py, 'd':Orbital.dxy, 'f':Orbital.f0}
         forb={'s':0, 'p':1, 'd':2, 'f':3}
         structure=self.structure
@@ -967,13 +994,18 @@ class FeffLdos(object):
 
         for i in range(nsites):
             pot_index=self.pot_dict[structure.species[i].symbol]
-            orb_pdos=[]
+            all_pdos.append(defaultdict())
             for k,v in vorb.items():
                 density=[ldos[pot_index][j][forb[k]+1] for j in range(dlength)]
-                pdos[Spin.up]=density
-                orb_pdos.append(PDos(self.efermi, self.dos_energies, pdos, v))
-            all_pdos.append(orb_pdos)
-        return all_pdos
+                updos=density
+                downdos=None
+                if downdos:
+                    all_pdos[-1][v]={Spin.up:updos, Spin.down:downdos}
+                else:
+                    all_pdos[-1][v]={Spin.up:updos}
+        pdos=all_pdos
+        
+        return pdos
 
     @property
     def complete_dos(self):
@@ -982,9 +1014,9 @@ class FeffLdos(object):
         '''
         pdos=self.pdos
         structure = self.structure
-        vorb={0:Orbital.s, 1:Orbital.py, 2:Orbital.dxy, 3:Orbital.f0}
-        pdoss = {structure[i]:{Orbital.from_vasp_index(j) : pdos[i][j]
-                    for j in range(len(pdos[i]))} for i in range(len(pdos))}
+        vorb={0:Orbital.s, 1:Orbital.py, 2:Orbital.dxy, 3:Orbital.f0}            
+        pdoss = {structure[i]:{v : pdos[i][v]
+                   for k,v in vorb.items()} for i in range(len(pdos))}
         return CompleteDos(structure, self.tdos, pdoss)
     
     @property       
@@ -1116,7 +1148,7 @@ class Xmu(object):
     @property
     def calc(self):
         '''Returns type of Feff calculation, XANES or EXAFS'''
-        tags=Feff_tags.from_file(self.input_file)
+        tags=FeffTags.from_file(self.input_file)
         if 'XANES' in tags:
             calc='XANES'
         else:
@@ -1143,7 +1175,7 @@ class Xmu(object):
     @property
     def edge(self):
         '''Excitation edge'''
-        edge=Feff_tags.from_file(self.input_file)['EDGE']
+        edge=FeffTags.from_file(self.input_file)['EDGE']
         return edge
 
     @property
@@ -1165,7 +1197,7 @@ class Xmu(object):
     
 def parse_parameters(val_type, val):
     """
-    Helper function to convert a Vasprun parameter into the proper type.
+    Helper function to convert a Feffrun parameter into the proper type.
     Boolean, int and float types are converted.
     
     Args:
@@ -1183,7 +1215,7 @@ def parse_parameters(val_type, val):
 
 def _parse_v_parameters(val_type, val, filename, param_name):
     """
-    Helper function to convert a Vasprun array-type parameter into the proper type.
+    Helper function to convert a Feffrun array-type parameter into the proper type.
     Boolean, int and float types are converted.
     
     Args:
@@ -1232,8 +1264,8 @@ def _parse_from_feff_tags(filename, key):
     dirname = os.path.dirname(filename)
     for f in os.listdir(dirname):
         if re.search(filename, f):
-            warnings.warn("Feff_tags found. Using " + key + " from Feff_tags.")
-            parameters = Feff_tags.from_file(os.path.join(dirname, f))
+            warnings.warn("FeffTags found. Using " + key + " from FeffTags.")
+            parameters = FeffTags.from_file(os.path.join(dirname, f))
             if key in parameters:
                 return parameters[key]
             else:
@@ -1250,6 +1282,6 @@ class FeffParserError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "VaspParserError : " + self.msg
+        return "FeffParserError : " + self.msg
 
 
