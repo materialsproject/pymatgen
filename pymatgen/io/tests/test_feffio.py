@@ -2,7 +2,7 @@
 import unittest
 import os
 
-from pymatgen.io.feffio import Header, Feff_tags, FeffLdos, FeffPot, Xmu
+from pymatgen.io.feffio import Header, FeffTags, FeffLdos, FeffPot, Xmu
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Composition, Structure
 from numpy import array
@@ -19,7 +19,7 @@ class  HeaderTest(unittest.TestCase):
 TITLE cif file name:  CoO19128.cif
 TITLE Structure Summary:  Co2 O2
 TITLE Reduced formula:  CoO
-TITLE space group: (P 1), space number  (1)
+TITLE space group: (Cmc2_1), space number:  (36)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
@@ -31,6 +31,16 @@ TITLE sites: 4
     def test_init(self):
         filepath = os.path.join(test_dir, 'HEADER')
         header = pymatgen.io.feffio.Header.from_file(filepath)
+        h=header.splitlines()
+        hs=HeaderTest.header_string.splitlines()
+        l=-1
+        for line in h:
+            l+=1
+            if h[l]<>hs[l]:
+                print 'line  ',l, ' is different'
+                print h[l]
+                print hs[l],'\n\n'
+        
         self.assertEqual(HeaderTest.header_string.splitlines(), header.splitlines(),"Failed to read HEADER file")
 
     def test_from_string(self):
@@ -41,7 +51,8 @@ TITLE sites: 4
         cif_file=os.path.join(test_dir, 'CoO19128.cif')
         r=pymatgen.io.cifio.CifParser(cif_file)
         structure=r.get_structures()[0]
-        h=pymatgen.io.feffio.Header(structure,cif_file)
+        sym=pymatgen.io.feffio.Header.from_cif_file(structure,cif_file)
+        h=pymatgen.io.feffio.Header(structure, cif_file, sym[0],sym[1])
         head=h.get_string()
         self.assertEqual(head.splitlines()[1].split()[-1], HeaderTest.header_string.splitlines()[1].split()[-1], "Failed to generate HEADER from structure")
         
@@ -64,25 +75,25 @@ class  FeffAtomsTest(unittest.TestCase):
         self.assertEqual(atoms.splitlines()[3].split()[4], central_atom, "failed to create ATOMS string")
 
         
-class  Feff_tagsTest(unittest.TestCase):
+class  FeffTagsTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'PARAMETERS')
-        parameters = pymatgen.io.feffio.Feff_tags.from_file(filepath)
+        parameters = pymatgen.io.feffio.FeffTags.from_file(filepath)
         parameters["RPATH"] = 10
         self.assertEqual(parameters["COREHOLE"], "Fsr", "Failed to read PARAMETERS file")
         self.assertEqual(parameters["LDOS"], [-30., 15., .1], "Failed to read PARAMETERS file")
     def test_diff(self):
         filepath1 = os.path.join(test_dir, 'PARAMETERS')
-        parameters1 = pymatgen.io.feffio.Feff_tags.from_file(filepath1)
+        parameters1 = pymatgen.io.feffio.FeffTags.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'PARAMETERS.2')
-        parameters2 = pymatgen.io.feffio.Feff_tags.from_file(filepath2)
-        self.assertEqual(pymatgen.io.feffio.Feff_tags(parameters1).diff(parameters2), {'Different': {}, 'Same': {'CONTROL': [1, 1, 1, 1, 1, 1], 'SCF': [4.5, 0, 30, 0.2, 1], 'EXCHANGE': [0, 0.0, 0.0, 2], 'S02': [0.0], 'COREHOLE': 'Fsr', 'FMS': [7.5, 0], 'XANES': [3.7, 0.04, 0.1], 'EDGE': 'K', 'PRINT': [1, 0, 0, 0, 0, 0], 'LDOS': [-30.0, 15.0, 0.1]}})
+        parameters2 = pymatgen.io.feffio.FeffTags.from_file(filepath2)
+        self.assertEqual(pymatgen.io.feffio.FeffTags(parameters1).diff(parameters2), {'Different': {}, 'Same': {'CONTROL': [1, 1, 1, 1, 1, 1], 'SCF': [4.5, 0, 30, 0.2, 1], 'EXCHANGE': [0, 0.0, 0.0, 2], 'S02': [0.0], 'COREHOLE': 'Fsr', 'FMS': [7.5, 0], 'XANES': [3.7, 0.04, 0.1], 'EDGE': 'K', 'PRINT': [1, 0, 0, 0, 0, 0], 'LDOS': [-30.0, 15.0, 0.1]}})
     def test_to_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'PARAMETERS')
-        d = pymatgen.io.feffio.Feff_tags.from_file(file_name)
-        tags = pymatgen.io.feffio.Feff_tags(d).to_dict
-        tags2 = pymatgen.io.feffio.Feff_tags.from_dict(d)
+        d = pymatgen.io.feffio.FeffTags.from_file(file_name)
+        tags = pymatgen.io.feffio.FeffTags(d).to_dict
+        tags2 = pymatgen.io.feffio.FeffTags.from_dict(d)
         self.assertEqual(tags, tags2, "Parameters do not match to and from dictionary values")
 
 class  FeffPotTest(unittest.TestCase):
