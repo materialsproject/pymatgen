@@ -17,7 +17,7 @@ import argparse
 from collections import OrderedDict
 
 from pymatgen.io.feffio import FeffLdos
-from pymatgen.electronic_structure.dos import DosPlotter
+from pymatgen.electronic_structure.plotter import DosPlotter
 
 parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for Feff runs.
 Author: Shyue Ping Ong, Alan Dozier
