@@ -64,7 +64,8 @@ class EnumlibAdaptor(object):
     amount_tol = 1e-5
 
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
-                 symm_prec=0.1, enum_precision_parameter=0.01):
+                 symm_prec=0.1, enum_precision_parameter=0.001,
+                 refine_structure=False):
         """
         Args:
             structure:
@@ -76,10 +77,24 @@ class EnumlibAdaptor(object):
             symm_prec:
                 Symmetry precision. Defaults to 0.1.
             enum_precision_parameter:
-                Finite precision parameter for enumlib. Default of 0.01 is
+                Finite precision parameter for enumlib. Default of 0.001 is
                 usually ok, but you might need to tweak it for certain cells.
+            refine_structure:
+                If you are starting from a structure that has been relaxed via
+                some electronic structure code, it is usually much better to
+                start with symmetry determination and then obtain a refined
+                structure. The refined structure have cell parameters and
+                atomic positions shifted to the expected symmetry positions,
+                which makes it much less sensitive precision issues in enumlib.
+                If you are already starting from an experimental cif, refinment
+                should have already been done and it is not necessary. Defaults
+                to False.
         """
-        self.structure = structure
+        if refine_structure:
+            finder = SymmetryFinder(structure, symm_prec)
+            self.structure = finder.get_refined_structure()
+        else:
+            self.structure = structure
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.symm_prec = symm_prec

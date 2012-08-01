@@ -29,7 +29,15 @@ from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 
-import pymatgen._spglib as spg
+try:
+    import pymatgen._spglib as spg
+except ImportError:
+    try:
+        import pyspglib._spglib as spg
+    except ImportError:
+        msg = "Spglib required. Please either run python setup.py install" + \
+            "for pymatgen, or install pyspglib from spglib."
+        raise ImportError(msg)
 
 
 class SymmetryFinder(object):
