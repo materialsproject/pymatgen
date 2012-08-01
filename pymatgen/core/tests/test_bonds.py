@@ -24,7 +24,8 @@ class CovalentBondTest(unittest.TestCase):
     def test_length(self):
         site1 = Site("C", [0, 0, 0])
         site2 = Site("H", [0, 0.7, 0.6])
-        self.assertAlmostEqual(CovalentBond(site1, site2).length, 0.92195444572928864)
+        self.assertAlmostEqual(CovalentBond(site1, site2).length,
+                               0.92195444572928864)
 
     def test_is_bonded(self):
         site1 = Site("C", [0, 0, 0])

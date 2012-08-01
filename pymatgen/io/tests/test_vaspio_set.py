@@ -2,13 +2,14 @@
 import unittest
 import os
 
-
-from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, MaterialsProjectVaspInputSet
+from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
+    MaterialsProjectVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure, __file__
 from numpy import array
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
 
 
 class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
@@ -21,9 +22,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MaterialsProjectVaspInputSet()
-        self.userparamset = MaterialsProjectVaspInputSet({'MAGMOM':{"Fe":10,
-                                                                    "S":-5,
-                                                                    "Mn3+":100}})
+        self.userparamset = MaterialsProjectVaspInputSet(
+            {'MAGMOM': {"Fe": 10, "S":-5, "Mn3+": 100}}
+        )
 
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
@@ -45,7 +46,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         coords.append(array([0.75, 0.5, 0.75]))
 
         #Silicon structure for testing.
-        latt = Lattice(array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        latt = Lattice(array([[3.8401979337, 0.00, 0.00],
+                              [1.9200989668, 3.3257101909, 0.00],
+                              [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords)
         incar = incar = self.paramset.get_incar(struct)
         self.assertNotIn("LDAU", incar)
@@ -56,7 +59,9 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Fe", "Mn"], coords)
 
         incar = self.paramset.get_incar(struct)
@@ -77,11 +82,13 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['LDAUU'], [5.3, 0])
 
-        struct = Structure(lattice, ["Fe", "Mn"], coords, site_properties={'magmom':(5.2, -4.5)})
+        struct = Structure(lattice, ["Fe", "Mn"], coords,
+                           site_properties={'magmom': (5.2, -4.5)})
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
-        struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"], coords)
+        struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"],
+                           coords)
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
 
@@ -106,7 +113,6 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         #Make sure Matproject sulfides are ok.
         self.assertNotIn('LDAUU', self.paramset.get_incar(struct))
 
-
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.mitparamset.get_incar(struct)
         self.assertEqual(incar['LDAUU'], [4.0, 0, 0])
@@ -116,7 +122,6 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
-
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
@@ -129,4 +134,3 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

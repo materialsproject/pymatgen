@@ -23,7 +23,8 @@ class  CifIOTest(unittest.TestCase):
         #test for disordered structures
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
         for s in parser.get_structures(True):
-            self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif.")
+            self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24",
+                             "Incorrectly parsed cif.")
 
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -168,7 +169,9 @@ loop_
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0.5, 0.5, 0.5]))
-        lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                    [1.9200989668, 3.3257101909, 0.00],
+                                    [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [si4, {si3:0.5, n:0.5}, n], coords)
         writer = CifWriter(struct)
         ans = """#\#CIF1.1
@@ -233,9 +236,8 @@ class HelperFunctionTest(unittest.TestCase):
     def test_parse_symmetry_operations(self):
         toks = ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2',
                 'y+1/2, -x+1/2, z+1/2', '-x-1/2, y-1/2, -z-1/2', ]
-        print parse_symmetry_operations(toks)
+        self.assertEqual(len(parse_symmetry_operations(toks)), 5)
 
 
 if __name__ == '__main__':
     unittest.main()
-

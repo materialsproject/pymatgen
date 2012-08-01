@@ -9,7 +9,8 @@ from pymatgen import Lattice, __file__
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
 
 
 class KpointTest(unittest.TestCase):
@@ -35,7 +36,8 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
+                  "rb") as f:
             d = json.loads(f.read())
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
@@ -50,14 +52,16 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertEqual(self.bs._branches[5]['start_index'], 80)
             self.assertEqual(self.bs._branches[5]['end_index'], 95)
             self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
-        with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"), "rb") as f:
+        with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"),
+                  "rb") as f:
             d = json.loads(f.read())
             self.bs_spin = BandStructureSymmLine.from_dict(d)
             #this doesn't really test to_dict -> from_dict very well
             #self.assertEqual(self.bs_spin.to_dict.keys(), d.keys())
             self.assertEqual(self.bs_spin._nb_bands, 27)
             self.assertAlmostEqual(self.bs_spin._bands[Spin.up][5][10], 0.262)
-            self.assertAlmostEqual(self.bs_spin._bands[Spin.down][5][10], 1.6156)
+            self.assertAlmostEqual(self.bs_spin._bands[Spin.down][5][10],
+                                   1.6156)
 
     def test_properties(self):
         self.assertEqual(self.one_kpoint.frac_coords[0], 0.5)
