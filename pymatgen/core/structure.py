@@ -67,7 +67,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Returns the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
-        nsites = self.num_sites
+        nsites = len(self)
         distmatrix = np.zeros((nsites, nsites))
         for i, j in itertools.combinations(xrange(nsites), 2):
             dist = self.get_distance(i, j)
@@ -82,14 +82,14 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        return [site.specie for site in self.sites]
+        return [site.specie for site in self]
 
     @property
     def species_and_occu(self):
         """
         List of species and occupancies at each site of the structure.
         """
-        return [site.species_and_occu for site in self.sites]
+        return [site.species_and_occu for site in self]
 
     @property
     def site_properties(self):
@@ -99,7 +99,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         {'magmom': (5,-5), 'charge': (-4,4)}.
         """
         props = collections.defaultdict(list)
-        for site in self.sites:
+        for site in self:
             for k, v in site.properties.items():
                 props[k].append(v)
         return props
@@ -114,7 +114,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return self.sites[ind]
 
     def __len__(self):
-        return len(tuple(self.sites))
+        return len(self.sites)
 
     def __hash__(self):
         #for now, just use the composition hash code.
@@ -125,14 +125,14 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         """
         Number of sites.
         """
-        return len(self.sites)
+        return len(self)
 
     @property
     def cart_coords(self):
         '''
         Returns a list of the cartesian coordinates of sites in the structure.
         '''
-        return [site.coords for site in self.sites]
+        return [site.coords for site in self]
 
     @property
     def formula(self):
@@ -147,7 +147,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Returns the composition
         """
         elmap = collections.defaultdict(float)
-        for site in self.sites:
+        for site in self:
             for species, occu in site.species_and_occu.items():
                 elmap[species] += occu
         return Composition(elmap)
@@ -159,7 +159,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Elements are found, a charge of 0 is assumed.
         '''
         charge = 0
-        for site in self.sites:
+        for site in self:
             for specie, amt in site.species_and_occu.items():
                 charge += getattr(specie, 'oxi_state', 0) * amt
         return charge
@@ -172,7 +172,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         of the sites.
 
         """
-        for site in self.sites:
+        for site in self:
             if not site.is_ordered:
                 return False
         return True
@@ -192,8 +192,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Returns:
             Angle in degrees.
         """
-        v1 = self.sites[i].coords - self.sites[j].coords
-        v2 = self.sites[k].coords - self.sites[j].coords
+        v1 = self[i].coords - self[j].coords
+        v2 = self[k].coords - self[j].coords
         ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
         """
         Corrects for stupid numerical error which may result in acos being
@@ -222,9 +222,9 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Returns:
             Dihedral angle in degrees.
         """
-        v1 = self.sites[k].coords - self.sites[l].coords
-        v2 = self.sites[j].coords - self.sites[k].coords
-        v3 = self.sites[i].coords - self.sites[j].coords
+        v1 = self[k].coords - self[l].coords
+        v2 = self[j].coords - self[k].coords
+        v3 = self[i].coords - self[j].coords
         v23 = np.cross(v2, v3)
         v12 = np.cross(v1, v2)
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
@@ -599,7 +599,7 @@ class Structure(SiteCollection, MSONable):
         Get a sorted copy of the structure.
         Sites are sorted by the electronegativity of the species.
         """
-        sites = sorted(self.sites)
+        sites = sorted(self)
         return Structure.from_sites(sites)
 
     def copy(self, site_properties=None, sanitize=False):
@@ -624,19 +624,18 @@ class Structure(SiteCollection, MSONable):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        sites = self.sites
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
         if not sanitize:
             return Structure(self._lattice,
-                             [site.species_and_occu for site in sites],
-                             [site.frac_coords for site in sites],
+                             [site.species_and_occu for site in self],
+                             [site.frac_coords for site in self],
                              site_properties=props)
         else:
             reduced_latt = self._lattice.get_lll_reduced_lattice()
             new_sites = []
-            for i, site in enumerate(sites):
+            for i, site in enumerate(self):
                 frac_coords = reduced_latt.get_fractional_coords(site.coords)
                 site_props = {}
                 for p in props:
@@ -692,7 +691,7 @@ class Structure(SiteCollection, MSONable):
         outs = []
         outs.append("Structure Summary")
         outs.append(repr(self.lattice))
-        for s in self.sites:
+        for s in self:
             outs.append(repr(s))
         return "\n".join(outs)
 
@@ -883,7 +882,7 @@ class Molecule(SiteCollection, MSONable):
     def __repr__(self):
         outs = []
         outs.append("Molecule Summary")
-        for s in self.sites:
+        for s in self:
             outs.append(repr(s))
         return "\n".join(outs)
 
