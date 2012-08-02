@@ -8,10 +8,10 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
-3. pyspglib 1.2+ (highly recommended): For symmetry finding. Needed if you are
-   using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
-   packages. From pymatgen v2.1 onwards, pyspglib should be automatically
-   compiled as an extension during the install process via setup.py.
+3. pyspglib 1.2+: For symmetry finding. Needed if you are using the 
+   pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy packages. 
+   From pymatgen v2.1 onwards, pyspglib should be automatically compiled as an
+   extension during the install process via setup.py.
 
 Optional Python Libraries
 -------------------------
@@ -63,10 +63,11 @@ VASP license. The good news is that we have included a setup script to help you
 along.
 
 If you cloned the repo directly from GitHub, you should have a run_me_first.sh 
-file in the root directory of your local repo. Otherwise, you can get it directly 
-from our github site at http://github.com/materialsproject/pymatgen. Run the 
-shell script and follow the instructions. If you have done it correctly, you 
-should get a resources directory with the following directory structure::
+file in the root directory of your local repo. Otherwise, you can get it
+directly from our github site at http://github.com/materialsproject/pymatgen.
+Run the shell script and follow the instructions. If you have done it 
+correctly, you should get a resources directory with the following directory
+structure::
 
    - psp_resources
    |- POT_GGA_PAW_PBE
@@ -89,16 +90,19 @@ Setup for Developers (using GitHub)
 
 1. Clone the repo at http://github.com/materialsproject/pymatgen.
 
-2. Install the necessary python libraries.
-
-3. In your root pymatgen repo directory, type (you may need to do this with root
+2. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
 
       python setup.py develop
 
+3. Install any missing python libraries that are necessary.
+
 I recommend that you start by reading some of the unittests in the tests 
-subdirectory for each package.  The unittests demonstrate the expected behavior 
+subdirectory for each package. The unittests demonstrate the expected behavior 
 and functionality of the code.
+
+Please read up on pymatgen's :doc:`coding guidelines </contributing>` before
+you start coding. It will make integration much easier.
 
 Installation tips for optional libaries
 =======================================

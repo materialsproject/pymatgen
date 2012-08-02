@@ -41,6 +41,22 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`feffio` Module
+--------------------
+
+.. automodule:: pymatgen.io.feffio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`feffio_set` Module
+------------------------
+
+.. automodule:: pymatgen.io.feffio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`gaussianio` Module
 ------------------------
 
