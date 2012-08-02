@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 """
-This module defines the FeffInputSet abstract base class and
-a concrete implementation for the Materials Project.  The basic
-concept behind an input set is to specify a scheme to generate
-a consistent set of Feff inputs from a structure without further
-user intervention. This ensures comparability across runs.
+This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.
 """
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Alan Dozier"
+__author__ = "Alan Dozier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Alan Dozier"
