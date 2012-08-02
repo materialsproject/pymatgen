@@ -26,8 +26,7 @@ from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker, \
-    OxidationStateDecorator, OxidationStateRemover
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
@@ -140,8 +139,9 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         self.oxi_states = oxidation_states
 
     def apply_transformation(self, structure):
-        dec = OxidationStateDecorator(structure, self.oxi_states)
-        return dec.modified_structure
+        editor = StructureEditor(structure)
+        editor.add_oxidation_state_by_element(self.oxi_states)
+        return editor.modified_structure
 
     @property
     def inverse(self):
@@ -165,8 +165,9 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     This transformation removes oxidation states from a structure
     """
     def apply_transformation(self, structure):
-        remover = OxidationStateRemover(structure)
-        return remover.modified_structure
+        editor = StructureEditor(structure)
+        editor.remove_oxidation_states()
+        return editor.modified_structure
 
     @property
     def inverse(self):
