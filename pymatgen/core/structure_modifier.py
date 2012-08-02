@@ -465,7 +465,7 @@ class OxidationStateDecorator(StructureModifier):
     """
     .. deprecated:: v2.1.3
 
-        Use StructureEditor's add_oxidation_state_by... instead.
+    Use StructureEditor's add_oxidation_state_by... instead.
 
     Given a dictionary of oxidation states, decorate a structure by replacing
     each Element at a site with a Specie with an oxidation state. Useful for
@@ -501,6 +501,10 @@ class OxidationStateDecorator(StructureModifier):
 
 class OxidationStateRemover(StructureModifier):
     """
+    .. deprecated:: v2.1.3
+
+    Use StructureEditor's remove_oxidation_states instead.
+
     Replace each Specie at a site with an element. Useful for doing structure
     comparisons after applying higher level functions.
     """
