@@ -16,6 +16,7 @@ __date__ = "Sep 23, 2011"
 
 import abc
 import itertools
+import warnings
 
 import numpy as np
 from pymatgen.core.periodic_table import Specie, Element
@@ -309,6 +310,70 @@ class StructureEditor(StructureModifier):
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector, frac_coords=False)
 
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            structure:
+                pymatgen.core.structure Structure object.
+            oxidation_states:
+                dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
+
+    def add_oxidation_state_by_site(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site.
+
+        Args:
+            oxidation_states:
+                List of oxidation states.
+                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[i])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the dictionary.")
+
+    def remove_oxidation_states(self):
+        for i, site in enumerate(self._sites):
+            new_sp = {}
+            for el, occu in site.species_and_occu.items():
+                sym = el.symbol
+                new_sp[Element(sym)] = occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
     def to_unit_cell(self, tolerance=0.1):
         '''
         Returns all the sites to their position inside the unit cell.
@@ -398,6 +463,10 @@ class SupercellMaker(StructureModifier):
 
 class OxidationStateDecorator(StructureModifier):
     """
+    .. deprecated:: v2.1.3
+
+    Use StructureEditor's add_oxidation_state_by... instead.
+
     Given a dictionary of oxidation states, decorate a structure by replacing
     each Element at a site with a Specie with an oxidation state. Useful for
     higher level functions.
@@ -414,20 +483,12 @@ class OxidationStateDecorator(StructureModifier):
                 dict of oxidation states.
                 E.g., {"Li":1, "Fe":2, "P":5, "O": -2}
         """
+        warnings.warn("OxidationStateDecorator has been deprecated. Use "
+                      "StructureEditor.remove_oxidation_states instead.")
         self._original_structure = structure
-        try:
-            new_species = []
-            for site in structure:
-                new_sp = {}
-                for el, occu in site.species_and_occu.items():
-                    sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
-                new_species.append(new_sp)
-        except KeyError:
-            raise ValueError("Oxidation state of all elements must be "
-                             "specified in the dictionary.")
-        self._modified_structure = Structure(structure.lattice, new_species,
-                                             structure.frac_coords, False)
+        editor = StructureEditor(structure)
+        editor.add_oxidation_state_by_element(oxidation_states)
+        self._modified_structure = editor.modified_structure
 
     @property
     def original_structure(self):
@@ -440,6 +501,10 @@ class OxidationStateDecorator(StructureModifier):
 
 class OxidationStateRemover(StructureModifier):
     """
+    .. deprecated:: v2.1.3
+
+    Use StructureEditor's remove_oxidation_states instead.
+
     Replace each Specie at a site with an element. Useful for doing structure
     comparisons after applying higher level functions.
     """
@@ -452,6 +517,8 @@ class OxidationStateRemover(StructureModifier):
             structure:
                 pymatgen.core.structure Structure object.
         """
+        warnings.warn("OxidationStateRemover has been deprecated. Use "
+                      "StructureEditor.remove_oxidation_states instead.")
         self._original_structure = structure
         new_species = [{Element(el.symbol): occu
                         for el, occu in site.species_and_occu.items()}

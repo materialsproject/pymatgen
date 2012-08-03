@@ -52,7 +52,8 @@ class EwaldSummation(object):
         Args:
             structure:
                 input structure that must have proper Specie on all sites, i.e.
-                Element with oxidation state. Use OxidationStateDecorator in
+                Element with oxidation state. Use
+                StructureEditor.add_oxidation_state... in
                 pymatgen.core.structure_modifier for example.
             real_space_cut:
                 Real space cutoff radius dictating how many terms are used in
