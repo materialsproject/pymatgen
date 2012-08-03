@@ -137,6 +137,11 @@ class FeffInputSet(AbstractFeffInputSet):
     """
 
     def __init__(self, name):
+        """
+        Arg:
+            name is the name of a grouping of input parameter sets such as
+            "MaterialsProject"
+        """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -149,16 +154,29 @@ class FeffInputSet(AbstractFeffInputSet):
     def get_header(self, structure, cif_file):
         """
         Creates header string from cif file and structure object
+
+        Args:
+            structure:
+                pymatgen structure object
+            cif_file:
+                path and cif_file name
+        Returns:
+            HEADER string
         """
-        space_number, space_group = Header.from_cif_file(structure, cif_file)
+        space_number, space_group = Header.structure_symmetry(structure)
         header = Header(structure, cif_file, space_number, space_group)
         return header.get_string()
 
     def get_fefftags(self, calc_type):
         """
-        calc_type: XANES or EXAFS
         Reads standard parameters for XANES or EXAFS calculation
         from FeffInputSets.cfg file
+        
+        Args:
+            calc_type:
+                XANES or EXAFS
+        Returns:
+
         """
         if calc_type == "XANES":
             fefftags = FeffTags(self.xanes_settings)
@@ -168,20 +186,29 @@ class FeffInputSet(AbstractFeffInputSet):
 
     def get_feffPot(self, structure, central_atom):
         """
-        structure: structure object
-        central-atom: symbol for absorbing atom
         Creates string representation of potentials
         used in POTENTIAL file and feff.inp
+        Args:
+            structure:    structure object
+            central-atom: symbol for absorbing atom
+        Returns:
+            string representation of potential indicies, etc
+            used in POTENTIAL file
+
         """
         pot = FeffPot(structure, central_atom)
         return pot.get_string()
 
     def get_feffAtoms(self, structure, central_atom):
         """
-        structure: structure object
-        central-atom: symbol for absorbing atom
-        Create string representation of atomic shell
-        coordinates using in ATOMS file and feff.inp
+        Creates string representation of atomic shell
+        coordinates using in ATOMS file and feff.inp       
+        Args:
+            structure: structure object
+            central-atom: symbol for absorbing atom
+        Returns:
+            String representation of atoms file.
+
         """
         atoms = FeffAtoms(structure, central_atom)
         return atoms.get_string()
