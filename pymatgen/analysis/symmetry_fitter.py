@@ -82,7 +82,7 @@ class SymmetryFitter(object):
             subgroup = [fixed]
             for to_fit in all_structures[1:]:
                 if self.spacegroup.are_symmetrically_equivalent(fixed, to_fit,
-                                                    symprec=self.symm_prec):
+                                                    symm_prec=self.symm_prec):
                     subgroup.append(to_fit)
             all_structures = [s for s in all_structures if s not in subgroup]
             subgroups.append(subgroup)
