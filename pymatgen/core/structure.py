@@ -826,10 +826,24 @@ class Molecule(SiteCollection, MSONable):
                         [site.coords for site in sites],
                         site_properties=props)
 
-    def break_bond(self, ind1, ind2):
+    def break_bond(self, ind1, ind2, tol=0.2):
         """
         Returns two molecules based on breaking the bond between atoms at index
         ind1 and ind2.
+
+        Args:
+            ind1:
+                Index of first site.
+            ind2:
+                Index of second site.
+            tol:
+                Relative tolerance to test. Basically, the code checks if the
+                distance between the sites is less than (1 + tol) * typical
+                bond distances. Defaults to 0.2, i.e., 20% longer.
+
+        Returns:
+            Two Molecule objects representing the two clusters formed from
+            breaking the bond.
         """
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
@@ -838,7 +852,7 @@ class Molecule(SiteCollection, MSONable):
 
         def belongs_to_cluster(site, cluster):
             for test_site in cluster:
-                if CovalentBond.is_bonded(site, test_site):
+                if CovalentBond.is_bonded(site, test_site, tol=tol):
                     return True
             return False
 
