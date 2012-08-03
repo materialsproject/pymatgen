@@ -22,22 +22,23 @@ class Spacegroup(object):
     """
 
     def __init__(self, int_symbol, int_number, symmops):
-        self._symbol = int_symbol
-        self._number = int_number
-        self._symmops = symmops
+        """
+        Args:
+            int_symbol:
+                The international symbol of the spacegroup.
+            int_number:
+                The international number of the spacegroup.
+            symmops:
+                The symmetry operations associated with the spacegroup.
+        """
+        self.int_symbol = int_symbol
+        self.int_number = int_number
+        self.symmops = symmops
 
-    @property
-    def international_symbol(self):
-        return self._symbol
-
-    @property
-    def international_number(self):
-        return self._number
-
-    def are_symmetrically_equivalent(self, sites1, sites2, symprec=1e-8):
+    def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
         """
         Given two sets of PeriodicSites, test if they are actually
-        symmetrically equivalent under this spacegroup.  Useful, for example,
+        symmetrically equivalent under this space group.  Useful, for example,
         if you want to test if selecting atoms 1 and 2 out of a set of 4 atoms
         are symmetrically the same as selecting atoms 3 and 4, etc.
 
@@ -49,7 +50,7 @@ class Spacegroup(object):
                 1st set of sites
             sites2:
                 2nd set of sites
-            symprec:
+            symm_prec:
                 The tolerance in atomic distance to test if atoms are
                 symmetrically similar.
 
@@ -59,10 +60,10 @@ class Spacegroup(object):
         """
         def in_sites(site):
             for test_site in sites1:
-                if test_site.is_periodic_image(site, symprec, False):
+                if test_site.is_periodic_image(site, symm_prec, False):
                     return True
             return False
-        for op in self._symmops:
+        for op in self.symmops:
             newsites2 = [PeriodicSite(site.species_and_occu,
                                       op.operate(site.frac_coords),
                                       site.lattice) for site in sites2]
@@ -77,6 +78,3 @@ class Spacegroup(object):
 
     def __str__(self):
         return "{} ({}) spacegroup".format(self._symbol, self._number)
-
-if __name__ == "__main__":
-    print Spacegroup.from_spacegroup_number(230)
