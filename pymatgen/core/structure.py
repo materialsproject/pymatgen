@@ -2,7 +2,6 @@
 
 """
 This module provides classes used to define a non-periodic molecule and a
-
 periodic structure.
 """
 
@@ -95,7 +94,6 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def site_properties(self):
         """
         Returns the site properties as a dict of sequences. E.g.,
-
         {'magmom': (5,-5), 'charge': (-4,4)}.
         """
         props = collections.defaultdict(list)
@@ -168,9 +166,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def is_ordered(self):
         """
         Checks if structure is ordered, meaning no partial occupancies in any
-
         of the sites.
-
         """
         for site in self:
             if not site.is_ordered:
@@ -496,11 +492,9 @@ class Structure(SiteCollection, MSONable):
         Returns a list of list of neighbors for each site in structure.
         Use this method if you are planning on looping over all sites in the
         crystal. If you only want neighbors for a particular site, use the
-
         method get_neighbors as it may not have to build such a large supercell
         However if you are looping over all sites in the crystal, this method
         is more efficient since it only performs one pass over a large enough
-
         supercell to contain all possible atoms out to a distance r.
         The return type is a [(site, dist) ...] since most of the time,
         subsequent processing requires the distance.
@@ -529,33 +523,23 @@ class Structure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         unit_cell_sites = [site.to_unit_cell for site in self._sites]
-        #unit_cell_coords = [site.frac_coords for site in unit_cell_sites]
 
         for site in self._sites:
             pcoords = site.frac_coords
-            inxmax = int(math.floor(pcoords[0] + nmax[0]))
-            inxmin = int(math.floor(pcoords[0] - nmax[0]))
-            inymax = int(math.floor(pcoords[1] + nmax[1]))
-            inymin = int(math.floor(pcoords[1] - nmax[1]))
-            inzmax = int(math.floor(pcoords[2] + nmax[2]))
-            inzmin = int(math.floor(pcoords[2] - nmax[2]))
-            site_nminmax.append(((inxmin, inxmax), (inymin, inymax),
-                                 (inzmin, inzmax)))
+            inmax = [int(math.floor(pcoords[i] + nmax[i])) for i in xrange(3)]
+            inmin = [int(math.floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            site_nminmax.append(zip(inmin, inmax))
 
-        nxmin = min([i[0][0] for i in site_nminmax])
-        nxmax = max([i[0][1] for i in site_nminmax])
-        nymin = min([i[1][0] for i in site_nminmax])
-        nymax = max([i[1][1] for i in site_nminmax])
-        nzmin = min([i[2][0] for i in site_nminmax])
-        nzmax = max([i[2][1] for i in site_nminmax])
+        nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
+        nmax = [max([i[j][1] for i in site_nminmax]) for j in xrange(3)]
+
+        all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in range(len(self._sites))]
 
         site_coords = np.array(self.cart_coords)
         n = len(self._sites)
-        for image in itertools.product(range(nxmin, nxmax + 1),
-                                       range(nymin, nymax + 1),
-                                       range(nzmin, nzmax + 1)):
+        for image in itertools.product(*all_ranges):
             for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
                 coords = self.lattice.get_cartesian_coords(fcoords)
@@ -766,19 +750,15 @@ class Molecule(SiteCollection, MSONable):
             species:
                 list of atomic species. Possible kinds of input include a list
                 of dict of elements/species and occupancies, a List of
-
                 elements/specie specified as actual Element/Specie, Strings
-
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords:
                 list of cartesian coordinates of each species.
             validate_proximity:
                 Whether to check if there are sites that are less than 1 Ang
-
                 apart. Defaults to False.
             site_properties:
                 Properties associated with the sites as a dict of sequences,
-
                 e.g., {'magmom':[5,5,5,5]}. The sequences have to be the same
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
