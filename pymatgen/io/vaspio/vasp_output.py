@@ -1003,6 +1003,8 @@ class Outcar(object):
                 for line in f:
                     line_count += 1
                 line_cutoff = line_count - MAX_LINES
+                #rewind the file
+                f.seek(0)
             
             for idx, line in enumerate(f):
                 if idx >= line_cutoff:
