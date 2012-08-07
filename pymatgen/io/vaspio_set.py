@@ -172,8 +172,8 @@ class VaspInputSet(AbstractVaspInputSet):
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             if key in self.incar_settings:
                 self.incar_settings[key] = json.loads(self.incar_settings[key])
-        self.user_incar_settings = user_incar_settings if user_incar_settings \
-            else {}
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
     def get_incar(self, structure):
         incar = Incar()
@@ -183,8 +183,6 @@ class VaspInputSet(AbstractVaspInputSet):
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
-            if key in self.user_incar_settings:
-                setting = self.user_incar_settings[key]
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
