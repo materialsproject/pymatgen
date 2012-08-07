@@ -160,7 +160,7 @@ examples of the core capabilities and objects::
    occupation : 1.00
    >>> 
    >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+   ... from pymatgen.symmetry.finder import SymmetryFinder
    >>> finder = SymmetryFinder(structure)
    >>> finder.get_spacegroup_symbol()
    'Pm-3m'
