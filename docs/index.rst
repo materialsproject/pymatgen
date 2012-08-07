@@ -49,8 +49,8 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.1.3dev)
------------------------------
+Latest Change Log (v2.2.0)
+--------------------------
 
 1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
 2. New smartio module that intelligently reads structure input files based on
