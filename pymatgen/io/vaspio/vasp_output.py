@@ -8,6 +8,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
+__credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -990,40 +991,54 @@ class Outcar(object):
             total_mag = None
             nelect = None
             efermi = None
-            for line in f:
-                clean = line.strip()
-                if clean == "total charge":
-                    read_charge = True
-                    charge = []
-                elif clean == "magnetization (x)":
-                    read_mag = True
-                    mag = []
-                elif read_charge or read_mag:
-                    if clean.startswith("# of ion"):
-                        header = re.split("\s{2,}", line.strip())
-                    elif clean.startswith("tot"):
-                        read_charge = False
-                        read_mag = False
-                    else:
-                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                        if m:
-                            to_append = charge if read_charge else mag
-                            data = re.findall("[\d\.\-]+", clean)
-                            to_append.append({header[i]: float(data[i])
-                                              for i in xrange(1, len(header))})
-                elif line.find("soft stop encountered!  aborting job") != -1:
-                    self.is_stopped = True
-                elif re.search("\((sec|kb)\):", line):
-                    tok = line.strip().split(":")
-                    run_stats[tok[0].strip()] = float(tok[1].strip())
-                elif re.search("E-fermi\s+:", clean):
-                    m = re.search("E-fermi\s*:\s*(\S+)", clean)
-                    efermi = float(m.group(1))
-                elif re.search("number of electron\s+\S+", clean):
-                    m = re.search("number of electron\s+(\S+)\s+" +
-                                  "magnetization\s+(\S+)", clean)
-                    nelect = float(m.group(1))
-                    total_mag = float(m.group(2))
+            
+            # Only check the last 10,000 lines for content
+            # AJ has examples of OUTCARs with 23 million lines!!
+            # They take forever to parse and kill machines
+            MAX_LINES = 10000
+            SIZE_CUTOFF = 10000000  # 10MB
+            line_cutoff = 0
+            if os.path.getsize(filename) > SIZE_CUTOFF:
+                line_count = 0
+                for line in f:
+                    line_count += 1
+                line_cutoff = line_count - MAX_LINES
+            
+            for idx, line in enumerate(f):
+                if idx >= line_cutoff:
+                    clean = line.strip()
+                    if clean == "total charge":
+                        read_charge = True
+                        charge = []
+                    elif clean == "magnetization (x)":
+                        read_mag = True
+                        mag = []
+                    elif read_charge or read_mag:
+                        if clean.startswith("# of ion"):
+                            header = re.split("\s{2,}", line.strip())
+                        elif clean.startswith("tot"):
+                            read_charge = False
+                            read_mag = False
+                        else:
+                            m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                            if m:
+                                to_append = charge if read_charge else mag
+                                data = re.findall("[\d\.\-]+", clean)
+                                to_append.append({header[i]: float(data[i])
+                                                  for i in xrange(1, len(header))})
+                    elif line.find("soft stop encountered!  aborting job") != -1:
+                        self.is_stopped = True
+                    elif re.search("\((sec|kb)\):", line):
+                        tok = line.strip().split(":")
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                    elif re.search("E-fermi\s+:", clean):
+                        m = re.search("E-fermi\s*:\s*(\S+)", clean)
+                        efermi = float(m.group(1))
+                    elif re.search("number of electron\s+\S+", clean):
+                        m = re.search("number of electron\s+(\S+)\s+" +
+                                      "magnetization\s+(\S+)", clean)
+                        nelect = float(m.group(1))
+                        total_mag = float(m.group(2))
     
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
