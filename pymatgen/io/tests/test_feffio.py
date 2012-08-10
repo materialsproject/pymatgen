@@ -47,7 +47,7 @@ TITLE sites: 4
         cif_file = os.path.join(test_dir, 'CoO19128.cif')
         r = CifParser(cif_file)
         structure = r.get_structures()[0]
-        sym = Header.from_cif_file(structure, cif_file)
+        sym = Header.structure_symmetry(structure)
         h = Header(structure, cif_file, sym[0], sym[1])
         head = h.get_string()
         self.assertEqual(head.splitlines()[1].split()[-1],

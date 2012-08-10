@@ -33,14 +33,14 @@ class AbstractFeffInputSet(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    def get_feffAtoms(self, structure, central_atom):
+    def get_feff_atoms(self, structure, central_atom):
         """
         Returns Atoms string from a structure that goes in feff.inp file.
         """
         return FeffAtoms(structure)
 
     @abc.abstractmethod
-    def get_fefftags(self, calctype):
+    def get_feff_tags(self, calctype):
         """
         Returns standard calculation paramters for either an FEFF XANES or
         EXAFS input
@@ -48,7 +48,7 @@ class AbstractFeffInputSet(object):
         return
 
     @abc.abstractmethod
-    def get_feffPot(self, structure, central_atom):
+    def get_feff_pot(self, structure, central_atom):
         """
         Returns POTENTIAL section used in feff.inp from a structure.
 
@@ -137,6 +137,11 @@ class FeffInputSet(AbstractFeffInputSet):
     """
 
     def __init__(self, name):
+        """
+        Arg:
+            name is the name of a grouping of input parameter sets such as
+            "MaterialsProject"
+        """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -149,16 +154,29 @@ class FeffInputSet(AbstractFeffInputSet):
     def get_header(self, structure, cif_file):
         """
         Creates header string from cif file and structure object
+
+        Args:
+            structure:
+                pymatgen structure object
+            cif_file:
+                path and cif_file name
+        Returns:
+            HEADER string
         """
-        space_number, space_group = Header.from_cif_file(structure, cif_file)
+        space_number, space_group = Header.structure_symmetry(structure)
         header = Header(structure, cif_file, space_number, space_group)
         return header.get_string()
 
-    def get_fefftags(self, calc_type):
+    def get_feff_tags(self, calc_type):
         """
-        calc_type: XANES or EXAFS
         Reads standard parameters for XANES or EXAFS calculation
         from FeffInputSets.cfg file
+
+        Args:
+            calc_type:
+                XANES or EXAFS
+        Returns:
+
         """
         if calc_type == "XANES":
             fefftags = FeffTags(self.xanes_settings)
@@ -166,22 +184,34 @@ class FeffInputSet(AbstractFeffInputSet):
             fefftags = FeffTags(self.exafs_settings)
         return fefftags
 
-    def get_feffPot(self, structure, central_atom):
+    def get_feff_pot(self, structure, central_atom):
         """
-        structure: structure object
-        central-atom: symbol for absorbing atom
         Creates string representation of potentials
         used in POTENTIAL file and feff.inp
+        Args:
+            structure:    structure object
+            central-atom: symbol for absorbing atom
+        Returns:
+            string representation of potential indicies, etc
+            used in POTENTIAL file
+
         """
         pot = FeffPot(structure, central_atom)
         return pot.get_string()
 
-    def get_feffAtoms(self, structure, central_atom):
+    def get_feff_atoms(self, structure, central_atom):
         """
-        structure: structure object
-        central-atom: symbol for absorbing atom
-        Create string representation of atomic shell
-        coordinates using in ATOMS file and feff.inp
+        Creates string representation of atomic shell coordinates using in
+        ATOMS file and feff.inp.
+
+        Args:
+            structure:
+                structure object
+            central_atom:
+                symbol for absorbing atom
+
+        Returns:
+            String representation of atoms file.
         """
         atoms = FeffAtoms(structure, central_atom)
         return atoms.get_string()
