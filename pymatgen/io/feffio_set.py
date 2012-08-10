@@ -43,7 +43,7 @@ class AbstractFeffInputSet(object):
     def get_feff_tags(self, calctype):
         """
         Returns standard calculation paramters for either an FEFF XANES or
-        EXAFS input
+        EXAFS input.
         """
         return
 
@@ -138,9 +138,10 @@ class FeffInputSet(AbstractFeffInputSet):
 
     def __init__(self, name):
         """
-        Arg:
-            name is the name of a grouping of input parameter sets such as
-            "MaterialsProject"
+        Args:
+            name:
+                The name of a grouping of input parameter sets such as
+                "MaterialsProject".
         """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -170,13 +171,14 @@ class FeffInputSet(AbstractFeffInputSet):
     def get_feff_tags(self, calc_type):
         """
         Reads standard parameters for XANES or EXAFS calculation
-        from FeffInputSets.cfg file
+        from FeffInputSets.cfg file.
 
         Args:
             calc_type:
                 XANES or EXAFS
-        Returns:
 
+        Returns:
+            FeffTags object
         """
         if calc_type == "XANES":
             fefftags = FeffTags(self.xanes_settings)
@@ -186,15 +188,18 @@ class FeffInputSet(AbstractFeffInputSet):
 
     def get_feff_pot(self, structure, central_atom):
         """
-        Creates string representation of potentials
-        used in POTENTIAL file and feff.inp
-        Args:
-            structure:    structure object
-            central-atom: symbol for absorbing atom
-        Returns:
-            string representation of potential indicies, etc
-            used in POTENTIAL file
+        Creates string representation of potentials used in POTENTIAL file and
+        feff.inp.
 
+        Args:
+            structure:
+                structure object
+            central_atom:
+                symbol for absorbing atom
+
+        Returns:
+            string representation of potential indicies, etc. used in POTENTIAL
+            file.
         """
         pot = FeffPot(structure, central_atom)
         return pot.get_string()
