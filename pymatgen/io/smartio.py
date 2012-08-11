@@ -18,7 +18,7 @@ import re
 import os
 
 from pymatgen.io.vaspio import Vasprun, Poscar
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.cssrio import Cssr
 
 
@@ -48,3 +48,29 @@ def read_structure(filename):
         return cssr.structure
 
     raise ValueError("Unrecognized file extension!")
+
+
+def write_structure(structure, filename):
+    """
+    Write a structure to a file based on file extension. For example, anything
+    ending in a "cif" is assumed to be a Crystallographic Information Format
+    file.
+
+    Args:
+        structure:
+            Structure to write
+        filename:
+            A filename to write to.
+    """
+    lower_filename = os.path.basename(filename).lower()
+    if re.search("\.cif", lower_filename):
+        writer = CifWriter(structure)
+    elif lower_filename.startswith("poscar") \
+            or lower_filename.startswith("contcar"):
+        writer = Poscar(structure)
+    elif re.search("\.cssr", lower_filename):
+        writer = Cssr(structure)
+    else:
+        raise ValueError("Unrecognized file extension!")
+
+    writer.write_file(filename)
