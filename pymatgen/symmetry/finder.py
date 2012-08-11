@@ -218,7 +218,7 @@ class SymmetryFinder(object):
                 rot = np.dot(self._structure.lattice.md2c, np.dot(rot,
                                                 self._structure.lattice.mc2d))
                 trans = np.dot(self._structure.lattice.md2c, trans)
-            op = SymmOp.from_rotation_matrix_and_translation_vector(rot, trans)
+            op = SymmOp.from_rotation_and_translation(rot, trans)
             symmops.append(op)
         return symmops
 

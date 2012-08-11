@@ -1,6 +1,19 @@
 Older versions
 ==============
 
+Version 2.2.0
+-------------
+
+1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
+2. New smartio module that intelligently reads structure input files based on
+   file extension.
+3. Spglib_adaptor module has been renamed to finder for brevity.
+4. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
+   Mac OS X and Solaris.
+5. Major cleanup of code for PEP8 compliance.
+6. Cssr module now supports reading of input files.
+7. Miscellaneous bug fixes and speed improvements.
+
 Version 2.1.2
 -------------
 

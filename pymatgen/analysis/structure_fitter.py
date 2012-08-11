@@ -204,8 +204,8 @@ class StructureFitter(object):
             origin = fit_sites[0]
             logger.debug("Origin = " + str(origin))
 
-            oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3),
-                                                                - origin.coords)
+            oshift = SymmOp.from_rotation_and_translation(np.eye(3),
+                                                          - origin.coords)
             shifted_to_fit = apply_operation(to_fit, oshift)
 
             #Get candidate rotations
@@ -247,7 +247,7 @@ class StructureFitter(object):
             # the other way around
             mshift = np.dot(rot, oshift.translation_vector)
             finaltranslation = mapping_op.translation_vector + mshift[0]
-            composite_op = SymmOp.from_rotation_matrix_and_translation_vector(
+            composite_op = SymmOp.from_rotation_and_translation(
                                                 newrot, finaltranslation)
             self._mapping_op = composite_op if self.fixed_is_a \
                                             else composite_op.inverse
@@ -277,14 +277,14 @@ class StructureFitter(object):
         origin = fit_sites[0]
         logger.debug("Origin = " + str(origin))
 
-        oshift = SymmOp.from_rotation_matrix_and_translation_vector(np.eye(3),
+        oshift = SymmOp.from_rotation_and_translation(np.eye(3),
                                                                - origin.coords)
         shifted_to_fit = apply_operation(to_fit, oshift)
 
         simple_rots = self._get_simple_rotations(fixed, to_fit)
         for rot in simple_rots:
-            rot_op = SymmOp.from_rotation_matrix_and_translation_vector(rot,
-                                                            np.array([0, 0, 0]))
+            rot_op = SymmOp.from_rotation_and_translation(rot,
+                                                          np.array([0, 0, 0]))
             (found_map, mapping_op, biggest_dist) = self._test_rotation(rot_op,
                                     origin, fixed, shifted_to_fit, tol_atoms)
             if found_map:
@@ -304,7 +304,7 @@ class StructureFitter(object):
                 break
             if site.species_and_occu == origin.species_and_occu:
                 shift = site.coords
-                op = SymmOp.from_rotation_matrix_and_translation_vector(
+                op = SymmOp.from_rotation_and_translation(
                                                     rot.rotation_matrix, shift)
                 nstruct = apply_operation(to_fit, op)
                 correspondance = OrderedDict()
@@ -493,8 +493,8 @@ class StructureFitter(object):
                 if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
                     continue
                 rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
-                r = SymmOp.from_rotation_matrix_and_translation_vector(rot,
-                                                        np.array([0, 0, 0]))
+                r = SymmOp.from_rotation_and_translation(rot,
+                                                         np.array([0, 0, 0]))
 
                 if r not in cand_rot:
                     transf = r.rotation_matrix

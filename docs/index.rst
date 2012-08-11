@@ -49,18 +49,13 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.0)
---------------------------
+Latest Change Log (v2.2.1dev)
+-----------------------------
 
-1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
-2. New smartio module that intelligently reads structure input files based on
-   file extension.
-3. Spglib_adaptor module has been renamed to finder for brevity.
-4. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
-   Mac OS X and Solaris.
-5. Major cleanup of code for PEP8 compliance.
-6. Cssr module now supports reading of input files.
-7. Miscellaneous bug fixes and speed improvements.
+1. Improvements to feffio.
+2. Improved format convertor script.
+3. More memory efficient parsing of VolumetricData.
+4. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
