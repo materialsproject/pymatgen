@@ -100,7 +100,9 @@ class VasprunTest(unittest.TestCase):
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
         vasprun = Vasprun(filepath)
-        bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir, 'KPOINTS_Si_bands'))
+        bs = vasprun.get_band_structure(kpoints_filename=
+                                        os.path.join(test_dir,
+                                                     'KPOINTS_Si_bands'))
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
@@ -143,7 +145,11 @@ class OutcarTest(unittest.TestCase):
                                "Wrong charge read from Outcar")
         self.assertFalse(outcar.is_stopped)
         self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938,
-                                            'Total CPU time used (sec)': 545.142, 'Elapsed time (sec)': 546.709, 'Maximum memory used (kb)': 0.0, 'Average memory used (kb)': 0.0, 'User time (sec)': 544.204})
+                                            'Total CPU time used (sec)': 545.142,
+                                            'Elapsed time (sec)': 546.709,
+                                            'Maximum memory used (kb)': 0.0,
+                                            'Average memory used (kb)': 0.0,
+                                            'User time (sec)': 544.204})
         self.assertAlmostEqual(outcar.efermi, 2.0112)
         self.assertAlmostEqual(outcar.nelect, 44.9999991)
         self.assertAlmostEqual(outcar.total_mag, 0.9999998)
@@ -159,7 +165,8 @@ class OszicarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'OSZICAR')
         oszicar = Oszicar(filepath)
-        self.assertEqual(len(oszicar.electronic_steps), len(oszicar.ionic_steps))
+        self.assertEqual(len(oszicar.electronic_steps),
+                         len(oszicar.ionic_steps))
         self.assertEqual(len(oszicar.all_energies), 60)
         self.assertAlmostEqual(oszicar.final_energy, -526.63928)
 

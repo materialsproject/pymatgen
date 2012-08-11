@@ -694,6 +694,9 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def Z(self):
+        """
+        DummySpecie is always assigned an atomic number of 0.
+        """
         return 0
 
     @property
@@ -702,6 +705,9 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def X(self):
+        """
+        DummySpecie is always assigned an electronegativity of 0.
+        """
         return 0
 
     @property

@@ -348,7 +348,6 @@ def parse_symmetry_operations(symmops_str):
                     if m.group(3) != "":
                         num = num / float(m.group(3))
                     trans[i] = factor * num
-        op = SymmOp.from_rotation_matrix_and_translation_vector(rot_matrix,
-                                                                trans)
+        op = SymmOp.from_rotation_and_translation(rot_matrix, trans)
         ops.append(op)
     return ops
