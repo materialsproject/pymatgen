@@ -185,6 +185,7 @@ class StructureFitter(object):
             # We set the structure with fewer sites as fixed,
             # and scale the structures to the same density
             (fixed, to_fit) = self._scale_structures(a, b)
+
             # Defines the atom misfit tolerance
             tol_atoms = self._tolerance_atomic_misfit * \
                         (3 * 0.7405 * fixed.volume / \
@@ -392,7 +393,7 @@ class StructureFitter(object):
                         if not are_sites_unique(correspondance.values()):
                             all_match = False
                             logger.debug("Rejected because the smallest "
-                                         "correspondance array has equivallent"
+                                         "correspondance array has equivalent"
                                          " sites.")
                             continue
 
