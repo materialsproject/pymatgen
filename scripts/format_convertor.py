@@ -22,14 +22,16 @@ from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 
 parser = argparse.ArgumentParser(description="""
-Convenient file format convertor.""", epilog="""
+Convenient file format convertor.
+""", epilog="""
 Author: {}
 Version: {}
 Last updated: {}""".format(__author__, __version__, __date__))
+
 parser.add_argument("input_filename", metavar="input_filename", type=str,
                     nargs=1,
                     help="Input filename.")
-parser.add_argument("output_filename", metavar="output_filename/dirname",
+parser.add_argument("output_filename", metavar="output_filename",
                     type=str,
                     nargs=1,
                     help="Output filename (for POSCAR/CIF/CSSR output) / " +
@@ -54,8 +56,8 @@ parser.add_argument("-o", "--output", dest="output_format", type=str, nargs=1,
 args = parser.parse_args()
 iformat = args.input_format[0]
 oformat = args.output_format[0]
-filename = args.input_file[0]
-out_filename = args.output_file[0]
+filename = args.input_filename[0]
+out_filename = args.output_filename[0]
 
 try:
     if iformat == "smart":
