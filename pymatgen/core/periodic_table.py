@@ -701,6 +701,9 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def oxi_state(self):
+        """
+        Oxidation state associated with DummySpecie
+        """
         return self._oxi_state
 
     @property

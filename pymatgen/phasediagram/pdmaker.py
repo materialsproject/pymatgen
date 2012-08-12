@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class PhaseDiagram (object):
-    '''
+    """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
 
@@ -39,8 +39,12 @@ class PhaseDiagram (object):
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
-    '''
-    FORMATION_ENERGY_TOLERANCE = 1e-11
+    """
+
+    """
+    Tolerance for determining if formation energy is positive.
+    """
+    formation_energy_tol = 1e-11
 
     def __init__(self, entries, elements=None, use_external_qhull=False):
         """
@@ -56,7 +60,7 @@ class PhaseDiagram (object):
             use_external_qhull:
                 If set to True, the code will use an external command line call
                 to Qhull to calculate the convex hull data. This requires the
-                user to have qhull installed and the executables 'qconvex'
+                user to have qhull installed and the executables "qconvex"
                 available in his path. By default, the code uses the
                 scipy.spatail.Delaunay.
 
@@ -138,9 +142,9 @@ class PhaseDiagram (object):
 
     @property
     def stable_entries(self):
-        '''
+        """
         Returns the stable entries in the phase diagram.
-        '''
+        """
         return self._stable_entries
 
     @property
@@ -161,7 +165,7 @@ class PhaseDiagram (object):
         return self._el_refs
 
     def get_form_energy(self, entry):
-        '''
+        """
         Returns the formation energy for an entry (NOT normalized) from the
         elemental references.
 
@@ -171,7 +175,7 @@ class PhaseDiagram (object):
 
         Returns:
             Formation energy from the elemental references.
-        '''
+        """
         comp = entry.composition
         energy = entry.energy - sum([comp[el] *
                                      self._el_refs[el].energy_per_atom
@@ -179,7 +183,7 @@ class PhaseDiagram (object):
         return energy
 
     def get_form_energy_per_atom(self, entry):
-        '''
+        """
         Returns the formation energy per atom for an entry from the
         elemental references.
 
@@ -189,7 +193,7 @@ class PhaseDiagram (object):
 
         Returns:
             Formation energy **per atom** from the elemental references.
-        '''
+        """
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
 
@@ -217,7 +221,7 @@ class PhaseDiagram (object):
         return data
 
     def _create_convhull_data(self):
-        '''
+        """
         Make data suitable for convex hull procedure from the list of entries.
         The procedure is as follows:
 
@@ -229,7 +233,7 @@ class PhaseDiagram (object):
            all entries. Exclude all positive formation energy ones from the
            data for convex hull.
         3. Generate the convex hull data.
-        '''
+        """
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
         self._el_refs = dict()
@@ -246,7 +250,7 @@ class PhaseDiagram (object):
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
-            if self.get_form_energy(entry) <= -self.FORMATION_ENERGY_TOLERANCE:
+            if self.get_form_energy(entry) <= -self.formation_energy_tol:
                 entries_to_process.append(entry)
             else:
                 logger.debug("Removing positive formation energy entry " +
@@ -308,7 +312,7 @@ class PhaseDiagram (object):
 
 
 class GrandPotentialPhaseDiagram(PhaseDiagram):
-    '''
+    """
     A class representing a Grand potential phase diagram. Grand potential phase
     diagrams are essentially phase diagrams that are open to one or more
     components. To construct such phase diagrams, the relevant free energy is
@@ -327,7 +331,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
-    '''
+    """
 
     def __init__(self, entries, chempots, elements=None,
                  use_external_qhull=False):
@@ -386,6 +390,11 @@ class CompoundPhaseDiagram(PhaseDiagram):
     elements.
     """
 
+    """
+    Tolerance for determining if amount of a composition is positive.
+    """
+    amount_tol = 1e-5
+
     def __init__(self, entries, terminal_compositions,
                  use_external_qhull=False):
         """
@@ -429,7 +438,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         #Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
         for i, comp in enumerate(terminal_compositions):
-            sp_mapping[comp] = DummySpecie('X' + chr(102 + i))
+            sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
 
         for entry in entries:
             try:
@@ -441,7 +450,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
                         for comp in terminal_compositions]):
                     newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
                                for comp in terminal_compositions}
-                    newcomp = {k: v for k, v in newcomp.items() if v > 1e-5}
+                    newcomp = {k: v for k, v in newcomp.items()
+                               if v > CompoundPhaseDiagram.amount_tol}
                     transformed_entry = \
                         TransformedPDEntry(Composition(newcomp), entry)
                     new_entries.append(transformed_entry)

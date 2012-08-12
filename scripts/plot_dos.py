@@ -8,10 +8,10 @@ Created on Nov 8, 2011
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
-__date__ = "Nov 8, 2011"
+__date__ = "Aug 12, 2012"
 
 import argparse
 from collections import OrderedDict
@@ -20,17 +20,21 @@ from pymatgen.io.vaspio import Vasprun
 from pymatgen.electronic_structure.plotter import DosPlotter
 
 parser = argparse.ArgumentParser(description='''
-Convenient DOS Plotter for vasp runs.
-Author: Shyue Ping Ong
-Version: 1.0
-Last updated: Nov 8 2011''')
+Convenient DOS Plotter for vasp runs.''', epilog="""
+Author: {}
+Version: {}
+Last updated: {}""".format(__author__, __version__, __date__))
+
 parser.add_argument('filename', metavar='filename', type=str, nargs=1,
                     help='vasprun.xml file to plot')
+
 parser.add_argument('-s', '--site', dest='site', action='store_const',
                     const=True, help='plot site projected DOS')
+
 parser.add_argument('-e', '--element', dest='element', type=str, nargs=1,
                     help='List of elements to plot as comma-separated ' + \
                     'values e.g., Fe,Mn')
+
 parser.add_argument('-o', '--orbital', dest="orbital", action='store_const',
                     const=True, help='plot orbital projected DOS')
 
