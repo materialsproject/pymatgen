@@ -219,15 +219,16 @@ def parse_symmetry(args):
 
     tolerance = float(args.tolerance[0])
 
-    for filename in args.input_file:
+    for filename in args.filenames:
         s = read_structure(filename)
-        finder = SymmetryFinder(s, tolerance)
-        dataset = finder.get_symmetry_dataset()
-        print filename
-        print "Spacegroup  : {}".format(dataset['international'])
-        print "Int number  : {}".format(dataset['number'])
-        print "Hall symbol : {}".format(dataset["hall"])
-        print
+        if args.spacegroup:
+            finder = SymmetryFinder(s, tolerance)
+            dataset = finder.get_symmetry_dataset()
+            print filename
+            print "Spacegroup  : {}".format(dataset['international'])
+            print "Int number  : {}".format(dataset['number'])
+            print "Hall symbol : {}".format(dataset["hall"])
+            print
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''
@@ -279,7 +280,7 @@ if __name__ == "__main__":
                                         " vasper.py plot -h for subcommand"
                                         " help.")
     parser_plot.add_argument('filename', metavar='filename', type=str, nargs=1,
-                        help='vasprun.xml file to plot')
+                             help='vasprun.xml file to plot')
     parser_plot.add_argument('-s', '--site', dest='site', action='store_const',
                         const=True, help='plot site projected DOS')
     parser_plot.add_argument('-e', '--element', dest='element', type=str,
@@ -322,15 +323,19 @@ if __name__ == "__main__":
                                 "directory.")
     parser_convert.set_defaults(func=convert_fmt)
 
-    parser_symm = subparsers.add_parser('symmetry',
+    parser_symm = subparsers.add_parser('symm',
                                         help="Symmetry tools."
                                         " Do vasper.py symmetry -h for "
                                         "subcommand help.")
-    parser_symm.add_argument('input_file', metavar='input file', type=str,
-                             nargs='+', help='input file')
+    parser_symm.add_argument('filenames', metavar='filenames', type=str,
+                             nargs='+',
+                             help='Filenames to determine symmetry.')
     parser_symm.add_argument('-t', '--tolerance', dest='tolerance', type=float,
                              nargs=1, default=[0.1],
                              help='Tolerance for symmetry determination')
+    parser_symm.add_argument('-s', '--spacegroup', dest='spacegroup',
+                             action='store_true',
+                             help='Determine symmetry')
     parser_symm.set_defaults(func=parse_symmetry)
 
     args = parser.parse_args()
