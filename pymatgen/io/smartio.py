@@ -41,7 +41,8 @@ def read_structure(filename):
     elif lower_filename.startswith("poscar") \
             or lower_filename.startswith("contcar"):
         return Poscar.from_file(filename, False).structure
-    elif re.search("vasprun.*\.xml.*", lower_filename):
+    elif re.search("vasprun", lower_filename) \
+            and re.search("xml", lower_filename):
         return Vasprun(filename).final_structure
     elif re.search("\.cssr", lower_filename):
         cssr = Cssr.from_file(filename)
