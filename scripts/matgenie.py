@@ -246,8 +246,7 @@ if __name__ == "__main__":
     matgenie is a convenient script that uses pymatgen to perform many analyses
     , plotting and format conversions. This script works based on several
     sub-commands with their own options. To see the options for the sub-
-    commands,
-    type "matgenie.py sub-command -h".""",
+    commands, type "matgenie.py sub-command -h".""",
     epilog="""
     Author: Shyue Ping Ong
     Version: {}
