@@ -22,9 +22,9 @@ from pymatgen.util.coord_utils import get_convex_hull
 
 
 class PDPlotter(object):
-    '''
+    """
     A plotter class for phase diagrams.
-    '''
+    """
 
     def __init__(self, phasediagram, show_unstable=False):
         """
@@ -44,10 +44,10 @@ class PDPlotter(object):
 
     @property
     def pd_plot_data(self):
-        '''
+        """
         Plot data for phase diagram.
         2-comp - Full hull with energies
-        3/4-comp - Projection into 2D or 3D gibbs triangle.
+        3/4-comp - Projection into 2D or 3D Gibbs triangle.
 
         Returns:
             (lines, stable_entries, unstable_entries):
@@ -57,7 +57,7 @@ class PDPlotter(object):
                   stable phase)
                 - unstable_entries is a {entry: coordinates} for all unstable
                   nodes in the phase diagram.
-        '''
+        """
         pd = self._pd
         entries = pd.qhull_entries
         data = np.array(pd.qhull_data)
@@ -115,30 +115,30 @@ class PDPlotter(object):
         plt.show()
 
     def _get_2d_plot(self):
-        '''
-        Shows the plot using pylab.  Usually I won't do imports in methods,
+        """
+        Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
-        '''
+        """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'ko-', linewidth=3, markeredgecolor='k',
-                     markerfacecolor='b', markersize=10)
+            plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
+                     markerfacecolor="b", markersize=10)
         font = FontProperties()
-        font.set_weight('bold')
+        font.set_weight("bold")
         font.set_size(24)
 
         # Sets a nice layout depending on the type of PD. Also defines a
         # "center" for the PD, which then allows the annotations to be spread
         # out in a nice manner.
         if len(self._pd.elements) == 3:
-            plt.axis('equal')
+            plt.axis("equal")
             plt.xlim((-0.1, 1.2))
             plt.ylim((-0.1, 1.0))
-            plt.axis('off')
+            plt.axis("off")
             center = (0.5, math.sqrt(3) / 6)
         else:
             allcoords = labels.keys()
@@ -168,7 +168,7 @@ class PDPlotter(object):
                 halign = "center"
 
             plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords='offset points',
+                             textcoords="offset points",
                              horizontalalignment=halign,
                              verticalalignment=valign,
                              fontproperties=font)
@@ -179,11 +179,11 @@ class PDPlotter(object):
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
                 vec = vec / np.linalg.norm(vec) * 10
-                plt.plot(coords[0], coords[1], 'rx', linewidth=3,
-                         markeredgecolor='r', markerfacecolor='r',
+                plt.plot(coords[0], coords[1], "rx", linewidth=3,
+                         markeredgecolor="r", markerfacecolor="r",
                          markersize=10)
                 plt.annotate(latexify(entry.name), coords, xytext=vec,
-                             textcoords='offset points',
+                             textcoords="offset points",
                              horizontalalignment=halign, color="b",
                              verticalalignment=valign,
                              fontproperties=font)
@@ -193,25 +193,25 @@ class PDPlotter(object):
         return plt
 
     def _get_3d_plot(self):
-        '''
-        Shows the plot using pylab.  Usually I won't do imports in methods,
+        """
+        Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
-        '''
+        """
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
         fig = plt.figure()
         ax = p3.Axes3D(fig)
         font = FontProperties()
-        font.set_weight('bold')
+        font.set_weight("bold")
         font.set_size(20)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b',
-                    markerfacecolor='r', markersize=10)
+            ax.plot(x, y, z, "bo-", linewidth=3, markeredgecolor="b",
+                    markerfacecolor="r", markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
@@ -223,12 +223,12 @@ class PDPlotter(object):
                 ax.text(coords[0], coords[1], coords[2], str(count))
                 newlabels.append("{} : {}".format(count, latexify(label)))
                 count += 1
-        plt.figtext(0.01, 0.01, '\n'.join(newlabels))
-        ax.axis('off')
+        plt.figtext(0.01, 0.01, "\n".join(newlabels))
+        ax.axis("off")
         return plt
 
     def write_image(self, stream, image_format="svg"):
-        '''
+        """
         Writes the phase diagram to an image in a stream.
 
         Args:
@@ -237,7 +237,7 @@ class PDPlotter(object):
             image_format
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-        '''
+        """
         if self._dim < 4:
             plt = self._get_2d_plot()
         elif self._dim == 4:
@@ -273,7 +273,7 @@ class PDPlotter(object):
             coords = []
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, 'k')
+                plt.plot(x, y, "k")
                 center_x += sum(x)
                 center_y += sum(y)
                 for coord in line.coords:
@@ -294,7 +294,7 @@ class PDPlotter(object):
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
-        #This is a bit hacky, but it's a way to shade the forbidden chemical
+        #This is a bit hacky, but it"s a way to shade the forbidden chemical
         #potential regions.
         all_coords.append([xlim[0], ylim[1]])
         all_coords.append([xlim[1], ylim[0]])
@@ -315,7 +315,7 @@ class PDPlotter(object):
         excluded_boundary.append((xlim[1], ylim[1]))
         x = [c[0] for c in excluded_boundary]
         y = [c[1] for c in excluded_boundary]
-        plt.fill(x, y, '0.80')
+        plt.fill(x, y, "0.80")
 
         el0 = elements[0]
         el1 = elements[1]
@@ -334,7 +334,7 @@ class PDPlotter(object):
                         x = [coord[0], coord[0]]
                         y = [coord[1], min(ylim)]
                     if x and y:
-                        plt.plot(x, y, 'k')
+                        plt.plot(x, y, "k")
                         center_x += sum(x)
                         center_y += sum(y)
             else:
@@ -354,7 +354,7 @@ class PDPlotter(object):
 
 
 def uniquelines(q):
-    '''
+    """
     Given all the facets, convert it into a set of unique lines.  Specifically
     used for converting convex hull facets into line pairs of coordinates.
 
@@ -366,7 +366,7 @@ def uniquelines(q):
     Returns:
         setoflines:
             A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
-    '''
+    """
     setoflines = set()
     for facets in q:
         for line in itertools.combinations(facets, 2):
@@ -375,7 +375,7 @@ def uniquelines(q):
 
 
 def triangular_coord(coord):
-    '''
+    """
     Convert a 2D coordinate into a triangle-based coordinate system for a
     prettier phase diagram.
 
@@ -385,14 +385,14 @@ def triangular_coord(coord):
 
     Returns:
         coordinates in a triangular-based coordinate system.
-    '''
+    """
     unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 
 
 def tet_coord(coord):
-    '''
+    """
     Convert a 3D coordinate into a tetrahedron based coordinate system for a
     prettier phase diagram.
 
@@ -402,7 +402,7 @@ def tet_coord(coord):
 
     Returns:
         coordinates in a tetrahedron-based coordinate system.
-    '''
+    """
     unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0],
                         [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
     result = np.dot(np.array(coord), unitvec)
