@@ -12,3 +12,4 @@ _build
 build
 .project
 .pydevproject
+.settings
