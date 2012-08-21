@@ -694,14 +694,23 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def Z(self):
+        """
+        DummySpecie is always assigned an atomic number of 0.
+        """
         return 0
 
     @property
     def oxi_state(self):
+        """
+        Oxidation state associated with DummySpecie
+        """
         return self._oxi_state
 
     @property
     def X(self):
+        """
+        DummySpecie is always assigned an electronegativity of 0.
+        """
         return 0
 
     @property

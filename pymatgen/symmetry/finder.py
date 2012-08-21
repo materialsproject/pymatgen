@@ -95,22 +95,50 @@ class SymmetryFinder(object):
                           self.get_symmetry_operations())
 
     def get_spacegroup_symbol(self):
+        """
+        Get the spacegroup symbol (e.g., Pnma) for structure.
+
+        Returns:
+            Spacegroup symbol for structure.
+        """
         return re.split("\s+", self._spacegroup_data)[0]
 
     def get_spacegroup_number(self):
+        """
+        Get the international spacegroup number (e.g., 62) for structure.
+
+        Returns:
+            International spacegroup number for structure.
+        """
         sgnum = re.split("\s+", self._spacegroup_data)[1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
     def get_hall(self):
+        """
+        Returns Hall symbol for structure.
+        """
         ds = self.get_symmetry_dataset()
         return ds["hall"]
 
     def get_pointgroup(self):
+        """
+        Get the point group associated with the structure.
+
+        Returns:
+            Pointgroup for structure.
+        """
         ds = self.get_symmetry_dataset()
         return get_pointgroup(ds["rotations"])[0].strip()
 
     def get_crystal_system(self):
+        """
+        Get the crystal system for the structure, e.g., (triclinic,
+        orthorhombic, cubic, etc.).
+
+        Returns:
+            Crystal system for structure.
+        """
         n = self.get_spacegroup_number()
 
         f = lambda i, j: i <= n <= j
@@ -184,13 +212,16 @@ class SymmetryFinder(object):
 
         return dataset
 
-    def get_symmetry(self):
+    def _get_symmetry(self):
         """
-        Return symmetry operations as hash.
-        Hash key "rotations" gives the numpy integer array
-        of the rotation matrices for scaled positions
-        Hash key "translations" gives the numpy float64 array
-        of the translation vectors in scaled positions
+        Get the symmetry operations associated with the structure.
+
+        Returns:
+            Symmetry operations as a tuple of two equal length sequences.
+            (rotations, translations). "rotations" is the numpy integer array
+            of the rotation matrices for scaled positions
+            "translations" gives the numpy float64 array of the translation
+            vectors in scaled positions.
         """
 
         # Get number of symmetry operations and allocate symmetry operations
@@ -211,29 +242,38 @@ class SymmetryFinder(object):
         By default returns fractional coord symmops.
         But cartesian can be returned too.
         """
-        (rotation, translation) = self.get_symmetry()
+        (rotation, translation) = self._get_symmetry()
         symmops = []
         for rot, trans in zip(rotation, translation):
             if cartesian:
                 rot = np.dot(self._structure.lattice.md2c, np.dot(rot,
                                                 self._structure.lattice.mc2d))
                 trans = np.dot(self._structure.lattice.md2c, trans)
-            op = SymmOp.from_rotation_matrix_and_translation_vector(rot, trans)
+            op = SymmOp.from_rotation_and_translation(rot, trans)
             symmops.append(op)
         return symmops
 
     def get_symmetrized_structure(self):
+        """
+        Get a symmetrized structure. A symmetrized structure is one where the
+        sites have been grouped into symmetrically equivalent groups.
+
+        Returns:
+            pymatgen.symmetry.structure.SymmetrizedStructure object.
+        """
         ds = self.get_symmetry_dataset()
         sg = Spacegroup(self.get_spacegroup_symbol(),
                         self.get_spacegroup_number(),
                         self.get_symmetry_operations())
-        #self.get_refined_structure()
         return SymmetrizedStructure(self._structure, sg,
                                     ds["equivalent_atoms"])
 
     def get_refined_structure(self):
         """
-        Return refined Structure
+        Get the refined structure based on detected symmetry.
+
+        Returns:
+            Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
@@ -255,9 +295,12 @@ class SymmetryFinder(object):
 
     def find_primitive(self):
         """
-        A primitive cell in the input cell is searched and returned
-        as an Structure object.
-        If no primitive cell is found, (None, None, None) is returned.
+        Find a primitive version of the unit cell.
+
+        Returns:
+            A primitive cell in the input cell is searched and returned
+            as an Structure object. If no primitive cell is found, None is
+            returned.
         """
 
         # Atomic positions have to be specified by scaled positions for spglib.
