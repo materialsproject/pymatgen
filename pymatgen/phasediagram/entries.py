@@ -86,16 +86,16 @@ class PDEntry(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['composition'] = self._composition.to_dict
-        d['energy'] = self._energy
-        d['name'] = self.name
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
+        d["composition"] = self._composition.to_dict
+        d["energy"] = self._energy
+        d["name"] = self.name
         return d
 
     @staticmethod
     def from_dict(d):
-        return PDEntry(Composition(d['composition']), d['energy'], d['name'])
+        return PDEntry(Composition(d["composition"]), d["energy"], d["name"])
 
 
 class GrandPotPDEntry(PDEntry):
@@ -132,9 +132,9 @@ class GrandPotPDEntry(PDEntry):
 
     @property
     def original_entry(self):
-        '''
+        """
         Original entry.
-        '''
+        """
         return self._original_entry
 
     @property
@@ -145,7 +145,7 @@ class GrandPotPDEntry(PDEntry):
         return self._original_comp.is_element
 
     def __repr__(self):
-        chempot_str = ' '.join(["mu_%s = %.4f" % (el, mu)
+        chempot_str = " ".join(["mu_%s = %.4f" % (el, mu)
                                 for el, mu in self.chempots.items()])
         return "GrandPotPDEntry with original composition " + \
             "{}, energy = {:.4f}, {}".format(self.original_entry.composition,
@@ -158,18 +158,18 @@ class GrandPotPDEntry(PDEntry):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['entry'] = self._original_entry.to_dict
-        d['chempots'] = {el.symbol: u for el, u in self.chempots.items()}
-        d['name'] = self.name
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
+        d["entry"] = self._original_entry.to_dict
+        d["chempots"] = {el.symbol: u for el, u in self.chempots.items()}
+        d["name"] = self.name
         return d
 
     @staticmethod
     def from_dict(d):
-        chempots = {Element(symbol): u for symbol, u in d['chempots'].items()}
-        entry = PMGJSONDecoder().process_decoded(d['entry'])
-        return GrandPotPDEntry(entry, chempots, d['name'])
+        chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
+        entry = PMGJSONDecoder().process_decoded(d["entry"])
+        return GrandPotPDEntry(entry, chempots, d["name"])
 
     def __getattr__(self, a):
         """
@@ -203,9 +203,9 @@ class PDEntryIO(object):
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, 'wb'), delimiter=',',
-                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Name'] + elements + ['Energy'])
+        writer = csv.writer(open(filename, "wb"), delimiter=",",
+                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(["Name"] + elements + ["Energy"])
         for entry in entries:
             row = [entry.name if not latexify_names
                    else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
@@ -225,8 +225,8 @@ class PDEntryIO(object):
             List of PDEntries
         """
         import csv
-        reader = csv.reader(open(filename, 'rb'), delimiter=',',
-                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        reader = csv.reader(open(filename, "rb"), delimiter=",",
+                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
         entries = list()
         header_read = False
         for row in reader:
@@ -269,9 +269,9 @@ class TransformedPDEntry(PDEntry):
 
     @property
     def original_entry(self):
-        '''
+        """
         Original PDEntry object.
-        '''
+        """
         return self._original_entry
 
     def __getattr__(self, a):
@@ -295,13 +295,13 @@ class TransformedPDEntry(PDEntry):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['entry'] = self._original_entry.to_dict
-        d['composition'] = self.composition
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
+        d["entry"] = self._original_entry.to_dict
+        d["composition"] = self.composition
         return d
 
     @staticmethod
     def from_dict(d):
-        entry = PMGJSONDecoder().process_decoded(d['entry'])
-        return TransformedPDEntry(d['composition'], entry)
+        entry = PMGJSONDecoder().process_decoded(d["entry"])
+        return TransformedPDEntry(d["composition"], entry)
