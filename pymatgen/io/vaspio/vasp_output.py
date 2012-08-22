@@ -1041,7 +1041,7 @@ class Outcar(object):
                             m = re.search("E-fermi\s*:\s*(\S+)", clean)
                             efermi = float(m.group(1))
                         except:
-                            efermi = None  # the efermi is probably a bunch of asterisks that can't be parsed...
+                            efermi = 0  # the efermi is probably a bunch of asterisks that can't be parsed...in this case the vasprun.xml gives 0
                     elif re.search("number of electron\s+\S+", clean):
                         m = re.search("number of electron\s+(\S+)\s+" +
                                       "magnetization\s+(\S+)", clean)
