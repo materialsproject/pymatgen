@@ -72,7 +72,7 @@ def zopen(filename, *args, **kwargs):
 def zpath(filename):
     """
     Returns an existing (zipped or unzipped) file path given the unzipped 
-    version.
+    version. If no path exists, returns the filename unmodified
     
     Args:
         filename:
@@ -85,7 +85,7 @@ def zpath(filename):
     for p in [filename, filename + '.gz', filename + '.bz2']:
         if os.path.exists(p):
             return p
-    raise ValueError('No zipped file exists for {}'.format(filename))
+    return filename
 
 
 def clean_lines(string_list, remove_empty_lines=True):
