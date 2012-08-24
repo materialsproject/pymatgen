@@ -69,6 +69,25 @@ def zopen(filename, *args, **kwargs):
         return open(filename, *args, **kwargs)
 
 
+def zpath(filename):
+    """
+    Returns an existing (zipped or unzipped) file path given the unzipped 
+    version.
+    
+    Args:
+        filename:
+            filename without zip extension
+    
+    Returns:
+        filename with a zip extension (unless an unzipped version
+        exists)
+    """
+    for p in [filename, filename + '.gz', filename + '.bz2']:
+        if os.path.exists(p):
+            return p
+    raise ValueError('No zipped file exists for {}'.format(filename))
+
+
 def clean_lines(string_list, remove_empty_lines=True):
     """
     Strips whitespace, \n and \r and empty lines from a list.
