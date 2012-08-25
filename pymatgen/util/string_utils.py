@@ -36,7 +36,7 @@ def generate_latex_table(results, header=None, caption=None, label=None):
         body.append(" & ".join([str(m) for m in result]))
     colstr = 'c' * maxlength
     output = []
-    output.append('\\begin{table}[htp]')
+    output.append('\\begin{table}[H]')
     output.append('\\caption{{{}}}'.format(caption if caption else
                                            "Caption"))
     output.append('\\label{{{}}}'.format(label if label else "mylabel"))
