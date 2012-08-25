@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements more advanced transformations.
-'''
+"""
 
 from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 24, 2012"
@@ -32,11 +32,11 @@ class ChargeBalanceTransformation(AbstractTransformation):
     """
 
     def __init__(self, charge_balance_sp):
-        '''
+        """
         Args:
             charge_balance_sp
                 specie to add or remove. Currently only removal is supported
-        '''
+        """
         self._charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure):
@@ -46,8 +46,8 @@ class ChargeBalanceTransformation(AbstractTransformation):
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
-            raise ValueError('addition of specie not yet supported by '
-                             'ChargeBalanceTransformation')
+            raise ValueError("addition of specie not yet supported by "
+                             "ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self._charge_balance_sp:
                                             {self._charge_balance_sp:
                                              1 - removal_fraction}})
@@ -70,44 +70,44 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name': self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'charge_balance_sp': self._charge_balance_sp}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"charge_balance_sp": self._charge_balance_sp}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
 class SuperTransformation(AbstractTransformation):
-    '''
+    """
     This is a transformation that is inherently one-to-many. It is constructed
     from a list of transformations and returns one structure for each
     transformation. The primary use for this class is extending a transmuter
     object.
-    '''
+    """
 
     def __init__(self, transformations):
-        '''
+        """
         Args:
             transformations:
                 list of transformations to apply to a structure. One
                 transformation is applied to each output structure.
-        '''
+        """
         self._transformations = transformations
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
-            raise ValueError('SuperTransformation has no single best structure'
-                             ' output. Must use return_ranked_list')
+            raise ValueError("SuperTransformation has no single best structure"
+                             " output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
-            structures.append({'transformation': t,
-                               'structure': t.apply_transformation(structure)})
+            structures.append({"transformation": t,
+                               "structure": t.apply_transformation(structure)})
 
         return structures
 
     def __str__(self):
         return "Super Transformation : Transformations = " + \
-            "{}".format(' '.join([str(t) for t in self._transformations]))
+            "{}".format(" ".join([str(t) for t in self._transformations]))
 
     def __repr__(self):
         return self.__str__()
@@ -122,15 +122,15 @@ class SuperTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name': self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'transformations': self._transformations}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"transformations": self._transformations}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
 class MultipleSubstitutionTransformation(object):
-    '''
+    """
     Performs multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one
     structure for each substitution. Ordering is done using a dummy element so
@@ -141,11 +141,11 @@ class MultipleSubstitutionTransformation(object):
         There are no checks to make sure that removal fractions are possible
         and rounding may occur. Currently charge balancing only works for
         removal of species.
-    '''
+    """
 
     def __init__(self, sp_to_replace, r_fraction, substitution_dict,
                  charge_balance_species=None, order=True):
-        '''
+        """
         Performs multiple fractional substitutions on a transmuter.
 
         Args:
@@ -165,7 +165,7 @@ class MultipleSubstitutionTransformation(object):
             charge_balance_species:
                 If specified, will balance the charge on the structure using
                 that specie.
-        '''
+        """
         self._sp_to_replace = sp_to_replace
         self._r_fraction = r_fraction
         self._substitution_dict = substitution_dict
@@ -174,17 +174,17 @@ class MultipleSubstitutionTransformation(object):
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
-            raise ValueError('MultipleSubstitutionTransformation has no single'
-                             ' best structure output. Must use'
-                             ' return_ranked_list.')
+            raise ValueError("MultipleSubstitutionTransformation has no single"
+                             " best structure output. Must use"
+                             " return_ranked_list.")
         outputs = []
         for charge, el_list in self._substitution_dict.items():
             mapping = {}
             if charge > 0:
-                sign = '+'
+                sign = "+"
             else:
-                sign = '-'
-            dummy_sp = 'X{}{}'.format(str(charge), sign)
+                sign = "-"
+            dummy_sp = "X{}{}".format(str(charge), sign)
             mapping[self._sp_to_replace] = {self._sp_to_replace:
                                             1 - self._r_fraction,
                                             dummy_sp: self._r_fraction}
@@ -199,14 +199,14 @@ class MultipleSubstitutionTransformation(object):
 
             for el in el_list:
                 if charge > 0:
-                    sign = '+'
+                    sign = "+"
                 else:
-                    sign = '-'
-                st = SubstitutionTransformation({'X{}+'.format(str(charge)):
-                                                 '{}{}{}'.format(el, charge,
+                    sign = "-"
+                st = SubstitutionTransformation({"X{}+".format(str(charge)):
+                                                 "{}{}{}".format(el, charge,
                                                                  sign)})
                 new_structure = st.apply_transformation(dummy_structure)
-                outputs.append({'structure': new_structure})
+                outputs.append({"structure": new_structure})
         return outputs
 
     def __str__(self):
@@ -226,13 +226,13 @@ class MultipleSubstitutionTransformation(object):
 
     @property
     def to_dict(self):
-        d = {'name': self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'sp_to_replace': self._sp_to_replace,
-                          'r_fraction': self._r_fraction,
-                          'substitution_dict': self._substitution_dict,
-                        'charge_balance_species': self._charge_balance_species}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"sp_to_replace": self._sp_to_replace,
+                          "r_fraction": self._r_fraction,
+                          "substitution_dict": self._substitution_dict,
+                        "charge_balance_species": self._charge_balance_species}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
 
 
@@ -241,13 +241,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
     Order a disordered structure using enumlib. For complete orderings, this
     generally produces fewer structures that the OrderDisorderedStructure
     transformation, and at a much faster speed.
-
-    .. note:: Early alpha, and not completely tested.
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False):
-        '''
+        """
         Args:
             min_cell_size:
                 The minimum cell size wanted. Must be an int. Defaults to 1.
@@ -266,7 +264,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 If you are already starting from an experimental cif, refinment
                 should have already been done and it is not necessary. Defaults
                 to False.
-        '''
+        """
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -288,7 +286,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         Returns:
             Depending on returned_ranked list, either a transformed structure
             or a list of dictionaries, where each dictionary is of the form
-            {'structure' = .... , 'other_arguments'}
+            {"structure" = .... , "other_arguments"}
 
             The list of ordered structures is ranked by ewald energy / atom, if
             the input structure is an oxidation state decorated structure.
@@ -318,7 +316,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                                  max_cell_size=self.max_cell_size,
                                  symm_prec=self.symm_prec,
                                  refine_structure=False)
-
         adaptor.run()
         structures = adaptor.structures
         original_latt = structure.lattice
@@ -338,21 +335,21 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 else:
                     ewald = ewald_matrices[transformation]
                 energy = ewald.compute_sub_structure(s)
-                all_structures.append({'num_sites': len(s), 'energy': energy,
-                                       'structure': s})
+                all_structures.append({"num_sites": len(s), "energy": energy,
+                                       "structure": s})
             else:
-                all_structures.append({'num_sites': len(s), 'structure': s})
+                all_structures.append({"num_sites": len(s), "structure": s})
 
         def sort_func(s):
-            return s['energy'] / s['num_sites'] if contains_oxidation_state \
-                else s['num_sites']
+            return s["energy"] / s["num_sites"] if contains_oxidation_state \
+                else s["num_sites"]
 
         self._all_structures = sorted(all_structures, key=sort_func)
 
         if return_ranked_list:
             return self._all_structures[0:num_to_return]
         else:
-            return self._all_structures[0]['structure']
+            return self._all_structures[0]["structure"]
 
     def __str__(self):
         return "EnumerateStructureTransformation"
@@ -370,11 +367,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {'name': self.__class__.__name__, 'version': __version__}
-        d['init_args'] = {'symm_prec': self.symm_prec,
-                          'min_cell_size': self.min_cell_size,
-                          'max_cell_size': self.max_cell_size,
-                          'refine_structure': self.refine_structure}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"symm_prec": self.symm_prec,
+                          "min_cell_size": self.min_cell_size,
+                          "max_cell_size": self.max_cell_size,
+                          "refine_structure": self.refine_structure}
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
         return d
