@@ -15,7 +15,7 @@ __date__ = "$Sep 23, 2011M$"
 import re
 
 
-def generate_latex_table(results, header=None):
+def generate_latex_table(results, header=None, caption=None, label=None):
     """
     Generates a string latex table from a sequence of sequence.
 
@@ -37,8 +37,9 @@ def generate_latex_table(results, header=None):
     colstr = 'c' * maxlength
     output = []
     output.append('\\begin{table}[htp]')
-    output.append('\\caption{Enter caption}')
-    output.append('\\label{mytablelabel}')
+    output.append('\\caption{{{}}}'.format(caption if caption else
+                                           "Caption"))
+    output.append('\\label{{{}}}'.format(label if label else "mylabel"))
     output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' +
                   colstr + '}')
     output.append('\\hline')
