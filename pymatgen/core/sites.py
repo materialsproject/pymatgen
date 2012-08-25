@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module defines classes representing non-periodic and periodic sites.
-'''
+"""
 
 from __future__ import division
 
@@ -25,13 +25,13 @@ from pymatgen.util.coord_utils import coords_to_unit_cell
 
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
-    '''
+    """
     A generalized *non-periodic* site. Atoms and occupancies should be a dict
     of element:occupancy or an element, in which case the occupancy default to
     1. Coords are given in standard cartesian coordinates.
-    '''
+    """
 
-    supported_properties = ('magmom', 'charge', 'coordination_no', 'forces')
+    supported_properties = ("magmom", "charge", "coordination_no", "forces")
 
     def __init__(self, atoms_n_occu, coords, properties=None):
         """
@@ -45,13 +45,13 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Specie objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
-                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords:
                 Cartesian coordinates of site.
             properties:
                 Properties associated with the site as a dict, e.g.
-                {'magmom':5}. Defaults to None.
+                {"magmom":5}. Defaults to None.
         """
         if isinstance(atoms_n_occu, dict):
             self._species = {smart_element_or_specie(k): v
@@ -110,7 +110,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             return str(self._species.keys()[0])
         else:
             sorted_species = sorted(self._species.keys())
-            return ', '.join(["{}:{:.3f}".format(sp, self._species[sp])
+            return ", ".join(["{}:{:.3f}".format(sp, self._species[sp])
                               for sp in sorted_species])
 
     @property
@@ -175,9 +175,9 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return self._coords[2]
 
     def __getitem__(self, el):
-        '''
+        """
         Get the occupancy for element
-        '''
+        """
         return self._species[el]
 
     def __eq__(self, other):
@@ -195,10 +195,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return not self.__eq__(other)
 
     def __hash__(self):
-        '''
+        """
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
-        '''
+        """
         hashcode = 0
         for el in self._species.keys():
             #Ignore elements with zero amounts.
@@ -225,11 +225,11 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return "\n".join(outs)
 
     def __cmp__(self, other):
-        '''
+        """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted in LiFePO4.
-        '''
+        """
         def avg_electroneg(sps):
             return sum([sp.X * occu for sp, occu in sps.items()])
         if avg_electroneg(self._species) < avg_electroneg(other._species):
@@ -249,13 +249,13 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
-            d['occu'] = occu
+            d["occu"] = occu
             species_list.append(d)
-        d = {'name': self.species_string, 'species': species_list,
-             'occu': occu, 'xyz': [float(c) for c in self._coords],
-             'properties': self._properties}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"name": self.species_string, "species": species_list,
+             "occu": occu, "xyz": [float(c) for c in self._coords],
+             "properties": self._properties}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -264,12 +264,12 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Create Site from dict representation
         """
         atoms_n_occu = {}
-        for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
-                else Element(sp_occu['element'])
-            atoms_n_occu[sp] = sp_occu['occu']
-        props = d.get('properties', None)
-        return Site(atoms_n_occu, d['xyz'], properties=props)
+        for sp_occu in d["species"]:
+            sp = Specie.from_dict(sp_occu) if "oxidation_state" in sp_occu \
+                else Element(sp_occu["element"])
+            atoms_n_occu[sp] = sp_occu["occu"]
+        props = d.get("properties", None)
+        return Site(atoms_n_occu, d["xyz"], properties=props)
 
 
 class PeriodicSite(Site, MSONable):
@@ -291,7 +291,7 @@ class PeriodicSite(Site, MSONable):
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Specie objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
-                    [{'Fe' : 0.5, 'Mn':0.5}, ...]. This allows the setup of
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords:
                 Coordinates of site as fractional or cartesian coordinates.
@@ -306,7 +306,7 @@ class PeriodicSite(Site, MSONable):
                 Defaults to False.
             properties:
                 Properties associated with the PeriodicSite as a dict, e.g.
-                {'magmom':5}. Defaults to None.
+                {"magmom":5}. Defaults to None.
         """
         self._lattice = lattice
         self._fcoords = self._lattice.get_fractional_coords(coords) \
@@ -538,15 +538,15 @@ class PeriodicSite(Site, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
-            d['occu'] = occu
+            d["occu"] = occu
             species_list.append(d)
-        d = {'label': self.species_string, 'species': species_list,
-             'occu': occu, 'xyz': [float(c) for c in self._coords],
-             'abc': [float(c) for c in self._fcoords],
-             'lattice': self._lattice.to_dict,
-             'properties': self._properties}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"label": self.species_string, "species": species_list,
+             "occu": occu, "xyz": [float(c) for c in self._coords],
+             "abc": [float(c) for c in self._fcoords],
+             "lattice": self._lattice.to_dict,
+             "properties": self._properties}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -562,10 +562,10 @@ class PeriodicSite(Site, MSONable):
                 ensuring all sites in a structure share the same lattice.
         """
         atoms_n_occu = {}
-        for sp_occu in d['species']:
-            sp = Specie.from_dict(sp_occu) if 'oxidation_state' in sp_occu \
-                else Element(sp_occu['element'])
-            atoms_n_occu[sp] = sp_occu['occu']
-        props = d.get('properties', None)
-        lattice = lattice if lattice else Lattice.from_dict(d['lattice'])
-        return PeriodicSite(atoms_n_occu, d['abc'], lattice, properties=props)
+        for sp_occu in d["species"]:
+            sp = Specie.from_dict(sp_occu) if "oxidation_state" in sp_occu \
+                else Element(sp_occu["element"])
+            atoms_n_occu[sp] = sp_occu["occu"]
+        props = d.get("properties", None)
+        lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
+        return PeriodicSite(atoms_n_occu, d["abc"], lattice, properties=props)

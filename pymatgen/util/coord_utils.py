@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Utilities for manipulating coordinates or list of coordinates
-'''
+"""
 
 from __future__ import division
 

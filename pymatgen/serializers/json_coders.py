@@ -101,10 +101,10 @@ class PMGJSONEncoder(json.JSONEncoder):
     def default(self, o):
         try:
             d = o.to_dict
-            if "module" not in d:
-                d["module"] = o.__class__.__module__
-            if "class" not in d:
-                d["class"] = o.__class__.__name__
+            if "@module" not in d:
+                d["@module"] = o.__class__.__module__
+            if "@class" not in d:
+                d["@class"] = o.__class__.__name__
             return d
         except:
             return json.JSONEncoder.default(self, o)
@@ -130,13 +130,23 @@ class PMGJSONDecoder(json.JSONDecoder):
         pymatgen objects.
         """
         if isinstance(d, dict):
-            if "module" in d and "class" in d:
-                mod = __import__(d["module"], globals(), locals(),
-                                 [d["class"]], -1)
-                if hasattr(mod, d["class"]):
-                    cls = getattr(mod, d["class"])
+            if "@module" in d and "@class" in d:
+                modname = d["@module"]
+                classname = d["@class"]
+            elif "module" in d and "class" in d:
+                modname = d["module"]
+                classname = d["class"]
+            else:
+                modname = None
+            if modname:
+                mod = __import__(modname, globals(), locals(),
+                                 [classname], -1)
+                if hasattr(mod, classname):
+                    cls = getattr(mod, classname)
                     data = {k: v for k, v in d.items() if k not in ["module",
-                                                                    "class"]}
+                                                                    "class",
+                                                                    "@module",
+                                                                    "@class"]}
                     if hasattr(cls, "from_dict"):
                         return cls.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v) \

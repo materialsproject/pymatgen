@@ -82,8 +82,8 @@ class InsertSitesTransformation(AbstractTransformation):
         d["init_args"] = {"species": self._species, "coords": self._coords,
                           "coords_are_cartesian": self._cartesian,
                           "validate_proximity": self._validate_proximity}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -129,8 +129,8 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices_species_map": self._indices_species_map}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -169,8 +169,8 @@ class RemoveSitesTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices_to_remove": self._indices}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -224,8 +224,8 @@ class TranslateSitesTransformation(AbstractTransformation):
         d["init_args"] = {"indices_to_move": self._indices,
                                "translation_vector": self._vector,
                                "vector_in_frac_coords": self._frac}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -545,6 +545,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices": self._indices,
                           "fractions": self._fractions, "algo": self._algo}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d

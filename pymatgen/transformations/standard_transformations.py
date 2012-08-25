@@ -66,8 +66,8 @@ class IdentityTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "init_args": {},
              "version": __version__}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -120,8 +120,8 @@ class RotationTransformation(AbstractTransformation):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"axis": self._axis, "angle": self._angle,
                           "angle_in_radians": self._angle_in_radians}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -155,8 +155,8 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"oxidation_states": self.oxi_states}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -181,8 +181,8 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -245,8 +245,8 @@ class SupercellTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"scaling_matrix": self._matrix}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -300,8 +300,8 @@ class SubstitutionTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"species_map": self._species_map}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -341,8 +341,8 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"species_to_remove": self._species}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -433,8 +433,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"specie_to_remove": self._specie,
                           "fraction_to_remove": self._frac, "algo": self._algo}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -649,8 +649,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"algo": self._algo}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @property
@@ -828,8 +828,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -872,6 +872,6 @@ class PerturbStructureTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"amplitude": self._amp}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d

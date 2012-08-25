@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Aug 1 2012"
 
 from math import pi, sqrt, log, exp, cos, sin, erfc, factorial
 from datetime import datetime

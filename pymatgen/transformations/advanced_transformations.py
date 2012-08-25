@@ -72,8 +72,8 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"charge_balance_sp": self._charge_balance_sp}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -124,8 +124,8 @@ class SuperTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"transformations": self._transformations}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -231,8 +231,8 @@ class MultipleSubstitutionTransformation(object):
                           "r_fraction": self._r_fraction,
                           "substitution_dict": self._substitution_dict,
                         "charge_balance_species": self._charge_balance_species}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -372,6 +372,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                           "min_cell_size": self.min_cell_size,
                           "max_cell_size": self.max_cell_size,
                           "refine_structure": self.refine_structure}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d

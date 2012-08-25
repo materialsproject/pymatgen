@@ -86,8 +86,8 @@ class PDEntry(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["composition"] = self._composition.to_dict
         d["energy"] = self._energy
         d["name"] = self.name
@@ -158,8 +158,8 @@ class GrandPotPDEntry(PDEntry):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["entry"] = self._original_entry.to_dict
         d["chempots"] = {el.symbol: u for el, u in self.chempots.items()}
         d["name"] = self.name
@@ -295,8 +295,8 @@ class TransformedPDEntry(PDEntry):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["entry"] = self._original_entry.to_dict
         d["composition"] = self.composition
         return d
