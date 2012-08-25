@@ -243,15 +243,15 @@ class Dos(MSONable):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = ["#{:30s} {:30s} {:30s}".format('Energy',
-                                                          'DensityUp',
-                                                          'DensityDown')]
+            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy",
+                                                          "DensityUp",
+                                                          "DensityDown")]
             for i, energy in enumerate(self.energies):
                 stringarray.append("{:.5f} {:.5f} {:.5f}".
                                     format(energy, self.densities[Spin.up][i],
                                            self.densities[Spin.down][i]))
         else:
-            stringarray = ["#{:30s} {:30s}".format('Energy', 'DensityUp')]
+            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
                 stringarray.append("{:.5f} {:.5f}"
                                    .format(energy, self.densities[Spin.up][i]))
@@ -262,9 +262,9 @@ class Dos(MSONable):
         """
         Returns Dos object from dict representation of Dos.
         """
-        return Dos(d['efermi'], d['energies'],
+        return Dos(d["efermi"], d["energies"],
                    {Spin.from_int(int(k)): v
-                    for k, v in d['densities'].items()})
+                    for k, v in d["densities"].items()})
 
     @property
     def to_dict(self):
@@ -272,12 +272,12 @@ class Dos(MSONable):
         Json-serializable dict representation of Dos.
         """
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['efermi'] = self.efermi
-        d['energies'] = list(self.energies)
-        d['densities'] = {str(int(spin)): list(dens)
-                          for spin, dens in self.densities.items() }
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["efermi"] = self.efermi
+        d["energies"] = list(self.energies)
+        d["densities"] = {str(int(spin)): list(dens)
+                          for spin, dens in self.densities.items()}
         return d
 
 
@@ -358,9 +358,9 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         sum_dos = lambda a, b: add_densities(a, b)
-        return {'t2g': Dos(self.efermi, self.energies,
+        return {"t2g": Dos(self.efermi, self.energies,
                            reduce(sum_dos, t2g_dos)),
-                'e_g': Dos(self.efermi, self.energies,
+                "e_g": Dos(self.efermi, self.energies,
                            reduce(sum_dos, eg_dos))}
 
     def get_spd_dos(self):
@@ -368,7 +368,7 @@ class CompleteDos(Dos):
         Get orbital projected Dos.
 
         Returns:
-            dict of {orbital: Dos}, e.g. {'s': Dos object, ...}
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
         spd_dos = dict()
         for atom_dos in self.pdos.values():
@@ -377,7 +377,8 @@ class CompleteDos(Dos):
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
-                    spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
+                    spd_dos[orbital_type] = add_densities(spd_dos[orbital_type],
+                                                          pdos)
         return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in spd_dos.items()}
 
@@ -406,15 +407,15 @@ class CompleteDos(Dos):
         Returns CompleteDos object from dict representation.
         """
         tdos = Dos.from_dict(d)
-        struct = Structure.from_dict(d['structure'])
+        struct = Structure.from_dict(d["structure"])
         pdoss = {}
-        for i in xrange(len(d['pdos'])):
+        for i in xrange(len(d["pdos"])):
             at = struct[i]
             orb_dos = {}
-            for orb_str, odos in d['pdos'][i].items():
+            for orb_str, odos in d["pdos"][i].items():
                 orb = Orbital.from_string(orb_str)
                 orb_dos[orb] = {Spin.from_int(int(k)): v
-                                for k, v in odos['densities'].items()}
+                                for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)
 
@@ -424,25 +425,25 @@ class CompleteDos(Dos):
         Json-serializable dict representation of CompleteDos.
         """
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['efermi'] = self.efermi
-        d['structure'] = self.structure.to_dict
-        d['energies'] = list(self.energies)
-        d['densities'] = {str(int(spin)): list(dens)
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["efermi"] = self.efermi
+        d["structure"] = self.structure.to_dict
+        d["energies"] = list(self.energies)
+        d["densities"] = {str(int(spin)): list(dens)
                           for spin, dens in self.densities.items()}
-        d['pdos'] = []
+        d["pdos"] = []
         if len(self.pdos) > 0:
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {'densities': {str(int(spin)): list(dens)
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens)
                                                   for spin,
                                                   dens in pdos.items()}}
-                d['pdos'].append(dd)
-            d['atom_dos'] = {str(at): dos.to_dict for at,
+                d["pdos"].append(dd)
+            d["atom_dos"] = {str(at): dos.to_dict for at,
                              dos in self.get_element_dos().items()}
-            d['spd_dos'] = {str(orb): dos.to_dict for orb,
+            d["spd_dos"] = {str(orb): dos.to_dict for orb,
                             dos in self.get_spd_dos().items()}
         return d
 

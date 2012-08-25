@@ -290,12 +290,12 @@ class SymmOp(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['matrix'] = self.affine_matrix.tolist()
-        d['tolerance'] = self.tol
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["matrix"] = self.affine_matrix.tolist()
+        d["tolerance"] = self.tol
         return d
 
     @staticmethod
     def from_dict(d):
-        return SymmOp(d['matrix'], d['tolerance'])
+        return SymmOp(d["matrix"], d["tolerance"])

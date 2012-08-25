@@ -702,15 +702,15 @@ class Structure(SiteCollection, MSONable):
         Json-serializable dict representation of Structure
         """
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["lattice"] = self._lattice.to_dict
         d["sites"] = []
         for site in self:
             site_dict = site.to_dict
             del site_dict["lattice"]
-            del site_dict["module"]
-            del site_dict["class"]
+            del site_dict["@module"]
+            del site_dict["@class"]
             d["sites"].append(site_dict)
         return d
 
@@ -896,8 +896,8 @@ class Molecule(SiteCollection, MSONable):
         Json-serializable dict representation of Molecule
         """
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["sites"] = [site.to_dict for site in self]
         return d
 

@@ -1312,8 +1312,8 @@ class Outcar(object):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["efermi"] = self.efermi
         d["run_stats"] = self.run_stats
         d["magnetization"] = self.magnetization

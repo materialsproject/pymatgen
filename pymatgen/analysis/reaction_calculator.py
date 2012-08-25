@@ -331,8 +331,8 @@ class Reaction(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["reactants"] = [comp.to_dict for comp in self._input_reactants]
         d["products"] = [comp.to_dict for comp in self._input_products]
         return d
@@ -434,8 +434,8 @@ class BalancedReaction(Reaction):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         #String comp needed because comp.to_dict results in dict which is
         #non-hashable
         d["reactants"] = {str(comp): coeff
@@ -498,8 +498,8 @@ class ComputedReaction(Reaction):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         #String comp needed because comp.to_dict results in dict which is
         #non-hashable
         d["reactants"] = [e.to_dict for e in self._reactant_entries]

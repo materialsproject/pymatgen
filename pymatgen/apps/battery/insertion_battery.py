@@ -353,8 +353,8 @@ class InsertionElectrode(AbstractElectrode):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["entries"] = [entry.to_dict for entry in self._entries]
         d["working_ion_entry"] = self.working_ion_entry.to_dict
         return d
