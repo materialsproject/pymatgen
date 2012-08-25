@@ -43,7 +43,7 @@ def generate_latex_table(results, header=None, caption=None, label=None):
     output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' +
                   colstr + '}')
     output.append('\\hline')
-    output.append("\n".join(body) + "\\\\")
+    output.append("\\\\\n".join(body) + "\\\\")
     output.append('\\hline')
     output.append('\\end{tabular*}')
     output.append('\\end{table}')
