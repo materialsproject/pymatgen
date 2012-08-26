@@ -446,7 +446,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 rxn.normalize_to(entry.composition)
                 #We only allow reactions that have positive amounts of
                 #reactants.
-                if all([rxn.get_coeff(comp) <= 1e-5
+                if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
                         for comp in terminal_compositions]):
                     newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
                                for comp in terminal_compositions}

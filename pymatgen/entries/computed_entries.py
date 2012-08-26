@@ -142,11 +142,9 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id:
                 An optional id to uniquely identify the entry.
         """
-
         ComputedEntry.__init__(self, structure.composition, energy,
-                                        correction=correction,
-                                        parameters=parameters, data=data,
-                                        entry_id=entry_id)
+                               correction=correction, parameters=parameters,
+                               data=data, entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
