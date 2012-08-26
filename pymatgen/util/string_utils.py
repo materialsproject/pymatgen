@@ -160,7 +160,7 @@ def latexify_spacegroup(spacegroup_symbol):
         A latex formatted spacegroup with proper subscripts and overlines.
     """
     sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
-    return re.sub(r"-(\d+)", r"$\overline{\1}$", sym)
+    return re.sub(r"-(\d)", r"$\overline{\1}$", sym)
 
 
 if __name__ == "__main__":
