@@ -27,6 +27,7 @@ def run_qhull_command(command, data, proc_command=int, output_skip=1):
     """
     Helper function for actual qconvex and qvoronoi and qvertex commands.
     """
+    assert len(data) > 0,"Data is empty"
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) + "\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])

@@ -19,6 +19,8 @@ import math
 
 from pymatgen.command_line.qhull_caller import qconvex
 
+import logging
+logger = logging.getLogger("mg.pymatpro.coord_utils")
 
 def in_coord_list(coord_list, coord, **kwargs):
     """
@@ -88,6 +90,7 @@ def get_convex_hull(coords, use_external_qhull=False):
     if not use_external_qhull:
         try:
             from scipy.spatial import Delaunay
+            logger.debug("call Delaunay. coords={}".format(str(coords)))
             delau = Delaunay(coords)
             return delau.convex_hull
         except ImportError:
