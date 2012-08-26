@@ -82,7 +82,6 @@ class Reaction(MSONable):
                 count += 1
 
             if nconstraints > num_els:
-
                 #Try two schemes for making the comp matrix non-singular.
                 for i in range(num_els, nconstraints):
                     for j in range(num_els):
