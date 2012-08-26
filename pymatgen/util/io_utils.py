@@ -12,8 +12,6 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import gzip
-import bz2
 import re
 import numpy
 import os
@@ -38,8 +36,10 @@ def zopen(filename, *args, **kwargs):
     """
     file_ext = filename.split(".")[-1].upper()
     if file_ext == "BZ2":
+        import bz2
         return bz2.BZ2File(filename, *args, **kwargs)
     elif file_ext in ("GZ", "Z"):
+        import gzip
         return gzip.GzipFile(filename, *args, **kwargs)
     else:
         return open(filename, *args, **kwargs)
