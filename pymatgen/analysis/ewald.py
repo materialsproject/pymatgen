@@ -160,11 +160,11 @@ class EwaldSummation(object):
             total_energy_matrix[:, i] *= scaling_factor
 
         if len(matches) != len(sub_structure):
-            print "Missing sites."
-            print len(matches)
-            print len(sub_structure)
-            print "unmatched = {}".format([site for site in sub_structure
-                                           if site not in matches])
+            output = ["Missing sites."]
+            for site in sub_structure:
+                if site not in matches:
+                    output.append("unmatched = {}".format(site))
+            raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
 

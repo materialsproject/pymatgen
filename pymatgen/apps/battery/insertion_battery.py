@@ -516,7 +516,6 @@ class InsertionVoltagePair(AbstractVoltagePair):
                       .format(self.vol_charge, self.vol_discharge))
         output.append("frac_charge = {}, frac_discharge = {}"
                       .format(self.frac_charge, self.frac_discharge))
-
         return "\n".join(output)
 
     def __str__(self):
