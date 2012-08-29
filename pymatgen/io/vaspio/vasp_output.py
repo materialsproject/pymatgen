@@ -517,42 +517,43 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.val = StringIO.StringIO()
 
     def _init_input(self, name, attributes):
+        state = self.state
         if (name == "i" or name == "v") and \
-                (self.state["incar"] or self.state["parameters"]):
+                (state["incar"] or state["parameters"]):
             self.incar_param = attributes["name"]
             self.param_type = "float" if "type" not in attributes \
                 else attributes["type"]
             self.read_val = True
-        elif name == "v" and self.state["kpoints"]:
+        elif name == "v" and state["kpoints"]:
             self.read_val = True
-        elif name == "generation" and self.state["kpoints"]:
+        elif name == "generation" and state["kpoints"]:
             self.kpoints.comment = "Kpoints from vasprun.xml"
             self.kpoints.num_kpts = 0
             self.kpoints.style = attributes["param"]
             self.kpoints.kpts = []
             self.kpoints.kpts_shift = [0, 0, 0]
         elif name == "c" and \
-                (self.state["array"] == "atoms" or
-                 self.state["array"] == "atomtypes"):
+                (state["array"] == "atoms" or
+                 state["array"] == "atomtypes"):
             self.read_val = True
-        elif name == "i" and self.state["i"] == "version" and \
-                self.state["generator"]:
+        elif name == "i" and state["i"] == "version" and state["generator"]:
             self.read_val = True
 
     def _init_calc(self, name, attributes):
+        state = self.state
         if self.read_structure and name == "v":
-            if self.state["varray"] == "basis":
+            if state["varray"] == "basis":
                 self.read_lattice = True
-            elif self.state["varray"] == "positions":
+            elif state["varray"] == "positions":
                 self.read_positions = True
-            elif self.state["varray"] == "rec_basis":
+            elif state["varray"] == "rec_basis":
                 self.read_rec_lattice = True
         elif self.read_calculation:
-            if name == "i" and self.state["scstep"]:
+            if name == "i" and state["scstep"]:
                 logger.debug("Reading scstep...")
                 self.read_val = True
-            elif name == "v" and (self.state["varray"] == "forces" or
-                                  self.state["varray"] == "stress"):
+            elif name == "v" and (state["varray"] == "forces" or
+                                  state["varray"] == "stress"):
                 self.read_positions = True
             elif name == "dos" and self.parse_dos:
                 logger.debug("Reading dos...")
@@ -563,25 +564,25 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 self.efermi = None
                 self.read_dos = True
             elif name == "eigenvalues" and self.parse_eigen and \
-                    (not self.state["projected"]):
+                    (not state["projected"]):
                 logger.debug("Reading eigenvalues. Projected = {}"
-                             .format(self.state["projected"]))
+                             .format(state["projected"]))
                 self.eigenvalues = {}
                 self.read_eigen = True
             elif name == "eigenvalues" and self.parse_projected_eigen and \
-                    self.state["projected"]:
+                    state["projected"]:
                 logger.debug("Reading projected eigenvalues...")
                 self.projected_eigen = {}
                 self.read_projected_eigen = True
             elif self.read_eigen or self.read_projected_eigen:
-                if name == "r" and self.state["set"]:
+                if name == "r" and state["set"]:
                     self.read_val = True
                 elif name == "set" and "comment" in attributes:
                     comment = attributes["comment"]
-                    self.state["set"] = comment
+                    state["set"] = comment
                     if comment.startswith("spin"):
                         self.eigen_spin = Spin.up \
-                            if self.state["set"] in ["spin 1", "spin1"] \
+                            if state["set"] in ["spin 1", "spin1"] \
                             else Spin.down
                         logger.debug("Reading spin {}".format(self.eigen_spin))
                     elif comment.startswith("kpoint"):
@@ -593,18 +594,18 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                         logger.debug("Reading band {}"
                                      .format(self.eigen_band))
             elif self.read_dos:
-                if (name == "i" and self.state["i"] == "efermi") or \
-                   (name == "r" and self.state["set"]):
+                if (name == "i" and state["i"] == "efermi") or \
+                   (name == "r" and state["set"]):
                     self.read_val = True
                 elif name == "set" and "comment" in attributes:
                     comment = attributes["comment"]
-                    self.state["set"] = comment
-                    if self.state["partial"]:
+                    state["set"] = comment
+                    if state["partial"]:
                         if comment.startswith("ion"):
                             self.pdos_ion = int(comment.split(" ")[1])
                         elif comment.startswith("spin"):
                             self.pdos_spin = Spin.up \
-                                if self.state["set"] in ["spin 1", "spin1"] \
+                                if state["set"] in ["spin 1", "spin1"] \
                                 else Spin.down
 
         if name == "calculation":
@@ -618,8 +619,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.latticerec = StringIO.StringIO()
             self.posstr = StringIO.StringIO()
             self.read_structure = True
-        elif name == "varray" and (self.state["varray"] == "forces" or
-                                   self.state["varray"] == "stress"):
+        elif name == "varray" and (state["varray"] in ["forces", "stress"]):
             self.posstr = StringIO.StringIO()
 
     def characters(self, data):
@@ -635,7 +635,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
     def _read_input(self, name):
         state = self.state
         if name == "i":
-            if self.state["incar"]:
+            if state["incar"]:
                 self.incar[self.incar_param] = \
                     parse_parameters(self.param_type,
                                      self.val.getvalue().strip())
