@@ -23,6 +23,7 @@ import itertools
 from fractions import gcd
 
 import numpy as np
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
@@ -454,11 +455,13 @@ class Structure(SiteCollection, MSONable):
         n = len(self._sites)
         site_fcoords = np.array([site.to_unit_cell.frac_coords
                                  for site in self._sites])
+
+        frac_2_cart = self._lattice.get_cartesian_coords
         pts = np.array([pt] * n)
         for image in itertools.product(*axis_ranges):
             shift = np.array([image] * n)
             fcoords = site_fcoords + shift
-            coords = self._lattice.get_cartesian_coords(fcoords)
+            coords = frac_2_cart(fcoords)
             dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
             withindists = (dists <= r)
             for i in range(n):
@@ -539,11 +542,12 @@ class Structure(SiteCollection, MSONable):
         neighbors = [list() for i in range(len(self._sites))]
 
         site_coords = np.array(self.cart_coords)
+        frac_2_cart = self._lattice.get_cartesian_coords
         n = len(self._sites)
         for image in itertools.product(*all_ranges):
             for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
-                coords = self.lattice.get_cartesian_coords(fcoords)
+                coords = frac_2_cart(fcoords)
                 submat = [coords] * n
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
