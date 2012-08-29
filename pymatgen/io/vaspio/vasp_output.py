@@ -1037,11 +1037,13 @@ class Outcar(object):
                         run_stats[tok[0].strip()] = float(tok[1].strip())
                     elif re.search("E-fermi\s+:", clean):
                         try:
-                            #try-catch because VASP sometimes prints 'E-fermi : ********     XC(G=0):  -6.1327     alpha+bet : -1.8238'
+                            #try-catch because VASP sometimes prints 'E-fermi
+                            #: ********     XC(G=0):  -6.1327
+                            #alpha+bet : -1.8238'
                             m = re.search("E-fermi\s*:\s*(\S+)", clean)
                             efermi = float(m.group(1))
                         except:
-                            efermi = 0  # the efermi is probably a bunch of asterisks that can't be parsed...in this case the vasprun.xml gives 0
+                            efermi = 0
                     elif re.search("number of electron\s+\S+", clean):
                         m = re.search("number of electron\s+(\S+)\s+" +
                                       "magnetization\s+(\S+)", clean)
