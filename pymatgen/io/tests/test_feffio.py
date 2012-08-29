@@ -29,7 +29,7 @@ TITLE sites: 4
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'HEADER')
-        header = Header.from_file(filepath)
+        header = Header.header_string_from_file(filepath)
         h = header.splitlines()
         hs = HeaderTest.header_string.splitlines()
         for i, line in enumerate(h):
@@ -39,8 +39,8 @@ TITLE sites: 4
                          header.splitlines(), "Failed to read HEADER file")
 
     def test_from_string(self):
-        struc_from_header = Header.from_string(HeaderTest.header_string)
-        self.assertEqual(struc_from_header.composition.reduced_formula, "CoO",
+        header = Header.from_string(HeaderTest.header_string)
+        self.assertEqual(header.struct.composition.reduced_formula, "CoO",
                          "Failed to generate structure from HEADER string")
 
     def test_get_string(self):
@@ -59,12 +59,13 @@ class  FeffAtomsTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'ATOMS')
-        atoms = FeffAtoms.from_file(filepath)
+        atoms = FeffAtoms.atoms_string_from_file(filepath)
         self.assertEqual(atoms.splitlines()[3].split()[4], 'O',
                          "failed to read ATOMS file")
 
     def test_get_string(self):
-        struc = Header.from_string(HeaderTest.header_string)
+        header = Header.from_string(HeaderTest.header_string)
+        struc = header.struct
         central_atom = 'O'
         a = FeffAtoms(struc, central_atom)
         atoms = a.get_string()
@@ -114,8 +115,8 @@ class  FeffPotTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POTENTIALS')
-        feffpot = FeffPot.from_file(filepath)
-        d, dr = FeffPot.from_string(feffpot)
+        feffpot = FeffPot.pot_string_from_file(filepath)
+        d, dr = FeffPot.pot_dict_from_string(feffpot)
         self.assertEqual(d['Co'], 1, "Wrong symbols read in for FeffPot")
 
 
