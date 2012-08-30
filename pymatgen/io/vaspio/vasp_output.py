@@ -8,6 +8,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
+__credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -981,58 +982,78 @@ class Outcar(object):
         self.filename = filename
         self.is_stopped = False
         with zopen(filename, "r") as f:
-            lines = f.readlines()
+            read_charge = False
+            read_mag = False
+            charge = []
+            mag = []
+            header = []
+            run_stats = {}
+            total_mag = None
+            nelect = None
+            efermi = None
 
-        read_charge = False
-        read_mag = False
-        charge = []
-        mag = []
-        header = []
-        run_stats = {}
-        total_mag = None
-        nelect = None
-        efermi = None
-        for line in lines:
-            clean = line.strip()
-            if clean == "total charge":
-                read_charge = True
-                charge = []
-            elif clean == "magnetization (x)":
-                read_mag = True
-                mag = []
-            elif read_charge or read_mag:
-                if clean.startswith("# of ion"):
-                    header = re.split("\s{2,}", line.strip())
-                elif clean.startswith("tot"):
-                    read_charge = False
-                    read_mag = False
-                else:
-                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                    if m:
-                        to_append = charge if read_charge else mag
-                        data = re.findall("[\d\.\-]+", clean)
-                        to_append.append({header[i]: float(data[i])
-                                          for i in xrange(1, len(header))})
-            elif line.find("soft stop encountered!  aborting job") != -1:
-                self.is_stopped = True
-            elif re.search("\((sec|kb)\):", line):
-                tok = line.strip().split(":")
-                run_stats[tok[0].strip()] = float(tok[1].strip())
-            elif re.search("E-fermi\s+:", clean):
-                m = re.search("E-fermi\s*:\s*(\S+)", clean)
-                efermi = float(m.group(1))
-            elif re.search("number of electron\s+\S+", clean):
-                m = re.search("number of electron\s+(\S+)\s+" +
-                              "magnetization\s+(\S+)", clean)
-                nelect = float(m.group(1))
-                total_mag = float(m.group(2))
+            # Only check the last 10,000 lines for content
+            # AJ has examples of OUTCARs with 23 million lines!!
+            # They take forever to parse and kill machines
+            MAX_LINES = 10000
+            SIZE_CUTOFF = 10000000  # 10MB
+            line_cutoff = 0
+            if os.path.getsize(filename) > SIZE_CUTOFF:
+                line_count = 0
+                for line in f:
+                    line_count += 1
+                line_cutoff = line_count - MAX_LINES
+                #rewind the file
+                f.seek(0)
 
-        self.run_stats = run_stats
-        self.magnetization = tuple(mag)
-        self.charge = tuple(charge)
-        self.efermi = efermi
-        self.nelect = nelect
-        self.total_mag = total_mag
+            for idx, line in enumerate(f):
+                if idx >= line_cutoff:
+                    clean = line.strip()
+                    if clean == "total charge":
+                        read_charge = True
+                        charge = []
+                    elif clean == "magnetization (x)":
+                        read_mag = True
+                        mag = []
+                    elif read_charge or read_mag:
+                        if clean.startswith("# of ion"):
+                            header = re.split("\s{2,}", line.strip())
+                        elif clean.startswith("tot"):
+                            read_charge = False
+                            read_mag = False
+                        else:
+                            m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                            if m:
+                                to_append = charge if read_charge else mag
+                                data = re.findall("[\d\.\-]+", clean)
+                                to_append.append({header[i]: float(data[i])
+                                                  for i
+                                                  in xrange(1, len(header))})
+                    elif line.find("soft stop encountered!  aborting job") \
+                            != -1:
+                        self.is_stopped = True
+                    elif re.search("\((sec|kb)\):", line):
+                        tok = line.strip().split(":")
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                    elif re.search("E-fermi\s+:", clean):
+                        try:
+                            #try-catch because VASP sometimes prints 'E-fermi : ********     XC(G=0):  -6.1327     alpha+bet : -1.8238'
+                            m = re.search("E-fermi\s*:\s*(\S+)", clean)
+                            efermi = float(m.group(1))
+                        except:
+                            efermi = 0  # the efermi is probably a bunch of asterisks that can't be parsed...in this case the vasprun.xml gives 0
+                    elif re.search("number of electron\s+\S+", clean):
+                        m = re.search("number of electron\s+(\S+)\s+" +
+                                      "magnetization\s+(\S+)", clean)
+                        nelect = float(m.group(1))
+                        total_mag = float(m.group(2))
+
+            self.run_stats = run_stats
+            self.magnetization = tuple(mag)
+            self.charge = tuple(charge)
+            self.efermi = efermi
+            self.nelect = nelect
+            self.total_mag = total_mag
 
     def read_igpar(self):
         """
@@ -1291,8 +1312,8 @@ class Outcar(object):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["efermi"] = self.efermi
         d["run_stats"] = self.run_stats
         d["magnetization"] = self.magnetization
@@ -1429,39 +1450,49 @@ class VolumetricData(object):
         Returns:
             (poscar, data)
         """
-
+        poscar_read = False
+        poscar_string = []
+        dataset = []
+        all_dataset = []
+        dim = None
+        dimline = None
+        read_dataset = False
+        ngrid_pts = 0
+        data_count = 0
         with zopen(filename) as f:
-            contents = f.read()
-            (poscar_string, grid_data) = re.split("^\s*$", contents,
-                                                  flags=re.MULTILINE)
-            poscar = Poscar.from_string(poscar_string)
+            for line in f:
+                line = line.strip()
+                if read_dataset:
+                    toks = line.split()
+                    for tok in toks:
+                        if data_count < ngrid_pts:
+                            dataset.append(float(tok))
+                            data_count += 1
+                    if data_count >= ngrid_pts:
+                        read_dataset = False
+                        data_count = 0
+                        dataset = np.array(dataset)
+                        dataset = dataset.reshape(dim)
+                        all_dataset.append(dataset)
+                        dataset = []
+                elif not poscar_read:
+                    if line != "":
+                        poscar_string.append(line)
+                    elif line == "":
+                        poscar = Poscar.from_string("\n".join(poscar_string))
+                        poscar_read = True
+                elif not dim:
+                    dim = [int(i) for i in line.split()]
+                    ngrid_pts = dim[0] * dim[1] * dim[2]
+                    dimline = line
+                    read_dataset = True
+                elif line == dimline:
+                    read_dataset = True
 
-            grid_data = grid_data.strip()
-            ind = grid_data.find("\n")
-            dim_line = grid_data[0:ind].strip()
-            a = [int(i) for i in dim_line.split()]
-
-            pieces = grid_data[ind:].strip().split(dim_line)
-
-            spinpolarized = (len(pieces) == 2)
-
-            def parse_data(piece):
-                pot = np.zeros(a)
-                count = 0
-                data = re.sub("\n", " ", piece).split()
-                for (z, y, x) in itertools.product(xrange(a[2]), xrange(a[1]),
-                                                   xrange(a[0])):
-                    pot[x, y, z] = float(data[count])
-                    count += 1
-                return pot
-
-            totalpot = parse_data(pieces[0].strip())
-            if spinpolarized:
-                diffpot = parse_data(pieces[1].strip())
-                data = {"total": totalpot, "diff": diffpot}
+            if len(all_dataset) == 2:
+                data = {"total": all_dataset[0], "diff": all_dataset[1]}
             else:
-                data = {"total": totalpot}
-
+                data = {"total": all_dataset[0]}
             return (poscar, data)
 
     def write_file(self, file_name, vasp4_compatible=False):
@@ -1725,7 +1756,8 @@ class Oszicar(object):
 
         header = []
         with zopen(filename, "r") as fid:
-            for line in fid.readlines():
+            for line in fid:
+                line = line.strip()
                 m = electronic_pattern.match(line)
                 if m:
                     toks = re.split("\s+", m.group(1).strip())

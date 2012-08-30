@@ -2,7 +2,7 @@ import os
 import sys
 
 from distribute_setup import use_setuptools
-use_setuptools()
+use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
 from numpy.distutils.misc_util import get_numpy_include_dirs
 from pymatgen import __version__

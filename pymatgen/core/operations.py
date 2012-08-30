@@ -51,12 +51,11 @@ class SymmOp(MSONable):
         self.tol = tol
 
     @staticmethod
-    def from_rotation_matrix_and_translation_vector(rotation_matrix=
-                                                    ((1, 0, 0),
-                                                    (0, 1, 0),
-                                                    (0, 0, 1)),
-                                                    translation_vec=(0, 0, 0),
-                                                    tol=0.1):
+    def from_rotation_and_translation(rotation_matrix=((1, 0, 0),
+                                                       (0, 1, 0),
+                                                       (0, 0, 1)),
+                                      translation_vec=(0, 0, 0),
+                                      tol=0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation
         vector.
@@ -80,6 +79,33 @@ class SymmOp(MSONable):
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
         return SymmOp(affine_matrix, tol)
+
+    @staticmethod
+    def from_rotation_matrix_and_translation_vector(rotation_matrix=((1, 0, 0),
+                                                                     (0, 1, 0),
+                                                                     (0, 0, 1)),
+                                                    translation_vec=(0, 0, 0),
+                                                    tol=0.1):
+        """
+        .. deprecated:: 2.2.1
+            Use :func:`from_rotation_and_translation` instead.
+
+        Creates a symmetry operation from a rotation matrix and a translation
+        vector.
+
+        Args:
+            rotation_matrix:
+                A 3x3 numpy.array specifying a rotation matrix.
+            translation_vec:
+                A rank 1 numpy.array specifying a translation vector.
+            tol:
+                Tolerance to determine if rotation matrix is valid.
+        """
+        import warnings
+        warnings.warn("This method has been deprecated from version 2.2.1. "
+                      "Use from_rotation_and_translation instead.")
+        return SymmOp.from_rotation_and_translation(rotation_matrix,
+                                                    translation_vec, tol)
 
     def __eq__(self, other):
         return (abs(self.affine_matrix - other.affine_matrix) < self.tol).all()
@@ -216,7 +242,7 @@ class SymmOp(MSONable):
         r[2, 1] = u[1] * u[2] * (1 - cosa) + u[0] * sina
         r[2, 2] = cosa + u[2] ** 2 * (1 - cosa)
 
-        return SymmOp.from_rotation_matrix_and_translation_vector(r, vec)
+        return SymmOp.from_rotation_and_translation(r, vec)
 
     @staticmethod
     def from_origin_axis_angle(origin, axis, angle, angle_in_radians=False):
@@ -264,12 +290,12 @@ class SymmOp(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['matrix'] = self.affine_matrix.tolist()
-        d['tolerance'] = self.tol
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["matrix"] = self.affine_matrix.tolist()
+        d["tolerance"] = self.tol
         return d
 
     @staticmethod
     def from_dict(d):
-        return SymmOp(d['matrix'], d['tolerance'])
+        return SymmOp(d["matrix"], d["tolerance"])

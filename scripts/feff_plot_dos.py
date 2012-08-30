@@ -25,12 +25,16 @@ Author: Alan Dozier
 Version: 1.0
 Last updated: August, 2012''')
 
-parser.add_argument('filename', metavar='filename', type=str, nargs=1, help='ldos%% file set to plot')
-parser.add_argument('filename1', metavar='filename1', type=str, nargs=1, help='feff.inp input file ')
-parser.add_argument('-s', '--site', dest='site', action='store_const', const=True, help='plot site projected DOS')
-parser.add_argument('-e', '--element', dest='element', action='store_const', const=True, help='plot element projected DOS')
-parser.add_argument('-o', '--orbital', dest="orbital", action='store_const', const=True, help='plot orbital projected DOS')
-
+parser.add_argument('filename', metavar='filename', type=str, nargs=1,
+                    help='ldos%% file set to plot')
+parser.add_argument('filename1', metavar='filename1', type=str, nargs=1,
+                    help='feff.inp input file ')
+parser.add_argument('-s', '--site', dest='site', action='store_const',
+                    const=True, help='plot site projected DOS')
+parser.add_argument('-e', '--element', dest='element', action='store_const',
+                    const=True, help='plot element projected DOS')
+parser.add_argument('-o', '--orbital', dest="orbital", action='store_const',
+                    const=True, help='plot orbital projected DOS')
 
 args = parser.parse_args()
 f = FeffLdos(args.filename1[0], args.filename[0])
@@ -44,7 +48,8 @@ structure = f.structure
 if args.site:
     for i in xrange(len(structure)):
         site = structure[i]
-        all_dos['Site ' + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
+        all_dos['Site ' + str(i) + " " + site.specie.symbol] = \
+            dos.get_site_dos(site)
 if args.element:
     all_dos.update(dos.get_element_dos())
 if args.orbital:

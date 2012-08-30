@@ -415,8 +415,8 @@ class Poscar(VaspInput):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.to_dict
         d["true_names"] = self.true_names
         d["selective_dynamics"] = self.selective_dynamics
@@ -563,15 +563,15 @@ class Incar(dict, VaspInput):
     @property
     def to_dict(self):
         d = {k: v for k, v in self.items()}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
         i = Incar()
         for k, v in d.items():
-            if k not in ("module", "class"):
+            if k not in ("@module", "@class"):
                 i[k] = v
         return i
 
@@ -1088,8 +1088,8 @@ class Kpoints(VaspInput):
         for para in optional_paras:
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -1258,8 +1258,8 @@ class Potcar(list, VaspInput):
     @property
     def to_dict(self):
         d = {"functional": self.functional, "symbols": self.symbols}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod

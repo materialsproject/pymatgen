@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
-Created on Mar 9, 2012
-'''
+"""
+This module implements symmetry-related structure forms.
+"""
 
 from __future__ import division
 

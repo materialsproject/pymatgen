@@ -10,37 +10,11 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
-import gzip
-import bz2
 import re
 import numpy
 import os
-
-
-def file_open_zip_aware(filename, *args, **kwargs):
-    """
-    .. deprecated:: 2.1.0
-        This function has been renamed to the much shorter :func:`zopen`. It
-        will be removed in future versions.
-
-    This wrapper wraps around the bz2, gzip and standard python's open function
-    to deal intelligently with bzipped, gzipped or standard text files.
-
-    Args:
-        filename:
-            filename
-        args:
-            Standard args for python open(..). E.g., 'r' for read, 'w' for
-            write.
-        kwargs:
-            Standard kwargs for python open(..).
-
-    Returns:
-        File handler
-    """
-    return zopen(filename, *args, **kwargs)
 
 
 def zopen(filename, *args, **kwargs):
@@ -62,11 +36,32 @@ def zopen(filename, *args, **kwargs):
     """
     file_ext = filename.split(".")[-1].upper()
     if file_ext == "BZ2":
+        import bz2
         return bz2.BZ2File(filename, *args, **kwargs)
     elif file_ext in ("GZ", "Z"):
+        import gzip
         return gzip.GzipFile(filename, *args, **kwargs)
     else:
         return open(filename, *args, **kwargs)
+
+
+def zpath(filename):
+    """
+    Returns an existing (zipped or unzipped) file path given the unzipped
+    version. If no path exists, returns the filename unmodified
+
+    Args:
+        filename:
+            filename without zip extension
+
+    Returns:
+        filename with a zip extension (unless an unzipped version
+        exists)
+    """
+    for p in [filename, filename + '.gz', filename + '.bz2']:
+        if os.path.exists(p):
+            return p
+    return filename
 
 
 def clean_lines(string_list, remove_empty_lines=True):
