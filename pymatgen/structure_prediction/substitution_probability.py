@@ -29,6 +29,7 @@ class SubstitutionProbability():
         self._alpha = alpha
         self._Z = Z
         self._px = px
+        self.species = list(px.keys())
         
     def probability(self, s1, s2):
         """
@@ -44,21 +45,28 @@ class SubstitutionProbability():
     def conditional_probability(self, s1, s2):
         """
         this is the conditional probability used by burp structure 
-        predictor
+        predictor.
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l)/self._px[s2]
+    
+    def pair_correlation(self, s1, s2):
+        """
+        returns the pair correlation of 2 species
+        """
+        l = self._lambda.get(frozenset([s1, s2]), self._alpha)
+        return math.exp(l)*self._Z/(self._px[s1] * self._px[s2])
         
-    def substitution_probability(self, l1, l2):
+    def conditional_probability_list(self, l1, l2):
         """
         Find the probabilities of 2 lists. These should include ALL 
-        species.
+        species. This is the probability conditional on l2
         Args:
             l1, l2:
                 lists of species
         Returns:
             the conditional probability (assuming these species are in
-            the output)
+            l2)
             
         """
         assert len(l1) == len(l2)
@@ -70,9 +78,10 @@ class SubstitutionProbability():
     
     @staticmethod
     def from_defaults(alpha = 1e-4):
-        #Something that seems to be weird about the SubsProbaMRF file:
-        #alpha is VERY high. alpha essentially replaces the lambda value for never-observed
-        #compounds, but is positive even though many (most?) are negative numbers
+        #Something seems to be weird about the SubsProbaMRF file:
+        #alpha is VERY high. alpha essentially replaces the lambda 
+        #value for never-observed compounds, but is positive even 
+        #though many (most?) are negative numbers
         module_dir = os.path.dirname(pymatgen.__file__)
         json_file = os.path.join(module_dir, 'structure_prediction'
                                  , 'data', 'lambda.json')
@@ -92,16 +101,17 @@ class SubstitutionProbability():
                 sp_set.add(s1)
                 sp_set.add(s2) 
 
-        #calculate Z and the individual species partition function (px)
-        px = {}
-        for sp in sp_set:
-            px[sp]=0
+        #calculate Z and the individual species partition function 
+        #(px)
+        px = dict.fromkeys(sp_set, 0.)
         Z=0
         for s1, s2 in itertools.product(sp_set,repeat = 2):
             value = math.exp(l.get(frozenset([s1, s2]), alpha))
-            px[s1] += value/2 #not sure why the factor of 2 is here but it matches up with BURP
-            px[s2] += value/2 #I think BURP may actually be missing a factor of 2, but it doesn't
-                                #have a huge effect
+            #not sure why the factor of 2 is here but it matches up 
+            #with BURP. BURP may actually be missing a factor of 2, 
+            #but it doesn't have a huge effect
+            px[s1] += value/2 
+            px[s2] += value/2 
             Z += value
 
         return SubstitutionProbability(l, alpha, Z, px)
