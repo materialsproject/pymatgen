@@ -10,8 +10,7 @@ import pymatgen
 class SubstitutionProbability():
     """
     This class finds substitution probabilities given lists of atoms
-    to substitute. needs A LOT of work (though it replicates burp 
-    fairly well)
+    to substitute.
     The inputs make more sense if you look through the from_defaults 
     static method
     Args:
@@ -29,9 +28,9 @@ class SubstitutionProbability():
         self._alpha = alpha
         self._Z = Z
         self._px = px
-        self.species = list(px.keys())
+        self.species_list = list(px.keys())
         
-    def probability(self, s1, s2):
+    def prob(self, s1, s2):
         """
         get the probability of 2 species substitution
         Returns:
@@ -42,22 +41,25 @@ class SubstitutionProbability():
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l)/self._Z
     
-    def conditional_probability(self, s1, s2):
+    def cond_prob(self, s1, s2):
         """
+        Args:
+            s1: The VARIABLE specie
+            s2: The FIXED specie
         this is the conditional probability used by burp structure 
-        predictor.
+        predictor (which is why its in a wierd order)
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l)/self._px[s2]
     
-    def pair_correlation(self, s1, s2):
+    def pair_corr(self, s1, s2):
         """
         returns the pair correlation of 2 species
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l)*self._Z/(self._px[s1] * self._px[s2])
         
-    def conditional_probability_list(self, l1, l2):
+    def cond_prob_list(self, l1, l2):
         """
         Find the probabilities of 2 lists. These should include ALL 
         species. This is the probability conditional on l2
@@ -73,7 +75,7 @@ class SubstitutionProbability():
         p = 1.
         for i, s1 in enumerate(l1):
             s2 = l2[i]
-            p *= self.conditional_probability(s1, s2)
+            p *= self.cond_prob(s1, s2)
         return p
     
     @staticmethod
@@ -90,7 +92,7 @@ class SubstitutionProbability():
             table = json.load(f)
         
         #build map of specie pairs to lambdas
-        #build list of species
+        #build set of species
         l = {}
         sp_set = set()
         for row in table:
