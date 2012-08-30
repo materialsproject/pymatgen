@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module defines Entry classes for containing experimental data.
-'''
+"""
 
 from __future__ import division
 
@@ -45,10 +45,10 @@ class ExpEntry(PDEntry, MSONable):
         comp = Composition(composition)
         self._thermodata = thermodata
         found = False
-        enthalpy = float('inf')
+        enthalpy = float("inf")
         for data in self._thermodata:
             if data.type == "fH" and data.value < enthalpy and \
-                (data.phaseinfo != 'gas' and data.phaseinfo != 'liquid'):
+                (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
                 enthalpy = data.value
                 found = True
         if not found:
@@ -66,15 +66,15 @@ class ExpEntry(PDEntry, MSONable):
 
     @staticmethod
     def from_dict(d):
-        thermodata = [ThermoData.from_dict(td) for td in d['thermodata']]
-        return ExpEntry(d['composition'], thermodata, d['temperature'])
+        thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
+        return ExpEntry(d["composition"], thermodata, d["temperature"])
 
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['thermodata'] = [td.to_dict for td in self._thermodata]
-        d['composition'] = self.composition.to_dict
-        d['temperature'] = self.temperature
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["thermodata"] = [td.to_dict for td in self._thermodata]
+        d["composition"] = self.composition.to_dict
+        d["temperature"] = self.temperature
         return d

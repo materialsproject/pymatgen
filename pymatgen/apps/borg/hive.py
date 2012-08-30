@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module define the various drones used to assimilate data.
-'''
+"""
 
 from __future__ import division
 
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class AbstractDrone(MSONable):
     """
     Abstract drone class that defines the various methods that must be
-    implemented by drones. Because of the quirky nature of Python's
+    implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
     MSONable. All drones must also implement the standard MSONable to_dict and
@@ -42,10 +42,10 @@ class AbstractDrone(MSONable):
 
     @abc.abstractmethod
     def assimilate(self, path):
-        '''
+        """
         Assimilate data in a directory path into a pymatgen object. Because of
-        the quirky nature of Python's multiprocessing, the object must support
-        pymatgen's to_dict for parallel processing.
+        the quirky nature of Python"s multiprocessing, the object must support
+        pymatgen"s to_dict for parallel processing.
 
         Args:
             path:
@@ -53,7 +53,7 @@ class AbstractDrone(MSONable):
 
         Returns:
             An assimilated object
-        '''
+        """
         return
 
     @abc.abstractmethod
@@ -114,7 +114,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def assimilate(self, path):
         files = os.listdir(path)
-        if 'relax1' in files and 'relax2' in files:
+        if "relax1" in files and "relax2" in files:
             filepath = glob.glob(os.path.join(path, "relax2",
                                               "vasprun.xml*"))[0]
         else:
@@ -165,10 +165,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def get_valid_paths(self, path):
         (parent, subdirs, files) = path
-        if 'relax1' in subdirs and 'relax2' in subdirs:
+        if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
-        if (not parent.endswith('/relax1')) and \
-           (not parent.endswith('/relax2')) and \
+        if (not parent.endswith("/relax1")) and \
+           (not parent.endswith("/relax2")) and \
            len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
             return [parent]
         return []
@@ -178,17 +178,17 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure': self._inc_structure,
+        init_args = {"inc_structure": self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data}
-        d = {'init_args': init_args, 'version': __version__}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"init_args": init_args, "version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        return VaspToComputedEntryDrone(**d['init_args'])
+        return VaspToComputedEntryDrone(**d["init_args"])
 
 
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
@@ -215,7 +215,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         files = os.listdir(path)
         try:
             files_to_parse = {}
-            if 'relax1' in files and 'relax2' in files:
+            if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[0]
@@ -223,9 +223,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                files_to_parse['INCAR'] = glob.glob(os.path.join(path,
+                files_to_parse["INCAR"] = glob.glob(os.path.join(path,
                                                                  "INCAR*"))[0]
-                files_to_parse['POTCAR'] = glob.glob(os.path.join(path,
+                files_to_parse["POTCAR"] = glob.glob(os.path.join(path,
                                                                 "POTCAR*"))[-1]
 
                 for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
@@ -257,29 +257,29 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
-            poscar = Poscar.from_file(files_to_parse['POSCAR'])
-            contcar = Poscar.from_file(files_to_parse['CONTCAR'])
+            poscar = Poscar.from_file(files_to_parse["POSCAR"])
+            contcar = Poscar.from_file(files_to_parse["CONTCAR"])
 
             param = {}
 
-            incar = Incar.from_file(files_to_parse['INCAR'])
-            if 'LDAUU' in incar:
-                param['hubbards'] = dict(zip(poscar.site_symbols,
-                                             incar['LDAUU']))
+            incar = Incar.from_file(files_to_parse["INCAR"])
+            if "LDAUU" in incar:
+                param["hubbards"] = dict(zip(poscar.site_symbols,
+                                             incar["LDAUU"]))
             else:
-                param['hubbards'] = {}
-            param['is_hubbard'] = incar.get('LDAU', False) and \
-                                  sum(param['hubbards'].values()) > 0
-            param['run_type'] = "GGA+U" if param['is_hubbard'] else "GGA"
-            potcar = Potcar.from_file(files_to_parse['POTCAR'])
+                param["hubbards"] = {}
+            param["is_hubbard"] = incar.get("LDAU", False) and \
+                                  sum(param["hubbards"].values()) > 0
+            param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+            potcar = Potcar.from_file(files_to_parse["POTCAR"])
             param["potcar_symbols"] = potcar.symbols
-            oszicar = Oszicar(files_to_parse['OSZICAR'])
+            oszicar = Oszicar(files_to_parse["OSZICAR"])
             energy = oszicar.final_energy
             structure = contcar.structure
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
             delta_volume = (final_vol / initial_vol - 1)
-            data = {'filename': path, 'delta_volume': delta_volume}
+            data = {"filename": path, "delta_volume": delta_volume}
             if self._inc_structure:
                 entry = ComputedStructureEntry(structure, energy,
                                                parameters=param,
@@ -298,15 +298,15 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure': self._inc_structure}
-        d = {'init_args': init_args, 'version': __version__}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        init_args = {"inc_structure": self._inc_structure}
+        d = {"init_args": init_args, "version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        return SimpleVaspToComputedEntryDrone(**d['init_args'])
+        return SimpleVaspToComputedEntryDrone(**d["init_args"])
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
@@ -331,13 +331,13 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 Input parameters to include. It has to be one of the properties
                 supported by the GaussianOutput object. See
                 pymatgen.io.gaussianio GaussianOutput.
-                The parameters have to be one of python's primitive types,
+                The parameters have to be one of python"s primitive types,
                 i.e. list, dict of strings and integers. If parameters == None,
                 a default set of parameters will be set.
             data:
                 Output data to include. Has to be one of the properties
                 supported by the GaussianOutput object. The parameters have to
-                be one of python's primitive types, i.e. list, dict of strings
+                be one of python"s primitive types, i.e. list, dict of strings
                 and integers. If data == None, a default set will be set.
             file_extensions:
                 File extensions to be considered as Gaussian output files.
@@ -350,7 +350,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         if parameters:
             self._parameters.update(parameters)
 
-        self._data = set(['stationary_type', 'properly_terminated'])
+        self._data = set(["stationary_type", "properly_terminated"])
         if data:
             self._data.update(data)
 
@@ -388,15 +388,15 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {'inc_structure': self._inc_structure,
+        init_args = {"inc_structure": self._inc_structure,
                      "parameters": self._parameters,
                      "data": self._data,
                      "file_extensions": self._file_extensions}
-        d = {'init_args': init_args, 'version': __version__}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d = {"init_args": init_args, "version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        return GaussianToComputedEntryDrone(**d['init_args'])
+        return GaussianToComputedEntryDrone(**d["init_args"])

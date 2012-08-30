@@ -353,8 +353,8 @@ class InsertionElectrode(AbstractElectrode):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["entries"] = [entry.to_dict for entry in self._entries]
         d["working_ion_entry"] = self.working_ion_entry.to_dict
         return d
@@ -516,7 +516,6 @@ class InsertionVoltagePair(AbstractVoltagePair):
                       .format(self.vol_charge, self.vol_discharge))
         output.append("frac_charge = {}, frac_discharge = {}"
                       .format(self.frac_charge, self.frac_discharge))
-
         return "\n".join(output)
 
     def __str__(self):
