@@ -38,17 +38,18 @@ TITLE sites: 4
                          header.splitlines(), "Failed to read HEADER file")
 
     def test_getfefftags(self):
-        tags = FeffInputSet.get_fefftags(x, "XANES")
+        tags = FeffInputSet.get_feff_tags(x, "XANES")
         self.assertEqual(tags["COREHOLE"], "FSR",
                          "Failed to read PARAMETERS file")
 
     def test_get_feffPot(self):
-        POT = FeffInputSet.get_feffPot(x, structure, central_atom)
+
+        POT = FeffInputSet.get_feff_pot(x, structure, central_atom)
         d, dr = FeffPot.pot_dict_from_string(POT)
         self.assertEqual(d['Co'], 1, "Wrong symbols read in for FeffPot")
 
     def test_get_feffAtoms(self):
-        ATOMS = FeffInputSet.get_feffAtoms(x, structure, central_atom)
+        ATOMS = FeffInputSet.get_feff_atoms(x, structure, central_atom)
         self.assertEqual(ATOMS.splitlines()[3].split()[4], central_atom,
                          "failed to create ATOMS string")
 
