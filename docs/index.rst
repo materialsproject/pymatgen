@@ -53,7 +53,7 @@ Latest Change Log (v2.2.1dev)
 -----------------------------
 
 1. Improvements to feffio.
-2. Improved format convertor script.
+2. Master matgenie.py script which replaces many analysis scripts.
 3. More memory efficient parsing of VolumetricData.
 4. Miscellaneous bug fixes and speed improvements.
 
