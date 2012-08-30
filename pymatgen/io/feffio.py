@@ -127,22 +127,6 @@ class Header(FeffInput):
             Space number and space group list
         """
 
-
-
-        return [space_number, space_group]
-
-    @staticmethod
-    def structure_symmetry(struct):
-        """
-        static method to return space group and number from a structure
-        
-        Arg:
-            struct: pymatgen structure object
-
-        Returns:
-            Space number and space group list
-        """
-
         sym = SymmetryFinder(struct)
         data = sym.get_symmetry_dataset()
         space_number = data["number"]
@@ -1268,6 +1252,7 @@ class Xmu(object):
     @property
     def absorbing_atom(self):
         """Returns absorbing atom symbol from feff.inp file"""
+
         pots = FeffPot.pot_string_from_file(self.input_file)
         absorbing_atom = pots.splitlines()[1].split()[2]
         return absorbing_atom

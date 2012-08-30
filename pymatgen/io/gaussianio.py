@@ -205,7 +205,7 @@ class GaussianInput(object):
                 break
         route_paras = {}
         if route:
-            for tok in re.split("\s+", route):
+            for tok in route.split():
                 if tok.strip().startswith("#"):
                     continue
                 if re.match("\w+\/.*", tok):
@@ -217,7 +217,7 @@ class GaussianInput(object):
                     v = None if len(d) == 1 else d[1]
                     route_paras[d[0]] = v
         title = lines[route_index + 2]
-        toks = re.split("\s+", lines[route_index + 4])
+        toks = lines[route_index + 4].split()
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []
@@ -448,7 +448,7 @@ class GaussianOutput(object):
                         parse_stage = 1
                     elif route_patt.search(line):
                         self.route = {}
-                        for tok in re.split("\s+", line.strip()):
+                        for tok in line.split():
                             sub_tok = tok.strip().split("=")
                             key = sub_tok[0].upper()
                             self.route[key] = sub_tok[1].upper() \
@@ -485,7 +485,7 @@ class GaussianOutput(object):
                                 sp = []
                                 coords = []
                                 for l in coord_txt[2:]:
-                                    toks = re.split("\s+", l.strip())
+                                    toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
                                     coords.append([float(i)
                                                    for i in toks[3:6]])
