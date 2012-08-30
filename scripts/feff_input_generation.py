@@ -12,7 +12,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
-__date__ = "Aug 27, 2012"
+__date__ = "Aug 28, 2012"
 
 import argparse
 import CifFile
@@ -48,15 +48,15 @@ header = FeffInputSet.get_header(x,structure, cif_file)
 print "\n\nHEADER\n"
 print header
 
-tags=FeffInputSet.get_fefftags(x,calc_type)
+tags=FeffInputSet.get_feff_tags(x,calc_type)
 print "\n\nPARAMETERS\n"
 print tags
 
-POT=FeffInputSet.get_feffPot(x,structure, central_atom)
+POT=FeffInputSet.get_feff_pot(x,structure, central_atom)
 print "\n\nPOTENTIALS\n"
 print POT
 
-ATOMS=FeffInputSet.get_feffAtoms(x,structure, central_atom)
+ATOMS=FeffInputSet.get_feff_atoms(x,structure, central_atom)
 print"\n\nATOMS\n"
 print ATOMS
 
