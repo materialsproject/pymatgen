@@ -20,9 +20,9 @@ __email__ = "shyue@mit.edu"
 __date__ = "Mar 9, 2012"
 
 import re
+import itertools
 
 import numpy as np
-import itertools
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
@@ -101,7 +101,7 @@ class SymmetryFinder(object):
         Returns:
             Spacegroup symbol for structure.
         """
-        return re.split("\s+", self._spacegroup_data)[0]
+        return self._spacegroup_data.split()[0]
 
     def get_spacegroup_number(self):
         """
@@ -110,7 +110,7 @@ class SymmetryFinder(object):
         Returns:
             International spacegroup number for structure.
         """
-        sgnum = re.split("\s+", self._spacegroup_data)[1]
+        sgnum = self._spacegroup_data.split()[1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
