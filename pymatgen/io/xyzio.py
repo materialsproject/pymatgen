@@ -61,9 +61,11 @@ class XYZ(object):
         num_sites = int(lines[0])
         coords = []
         sp = []
+        coord_patt = re.compile(
+            "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)"
+        )
         for i in xrange(2, 2 + num_sites):
-            m = re.search("(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
-                          lines[i])
+            m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))
                 coords.append(map(float, [m.group(k) for k in [2, 3, 4]]))

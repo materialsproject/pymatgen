@@ -43,9 +43,9 @@ TITLE sites: 4
                          "Failed to read PARAMETERS file")
 
     def test_get_feffPot(self):
-
         POT = FeffInputSet.get_feff_pot(x, structure, central_atom)
         d, dr = FeffPot.pot_dict_from_string(POT)
+
         self.assertEqual(d['Co'], 1, "Wrong symbols read in for FeffPot")
 
     def test_get_feffAtoms(self):

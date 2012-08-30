@@ -326,8 +326,7 @@ class Poscar(VaspInput):
         velocities = []
         if len(chunks) > 1:
             for line in chunks[1].strip().split("\n"):
-                velocities.append([float(tok)
-                                   for tok in re.split("\s+", line.strip())])
+                velocities.append([float(tok) for tok in line.split()])
 
         predictor_corrector = []
         if len(chunks) > 2:
@@ -335,8 +334,7 @@ class Poscar(VaspInput):
             predictor_corrector.append([int(lines[0])])
             for line in lines[1:]:
                 predictor_corrector.append([float(tok)
-                                            for tok in re.split("\s+",
-                                                                line.strip())])
+                                            for tok in line.split()])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
@@ -672,7 +670,7 @@ class Incar(dict, VaspInput):
         try:
             if key in list_keys:
                 output = list()
-                toks = re.split("\s+", val)
+                toks = val.split()
 
                 for tok in toks:
                     m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
@@ -1015,7 +1013,7 @@ class Kpoints(VaspInput):
         tet_connections = None
 
         for i in xrange(3, 3 + num_kpts):
-            toks = re.split("\s+", lines[i])
+            toks = lines[i].split()
             kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
             kpts_weights.append(float(toks[3]))
         try:

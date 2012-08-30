@@ -13,10 +13,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 17, 2012"
 
-import math
 import collections
 import itertools
 import numpy as np
+
+from math import floor
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
@@ -314,7 +316,7 @@ class PeriodicSite(Site, MSONable):
 
         if to_unit_cell:
             for i, fcoords in enumerate(self._fcoords):
-                self._fcoords[i] = fcoords - math.floor(fcoords)
+                self._fcoords[i] = fcoords - floor(fcoords)
         c_coords = self._lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
 
@@ -453,8 +455,8 @@ class PeriodicSite(Site, MSONable):
         if jimage is None:
             #The following code is heavily vectorized to maximize speed.
             #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.array([-math.floor(i) for i in self._fcoords])
-            adj2 = np.array([-math.floor(i) for i in fcoords])
+            adj1 = np.array([-floor(i) for i in self._fcoords])
+            adj2 = np.array([-floor(i) for i in fcoords])
             #Shift coords to unitcell
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
