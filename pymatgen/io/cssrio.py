@@ -74,9 +74,9 @@ class Cssr(object):
             Cssr object.
         """
         lines = string.split("\n")
-        toks = re.split("\s+", lines[0].strip())
+        toks = lines[0].split()
         lengths = [float(l) for l in toks]
-        toks = re.split("\s+", lines[1].strip())
+        toks = lines[1].split()
         angles = [float(toks[i]) for i in xrange(3)]
         latt = Lattice.from_lengths_and_angles(lengths, angles)
         sp = []
