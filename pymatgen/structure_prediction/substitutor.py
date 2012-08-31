@@ -1,11 +1,20 @@
+from __future__ import division
+
+__author__ = "Will Richards"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.2"
+__maintainer__ = "Will Richards"
+__email__ = "wrichard@mit.edu"
+__date__ = "Aug 31, 2012"
+
+from pymatgen.serializers.json_coders import MSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
-
+    
 from operator import mul
 
-class Substitutor():
-    def __init__(self, substitution_probability = 
-                 SubstitutionProbability.from_defaults()
+class Substitutor(MSONable):
+    def __init__(self, substitution_probability = None
                  , threshold = 1e-3):
         """
         This substitutor uses the substitution probability class to 
@@ -17,7 +26,10 @@ class Substitutor():
             threshold:
                 probability threshold for predictions
         """
-        self._sp = substitution_probability
+        if substitution_probability:
+            self._sp = substitution_probability
+        else:
+            self._sp = SubstitutionProbability()
         self._threshold = threshold
         
     def pred_from_list(self, species_list):
@@ -51,14 +63,14 @@ class Substitutor():
             for s1 in self._sp.species_list:
                 max_p = max([self._sp.cond_prob(s1, s2),max_p])
             max_probabilities.append(max_p)
-        output= []
+        output = []
         
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
             if reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
-                    output.append(dict(zip(species_list,output_species)))
+                    output.append(dict(zip(species_list, output_species)))
                     return
                 for sp in self._sp.species_list:
                     i = len(output_prob)
@@ -83,3 +95,21 @@ class Substitutor():
             if charge == 0:
                 output.append(p)
         return output
+    
+    @property
+    def to_dict(self):
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["substitution_probability"] = self._sp.to_dict
+        d["threshold"] = self._threshold
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+    
+    @staticmethod
+    def from_dict(d):
+        t = d['threshold']
+        spd = d['substitution_probability']
+        sp = SubstitutionProbability.from_dict(spd) 
+        return Substitutor(sp, t)
+        
+    

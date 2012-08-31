@@ -14,7 +14,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         This test tests specific values in the data folder. If the 
         json is updated, these tests will have to be as well
         """
-        sp = SubstitutionProbability.from_defaults()
+        sp = SubstitutionProbability()
         sp1 = Specie('Fe', 4)
         sp3 = Specie('Mn', 3)
         prob1 = sp.prob(sp1, sp3)
