@@ -23,6 +23,7 @@ from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.structure_prediction.substitutor import Substitutor
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -372,6 +373,56 @@ class EnumerateStructureTransformation(AbstractTransformation):
                           "min_cell_size": self.min_cell_size,
                           "max_cell_size": self.max_cell_size,
                           "refine_structure": self.refine_structure}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+    
+class SubstitutionPredictorTransformation(AbstractTransformation):
+    """
+    This transformation takes a structure and uses the structure
+    prediction module to find likely site substitutions. 
+    """
+
+    def __init__(self, threshold):
+        self._threshold = threshold
+        self._substitutor = Substitutor(threshold = threshold)
+        pass
+
+    def apply_transformation(self, structure, return_ranked_list = False):
+        if not return_ranked_list:
+            raise ValueError("SubstitutionPredictorTransformation doesn't"
+                             " support returning 1 structure")
+            
+        preds = self._substitutor.pred_from_comp(structure.composition)
+        preds.sort(key = lambda x: x['probability'], reverse = True)
+        
+        outputs = []
+        for pred in preds:
+            st = SubstitutionTransformation(pred['substitution'])
+            output = {}
+            output['structure'] = st.apply_transformation(structure)
+            output['probability'] = pred['probability']
+            outputs.append(output)
+        return outputs
+
+    def __str__(self):
+        return "SubstitutionPredictorTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"threshold": self._threshold}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d

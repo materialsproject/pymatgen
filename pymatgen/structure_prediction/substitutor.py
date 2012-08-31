@@ -38,7 +38,8 @@ class Substitutor(MSONable):
             species_list:
                 list of species in the starting structure
         Returns:
-            list of species dictionaries (predictions)
+            list of dictionaries, each including a substitutions
+            dictionary, and a probability value
 
         There are an exceptionally large number of substitutions to 
         look at (260^n), where n is the number of species in the 
@@ -70,7 +71,11 @@ class Substitutor(MSONable):
             best_case_prob[:len(output_prob)] = output_prob
             if reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
-                    output.append(dict(zip(species_list, output_species)))
+                    odict = {}
+                    odict['substitutions'] = \
+                        dict(zip(species_list, output_species))
+                    odict['probability'] = reduce(mul, best_case_prob)
+                    output.append(odict)
                     return
                 for sp in self._sp.species_list:
                     i = len(output_prob)
@@ -88,9 +93,10 @@ class Substitutor(MSONable):
         output = []
         predictions = self.pred_from_list(composition.elements)
         for p in predictions:
+            subs = p['substitutions']
             charge = 0
             for i_el in composition.elements:
-                f_el = p[i_el]
+                f_el = subs[i_el]
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
