@@ -60,7 +60,8 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                             " not in stable entries!")
 
     def test_get_formation_energy(self):
-        stable_formation_energies = {ent.original_entry.composition.reduced_formula:self.pd.get_form_energy(ent) for ent in self.pd.stable_entries}
+        stable_formation_energies = {ent.original_entry
+                                     .composition.reduced_formula:self.pd.get_form_energy(ent) for ent in self.pd.stable_entries}
         expected_formation_energies = {'Fe2O3': 0.0,
                                        'Li5FeO4':-5.305515040000046,
                                        'Li2FeO3':-2.3424741500000152,
@@ -79,8 +80,9 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntryIO.from_csv(os.path.join(module_dir,
-                                                                        "pdentries_test.csv"))
+        (self.elements,
+         self.entries) = PDEntryIO.from_csv(os.path.join(module_dir,
+                                                         "pdentries_test.csv"))
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"),
                                                       Composition("Fe2O3")])
 
