@@ -1,5 +1,13 @@
+from __future__ import division
+
+__author__ = "Will Richards"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "1.2"
+__maintainer__ = "Will Richards"
+__email__ = "wrichard@mit.edu"
+__date__ = "Aug 31, 2012"
+
 from pymatgen.core.periodic_table import Specie
-from datetime import datetime
 
 import itertools
 import json
@@ -14,21 +22,63 @@ class SubstitutionProbability():
     The inputs make more sense if you look through the from_defaults 
     static method
     Args:
-        lambda_dict:
-            dictionary of the weight functions lambda (theta in BURP)
+        lambda_table:
+            table of the weight functions lambda (theta in BURP)
+            if None, will use the lambda.json table
         alpha:
             weight function for never observed substitutions
-        Z:
-            partition function (constant)
-        px:
-            dictionary of partition function for individual species
     """
-    def __init__(self, lambda_dict, alpha, Z, px):
-        self._lambda = lambda_dict
+    def __init__(self, lambda_table = None, alpha = 1e-4):
+        #Something seems to be weird about the SubsProbaMRF file:
+        #alpha is VERY high. alpha essentially replaces the lambda 
+        #value for never-observed compounds, but is positive even 
+        #though many (most?) are negative numbers
+        
+        #store the inputs for the to_dict method
+        self._lambda_table = lambda_table
+        
+        if not lambda_table:
+            module_dir = os.path.dirname(pymatgen.__file__)
+            json_file = os.path.join(module_dir, 'structure_prediction'
+                                     , 'data', 'lambda.json')
+            with open(json_file) as f:
+                lambda_table = json.load(f)
+            
+        #build map of specie pairs to lambdas
+        l = {}
+        for row in lambda_table:
+            if not row[0] == 'D1+' and not row[1] == 'D1+':
+                s1 = Specie.from_string(row[0])
+                s2 = Specie.from_string(row[1])
+                l[frozenset([s1, s2])] = float(row[2])
+        
+        self._lambda = l 
         self._alpha = alpha
+        self.update_normalizations()
+         
+    def update_normalizations(self):
+        """
+        updates the partition functions Z and px,
+        and the species list
+        """
+        sp_set = set()
+        for key in self._lambda.keys():
+            sp_set.update(key)
+        px = dict.fromkeys(sp_set, 0.)
+        Z=0
+        for s1, s2 in itertools.product(sp_set,repeat = 2):
+            value = math.exp(self._lambda.get(frozenset([s1, s2])
+                                              , self._alpha))
+            #not sure why the factor of 2 is here but it matches up 
+            #with BURP. BURP may actually be missing a factor of 2, 
+            #but it doesn't have a huge effect
+            px[s1] += value/2 
+            px[s2] += value/2 
+            Z += value
+        
         self._Z = Z
         self._px = px
-        self.species_list = list(px.keys())
+        self.species_list = list(sp_set)
         
     def prob(self, s1, s2):
         """
@@ -78,45 +128,17 @@ class SubstitutionProbability():
             p *= self.cond_prob(s1, s2)
         return p
     
-    @staticmethod
-    def from_defaults(alpha = 1e-4):
-        #Something seems to be weird about the SubsProbaMRF file:
-        #alpha is VERY high. alpha essentially replaces the lambda 
-        #value for never-observed compounds, but is positive even 
-        #though many (most?) are negative numbers
-        module_dir = os.path.dirname(pymatgen.__file__)
-        json_file = os.path.join(module_dir, 'structure_prediction'
-                                 , 'data', 'lambda.json')
-        
-        with open(json_file) as f:
-            table = json.load(f)
-        
-        #build map of specie pairs to lambdas
-        #build set of species
-        l = {}
-        sp_set = set()
-        for row in table:
-            if not row[0] == 'D1+' and not row[1] == 'D1+':
-                s1 = Specie.from_string(row[0])
-                s2 = Specie.from_string(row[1])
-                l[frozenset([s1, s2])] = float(row[2])
-                sp_set.add(s1)
-                sp_set.add(s2) 
-
-        #calculate Z and the individual species partition function 
-        #(px)
-        px = dict.fromkeys(sp_set, 0.)
-        Z=0
-        for s1, s2 in itertools.product(sp_set,repeat = 2):
-            value = math.exp(l.get(frozenset([s1, s2]), alpha))
-            #not sure why the factor of 2 is here but it matches up 
-            #with BURP. BURP may actually be missing a factor of 2, 
-            #but it doesn't have a huge effect
-            px[s1] += value/2 
-            px[s2] += value/2 
-            Z += value
-
-        return SubstitutionProbability(l, alpha, Z, px)
+    @property
+    def to_dict(self):
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"lambda_table": self._lambda_table,
+                          "alpha": self._alpha}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
     
+    @staticmethod
+    def from_dict(d):
+        return SubstitutionProbability(**d['init_args'])
     
     
