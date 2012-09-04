@@ -4,13 +4,12 @@ import unittest
 
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Composition
-from pymatgen.structure_prediction.substitution_probability import SubstitutionProbability
+from pymatgen.structure_prediction.substitution_probability import test_table
 from pymatgen.structure_prediction.substitutor import Substitutor
 
 class SubstitutorTest(unittest.TestCase):
     def setUp(self):
-        sp = SubstitutionProbability._with_test_table()
-        self.s = Substitutor(substitution_probability = sp)
+        self.s = Substitutor(lambda_table = test_table())
     
     def test_substitutor(self):
         s_list = [Specie('O', -2), Specie('Li', 1)]
