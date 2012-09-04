@@ -383,10 +383,16 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     prediction module to find likely site substitutions. 
     """
 
-    def __init__(self, threshold):
+    def __init__(self, threshold = 1e-2, **kwargs):
+        """
+        Args:
+            kwargs:
+                args for SubstitutionProbability class
+                lambda_table, alpha
+        """
+        self._kwargs = kwargs
         self._threshold = threshold
-        self._substitutor = Substitutor(threshold = threshold)
-        pass
+        self._substitutor = Substitutor(threshold, **kwargs)
 
     def apply_transformation(self, structure, return_ranked_list = False):
         if not return_ranked_list:
@@ -398,10 +404,11 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         
         outputs = []
         for pred in preds:
-            st = SubstitutionTransformation(pred['substitution'])
+            st = SubstitutionTransformation(pred['substitutions'])
             output = {}
             output['structure'] = st.apply_transformation(structure)
             output['probability'] = pred['probability']
+            output['threshold'] = self._threshold
             outputs.append(output)
         return outputs
 
@@ -422,7 +429,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"threshold": self._threshold}
+        d["init_args"] = self._kwargs
+        d["init_args"]["threshold"] = self._threshold
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
