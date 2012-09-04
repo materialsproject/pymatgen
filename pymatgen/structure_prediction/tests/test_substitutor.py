@@ -4,20 +4,22 @@ import unittest
 
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Composition
+from pymatgen.structure_prediction.substitution_probability import SubstitutionProbability
 from pymatgen.structure_prediction.substitutor import Substitutor
 
 class SubstitutorTest(unittest.TestCase):
     def setUp(self):
-        self.s = Substitutor()
+        sp = SubstitutionProbability._with_test_table()
+        self.s = Substitutor(substitution_probability = sp)
     
     def test_substitutor(self):
-        s_list = [Specie('Ag', 2), Specie('Cl', -1)]
+        s_list = [Specie('O', -2), Specie('Li', 1)]
         subs =  self.s.pred_from_list(s_list)
-        self.assertEqual(len(subs), 197
+        self.assertEqual(len(subs), 16
                          , 'incorrect number of substitutions')
-        c = Composition({'Ag2+': 1, 'Cl1-':2})
+        c = Composition({'O2-': 1, 'Li1+': 2})
         subs = self.s.pred_from_comp(c)
-        self.assertEqual(len(subs), 43
+        self.assertEqual(len(subs), 4
                          , 'incorrect number of substitutions')
         
     def test_to_dict(self):
