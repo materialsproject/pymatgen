@@ -15,6 +15,20 @@ import math
 import os
 import pymatgen
 
+def test_table():
+    """
+    loads a lightweight lambda table for use in unit tests to 
+    reduce initialization time, and make unit tests insensitive
+    to changes in the default lambda table
+    """
+    module_dir = os.path.dirname(pymatgen.__file__)
+    json_file = os.path.join(module_dir, 'structure_prediction'
+                             , 'tests', 'test_data'
+                             , 'test_lambda.json')
+    with open(json_file) as f:
+        lambda_table = json.load(f)
+    return lambda_table
+
 class SubstitutionProbability():
     """
     This class finds substitution probabilities given lists of atoms
@@ -42,6 +56,7 @@ class SubstitutionProbability():
             module_dir = os.path.dirname(pymatgen.__file__)
             json_file = os.path.join(module_dir, 'structure_prediction'
                                      , 'data', 'lambda.json')
+            print 'loading'
             with open(json_file) as f:
                 lambda_table = json.load(f)
             
@@ -141,20 +156,4 @@ class SubstitutionProbability():
     @staticmethod
     def from_dict(d):
         return SubstitutionProbability(**d['init_args'])
-    
-    @staticmethod
-    def _with_test_table(alpha = 1e-4):
-        """
-        loads a lightweight lambda table for use in unit tests to 
-        reduce initialization time, and make unit tests insensitive
-        to changes in the default lambda table
-        """
-        module_dir = os.path.dirname(pymatgen.__file__)
-        json_file = os.path.join(module_dir, 'structure_prediction'
-                                 , 'tests', 'test_data'
-                                 , 'test_lambda.json')
-        with open(json_file) as f:
-            lambda_table = json.load(f)
-            
-        return SubstitutionProbability(lambda_table, alpha)
     
