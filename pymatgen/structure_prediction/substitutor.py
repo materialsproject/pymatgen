@@ -14,22 +14,19 @@ from pymatgen.structure_prediction.substitution_probability \
 from operator import mul
 
 class Substitutor(MSONable):
-    def __init__(self, substitution_probability = None
-                 , threshold = 1e-3):
+    def __init__(self, threshold = 1e-3, **kwargs):
         """
         This substitutor uses the substitution probability class to 
         find good substitutions for a given chemistry or structure. 
         Args:
-            substitution_probability:
-                a substitutionprobability object for finding the 
-                probabilities
             threshold:
                 probability threshold for predictions
+            kwargs:
+                kwargs for the SubstitutionProbability object
+                lambda_table, alpha
         """
-        if substitution_probability:
-            self._sp = substitution_probability
-        else:
-            self._sp = SubstitutionProbability()
+        self._kwargs = kwargs
+        self._sp = SubstitutionProbability(**kwargs)
         self._threshold = threshold
         
     def pred_from_list(self, species_list):
@@ -105,7 +102,7 @@ class Substitutor(MSONable):
     @property
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
-        d["substitution_probability"] = self._sp.to_dict
+        d["kwargs"] = self._kwargs
         d["threshold"] = self._threshold
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -114,8 +111,8 @@ class Substitutor(MSONable):
     @staticmethod
     def from_dict(d):
         t = d['threshold']
-        spd = d['substitution_probability']
-        sp = SubstitutionProbability.from_dict(spd) 
-        return Substitutor(sp, t)
+        kwargs = d['kwargs']
+        return Substitutor(threshold = t, **kwargs)
+        
         
     
