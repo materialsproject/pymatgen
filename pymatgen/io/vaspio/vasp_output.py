@@ -386,8 +386,6 @@ class Vasprun(object):
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
-        d["elements"] = symbols
-        d["nelements"] = len(symbols)
         d["is_hubbard"] = self.incar.get("LDAU", False)
         if d["is_hubbard"]:
             us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
@@ -403,6 +401,10 @@ class Vasprun(object):
                                       " symbols are mismatched.")
         else:
             d["hubbards"] = {}
+
+        unique_symbols = sorted(list(set(symbols)))
+        d["elements"] = unique_symbols
+        d["nelements"] = len(unique_symbols)
 
         d["run_type"] = self.run_type
 
