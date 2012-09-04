@@ -23,8 +23,9 @@ class SubstitutionProbability():
     static method
     Args:
         lambda_table:
-            table of the weight functions lambda (theta in BURP)
-            if None, will use the lambda.json table
+            json table of the weight functions lambda (theta 
+            in BURP)
+            if None, will use the default lambda.json table
         alpha:
             weight function for never observed substitutions
     """
@@ -34,7 +35,7 @@ class SubstitutionProbability():
         #value for never-observed compounds, but is positive even 
         #though many (most?) are negative numbers
         
-        #store the inputs for the to_dict method
+        #store the input table for the to_dict method
         self._lambda_table = lambda_table
         
         if not lambda_table:
@@ -141,4 +142,19 @@ class SubstitutionProbability():
     def from_dict(d):
         return SubstitutionProbability(**d['init_args'])
     
+    @staticmethod
+    def _with_test_table(alpha = 1e-4):
+        """
+        loads a lightweight lambda table for use in unit tests to 
+        reduce initialization time, and make unit tests insensitive
+        to changes in the default lambda table
+        """
+        module_dir = os.path.dirname(pymatgen.__file__)
+        json_file = os.path.join(module_dir, 'structure_prediction'
+                                 , 'tests', 'test_data'
+                                 , 'test_lambda.json')
+        with open(json_file) as f:
+            lambda_table = json.load(f)
+            
+        return SubstitutionProbability(lambda_table, alpha)
     
