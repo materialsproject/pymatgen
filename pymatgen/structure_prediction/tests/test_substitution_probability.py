@@ -4,7 +4,7 @@ import unittest
 
 from pymatgen.core.periodic_table import Specie
 from pymatgen.structure_prediction.substitution_probability \
-    import SubstitutionProbability
+    import SubstitutionProbability, test_table
 
 
 class SubstitutionProbabilityTest(unittest.TestCase):
@@ -32,7 +32,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
                                , "probability isn't correct")
         
     def test_mini_lambda_table(self):
-        sp = SubstitutionProbability._with_test_table()
+        sp = SubstitutionProbability(lambda_table = test_table())
         o2 = Specie('O', -2)
         s2 = Specie('S', -2)
         li1 = Specie('Li', 1)
