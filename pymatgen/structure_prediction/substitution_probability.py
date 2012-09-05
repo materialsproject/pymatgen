@@ -43,7 +43,7 @@ class SubstitutionProbability():
         alpha:
             weight function for never observed substitutions
     """
-    def __init__(self, lambda_table = None, alpha = 1e-4):
+    def __init__(self, lambda_table = None, alpha = -5.):
         #Something seems to be weird about the SubsProbaMRF file:
         #alpha is VERY high. alpha essentially replaces the lambda 
         #value for never-observed compounds, but is positive even 
@@ -56,7 +56,6 @@ class SubstitutionProbability():
             module_dir = os.path.dirname(pymatgen.__file__)
             json_file = os.path.join(module_dir, 'structure_prediction'
                                      , 'data', 'lambda.json')
-            print 'loading'
             with open(json_file) as f:
                 lambda_table = json.load(f)
             

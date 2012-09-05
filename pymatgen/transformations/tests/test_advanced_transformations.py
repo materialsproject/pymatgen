@@ -157,7 +157,9 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = SubstitutionPredictorTransformation(lambda_table = test_table())
+        t = SubstitutionPredictorTransformation(threshold = 1e-3
+                                                , alpha = -5
+                                                , lambda_table = test_table())
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
