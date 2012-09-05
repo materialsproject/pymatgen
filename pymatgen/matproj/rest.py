@@ -23,7 +23,6 @@ import urllib
 import httplib
 import json
 
-
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
