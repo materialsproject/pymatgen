@@ -33,9 +33,8 @@ def test_table():
 class SubstitutionProbability():
     """
     This class finds substitution probabilities given lists of atoms
-    to substitute.
-    The inputs make more sense if you look through the from_defaults
-    static method
+    to substitute. The inputs make more sense if you look through the
+    from_defaults static method.
 
     Args:
         lambda_table:
@@ -74,8 +73,7 @@ class SubstitutionProbability():
 
     def update_normalizations(self):
         """
-        updates the partition functions Z and px,
-        and the species list
+        Updates the partition functions Z and px, and the species list.
         """
         sp_set = set()
         for key in self._lambda.keys():
@@ -98,31 +96,35 @@ class SubstitutionProbability():
 
     def prob(self, s1, s2):
         """
-        get the probability of 2 species substitution
+        Gets the probability of 2 species substitution. Not used by the
+        structure predictor.
+
         Returns:
-            probability of s1 and s2 substitution
-        Not used by the structure predictor. Replicates some of BURP
-        object functionality
+            Probability of s1 and s2 substitution.
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l) / self._Z
 
     def cond_prob(self, s1, s2):
         """
+        Conditional probability of substituting s1 for s2.
+
         Args:
-            s1: The VARIABLE specie
-            s2: The FIXED specie
+            s1: The *variable* specie
+            s2: The *fixed* specie
 
         Returns:
-            Conditional probability used by burp structure predictor (which
-            is why its in a wierd order)
+            Conditional probability used by structure predictor.
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l) / self._px[s2]
 
     def pair_corr(self, s1, s2):
         """
-        returns the pair correlation of 2 species
+        Pair correlation of two species.
+
+        Returns:
+            The pair correlation of 2 species
         """
         l = self._lambda.get(frozenset([s1, s2]), self._alpha)
         return math.exp(l) * self._Z / (self._px[s1] * self._px[s2])

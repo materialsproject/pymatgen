@@ -34,27 +34,28 @@ class Substitutor(MSONable):
 
     def pred_from_list(self, species_list):
         """
-        Args:
-            species_list:
-                list of species in the starting structure
-        Returns:
-            list of dictionaries, each including a substitutions
-            dictionary, and a probability value
-
         There are an exceptionally large number of substitutions to
         look at (260^n), where n is the number of species in the
         list. We need a more efficient than brute force way of going
-        through these possibilities. The brute force method would be:
+        through these possibilities. The brute force method would be::
 
-        output = []
-        for p in itertools.product(self._sp.species_list
-                                   , repeat = len(species_list)):
-            if self._sp.conditional_probability_list(p, species_list)
-                                   > self._threshold:
-                output.append(dict(zip(species_list,p)))
-        return output
+            output = []
+            for p in itertools.product(self._sp.species_list
+                                       , repeat = len(species_list)):
+                if self._sp.conditional_probability_list(p, species_list)
+                                       > self._threshold:
+                    output.append(dict(zip(species_list,p)))
+            return output
 
-        Instead of that we do a branch and bound
+        Instead of that we do a branch and bound.
+
+        Args:
+            species_list:
+                list of species in the starting structure
+
+        Returns:
+            list of dictionaries, each including a substitutions
+            dictionary, and a probability value
         """
         #calculate the highest probabilities to help us stop the recursion
         max_probabilities = []

@@ -55,7 +55,8 @@ Latest Change Log (v2.2.1dev)
 1. Improvements to feffio.
 2. Master matgenie.py script which replaces many analysis scripts.
 3. More memory efficient parsing of VolumetricData.
-4. Miscellaneous bug fixes and speed improvements.
+4. Beta version of structure prediction classes.
+5. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
