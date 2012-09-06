@@ -8,12 +8,13 @@ from pymatgen.structure_prediction.substitution_probability \
 
 
 class SubstitutionProbabilityTest(unittest.TestCase):
+
     def test_full_lambda_table(self):
         """
         This test tests specific values in the data folder. If the 
         json is updated, these tests will have to be as well
         """
-        sp = SubstitutionProbability(alpha = -5.)
+        sp = SubstitutionProbability(alpha= -5.)
         sp1 = Specie('Fe', 4)
         sp3 = Specie('Mn', 3)
         prob1 = sp.prob(sp1, sp3)
@@ -26,13 +27,13 @@ class SubstitutionProbabilityTest(unittest.TestCase):
                                , "probability isn't correct")
         corr = sp.pair_corr(Specie("Cu", 2), Specie("Fe", 2))
         self.assertAlmostEqual(corr, 6.82496631637, 5
-                               , "probability isn't correct")                  
+                               , "probability isn't correct")
         prob3 = sp.cond_prob_list([sp1, sp2], [sp3, sp4])
         self.assertAlmostEqual(prob3, 0.000300298841302, 6
                                , "probability isn't correct")
-        
+
     def test_mini_lambda_table(self):
-        sp = SubstitutionProbability(lambda_table = test_table(), alpha = -5.)
+        sp = SubstitutionProbability(lambda_table=test_table(), alpha= -5.)
         o2 = Specie('O', -2)
         s2 = Specie('S', -2)
         li1 = Specie('Li', 1)
