@@ -26,6 +26,7 @@ Subpackages
     pymatgen.matproj
     pymatgen.phasediagram
     pymatgen.serializers
+    pymatgen.structure_prediction
     pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util
