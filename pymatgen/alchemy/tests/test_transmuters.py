@@ -16,6 +16,7 @@ __date__ = "Mar 5, 2012"
 import unittest
 import os
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
+from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation, OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import SuperTransformation
 
@@ -61,6 +62,14 @@ class PoscarTransmuterTest(unittest.TestCase):
         self.assertEqual(len(tsc), 12)
         for x in tsc:
             self.assertEqual(len(x), 5, 'something might be wrong with the number of transformations in the history') #should be 4 trans + starting structure
+        
+        #test the filter
+        tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'], strict_compare = True, AND = False))
+        self.assertEqual(len(tsc), 8)
+        
+        tsc.apply_filter(ContainsSpecieFilter(['Be2+']))
+        self.assertEqual(len(tsc), 4)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
