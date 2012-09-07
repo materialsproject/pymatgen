@@ -48,18 +48,12 @@ class Element(object):
             symbol:
                 Element symbol, e.g., "H", "Fe"
         """
-        object.__setattr__(self, "_data", _pt_data[symbol])
+        self._data = _pt_data[symbol]
 
         #Store key variables for quick access
-        object.__setattr__(self, "_z", self._data["Atomic no"])
-        object.__setattr__(self, "_symbol", symbol)
-        object.__setattr__(self, "_x", self._data.get("X", 0))
-
-    def __setattr__(self, n, v):
-        raise ValueError("Element is immutable.")
-
-    def __delattr__(self, n):
-        raise ValueError("Element is immutable.")
+        self._z = self._data["Atomic no"]
+        self._symbol = symbol
+        self._x = self._data.get("X", 0)
 
     @property
     def average_ionic_radius(self):
