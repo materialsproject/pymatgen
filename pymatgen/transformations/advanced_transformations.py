@@ -409,6 +409,11 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             output['structure'] = st.apply_transformation(structure)
             output['probability'] = pred['probability']
             output['threshold'] = self._threshold
+            #dictionary keys have to be converted to strings for JSON
+            print pred['substitutions']
+            output['substitutions'] = {}
+            for key, value in pred['substitutions'].items():
+                output['substitutions'][str(key)] = str(value)
             outputs.append(output)
         return outputs
 
