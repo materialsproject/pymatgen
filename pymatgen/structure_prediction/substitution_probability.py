@@ -8,6 +8,7 @@ __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
 from pymatgen.core.periodic_table import Specie
+from pymatgen.util.decorators import cached_class
 
 import itertools
 import json
@@ -29,8 +30,8 @@ def test_table():
         lambda_table = json.load(f)
     return lambda_table
 
-
-class SubstitutionProbability():
+@cached_class
+class SubstitutionProbability(object):
     """
     This class finds substitution probabilities given lists of atoms
     to substitute. The inputs make more sense if you look through the
@@ -44,11 +45,6 @@ class SubstitutionProbability():
             weight function for never observed substitutions
     """
     def __init__(self, lambda_table=None, alpha= -5):
-        #Something seems to be weird about the SubsProbaMRF file:
-        #alpha is VERY high. alpha essentially replaces the lambda
-        #value for never-observed compounds, but is positive even
-        #though many (most?) are negative numbers
-
         #store the input table for the to_dict method
         self._lambda_table = lambda_table
 
@@ -69,12 +65,8 @@ class SubstitutionProbability():
 
         self._lambda = l
         self._alpha = alpha
-        self.update_normalizations()
 
-    def update_normalizations(self):
-        """
-        Updates the partition functions Z and px, and the species list.
-        """
+        #create the partition functions Z and px
         sp_set = set()
         for key in self._lambda.keys():
             sp_set.update(key)

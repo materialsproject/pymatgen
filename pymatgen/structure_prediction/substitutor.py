@@ -11,6 +11,7 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 
+import logging
 from operator import mul
 
 
@@ -83,6 +84,7 @@ class Substitutor(MSONable):
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
+        logging.info('{} substitutions found'.format(len(output)))
         return output
 
     def pred_from_comp(self, composition):
@@ -100,6 +102,8 @@ class Substitutor(MSONable):
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
+        logging.info('{} charge balanced '
+                     'compositions found'.format(len(output)))
         return output
 
     @property
