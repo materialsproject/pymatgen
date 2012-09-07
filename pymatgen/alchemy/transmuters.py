@@ -140,6 +140,14 @@ class StandardTransmuter(object):
         """
         for t in transformations:
             self.append_transformation(t)
+            
+    def apply_filter(self, structure_filter):
+        """
+        Applies a structure_filter to the list of TransformedStructures
+        in the transmuter
+        """
+        self.transformed_structures = filter(structure_filter.test
+                                             , self.transformed_structures)
 
     def write_vasp_input(self, vasp_input_set, output_dir,
                          create_directory=True, subfolder=None,
