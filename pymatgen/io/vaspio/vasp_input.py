@@ -33,6 +33,7 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.util.decorators import cached_class
 import pymatgen
 
 
@@ -1114,6 +1115,7 @@ elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
     VASP_PSP_DIR = config.get("VASP", "pspdir")
 
 
+@cached_class
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1228,12 +1230,6 @@ class Potcar(list, VaspInput):
 
     DEFAULT_FUNCTIONAL = "PBE"
 
-    """
-    Cache for PotcarSingles. Results in orders of magnitude faster generation
-    of output when doing high-throughput run generation.
-    """
-    _cache = {}
-
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
         """
@@ -1321,9 +1317,5 @@ class Potcar(list, VaspInput):
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
             for el in symbols:
-                if (el, functional) in Potcar._cache:
-                    self.append(Potcar._cache[(el, functional)])
-                else:
-                    p = PotcarSingle.from_symbol_and_functional(el, functional)
-                    self.append(p)
-                    Potcar._cache[(el, functional)] = p
+                p = PotcarSingle.from_symbol_and_functional(el, functional)
+                self.append(p)
