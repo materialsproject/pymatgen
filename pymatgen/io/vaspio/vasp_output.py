@@ -1001,6 +1001,11 @@ class Outcar(object):
                 #rewind the file
                 f.seek(0)
 
+            time_patt = re.compile("\((sec|kb)\)")
+            efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
+            nelect_patt = re.compile("number of electron\s+(\S+)\s+"
+                                     "magnetization\s+(\S+)")
+
             for idx, line in enumerate(f):
                 if idx >= line_cutoff:
                     clean = line.strip()
@@ -1027,24 +1032,26 @@ class Outcar(object):
                     elif line.find("soft stop encountered!  aborting job") \
                             != -1:
                         self.is_stopped = True
-                    elif re.search("\((sec|kb)\):", line):
-                        tok = line.strip().split(":")
-                        run_stats[tok[0].strip()] = float(tok[1].strip())
-                    elif re.search("E-fermi\s+:", clean):
-                        try:
-                            #try-catch because VASP sometimes prints 'E-fermi
-                            #: ********     XC(G=0):  -6.1327
-                            #alpha+bet : -1.8238'
-                            m = re.search("E-fermi\s*:\s*(\S+)", clean)
-                            efermi = float(m.group(1))
-                        except:
-                            efermi = 0
-                    elif re.search("number of electron\s+\S+" +
-                                   "magnetization\s+(\S+)", clean):
-                        m = re.search("number of electron\s+(\S+)\s+" +
-                                      "magnetization\s+(\S+)", clean)
-                        nelect = float(m.group(1))
-                        total_mag = float(m.group(2))
+                    else:
+                        if time_patt.search(line):
+                            tok = line.strip().split(":")
+                            run_stats[tok[0].strip()] = float(tok[1].strip())
+                            continue
+                        m = efermi_patt.search(clean)
+                        if m:
+                            try:
+                                #try-catch because VASP sometimes prints
+                                #'E-fermi: ********     XC(G=0):  -6.1327
+                                #alpha+bet : -1.8238'
+                                efermi = float(m.group(1))
+                                continue
+                            except:
+                                efermi = 0
+                                continue
+                        m = nelect_patt.search(clean)
+                        if m:
+                            nelect = float(m.group(1))
+                            total_mag = float(m.group(2))
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
