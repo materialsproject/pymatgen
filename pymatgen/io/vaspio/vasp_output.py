@@ -1039,7 +1039,8 @@ class Outcar(object):
                             efermi = float(m.group(1))
                         except:
                             efermi = 0
-                    elif re.search("number of electron\s+\S+", clean):
+                    elif re.search("number of electron\s+\S+" +
+                                   "magnetization\s+(\S+)", clean):
                         m = re.search("number of electron\s+(\S+)\s+" +
                                       "magnetization\s+(\S+)", clean)
                         nelect = float(m.group(1))
