@@ -6,7 +6,7 @@ from pymatgen.core.periodic_table import smart_element_or_specie
 
 import abc
 
-class AbstractStructureFilter:
+class AbstractStructureFilter(object):
     """
     Abstract structure filter class.
     """
@@ -25,7 +25,7 @@ class AbstractStructureFilter:
         return
 
 
-class ContainsSpecieFilter:
+class ContainsSpecieFilter(AbstractStructureFilter):
     """
     Filter for structures containing certain elements or species.
     By default compares by atomic number
