@@ -327,12 +327,13 @@ class PoscarTransmuter(StandardTransmuter):
                 Whether to use more than one output structure from one-to-many
                 transformations.
         """
-        poscar_strings = []
+        tstructs = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                poscar_strings.append(f.read())
-        return PoscarTransmuter(poscar_strings, transformations,
-                                extend_collection=extend_collection)
+                tstructs.append(TransformedStructure
+                                .from_poscar_string(f.read(), []))
+        return StandardTransmuter(tstructs, transformations,
+                                  extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
