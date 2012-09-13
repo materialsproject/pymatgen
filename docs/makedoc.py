@@ -54,5 +54,4 @@ output = p.communicate()[0]
 
 shutil.copyfile("nature_mp.css", os.path.join("..", "..", "docs", "pymatgen", "html", "static", "nature.css"))
 shutil.copyfile("favicon.ico", os.path.join("..", "..", "docs", "pymatgen", "html", "static", "favicon.ico"))
-shutil.copyfile("pymatgen.png", os.path.join("..", "..", "docs", "pymatgen", "html", "static", "pymatgen.png"))
 

@@ -1,0 +1,189 @@
+#!/usr/bin/env python
+
+'''
+Created on Jul 24, 2012
+'''
+
+from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyue@mit.edu"
+__date__ = "Jul 24, 2012"
+
+import unittest
+import os
+
+from pymatgen import Lattice, Structure, __file__
+from pymatgen.transformations.standard_transformations import \
+    OxidationStateDecorationTransformation, SubstitutionTransformation
+from pymatgen.transformations.advanced_transformations import \
+    SuperTransformation, EnumerateStructureTransformation, \
+    MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
+    SubstitutionPredictorTransformation
+from pymatgen.structure_prediction.substitution_probability import test_table
+from pymatgen.util.io_utils import which
+from pymatgen.io.vaspio.vasp_input import Poscar
+
+from nose.exc import SkipTest
+
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
+
+if which('multienum.x') and which('makestr.x'):
+    enumlib_present = True
+else:
+    enumlib_present = False
+
+
+class SuperTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        tl = [SubstitutionTransformation({"Li+":"Na+"}),
+              SubstitutionTransformation({"Li+":"K+"})]
+        t = SuperTransformation(tl)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+",
+                                     "O2-", "O2-"], coords)
+        s = t.apply_transformation(struct, return_ranked_list=True)
+
+        for s_and_t in s:
+            self.assertEqual(s_and_t['transformation']
+                             .apply_transformation(struct),
+                             s_and_t['structure'])
+
+
+class MultipleSubstitutionTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        sub_dict = {1: ["Na", "K"]}
+        t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        self.assertEqual(len(t.apply_transformation(struct,
+                                                    return_ranked_list=True)),
+                         2)
+
+
+class ChargeBalanceTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        t = ChargeBalanceTransformation('Li+')
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.375, 0.375, 0.375])
+        coords.append([.5, .5, .5])
+        coords.append([0.875, 0.875, 0.875])
+        coords.append([0.125, 0.125, 0.125])
+        coords.append([0.25, 0.25, 0.25])
+        coords.append([0.625, 0.625, 0.625])
+        coords.append([0.75, 0.75, 0.75])
+
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+",
+                                     "O2-", "O2-"], coords)
+        s = t.apply_transformation(struct)
+
+        self.assertAlmostEqual(s.charge, 0, 5)
+
+
+class EnumerateStructureTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        if not enumlib_present:
+            raise SkipTest("enumlib not present. "
+                           "Skipping EnumerateStructureTransformationTest...")
+        enum_trans = EnumerateStructureTransformation(refine_structure=True)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        struct = p.structure
+        expected_ans = [1, 3, 1]
+        for i, frac in enumerate([0.25, 0.5, 0.75]):
+            trans = SubstitutionTransformation({'Fe': {'Fe': frac}})
+            s = trans.apply_transformation(struct)
+            oxitrans = OxidationStateDecorationTransformation({'Li': 1,
+                                                               'Fe': 2,
+                                                               'P': 5,
+                                                               'O':-2})
+            s = oxitrans.apply_transformation(s)
+            alls = enum_trans.apply_transformation(s, 100)
+            self.assertEquals(len(alls), expected_ans[i])
+            self.assertIsInstance(trans.apply_transformation(s), Structure)
+            for s in alls:
+                self.assertIn("energy", s)
+
+        #make sure it works for non-oxidation state decorated structure
+        trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
+        s = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(s, 100)
+        self.assertEquals(len(alls), 3)
+        self.assertIsInstance(trans.apply_transformation(s), Structure)
+        for s in alls:
+            self.assertNotIn("energy", s)
+
+    def test_to_from_dict(self):
+        if not enumlib_present:
+            raise SkipTest("enumlib not present. Skipping "
+                           "EnumerateStructureTransformationTest...")
+        trans = EnumerateStructureTransformation()
+        d = trans.to_dict
+        trans = EnumerateStructureTransformation.from_dict(d)
+        self.assertEqual(trans.symm_prec, 0.1)
+        
+        
+class SubstitutionPredictorTransformationTest(unittest.TestCase):
+    def test_apply_transformation(self):
+        t = SubstitutionPredictorTransformation(threshold = 1e-3
+                                                , alpha = -5
+                                                , lambda_table = test_table())
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        lattice = Lattice([[ 3.8401979337, 0.00, 0.00]
+                           , [1.9200989668, 3.3257101909, 0.00]
+                           , [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ['O2-', 'Li1+', 'Li1+'] , coords)
+        
+        outputs = t.apply_transformation(struct, return_ranked_list = True)
+        self.assertEqual(len(outputs), 4, 'incorrect number of structures')
+    
+    def test_to_dict(self):
+        t = SubstitutionPredictorTransformation(threshold = 2
+                                                , alpha = -2
+                                                , lambda_table = test_table())
+        d = t.to_dict
+        t = SubstitutionPredictorTransformation.from_dict(d)
+        self.assertEqual(t._threshold, 2
+                         , 'incorrect threshold passed through dict')
+        self.assertEqual(t._substitutor._sp._alpha, -2
+                         , 'incorrect alpha passed through dict')
+        
+        
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.testName']
+    unittest.main()

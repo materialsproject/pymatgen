@@ -6,11 +6,11 @@ This module provides classes for plotting PhaseDiagram objects.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "Jun 15, 2012"
 
 import math
 import numpy as np
@@ -22,9 +22,9 @@ from pymatgen.util.coord_utils import get_convex_hull
 
 
 class PDPlotter(object):
-    '''
+    """
     A plotter class for phase diagrams.
-    '''
+    """
 
     def __init__(self, phasediagram, show_unstable=False):
         """
@@ -44,20 +44,20 @@ class PDPlotter(object):
 
     @property
     def pd_plot_data(self):
-        '''
+        """
         Plot data for phase diagram.
         2-comp - Full hull with energies
-        3/4-comp - Projection into 2D or 3D gibbs triangle.
-        
+        3/4-comp - Projection into 2D or 3D Gibbs triangle.
+
         Returns:
             (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD. 
-                - stable_entries is a {coordinate : entry} for each stable node 
-                  in the phase diagram. (Each coordinate can only have one 
+                - lines is a list of list of coordinates for lines in the PD.
+                - stable_entries is a {coordinate : entry} for each stable node
+                  in the phase diagram. (Each coordinate can only have one
                   stable phase)
                 - unstable_entries is a {entry: coordinates} for all unstable
                   nodes in the phase diagram.
-        '''
+        """
         pd = self._pd
         entries = pd.qhull_entries
         data = np.array(pd.qhull_data)
@@ -94,7 +94,8 @@ class PDPlotter(object):
                          pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([alldata[i, 0:2], alldata[i, 0:2]])
+                    coord = triangular_coord([alldata[i, 0:2],
+                                              alldata[i, 0:2]])
                 else:
                     coord = tet_coord([alldata[i, 0:3], alldata[i, 0:3],
                                        alldata[i, 0:3]])
@@ -114,30 +115,30 @@ class PDPlotter(object):
         plt.show()
 
     def _get_2d_plot(self):
-        '''
-        Shows the plot using pylab.  Usually I won't do imports in methods,
-        but since plotting is a fairly expensive library to load and not all 
+        """
+        Shows the plot using pylab.  Usually I won"t do imports in methods,
+        but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
-        '''
+        """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
-            plt.plot(x, y, 'ko-', linewidth=3, markeredgecolor='k',
-                     markerfacecolor='b', markersize=10)
+            plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
+                     markerfacecolor="b", markersize=10)
         font = FontProperties()
-        font.set_weight('bold')
+        font.set_weight("bold")
         font.set_size(24)
 
         # Sets a nice layout depending on the type of PD. Also defines a
         # "center" for the PD, which then allows the annotations to be spread
         # out in a nice manner.
         if len(self._pd.elements) == 3:
-            plt.axis('equal')
+            plt.axis("equal")
             plt.xlim((-0.1, 1.2))
             plt.ylim((-0.1, 1.0))
-            plt.axis('off')
+            plt.axis("off")
             center = (0.5, math.sqrt(3) / 6)
         else:
             allcoords = labels.keys()
@@ -146,6 +147,8 @@ class PDPlotter(object):
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
             center = (0.5, miny / 2)
+            plt.xlabel("Fraction")
+            plt.ylabel("Formation energy from end members (eV)")
 
         for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
@@ -165,7 +168,7 @@ class PDPlotter(object):
                 halign = "center"
 
             plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords='offset points',
+                             textcoords="offset points",
                              horizontalalignment=halign,
                              verticalalignment=valign,
                              fontproperties=font)
@@ -176,64 +179,65 @@ class PDPlotter(object):
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
                 vec = vec / np.linalg.norm(vec) * 10
-                plt.plot(coords[0], coords[1], 'rx', linewidth=3,
-                         markeredgecolor='r', markerfacecolor='r',
+                plt.plot(coords[0], coords[1], "rx", linewidth=3,
+                         markeredgecolor="r", markerfacecolor="r",
                          markersize=10)
                 plt.annotate(latexify(entry.name), coords, xytext=vec,
-                             textcoords='offset points',
+                             textcoords="offset points",
                              horizontalalignment=halign, color="b",
                              verticalalignment=valign,
                              fontproperties=font)
         F = plt.gcf()
-        F.set_size_inches((8, 6.4))
+        F.set_size_inches((8, 6))
+        plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return plt
 
     def _get_3d_plot(self):
-        '''
-        Shows the plot using pylab.  Usually I won't do imports in methods,
-        but since plotting is a fairly expensive library to load and not all 
+        """
+        Shows the plot using pylab.  Usually I won"t do imports in methods,
+        but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
-        '''
+        """
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
         fig = plt.figure()
         ax = p3.Axes3D(fig)
         font = FontProperties()
-        font.set_weight('bold')
+        font.set_weight("bold")
         font.set_size(20)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(x, y, z, 'bo-', linewidth=3, markeredgecolor='b',
-                    markerfacecolor='r', markersize=10)
+            ax.plot(x, y, z, "bo-", linewidth=3, markeredgecolor="b",
+                    markerfacecolor="r", markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
             if len(entry.composition.elements) == 1:
                 # commented out options are only for matplotlib 1.0.  Removed
                 # them so that most ppl can use this class.
-                ax.text(coords[0], coords[1], coords[2], label)#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                ax.text(coords[0], coords[1], coords[2], label)
             else:
-                ax.text(coords[0], coords[1], coords[2], str(count))#, horizontalalignment=halign, verticalalignment=valign, fontproperties=font)
+                ax.text(coords[0], coords[1], coords[2], str(count))
                 newlabels.append("{} : {}".format(count, latexify(label)))
                 count += 1
-        plt.figtext(0.01, 0.01, '\n'.join(newlabels))
-        ax.axis('off')
+        plt.figtext(0.01, 0.01, "\n".join(newlabels))
+        ax.axis("off")
         return plt
 
     def write_image(self, stream, image_format="svg"):
-        '''
+        """
         Writes the phase diagram to an image in a stream.
-        
+
         Args:
             stream:
                 stream to write to. Can be a file stream or a StringIO stream.
             image_format
-                format for image. Can be any of matplotlib supported formats. 
+                format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
-        '''
+        """
         if self._dim < 4:
             plt = self._get_2d_plot()
         elif self._dim == 4:
@@ -243,7 +247,6 @@ class PDPlotter(object):
         f.set_size_inches((12, 10))
 
         plt.savefig(stream, format=image_format)
-
 
     def plot_chempot_range_map(self, elements):
         """
@@ -270,7 +273,7 @@ class PDPlotter(object):
             coords = []
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, 'k')
+                plt.plot(x, y, "k")
                 center_x += sum(x)
                 center_y += sum(y)
                 for coord in line.coords:
@@ -291,7 +294,7 @@ class PDPlotter(object):
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
-        #This is a bit hacky, but it's a way to shade the forbidden chemical
+        #This is a bit hacky, but it"s a way to shade the forbidden chemical
         #potential regions.
         all_coords.append([xlim[0], ylim[1]])
         all_coords.append([xlim[1], ylim[0]])
@@ -301,7 +304,10 @@ class PDPlotter(object):
         for f in facets:
             if f[0] == len(all_coords) - 1 or f[1] == len(all_coords) - 1:
                 continue
-            if (all_coords[f[0]][0] != xlim[1] or all_coords[f[1]][0] != xlim[1]) and (all_coords[f[0]][1] != ylim[1] or all_coords[f[1]][1] != ylim[1]):
+            if (all_coords[f[0]][0] != xlim[1] or
+                all_coords[f[1]][0] != xlim[1]) and \
+                (all_coords[f[0]][1] != ylim[1] or
+                 all_coords[f[1]][1] != ylim[1]):
                 excluded_boundary.append(tuple(all_coords[f[0]]))
                 excluded_boundary.append(tuple(all_coords[f[1]]))
         excluded_boundary = list(set(excluded_boundary))
@@ -309,8 +315,10 @@ class PDPlotter(object):
         excluded_boundary.append((xlim[1], ylim[1]))
         x = [c[0] for c in excluded_boundary]
         y = [c[1] for c in excluded_boundary]
-        plt.fill(x, y, '0.80')
+        plt.fill(x, y, "0.80")
 
+        el0 = elements[0]
+        el1 = elements[1]
         for entry, coords in missing_lines.items():
             center_x = 0
             center_y = 0
@@ -319,43 +327,46 @@ class PDPlotter(object):
                 for coord in coords:
                     x = None
                     y = None
-                    if entry.composition.get_atomic_fraction(elements[0]) < 0.01:
+                    if entry.composition.get_atomic_fraction(el0) < 0.01:
                         x = [coord[0], min(xlim)]
                         y = [coord[1], coord[1]]
-                    elif entry.composition.get_atomic_fraction(elements[1]) < 0.01:
+                    elif entry.composition.get_atomic_fraction(el1) < 0.01:
                         x = [coord[0], coord[0]]
                         y = [coord[1], min(ylim)]
                     if x and y:
-                        plt.plot(x, y, 'k')
+                        plt.plot(x, y, "k")
                         center_x += sum(x)
                         center_y += sum(y)
             else:
                 center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
                 center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
             xy = (center_x / 2 / len(coords), center_y / 2 / len(coords))
-            plt.annotate(latexify(entry.name), xy, horizontalalignment="center",
+            plt.annotate(latexify(entry.name), xy,
+                         horizontalalignment="center",
                          verticalalignment="center", fontsize=22)
 
-        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[0].symbol))
-        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)".format(elements[1].symbol))
+        plt.xlabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+                   .format(el0.symbol))
+        plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
+                   .format(el1.symbol))
         plt.tight_layout()
         plt.show()
 
 
 def uniquelines(q):
-    '''
+    """
     Given all the facets, convert it into a set of unique lines.  Specifically
     used for converting convex hull facets into line pairs of coordinates.
-    
+
     Args:
         q:
-            A 2-dim sequence, where each row represents a facet. E.g., 
+            A 2-dim sequence, where each row represents a facet. E.g.,
             [[1,2,3],[3,6,7],...]
-    
+
     Returns:
         setoflines:
             A set of tuple of lines.  E.g., ((1,2), (1,3), (2,3), ....)
-    '''
+    """
     setoflines = set()
     for facets in q:
         for line in itertools.combinations(facets, 2):
@@ -364,33 +375,34 @@ def uniquelines(q):
 
 
 def triangular_coord(coord):
-    '''
+    """
     Convert a 2D coordinate into a triangle-based coordinate system for a
     prettier phase diagram.
-    
+
     Args:
         coordinate:
             coordinate used in the convex hull computation.
-    
+
     Returns:
-        coordinates in a triangular-based coordinate system. 
-    '''
+        coordinates in a triangular-based coordinate system.
+    """
     unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 
+
 def tet_coord(coord):
-    '''
+    """
     Convert a 3D coordinate into a tetrahedron based coordinate system for a
     prettier phase diagram.
-    
+
     Args:
         coordinate:
             coordinate used in the convex hull computation.
-    
+
     Returns:
-        coordinates in a tetrahedron-based coordinate system. 
-    '''
+        coordinates in a tetrahedron-based coordinate system.
+    """
     unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0],
                         [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
     result = np.dot(np.array(coord), unitvec)

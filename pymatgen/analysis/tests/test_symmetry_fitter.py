@@ -6,16 +6,20 @@ import itertools
 
 from pymatgen.analysis.symmetry_fitter import SymmetryFitter
 from pymatgen import __file__
-from pymatgen.transformations.site_transformations import RemoveSitesTransformation
-from pymatgen.io.vaspio import Poscar
-from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+from pymatgen.transformations.site_transformations import \
+    RemoveSitesTransformation
+from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.symmetry.finder import SymmetryFinder
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
+
 
 class SymmetryFitterTest(unittest.TestCase):
 
     def test_init(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
         struct = p.structure
         structs = []
         for i, j in itertools.combinations(xrange(4, 8), 2):

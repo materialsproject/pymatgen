@@ -111,6 +111,9 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    and the return values. For complex algorithms (e.g., an Ewald summation), a
    summary of the alogirthm should be provided, and preferably with a link to a
    publication outlining the method in detail.
+4. **IDE** We highly recommend the use of Eclipse + PyDev. You should also set
+   up pylint and pep8 and turn those on within the Eclipse PyDev setup. This
+   will warn of any issues with coding styles.
    
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
