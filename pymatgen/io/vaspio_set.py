@@ -169,7 +169,8 @@ class VaspInputSet(AbstractVaspInputSet):
             config_file = os.path.join(module_dir, "VaspInputSets.cfg")
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(config_file))
+        with open(config_file, "r") as f:
+            self._config.readfp(f)
 
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
