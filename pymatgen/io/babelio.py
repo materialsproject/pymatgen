@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-'''
+"""
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
 installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
-'''
+"""
 
 from __future__ import division
 
@@ -27,22 +27,23 @@ except ImportError:
 
 
 class BabelMolAdaptor(object):
-    '''
-    Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
+    """
+    Adaptor serves as a bridge between OpenBabel"s Molecule and pymatgen"s
     Molecule.
-    '''
+    """
 
     def __init__(self, mol):
         """
-        Initializes with pymatgen Molecule or OpenBabel's OBMol.
-        
+        Initializes with pymatgen Molecule or OpenBabel"s OBMol.
+
         Args:
             mol:
-                pymatgen's Molecule or OpenBabel Molecule
+                pymatgen"s Molecule or OpenBabel Molecule
         """
         if isinstance(mol, Molecule):
             if not mol.is_ordered:
-                raise ValueError('OpenBabel Molecule only supports ordered molecules.')
+                raise ValueError("OpenBabel Molecule only supports ordered "
+                                 "molecules.")
             obmol = ob.OBMol()
             for site in mol:
                 a = obmol.NewAtom()
@@ -62,7 +63,7 @@ class BabelMolAdaptor(object):
     @property
     def pymatgen_mol(self):
         """
-        Returns pymatgen's Molecule representation.
+        Returns pymatgen"s Molecule representation.
         """
         return self._mol
 
@@ -76,7 +77,7 @@ class BabelMolAdaptor(object):
     def write_file(self, filename, file_format="xyz"):
         """
         Uses OpenBabel to output all supported formats.
-        
+
         Args:
             filename:
                 Filename of file to output
@@ -90,16 +91,15 @@ class BabelMolAdaptor(object):
     def from_file(filename, file_format="xyz"):
         """
         Uses OpenBabel to read a molecule from all supported formats.
-        
+
         Args:
             filename:
                 Filename of file to output
             file_format:
                 String specifying any OpenBabel supported formats.
-                
+
         Returns:
             BabelMolAdaptor object
         """
-        mol = pb.readfile(file_format, filename).next()
-        return BabelMolAdaptor(mol.OBMol)
-
+        mols = list(pb.readfile(file_format, filename))
+        return BabelMolAdaptor(mols[0].OBMol)

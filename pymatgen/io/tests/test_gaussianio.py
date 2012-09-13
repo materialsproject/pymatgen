@@ -19,7 +19,8 @@ import os
 from pymatgen import Molecule, __file__
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
 
 
 class GaussianInputTest(unittest.TestCase):
@@ -30,10 +31,12 @@ class GaussianInputTest(unittest.TestCase):
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
-                  [-0.513360 , 0.889165 , -0.363000]]
+                  [-0.513360, 0.889165, -0.363000]]
 
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.gau = GaussianInput(mol, route_parameters={'SP':"", "SCF":"Tight"}, input_parameters={"EPS":12})
+        self.gau = GaussianInput(mol,
+                                 route_parameters={'SP': "", "SCF": "Tight"},
+                                 input_parameters={"EPS": 12})
 
     def test_str_and_from_string(self):
         ans = """#P HF/6-31G(d) SP SCF=Tight Test

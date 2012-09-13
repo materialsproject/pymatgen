@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module provides core classes needed by all define electronic structure, 
+This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
@@ -29,7 +29,7 @@ class Spin(object):
     class _SpinImpl(object):
         """
         Internal representation for Spin. Not to be instantiated directly.
-        Use Spin enum types. Class is implemented as a cached class for 
+        Use Spin enum types. Class is implemented as a cached class for
         memory efficiency.
         """
         def __init__(self, name):
@@ -56,7 +56,7 @@ class Spin(object):
     def from_int(i):
         """
         Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
-        
+
         Args:
             i:
                 integer representing direction of spin.
@@ -75,15 +75,15 @@ class Spin(object):
 
 class Orbital(object):
     """
-    Enum type for OrbitalType. Indices are basically the azimutal quantum number, l.
-    Design follows somewhat the familiar Java syntax.
+    Enum type for OrbitalType. Indices are basically the azimutal quantum
+    number, l.
     """
 
     @cached_class
     class _OrbitalImpl(object):
         """
-        Internal representation of an orbital.  Do not use directly. 
-        Use the Orbital class enum types.  Class is implemented as a cached 
+        Internal representation of an orbital.  Do not use directly.
+        Use the Orbital class enum types.  Class is implemented as a cached
         class for memory efficiency.
         """
 
@@ -147,4 +147,3 @@ class Orbital(object):
             if str(orb) == orb_str:
                 return orb
         raise ValueError("Illegal orbital definition!")
-

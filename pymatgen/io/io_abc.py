@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 '''
-This module implements abstract base classes for file io classes.  For seamless
-integration with the rest of the code base, any classes providing to a file io
-function should extend this class.
+This module implements abstract base classes for file io classes.  For seamless integration
+with the rest of the code base, any classes providing to a file io function should extend this class.
 '''
 
 __author__ = "Shyue Ping Ong"
@@ -16,10 +15,7 @@ __date__ = "$Sep 23, 2011M$"
 
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
-
-
-class VaspInput(MSONable):
+class VaspInput(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
@@ -29,3 +25,12 @@ class VaspInput(MSONable):
         '''
         return
 
+class FeffInput(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def write_file(self, filename):
+        '''
+        Writes the contents to a file.
+        '''
+        return

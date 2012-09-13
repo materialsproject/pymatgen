@@ -23,12 +23,14 @@ provided a quick summary of the various modules here:
    essentially defines the lattice vectors in three dimensions. The Lattice 
    object provides convenience methods for performing fractional to cartesian 
    coordinates and vice version, lattice parameter and angles computations, etc.
- 
-3. pymatgen.core.structure : Defines the Site, PeriodicSite, Structure,
-   Molecule, and Composition objects. A Site is essentially a coordinate point
-   containing an Element or Specie. A PeriodicSite contains a Lattice as well.
-   A Structure and Molecule are simply a list of PeriodicSites and Site
-   respectively. Finally, a Composition is mapping of Element/Specie to amounts.
+
+3. pymatgen.core.sites : Defines the Site and PeriodicSite objects. A Site is
+   essentially a coordinate point containing an Element or Specie. A
+   PeriodicSite contains a Lattice as well.
+   
+4. pymatgen.core.structure : Defines the Structure, Molecule, and Composition
+   objects. A Structure and Molecule are simply a list of PeriodicSites and Site
+   respectively. A Composition is mapping of Element/Specie to amounts.
 
 All units in pymatgen are typically assumed to be in atomic units, i.e.,
 angstroms for lengths, eV for energies, etc. However, most objects do not assume
@@ -84,15 +86,15 @@ dict for converting into json. To use the PMGJSONEncoder, simply add it as the
 
    json.dumps(object, cls=PMGJSONEncoder)
 
-The PMGJSONDecoder depends on finding a "module" and "class" key in the dict in
-order to decode the necessary python object. In general, the PMGJSONEncoder will
+The PMGJSONDecoder depends on finding a "@module" and "@class" key in the dict 
+to decode the necessary python object. In general, the PMGJSONEncoder will
 add these keys if they are not present, but for better long term stability
 (e.g., there may be situations where to_dict is called directly rather than
 through the encoder), the easiest way is to add the following to any to_dict
 property::
     
-   d['module'] = self.__class__.__module__
-   d['class'] = self.__class__.__name__
+   d["@module"] = self.__class__.__module__
+   d["@class"] = self.__class__.__name__
         
 To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.,
@@ -129,6 +131,8 @@ crystal is provided below::
                                      beta=90, gamma=60)
    struct = Structure(lattice, ["Si", "Si"], coords)
 
+Note that both elements and species (elements with oxidation states) are
+supported. So both "Fe" and "Fe2+" are valid specifications.
 
 Creating Structures using the pymatgen.io packages
 --------------------------------------------------
@@ -365,7 +369,7 @@ Usage example - replace Fe with Mn and remove all Li in all structures:
    trans.append(SubstitutionTransformation({"Fe":"Mn"}))
    trans.append(RemoveSpecieTransformation(["Lu"]))
    transmuter = TransformedStructureTransmuter.from_cifs(["MultiStructure.cif"], trans)
-   structures = transmuter.get_transformed_structures()
+   structures = transmuter.transformed_structures
 
 pymatgen.matproj.rest - Integration with the Materials Project REST API
 =======================================================================
