@@ -80,7 +80,8 @@ class MPRester(object):
         """
         headers = {"x-api-key": self.api_key}
         conn = httplib.HTTPSConnection(self.host)
-        url = "/rest/{}/{}/{}".format(chemsys_formula_id, data_type, prop)
+        url = "/rest/v1/materials/{}/{}/{}".format(chemsys_formula_id,
+                                                   data_type, prop)
         try:
             conn.request("GET", url, headers=headers)
             response = conn.getresponse()
@@ -238,7 +239,7 @@ class MPRester(object):
                                    "properties": properties})
         headers = {"x-api-key": self.api_key}
         conn = httplib.HTTPSConnection(self.host)
-        conn.request("POST", "/rest/mpquery", body=params, headers=headers)
+        conn.request("POST", "/rest/v1/mpquery", body=params, headers=headers)
         response = conn.getresponse()
         data = json.loads(response.read(), cls=PMGJSONDecoder)
         return data
