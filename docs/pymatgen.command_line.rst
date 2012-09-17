@@ -17,6 +17,14 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`enumlib_caller` Module
+----------------------------
+
+.. automodule:: pymatgen.command_line.enumlib_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`qhull_caller` Module
 --------------------------
 

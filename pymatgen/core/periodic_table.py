@@ -22,44 +22,38 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
 
-def _load__pt_data():
+def _load_pt_data():
     """Loads element data from json file"""
     module_dir = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(module_dir, "periodic_table.json")) as f:
         return json.load(f)
 
-_pt_data = _load__pt_data()
+_pt_data = _load_pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
 @cached_class
 class Element(object):
-    '''
+    """
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
     ensuring that a particular element behaves like a singleton.
-    '''
+    """
 
     def __init__(self, symbol):
-        '''
+        """
         Create immutable element from a symbol.
 
         Args:
             symbol:
                 Element symbol, e.g., "H", "Fe"
-        '''
-        object.__setattr__(self, '_data', _pt_data[symbol])
+        """
+        self._data = _pt_data[symbol]
 
         #Store key variables for quick access
-        object.__setattr__(self, '_z', self._data['Atomic no'])
-        object.__setattr__(self, '_symbol', symbol)
-        object.__setattr__(self, '_x', self._data.get('X', 0))
-
-    def __setattr__(self, n, v):
-        raise ValueError("Element is immutable and setting of attributes is not allowed")
-
-    def __delattr__(self, n):
-        raise ValueError("Element is immutable and deleting of attributes is not allowed")
+        self._z = self._data["Atomic no"]
+        self._symbol = symbol
+        self._x = self._data.get("X", 0)
 
     @property
     def average_ionic_radius(self):
@@ -67,8 +61,8 @@ class Element(object):
         Average ionic radius for element in pm. The average is taken over all
         oxidation states of the element for which data is present.
         """
-        if 'Ionic_radii' in self._data:
-            radii = self._data['Ionic_radii']
+        if "Ionic_radii" in self._data:
+            radii = self._data["Ionic_radii"]
             return sum(radii.values()) / len(radii)
         else:
             return 0
@@ -79,8 +73,8 @@ class Element(object):
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in pm.
         """
-        if 'Ionic_radii' in self._data:
-            return {int(k): v for k, v in self._data['Ionic_radii'].items()}
+        if "Ionic_radii" in self._data:
+            return {int(k): v for k, v in self._data["Ionic_radii"].items()}
         else:
             return {}
 
@@ -107,76 +101,76 @@ class Element(object):
     @property
     def name(self):
         """Full name for element"""
-        return self._data['Name']
+        return self._data["Name"]
 
     @property
     def atomic_mass(self):
         """Atomic mass"""
-        return self._data['Atomic mass']
+        return self._data["Atomic mass"]
 
     @property
     def atomic_radius(self):
         """Atomic radius"""
-        return self._data['Atomic radius']
+        return self._data["Atomic radius"]
 
     @property
     def max_oxidation_state(self):
         """Maximum oxidation state for element"""
-        if 'Oxidation states' in self._data:
-            return max(self._data['Oxidation states'])
+        if "Oxidation states" in self._data:
+            return max(self._data["Oxidation states"])
         return 0
 
     @property
     def min_oxidation_state(self):
         """Minimum oxidation state for element"""
-        if 'Oxidation states' in self._data:
-            return min(self._data['Oxidation states'])
+        if "Oxidation states" in self._data:
+            return min(self._data["Oxidation states"])
         return 0
 
     @property
     def oxidation_states(self):
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get('Oxidation states', list()))
+        return tuple(self._data.get("Oxidation states", list()))
 
     @property
     def common_oxidation_states(self):
         """Tuple of all known oxidation states"""
-        return tuple(self._data.get('Common oxidation states', list()))
+        return tuple(self._data.get("Common oxidation states", list()))
 
     @property
     def mendeleev_no(self):
         """Mendeleev number"""
-        return self._data['Mendeleev no']
+        return self._data["Mendeleev no"]
 
     @property
     def electrical_resistivity(self):
         """Electrical resistivity"""
-        return self._data['Electrical resistivity']
+        return self._data["Electrical resistivity"]
 
     @property
     def velocity_of_sound(self):
         """Velocity of sound"""
-        return self._data['Velocity of sound']
+        return self._data["Velocity of sound"]
 
     @property
     def reflectivity(self):
         """Reflectivity"""
-        return self._data['Reflectivity']
+        return self._data["Reflectivity"]
 
     @property
     def refractive_index(self):
         """Refractice index"""
-        return self._data['Refractive index']
+        return self._data["Refractive index"]
 
     @property
     def poissons_ratio(self):
-        """Poisson's ratio"""
-        return self._data['Poissons ratio']
+        """Poisson"s ratio"""
+        return self._data["Poissons ratio"]
 
     @property
     def molar_volume(self):
         """Molar volume"""
-        return self._data['Molar volume']
+        return self._data["Molar volume"]
 
     @property
     def electronic_structure(self):
@@ -185,17 +179,17 @@ class Element(object):
         E.g., The electronic structure for Fe is represented as
         [Ar].3d<sup>6</sup>.4s<sup>2</sup>
         """
-        return self._data['Electronic structure']
+        return self._data["Electronic structure"]
 
     @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
-        [(1, 's', 2), (2, 's', 2), (2, 'p', 6), (3, 's', 2), (3, 'p', 6),
-        (3, 'd', 6), (4, 's', 2)]
+        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+        (3, "d", 6), (4, "s", 2)]
         """
-        estr = self._data['Electronic structure']
+        estr = self._data["Electronic structure"]
 
         def parse_orbital(orbstr):
             m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
@@ -212,72 +206,72 @@ class Element(object):
     @property
     def thermal_conductivity(self):
         """Thermal conductivity"""
-        return self._data['Thermal conductivity']
+        return self._data["Thermal conductivity"]
 
     @property
     def boiling_point(self):
         """Boiling point"""
-        return self._data['Boiling point']
+        return self._data["Boiling point"]
 
     @property
     def melting_point(self):
         """Melting point"""
-        return self._data['Melting point']
+        return self._data["Melting point"]
 
     @property
     def critical_temperature(self):
         """Critical temperature"""
-        return self._data['Critical temperature']
+        return self._data["Critical temperature"]
 
     @property
     def superconduction_temperature(self):
         """Superconduction temperature"""
-        return self._data['Superconduction temperature']
+        return self._data["Superconduction temperature"]
 
     @property
     def liquid_range(self):
         """Liquid range"""
-        return self._data['Liquid range']
+        return self._data["Liquid range"]
 
     @property
     def bulk_modulus(self):
         """Bulk modulus"""
-        return self._data['Bulk modulus']
+        return self._data["Bulk modulus"]
 
     @property
     def youngs_modulus(self):
-        """Young's modulus"""
-        return self._data['Youngs modulus']
+        """Young"s modulus"""
+        return self._data["Youngs modulus"]
 
     @property
     def brinell_hardness(self):
         """Brinell hardness"""
-        return self._data['Brinell hardness']
+        return self._data["Brinell hardness"]
 
     @property
     def rigidity_modulus(self):
         """Rigidity modulous"""
-        return self._data['Rigidity modulus']
+        return self._data["Rigidity modulus"]
 
     @property
     def mineral_hardness(self):
         """Mineral hardness"""
-        return self._data['Mineral hardness']
+        return self._data["Mineral hardness"]
 
     @property
     def vickers_hardness(self):
-        """Vicker's hardness"""
-        return self._data['Vickers hardness']
+        """Vicker"s hardness"""
+        return self._data["Vickers hardness"]
 
     @property
     def density_of_solid(self):
         """Density of solid phase"""
-        return self._data['Density of solid']
+        return self._data["Density of solid"]
 
     @property
     def coefficient_of_linear_thermal_expansion(self):
         """Coefficient of linear thermal expansion"""
-        return self._data['Coefficient of linear thermal expansion']
+        return self._data["Coefficient of linear thermal expansion"]
 
     def __eq__(self, other):
         if not isinstance(other, Element):
@@ -297,24 +291,24 @@ class Element(object):
         return self.symbol
 
     def __cmp__(self, other):
-        '''
+        """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
-        '''
+        """
         return (self.X - other.X)
 
     def __lt__(self, other):
-        '''
+        """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
-        '''
+        """
         return (self.X < other.X)
 
     @staticmethod
     def from_Z(z):
-        '''Get an element from an atomic number'''
+        """Get an element from an atomic number"""
         for sym in _pt_data.keys():
             if Element(sym).Z == z:
                 return Element(sym)
@@ -401,17 +395,17 @@ class Element(object):
     @property
     def block(self):
         """
-        Return the block character 's,p,d,f'
+        Return the block character "s,p,d,f"
         """
-        block = ''
+        block = ""
         if self.group in [1, 2]:
-            block = 's'
+            block = "s"
         elif self.group in range(13, 19):
-            block = 'p'
+            block = "p"
         elif (self.is_actinoid or self.is_lanthanoid):
-            block = 'f'
+            block = "f"
         elif self.group in range(3, 13):
-            block = 'd'
+            block = "d"
         else:
             print("unable to determine block")
         return block
@@ -450,7 +444,7 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        ns = ['B', 'Si', 'Ge', 'As', 'Sb', 'Te', 'Po']
+        ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
         return self.symbol in ns
 
     @property
@@ -496,15 +490,16 @@ class Element(object):
 
     @staticmethod
     def from_dict(d):
-        return Element(d['element'])
+        return Element(d["element"])
 
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['element'] = self.symbol
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["element"] = self.symbol
         return d
+
 
 class Specie(MSONable):
     """
@@ -528,13 +523,14 @@ class Specie(MSONable):
             oxidation_state:
                 Oxidation state of element, e.g., 2 or -2
             properties:
-                Properties associated with the Specie, e.g. 
-                {'spin':5}. Defaults to None. Properties must be one of the
+                Properties associated with the Specie, e.g.,
+                {"spin":5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
-        object.__setattr__(self, '_el', Element(symbol))
-        object.__setattr__(self, '_oxi_state', oxidation_state)
-        object.__setattr__(self, '_properties', properties if properties else {})
+        object.__setattr__(self, "_el", Element(symbol))
+        object.__setattr__(self, "_oxi_state", oxidation_state)
+        object.__setattr__(self, "_properties",
+                           properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
@@ -548,11 +544,12 @@ class Specie(MSONable):
             raise AttributeError(a)
 
     def __setattr__(self, n, v):
-        raise ValueError("Specie is immutable and setting of attributes is not allowed")
+        raise ValueError("Specie is immutable and setting of attributes is not"
+                         " allowed")
 
     def __delattr__(self, n):
-        raise ValueError("Specie is immutable and deleting of attributes is not allowed")
-
+        raise ValueError("Specie is immutable and deleting of attributes is "
+                         "not allowed")
 
     def __eq__(self, other):
         """
@@ -561,7 +558,8 @@ class Specie(MSONable):
         """
         if not isinstance(other, Specie):
             return False
-        return self.symbol == other.symbol and self._oxi_state == other._oxi_state
+        return self.symbol == other.symbol \
+            and self._oxi_state == other._oxi_state
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -575,10 +573,10 @@ class Specie(MSONable):
         return self.Z * 100 + self.oxi_state
 
     def __lt__(self, other):
-        '''
+        """
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
-        '''
+        """
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
         return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
 
@@ -612,7 +610,7 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-])', species_string)
+        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-])", species_string)
         if m:
             num = 1 if m.group(2) == "" else float(m.group(2))
             return Specie(m.group(1), num if m.group(3) == "+" else -num)
@@ -636,16 +634,17 @@ class Specie(MSONable):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['element'] = self.symbol
-        d['oxidation_state'] = self._oxi_state
-        d['properties'] = self._properties
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["element"] = self.symbol
+        d["oxidation_state"] = self._oxi_state
+        d["properties"] = self._properties
         return d
 
     @staticmethod
     def from_dict(d):
-        return Specie(d['element'], d['oxidation_state'], d.get('properties', None))
+        return Specie(d["element"], d["oxidation_state"],
+                      d.get("properties", None))
 
 
 class DummySpecie(Specie, MSONable):
@@ -655,7 +654,7 @@ class DummySpecie(Specie, MSONable):
     sites, etc.
     """
 
-    def __init__(self, symbol='X', oxidation_state=0, properties=None):
+    def __init__(self, symbol="X", oxidation_state=0, properties=None):
         """
         Args:
             symbol:
@@ -679,23 +678,33 @@ class DummySpecie(Specie, MSONable):
         Set required attributes for DummySpecie to function like a Specie in
         most instances.
         """
-        object.__setattr__(self, '_symbol', symbol)
-        object.__setattr__(self, '_oxi_state', oxidation_state)
-        object.__setattr__(self, '_properties', properties if properties else {})
+        object.__setattr__(self, "_symbol", symbol)
+        object.__setattr__(self, "_oxi_state", oxidation_state)
+        object.__setattr__(self, "_properties",
+                           properties if properties else {})
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
-                raise ValueError("{} is not a supported Specie property".format(k))
+                raise ValueError("{} is not a supported property".format(k))
 
     @property
     def Z(self):
+        """
+        DummySpecie is always assigned an atomic number of 0.
+        """
         return 0
 
     @property
     def oxi_state(self):
+        """
+        Oxidation state associated with DummySpecie
+        """
         return self._oxi_state
 
     @property
     def X(self):
+        """
+        DummySpecie is always assigned an electronegativity of 0.
+        """
         return 0
 
     @property
@@ -720,7 +729,7 @@ class DummySpecie(Specie, MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search('([A-Z][a-z]*)([0-9\.]*)([\+\-]*)', species_string)
+        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-]*)", species_string)
 
         if m:
             if m.group(2) == "" and m.group(3) == "":
@@ -734,23 +743,25 @@ class DummySpecie(Specie, MSONable):
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['element'] = self.symbol
-        d['oxidation_state'] = self._oxi_state
-        d['properties'] = self._properties
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["element"] = self.symbol
+        d["oxidation_state"] = self._oxi_state
+        d["properties"] = self._properties
         return d
 
     @staticmethod
     def from_dict(d):
-        return DummySpecie(d['element'], d['oxidation_state'], d.get('properties', None))
+        return DummySpecie(d["element"], d["oxidation_state"],
+                           d.get("properties", None))
+
 
 @singleton
 class PeriodicTable(object):
-    '''
+    """
     A Periodic table singleton class. This class contains methods on the
     collection of all known elements. For example, printing all elements, etc.
-    '''
+    """
 
     def __init__(self):
         """ Implementation of the singleton interface """

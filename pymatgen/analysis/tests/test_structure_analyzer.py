@@ -1,11 +1,9 @@
 import unittest
 import os
-import json
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, solid_angle, contains_peroxide
-from pymatgen.io.vaspio import Vasprun, Poscar
 from pymatgen.io.cifio import CifParser
-from pymatgen import Element, __file__, PMGJSONDecoder
+from pymatgen import Element, __file__
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
