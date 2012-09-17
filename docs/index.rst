@@ -49,15 +49,11 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.1)
---------------------------
+Latest Change Log (v2.2.2dev)
+-----------------------------
 
-1. Improvements to feffio.
-2. Master matgenie.py script which replaces many analysis scripts.
-3. More memory efficient parsing of VolumetricData.
-4. Beta version of structure prediction classes.
-5. Changes to MPRester to work with v1 release of the Materials API.
-6. Miscellaneous bug fixes and speed improvements.
+1. Improvements to unittests.
+2. Miscellaneous bug fixes and speed improvements.
 
 .. toctree::
    :maxdepth: 2
@@ -75,8 +71,17 @@ bug-free. If you have  distutils installed, you can just type:
 
    easy_install pymatgen
    
-to install pymatgen with most of the dependencies set up. Otherwise, the latest
-stable source can be downloaded at the `PyPI`_ site as well.
+or
+
+::
+
+   pip install pymatgen
+   
+if you have setuptools or pip installed to install pymatgen with most of the
+dependencies set up. Otherwise, the latest stable source can be downloaded at
+the `PyPI`_ site as well. Note that you may need to install numpy before
+installing pymatgen as numpy's distutils is needed to compile the spglib
+library.
 
 Alternatively, the bleeding edge developmental version is at the public
 pymatgen github repo at 
