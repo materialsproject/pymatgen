@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 '''
-This module implements plotter for DOS.
+This module implements plotter for DOS and band structure.
 '''
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -450,7 +450,7 @@ class BSPlotter(object):
         plt = self.get_plot(zero_to_efermi, ylim)
         plt.show()
         
-    def save_plot(self, filename, img_format="eps", ylim=None):
+    def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True):
         """
         Save matplotlib plot to a file.
         
@@ -462,8 +462,10 @@ class BSPlotter(object):
             ylim:
                 Specifies the y-axis limits. 
         """
-        plt = self.get_plot(ylim)
+        plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi)
+        #plt.show()
         plt.savefig(filename, format=img_format)
+        plt.close()
 
     def get_ticks(self):
         """
@@ -536,6 +538,9 @@ class BSPlotter(object):
         pylab.legend()
 
     def plot_brillouin(self):
+        """
+            plot the Brillouin zone
+        """
         import pymatgen.command_line.qhull_caller
         import matplotlib as mpl
         import matplotlib.pyplot as plt
@@ -666,6 +671,7 @@ class BSPlotterProjected(BSPlotter):
         for instance {'Cu':['d','s'],'O':['p']} will give projections
         for Cu on d and s orbitals and on oxygen p
         The bigger the red dot in the band structure the higher character for the corresponding element and orbital
+        TODO support spins
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         fig_number=0
@@ -746,6 +752,7 @@ class BSPlotterProjected(BSPlotter):
         count=1
         for el in self._bs._structure.composition.elements:
             plt.subplot(220+count)
+            self._maketicks(plt)
             for i in range(self._nb_bands):
                 #bar=[]
                 #for j in range(len(proj[Spin.up][i])):
@@ -758,19 +765,23 @@ class BSPlotterProjected(BSPlotter):
                 plt.plot(data['distances'],
                                  [e for e in data['energy'][str(Spin.up)][i]],'k-')
                 for j in range(len(data['energy'][str(Spin.up)][i])):
-                    plt.plot(data['distances'][j],
-                                 data['energy'][str(Spin.up)][i][j],'ro',markersize=proj[Spin.up][i][j][str(el)]*15.0)
+                    if j%4==0:
+                        plt.plot(data['distances'][j],
+                                    data['energy'][str(Spin.up)][i][j],'ro',markersize=proj[Spin.up][i][j][str(el)]*15.0)
             plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
             plt.title(str(el))
             count=count+1
-        plt.show()
+        return plt
         
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
         returns a pylab plot object with one plot where the band structure line color depends
         on the character of the band (along different elements). The elements are given in a certain order by
         the list elt_ordered and the color order is red, green, blue
+        The method can only deal with binary and ternary compounds
         """
+        if len(self._bs._structure.composition._elements)>3:
+            raise ValueError
      	if elt_ordered==None:
    	   		elt_ordered=self._bs._structure.composition.elements
         proj=self._bs.get_projection_on_elements()
