@@ -303,16 +303,8 @@ class BSPlotter(object):
                                          for j in range(len(kpoints))])
         if self._bs.is_spin_polarized:
             for i in range(self._nb_bands):
-<<<<<<< HEAD
-                #for j in range(len(self._bs._kpoints)):
-                #    print self._bs._bands[Spin.down][i][j]
-                #print zero_energy
                 energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j] - zero_energy for j in range(len(self._bs._kpoints))])
-=======
-                energy[str(Spin.down)].append([self._bs._bands[Spin.down][i][j]
-                                               - zero_energy
-                                               for j in range(len(kpoints))])
->>>>>>> master
+
 
         vbm = self._bs.get_vbm()
         cbm = self._bs.get_cbm()
@@ -352,16 +344,11 @@ class BSPlotter(object):
 
         Args:
             zero_to_efermi:
-<<<<<<< HEAD
                 Automatically subtract off the Fermi energy from the eigenvalues
                 and plot (E-Ef).
             ylim
                 specify the y-axis (energy) limits; by default None let the code choose.
                 It is vbm-4 and cbm+4 if insulator efermi-10 and efermi+10 if metal
-=======
-                Automatically subtract off the Fermi energy from the
-                eigenvalues and plot (E-Ef).
->>>>>>> master
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -582,13 +569,10 @@ class BSPlotter(object):
         pylab.legend()
 
     def plot_brillouin(self):
-<<<<<<< HEAD
         """
             plot the Brillouin zone
         """
         import pymatgen.command_line.qhull_caller
-=======
->>>>>>> master
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         mpl.rcParams['legend.fontsize'] = 10
@@ -663,7 +647,7 @@ class BSPlotter(object):
 
         plt.show()
         ax.axis("off")
-<<<<<<< HEAD
+
 
 class BSPlotterProjected(BSPlotter):
     
@@ -919,5 +903,3 @@ class BSPlotterProjected(BSPlotter):
         return plt
         
         
-=======
->>>>>>> master

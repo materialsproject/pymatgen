@@ -36,7 +36,6 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-<<<<<<< HEAD
         with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
@@ -48,10 +47,6 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
             
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
-=======
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
-                  "rb") as f:
->>>>>>> master
             d = json.loads(f.read())
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
