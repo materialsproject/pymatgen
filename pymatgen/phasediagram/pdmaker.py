@@ -435,21 +435,25 @@ class CompoundPhaseDiagram(PhaseDiagram):
             Sequence of TransformedPDEntries falling within the phase space.
         """
         new_entries = []
+
+        fractional_comp = [c.get_fractional_composition()
+                           for c in terminal_compositions]
+
         #Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
-        for i, comp in enumerate(terminal_compositions):
+        for i, comp in enumerate(fractional_comp):
             sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
 
         for entry in entries:
             try:
-                rxn = Reaction(terminal_compositions, [entry.composition])
+                rxn = Reaction(fractional_comp, [entry.composition])
                 rxn.normalize_to(entry.composition)
                 #We only allow reactions that have positive amounts of
                 #reactants.
                 if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
-                        for comp in terminal_compositions]):
+                        for comp in fractional_comp]):
                     newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
-                               for comp in terminal_compositions}
+                               for comp in fractional_comp}
                     newcomp = {k: v for k, v in newcomp.items()
                                if v > CompoundPhaseDiagram.amount_tol}
                     transformed_entry = \
