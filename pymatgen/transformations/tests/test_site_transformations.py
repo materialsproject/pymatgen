@@ -23,6 +23,15 @@ from pymatgen.transformations.site_transformations import \
     ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, \
     PartialRemoveSitesTransformation
 
+from pymatgen.util.io_utils import which
+
+from nose.exc import SkipTest
+
+if which('multienum.x') and which('makestr.x'):
+    enumlib_present = True
+else:
+    enumlib_present = False
+
 
 class TranslateSitesTransformationTest(unittest.TestCase):
 
@@ -188,6 +197,10 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         self.assertEqual(len(s), 12)
 
     def test_apply_transformation_enumerate(self):
+        if not enumlib_present:
+            raise SkipTest("enumlib not present. "
+                           "Skipping ALGO.ENUMERATE "
+                           "PartialRemoveSitesTransformationTest...")
         t = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
