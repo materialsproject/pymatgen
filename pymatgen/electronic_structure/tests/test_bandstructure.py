@@ -6,7 +6,7 @@ import json
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice, __file__
-from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
@@ -35,6 +35,16 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rb") as f:
+            d = json.loads(f.read())
+            self.bs = BandStructureSymmLine.from_dict(d)
+            self.assertListEqual(self.bs._projections[Spin.up][10][12][Orbital.s], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "wrong projections")
+            self.assertListEqual(self.bs._projections[Spin.up][25][0][Orbital.dyz], [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069], "wrong projections")
+            self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][25][10]['O'], 0.0328)
+            self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][22][25]['Cu'], 0.8327)
+            self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
+            self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
+            
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             #print d.keys()
