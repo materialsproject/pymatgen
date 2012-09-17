@@ -1,6 +1,16 @@
 Older versions
 ==============
 
+Version 2.2.1
+-------------
+
+1. Improvements to feffio.
+2. Master matgenie.py script which replaces many analysis scripts.
+3. More memory efficient parsing of VolumetricData.
+4. Beta version of structure prediction classes.
+5. Changes to MPRester to work with v1 release of the Materials API.
+6. Miscellaneous bug fixes and speed improvements.
+
 Version 2.2.0
 -------------
 
