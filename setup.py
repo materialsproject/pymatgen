@@ -65,6 +65,8 @@ extension = Extension("pymatgen._spglib",
                       extra_link_args=extra_link
                       )
 
+scripts = [os.path.join("scripts", f) for f in os.listdir("scripts")]
+
 setup(name="pymatgen",
       packages=find_packages(),
       version=__version__,
@@ -101,5 +103,6 @@ setup(name="pymatgen",
                    "Topic :: Scientific/Engineering :: Chemistry",
                    "Topic :: Software Development :: Libraries :: Python Modules"],
       download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-      ext_modules=[extension]
+      ext_modules=[extension],
+      scripts=scripts
       )
