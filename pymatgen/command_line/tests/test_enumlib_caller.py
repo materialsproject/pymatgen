@@ -28,10 +28,7 @@ from pymatgen.transformations.site_transformations import \
     RemoveSitesTransformation
 
 
-if which('multienum.x') and which('makestr.x'):
-    enumlib_present = True
-else:
-    enumlib_present = False
+enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 class EnumlibAdaptorTest(unittest.TestCase):
