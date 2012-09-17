@@ -27,10 +27,7 @@ from pymatgen.util.io_utils import which
 
 from nose.exc import SkipTest
 
-if which('multienum.x') and which('makestr.x'):
-    enumlib_present = True
-else:
-    enumlib_present = False
+enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 class TranslateSitesTransformationTest(unittest.TestCase):
