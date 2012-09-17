@@ -16,7 +16,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, GaussianToComputedEntryDrone
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MITCompatibility
 import pymatgen
@@ -52,6 +52,22 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         d = self.structure_drone.to_dict
         drone = VaspToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), VaspToComputedEntryDrone)
+
+
+class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
+
+    def setUp(self):
+        self.drone = SimpleVaspToComputedEntryDrone()
+        self.structure_drone = SimpleVaspToComputedEntryDrone(True)
+
+    def test_get_valid_paths(self):
+        for path in os.walk(test_dir):
+            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+
+    def test_to_from_dict(self):
+        d = self.structure_drone.to_dict
+        drone = SimpleVaspToComputedEntryDrone.from_dict(d)
+        self.assertEqual(type(drone), SimpleVaspToComputedEntryDrone)
 
 
 class GaussianToComputedEntryDroneTest(unittest.TestCase):

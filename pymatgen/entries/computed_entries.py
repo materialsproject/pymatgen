@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
 contain calculated information, typically from VASP or other electronic
 structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
-'''
+"""
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -20,7 +20,8 @@ import json
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, PMGJSONEncoder
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, \
+    PMGJSONEncoder
 
 
 class ComputedEntry(PDEntry, MSONable):
@@ -44,8 +45,8 @@ class ComputedEntry(PDEntry, MSONable):
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
             correction:
-                A correction to be applied to the energy. This is used to modify
-                the energy for certain analyses. Defaults to 0.0.
+                A correction to be applied to the energy. This is used to
+                modify the energy for certain analyses. Defaults to 0.0.
             parameters:
                 An optional dict of parameters associated with the entry.
                 Defaults to None.
@@ -77,44 +78,46 @@ class ComputedEntry(PDEntry, MSONable):
         return super(ComputedEntry, self).energy
 
     def __repr__(self):
-        return "ComputedEntry {} with energy = {:.4f}, correction = {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
+        output = ["ComputedEntry {}".format(self.composition.formula)]
+        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
+        output.append("Correction = {:.4f}".format(self.correction))
+        output.append("Parameters:")
+        for k, v in self.parameters.items():
+            output.append("{} = {}".format(k, v))
+        output.append("Data:")
+        for k, v in self.data.items():
+            output.append("{} = {}".format(k, v))
+        return "\n".join(output)
 
     def __str__(self):
-        outputstr = [self.__repr__()]
-        outputstr.append("Parameters:")
-        for k, v in self.parameters.items():
-            outputstr.append("{} = {}".format(k, v))
-        outputstr.append("Data:")
-        for k, v in self.data.items():
-            outputstr.append("{} = {}".format(k, v))
-        return "\n".join(outputstr)
+        return self.__repr__()
 
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             dec.process_decoded(d.get('parameters', {})),
-                             dec.process_decoded(d.get('data', {})),
-                             entry_id=d.get('entry_id', None))
+        return ComputedEntry(d["composition"], d["energy"], d["correction"],
+                             dec.process_decoded(d.get("parameters", {})),
+                             dec.process_decoded(d.get("data", {})),
+                             entry_id=d.get("entry_id", None))
 
     @property
     def to_dict(self):
-        enc = PMGJSONEncoder()
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['energy'] = self.uncorrected_energy
-        d['composition'] = self.composition.to_dict
-        d['correction'] = self.correction
-        d['parameters'] = json.loads(json.dumps(self.parameters, cls=PMGJSONEncoder))
-        d['data'] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
-        d['entry_id'] = self.entry_id
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["energy"] = self.uncorrected_energy
+        d["composition"] = self.composition.to_dict
+        d["correction"] = self.correction
+        d["parameters"] = json.loads(json.dumps(self.parameters,
+                                                cls=PMGJSONEncoder))
+        d["data"] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
+        d["entry_id"] = self.entry_id
         return d
 
 
 class ComputedStructureEntry(ComputedEntry):
     """
-    A heavier version of ComputedEntry which contains a structure as well. The 
+    A heavier version of ComputedEntry which contains a structure as well. The
     structure is needed for some analyses.
     """
 
@@ -128,8 +131,8 @@ class ComputedStructureEntry(ComputedEntry):
                 Energy of the entry. Usually the final calculated energy from
                 VASP or other electronic structure codes.
             correction:
-                A correction to be applied to the energy. This is used to modify
-                the energy for certain analyses. Defaults to 0.0.
+                A correction to be applied to the energy. This is used to
+                modify the energy for certain analyses. Defaults to 0.0.
             parameters:
                 An optional dict of parameters associated with the entry.
                 Defaults to None.
@@ -139,40 +142,40 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id:
                 An optional id to uniquely identify the entry.
         """
-
         ComputedEntry.__init__(self, structure.composition, energy,
-                                        correction=correction,
-                                        parameters=parameters, data=data,
-                                        entry_id=entry_id)
+                               correction=correction, parameters=parameters,
+                               data=data, entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
-        return "ComputedStructureEntry {} with energy = {:.4f}, correction = {:.4f}".format(self.composition.formula, self.uncorrected_energy, self.correction)
+        output = ["ComputedStructureEntry {}".format(self.composition.formula)]
+        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
+        output.append("Correction = {:.4f}".format(self.correction))
+        output.append("Parameters:")
+        for k, v in self.parameters.items():
+            output.append("{} = {}".format(k, v))
+        output.append("Data:")
+        for k, v in self.data.items():
+            output.append("{} = {}".format(k, v))
+        return "\n".join(output)
 
     def __str__(self):
-        outputstr = [self.__repr__()]
-        outputstr.append("Parameters:")
-        for k, v in self.parameters.items():
-            outputstr.append("{} = {}".format(k, v))
-        outputstr.append("Data:")
-        for k, v in self.data.items():
-            outputstr.append("{} = {}".format(k, v))
-        return "\n".join(outputstr)
+        return self.__repr__()
 
     @property
     def to_dict(self):
         d = super(ComputedStructureEntry, self).to_dict
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['structure'] = self.structure.to_dict
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["structure"] = self.structure.to_dict
         return d
 
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        return ComputedStructureEntry(dec.process_decoded(d['structure']),
-                                      d['energy'], d['correction'],
-                                      dec.process_decoded(d.get('parameters', {})),
-                                      dec.process_decoded(d.get('data', {})),
-                                      entry_id=d.get('entry_id', None))
-
+        return ComputedStructureEntry(dec.process_decoded(d["structure"]),
+                                      d["energy"], d["correction"],
+                                      dec.process_decoded(d.get("parameters",
+                                                                {})),
+                                      dec.process_decoded(d.get("data", {})),
+                                      entry_id=d.get("entry_id", None))

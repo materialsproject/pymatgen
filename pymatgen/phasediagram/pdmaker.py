@@ -6,56 +6,64 @@ This module provides classes to create phase diagrams.
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "Jul 11, 2012"
 
 import numpy as np
+import collections
 import logging
 
 from pymatgen.core.structure import Composition
-from pymatgen.phasediagram.entries import GrandPotPDEntry
+from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
+from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+
 
 logger = logging.getLogger(__name__)
 
 
 class PhaseDiagram (object):
-    '''
+    """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
-    
+
     1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
        First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
        doi:10.1021/cm702327g
-    
+
     2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430. 
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
-    '''
-    FORMATION_ENERGY_TOLERANCE = 1e-11
+    """
+
+    """
+    Tolerance for determining if formation energy is positive.
+    """
+    formation_energy_tol = 1e-11
 
     def __init__(self, entries, elements=None, use_external_qhull=False):
         """
         Standard constructor for phase diagram.
-        
+
         Args:
             entries:
-                A list of PDEntry-like objects having an energy, energy_per_atom
-                and composition.
+                A list of PDEntry-like objects having an energy,
+                energy_per_atom and composition.
             elements:
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the the entries themselves.
             use_external_qhull:
                 If set to True, the code will use an external command line call
                 to Qhull to calculate the convex hull data. This requires the
-                user to have qhull installed and the executables 'qconvex'
+                user to have qhull installed and the executables "qconvex"
                 available in his path. By default, the code uses the
                 scipy.spatail.Delaunay.
-                
+
                 The benefit of using external qhull is that a) it is much
                 faster, especially for higher-dimensional hulls with many
                 entries, and b) it is more robustly tested. The scipy Delaunay
@@ -66,7 +74,8 @@ class PhaseDiagram (object):
         """
         if elements == None:
             elements = set()
-            map(elements.update, [entry.composition.elements for entry in entries])
+            map(elements.update, [entry.composition.elements
+                                  for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
         self._qhull_data = None
@@ -133,9 +142,9 @@ class PhaseDiagram (object):
 
     @property
     def stable_entries(self):
-        '''
+        """
         Returns the stable entries in the phase diagram.
-        '''
+        """
         return self._stable_entries
 
     @property
@@ -156,33 +165,35 @@ class PhaseDiagram (object):
         return self._el_refs
 
     def get_form_energy(self, entry):
-        '''
+        """
         Returns the formation energy for an entry (NOT normalized) from the
         elemental references.
-        
+
         Args:
             entry:
                 A PDEntry-like object.
-        
+
         Returns:
             Formation energy from the elemental references.
-        '''
+        """
         comp = entry.composition
-        energy = entry.energy - sum([comp[el] * self._el_refs[el].energy_per_atom for el in comp.elements])
+        energy = entry.energy - sum([comp[el] *
+                                     self._el_refs[el].energy_per_atom
+                                     for el in comp.elements])
         return energy
 
     def get_form_energy_per_atom(self, entry):
-        '''
+        """
         Returns the formation energy per atom for an entry from the
         elemental references.
-        
+
         Args:
             entry:
                 An PDEntry-like object
-        
+
         Returns:
             Formation energy **per atom** from the elemental references.
-        '''
+        """
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
 
@@ -193,7 +204,7 @@ class PhaseDiagram (object):
         [[ Fe_fraction_entry_1, O_fraction_entry_1, Energy_per_atom_entry_1],
          [ Fe_fraction_entry_2, O_fraction_entry_2, Energy_per_atom_entry_2],
          ...]]
-        
+
         Note that there are only two independent variables, since the third
         elemental fraction is fixed by the constraint that all compositions sum
         to 1. The choice of the elements is arbitrary.
@@ -210,21 +221,19 @@ class PhaseDiagram (object):
         return data
 
     def _create_convhull_data(self):
-        '''
+        """
         Make data suitable for convex hull procedure from the list of entries.
         The procedure is as follows:
-        
+
         1. First find the elemental references, i.e., the lowest energy entry
            for the vertices of the phase diagram. Using the Li-Fe-O phase
            diagram as an example, this means the lowest energy Li, Fe, and O
            phases.
-        
         2. Calculate the formation energies from these elemental references for
-           all entries. Exclude all positive formation energy ones from the data
-           for convex hull.
-        
+           all entries. Exclude all positive formation energy ones from the
+           data for convex hull.
         3. Generate the convex hull data.
-        '''
+        """
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
         self._el_refs = dict()
@@ -241,10 +250,11 @@ class PhaseDiagram (object):
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
-            if self.get_form_energy(entry) <= -self.FORMATION_ENERGY_TOLERANCE:
+            if self.get_form_energy(entry) <= -self.formation_energy_tol:
                 entries_to_process.append(entry)
             else:
-                logger.debug("Removing positive formation energy entry {}".format(entry))
+                logger.debug("Removing positive formation energy entry " +
+                             "{}".format(entry))
         entries_to_process.extend([entry for entry in self._el_refs.values()])
 
         self._qhull_entries = entries_to_process
@@ -296,41 +306,42 @@ class PhaseDiagram (object):
         output = []
         output.append("{} phase diagram".format("-".join(symbols)))
         output.append("{} stable phases: ".format(len(self._stable_entries)))
-        output.append(", ".join([entry.name for entry in self._stable_entries]))
+        output.append(", ".join([entry.name
+                                 for entry in self._stable_entries]))
         return "\n".join(output)
 
 
 class GrandPotentialPhaseDiagram(PhaseDiagram):
-    '''
+    """
     A class representing a Grand potential phase diagram. Grand potential phase
     diagrams are essentially phase diagrams that are open to one or more
     components. To construct such phase diagrams, the relevant free energy is
     the grand potential, which can be written as the Legendre transform of the
     Gibbs free energy as follows
-     
-    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\ 
-    
+
+    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\
+
     The algorithm is based on the work in the following papers:
-    
+
     1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
        First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
        doi:10.1021/cm702327g
-    
+
     2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430. 
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
-    '''
+    """
 
     def __init__(self, entries, chempots, elements=None,
                  use_external_qhull=False):
         """
         Standard constructor for grand potential phase diagram.
-        
+
         Args:
             entries:
-                A list of PDEntry-like objects having an energy, energy_per_atom
-                and composition.
+                A list of PDEntry-like objects having an energy,
+                energy_per_atom and composition.
             chempots:
                 A dict of {element: float} to specify the chemical potentials
                 of the open elements.
@@ -345,10 +356,12 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         """
         if elements == None:
             elements = set()
-            map(elements.update, [entry.composition.elements for entry in entries])
+            map(elements.update, [entry.composition.elements
+                                  for entry in entries])
         allentries = list()
         for entry in entries:
-            if not (entry.is_element and (entry.composition.elements[0] in chempots)):
+            if not (entry.is_element and
+                    (entry.composition.elements[0] in chempots)):
                 allentries.append(GrandPotPDEntry(entry, chempots))
         self.chempots = chempots
         filteredels = list()
@@ -360,12 +373,90 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                                          use_external_qhull)
 
     def __str__(self):
-        symbols = [el.symbol for el in self._elements]
         output = []
-        output.append("{} grand potential phase diagram with ".format("-".join(symbols)))
-        output[-1] += ", ".join(["u{}={}".format(el, v) for el, v in self.chempots.items()])
+        chemsys = "-".join([el.symbol for el in self._elements])
+        output.append("{} grand potential phase diagram with ".format(chemsys))
+        output[-1] += ", ".join(["u{}={}".format(el, v)
+                                 for el, v in self.chempots.items()])
         output.append("{} stable phases: ".format(len(self._stable_entries)))
-        output.append(", ".join([entry.name for entry in self._stable_entries]))
+        output.append(", ".join([entry.name
+                                 for entry in self._stable_entries]))
         return "\n".join(output)
 
 
+class CompoundPhaseDiagram(PhaseDiagram):
+    """
+    Generates phase diagrams from compounds as terminations instead of
+    elements.
+    """
+
+    """
+    Tolerance for determining if amount of a composition is positive.
+    """
+    amount_tol = 1e-5
+
+    def __init__(self, entries, terminal_compositions,
+                 use_external_qhull=False):
+        """
+        Args:
+            entries:
+                Sequence of input entries. For example, if you want a Li2O-P2O5
+                phase diagram, you might have all Li-P-O entries as an input.
+            terminal_compositions:
+                Terminal compositions of phase space. In the Li2O-P2O5 example,
+                these will be the Li2O and P2O5 compositions.
+            use_external_qhull:
+                Similar to PhaseDiagram, set to True if you wish to use
+                external qhull command.
+        """
+        self.original_entries = entries
+        self.terminal_compositions = terminal_compositions
+        (pentries, species_mapping) = \
+            self.transform_entries(entries, terminal_compositions)
+        PhaseDiagram.__init__(self, pentries,
+                              elements=species_mapping.values(),
+                              use_external_qhull=use_external_qhull)
+
+    def transform_entries(self, entries, terminal_compositions):
+        """
+        Method to transform all entries to the composition coordinate in the
+        terminal compositions. If the entry does not fall within the space
+        defined by the terminal compositions, they are excluded. For example,
+        Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
+        compositions are represented by DummySpecies.
+
+        Args:
+            entries:
+                Sequence of all input entries
+            terminal_compositions:
+                Terminal compositions of phase space.
+
+        Returns:
+            Sequence of TransformedPDEntries falling within the phase space.
+        """
+        new_entries = []
+        #Map terminal compositions to unique dummy species.
+        sp_mapping = collections.OrderedDict()
+        for i, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
+
+        for entry in entries:
+            try:
+                rxn = Reaction(terminal_compositions, [entry.composition])
+                rxn.normalize_to(entry.composition)
+                #We only allow reactions that have positive amounts of
+                #reactants.
+                if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
+                        for comp in terminal_compositions]):
+                    newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
+                               for comp in terminal_compositions}
+                    newcomp = {k: v for k, v in newcomp.items()
+                               if v > CompoundPhaseDiagram.amount_tol}
+                    transformed_entry = \
+                        TransformedPDEntry(Composition(newcomp), entry)
+                    new_entries.append(transformed_entry)
+            except ReactionError:
+                #If the reaction can't be balanced, the entry does not fall
+                #into the phase space. We ignore them.
+                pass
+        return (new_entries, sp_mapping)

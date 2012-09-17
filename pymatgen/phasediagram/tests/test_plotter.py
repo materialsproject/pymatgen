@@ -22,7 +22,6 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(labels), len(self.pd.stable_entries), "Incorrect number of lines generated!")
         self.assertEqual(len(unstable_entries), len(self.pd.all_entries) - len(self.pd.stable_entries), "Incorrect number of lines generated!")
 
-
 class UtilityFunctionTest(unittest.TestCase):
 
     def test_unique_lines(self):

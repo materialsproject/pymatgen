@@ -22,11 +22,12 @@ class XYZ(object):
     """
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
-    
+
     .. note::
         Exporting periodic structures in the XYZ format will lose information
         about the periodicity. Essentially, only cartesian coordinates are
-        written in this format and no information is retained about the lattice.
+        written in this format and no information is retained about the
+        lattice.
     """
     def __init__(self, mol, coord_precision=6):
         """
@@ -48,11 +49,11 @@ class XYZ(object):
     def from_string(contents):
         """
         Creates XYZ object from a string.
-        
+
         Args:
             contents:
                 String representing an XYZ file.
-        
+
         Returns:
             XYZ object
         """
@@ -60,8 +61,11 @@ class XYZ(object):
         num_sites = int(lines[0])
         coords = []
         sp = []
+        coord_patt = re.compile(
+            "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)"
+        )
         for i in xrange(2, 2 + num_sites):
-            m = re.search("(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", lines[i])
+            m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))
                 coords.append(map(float, [m.group(k) for k in [2, 3, 4]]))
@@ -71,11 +75,11 @@ class XYZ(object):
     def from_file(filename):
         """
         Creates XYZ object from a file.
-        
+
         Args:
             filename:
                 XYZ filename
-                
+
         Returns:
             XYZ object
         """
@@ -85,15 +89,15 @@ class XYZ(object):
     def __str__(self):
         output = [str(len(self._mol))]
         output.append(self._mol.composition.formula)
-        formatstring = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
+        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
         for site in self._mol:
-            output.append(formatstring.format(site.specie, site.x, site.y, site.z))
+            output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
         return "\n".join(output)
 
     def write_file(self, filename):
         """
         Writes XYZ to file.
-        
+
         Args:
             filename:
                 File name of output file.

@@ -9,18 +9,18 @@ symmetry Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`spacegroup` Module
-------------------------
+:mod:`finder` Module
+--------------------
 
-.. automodule:: pymatgen.symmetry.spacegroup
+.. automodule:: pymatgen.symmetry.finder
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`spglib_adaptor` Module
-----------------------------
+:mod:`spacegroup` Module
+------------------------
 
-.. automodule:: pymatgen.symmetry.spglib_adaptor
+.. automodule:: pymatgen.symmetry.spacegroup
     :members:
     :undoc-members:
     :show-inheritance:
