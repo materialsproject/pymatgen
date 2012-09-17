@@ -285,7 +285,7 @@ class Vasprun(object):
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructureSymmLine object
-
+        
         Args:
             kpoints_filename:
                 Full path of the KPOINTS file from which the band structure is
@@ -298,58 +298,63 @@ class Vasprun(object):
                 If you want to specify manually the fermi energy this is where
                 you should do it. By default, the None value means the code
                 will get it from the vasprun.
-
+                
         Returns:
-            A BandStructure object (or more specifically a
-            BandStructureSymmLine object if the run is detected to be a run
-            along symmetry lines).
-
+            a BandStructure object (or more specifically a BandStructureSymmLine object if 
+            the run is detected to be a run along symmetry lines)
+        
         TODO:
             - make a bit more general for non Symm Line band structures
-            - make a decision on the convention with 2*pi or not
+            - make a decision on the convention with 2*pi or not 
         """
         if not kpoints_filename:
-            kpoints_filename = self.filename.replace("vasprun.xml", "KPOINTS")
+            kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
-            raise VaspParserError("KPOINTS file needed for band structure.")
-        if not self.incar["ICHARG"] == 11:
-            raise VaspParserError("Band structure runs have to be non-self "
-                                  "consistent (ICHARG=11)")
+            raise VaspParserError('KPOINTS file needed to obtain band structure.')
+        if not self.incar['ICHARG'] == 11:
+            raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
 
-        if efermi is None:
+        if efermi == None:
             efermi = self.efermi
 
         kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
         #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
-        kpoints = [np.array(self.actual_kpoints[i])
-                   for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.to_dict["output"]["eigenvalues"]
+        kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
+        dict_eigen = self.to_dict['output']['eigenvalues']
+        dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
         eigenvals = {}
-        if "up" in dict_eigen["1"] and "down" in dict_eigen["1"] \
-                and self.incar["ISPIN"] == 2:
-            eigenvals = {Spin.up: [], Spin.down: []}
+        p_eigenvals = {}
+        if dict_eigen['1'].has_key('up') and dict_eigen['1'].has_key('down') and self.incar['ISPIN'] == 2:
+            eigenvals = {Spin.up:[], Spin.down:[]}
+            if len(dict_p_eigen) != 0:
+                p_eigenvals = {Spin.up:[], Spin.down:[]}
         else:
-            eigenvals = {Spin.up: []}
+            eigenvals = {Spin.up:[]}
+            if len(dict_p_eigen) != 0:
+                p_eigenvals = {Spin.up:[]}
 
-        neigenvalues = [len(v["up"]) for v in dict_eigen.values()]
+        neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]["up"][i][0]
-                                       for j in range(len(kpoints))])
-        if Spin.down in eigenvals:
+            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0] for j in range(len(kpoints))]);
+            if len(dict_p_eigen) != 0:
+                p_eigenvals[Spin.up].append([{Orbital.from_string(orb):dict_p_eigen[j]['up'][i][orb] for orb in dict_p_eigen[j]['up'][i]} for j in range(len(kpoints))])
+        if eigenvals.has_key(Spin.down):
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]["down"][i][0]
-                                             for j in range(len(kpoints))])
+                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0] for j in range(len(kpoints))]);
+                if len(dict_p_eigen) != 0:
+                    p_eigenvals[Spin.down].append([{Orbital.from_string(orb):dict_p_eigen[j]['down'][i][orb] for orb in dict_p_eigen[j]['down'][i]} for j in range(len(kpoints))])
+        
+        
         if kpoint_file.style == "Line_mode":
             labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-            return BandStructureSymmLine(kpoints, eigenvals, lattice_new,
-                                         efermi, labels_dict)
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict, structure=self.final_structure, projections=p_eigenvals)
         else:
-            return BandStructure(kpoints, eigenvals, lattice_new, efermi)
+            return BandStructure(kpoints, eigenvals, lattice_new, efermi, structure=self.final_structure, projections=p_eigenvals)
 
     @property
     def eigenvalue_band_properties(self):
