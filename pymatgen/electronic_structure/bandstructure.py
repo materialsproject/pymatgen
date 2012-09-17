@@ -242,10 +242,12 @@ class BandStructure(object):
     
     def get_projection_on_elements(self):
         """
-        return a dictionary of projections on elements in the 
-        {Spin.up:[][{Element}],Spin.down:[][{Element}]} format
-        if there is no projections in the band structure
-        returns an empty dict
+        method returning a dictionary of projections on elements 
+        
+        Returns: 
+            a dictionary in the {Spin.up:[][{Element:values}],Spin.down:[][{Element:values}]} format
+            if there is no projections in the band structure
+            returns an empty dict
         """
         if len(self._projections) == 0:
             return {}
@@ -262,15 +264,20 @@ class BandStructure(object):
                             result[spin][i][j][str(self._structure.sites[k].specie)]+=self._projections[spin][i][j][orb][k]
         return result
     
+    
     def get_projections_on_elts_and_orbitals(self, dictio):
         """
-        return a dictionary of projections on elements in the 
-        {Spin.up:[][{Element:{orb:values}}],Spin.down:[][{Element:{orb:values}}]} format
-        the elements with their orbitals of interest is given in dictio
-        as {Element:[orbitals]} for example {'Cu':['d','s']} will give projections
-        for Cu on d and s orbitals
-        if there is no projections in the band structure
-        returns an empty dict
+        method returning a dictionary of projections on elements and specific orbitals
+        Args:
+            dictio:
+                A dictionary of Elements and Orbitals for which we want to have projections on
+                It is given as: {Element:[orbitals]}, e.g., {'Cu':['d','s']}
+                
+        Returns:
+            a dictionary of projections on elements in the 
+            {Spin.up:[][{Element:{orb:values}}],Spin.down:[][{Element:{orb:values}}]} format
+            if there is no projections in the band structure
+            returns an empty dict
         """
         if len(self._projections) == 0:
             return {}
@@ -470,7 +477,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     list_index_band[spin].append(i)
         proj={}            
         if len(self._projections)!=0:
-            proj=self.get_projection_on_elements()[Spin.up][list_index_band[Spin.up][0]][list_index_kpoints[0]]
+            #proj=self.get_projection_on_elements()[Spin.up][list_index_band[Spin.up][0]][list_index_kpoints[0]]
+            proj=self._projections[Spin.up][list_index_band[Spin.up][0]][list_index_kpoints[0]]
         #return self.get_projection_on_elements()[Spin.up][index_band][index_k]
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
                 'kpoint':kpointvbm, 'energy':max_tmp, 'projections':proj}
@@ -527,7 +535,30 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     list_index_band[spin].append(i)
         return {'band_index':list_index_band, 'kpoint_index':list_index_kpoints,
                 'kpoint':kpointcbm, 'energy':max_tmp}
-
+    
+    def apply_scissor(self,new_band_gap):
+        """
+        Apply a scissor operator (shift of the CBM) to fit the given band gap
+        Args:
+            new_band_gap:
+                the band gap the scissor band structure need to have
+        Returns:
+            a BandStructureSymmLine object with the applied scissor shift
+        """
+        if self.is_metal():
+            raise Exception("cannot apply a scissor to a metallic band structure")
+        shift=new_band_gap-self.get_band_gap()['energy']
+        old_dict=self.to_dict
+        for spin in old_dict['bands']:
+            for k in range(len(old_dict['bands'][spin])):
+                for v in range(len(old_dict['bands'][spin][k])):
+                    if old_dict['bands'][spin][k][v]>=old_dict['cbm']['energy']:
+                        old_dict['bands'][spin][k][v]=old_dict['bands'][spin][k][v]+shift
+        old_dict['efermi']=old_dict['efermi']+shift                   
+        
+        return BandStructureSymmLine.from_dict(old_dict)
+                     
+    
     def get_band_gap(self):
         """
         Returns band gap data.
@@ -607,13 +638,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
         d['vbm'] = {'energy':vbm['energy'], 'kpoint_index':vbm['kpoint_index'],
                     'band_index':{str(int(spin)) : vbm['band_index'][spin] for spin in vbm['band_index']}}
         cbm = self.get_cbm()
-        d['cbm'] = {'energy':vbm['energy'], 'kpoint_index':cbm['kpoint_index'],
+        d['cbm'] = {'energy':cbm['energy'], 'kpoint_index':cbm['kpoint_index'],
                     'band_index':{str(int(spin)) : cbm['band_index'][spin] for spin in cbm['band_index']}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
         for c in self._labels_dict:
             d['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
+        d['projections']={}
         if len(self._projections) != 0:
             d['structure'] = self._structure.to_dict
             d['projections'] = { str(int(spin)) : [[{str(orb):[self._projections[spin][i][j][orb][k] for k in range(len(self._projections[spin][i][j][orb]))]for orb in self._projections[spin][i][j]} for j in range(len(self._projections[spin][i]))]for i in range(len(self._projections[spin])) ] for spin in self._projections}
@@ -631,7 +663,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         labels_dict = d['labels_dict']
         
-        if len(d['projections']) == 0:
+        if ('projections' in d)==False or len(d['projections']) == 0:
             return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi'], labels_dict, structure=None, projections={})
         else:
             return BandStructureSymmLine(d['kpoints'], {Spin.from_int(int(k)):d['bands'][k] for k in d['bands']}, Lattice(d['lattice_rec']['matrix']), d['efermi']
