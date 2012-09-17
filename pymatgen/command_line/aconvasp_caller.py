@@ -118,13 +118,7 @@ def get_point_group_rec(structure):
             axis = np.array([float(line.split()[0]), float(line.split()[1]),
                              float(line.split()[2])])
         if(count == 11):
-<<<<<<< HEAD
             listUc.append({'matrix_cart':np.array(linetmp), 'matrix_frac':np.array(linetmpUf), 'type':type_transf, 'axis':axis, 'schoenflies':schoenflies})
-    
-=======
-            listUc.append({'matrix': np.array(linetmp), 'type': type_transf,
-                           'axis': axis, 'schoenflies': schoenflies})
->>>>>>> master
     f.close()
     os.remove("aflow.pgroupk.out")
     return listUc
