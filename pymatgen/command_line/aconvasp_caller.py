@@ -112,16 +112,20 @@ def get_point_group_rec(structure):
             continue
         if count <= 2:
             linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
-        if count>2 and count<6:
+        if count > 2 and count < 6:
             linetmpUf.append([float(x) for x in line.rstrip("\nUf ").split()])
         if line.find("axis") != -1:
             axis = np.array([float(line.split()[0]), float(line.split()[1]),
                              float(line.split()[2])])
         if(count == 11):
-            listUc.append({'matrix_cart':np.array(linetmp), 'matrix_frac':np.array(linetmpUf), 'type':type_transf, 'axis':axis, 'schoenflies':schoenflies})
+            listUc.append({'matrix_cart':np.array(linetmp),
+                           'matrix_frac':np.array(linetmpUf),
+                           'type':type_transf, 'axis':axis,
+                           'schoenflies':schoenflies})
     f.close()
     os.remove("aflow.pgroupk.out")
     return listUc
+
 
 def get_point_group(structure):
     """
@@ -151,17 +155,21 @@ def get_point_group(structure):
             continue
         if count <= 2:
             linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
-        if count>2 and count<6:
+        if count > 2 and count < 6:
             linetmpUf.append([float(x) for x in line.rstrip("\nUf ").split()])
         if line.find("axis") != -1:
-            axis = np.array([float(line.split()[0]), float(line.split()[1]), float(line.split()[2])])
+            axis = np.array([float(i) for i in line.split()[0:3]])
         if(count == 11):
-            listUc.append({'matrix_cart':np.array(linetmp), 'matrix_frac':np.array(linetmpUf), 'type':type_transf, 'axis':axis, 'schoenflies':schoenflies})
-    
+            listUc.append({'matrix_cart':np.array(linetmp),
+                           'matrix_frac':np.array(linetmpUf),
+                           'type':type_transf, 'axis':axis,
+                           'schoenflies':schoenflies})
+
     f.close()
     os.remove("aflow.pgroup.out")
-    
+
     return listUc
+
 
 class AconvaspError(Exception):
     '''
