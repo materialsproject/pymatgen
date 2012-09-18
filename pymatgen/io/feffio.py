@@ -14,11 +14,11 @@ from __future__ import division
 
 __author__ = "Alan Dozier"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.01"
 __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
 __status__ = "Beta"
-__date__ = "August 26 1, 2012"
+__date__ = "September 17, 2012"
 
 import re
 import itertools
@@ -491,18 +491,18 @@ class FeffAtoms(FeffInput):
 
 VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
                    "REAL", "MARKER", "LATTICE", "TITLE", "RMULTIPLIER",
-                   "SGROUP", "COORDINATES",
+                   "SGROUP", "COORDINATES", "EQUIVALENCE", "CIF", "CGRID",
                    "CFAVERAGE", "OVERLAP", "EXAFS", "XANES", "ELNES", "EXELFS",
-                   "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION",
-                   "DANES", "FPRIME", "NRIXS", "XES", "XNCD", "XMCD",
+                   "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION", "RHOZZP",
+                   "DANES", "FPRIME", "NRIXS", "XES", "XNCD", "XMCD", "XNCD"
                    "CONTROL", "END", "KMESH", "PRINT", "EGRID", "DIMS",
-                   "AFLOP", "EDGE",
+                   "AFLOP", "EDGE", "COMPTON", "DANES", "FPRIME" "MDFF",
                    "HOLE", "COREHOLE", "S02", "CHBROAD", "EXCHANGE", "FOLP",
-                   "NOHOLE", "RGRID", "SCF", "UNFREEZEF", "CHSHIFT",
-                   "INTERSTITIAL",
-                   "ION", "JUMPRM", "EXPOT", "SPIN", "LJMAX", "LDEC",
+                   "NOHOLE", "RGRID", "SCF", "UNFREEZEF", "CHSHIFT", "DEBYE",
+                   "INTERSTITIAL", "CHWIDTH", "EGAP", "EPS0", "EXTPOT",
+                   "ION", "JUMPRM", "EXPOT", "SPIN", "LJMAX", "LDEC", "MPSE",
                    "PLASMON", "RPHASES", "RSIGMA", "PMBSE", "TDLDA", "FMS",
-                   "DEBYA",
+                   "DEBYA", "OPCONS", "PREP", "RESTART", "SCREEN", "SETE",
                    "STRFACTORS", "BANDSTRUCTURE", "RPATH", "NLEG", "PCRITERIA",
                    "SYMMETRY", "SS", "CRITERIA", "IORDER", "NSTAR", "ABSOLUTE",
                    "CORRECTIONS", "SIG2", "SIG3", "MBCONV", "SFCONV", "RCONV",
