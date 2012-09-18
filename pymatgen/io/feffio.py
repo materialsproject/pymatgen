@@ -14,7 +14,7 @@ from __future__ import division
 
 __author__ = "Alan Dozier"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.01"
+__version__ = "1.0.1"
 __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
 __status__ = "Beta"
