@@ -18,11 +18,11 @@ import argparse
 import CifFile
 import abc
 
-from   pymatgen.io.feffio_set                import *
-from   pymatgen.io.vaspio                    import *
-from   pymatgen.io.feffio                    import *
-from   pymatgen.io.cifio                     import CifParser, CifWriter
-from   pymatgen.core.structure               import Structure, Site, PeriodicSite
+from pymatgen.io.feffio_set import *
+from pymatgen.io.vaspio import *
+from pymatgen.io.feffio import *
+from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.core.structure import Structure, Site, PeriodicSite
 
 parser = argparse.ArgumentParser(description='''
 Example script to generate FEFF input files from a cif file
@@ -40,23 +40,23 @@ cif_file = args.cif_file[0]
 central_atom = args.central_atom[0]
 calc_type = args.calc_type[0]
 
-r=CifParser(cif_file)
-structure=r.get_structures()[0]
-x=FeffInputSet("MaterialsProject")
+r = CifParser(cif_file)
+structure = r.get_structures()[0]
+x = FeffInputSet("MaterialsProject")
 
-header = FeffInputSet.get_header(x,structure, cif_file)
+header = FeffInputSet.get_header(x, structure, cif_file)
 print "\n\nHEADER\n"
 print header
 
-tags=FeffInputSet.get_feff_tags(x,calc_type)
+tags = FeffInputSet.get_feff_tags(x, calc_type)
 print "\n\nPARAMETERS\n"
 print tags
 
-POT=FeffInputSet.get_feff_pot(x,structure, central_atom)
+POT = FeffInputSet.get_feff_pot(x, structure, central_atom)
 print "\n\nPOTENTIALS\n"
 print POT
 
-ATOMS=FeffInputSet.get_feff_atoms(x,structure, central_atom)
+ATOMS = FeffInputSet.get_feff_atoms(x, structure, central_atom)
 print"\n\nATOMS\n"
 print ATOMS
 
