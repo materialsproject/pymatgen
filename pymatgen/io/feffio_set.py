@@ -12,10 +12,10 @@ from __future__ import division
 
 __author__ = "Alan Dozier"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.01"
 __maintainer__ = "Alan Dozier"
-__email__ = "shyue@mit.edu"
-__date__ = "May 23, 2012"
+__email__ = "adozier@uky.edu"
+__date__ = "September 17, 2012"
 
 import os
 import abc
@@ -90,9 +90,9 @@ class AbstractFeffInputSet(object):
             dict of {filename: file_as_string}, e.g., {"INCAR":"EDIFF=1e-4..."}
         """
         feff = {"HEADER": self.get_header(structure, cif_file),
-                "PARAMETERS": self.get_fefftags(calc_type),
-                "POTENTIALS": self.get_feffPot(structure, central_atom),
-                "ATOMS": self.get_feffAtoms(structure, central_atom)}
+                "PARAMETERS": self.get_feff_tags(calc_type),
+                "POTENTIALS": self.get_feff_pot(structure, central_atom),
+                "ATOMS": self.get_feff_atoms(structure, central_atom)}
 
         return feff
 
