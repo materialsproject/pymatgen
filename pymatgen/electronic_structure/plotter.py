@@ -441,7 +441,7 @@ class BSPlotter(object):
         #last distance point
         x_max = data['distances'][-1]
         plt.xlim(0, x_max)
-        
+
         if ylim == None:
             if self._bs.is_metal():
                 # Plot A Metal
@@ -450,22 +450,22 @@ class BSPlotter(object):
                 else:
                     plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
             else:
-    
+
                 for cbm in data['cbm']:
                     plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
-    
+
                 for vbm in data['vbm']:
                     plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
-    
+
                 plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
         else:
             plt.ylim(ylim)
-            
+
         plt.tight_layout()
-        
+
         return plt
-    
-    def show(self,zero_to_efermi=True, ylim=None):
+
+    def show(self, zero_to_efermi=True, ylim=None):
         """
         Show the plot using matplotlib.
         
@@ -479,7 +479,7 @@ class BSPlotter(object):
         """
         plt = self.get_plot(zero_to_efermi, ylim)
         plt.show()
-        
+
     def save_plot(self, filename, img_format="eps", ylim=None, zero_to_efermi=True):
         """
         Save matplotlib plot to a file.
@@ -649,11 +649,11 @@ class BSPlotter(object):
 
 
 class BSPlotterProjected(BSPlotter):
-    
+
     """
     Class to plot or get data to facilitate the plot of band structure objects projected along orbitals, elements or sites
     """
-    
+
     def __init__(self, bs):
         """
         Args:
@@ -662,7 +662,7 @@ class BSPlotterProjected(BSPlotter):
         """
         BSPlotter.__init__(self, bs)
 
-    def _maketicks(self,plt):
+    def _maketicks(self, plt):
         """
         utility private method to add ticks to a band structure
         """
@@ -701,32 +701,37 @@ class BSPlotterProjected(BSPlotter):
                     logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
         return plt
-    
-    def get_projected_plots_dots(self,dictio,zero_to_efermi=True):
+
+    def get_projected_plots_dots(self, dictio, zero_to_efermi=True):
         """
-        method returning a plot composed of subplots along different elements and orbitals
+        Method returning a plot composed of subplots along different elements
+        and orbitals.
+
         Args:
             dictio:
-                the element and orbitals you want a projection on. The format is {Element:[Orbitals]}
-                for instance {'Cu':['d','s'],'O':['p']} will give projections
-                for Cu on d and s orbitals and on oxygen p
+                the element and orbitals you want a projection on. The format
+                is {Element:[Orbitals]} for instance {'Cu':['d','s'],'O':['p']}
+                will give projections for Cu on d and s orbitals and on oxygen
+                p.
+
         Returns:
             a pylab object with different subfigures for each projection
-            The blue and red colors are for spin up and spin down
-            The bigger the red or blue dot in the band structure the higher character for the corresponding element and orbital
+            The blue and red colors are for spin up and spin down.
+            The bigger the red or blue dot in the band structure the higher
+            character for the corresponding element and orbital.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        fig_number=0
+        fig_number = 0
         for e in dictio:
             for o in dictio[e]:
-                fig_number=fig_number+1
-        proj=self._bs.get_projections_on_elts_and_orbitals(dictio)
-        data=self.bs_plot_data(zero_to_efermi)
+                fig_number = fig_number + 1
+        proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
+        data = self.bs_plot_data(zero_to_efermi)
         plt = get_publication_quality_plot(12, 8)
-        count=1
+        count = 1
         for el in dictio:
             for o in dictio[el]:
-                plt.subplot(100*math.ceil(fig_number/2)+20+count)
+                plt.subplot(100 * math.ceil(fig_number / 2) + 20 + count)
                 self._maketicks(plt)
                 for i in range(self._nb_bands):
                     plt.plot(data['distances'],
@@ -738,28 +743,30 @@ class BSPlotterProjected(BSPlotter):
                                  'r-')
                     for j in range(len(data['energy'][str(Spin.up)][i])):
                         plt.plot(data['distances'][j],
-                                     data['energy'][str(Spin.up)][i][j],'bo',
-                                     markersize=proj[Spin.up][i][j][str(el)][o]*15.0)
+                                     data['energy'][str(Spin.up)][i][j], 'bo',
+                                     markersize=proj[Spin.up][i][j][str(el)][o] * 15.0)
                     if self._bs.is_spin_polarized:
                         for j in range(len(data['energy'][str(Spin.down)][i])):
                             plt.plot(data['distances'][j],
-                                         data['energy'][str(Spin.down)][i][j],'ro',
-                                         markersize=proj[Spin.down][i][j][str(el)][o]*15.0)
+                                         data['energy'][str(Spin.down)][i][j], 'ro',
+                                         markersize=proj[Spin.down][i][j][str(el)][o] * 15.0)
                 plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
-                plt.title(str(el)+" "+str(o))
-                count=count+1
+                plt.title(str(el) + " " + str(o))
+                count = count + 1
         return plt
-    
+
     def get_elt_projected_plots(self, zero_to_efermi=True):
         """
-        method returning a plot composed of subplots along different elements
+        Method returning a plot composed of subplots along different elements
+        
         Returns:
             a pylab object with different subfigures for each projection
             The blue and red colors are for spin up and spin down
-            The bigger the red or blue dot in the band structure the higher character for the corresponding element and orbital
+            The bigger the red or blue dot in the band structure the higher 
+            character for the corresponding element and orbital
         """
-        proj=self._bs.get_projection_on_elements()
-        data=self.bs_plot_data(zero_to_efermi)
+        proj = self._bs.get_projection_on_elements()
+        data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         ticks = self.get_ticks()
@@ -787,7 +794,7 @@ class BSPlotterProjected(BSPlotter):
         #Main X and Y Labels
         plt.xlabel(r'Wave vector', fontsize=30)
         #ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
-        ylabel='Energy (eV)'
+        ylabel = 'Energy (eV)'
         plt.ylabel(ylabel, fontsize=30)
         for i in range(len(ticks['label'])):
             if ticks['label'][i] is not None:
@@ -801,9 +808,9 @@ class BSPlotterProjected(BSPlotter):
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
-        count=1
+        count = 1
         for el in self._bs._structure.composition.elements:
-            plt.subplot(220+count)
+            plt.subplot(220 + count)
             print count
             self._maketicks(plt)
             for i in range(self._nb_bands):
@@ -816,18 +823,18 @@ class BSPlotterProjected(BSPlotter):
                              'r-')
                 for j in range(len(data['energy'][str(Spin.up)][i])):
                     plt.plot(data['distances'][j],
-                                 data['energy'][str(Spin.up)][i][j],'bo',
-                                 markersize=proj[Spin.up][i][j][str(el)]*15.0)
+                                 data['energy'][str(Spin.up)][i][j], 'bo',
+                                 markersize=proj[Spin.up][i][j][str(el)] * 15.0)
                 if self._bs.is_spin_polarized:
                     for j in range(len(data['energy'][str(Spin.down)][i])):
                         plt.plot(data['distances'][j],
-                                     data['energy'][str(Spin.down)][i][j],'ro',
-                                     markersize=proj[Spin.down][i][j][str(el)]*15.0)
+                                     data['energy'][str(Spin.down)][i][j], 'ro',
+                                     markersize=proj[Spin.down][i][j][str(el)] * 15.0)
             plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 4.0)
             plt.title(str(el))
-            count=count+1
+            count = count + 1
         return plt
-        
+
     def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
         """
         returns a pylab plot object with one plot where the band structure line color depends
@@ -844,15 +851,15 @@ class BSPlotterProjected(BSPlotter):
             a pylab object
         
         """
-        if len(self._bs._structure.composition.elements)>3:
+        if len(self._bs._structure.composition.elements) > 3:
             raise ValueError
-        if elt_ordered==None:
-            elt_ordered=self._bs._structure.composition.elements
-        proj=self._bs.get_projection_on_elements()
-        data=self.bs_plot_data(zero_to_efermi)
+        if elt_ordered == None:
+            elt_ordered = self._bs._structure.composition.elements
+        proj = self._bs.get_projection_on_elements()
+        data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
-        count=1
+        count = 1
         ticks = self.get_ticks()
         #Sanitize only plot the uniq values
         uniq_d = []
@@ -878,7 +885,7 @@ class BSPlotterProjected(BSPlotter):
         #Main X and Y Labels
         plt.xlabel(r'Wave vector', fontsize=30)
         #ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi else r'$\mathrm{Energy\ (eV)}$'
-        ylabel='Energy (eV)'
+        ylabel = 'Energy (eV)'
         plt.ylabel(ylabel, fontsize=30)
         for i in range(len(ticks['label'])):
             if ticks['label'][i] is not None:
@@ -892,32 +899,32 @@ class BSPlotterProjected(BSPlotter):
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
-        spins=[Spin.up]
+        spins = [Spin.up]
         if self._bs.is_spin_polarized:
-            spins=[Spin.up, Spin.down]
-        for s in spins:    
+            spins = [Spin.up, Spin.down]
+        for s in spins:
             for i in range(self._nb_bands):
-                for j in range(len(data['energy'][str(s)][i])-1):
+                for j in range(len(data['energy'][str(s)][i]) - 1):
                     #if j%2!=0:
                     #    continue
                     #print j
-                    sum=0.0
+                    sum = 0.0
                     for el in elt_ordered:
-                        sum=sum+proj[s][i][j][str(el)]
-                    if sum==0.0:
-                        color=[0.0 for e in elt_ordered]
+                        sum = sum + proj[s][i][j][str(el)]
+                    if sum == 0.0:
+                        color = [0.0 for e in elt_ordered]
                     else:
-                        color=[proj[s][i][j][str(el)]/sum for el in elt_ordered]
-                    if len(color)==2:
+                        color = [proj[s][i][j][str(el)] / sum for el in elt_ordered]
+                    if len(color) == 2:
                         color.append(0.0)
-                        color[2]=color[1]
-                        color[1]=0.0
-                    plt.plot([data['distances'][j],data['distances'][j+1]],
-                                 [data['energy'][str(s)][i][j],data['energy'][str(s)][i][j+1]],
+                        color[2] = color[1]
+                        color[1] = 0.0
+                    plt.plot([data['distances'][j], data['distances'][j + 1]],
+                                 [data['energy'][str(s)][i][j], data['energy'][str(s)][i][j + 1]],
                                  color=color
-                                 ,linewidth=3)
-        plt.ylim(data['vbm'][0][1] -4.0, data['cbm'][0][1] + 2.0)
-        count=count+1
+                                 , linewidth=3)
+        plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
+        count = count + 1
         return plt
-        
-        
+
+

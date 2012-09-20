@@ -80,8 +80,13 @@ class MPRester(object):
         """
         headers = {"x-api-key": self.api_key}
         conn = httplib.HTTPSConnection(self.host)
-        url = "/rest/v1/materials/{}/{}/{}".format(chemsys_formula_id,
-                                                   data_type, prop)
+        if prop:
+            url = "/rest/v1/materials/{}/{}/{}".format(chemsys_formula_id,
+                                                       data_type, prop)
+        else:
+            url = "/rest/v1/materials/{}/{}".format(chemsys_formula_id,
+                                                       data_type)
+
         try:
             conn.request("GET", url, headers=headers)
             response = conn.getresponse()
