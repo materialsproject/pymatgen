@@ -1009,6 +1009,7 @@ class Kpoints(VaspInput):
             else Kpoints.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
+        labels = []
         tet_number = 0
         tet_weight = 0
         tet_connections = None
@@ -1017,6 +1018,10 @@ class Kpoints(VaspInput):
             toks = lines[i].split()
             kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
             kpts_weights.append(float(toks[3]))
+            if len(toks) > 4:
+                labels.append(toks[4])
+            else:
+                labels.append(None)
         try:
             #Deal with tetrahedron method
             if lines[3 + num_kpts].strip().lower()[0] == "t":
@@ -1035,7 +1040,7 @@ class Kpoints(VaspInput):
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                        kpts=kpts, kpts_weights=kpts_weights,
                        tet_number=tet_number, tet_weight=tet_weight,
-                       tet_connections=tet_connections)
+                       tet_connections=tet_connections, labels=labels)
 
     def write_file(self, filename):
         """
