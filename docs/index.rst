@@ -49,11 +49,10 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.2dev)
+Latest Change Log (v2.2.3dev)
 -----------------------------
 
-1. Improvements to unittests.
-2. Miscellaneous bug fixes and speed improvements.
+1. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2

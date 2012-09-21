@@ -1,6 +1,12 @@
 Older versions
 ==============
 
+Version 2.2.2
+-------------
+
+1. Bug fix release for REST interface.
+2. Improvements to unittests.
+
 Version 2.2.1
 -------------
 
