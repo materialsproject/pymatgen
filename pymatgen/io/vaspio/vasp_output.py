@@ -285,9 +285,7 @@ class Vasprun(object):
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
         Returns the band structure as a BandStructure object
-        
-        
-        
+
         Args:
             kpoints_filename:
                 Full path of the KPOINTS file from which the band structure is
@@ -300,27 +298,32 @@ class Vasprun(object):
                 If you want to specify manually the fermi energy this is where
                 you should do it. By default, the None value means the code
                 will get it from the vasprun.
-                
+
         Returns:
-            a BandStructure object (or more specifically a BandStructureSymmLine object if 
-            the run is detected to be a run along symmetry lines)
-            
-            Two types of runs along symmetry lines are accepted: non-sc with Line-Mode in the KPOINT file
-            or hybrid, self-consistent with an uniform grid+a few kpoints along symmetry lines (explicit KPOINT file)
-            (it's not possible to run a non-sc band structure with hybrid functionals). The explicit KPOINT file needs
-            to have data on the kpoint label as commentary 
-        
+            a BandStructure object (or more specifically a
+            BandStructureSymmLine object if the run is detected to be a run
+            along symmetry lines)
+
+            Two types of runs along symmetry lines are accepted: non-sc with
+            Line-Mode in the KPOINT file or hybrid, self-consistent with a
+            uniform grid+a few kpoints along symmetry lines (explicit KPOINTS
+            file) (it's not possible to run a non-sc band structure with hybrid
+            functionals). The explicit KPOINTS file needs to have data on the
+            kpoint label as commentary.
+
         TODO:
             - make a bit more general for non Symm Line band structures
-            - make a decision on the convention with 2*pi or not 
+            - make a decision on the convention with 2*pi or not.
         """
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
-            raise VaspParserError('KPOINTS file needed to obtain band structure.')
+            raise VaspParserError('KPOINTS needed to obtain band structure.')
         if not self.parameters['ICHARG'] == 11:
-            if 'LHFCALC' not in self.incar.keys() or self.incar['LHFCALC']==False:
-                raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11) if not hybrid')
+            if 'LHFCALC' not in self.incar.keys() or not self.incar['LHFCALC']:
+                raise VaspParserError("Band structure runs have to be "
+                                      "non-self-consistent (ICHARG=11) if not "
+                                      "hybrid")
 
         if efermi == None:
             efermi = self.efermi
@@ -329,46 +332,60 @@ class Vasprun(object):
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
         #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
-        kpoints = [np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))]
+        kpoints = [np.array(self.actual_kpoints[i])
+                   for i in range(len(self.actual_kpoints))]
         dict_eigen = self.to_dict['output']['eigenvalues']
-        dict_p_eigen={}
+        dict_p_eigen = {}
         if 'projected_eigenvalues' in self.to_dict['output']:
             dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
         eigenvals = {}
         p_eigenvals = {}
-        if dict_eigen['1'].has_key('up') and dict_eigen['1'].has_key('down') and self.incar['ISPIN'] == 2:
-            eigenvals = {Spin.up:[], Spin.down:[]}
+        if "up" in dict_eigen["1"] and "down" in dict_eigen["1"]\
+                and self.incar['ISPIN'] == 2:
+            eigenvals = {Spin.up: [], Spin.down: []}
             if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up:[], Spin.down:[]}
+                p_eigenvals = {Spin.up: [], Spin.down: []}
         else:
-            eigenvals = {Spin.up:[]}
+            eigenvals = {Spin.up: []}
             if len(dict_p_eigen) != 0:
-                p_eigenvals = {Spin.up:[]}
+                p_eigenvals = {Spin.up: []}
 
         neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
 
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0] for j in range(len(kpoints))]);
+            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0]
+                                       for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
-                p_eigenvals[Spin.up].append([{Orbital.from_string(orb):dict_p_eigen[j]['up'][i][orb] for orb in dict_p_eigen[j]['up'][i]} for j in range(len(kpoints))])
-        if eigenvals.has_key(Spin.down):
+                p_eigenvals[Spin.up].append(
+                    [{Orbital.from_string(orb):
+                      dict_p_eigen[j]['up'][i][orb]
+                      for orb in dict_p_eigen[j]['up'][i]}
+                     for j in range(len(kpoints))])
+        if Spin.down in eigenvals:
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0] for j in range(len(kpoints))]);
+                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0]
+                                             for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
-                    p_eigenvals[Spin.down].append([{Orbital.from_string(orb):dict_p_eigen[j]['down'][i][orb] for orb in dict_p_eigen[j]['down'][i]} for j in range(len(kpoints))])
-        
+                    p_eigenvals[Spin.down].append(
+                        [{Orbital.from_string(orb):
+                          dict_p_eigen[j]['down'][i][orb]
+                          for orb in dict_p_eigen[j]['down'][i]}
+                         for j in range(len(kpoints))]
+                    )
+
         #check if we have an hybrid band structure computation
-        #for this we look at the presence of the LHFCALC tag and of k-points that have weights=0.0
+        #for this we look at the presence of the LHFCALC tag and of k-points
+        #that have weights=0.0
         hybrid_band = False
         if self.parameters['LHFCALC'] == True:
             for l in kpoint_file.labels:
                 if l != None:
-                    hybrid_band=True
-            
+                    hybrid_band = True
+
         if kpoint_file.style == "Line_mode" or hybrid_band == True:
-            labels_dict={}
+            labels_dict = {}
             if hybrid_band == True:
                 start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
@@ -377,18 +394,33 @@ class Vasprun(object):
                         break
                 for i in range(len(kpoint_file.kpts)):
                     if kpoint_file.labels[i] != None:
-                        labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
-                #remake the data only considering line band structure k-points (weight = 0.0 kpoints)
+                        labels_dict[kpoint_file.labels[i]] = \
+                            kpoint_file.kpts[i]
+                #remake the data only considering line band structure k-points
+                #(weight = 0.0 kpoints)
                 kpoints = kpoints[start_bs_index:len(kpoints)]
+                up_eigen = [eigenvals[Spin.up][i][start_bs_index:
+                                                  len(eigenvals[Spin.up][i])]
+                            for i in range(len(eigenvals[Spin.up]))]
                 if self.is_spin:
-                    eigenvals = {Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))], Spin.down:[eigenvals[Spin.down][i][start_bs_index:len(eigenvals[Spin.down][i])] for i in range(len(eigenvals[Spin.down]))]}
+                    down_eigen = [eigenvals[Spin.down][i]
+                                  [start_bs_index:
+                                   len(eigenvals[Spin.down][i])]
+                                  for i in range(len(eigenvals[Spin.down]))]
+                    eigenvals = {Spin.up: up_eigen,
+                                 Spin.down: down_eigen}
                 else:
-                    eigenvals = {Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))]}
+                    eigenvals = {Spin.up: up_eigen}
             else:
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-            return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict, structure=self.final_structure, projections=p_eigenvals)
+            return BandStructureSymmLine(kpoints, eigenvals, lattice_new,
+                                         efermi, labels_dict,
+                                         structure=self.final_structure,
+                                         projections=p_eigenvals)
         else:
-            return BandStructure(kpoints, eigenvals, lattice_new, efermi, structure=self.final_structure, projections=p_eigenvals)
+            return BandStructure(kpoints, eigenvals, lattice_new, efermi,
+                                 structure=self.final_structure,
+                                 projections=p_eigenvals)
 
     @property
     def eigenvalue_band_properties(self):
