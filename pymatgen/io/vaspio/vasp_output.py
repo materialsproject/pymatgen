@@ -361,29 +361,29 @@ class Vasprun(object):
         
         #check if we have an hybrid band structure computation
         #for this we look at the presence of the LHFCALC tag and of k-points that have weights=0.0
-        hybrid_band=False
-        if self.parameters['LHFCALC']==True:
+        hybrid_band = False
+        if self.parameters['LHFCALC'] == True:
             for l in kpoint_file.labels:
-                if l!=None:
+                if l != None:
                     hybrid_band=True
             
         if kpoint_file.style == "Line_mode" or hybrid_band == True:
             labels_dict={}
             if hybrid_band == True:
-                start_bs_index=0
+                start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
-                    if self.actual_kpoints_weights[i]==0.0:
-                        start_bs_index=i
+                    if self.actual_kpoints_weights[i] == 0.0:
+                        start_bs_index = i
                         break
                 for i in range(len(kpoint_file.kpts)):
-                    if kpoint_file.labels[i]!=None:
+                    if kpoint_file.labels[i] != None:
                         labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
                 #remake the data only considering line band structure k-points (weight = 0.0 kpoints)
-                kpoints=kpoints[start_bs_index:len(kpoints)]
+                kpoints = kpoints[start_bs_index:len(kpoints)]
                 if self.is_spin:
-                    eigenvals={Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))], Spin.down:[eigenvals[Spin.down][i][start_bs_index:len(eigenvals[Spin.down][i])] for i in range(len(eigenvals[Spin.down]))]}
+                    eigenvals = {Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))], Spin.down:[eigenvals[Spin.down][i][start_bs_index:len(eigenvals[Spin.down][i])] for i in range(len(eigenvals[Spin.down]))]}
                 else:
-                    eigenvals={Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))]}
+                    eigenvals = {Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))]}
             else:
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict, structure=self.final_structure, projections=p_eigenvals)
