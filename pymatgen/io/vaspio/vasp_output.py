@@ -284,7 +284,9 @@ class Vasprun(object):
 
     def get_band_structure(self, kpoints_filename=None, efermi=None):
         """
-        Returns the band structure as a BandStructureSymmLine object
+        Returns the band structure as a BandStructure object
+        
+        
         
         Args:
             kpoints_filename:
@@ -302,6 +304,11 @@ class Vasprun(object):
         Returns:
             a BandStructure object (or more specifically a BandStructureSymmLine object if 
             the run is detected to be a run along symmetry lines)
+            
+            Two types of runs along symmetry lines are accepted: non-sc with Line-Mode in the KPOINT file
+            or hybrid, self-consistent with an uniform grid+a few kpoints along symmetry lines (explicit KPOINT file)
+            (it's not possible to run a non-sc band structure with hybrid functionals). The explicit KPOINT file needs
+            to have data on the kpoint label as commentary 
         
         TODO:
             - make a bit more general for non Symm Line band structures
@@ -311,8 +318,9 @@ class Vasprun(object):
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS file needed to obtain band structure.')
-        if not self.incar['ICHARG'] == 11:
-            raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11)')
+        if not self.parameters['ICHARG'] == 11:
+            if 'LHFCALC' not in self.incar.keys() or self.incar['LHFCALC']==False:
+                raise VaspParserError('band structure runs have to be non-self consistent (ICHARG=11) if not hybrid')
 
         if efermi == None:
             efermi = self.efermi
@@ -351,9 +359,33 @@ class Vasprun(object):
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append([{Orbital.from_string(orb):dict_p_eigen[j]['down'][i][orb] for orb in dict_p_eigen[j]['down'][i]} for j in range(len(kpoints))])
         
-        
-        if kpoint_file.style == "Line_mode":
-            labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+        #check if we have an hybrid band structure computation
+        #for this we look at the presence of the LHFCALC tag and of k-points that have weights=0.0
+        hybrid_band=False
+        if self.parameters['LHFCALC']==True:
+            for l in kpoint_file.labels:
+                if l!=None:
+                    hybrid_band=True
+            
+        if kpoint_file.style == "Line_mode" or hybrid_band == True:
+            labels_dict={}
+            if hybrid_band == True:
+                start_bs_index=0
+                for i in range(len(self.actual_kpoints)):
+                    if self.actual_kpoints_weights[i]==0.0:
+                        start_bs_index=i
+                        break
+                for i in range(len(kpoint_file.kpts)):
+                    if kpoint_file.labels[i]!=None:
+                        labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
+                #remake the data only considering line band structure k-points (weight = 0.0 kpoints)
+                kpoints=kpoints[start_bs_index:len(kpoints)]
+                if self.is_spin:
+                    eigenvals={Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))], Spin.down:[eigenvals[Spin.down][i][start_bs_index:len(eigenvals[Spin.down][i])] for i in range(len(eigenvals[Spin.down]))]}
+                else:
+                    eigenvals={Spin.up:[eigenvals[Spin.up][i][start_bs_index:len(eigenvals[Spin.up][i])] for i in range(len(eigenvals[Spin.up]))]}
+            else:
+                labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new, efermi, labels_dict, structure=self.final_structure, projections=p_eigenvals)
         else:
             return BandStructure(kpoints, eigenvals, lattice_new, efermi, structure=self.final_structure, projections=p_eigenvals)

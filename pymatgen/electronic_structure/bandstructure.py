@@ -197,7 +197,7 @@ class BandStructure(object):
                     label = c
                     self._labels_dict[label] = Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian)
             self._kpoints.append(Kpoint(k, lattice, label=label, coords_are_cartesian=coords_are_cartesian))
-
+            
         self._bands = eigenvals
         self._nb_bands = len(eigenvals[Spin.up])
 
