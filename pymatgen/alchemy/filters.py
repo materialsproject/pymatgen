@@ -6,15 +6,16 @@ from pymatgen.core.periodic_table import smart_element_or_specie
 
 import abc
 
+
 class AbstractStructureFilter(object):
     """
     Abstract structure filter class.
     """
     __metaclass__ = abc.ABCMeta
-    
+
     def __init__(self):
         pass
-    
+
     @abc.abstractmethod
     def test(self, structure):
         '''
@@ -30,9 +31,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     Filter for structures containing certain elements or species.
     By default compares by atomic number
     """
-    def __init__(self, species, strict_compare = False
-                 , AND = True
-                 , exclude = False):
+
+    def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
         Args:
             species:
@@ -51,7 +51,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
-        
+
     def test(self, structure):
         #set up lists to compare
         if not self._strict:
@@ -64,7 +64,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             #compare by specie or element object
             filter_set = set(self._species)
             structure_set = set(structure.composition.elements)
-        
+
         if self._AND and filter_set <= structure_set:
             #return true if we aren't excluding since all are in structure
             return not self._exclude
@@ -75,4 +75,4 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             #return false if we aren't excluding otherwise
             return self._exclude
 
-    
+
