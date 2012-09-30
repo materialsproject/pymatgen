@@ -19,9 +19,8 @@ class AbstractStructureFilter(object):
     @abc.abstractmethod
     def test(self, structure):
         '''
-        Returns a boolean for any structure. Structures that 
-        return true are kept in the Transmuter object during 
-        filtering
+        Returns a boolean for any structure. Structures that return true are
+        kept in the Transmuter object during filtering.
         '''
         return
 
@@ -44,8 +43,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
                 if true, compares objects by specie or element object
                 if false, compares atomic number
             exclude:
-                if true, returns false for any structures with 
-                the specie (excludes them from the Transmuter)
+                if true, returns false for any structures with the specie
+                (excludes them from the Transmuter)
         """
         self._species = map(smart_element_or_specie, species)
         self._strict = strict_compare
@@ -58,8 +57,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             #compare by atomic number
             atomic_number = lambda x: x.Z
             filter_set = set(map(atomic_number, self._species))
-            structure_set = set(map(atomic_number
-                                    , structure.composition.elements))
+            structure_set = set(map(atomic_number,
+                                    structure.composition.elements))
         else:
             #compare by specie or element object
             filter_set = set(self._species)
@@ -76,3 +75,39 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             return self._exclude
 
 
+class SpecieProximityFilter(AbstractStructureFilter):
+    """
+    This filter removes structures that have certain species that are too close
+    together.
+    """
+
+    def __init__(self, specie_and_min_dist_dict):
+        """
+        Args:
+            specie_and_min_dist_dict:
+                A species string to float mapping. For example, {"Na+": 1}
+                means that all Na+ ions must be at least 1 Angstrom away from
+                each other. Multiple species criteria can be applied. Note that
+                the testing is done based on the actual object. If you have a
+                structure with Element, you must use {"Na":1} instead to filter
+                based on Element and not Specie.
+        """
+        self.specie_and_min_dist = {smart_element_or_specie(k): v
+                                    for k, v
+                                    in specie_and_min_dist_dict.items()}
+
+    def test(self, structure):
+        all_species = set(self.specie_and_min_dist.keys())
+        for site in structure:
+            species = site.species_and_occu.keys()
+            sp_to_test = set(species).intersection(all_species)
+            if sp_to_test:
+                max_r = max([self.specie_and_min_dist[sp]
+                             for sp in sp_to_test])
+                nn = structure.get_neighbors(site, max_r)
+                for sp in sp_to_test:
+                    for (nnsite, dist) in nn:
+                        if sp in nnsite.species_and_occu.keys():
+                            if dist < self.specie_and_min_dist[sp]:
+                                return False
+        return True
