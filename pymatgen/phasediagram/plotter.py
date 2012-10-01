@@ -179,10 +179,11 @@ class PDPlotter(object):
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
                 vec = vec / np.linalg.norm(vec) * 10
+                label = entry.name
                 plt.plot(coords[0], coords[1], "rx", linewidth=3,
                          markeredgecolor="r", markerfacecolor="r",
                          markersize=10)
-                plt.annotate(latexify(entry.name), coords, xytext=vec,
+                plt.annotate(latexify(label), coords, xytext=vec,
                              textcoords="offset points",
                              horizontalalignment=halign, color="b",
                              verticalalignment=valign,
@@ -351,6 +352,121 @@ class PDPlotter(object):
                    .format(el1.symbol))
         plt.tight_layout()
         plt.show()
+
+    def get_pd_plot_data_contour(self):
+        """
+        Plot data for phase diagram.
+        2-comp - Full hull with energies
+        3/4-comp - Projection into 2D or 3D Gibbs triangle.
+
+        Returns:
+            (lines, stable_entries, unstable_entries):
+                - lines is a list of list of coordinates for lines in the PD.
+                - stable_entries is a {coordinate : entry} for each stable node
+                  in the phase diagram. (Each coordinate can only have one
+                  stable phase)
+                - unstable_entries is a {entry: coordinates} for all unstable
+                  nodes in the phase diagram.
+        """
+        pd = self._pd
+        entries = pd.qhull_entries
+        data = np.array(pd.qhull_data)
+        from scipy import interpolate
+        from matplotlib import cm
+
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(8, 6)
+        analyzer = PDAnalyzer(pd)
+        data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
+        for i, e in enumerate(entries):
+            data[i, 2] = analyzer.get_e_above_hull(e)
+        f = interpolate.interp2d(data[:, 0], data[:, 1], data[:, 2])
+
+        xnew = np.arange(0, 1., 0.001)
+        ynew = np.arange(0, 1, 0.001)
+
+        #znew = f(xnew, ynew)
+
+        f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
+        #f = interpolate.CloughTocher2DInterpolator(data[:, 0:2], data[:, 2])
+        znew = np.zeros((len(ynew), len(xnew)))
+        for (i, xval) in enumerate(xnew):
+            for (j, yval) in enumerate(ynew):
+                znew[j, i] = f(xval, yval)
+
+        #znew = [f(np.array(zip(xnew, ynew)))]
+        #print znew
+        #f = RectBivariateSpline(data[:, 0], data[:, 1], data[:, 2])
+        cs = plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
+
+        from matplotlib.font_manager import FontProperties
+        (lines, labels, unstable) = self.pd_plot_data
+        for x, y in lines:
+            plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
+                     markerfacecolor="b", markersize=10)
+        font = FontProperties()
+        font.set_weight("bold")
+        font.set_size(24)
+
+        # Sets a nice layout depending on the type of PD. Also defines a
+        # "center" for the PD, which then allows the annotations to be spread
+        # out in a nice manner.
+        if len(self._pd.elements) == 3:
+            plt.axis("equal")
+            plt.xlim((-0.1, 1.2))
+            plt.ylim((-0.1, 1.0))
+            plt.axis("off")
+            center = (0.5, math.sqrt(3) / 6)
+        else:
+            allcoords = labels.keys()
+            miny = min([c[1] for c in allcoords])
+            ybuffer = max(abs(miny) * 0.1, 0.1)
+            plt.xlim((-0.1, 1.1))
+            plt.ylim((miny - ybuffer, ybuffer))
+            center = (0.5, miny / 2)
+            plt.xlabel("Fraction")
+            plt.ylabel("Formation energy from end members (eV)")
+
+        for coords in sorted(labels.keys(), key=lambda x:-x[1]):
+            entry = labels[coords]
+            label = entry.name
+
+            # The follow defines an offset for the annotation text emanating
+            # from the center of the PD. Results in fairly nice layouts for the
+            # most part.
+            vec = (np.array(coords) - center)
+            vec = vec / np.linalg.norm(vec) * 10
+            valign = "bottom" if vec[1] > 0 else "top"
+            if vec[0] < -0.01:
+                halign = "right"
+            elif vec[0] > 0.01:
+                halign = "left"
+            else:
+                halign = "center"
+
+            plt.annotate(latexify(label), coords, xytext=vec,
+                             textcoords="offset points",
+                             horizontalalignment=halign,
+                             verticalalignment=valign,
+                             fontproperties=font)
+
+        if self.show_unstable:
+            font = FontProperties()
+            font.set_size(14)
+            for entry, coords in unstable.items():
+                vec = (np.array(coords) - center)
+                vec = vec / np.linalg.norm(vec) * 10
+                plt.plot(coords[0], coords[1], "ks", linewidth=3,
+                         markeredgecolor="k", markerfacecolor="w",
+                         markersize=5)
+                plt.annotate(latexify(entry.name), coords, xytext=vec,
+                             textcoords="offset points",
+                             horizontalalignment=halign, color="k",
+                             verticalalignment=valign,
+                             fontproperties=font)
+        plt.colorbar()
+        plt.show()
+        return None
 
 
 def uniquelines(q):
