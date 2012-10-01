@@ -145,7 +145,9 @@ class StandardTransmuter(object):
         Applies a structure_filter to the list of TransformedStructures
         in the transmuter
         """
-        self.transformed_structures = filter(structure_filter.test,
+        def test_transformed_structure(ts):
+            return structure_filter.test(ts.final_structure)
+        self.transformed_structures = filter(test_transformed_structure,
                                              self.transformed_structures)
 
     def write_vasp_input(self, vasp_input_set, output_dir,
