@@ -1,13 +1,25 @@
+#!/usr/bin/env python
+
 """
-Defines filters for Transmuter object
+This module defines filters for Transmuter object.
 """
+
+from __future__ import division
+
+__author__ = "Will Richards, Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Will Richards"
+__email__ = "wrichards@mit.edu"
+__date__ = "Sep 25, 2012"
+
 
 from pymatgen.core.periodic_table import smart_element_or_specie
-
+from pymatgen.serializers.json_coders import MSONable
 import abc
 
 
-class AbstractStructureFilter(object):
+class AbstractStructureFilter(MSONable):
     """
     Abstract structure filter class.
     """
@@ -23,6 +35,16 @@ class AbstractStructureFilter(object):
         kept in the Transmuter object during filtering.
         '''
         return
+
+    @staticmethod
+    def from_dict(d):
+        for trans_modules in ['filters']:
+            mod = __import__('pymatgen.alchemy.' + trans_modules,
+                             globals(), locals(), [d['@class']], -1)
+            if hasattr(mod, d['@class']):
+                trans = getattr(mod, d['@class'])
+                return trans(**d['init_args'])
+        raise ValueError("Invalid filter dict")
 
 
 class ContainsSpecieFilter(AbstractStructureFilter):
@@ -74,6 +96,25 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             #return false if we aren't excluding otherwise
             return self._exclude
 
+    def __repr__(self):
+        output = ["ContainsSpecieFilter with parameters:"]
+        output.append("species = {}".format(self._species))
+        output.append("strict_compare = {}".format(self._strict))
+        output.append("AND = {}".format(self._AND))
+        output.append("exclude = {}".format(self._exclude))
+        return  "\n".join(output)
+
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["init_args"] = {"species": [str(sp) for sp in self._species],
+                          "strict_compare": self._strict,
+                          "AND": self._AND,
+                          "exclude": self._exclude}
+        return d
+
 
 class SpecieProximityFilter(AbstractStructureFilter):
     """
@@ -111,3 +152,13 @@ class SpecieProximityFilter(AbstractStructureFilter):
                             if dist < self.specie_and_min_dist[sp]:
                                 return False
         return True
+
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["init_args"] = {"specie_and_min_dist_dict":
+                          {str(sp): v
+                           for sp, v in self.specie_and_min_dist.items()}}
+        return d
