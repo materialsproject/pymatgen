@@ -169,6 +169,12 @@ class TransformedStructure(MSONable):
             self._transformation_parameters.append({})
             self._transformations.append(transformation)
 
+    def add_transformation_parameter(self, param):
+        """
+        Adds a transformation parameter to the last transformation.
+        """
+        self._transformation_parameters[-1].update(param)
+
     def extend_transformations(self, transformations):
         """
         Extends a sequence of transformations to the TransformedStructure.

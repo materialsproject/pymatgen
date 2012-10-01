@@ -52,6 +52,11 @@ class TransformedStructureTest(unittest.TestCase):
         alt = ts.append_transformation(PartialRemoveSpecieTransformation('Si4+', 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5)
         self.assertEqual(len(alt), 2)
 
+    def test_add_transformation_parameter(self):
+        self.trans.add_transformation_parameter({"Hello": "World"})
+        self.assertIn("Hello",
+                      self.trans.to_dict["history"][-1]["output_parameters"])
+
     def test_get_vasp_input(self):
         vaspis = MaterialsProjectVaspInputSet()
         self.assertEqual("Na_pv\nO\nP\nFe_pv", self.trans.get_vasp_input(vaspis, False)['POTCAR.spec'])

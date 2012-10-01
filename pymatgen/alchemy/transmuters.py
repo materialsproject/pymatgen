@@ -147,6 +147,9 @@ class StandardTransmuter(object):
         """
         self.transformed_structures = filter(structure_filter.test,
                                              self.transformed_structures)
+        for ts in self.transformed_structures:
+            ts.add_transformation_parameter({'filter':
+                                             structure_filter.to_dict})
 
     def write_vasp_input(self, vasp_input_set, output_dir,
                          create_directory=True, subfolder=None,
