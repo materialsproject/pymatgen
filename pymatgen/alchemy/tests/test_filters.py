@@ -55,6 +55,13 @@ class ContainsSpecieFilterTest(unittest.TestCase):
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)
         self.assertFalse(f8.test(s), 'Incorrect filter')
 
+    def test_to_from_dict(self):
+        species1 = ['Si5+', 'Mg2+']
+        f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
+        d = f1.to_dict
+        self.assertIsInstance(ContainsSpecieFilter.from_dict(d),
+                              ContainsSpecieFilter)
+
 
 class SpecieProximityFilterTest(unittest.TestCase):
 
@@ -71,6 +78,11 @@ class SpecieProximityFilterTest(unittest.TestCase):
         sf = SpecieProximityFilter({"P": 5})
         self.assertFalse(sf.test(s))
 
+    def test_to_from_dict(self):
+        sf = SpecieProximityFilter({"Li": 1})
+        d = sf.to_dict
+        self.assertIsInstance(SpecieProximityFilter.from_dict(d),
+                              SpecieProximityFilter)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
