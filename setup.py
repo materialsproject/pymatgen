@@ -41,7 +41,7 @@ pymatgen"s Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
-spgsrcdir = os.path.join("dependencies", "spglib-1.2.2", "src")
+spgsrcdir = os.path.join("dependencies", "spglib-1.2.4", "src")
 include_dirs = [spgsrcdir]
 sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
            "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
@@ -59,7 +59,7 @@ else:
 
 extension = Extension("pymatgen._spglib",
                       include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join("dependencies", "spglib-1.2.2",
+                      sources=[os.path.join("dependencies", "spglib-1.2.4",
                                "_spglib.c")] + sources,
                       extra_compile_args=extra_compile,
                       extra_link_args=extra_link
