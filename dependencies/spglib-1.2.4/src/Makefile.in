@@ -616,6 +616,8 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 	uninstall-libLTLIBRARIES uninstall-pkgincludeHEADERS
 
 
+# libsymspg_la_LDFLAGS = -version-info 0:1:0
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
