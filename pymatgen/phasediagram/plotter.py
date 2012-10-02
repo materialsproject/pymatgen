@@ -148,7 +148,7 @@ class PDPlotter(object):
             plt.ylim((miny - ybuffer, ybuffer))
             center = (0.5, miny / 2)
             plt.xlabel("Fraction")
-            plt.ylabel("Formation energy from end members (eV)")
+            plt.ylabel("Form. energy from end members (eV)")
 
         for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
@@ -168,10 +168,10 @@ class PDPlotter(object):
                 halign = "center"
 
             plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords="offset points",
-                             horizontalalignment=halign,
-                             verticalalignment=valign,
-                             fontproperties=font)
+                         textcoords="offset points",
+                         horizontalalignment=halign,
+                         verticalalignment=valign,
+                         fontproperties=font)
 
         if self.show_unstable:
             font = FontProperties()
