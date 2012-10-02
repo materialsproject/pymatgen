@@ -37,7 +37,7 @@ def get_publication_quality_plot(width=8, height=None):
     plt.figure(figsize=(width, height), facecolor="w")
     plt.ylabel("Y-axis", fontsize=width * 3)
     plt.xlabel("X-axis", fontsize=width * 3)
-    plt.xticks(fontsize=width * 2)
-    plt.yticks(fontsize=width * 2)
-    plt.title("", fontsize=width * 3)
+    plt.xticks(fontsize=width * 3)
+    plt.yticks(fontsize=width * 3)
+    plt.title("", fontsize=width * 4)
     return plt
