@@ -139,7 +139,7 @@ class PDAnalyzer(object):
                           for entry, amt in decomp.items()])
         if abs(eperatom) < PDAnalyzer.numerical_tol:
             return (decomp, 0)
-        return (decomp, eperatom - hullenergy)
+        return (decomp, max(eperatom - hullenergy, 0))
 
     def get_e_above_hull(self, entry):
         """
