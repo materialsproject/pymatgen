@@ -142,18 +142,7 @@ Symmetry * sym_get_operation(SPGCONST Cell *cell,
 
   num_sym = get_operation(rot->mat, trans->vec, cell, symprec);
 
-#ifdef DEBUG
-  debug_print("*** get_symmetry (found symmetry operations) *** \n");
-  debug_print("Lattice \n");
-  debug_print_matrix_d3(cell->lattice);
-  for (i = 0; i < num_sym; i++) {
-    debug_print("--- %d ---\n", i + 1);
-    debug_print_matrix_i3(rot->mat[i]);
-    debug_print("%f %f %f\n",
-  		trans->vec[i][0], trans->vec[i][1], trans->vec[i][2]);
-  }
-#endif
-  
+
   symmetry = sym_alloc_symmetry(num_sym);
   for (i = 0; i < num_sym; i++) {
     mat_copy_matrix_i3(symmetry->rot[i], rot->mat[i]);
@@ -283,19 +272,24 @@ static int get_operation(int rot[][3][3],
   PointSymmetry lattice_sym;
   Cell *primitive;
   VecDBL *pure_trans;
+#ifdef DEBUG
+  int i;
+#endif
+  debug_print("*** get_symmetry (found symmetry operations) *** \n");
 
   num_sym = 0;
 
   /* Lattice symmetry for input cell*/
   lattice_sym = get_lattice_symmetry(cell, symprec);
   if (lattice_sym.size == 0) {
+    debug_print("get_lattice_symmetry failed.\n");
     goto end;
   }
 
   tolerance = symprec;
   for (attempt = 0; attempt < 100; attempt++) {
     is_found = 0;
-    pure_trans = sym_get_pure_translation(cell, symprec);
+    pure_trans = sym_get_pure_translation(cell, tolerance);
     if (pure_trans->size == 0) {
       mat_free_VecDBL(pure_trans);
       goto end;
@@ -312,6 +306,8 @@ static int get_operation(int rot[][3][3],
     cel_free_cell(primitive);
     mat_free_VecDBL(pure_trans);
     tolerance *= REDUCE_RATE;
+    warning_print("spglib: Reduce tolerance to %f\n", tolerance);
+    warning_print("(line %d, %s).\n", __LINE__, __FILE__);
   }
 
   if (! is_found) {goto end;}
@@ -338,6 +334,18 @@ static int get_operation(int rot[][3][3],
   mat_free_VecDBL(pure_trans);
 
  end:
+#ifdef DEBUG
+  debug_print("num_sym = %d\n", num_sym);
+  debug_print("num_lattice_sym = %d\n", lattice_sym.size);
+  debug_print("Lattice \n");
+  debug_print_matrix_d3(cell->lattice);
+  for (i = 0; i < num_sym; i++) {
+    debug_print("--- %d ---\n", i + 1);
+    debug_print_matrix_i3(rot[i]);
+    debug_print("%f %f %f\n", trans[i][0], trans[i][1], trans[i][2]);
+  }
+#endif
+  
   return num_sym;
 }
 
@@ -381,6 +389,8 @@ static Symmetry * reduce_operation(SPGCONST Cell * cell,
 
   mat_free_MatINT(rot);
   mat_free_VecDBL(trans);
+
+  debug_print("reduce_operation: num_sym = %d\n", num_sym);
 
   return sym_reduced;
 }
@@ -667,11 +677,16 @@ static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,
 	}
 	mat_multiply_matrix_di3(lattice, min_lattice, axes);
 	mat_get_metric(metric, lattice);
+
+	debug_print_matrix_i3(axes);
+	debug_print_matrix_d3(metric);
+	debug_print_matrix_d3(metric_orig);
 	
 	if (is_identity_metric(metric, metric_orig, symprec)) {
 	  mat_copy_matrix_i3(lattice_sym.rot[num_sym], axes);
 	  num_sym++;
 	}
+	  
 	if (num_sym > 48) {
 	  warning_print("spglib: Too many lattice symmetries was found.\n");
 	  warning_print("        Tolerance may be too large ");
@@ -700,13 +715,14 @@ static int is_identity_metric(SPGCONST double metric_rotated[3][3],
   int elem_sets[3][2] = {{0, 1},
 			 {0, 2},
 			 {1, 2}};
-  double cos1, cos2, x, length_ave;
+  double cos1, cos2, x, length_ave2, sin_dtheta2;
   double length_orig[3], length_rot[3];
 
   for (i = 0; i < 3; i++) {
     length_orig[i] = sqrt(metric_orig[i][i]);
     length_rot[i] = sqrt(metric_rotated[i][i]);
     if (mat_Dabs(length_orig[i] - length_rot[i]) > symprec) {
+      debug_print("eliminate by length\n");
       goto fail;
     }
   }
@@ -727,14 +743,13 @@ static int is_identity_metric(SPGCONST double metric_rotated[3][3],
       cos1 = metric_orig[j][k] / length_orig[j] / length_orig[k];
       cos2 = metric_rotated[j][k] / length_rot[j] / length_rot[k];
       x = cos1 * cos2 + sqrt(1 - cos1 * cos1) * sqrt(1 - cos2 * cos2);
-      length_ave = sqrt((length_orig[j] + length_rot[j]) *
-			(length_orig[k] + length_rot[k])) / 2;
-      if (x * x < 1) {
-	if (sqrt(1 - x * x) * length_ave > symprec) {
+      sin_dtheta2 = 1 - x * x;
+      length_ave2 = ((length_orig[j] + length_rot[j]) *
+		     (length_orig[k] + length_rot[k])) / 4;
+      if (sin_dtheta2 > 1e-12) {
+	if (sin_dtheta2 * length_ave2 > symprec * symprec) {
+	  debug_print("eliminate by angle %f %f %20.17f %e\n", cos1, cos2, x, sin_dtheta2);
 	  goto fail;
-	} else {
-	  ;
-	  debug_print("%f %f %f %f\n", cos1, cos2, x, sqrt(1 - x * x));
 	}
       }
     }
@@ -787,9 +802,9 @@ static PointSymmetry transform_pointsymmetry(SPGCONST PointSymmetry * lat_sym_or
     }
   }
 
-#ifdef SPGWARNING
+#ifdef DEBUG
   if (! (lat_sym_orig->size == size)) {
-    warning_print("spglib: Some of point symmetry operations were dropted.");
+    warning_print("spglib: Some of point symmetry operations were dropped.");
     warning_print("(line %d, %s).\n", __LINE__, __FILE__);
   }
 #endif
