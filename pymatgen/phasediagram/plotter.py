@@ -382,8 +382,9 @@ class PDPlotter(object):
             data[i, 2] = analyzer.get_e_above_hull(e)
         f = interpolate.interp2d(data[:, 0], data[:, 1], data[:, 2])
 
-        xnew = np.arange(0, 1., 0.001)
-        ynew = np.arange(0, 1, 0.001)
+        gridsize = 0.01
+        xnew = np.arange(0, 1., gridsize)
+        ynew = np.arange(0, 1, gridsize)
 
         #znew = f(xnew, ynew)
 
