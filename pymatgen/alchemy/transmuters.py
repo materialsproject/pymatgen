@@ -21,6 +21,7 @@ __date__ = "Mar 4, 2012"
 
 import os
 import re
+import warnings
 
 from pymatgen.alchemy.materials import TransformedStructure
 
@@ -62,7 +63,6 @@ class StandardTransmuter(object):
             Use transformed_structures attribute instead. Will be removed in
             next version.
         """
-        import warnings
         warnings.warn("Use transformed_structures attribute instead.",
                       DeprecationWarning)
         return self.transformed_structures
@@ -75,15 +75,29 @@ class StandardTransmuter(object):
 
     def undo_last_transformation(self):
         """
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use undo_last_change.", DeprecationWarning)
+        self.undo_last_change()
+
+    def redo_next_transformation(self):
+        """
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use redo_last_change.", DeprecationWarning)
+        self.redo_next_change()
+
+    def undo_last_change(self):
+        """
         Undo the last transformation in the TransformedStructure.
 
         Raises:
             IndexError if already at the oldest change.
         """
         for x in self.transformed_structures:
-            x.undo_last_transformation()
+            x.undo_last_change()
 
-    def redo_next_transformation(self):
+    def redo_next_change(self):
         """
         Redo the last undone transformation in the TransformedStructure.
 
@@ -91,7 +105,7 @@ class StandardTransmuter(object):
             IndexError if already at the latest change.
         """
         for x in self.transformed_structures:
-            x.redo_next_transformation()
+            x.redo_next_change()
 
     def __len__(self):
         return len(self.transformed_structures)

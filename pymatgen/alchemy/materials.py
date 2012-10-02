@@ -19,6 +19,7 @@ import os
 import re
 import json
 import datetime
+import warnings
 from copy import deepcopy
 
 from pymatgen.core.structure import Structure
@@ -82,7 +83,21 @@ class TransformedStructure(MSONable):
 
     def undo_last_transformation(self):
         """
-        Undo the last transformation in the TransformedStructure.
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use undo_last_change.", DeprecationWarning)
+        self.undo_last_change()
+
+    def redo_next_transformation(self):
+        """
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use redo_last_change.", DeprecationWarning)
+        self.redo_next_change()
+
+    def undo_last_change(self):
+        """
+        Undo the last change in the TransformedStructure.
 
         Raises:
             IndexError if already at the oldest change.
@@ -93,9 +108,9 @@ class TransformedStructure(MSONable):
         self._change_parameters.pop()
         self._redo_trans.append(self._changes.pop())
 
-    def redo_next_transformation(self):
+    def redo_next_change(self):
         """
-        Redo the last undone transformation in the TransformedStructure.
+        Redo the last undone change in the TransformedStructure.
 
         Raises:
             IndexError if already at the latest change.
