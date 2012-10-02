@@ -51,13 +51,14 @@ class TransformedStructureTest(unittest.TestCase):
         structure = Structure.from_dict(structure_dict)
         self.structure = structure
         trans = []
-        trans.append(SubstitutionTransformation({"Li":"Na"}))
+        trans.append(SubstitutionTransformation({"Li": "Na"}))
         self.trans = TransformedStructure(structure, trans)
 
     def test_append_transformation(self):
-        t = SubstitutionTransformation({"Fe":"Mn"})
+        t = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(t)
-        self.assertEqual("NaMnPO4", self.trans.final_structure.composition.reduced_formula)
+        self.assertEqual("NaMnPO4",
+                         self.trans.final_structure.composition.reduced_formula)
         self.assertEqual(len(self.trans.structures), 3)
         coords = list()
         coords.append([0, 0, 0])
@@ -74,8 +75,6 @@ class TransformedStructureTest(unittest.TestCase):
     def test_append_filter(self):
         f3 = ContainsSpecieFilter(['O2-'], strict_compare=True, AND=False)
         self.trans.append_filter(f3)
-        import pprint
-        pprint.pprint(self.trans.to_dict['history'])
 
     def test_get_vasp_input(self):
         vaspis = MaterialsProjectVaspInputSet()
@@ -94,27 +93,32 @@ class TransformedStructureTest(unittest.TestCase):
         self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
         self.assertEqual(ts.other_parameters, {'author': 'Will', 'tags': ['test']})
 
-    def test_undo_last_transformation_and_redo(self):
+    def test_undo_and_redo_last_change(self):
         trans = []
-        trans.append(SubstitutionTransformation({"Li":"Na"}))
-        trans.append(SubstitutionTransformation({"Fe":"Mn"}))
+        trans.append(SubstitutionTransformation({"Li": "Na"}))
+        trans.append(SubstitutionTransformation({"Fe": "Mn"}))
         ts = TransformedStructure(self.structure, trans)
-        self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
-        ts.undo_last_transformation()
-        self.assertEqual("NaFePO4", ts.final_structure.composition.reduced_formula)
-        ts.undo_last_transformation()
-        self.assertEqual("LiFePO4", ts.final_structure.composition.reduced_formula)
+        self.assertEqual("NaMnPO4",
+                         ts.final_structure.composition.reduced_formula)
+        ts.undo_last_change()
+        self.assertEqual("NaFePO4",
+                         ts.final_structure.composition.reduced_formula)
+        ts.undo_last_change()
+        self.assertEqual("LiFePO4",
+                         ts.final_structure.composition.reduced_formula)
         self.assertRaises(IndexError, ts.undo_last_transformation)
-        ts.redo_next_transformation()
-        self.assertEqual("NaFePO4", ts.final_structure.composition.reduced_formula)
-        ts.redo_next_transformation()
-        self.assertEqual("NaMnPO4", ts.final_structure.composition.reduced_formula)
-        self.assertRaises(IndexError, ts.redo_next_transformation)
+        ts.redo_next_change()
+        self.assertEqual("NaFePO4",
+                         ts.final_structure.composition.reduced_formula)
+        ts.redo_next_change()
+        self.assertEqual("NaMnPO4",
+                         ts.final_structure.composition.reduced_formula)
+        self.assertRaises(IndexError, ts.redo_next_change)
         #Make sure that this works with filters.
         f3 = ContainsSpecieFilter(['O2-'], strict_compare=True, AND=False)
         ts.append_filter(f3)
-        ts.undo_last_transformation()
-        ts.redo_next_transformation()
+        ts.undo_last_change()
+        ts.redo_next_change()
 
     def test_to_dict(self):
         d = self.trans.to_dict
