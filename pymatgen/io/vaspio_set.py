@@ -296,6 +296,16 @@ class MITVaspInputSet(VaspInputSet):
                               constrain_total_magmom=constrain_total_magmom)
 
 
+class MITGGAVaspInputSet(VaspInputSet):
+    """
+    Typical implementation of input set for a GGA run based on MIT parameters.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        VaspInputSet.__init__(self, "MITGGA",
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
+
+
 class MITHSEVaspInputSet(VaspInputSet):
     """
     Typical implementation of input set for a HSE run.
