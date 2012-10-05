@@ -33,6 +33,7 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.util.decorators import cached_class
 import pymatgen
 
 
@@ -1008,6 +1009,7 @@ class Kpoints(VaspInput):
             else Kpoints.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
+        labels = []
         tet_number = 0
         tet_weight = 0
         tet_connections = None
@@ -1016,6 +1018,10 @@ class Kpoints(VaspInput):
             toks = lines[i].split()
             kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
             kpts_weights.append(float(toks[3]))
+            if len(toks) > 4:
+                labels.append(toks[4])
+            else:
+                labels.append(None)
         try:
             #Deal with tetrahedron method
             if lines[3 + num_kpts].strip().lower()[0] == "t":
@@ -1034,7 +1040,7 @@ class Kpoints(VaspInput):
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                        kpts=kpts, kpts_weights=kpts_weights,
                        tet_number=tet_number, tet_weight=tet_weight,
-                       tet_connections=tet_connections)
+                       tet_connections=tet_connections, labels=labels)
 
     def write_file(self, filename):
         """
@@ -1114,6 +1120,7 @@ elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
     VASP_PSP_DIR = config.get("VASP", "pspdir")
 
 
+@cached_class
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1228,12 +1235,6 @@ class Potcar(list, VaspInput):
 
     DEFAULT_FUNCTIONAL = "PBE"
 
-    """
-    Cache for PotcarSingles. Results in orders of magnitude faster generation
-    of output when doing high-throughput run generation.
-    """
-    _cache = {}
-
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
         """
@@ -1321,9 +1322,5 @@ class Potcar(list, VaspInput):
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
             for el in symbols:
-                if (el, functional) in Potcar._cache:
-                    self.append(Potcar._cache[(el, functional)])
-                else:
-                    p = PotcarSingle.from_symbol_and_functional(el, functional)
-                    self.append(p)
-                    Potcar._cache[(el, functional)] = p
+                p = PotcarSingle.from_symbol_and_functional(el, functional)
+                self.append(p)

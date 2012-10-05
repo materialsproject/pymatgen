@@ -396,7 +396,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions,
-                 use_external_qhull=False):
+                 use_external_qhull=False,
+                 normalize_terminal_compositions=True):
         """
         Args:
             entries:
@@ -408,9 +409,15 @@ class CompoundPhaseDiagram(PhaseDiagram):
             use_external_qhull:
                 Similar to PhaseDiagram, set to True if you wish to use
                 external qhull command.
+            normalize_terminal_compositions:
+                Whether to normalize the terminal compositions to a per atom
+                basis. If normalized, the energy above hulls will be consistent
+                for comparison across systems. Non-normalized terminals are
+                more intuitive in terms of compositional breakdowns.
         """
         self.original_entries = entries
         self.terminal_compositions = terminal_compositions
+        self.normalize_terminals = normalize_terminal_compositions
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
         PhaseDiagram.__init__(self, pentries,
@@ -435,21 +442,27 @@ class CompoundPhaseDiagram(PhaseDiagram):
             Sequence of TransformedPDEntries falling within the phase space.
         """
         new_entries = []
+        if self.normalize_terminals:
+            fractional_comp = [c.get_fractional_composition()
+                               for c in terminal_compositions]
+        else:
+            fractional_comp = terminal_compositions
+
         #Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
-        for i, comp in enumerate(terminal_compositions):
+        for i, comp in enumerate(fractional_comp):
             sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
 
         for entry in entries:
             try:
-                rxn = Reaction(terminal_compositions, [entry.composition])
+                rxn = Reaction(fractional_comp, [entry.composition])
                 rxn.normalize_to(entry.composition)
                 #We only allow reactions that have positive amounts of
                 #reactants.
                 if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
-                        for comp in terminal_compositions]):
+                        for comp in fractional_comp]):
                     newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
-                               for comp in terminal_compositions}
+                               for comp in fractional_comp}
                     newcomp = {k: v for k, v in newcomp.items()
                                if v > CompoundPhaseDiagram.amount_tol}
                     transformed_entry = \

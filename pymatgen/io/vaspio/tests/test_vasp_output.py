@@ -90,6 +90,9 @@ class VasprunTest(unittest.TestCase):
                                                                    0, 96,
                                                                    Orbital.s)],
                                0.0032)
+        d = vasprun_ggau.to_dict
+        self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
+        self.assertEqual(d["nelements"], 4)
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')

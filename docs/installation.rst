@@ -199,8 +199,8 @@ doing make followed by make install works fine.
 VTK (tested on v5.10.0)
 -----------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 and 10.8
+~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -214,12 +214,30 @@ Type the following:
 
 For all options, use the defaults, EXCEPT for BUILD_SHARED_LIBS and 
 VTK_WRAP_PYTHON which must be set to ON. You may also need to modify the python 
-paths and library paths if they are in non-standard locations.  After the 
-CMakeCache.txt file is generated, type:
+paths and library paths if they are in non-standard locations. For example, if
+you have installed the official version of Python instead of using the 
+Mac-provided version, you will probably need to edit the CMakeCache Python
+links. Example configuration for Python 2.7 is given below (only variables that
+need to be modified are shown):
 
 ::
 
-	make (note that this takes a while)
+   //Path to a program.
+   PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
+
+   //Path to a file.
+   PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
+
+   //Path to a library.
+   PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
+   
+   //Also delete the prefix settings for python, which typically links to the Mac python.
+
+After the CMakeCache.txt file is generated, type:
+
+::
+
+	make
 	sudo make install
 	
 With any luck, you should have vtk with the necessary python wrappers installed.
