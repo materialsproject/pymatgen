@@ -104,17 +104,17 @@ class PDPlotter(object):
 
         return (lines, stable_entries, unstable_entries)
 
-    def show(self):
+    def show(self, label_stable=True, label_unstable=True):
         """
         Draws the phase diagram using Matplotlib and show it.
         """
         if self._dim < 4:
-            plt = self._get_2d_plot()
+            plt = self._get_2d_plot(label_stable, label_unstable)
         elif self._dim == 4:
-            plt = self._get_3d_plot()
+            plt = self._get_3d_plot(label_stable)
         plt.show()
 
-    def _get_2d_plot(self):
+    def _get_2d_plot(self, label_stable=True, label_unstable=True):
         """
         Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
@@ -126,7 +126,7 @@ class PDPlotter(object):
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
             plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
-                     markerfacecolor="b", markersize=10)
+                     markerfacecolor="b", markersize=15)
         font = FontProperties()
         font.set_weight("bold")
         font.set_size(24)
@@ -147,8 +147,9 @@ class PDPlotter(object):
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
             center = (0.5, miny / 2)
-            plt.xlabel("Fraction")
-            plt.ylabel("Form. energy from end members (eV)")
+            plt.xlabel("Fraction", fontsize=28, fontweight='bold')
+            plt.ylabel("Formation energy (eV/fu)", fontsize=28,
+                       fontweight='bold')
 
         for coords in sorted(labels.keys(), key=lambda x:-x[1]):
             entry = labels[coords]
@@ -167,11 +168,12 @@ class PDPlotter(object):
                 halign = "left"
             else:
                 halign = "center"
-            plt.annotate(latexify(label), coords, xytext=vec,
-                         textcoords="offset points",
-                         horizontalalignment=halign,
-                         verticalalignment=valign,
-                         fontproperties=font)
+            if label_stable:
+                plt.annotate(latexify(label), coords, xytext=vec,
+                             textcoords="offset points",
+                             horizontalalignment=halign,
+                             verticalalignment=valign,
+                             fontproperties=font)
 
         if self.show_unstable:
             font = FontProperties()
@@ -180,20 +182,21 @@ class PDPlotter(object):
                 vec = (np.array(coords) - center)
                 vec = vec / np.linalg.norm(vec) * 10
                 label = entry.name
-                plt.plot(coords[0], coords[1], "rx", linewidth=3,
-                         markeredgecolor="r", markerfacecolor="r",
-                         markersize=10)
-                plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords="offset points",
-                             horizontalalignment=halign, color="b",
-                             verticalalignment=valign,
-                             fontproperties=font)
+                plt.plot(coords[0], coords[1], "ks", linewidth=3,
+                         markeredgecolor="k", markerfacecolor="r",
+                         markersize=8)
+                if label_unstable:
+                    plt.annotate(latexify(label), coords, xytext=vec,
+                                 textcoords="offset points",
+                                 horizontalalignment=halign, color="b",
+                                 verticalalignment=valign,
+                                 fontproperties=font)
         F = plt.gcf()
         F.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return plt
 
-    def _get_3d_plot(self):
+    def _get_3d_plot(self, label_stable=True):
         """
         Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
@@ -216,14 +219,13 @@ class PDPlotter(object):
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
-            if len(entry.composition.elements) == 1:
-                # commented out options are only for matplotlib 1.0.  Removed
-                # them so that most ppl can use this class.
-                ax.text(coords[0], coords[1], coords[2], label)
-            else:
-                ax.text(coords[0], coords[1], coords[2], str(count))
-                newlabels.append("{} : {}".format(count, latexify(label)))
-                count += 1
+            if label_stable:
+                if len(entry.composition.elements) == 1:
+                    ax.text(coords[0], coords[1], coords[2], label)
+                else:
+                    ax.text(coords[0], coords[1], coords[2], str(count))
+                    newlabels.append("{} : {}".format(count, latexify(label)))
+                    count += 1
         plt.figtext(0.01, 0.01, "\n".join(newlabels))
         ax.axis("off")
         return plt
@@ -362,21 +364,20 @@ class PDPlotter(object):
         Returns:
             A matplotlib plot object.
         """
-        pd = self._pd
-        entries = pd.qhull_entries
-        data = np.array(pd.qhull_data)
         from scipy import interpolate
         from matplotlib import cm
 
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(8, 6)
+        pd = self._pd
+        entries = pd.qhull_entries
+        data = np.array(pd.qhull_data)
+
+        plt = self._get_2d_plot()
         analyzer = PDAnalyzer(pd)
         data[:, 0:2] = triangular_coord(data[:, 0:2]).transpose()
         for i, e in enumerate(entries):
             data[i, 2] = analyzer.get_e_above_hull(e)
-        f = interpolate.interp2d(data[:, 0], data[:, 1], data[:, 2])
 
-        gridsize = 0.001
+        gridsize = 0.005
         xnew = np.arange(0, 1., gridsize)
         ynew = np.arange(0, 1, gridsize)
 
@@ -388,70 +389,6 @@ class PDPlotter(object):
 
         plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
-        from matplotlib.font_manager import FontProperties
-        (lines, labels, unstable) = self.pd_plot_data
-        for x, y in lines:
-            plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
-                     markerfacecolor="b", markersize=15)
-        font = FontProperties()
-        font.set_weight("bold")
-        font.set_size(24)
-
-        # Sets a nice layout depending on the type of PD. Also defines a
-        # "center" for the PD, which then allows the annotations to be spread
-        # out in a nice manner.
-        if len(self._pd.elements) == 3:
-            plt.axis("equal")
-            plt.xlim((-0.1, 1.2))
-            plt.ylim((-0.1, 1.0))
-            plt.axis("off")
-            center = (0.5, math.sqrt(3) / 6)
-        else:
-            allcoords = labels.keys()
-            miny = min([c[1] for c in allcoords])
-            ybuffer = max(abs(miny) * 0.1, 0.1)
-            plt.xlim((-0.1, 1.1))
-            plt.ylim((miny - ybuffer, ybuffer))
-            center = (0.5, miny / 2)
-            plt.xlabel("Fraction")
-            plt.ylabel("Formation energy from end members (eV)")
-
-        for coords in sorted(labels.keys(), key=lambda x:-x[1]):
-            entry = labels[coords]
-            label = entry.name
-
-            # The follow defines an offset for the annotation text emanating
-            # from the center of the PD. Results in fairly nice layouts for the
-            # most part.
-            vec = (np.array(coords) - center)
-            vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 \
-                    else vec
-            valign = "bottom" if vec[1] > 0 else "top"
-            if vec[0] < -0.01:
-                halign = "right"
-            elif vec[0] > 0.01:
-                halign = "left"
-            else:
-                halign = "center"
-            plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords="offset points",
-                             horizontalalignment=halign,
-                             verticalalignment=valign,
-                             fontproperties=font)
-        if self.show_unstable:
-            font = FontProperties()
-            font.set_size(14)
-            for entry, coords in unstable.items():
-                vec = (np.array(coords) - center)
-                vec = vec / np.linalg.norm(vec) * 10
-                plt.plot(coords[0], coords[1], "ks", linewidth=3,
-                         markeredgecolor="k", markerfacecolor="w",
-                         markersize=7)
-                plt.annotate(latexify(entry.name), coords, xytext=vec,
-                             textcoords="offset points",
-                             horizontalalignment=halign, color="k",
-                             verticalalignment=valign,
-                             fontproperties=font)
         plt.colorbar()
         return plt
 
