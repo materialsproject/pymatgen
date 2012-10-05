@@ -45,9 +45,9 @@ pymatgen"s Google Groups page
 # Get 1.2.x for spglib
 spglibs = glob.glob(os.path.join("dependencies","spglib-1.2.*"))
 if len(spglibs) == 0:
-    raise ValuError("No spglib-1.2.* found in dependencies/")
+    raise ValueError("No spglib-1.2.* found in dependencies/")
 spgvers = [int(s[s.rfind('.')+1:]) for s in
-             [os.path.split(p)[-1] for p in spglibs]]
+           [os.path.split(p)[-1] for p in spglibs]]
 spglibdir = spglibs[spgvers.index(max(spgvers))]
 # set rest of spglib
 spgsrcdir = os.path.join(spglibdir, "src")
