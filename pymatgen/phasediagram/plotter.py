@@ -158,7 +158,8 @@ class PDPlotter(object):
             # from the center of the PD. Results in fairly nice layouts for the
             # most part.
             vec = (np.array(coords) - center)
-            vec = vec / np.linalg.norm(vec) * 10
+            vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 \
+                    else vec
             valign = "bottom" if vec[1] > 0 else "top"
             if vec[0] < -0.01:
                 halign = "right"
@@ -166,7 +167,6 @@ class PDPlotter(object):
                 halign = "left"
             else:
                 halign = "center"
-
             plt.annotate(latexify(label), coords, xytext=vec,
                          textcoords="offset points",
                          horizontalalignment=halign,
@@ -353,20 +353,14 @@ class PDPlotter(object):
         plt.tight_layout()
         plt.show()
 
-    def get_pd_plot_data_contour(self):
+    def get_contour_pd_plot(self):
         """
-        Plot data for phase diagram.
-        2-comp - Full hull with energies
-        3/4-comp - Projection into 2D or 3D Gibbs triangle.
+        Plot a contour phase diagram plot, where phase triangles are colored
+        according to degree of instability by interpolation. Currently only
+        works for 3-component phase diagrams.
 
         Returns:
-            (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            A matplotlib plot object.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -382,29 +376,23 @@ class PDPlotter(object):
             data[i, 2] = analyzer.get_e_above_hull(e)
         f = interpolate.interp2d(data[:, 0], data[:, 1], data[:, 2])
 
-        gridsize = 0.01
+        gridsize = 0.001
         xnew = np.arange(0, 1., gridsize)
         ynew = np.arange(0, 1, gridsize)
 
-        #znew = f(xnew, ynew)
-
         f = interpolate.LinearNDInterpolator(data[:, 0:2], data[:, 2])
-        #f = interpolate.CloughTocher2DInterpolator(data[:, 0:2], data[:, 2])
         znew = np.zeros((len(ynew), len(xnew)))
         for (i, xval) in enumerate(xnew):
             for (j, yval) in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
-        #znew = [f(np.array(zip(xnew, ynew)))]
-        #print znew
-        #f = RectBivariateSpline(data[:, 0], data[:, 1], data[:, 2])
-        cs = plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
+        plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
         for x, y in lines:
             plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
-                     markerfacecolor="b", markersize=10)
+                     markerfacecolor="b", markersize=15)
         font = FontProperties()
         font.set_weight("bold")
         font.set_size(24)
@@ -436,7 +424,8 @@ class PDPlotter(object):
             # from the center of the PD. Results in fairly nice layouts for the
             # most part.
             vec = (np.array(coords) - center)
-            vec = vec / np.linalg.norm(vec) * 10
+            vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 \
+                    else vec
             valign = "bottom" if vec[1] > 0 else "top"
             if vec[0] < -0.01:
                 halign = "right"
@@ -444,13 +433,11 @@ class PDPlotter(object):
                 halign = "left"
             else:
                 halign = "center"
-
             plt.annotate(latexify(label), coords, xytext=vec,
                              textcoords="offset points",
                              horizontalalignment=halign,
                              verticalalignment=valign,
                              fontproperties=font)
-
         if self.show_unstable:
             font = FontProperties()
             font.set_size(14)
@@ -459,15 +446,14 @@ class PDPlotter(object):
                 vec = vec / np.linalg.norm(vec) * 10
                 plt.plot(coords[0], coords[1], "ks", linewidth=3,
                          markeredgecolor="k", markerfacecolor="w",
-                         markersize=5)
+                         markersize=7)
                 plt.annotate(latexify(entry.name), coords, xytext=vec,
                              textcoords="offset points",
                              horizontalalignment=halign, color="k",
                              verticalalignment=valign,
                              fontproperties=font)
         plt.colorbar()
-        plt.show()
-        return None
+        return plt
 
 
 def uniquelines(q):
