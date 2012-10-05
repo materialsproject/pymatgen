@@ -51,3 +51,5 @@ spg_database.h \
 spglib.h \
 spin.h \
 symmetry.h
+
+# libsymspg_la_LDFLAGS = -version-info 0:1:0

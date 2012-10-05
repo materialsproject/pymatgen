@@ -9,9 +9,9 @@
 
 #include "debug.h"
 
-/* #define QXYZ */
+/* #define GRID_ORDER_XYZ */
 /* The addressing order of mesh grid is defined as running left */
-/* element first. But when QXYZ is defined, it is changed to right */ 
+/* element first. But when GRID_ORDER_XYZ is defined, it is changed to right */ 
 /* element first. */
 
 static PointSymmetry get_point_group_reciprocal( SPGCONST double lattice[3][3], 
@@ -453,7 +453,7 @@ static int get_ir_reciprocal_mesh( int grid[][3],
     map[i] = -1;
   }
 
-#ifndef QXYZ
+#ifndef GRID_ORDER_XYZ
   for ( i = 0; i < mesh_double[2]; i++ ) {
     if ( ( is_shift[2] && i % 2 == 0 ) ||
 	 ( is_shift[2] == 0 && i % 2 != 0 ) ) 
@@ -1050,7 +1050,7 @@ static int grid_to_address( const int grid_double[3],
     }
   }
 
-#ifndef QXYZ
+#ifndef GRID_ORDER_XYZ
   return grid[2] * mesh[0] * mesh[1] + grid[1] * mesh[0] + grid[0];
 #else
   return grid[0] * mesh[1] * mesh[2] + grid[1] * mesh[2] + grid[2];
@@ -1065,7 +1065,7 @@ static void address_to_grid( int grid_double[3],
   int i;
   int grid[3];
 
-#ifndef QXYZ
+#ifndef GRID_ORDER_XYZ
   grid[2] = address / ( mesh[0] * mesh[1] );
   grid[1] = ( address - grid[2] * mesh[0] * mesh[1] ) / mesh[0];
   grid[0] = address % mesh[0];
@@ -1092,8 +1092,12 @@ static void get_grid_points( int grid[3],
     } else {
       grid[i] = ( grid_double[i] - 1 ) / 2;
     }
-    
+
+#ifndef GRID_BOUNDARY_AS_NEGATIVE
     grid[i] = grid[i] - mesh[i] * ( grid[i] > mesh[i] / 2 );
+#else
+    grid[i] = grid[i] - mesh[i] * ( grid[i] >= mesh[i] / 2 );
+#endif
   }  
 }
 

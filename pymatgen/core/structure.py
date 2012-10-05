@@ -1333,6 +1333,17 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
         return (reduced_form, factor)
 
+    def get_fractional_composition(self):
+        """
+        Returns the normalized composition which the number of species sum to 1.
+        
+        Returns:
+            Normalized composition which the number of species sum to 1.
+        """
+        natoms = self._natoms
+        frac_map = {k:v / natoms for k, v in self._elmap.items()}
+        return Composition(frac_map)
+
     @property
     def reduced_formula(self):
         """

@@ -116,6 +116,8 @@ Cell * prm_get_primitive_with_mapping_table(int * mapping_table,
       cel_free_cell(primitive);
     }
     tolerance *= REDUCE_RATE;
+    warning_print("spglib: Tolerance is reduced to %f at attempt %d\n", tolerance, attempt);
+    warning_print("(line %d, %s).\n", __LINE__, __FILE__);
     mat_free_VecDBL(pure_trans);
   }
 

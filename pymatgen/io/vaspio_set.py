@@ -169,7 +169,8 @@ class VaspInputSet(AbstractVaspInputSet):
             config_file = os.path.join(module_dir, "VaspInputSets.cfg")
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(config_file))
+        with open(config_file, "r") as f:
+            self._config.readfp(f)
 
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
@@ -291,6 +292,16 @@ class MITVaspInputSet(VaspInputSet):
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         VaspInputSet.__init__(self, "MITMatgen",
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
+
+
+class MITGGAVaspInputSet(VaspInputSet):
+    """
+    Typical implementation of input set for a GGA run based on MIT parameters.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        VaspInputSet.__init__(self, "MITGGA",
                               user_incar_settings=user_incar_settings,
                               constrain_total_magmom=constrain_total_magmom)
 

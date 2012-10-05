@@ -19,6 +19,7 @@ import os
 import re
 import json
 import datetime
+import warnings
 from copy import deepcopy
 
 from pymatgen.core.structure import Structure
@@ -61,8 +62,8 @@ class TransformedStructure(MSONable):
         history = [] if history == None else history
         self._source = {}
         self._structures = []
-        self._transformations = []
-        self._transformation_parameters = []
+        self._changes = []
+        self._change_parameters = []
         self._redo_trans = []
         self._other_parameters = {} if other_parameters is None \
             else deepcopy(other_parameters)
@@ -73,8 +74,8 @@ class TransformedStructure(MSONable):
                 trans = AbstractTransformation.from_dict(history[i])
                 param = history[i].get("output_parameters", {})
                 self._structures.append(struct)
-                self._transformations.append(trans)
-                self._transformation_parameters.append(param)
+                self._changes.append(trans)
+                self._change_parameters.append(param)
 
         self._structures.append(structure)
         for t in transformations:
@@ -82,20 +83,34 @@ class TransformedStructure(MSONable):
 
     def undo_last_transformation(self):
         """
-        Undo the last transformation in the TransformedStructure.
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use undo_last_change.", DeprecationWarning)
+        self.undo_last_change()
+
+    def redo_next_transformation(self):
+        """
+        .. deprecated:: v2.2.2
+        """
+        warnings.warn("Deprecated. Use redo_last_change.", DeprecationWarning)
+        self.redo_next_change()
+
+    def undo_last_change(self):
+        """
+        Undo the last change in the TransformedStructure.
 
         Raises:
             IndexError if already at the oldest change.
         """
-        if len(self._transformations) == 0:
+        if len(self._changes) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
         self._structures.pop()
-        self._transformation_parameters.pop()
-        self._redo_trans.append(self._transformations.pop())
+        self._change_parameters.pop()
+        self._redo_trans.append(self._changes.pop())
 
-    def redo_next_transformation(self):
+    def redo_next_change(self):
         """
-        Redo the last undone transformation in the TransformedStructure.
+        Redo the last undone change in the TransformedStructure.
 
         Raises:
             IndexError if already at the latest change.
@@ -103,10 +118,13 @@ class TransformedStructure(MSONable):
         if len(self._redo_trans) == 0:
             raise IndexError("Can't undo. Already at latest change.")
         t = self._redo_trans.pop()
-        self.append_transformation(t, clear_redo=False)
+        if hasattr(t, 'apply_transformation'):
+            self.append_transformation(t, clear_redo=False)
+        else:
+            self.append_filter(t)
 
     def __getitem__(self, index):
-        return (self._structures[index], self._transformations[0:index])
+        return (self._structures[index], self._changes[0:index])
 
     def __getattr__(self, name):
         return getattr(self._structures[-1], name)
@@ -160,14 +178,22 @@ class TransformedStructure(MSONable):
             struct = x.pop("structure")
             actual_transformation = x.pop("transformation", transformation)
             self._structures.append(struct)
-            self._transformations.append(actual_transformation)
-            self._transformation_parameters.append(x)
+            self._changes.append(actual_transformation)
+            self._change_parameters.append(x)
             return alts
         else:
             new_s = transformation.apply_transformation(self._structures[-1])
             self._structures.append(new_s)
-            self._transformation_parameters.append({})
-            self._transformations.append(transformation)
+            self._change_parameters.append({})
+            self._changes.append(transformation)
+
+    def append_filter(self, structure_filter):
+        """
+        Adds a transformation parameter to the last transformation.
+        """
+        self._structures.append(self._structures[-1])
+        self._change_parameters.append({})
+        self._changes.append(structure_filter)
 
     def extend_transformations(self, transformations):
         """
@@ -226,9 +252,9 @@ class TransformedStructure(MSONable):
         output.append(str(self._source))
         output.append("\nTransformation history")
         output.append("------------")
-        for i, t in enumerate(self._transformations):
+        for i, t in enumerate(self._changes):
             output.append("{} {}".format(t.to_dict,
-                                         self._transformation_parameters[i]))
+                                         self._change_parameters[i]))
         output.append("\nOther parameters")
         output.append("------------")
         output.append(str(self._other_parameters))
@@ -264,7 +290,7 @@ class TransformedStructure(MSONable):
         """
         Returns a copy of all transformations in the TransformedStructure.
         """
-        return [t for t in self._transformations]
+        return [t for t in self._changes]
 
     @property
     def final_structure(self):
@@ -285,10 +311,10 @@ class TransformedStructure(MSONable):
     @property
     def history(self):
         history = [self._source]
-        for i, t in enumerate(self._transformations):
+        for i, t in enumerate(self._changes):
             tdict = t.to_dict
             tdict["input_structure"] = self._structures[i].to_dict
-            tdict["output_parameters"] = self._transformation_parameters[i]
+            tdict["output_parameters"] = self._change_parameters[i]
             history.append(tdict)
         return history
 
