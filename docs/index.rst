@@ -49,10 +49,12 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.3dev)
+Latest Change Log (v2.2.3)
 -----------------------------
 
-1. Miscellaneous bug fixes.
+1. New filter framework for filtering structures in pymatgen.alchemy.
+2. Updated feff io classes to support FEFF 9.6 and other code improvements.
+3. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2
