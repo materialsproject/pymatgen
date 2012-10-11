@@ -65,7 +65,7 @@ def get_minkowski_red(structure):
 
 def get_vasp_kpoint_file_sym(structure):
     """
-    get a kpoint file ready to be ran in VASP along setries of a structure
+    get a kpoint file ready to be ran in VASP along the symmetry lines of the Brillouin Zone
     """
     output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
     if "ERROR" in output[1]:
@@ -82,44 +82,6 @@ def get_vasp_kpoint_file_sym(structure):
             started = False
     return kpoints_string
 
-
-def get_point_group_rec(structure):
-    """
-    Gets the point group for the reciprocal lattice of the given structure
-    """
-    run_aconvasp_command(['aconvasp', '--pgroupk'], structure)
-    listUc = []
-    f = open("aflow.pgroupk.out", 'r')
-    linetmp = []
-    axis = []
-    type_transf = None
-    schoenflies = None
-    count = -1000
-    started = False
-    for line in f:
-        #print line
-        if line.find("type") != -1:
-            type_transf = line.split()[1]
-        if(line.find("Schoenflies") != -1):
-            schoenflies = line.split()[1]
-            count = -1
-            linetmp = []
-            started = True
-            continue
-        count += 1
-        if not started:
-            continue
-        if count <= 2:
-            linetmp.append([float(x) for x in line.rstrip("\nUc ").split()])
-        if line.find("axis") != -1:
-            axis = np.array([float(line.split()[0]), float(line.split()[1]),
-                             float(line.split()[2])])
-        if(count == 11):
-            listUc.append({'matrix': np.array(linetmp), 'type': type_transf,
-                           'axis': axis, 'schoenflies': schoenflies})
-    f.close()
-    os.remove("aflow.pgroupk.out")
-    return listUc
 
 
 class AconvaspError(Exception):

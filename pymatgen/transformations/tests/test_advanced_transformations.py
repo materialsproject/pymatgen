@@ -153,37 +153,35 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         d = trans.to_dict
         trans = EnumerateStructureTransformation.from_dict(d)
         self.assertEqual(trans.symm_prec, 0.1)
-        
-        
+
+
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = SubstitutionPredictorTransformation(threshold = 1e-3
-                                                , alpha = -5
-                                                , lambda_table = test_table())
+        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha= -5,
+                                                lambda_table=test_table())
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00]
-                           , [1.9200989668, 3.3257101909, 0.00]
-                           , [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ['O2-', 'Li1+', 'Li1+'] , coords)
-        
-        outputs = t.apply_transformation(struct, return_ranked_list = True)
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ['O2-', 'Li1+', 'Li1+'], coords)
+
+        outputs = t.apply_transformation(struct, return_ranked_list=True)
         self.assertEqual(len(outputs), 4, 'incorrect number of structures')
-    
+
     def test_to_dict(self):
-        t = SubstitutionPredictorTransformation(threshold = 2
-                                                , alpha = -2
-                                                , lambda_table = test_table())
+        t = SubstitutionPredictorTransformation(threshold=2, alpha= -2,
+                                                lambda_table=test_table())
         d = t.to_dict
         t = SubstitutionPredictorTransformation.from_dict(d)
-        self.assertEqual(t._threshold, 2
-                         , 'incorrect threshold passed through dict')
-        self.assertEqual(t._substitutor._sp._alpha, -2
-                         , 'incorrect alpha passed through dict')
-        
-        
+        self.assertEqual(t._threshold, 2,
+                         'incorrect threshold passed through dict')
+        self.assertEqual(t._substitutor._sp._alpha, -2,
+                         'incorrect alpha passed through dict')
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

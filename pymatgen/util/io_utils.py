@@ -158,7 +158,7 @@ def clean_json(input_json, strict=False):
     Returns:
         Sanitized dict that can be json serialized.
     """
-    if isinstance(input_json, (list, numpy.ndarray)):
+    if isinstance(input_json, (list, numpy.ndarray, tuple)):
         return [clean_json(i, strict=strict) for i in input_json]
     elif isinstance(input_json, dict):
         return {str(k): clean_json(v, strict=strict)

@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -41,7 +42,15 @@ pymatgen"s Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
-spgsrcdir = os.path.join("dependencies", "spglib-1.2.2", "src")
+# Get 1.2.x for spglib
+spglibs = glob.glob(os.path.join("dependencies", "spglib-1.2.*"))
+if len(spglibs) == 0:
+    raise ValueError("No spglib-1.2.* found in dependencies/")
+spgvers = [int(s[s.rfind('.') + 1:]) for s in
+           [os.path.split(p)[-1] for p in spglibs]]
+spglibdir = spglibs[spgvers.index(max(spgvers))]
+# set rest of spglib
+spgsrcdir = os.path.join(spglibdir, "src")
 include_dirs = [spgsrcdir]
 sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
            "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
@@ -59,16 +68,17 @@ else:
 
 extension = Extension("pymatgen._spglib",
                       include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join("dependencies", "spglib-1.2.2",
-                               "_spglib.c")] + sources,
+                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
                       extra_compile_args=extra_compile,
                       extra_link_args=extra_link
                       )
 
+scripts = [os.path.join("scripts", f) for f in os.listdir("scripts")]
+
 setup(name="pymatgen",
       packages=find_packages(),
       version=__version__,
-      install_requires=["numpy>=1.5"],
+      install_requires=[], #["numpy>=1.5"],
       extras_require={"phasediagrams": ["scipy>=0.10"],
                       "plotting": ["matplotlib>=1.1"],
                       "ase_adaptor": ["ase>=3.3"],
@@ -101,5 +111,6 @@ setup(name="pymatgen",
                    "Topic :: Scientific/Engineering :: Chemistry",
                    "Topic :: Software Development :: Libraries :: Python Modules"],
       download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-      ext_modules=[extension]
+      ext_modules=[extension],
+      scripts=scripts
       )
