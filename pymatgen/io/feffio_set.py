@@ -12,10 +12,10 @@ from __future__ import division
 
 __author__ = "Alan Dozier"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.0.2"
 __maintainer__ = "Alan Dozier"
-__email__ = "shyue@mit.edu"
-__date__ = "May 23, 2012"
+__email__ = "adozier@uky.edu"
+__date__ = "Oct. 6, 2012"
 
 import os
 import abc
@@ -28,7 +28,7 @@ class AbstractFeffInputSet(object):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files
-    (feffPOT,feffXANES, feffEXAFS, ATOMS, feff.inp)
+    (feffPOT,feffXANES, feffEXAFS, ATOMS, feff.inp)set_
     can be generated in an automated fashion for any structure.
     """
     __metaclass__ = abc.ABCMeta
@@ -59,7 +59,7 @@ class AbstractFeffInputSet(object):
         return
 
     @abc.abstractmethod
-    def get_header(self, structure, cif_file):
+    def get_header(self, structure, source):
         """
         Returns header to be used in feff.inp file from a structure and
         cif_file
@@ -72,7 +72,7 @@ class AbstractFeffInputSet(object):
         """
         return
 
-    def get_all_feff_input(self, structure, calc_type, cif_file, central_atom):
+    def get_all_feff_input(self, structure, calc_type, source, central_atom):
         """
         Returns all input files as a dict of {filename: feffio object}
 
@@ -81,22 +81,22 @@ class AbstractFeffInputSet(object):
                 Structure object
             calc_type:
                 XANES or EXAFS
-            cif_file:
-                path and name of cif file of material
+            source:
+                String describing structure object source
             central:
                 symbol of absorbing atom
 
         Returns:
             dict of {filename: file_as_string}, e.g., {"INCAR":"EDIFF=1e-4..."}
         """
-        feff = {"HEADER": self.get_header(structure, cif_file),
-                "PARAMETERS": self.get_fefftags(calc_type),
-                "POTENTIALS": self.get_feffPot(structure, central_atom),
-                "ATOMS": self.get_feffAtoms(structure, central_atom)}
+        feff = {"HEADER": self.get_header(structure, source),
+                "PARAMETERS": self.get_feff_tags(calc_type),
+                "POTENTIALS": self.get_feff_pot(structure, central_atom),
+                "ATOMS": self.get_feff_atoms(structure, central_atom)}
 
         return feff
 
-    def write_input(self, structure, calc_type, cif_file, output_dir,
+    def write_input(self, structure, calc_type, source, output_dir,
                     central_atom, make_dir_if_not_present=True):
         """
         Writes a set of FEFF input to a directory.
@@ -106,8 +106,8 @@ class AbstractFeffInputSet(object):
                 Structure object
             calc_type:
                 XANES or EXAFS
-            cif_file:
-                path and name of cif file of material
+            source:
+                String describing structure object source
             central:
                 symbol of absorbing atom
             output_dir:
@@ -118,11 +118,11 @@ class AbstractFeffInputSet(object):
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        feff = self.get_all_feff_input(structure, calc_type, cif_file,
+        feff = self.get_all_feff_input(structure, calc_type, source,
                                        central_atom)
         feff_input = str(feff["HEADER"]) + "\n\n" + str(feff["PARAMETERS"]) + \
             "\n\n" + str(feff["POTENTIALS"]) + "\n\n" + str(feff["ATOMS"])
-        for k, v in self.get_all_feff_input(structure, calc_type, cif_file,
+        for k, v in self.get_all_feff_input(structure, calc_type,
                                             central_atom).items():
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
@@ -152,20 +152,20 @@ class FeffInputSet(AbstractFeffInputSet):
         self.xanes_settings = dict(self._config.items(self.name + "feffXANES"))
         self.exafs_settings = dict(self._config.items(self.name + "feffEXAFS"))
 
-    def get_header(self, structure, cif_file):
+    def get_header(self, structure, source):
         """
-        Creates header string from cif file and structure object
+        Creates header string from structure object
 
         Args:
             structure:
                 pymatgen structure object
-            cif_file:
-                path and cif_file name
+            source:
+                string identifying source of structure
         Returns:
             HEADER string
         """
-        space_number, space_group = Header.structure_symmetry(structure)
-        header = Header(structure, cif_file, space_number, space_group)
+        header = Header(structure)
+        Header.set_source(header, source)
         return header.get_string()
 
     def get_feff_tags(self, calc_type):

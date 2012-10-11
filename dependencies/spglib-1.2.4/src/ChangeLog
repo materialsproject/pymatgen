@@ -1,3 +1,41 @@
+2012-10-01  Atsushi Togo  <atz.togo@gmail.com>
+
+	* kpoint.c (get_ir_reciprocal_mesh):
+
+	In spglib, k-point grid is indexed as, for example,
+
+	0 1 2 3 4 5 6 -5 -4 -3 -2 -1
+
+	for 12 points mesh. Now the different index style such as
+
+	0 1 2 3 4 5 -6 -5 -4 -3 -2 -1
+
+	is activated by CFLAGS='-DGRID_BOUNDARY_AS_NEGATIVE' before
+	running configure script at the compilation time.
+
+	* symmetry.c (get_operation):
+
+	In the iterative reduction of tolerance of primitive cell search,
+	pure_trans was searched by a fixed tolerance rather than the
+	reduced one. This is fixed to use the reduced tolerance at each
+	iteration.
+
+2012-08-13  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.3
+	* symmetry.c (is_identity_metric):
+
+	To check identity of metric tensors, too small angle induces
+	numerical size error, so if the dtheta is calculated smaller than
+	1e-6, automatically set the angles be identical.
+
+	* spacegroup.c (get_hall_number_local_iteration):
+
+	Implementation of iterative reduction of symmetry tolerance to
+	search symmetry operation to get Hall symbol is separated as the
+	function get_hall_number_local_iteration and the tolerance
+	reduction rate of REDUCE_RATE is changed from 0.2 from 0.95.
+
 2012-07-17  Atsushi Togo  <atz.togo@gmail.com>
 
 	* Version 1.2.2

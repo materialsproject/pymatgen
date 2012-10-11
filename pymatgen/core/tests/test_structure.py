@@ -518,5 +518,9 @@ class CompositionTest(unittest.TestCase):
         self.assertFalse(self.comp[0].__ne__(self.comp[0]))
         self.assertTrue(self.comp[0].__ne__(self.comp[1]))
 
+    def test_get_fractional_composition(self):
+        for c in self.comp:
+            self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
+
 if __name__ == '__main__':
     unittest.main()

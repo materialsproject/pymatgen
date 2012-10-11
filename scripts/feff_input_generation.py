@@ -9,20 +9,20 @@ from __future__ import division
 
 __author__ = "Alan Dozier"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.0.1"
 __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
-__date__ = "Aug 28, 2012"
+__date__ = "Oct. 6, 2012"
 
 import argparse
 import CifFile
 import abc
 
-from   pymatgen.io.feffio_set                import *
-from   pymatgen.io.vaspio                    import *
-from   pymatgen.io.feffio                    import *
-from   pymatgen.io.cifio                     import CifParser, CifWriter
-from   pymatgen.core.structure               import Structure, Site, PeriodicSite
+from pymatgen.io.feffio_set import *
+from pymatgen.io.vaspio import *
+from pymatgen.io.feffio import *
+from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.core.structure import Structure, Site, PeriodicSite
 
 parser = argparse.ArgumentParser(description='''
 Example script to generate FEFF input files from a cif file
@@ -37,29 +37,30 @@ parser.add_argument('calc_type', metavar='calc_type', type=str, nargs=1, help='t
 
 args = parser.parse_args()
 cif_file = args.cif_file[0]
+source =cif_file
 central_atom = args.central_atom[0]
 calc_type = args.calc_type[0]
 
-r=CifParser(cif_file)
-structure=r.get_structures()[0]
-x=FeffInputSet("MaterialsProject")
+r = CifParser(cif_file)
+structure = r.get_structures()[0]
+x = FeffInputSet("MaterialsProject")
 
-header = FeffInputSet.get_header(x,structure, cif_file)
+header = FeffInputSet.get_header(x, structure, source)
 print "\n\nHEADER\n"
 print header
 
-tags=FeffInputSet.get_feff_tags(x,calc_type)
+tags = FeffInputSet.get_feff_tags(x, calc_type)
 print "\n\nPARAMETERS\n"
 print tags
 
-POT=FeffInputSet.get_feff_pot(x,structure, central_atom)
+POT = FeffInputSet.get_feff_pot(x, structure, central_atom)
 print "\n\nPOTENTIALS\n"
 print POT
 
-ATOMS=FeffInputSet.get_feff_atoms(x,structure, central_atom)
+ATOMS = FeffInputSet.get_feff_atoms(x, structure, central_atom)
 print"\n\nATOMS\n"
 print ATOMS
 
 
 
-#FeffInputSet.write_input(x, structure, calc_type, cif_file, "./feffinput", central_atom)
+#FeffInputSet.write_input(x, structure, calc_type, source, "./feffinput", central_atom)
