@@ -26,12 +26,11 @@ class ContainsSpecieFilterTest(unittest.TestCase):
         lattice = Lattice([[3.0, 0.0, 0.0],
                            [1.0, 3.0, 0.00],
                            [0.00, -2.0, 3.0]])
-        s = Structure(lattice
-                      , [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}
-                         , {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}
-                         , {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}
-                         , {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}]
-                      , coords)
+        s = Structure(lattice,
+                      [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}], coords)
 
         species1 = [Specie('Si', 5), Specie('Mg', 2)]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)

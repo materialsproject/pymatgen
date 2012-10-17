@@ -58,7 +58,8 @@ class TransformedStructureTest(unittest.TestCase):
         t = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(t)
         self.assertEqual("NaMnPO4",
-                         self.trans.final_structure.composition.reduced_formula)
+                         self.trans.final_structure.composition
+                         .reduced_formula)
         self.assertEqual(len(self.trans.structures), 3)
         coords = list()
         coords.append([0, 0, 0])
@@ -68,8 +69,13 @@ class TransformedStructureTest(unittest.TestCase):
                    [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         ts = TransformedStructure(struct, [])
-        ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
-        alt = ts.append_transformation(PartialRemoveSpecieTransformation('Si4+', 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5)
+        ts.append_transformation(SupercellTransformation
+                                 .from_scaling_factors(2, 1, 1))
+        alt = ts.append_transformation(
+            PartialRemoveSpecieTransformation('Si4+', 0.5,
+            algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
+            5
+        )
         self.assertEqual(len(alt), 2)
 
     def test_append_filter(self):
@@ -78,20 +84,26 @@ class TransformedStructureTest(unittest.TestCase):
 
     def test_get_vasp_input(self):
         vaspis = MaterialsProjectVaspInputSet()
-        self.assertEqual("Na_pv\nO\nP\nFe_pv", self.trans.get_vasp_input(vaspis, False)['POTCAR.spec'])
+        self.assertEqual("Na_pv\nO\nP\nFe_pv",
+                         self.trans.get_vasp_input(vaspis,
+                                                   False)['POTCAR.spec'])
         self.assertEqual(len(self.trans.structures), 2)
 
     def test_final_structure(self):
-        self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
+        self.assertEqual("NaFePO4", self.trans.final_structure.composition
+                         .reduced_formula)
 
     def test_from_dict(self):
-        d = json.load(open(os.path.join(test_dir, 'transformations.json'), 'r'))
+        d = json.load(open(os.path.join(test_dir, 'transformations.json'),
+                           'r'))
         d['other_parameters'] = {'tags': ['test']}
         ts = TransformedStructure.from_dict(d)
         ts.set_parameter('author', 'Will')
-        ts.append_transformation(SubstitutionTransformation({"Fe":"Mn"}))
-        self.assertEqual("MnPO4", ts.final_structure.composition.reduced_formula)
-        self.assertEqual(ts.other_parameters, {'author': 'Will', 'tags': ['test']})
+        ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
+        self.assertEqual("MnPO4",
+                         ts.final_structure.composition.reduced_formula)
+        self.assertEqual(ts.other_parameters, {'author': 'Will',
+                                               'tags': ['test']})
 
     def test_undo_and_redo_last_change(self):
         trans = []
