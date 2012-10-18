@@ -130,7 +130,7 @@ class VoronoiCoordFinder(object):
 
 class RelaxationAnalyzer(object):
     """
-    This class analyzes the relaxation in a vasp run.
+    This class analyzes the relaxation in a calculation.
     """
 
     def __init__(self, initial_structure, final_structure):
@@ -188,7 +188,7 @@ class RelaxationAnalyzer(object):
                 applied to the initial structure, not the final structure.
 
         Returns:
-            Bond distance changes as a dict of dicts. E.g., 
+            Bond distance changes as a dict of dicts. E.g.,
             {index1: {index2: 0.011, ...}}. For economy of representation, the
             index1 is always less than index2, i.e., since bonding between
             site1 and siten is the same as bonding between siten and site1,
