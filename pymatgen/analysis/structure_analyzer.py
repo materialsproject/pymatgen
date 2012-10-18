@@ -17,6 +17,7 @@ __date__ = "Sep 23, 2011"
 import math
 import numpy as np
 import itertools
+import collections
 
 from pymatgen.command_line.qhull_caller import qvoronoi, qvertex
 
@@ -164,6 +165,32 @@ class RelaxationAnalyzer(object):
         d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
              for l in ["a", "b", "c"]}
         return d
+
+    def get_percentage_bond_dist_changes(self, max_radius=3.0):
+        """
+        Returns the percentage bond distance changes for each site up to a
+        maximum radius for nearest neighbors.
+
+        Args:
+            max_radius:
+                Maximum radius to search for nearest neighbors. This radius is
+                applied to the initial structure, not the final structure.
+
+        Returns:
+            Bond distance changes as a dict of dicts. E.g., 
+            {index1: {index2: 0.011, ...}}. For economy of representation, the
+            index1 is always less than index2, i.e., since bonding between
+            site1 and siten is the same as bonding between siten and site1,
+            there is no reason to duplicate the information or computation.
+        """
+        data = collections.defaultdict(dict)
+        for inds in itertools.combinations(xrange(len(self.initial)), 2):
+            (i, j) = sorted(inds)
+            initial_dist = self.initial[i].distance(self.initial[j])
+            if initial_dist < max_radius:
+                final_dist = self.final[i].distance(self.final[j])
+                data[i][j] = final_dist / initial_dist - 1
+        return data
 
 
 def solid_angle(center, coords):
