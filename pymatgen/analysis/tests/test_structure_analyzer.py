@@ -1,8 +1,10 @@
 import unittest
 import os
 
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, solid_angle, contains_peroxide
+from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
+    solid_angle, contains_peroxide, RelaxationAnalyzer
 from pymatgen.io.cifio import CifParser
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, __file__
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
@@ -25,6 +27,31 @@ class VoronoiCoordFinderTest(unittest.TestCase):
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
+
+
+class RelaxationAnalyzerTest(unittest.TestCase):
+
+    def setUp(self):
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Li2O'),
+                             check_for_POTCAR=False)
+        s1 = p.structure
+        p = Poscar.from_file(os.path.join(test_dir, 'CONTCAR.Li2O'),
+                             check_for_POTCAR=False)
+        s2 = p.structure
+        self.analyzer = RelaxationAnalyzer(s1, s2)
+
+    def test_vol_and_para_changes(self):
+
+        for k, v in self.analyzer.get_percentage_lattice_parameter_changes().items():
+            self.assertAlmostEqual(-0.0092040921155279731, v)
+            latt_change = v
+        vol_change = self.analyzer.get_percentage_volume_change()
+        self.assertAlmostEqual(-0.0273589101391,
+                               vol_change)
+        #This is a simple cubic cell, so the latt and vol change are simply
+        #Related. So let's test that.
+        self.assertAlmostEqual((1 + latt_change) ** 3 - 1, vol_change)
+
 
 class MiscFunctionTest(unittest.TestCase):
 

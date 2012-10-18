@@ -21,7 +21,7 @@ import itertools
 from pymatgen.command_line.qhull_caller import qvoronoi, qvertex
 
 
-class VoronoiCoordFinder:
+class VoronoiCoordFinder(object):
     """
     Uses a Voronoi algorithm to determine the coordination for each site in a
     structure.
@@ -125,6 +125,45 @@ class VoronoiCoordFinder:
             if weight > tol and (target == None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
+
+
+class RelaxationAnalyzer(object):
+    """
+    This class analyzes the relaxation in a vasp run.
+    """
+
+    def __init__(self, initial_structure, final_structure):
+        if final_structure.formula != initial_structure.formula:
+            raise ValueError("Initial and final structures have different " +
+                             "formulas!")
+        self.initial = initial_structure
+        self.final = final_structure
+
+    def get_percentage_volume_change(self):
+        """
+        Returns the percentage volume change.
+
+        Returns:
+            Volume change in percentage, e.g., 0.055 implies a 5.5% increase.
+        """
+        initial_vol = self.initial.lattice.volume
+        final_vol = self.final.lattice.volume
+        return final_vol / initial_vol - 1
+
+    def get_percentage_lattice_parameter_changes(self):
+        """
+        Returns the percentage lattice parameter changes.
+
+        Returns:
+            A dict of the percentage change in lattice parameter, e.g.,
+            {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
+            2.1% and -3.1% in the a, b and c lattice parameters respectively.
+        """
+        initial_latt = self.initial.lattice
+        final_latt = self.final.lattice
+        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
+             for l in ["a", "b", "c"]}
+        return d
 
 
 def solid_angle(center, coords):
