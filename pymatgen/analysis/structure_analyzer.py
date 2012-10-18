@@ -141,9 +141,9 @@ class RelaxationAnalyzer(object):
 
         Args:
             initial_structure:
-                Initial input structure to calculation
+                Initial input structure to calculation.
             final_structure:
-                Final output structure from calculatino.
+                Final output structure from calculation.
         """
         if final_structure.formula != initial_structure.formula:
             raise ValueError("Initial and final structures have different " +
