@@ -134,6 +134,17 @@ class RelaxationAnalyzer(object):
     """
 
     def __init__(self, initial_structure, final_structure):
+        """
+        Please note that the input and final structures should have the same
+        ordering of sites. This is typically the case for most computational
+        codes.
+
+        Args:
+            initial_structure:
+                Initial input structure to calculation
+            final_structure:
+                Final output structure from calculatino.
+        """
         if final_structure.formula != initial_structure.formula:
             raise ValueError("Initial and final structures have different " +
                              "formulas!")
