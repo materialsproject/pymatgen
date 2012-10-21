@@ -284,7 +284,8 @@ class BandStructure(object):
                 for j in range(len(self._kpoints)):
                     for k in range(self._structure.num_sites):
                         for orb in self._projections[Spin.up][i][j]:
-                            result[spin][i][j][self._structure.sites[k].specie] += self._projections[spin][i][j][orb][k]
+                            result[spin][i][j][str(self._structure[k].specie)] += \
+                                self._projections[spin][i][j][orb][k]
         return result
 
     def get_projections_on_elts_and_orbitals(self, dictio):
@@ -321,8 +322,8 @@ class BandStructure(object):
                     for k in range(self._structure.num_sites):
                         for orb in self._projections[Spin.up][i][j]:
                             if str(self._structure.sites[k].specie) in dictio:
-                                if str(orb)[0] in dictio[str(self._structure.sites[k].specie)]:
-                                    result[spin][i][j][str(self._structure.sites[k].specie)][str(orb)[0]] += self._projections[spin][i][j][orb][k]
+                                if str(orb)[0] in dictio[str(self._structure[k].specie)]:
+                                    result[spin][i][j][str(self._structure[k].specie)][str(orb)[0]] += self._projections[spin][i][j][orb][k]
         return result
 
 
