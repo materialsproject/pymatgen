@@ -377,8 +377,8 @@ class CompleteDos(Dos):
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
-                    spd_dos[orbital_type] = add_densities(spd_dos[orbital_type],
-                                                          pdos)
+                    spd_dos[orbital_type] = \
+                        add_densities(spd_dos[orbital_type], pdos)
         return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in spd_dos.items()}
 
