@@ -53,7 +53,8 @@ Latest Change Log (v2.2.4)
 --------------------------
 
 1. Fixed bug in hexagonal cell KPOINTS file generation.
-2. Miscellaneous bug fixes.
+2. New RelaxationAnalyzer to compare structures.
+3. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2
