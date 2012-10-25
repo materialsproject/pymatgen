@@ -20,13 +20,16 @@ __date__ = "Oct 24, 2012"
 import itertools
 import math
 import os
+import json
 
+
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure_modifier import StructureEditor
 
 
-class BondValenceParam(object):
+class BondValenceParam(MSONable):
     """
     A helper object to contain a particular set of bond valence parameters.
     """
@@ -63,19 +66,25 @@ class BondValenceParam(object):
     def __repr__(self):
         return "{}: R = {}, b = {}".format(self.species, self.R, self.b)
 
-_BV_PARAM = []
-_species_set = []
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(module_dir, 'bvparm2011'), 'r') as f:
-    for l in f:
-        toks = l.split()
-        sp1 = Specie(toks[0], int(toks[1]))
-        sp2 = Specie(toks[2], int(toks[3]))
-        species = frozenset([sp1, sp2])
-        if species not in _species_set:
-            _BV_PARAM.append(BondValenceParam([sp1, sp2], float(toks[4]),
-                                             float(toks[5])))
-            _species_set.append(species)
+    @property
+    def to_dict(self):
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["species"] = [sp.to_dict for sp in self.species]
+        d["R"] = self.R
+        d["b"] = self.b
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        species = [Specie.from_dict(sp_dict) for sp_dict in d["species"]]
+        return BondValenceParam(species, d["R"], d["b"])
+
+
+module_dir = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(module_dir, "bvparm2011.json"), "r") as f:
+    _BV_PARAM = json.load(f, cls=PMGJSONDecoder)
 
 
 class BVAnalyzer(object):
