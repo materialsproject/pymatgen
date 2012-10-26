@@ -49,27 +49,84 @@ class BondValenceParam(MSONable):
         self.b = b
 
     def contains_element(self, el):
+        """
+        Whether parameter contains a particular element.
+
+        Args:
+            el:
+                Element
+
+        Returns:
+            True if element is in parameter.
+        """
         return el.symbol in self.syms
 
     def get_sign(self, el):
+        """
+        Returns sign of valence for element.
+
+        Args:
+            el:
+                Element
+
+        Returns:
+            Sign for element.
+        """
         for sp in self.species:
             if sp.symbol == el.symbol:
                 return sp.oxi_state / abs(sp.oxi_state)
         raise ValueError("{} not in BV {}".format(el, self.__repr__()))
 
     def get_valence(self, el):
+        """
+        Valence for a particular element.
+
+        Args:
+            el:
+                Element
+
+        Returns:
+            Valence of the element in the parameter.
+
+        Raises:
+            Value error if el is not found in parameter.
+        """
         for sp in self.species:
             if sp.symbol == el.symbol:
                 return sp.oxi_state
         raise ValueError("{} not in BV {}".format(el, self.__repr__()))
 
     def contains_element_pair(self, el1, el2):
+        """
+        Whether a particular element pair is in parameter.
+
+        Args:
+            el1:
+                Element 1
+            el2:
+                Element 2
+
+        Returns:
+            True if elements are in the parameter.
+        """
         for sp1, sp2 in itertools.permutations(self.species, 2):
             if sp1.symbol == el1.symbol and sp2.symbol == el2.symbol:
                 return True
         return False
 
     def contains_species_pair(self, sp1, sp2):
+        """
+        Whether a particular species pair is in parameter.
+
+        Args:
+            sp1:
+                Specie 1
+            sp2:
+                Specie 2
+
+        Returns:
+            True if species are in the parameter.
+        """
         for s1, s2 in itertools.permutations(self.species, 2):
             if s1 == sp1 and s2 == sp2:
                 return True
@@ -169,7 +226,6 @@ class BVAnalyzer(object):
             el1 = Element(test_site.specie.symbol)
             el_map.append(el1)
             for (nn, dist, nn_index) in all_nn[ind]:
-                el2 = Element(nn.specie.symbol)
                 equi_index = get_equi_index(structure[nn_index])
                 bond_index = tuple(sorted([i, equi_index]))
                 bonds[bond_index] += 1
@@ -196,8 +252,10 @@ class BVAnalyzer(object):
                     for bv in relevant_bvs:
                         if bv.contains_species_pair(sp1, sp2):
                             val = math.exp((bv.R - bond_dist[bond]) / bv.b)
-                            total_bvs[ind1] += val * num * bv.get_sign(el_map[ind1])
-                            total_bvs[ind2] += val * num * bv.get_sign(el_map[ind2])
+                            total_bvs[ind1] += val * num * \
+                                bv.get_sign(el_map[ind1])
+                            total_bvs[ind2] += val * num * \
+                                bv.get_sign(el_map[ind2])
                             break
                 error = 0
                 all_avg = []
@@ -207,7 +265,7 @@ class BVAnalyzer(object):
                     all_avg.append(avg_bv)
                 all_results.append((valences, error, all_avg))
         if all_results:
-            all_results = sorted(all_results, key=lambda x:x[1])
+            all_results = sorted(all_results, key=lambda x: x[1])
             found_val = all_results[0][0]
             oxi_states = []
             for site in structure:
