@@ -21,7 +21,7 @@ import itertools
 import math
 import os
 import json
-
+import collections
 
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -43,7 +43,7 @@ class BondValenceParam(MSONable):
             b:
                 The b parameter.
         """
-        self.species = frozenset(species)
+        self.species = tuple(species)
         self.syms = set([sp.symbol for sp in species])
         self.R = R
         self.b = b
@@ -57,9 +57,21 @@ class BondValenceParam(MSONable):
                 return sp.oxi_state / abs(sp.oxi_state)
         raise ValueError("{} not in BV {}".format(el, self.__repr__()))
 
+    def get_valence(self, el):
+        for sp in self.species:
+            if sp.symbol == el.symbol:
+                return sp.oxi_state
+        raise ValueError("{} not in BV {}".format(el, self.__repr__()))
+
     def contains_element_pair(self, el1, el2):
         for sp1, sp2 in itertools.permutations(self.species, 2):
             if sp1.symbol == el1.symbol and sp2.symbol == el2.symbol:
+                return True
+        return False
+
+    def contains_species_pair(self, sp1, sp2):
+        for s1, s2 in itertools.permutations(self.species, 2):
+            if s1 == sp1 and s2 == sp2:
                 return True
         return False
 
@@ -122,7 +134,6 @@ class BVAnalyzer(object):
         syms = [el.symbol for el in structure.composition.elements]
         relevant_bvs = [bv for bv in _BV_PARAM
                         if all([sp.symbol in syms for sp in bv.species])]
-        assigned_valences = []
         if self.symm_tol:
             finder = SymmetryFinder(structure, self.symm_tol)
             symm_structure = finder.get_symmetrized_structure()
@@ -130,46 +141,74 @@ class BVAnalyzer(object):
         else:
             symm_structure = structure
             equi_sites = [[site] for site in structure]
-        to_test = []
-        bond_types = {}
-        for sites in equi_sites:
-            data = {}
-            data["nsites"] = len(sites)
+
+        equi_sites = sorted(equi_sites, key=lambda sites:-sites[0].specie.X)
+
+        all_nn = structure.get_all_neighbors(self.max_radius,
+                                             include_index=True)
+
+        el1 = Element(equi_sites[0][0].specie.symbol)
+        filtered_bvs = []
+        for bv in relevant_bvs:
+            if (not bv.contains_element(el1)) or bv.get_sign(el1) < 0:
+                filtered_bvs.append(bv)
+        relevant_bvs = filtered_bvs
+
+        def get_equi_index(site):
+            for j, sites in enumerate(equi_sites):
+                if site in sites:
+                    return j
+            raise ValueError("Can't find equi-index!")
+
+        el_map = []
+        bonds = collections.defaultdict(int)
+        bond_dist = {}
+        for i, sites in enumerate(equi_sites):
             test_site = sites[0]
-            data["test_site"] = test_site
+            ind = structure.sites.index(test_site)
             el1 = Element(test_site.specie.symbol)
-            test_nn = []
-            for nn, dist in symm_structure.get_neighbors(test_site,
-                                                         self.max_radius):
+            el_map.append(el1)
+            for (nn, dist, nn_index) in all_nn[ind]:
                 el2 = Element(nn.specie.symbol)
-                bvs = [bv for bv in relevant_bvs
-                       if bv.contains_element_pair(el1, el2)]
-                if bvs:
-                    test_nn.append((nn, dist))
-                    bond_types[frozenset([el1, el2])] = bvs
-            data["nn"] = test_nn
-            to_test.append(data)
+                equi_index = get_equi_index(structure[nn_index])
+                bond_index = tuple(sorted([i, equi_index]))
+                bonds[bond_index] += 1
+                bond_dist[bond_index] = dist
 
-        found_val = None
-        for bv_set in itertools.product(*bond_types.values()):
-            assigned_valences = []
-            total_valence = 0
-            for data in to_test:
-                el1 = Element(data["test_site"].specie.symbol)
-                bvs = 0
-                for nn, dist in data["nn"]:
-                    nn_el = Element(nn.specie.symbol)
-                    for bv in bv_set:
-                        if bv.contains_element_pair(el1, nn_el):
-                            bvs += math.exp((bv.R - dist) / bv.b) * \
-                                bv.get_sign(el1)
-                assigned_valences.append(bvs)
-                total_valence += int(round(bvs)) * data['nsites']
-            if total_valence == 0:
-                found_val = [int(round(i)) for i in assigned_valences]
-                break
+        valence_list = []
+        for el in el_map:
+            valences = []
+            for bv in relevant_bvs:
+                if bv.contains_element(el):
+                    valences.append(bv.get_valence(el))
+            valence_list.append(set(valences))
 
-        if found_val:
+        all_results = []
+        for valences in itertools.product(*valence_list):
+            sum_val = sum([k * len(v) for k, v in zip(valences, equi_sites)])
+            if sum_val == 0:
+                total_bvs = collections.defaultdict(float)
+                for bond, num in bonds.items():
+                    ind1 = bond[0]
+                    ind2 = bond[1]
+                    sp1 = Specie(el_map[ind1].symbol, valences[ind1])
+                    sp2 = Specie(el_map[ind2].symbol, valences[ind2])
+                    for bv in relevant_bvs:
+                        if bv.contains_species_pair(sp1, sp2):
+                            val = math.exp((bv.R - bond_dist[bond]) / bv.b)
+                            total_bvs[ind1] += val * num * bv.get_sign(el_map[ind1])
+                            total_bvs[ind2] += val * num * bv.get_sign(el_map[ind2])
+                            break
+                error = 0
+                all_avg = []
+                for i, sum_bv in total_bvs.items():
+                    avg_bv = sum_bv / len(equi_sites[i])
+                    error += math.pow(avg_bv - valences[i], 2)
+                    all_avg.append(avg_bv)
+                all_results.append((valences, error, all_avg))
+        if all_results:
+            all_results = sorted(all_results, key=lambda x:x[1])
+            found_val = all_results[0][0]
             oxi_states = []
             for site in structure:
                 for i, sites in enumerate(equi_sites):
