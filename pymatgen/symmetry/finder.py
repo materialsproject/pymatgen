@@ -121,7 +121,7 @@ class SymmetryFinder(object):
         ds = self.get_symmetry_dataset()
         return ds["hall"]
 
-    def get_pointgroup(self):
+    def get_point_group(self):
         """
         Get the point group associated with the structure.
 
@@ -129,7 +129,7 @@ class SymmetryFinder(object):
             Pointgroup for structure.
         """
         ds = self.get_symmetry_dataset()
-        return get_pointgroup(ds["rotations"])[0].strip()
+        return get_point_group(ds["rotations"])[0].strip()
 
     def get_crystal_system(self):
         """
@@ -321,7 +321,7 @@ class SymmetryFinder(object):
             return None
 
 
-def get_pointgroup(rotations):
+def get_point_group(rotations):
     """
     Return point group in international table symbol and number.
     The symbols are mapped to the numbers as follows:
