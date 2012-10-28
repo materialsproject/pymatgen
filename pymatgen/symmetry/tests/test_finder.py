@@ -20,7 +20,7 @@ import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.finder import SymmetryFinder, get_pointgroup
+from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor
 
@@ -67,8 +67,8 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertEqual(self.disordered_sg.get_hall(), 'P 4n 2n -1n')
 
     def test_get_pointgroup(self):
-        self.assertEqual(self.sg.get_pointgroup(), 'mmm')
-        self.assertEqual(self.disordered_sg.get_pointgroup(), '4/mmm')
+        self.assertEqual(self.sg.get_point_group(), 'mmm')
+        self.assertEqual(self.disordered_sg.get_point_group(), '4/mmm')
 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
@@ -116,7 +116,7 @@ class SymmetryFinderTest(unittest.TestCase):
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
 
-    def test_get_primitive(self):
+    def test_find_primitive(self):
         """
         F m -3 m Li2O testing of converting to primitive cell
         """
@@ -132,18 +132,6 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
-
-
-class HelperFunctionsTest(unittest.TestCase):
-
-    def setUp(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        self.sg = SymmetryFinder(p.struct, 0.1)
-
-    def test_get_pointgroup(self):
-        (rots, trans) = self.sg.get_symmetry()
-        pg = get_pointgroup(rots)
-        self.assertEqual(pg[0].strip(), "mmm")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
