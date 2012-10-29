@@ -23,6 +23,7 @@ from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.io.vaspio.vasp_output import Vasprun
 
 import pymatgen
 
@@ -45,7 +46,6 @@ class SymmetryFinderTest(unittest.TestCase):
         editor.delete_site(0)
         editor.append_site(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
-
         parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
         graphite = parser.get_structures()[0]
         self.sg4 = SymmetryFinder(graphite, 0.001)
@@ -132,6 +132,15 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
+
+    def test_get_ir_kpoints(self):
+        v = Vasprun(os.path.join(test_dir, 'vasprun_Si_bands.xml'))
+        finder = SymmetryFinder(v.final_structure)
+        actual_kpts = v.actual_kpoints
+        mapping = finder.get_ir_kpoints_mapping(actual_kpts)
+        irr_kpts = finder.get_ir_kpoints(actual_kpts)
+        self.assertLess(len(irr_kpts), len(actual_kpts))
+        self.assertEqual(len(irr_kpts), len(set(mapping)))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
