@@ -20,9 +20,10 @@ import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.finder import SymmetryFinder, get_pointgroup
+from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.io.vaspio.vasp_output import Vasprun
 
 import pymatgen
 
@@ -45,7 +46,6 @@ class SymmetryFinderTest(unittest.TestCase):
         editor.delete_site(0)
         editor.append_site(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
-
         parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
         graphite = parser.get_structures()[0]
         self.sg4 = SymmetryFinder(graphite, 0.001)
@@ -67,8 +67,8 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertEqual(self.disordered_sg.get_hall(), 'P 4n 2n -1n')
 
     def test_get_pointgroup(self):
-        self.assertEqual(self.sg.get_pointgroup(), 'mmm')
-        self.assertEqual(self.disordered_sg.get_pointgroup(), '4/mmm')
+        self.assertEqual(self.sg.get_point_group(), 'mmm')
+        self.assertEqual(self.disordered_sg.get_point_group(), '4/mmm')
 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
@@ -116,7 +116,7 @@ class SymmetryFinderTest(unittest.TestCase):
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
 
-    def test_get_primitive(self):
+    def test_find_primitive(self):
         """
         F m -3 m Li2O testing of converting to primitive cell
         """
@@ -133,17 +133,14 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
 
-
-class HelperFunctionsTest(unittest.TestCase):
-
-    def setUp(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        self.sg = SymmetryFinder(p.struct, 0.1)
-
-    def test_get_pointgroup(self):
-        (rots, trans) = self.sg.get_symmetry()
-        pg = get_pointgroup(rots)
-        self.assertEqual(pg[0].strip(), "mmm")
+    def test_get_ir_kpoints(self):
+        v = Vasprun(os.path.join(test_dir, 'vasprun_Si_bands.xml'))
+        finder = SymmetryFinder(v.final_structure)
+        actual_kpts = v.actual_kpoints
+        mapping = finder.get_ir_kpoints_mapping(actual_kpts)
+        irr_kpts = finder.get_ir_kpoints(actual_kpts)
+        self.assertLess(len(irr_kpts), len(actual_kpts))
+        self.assertEqual(len(irr_kpts), len(set(mapping)))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
