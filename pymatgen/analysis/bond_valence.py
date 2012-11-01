@@ -17,7 +17,7 @@ import collections
 import json
 import itertools
 import os
-from math import exp, pow, sqrt, floor
+from math import exp, sqrt, floor
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -75,7 +75,7 @@ def calculate_bv_sum(site, nn_list, anion_el, scale_factor=1):
             r2 = BV_PARAMS[el2]["r"]
             c1 = BV_PARAMS[el1]["c"]
             c2 = BV_PARAMS[el2]["c"]
-            R = r1 + r2 - r1 * r2 * (pow(sqrt(c1) - sqrt(c2), 2)) / \
+            R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / \
                 (c1 * r1 + c2 * r2)
             vij = exp((R - dist * scale_factor) / 0.31)
             bvsum += vij * (1 if el1.X < el2.X else -1)
