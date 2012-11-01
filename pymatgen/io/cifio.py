@@ -328,7 +328,7 @@ def float_from_str(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-    return float(re.sub("\(\d+\)", "", text))
+    return float(re.sub("\(.+\)", "", text))
 
 
 def parse_symmetry_operations(symmops_str):

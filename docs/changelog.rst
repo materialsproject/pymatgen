@@ -1,6 +1,13 @@
 Older versions
 ==============
 
+Version 2.2.3
+-------------
+
+1. New filter framework for filtering structures in pymatgen.alchemy.
+2. Updated feff io classes to support FEFF 9.6 and other code improvements.
+3. Miscellaneous bug fixes.
+
 Version 2.2.2
 -------------
 

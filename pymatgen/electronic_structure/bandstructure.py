@@ -189,6 +189,7 @@ class BandStructure(object):
         self._projections = projections
 
         if len(projections) != 0 and self._structure == None:
+
             raise Exception("if projections are provided a structure object" \
                             "needs also to be given")
 
@@ -258,7 +259,7 @@ class BandStructure(object):
 
     def get_projection_on_elements(self):
         """
-        method returning a dictionary of projections on elements
+        Method returning a dictionary of projections on elements.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element:values}],
@@ -277,7 +278,6 @@ class BandStructure(object):
                               for e in self._structure.composition.elements}
                               for i in range(len(self._kpoints))]
                               for j in range(self._nb_bands)]
-
             for i in range(self._nb_bands):
                 for j in range(len(self._kpoints)):
                     for k in range(self._structure.num_sites):
@@ -392,8 +392,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
             if label != None and previous_label != None:
                 self._distance.append(previous_distance)
             else:
-                self._distance.append(np.linalg.norm(self._kpoints[i].
-                cart_coords - previous_kpoint.cart_coords) + previous_distance)
+                self._distance.append(
+                    np.linalg.norm(self._kpoints[i].cart_coords -
+                                   previous_kpoint.cart_coords) +
+                                      previous_distance)
             previous_kpoint = self._kpoints[i]
             previous_distance = self._distance[i]
             if label:
@@ -445,7 +447,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
     def get_branch(self, index):
         """
-        Returns in what branch(es) is the kpoint. There can be several branches
+        Returns in what branch(es) is the kpoint. There can be several
+        branches.
 
         Args:
             index:
@@ -489,8 +492,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
-                "kpoint": [], "energy": None}
-        max_tmp = -1000.0
+                    "kpoint": [], "energy": None}
+        max_tmp = -float("inf")
         index = None
         kpointvbm = None
         for i in range(self._nb_bands):
@@ -549,8 +552,9 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
-                "kpoint": [], "energy": None}
-        max_tmp = 1000.0
+                    "kpoint": [], "energy": None}
+        max_tmp = float("inf")
+
         index = None
         kpointcbm = None
         for spin in self._bands:
@@ -578,8 +582,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     list_index_band[spin].append(i)
         return {'band_index': list_index_band,
                 'kpoint_index': list_index_kpoints,
-                'kpoint': kpointcbm,
-                'energy': max_tmp}
+                'kpoint': kpointcbm, 'energy': max_tmp}
 
     def apply_scissor(self, new_band_gap):
         """
@@ -593,18 +596,19 @@ class BandStructureSymmLine(BandStructure, MSONable):
             a BandStructureSymmLine object with the applied scissor shift
         """
         if self.is_metal():
-            raise Exception("cannot apply a scissor"
-                            "to a metallic band structure")
+            raise Exception("Cannot apply a scissor to a metallic band"
+                            " structure.")
         shift = new_band_gap - self.get_band_gap()['energy']
-        old_d = self.to_dict
-        for spin in old_d['bands']:
-            for k in range(len(old_d['bands'][spin])):
-                for v in range(len(old_d['bands'][spin][k])):
-                    if old_d['bands'][spin][k][v] >= old_d['cbm']['energy']:
-                        old_d['bands'][spin][k][v] = old_d['bands'][spin][k][v]
-                        + shift
-        old_d['efermi'] = old_d['efermi'] + shift
-        return BandStructureSymmLine.from_dict(old_d)
+        old_dict = self.to_dict
+        for spin in old_dict['bands']:
+            for k in range(len(old_dict['bands'][spin])):
+                for v in range(len(old_dict['bands'][spin][k])):
+                    if old_dict['bands'][spin][k][v] >= \
+                            old_dict['cbm']['energy']:
+                        old_dict['bands'][spin][k][v] = \
+                            old_dict['bands'][spin][k][v] + shift
+        old_dict['efermi'] = old_dict['efermi'] + shift
+        return BandStructureSymmLine.from_dict(old_dict)
 
     def get_band_gap(self):
         """
@@ -616,7 +620,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     the band gap energy
                 "direct":
                     A boolean telling if the gap is direct (True)
-                    or not (False)
+                    or not (False)c
                 "transition":
                     The kpoint labels of the transition (e.g., "\Gamma-X")
         """
@@ -708,12 +712,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         if len(self._projections) != 0:
             d['structure'] = self._structure.to_dict
             d['projections'] = {str(int(spin)):
-            [[{str(orb):[self._projections[spin][i][j][orb][k]
-            for k in range(len(self._projections[spin][i][j][orb]))]
-            for orb in self._projections[spin][i][j]}
-            for j in range(len(self._projections[spin][i]))]
-            for i in range(len(self._projections[spin]))]
-            for spin in self._projections}
+                [[{str(orb):
+                   [self._projections[spin][i][j][orb][k]
+                    for k in range(len(self._projections[spin][i][j][orb]))]
+                   for orb in self._projections[spin][i][j]}
+                  for j in range(len(self._projections[spin][i]))]
+                 for i in range(len(self._projections[spin]))]
+                for spin in self._projections}
         return d
 
     @staticmethod
@@ -800,5 +805,5 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
             return BandStructureSymmLine(kpoints, eigenvals, rec_lattice,
                                          efermi, labels_dict)
         else:
-            return BandStructure(kpoints, eigenvals, rec_lattice,
-                                 efermi, labels_dict)
+            return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
+                                 labels_dict)
