@@ -121,7 +121,7 @@ class SymmetryFinder(object):
         ds = self.get_symmetry_dataset()
         return ds["hall"]
 
-    def get_pointgroup(self):
+    def get_point_group(self):
         """
         Get the point group associated with the structure.
 
@@ -129,7 +129,7 @@ class SymmetryFinder(object):
             Pointgroup for structure.
         """
         ds = self.get_symmetry_dataset()
-        return get_pointgroup(ds["rotations"])[0].strip()
+        return get_point_group(ds["rotations"])[0].strip()
 
     def get_crystal_system(self):
         """
@@ -320,8 +320,59 @@ class SymmetryFinder(object):
             #structure.
             return None
 
+    def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
+        """
+        Irreducible k-points are searched from the input kpoints. The result is
+        returned as a map of numbers. The array index of map corresponds to the
+        reducible k-point numbering. After finding irreducible k-points, the
+        indices of the irreducible k-points are mapped to the elements of map,
+        i.e., number of unique values in map is the number of the irreducible
+        k-points.
 
-def get_pointgroup(rotations):
+        Args:
+            kpoints:
+                Input kpoints as a (Nx3) array.
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            Numbering of reducible kpoints. Equivalent kpoints will have the
+            same number. The number of unique values is the number of the
+            irreducible kpoints.
+        """
+        npkpoints = np.array(kpoints)
+        mapping = np.zeros(npkpoints.shape[0], dtype=int)
+        positions = self._positions.copy()
+        lattice = self._transposed_latt.copy()
+        numbers = self._numbers.copy()
+        spg.ir_kpoints(mapping, npkpoints, lattice, positions, numbers,
+                       is_time_reversal * 1, self._symprec)
+        return mapping
+
+    def get_ir_kpoints(self, kpoints, is_time_reversal=True):
+        """
+        Irreducible k-points are searched from the input kpoints.
+
+        Args:
+            kpoints:
+                Input kpoints as a (Nx3) array.
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            A set of irreducible kpoints.
+        """
+        mapping = self.get_ir_kpoints_mapping(kpoints, is_time_reversal)
+        irr_kpts = []
+        n = []
+        for i, kpts in enumerate(kpoints):
+            if mapping[i] not in n:
+                irr_kpts.append(kpts)
+                n.append(i)
+        return irr_kpts
+
+
+def get_point_group(rotations):
     """
     Return point group in international table symbol and number.
     The symbols are mapped to the numbers as follows:

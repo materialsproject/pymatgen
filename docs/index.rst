@@ -49,10 +49,13 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.3dev)
------------------------------
+Latest Change Log (v2.2.4)
+--------------------------
 
-1. Miscellaneous bug fixes.
+1. Fixed bug in hexagonal cell KPOINTS file generation.
+2. New RelaxationAnalyzer to compare structures.
+3. New *beta* bond valence analyzer.
+4. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2

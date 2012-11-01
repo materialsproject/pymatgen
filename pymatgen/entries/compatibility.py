@@ -66,15 +66,15 @@ class Compatibility(EntryPostProcessor):
                                                .format(input_set_name,
                                                        compat_type)))
 
-        self._u_corrections = u_corrections
-        self._cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
+        self.u_corrections = u_corrections
+        self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
 
-        self._valid_potcars = set(self.input_set.potcar_settings.values())
-        self._u_settings = self.input_set.incar_settings["LDAUU"]
+        self.valid_potcars = set(self.input_set.potcar_settings.values())
+        self.u_settings = self.input_set.incar_settings["LDAUU"]
 
         if compat_type == "GGA":
-            self._u_corrections = {}
-            self._u_settings = {}
+            self.u_corrections = {}
+            self.u_settings = {}
 
     def requires_hubbard(self, comp):
         """
@@ -92,7 +92,7 @@ class Compatibility(EntryPostProcessor):
                               key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
 
-        usettings = self._u_settings.get(most_electroneg, {})
+        usettings = self.u_settings.get(most_electroneg, {})
 
         return any([usettings.get(el.symbol, 0) for el in comp.elements])
 
@@ -111,8 +111,8 @@ class Compatibility(EntryPostProcessor):
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
 
-        ucorr = self._u_corrections
-        cpdenergies = self._cpd_energies
+        ucorr = self.u_corrections
+        cpdenergies = self.cpd_energies
         calc_u = entry.parameters["hubbards"]
         calc_u = defaultdict(int) if calc_u == None else calc_u
         comp = entry.composition
@@ -121,7 +121,7 @@ class Compatibility(EntryPostProcessor):
         if rform not in cpdenergies:
             psp_settings = set([sym.split(" ")[1]
                                 for sym in entry.parameters["potcar_symbols"]])
-            if not self._valid_potcars.issuperset(psp_settings):
+            if not self.valid_potcars.issuperset(psp_settings):
                 return None
 
         #correct all compounds that are wrong, e.g. O2 molecule
@@ -135,8 +135,8 @@ class Compatibility(EntryPostProcessor):
             most_electroneg = elements[-1].symbol
             correction = 0
 
-            ucorr = self._u_corrections.get(most_electroneg, {})
-            usettings = self._u_settings.get(most_electroneg, {})
+            ucorr = self.u_corrections.get(most_electroneg, {})
+            usettings = self.u_settings.get(most_electroneg, {})
 
             for el in comp.elements:
                 sym = el.symbol
@@ -169,7 +169,7 @@ class Compatibility(EntryPostProcessor):
 
     @property
     def corrected_compound_formulas(self):
-        return self._cpd_energies.keys()
+        return self.cpd_energies.keys()
 
     def __str__(self):
         return "{} {} Compatibility".format(self.input_set_name,

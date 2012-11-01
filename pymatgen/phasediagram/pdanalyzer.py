@@ -45,7 +45,8 @@ class PDAnalyzer(object):
     def __init__(self, pd):
         """
         Args:
-            pd - Phase Diagram to analyze.
+            pd:
+                Phase Diagram to analyze.
         """
         self._pd = pd
 
@@ -90,7 +91,7 @@ class PDAnalyzer(object):
 
     def _get_facet(self, comp):
         """
-        Get the facets that a composition falls into.
+        Get any facet that a composition falls into.
         """
         for facet in self._pd.facets:
             if self._in_facet(facet, comp):
@@ -139,7 +140,7 @@ class PDAnalyzer(object):
                           for entry, amt in decomp.items()])
         if abs(eperatom) < PDAnalyzer.numerical_tol:
             return (decomp, 0)
-        return (decomp, max(eperatom - hullenergy, 0))
+        return (decomp, eperatom - hullenergy)
 
     def get_e_above_hull(self, entry):
         """
