@@ -240,8 +240,7 @@ class BSPlotter(object):
         self._bs = bs
         #Many ab initio codes do not give good results for the highest
         #occupied bands, we therefore only give 90% of the bands for plotting
-        #self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
-        self._nb_bands = self._bs._nb_bands
+        self._nb_bands = int(math.floor(self._bs._nb_bands * 0.9))
 
     def bs_plot_data(self, zero_to_efermi=True):
 
@@ -373,7 +372,6 @@ class BSPlotter(object):
             e_max = 10
         band_linewidth = 3
 
-        #pylab.figure
         data = self.bs_plot_data(zero_to_efermi)
         if smooth == False:
             for i in range(self._nb_bands):
@@ -585,7 +583,6 @@ class BSPlotter(object):
                     tick_labels.pop()
                     tick_distance.pop()
                     tick_labels.append(label0 + "$|$" + label1)
-                    #print label0+","+label1
                 else:
                     if c.label.startswith("\\") or c.label.find("_") != -1:
                         tick_labels.append("$" + c.label + "$")
