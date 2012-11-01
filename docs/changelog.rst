@@ -1,6 +1,42 @@
 Older versions
 ==============
 
+Version 2.2.3
+-------------
+
+1. New filter framework for filtering structures in pymatgen.alchemy.
+2. Updated feff io classes to support FEFF 9.6 and other code improvements.
+3. Miscellaneous bug fixes.
+
+Version 2.2.2
+-------------
+
+1. Bug fix release for REST interface.
+2. Improvements to unittests.
+
+Version 2.2.1
+-------------
+
+1. Improvements to feffio.
+2. Master matgenie.py script which replaces many analysis scripts.
+3. More memory efficient parsing of VolumetricData.
+4. Beta version of structure prediction classes.
+5. Changes to MPRester to work with v1 release of the Materials API.
+6. Miscellaneous bug fixes and speed improvements.
+
+Version 2.2.0
+-------------
+
+1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
+2. New smartio module that intelligently reads structure input files based on
+   file extension.
+3. Spglib_adaptor module has been renamed to finder for brevity.
+4. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
+   Mac OS X and Solaris.
+5. Major cleanup of code for PEP8 compliance.
+6. Cssr module now supports reading of input files.
+7. Miscellaneous bug fixes and speed improvements.
+
 Version 2.1.2
 -------------
 

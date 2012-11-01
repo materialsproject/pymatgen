@@ -9,6 +9,14 @@ alchemy Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`filters` Module
+---------------------
+
+.. automodule:: pymatgen.alchemy.filters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`materials` Module
 -----------------------
 

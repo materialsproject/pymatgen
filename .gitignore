@@ -12,3 +12,7 @@ _build
 build
 .project
 .pydevproject
+.settings
+.externalToolBuilders
+distribute*.egg
+distribute*.tar.gz

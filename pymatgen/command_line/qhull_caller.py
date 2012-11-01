@@ -13,10 +13,9 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Sep 23, 2011"
 
 import subprocess
-import re
 import itertools
 import math
 
@@ -27,6 +26,7 @@ def run_qhull_command(command, data, proc_command=int, output_skip=1):
     """
     Helper function for actual qconvex and qvoronoi and qvertex commands.
     """
+    assert len(data) > 0,"Data is empty"
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) + "\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])
@@ -34,15 +34,14 @@ def run_qhull_command(command, data, proc_command=int, output_skip=1):
                          stdin=subprocess.PIPE, close_fds=True)
     #print prep_str
     output = p.communicate(input=prep_str)[0]
-    output = re.split("\n", output)
+    output = output.split("\n")
     for i in xrange(output_skip):
         output.pop(0)
     results = list()
     for row in output:
         cleanrow = row.strip()
         if cleanrow != "":
-            results.append([proc_command(i)
-                            for i in re.split("\s+", cleanrow)])
+            results.append([proc_command(i) for i in cleanrow.split()])
     return results
 
 
@@ -110,7 +109,7 @@ def get_lines_voronoi(data):
     p = subprocess.Popen(['qconvex', 'o'], stdout=subprocess.PIPE,
                          stdin=subprocess.PIPE, close_fds=True)
     output = p.communicate(input=prep_str)[0]
-    output = re.split("\n", output)
+    output = output.split("\n")
 
     nb_points = int(output[1].split(" ")[0])
     list_lines = []

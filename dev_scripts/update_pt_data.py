@@ -30,11 +30,13 @@ def generate_json_from_yaml():
 def test_yaml():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
+        print data
 
 
 def test_json():
     with open('periodic_table.json', 'r') as f:
         data = json.load(f)
+        print data
 
 
 def test_yaml_json():

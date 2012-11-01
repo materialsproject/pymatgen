@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
 contain calculated information, typically from VASP or other electronic
 structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
-'''
+"""
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -95,23 +95,23 @@ class ComputedEntry(PDEntry, MSONable):
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        return ComputedEntry(d['composition'], d['energy'], d['correction'],
-                             dec.process_decoded(d.get('parameters', {})),
-                             dec.process_decoded(d.get('data', {})),
-                             entry_id=d.get('entry_id', None))
+        return ComputedEntry(d["composition"], d["energy"], d["correction"],
+                             dec.process_decoded(d.get("parameters", {})),
+                             dec.process_decoded(d.get("data", {})),
+                             entry_id=d.get("entry_id", None))
 
     @property
     def to_dict(self):
         d = {}
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['energy'] = self.uncorrected_energy
-        d['composition'] = self.composition.to_dict
-        d['correction'] = self.correction
-        d['parameters'] = json.loads(json.dumps(self.parameters,
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["energy"] = self.uncorrected_energy
+        d["composition"] = self.composition.to_dict
+        d["correction"] = self.correction
+        d["parameters"] = json.loads(json.dumps(self.parameters,
                                                 cls=PMGJSONEncoder))
-        d['data'] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
-        d['entry_id'] = self.entry_id
+        d["data"] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
+        d["entry_id"] = self.entry_id
         return d
 
 
@@ -142,11 +142,9 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id:
                 An optional id to uniquely identify the entry.
         """
-
         ComputedEntry.__init__(self, structure.composition, energy,
-                                        correction=correction,
-                                        parameters=parameters, data=data,
-                                        entry_id=entry_id)
+                               correction=correction, parameters=parameters,
+                               data=data, entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):
@@ -167,17 +165,17 @@ class ComputedStructureEntry(ComputedEntry):
     @property
     def to_dict(self):
         d = super(ComputedStructureEntry, self).to_dict
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['structure'] = self.structure.to_dict
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["structure"] = self.structure.to_dict
         return d
 
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        return ComputedStructureEntry(dec.process_decoded(d['structure']),
-                                      d['energy'], d['correction'],
-                                      dec.process_decoded(d.get('parameters',
+        return ComputedStructureEntry(dec.process_decoded(d["structure"]),
+                                      d["energy"], d["correction"],
+                                      dec.process_decoded(d.get("parameters",
                                                                 {})),
-                                      dec.process_decoded(d.get('data', {})),
-                                      entry_id=d.get('entry_id', None))
+                                      dec.process_decoded(d.get("data", {})),
+                                      entry_id=d.get("entry_id", None))

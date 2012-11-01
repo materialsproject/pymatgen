@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Utilities for generating nicer plots.
-'''
+"""
 
 from __future__ import division
 
@@ -29,15 +29,15 @@ def get_publication_quality_plot(width=8, height=None):
             Height of plot in inches. Defaults to width * golden ratio.
     """
 
-    mpl.rcParams['font.serif'] = 'Times New Roman'
-    mpl.rcParams['font.sans-serif'] = 'Arial'
+    mpl.rcParams["font.serif"] = "Times New Roman"
+    mpl.rcParams["font.sans-serif"] = "Arial"
     golden_ratio = (math.sqrt(5) - 1.0) / 2.0
     if not height:
         height = int(width * golden_ratio)
-    plt.figure(figsize=(width, height), facecolor='w')
-    plt.ylabel('Y-axis', fontsize=width * 3)
-    plt.xlabel('X-axis', fontsize=width * 3)
-    plt.xticks(fontsize=width * 2)
-    plt.yticks(fontsize=width * 2)
-    plt.title('', fontsize=width * 3)
+    plt.figure(figsize=(width, height), facecolor="w")
+    plt.ylabel("Y-axis", fontsize=width * 3)
+    plt.xlabel("X-axis", fontsize=width * 3)
+    plt.xticks(fontsize=width * 3)
+    plt.yticks(fontsize=width * 3)
+    plt.title("", fontsize=width * 4)
     return plt

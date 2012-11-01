@@ -20,9 +20,9 @@ __email__ = "shyue@mit.edu"
 __date__ = "Mar 9, 2012"
 
 import re
+import itertools
 
 import numpy as np
-import itertools
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
@@ -36,7 +36,7 @@ except ImportError:
         import pyspglib._spglib as spg
     except ImportError:
         msg = "Spglib required. Please either run python setup.py install" + \
-            "for pymatgen, or install pyspglib from spglib."
+            " for pymatgen, or install pyspglib from spglib."
         raise ImportError(msg)
 
 
@@ -95,22 +95,50 @@ class SymmetryFinder(object):
                           self.get_symmetry_operations())
 
     def get_spacegroup_symbol(self):
-        return re.split("\s+", self._spacegroup_data)[0]
+        """
+        Get the spacegroup symbol (e.g., Pnma) for structure.
+
+        Returns:
+            Spacegroup symbol for structure.
+        """
+        return self._spacegroup_data.split()[0]
 
     def get_spacegroup_number(self):
-        sgnum = re.split("\s+", self._spacegroup_data)[1]
+        """
+        Get the international spacegroup number (e.g., 62) for structure.
+
+        Returns:
+            International spacegroup number for structure.
+        """
+        sgnum = self._spacegroup_data.split()[1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
     def get_hall(self):
+        """
+        Returns Hall symbol for structure.
+        """
         ds = self.get_symmetry_dataset()
         return ds["hall"]
 
-    def get_pointgroup(self):
+    def get_point_group(self):
+        """
+        Get the point group associated with the structure.
+
+        Returns:
+            Pointgroup for structure.
+        """
         ds = self.get_symmetry_dataset()
-        return get_pointgroup(ds["rotations"])[0].strip()
+        return get_point_group(ds["rotations"])[0].strip()
 
     def get_crystal_system(self):
+        """
+        Get the crystal system for the structure, e.g., (triclinic,
+        orthorhombic, cubic, etc.).
+
+        Returns:
+            Crystal system for structure.
+        """
         n = self.get_spacegroup_number()
 
         f = lambda i, j: i <= n <= j
@@ -184,13 +212,16 @@ class SymmetryFinder(object):
 
         return dataset
 
-    def get_symmetry(self):
+    def _get_symmetry(self):
         """
-        Return symmetry operations as hash.
-        Hash key "rotations" gives the numpy integer array
-        of the rotation matrices for scaled positions
-        Hash key "translations" gives the numpy float64 array
-        of the translation vectors in scaled positions
+        Get the symmetry operations associated with the structure.
+
+        Returns:
+            Symmetry operations as a tuple of two equal length sequences.
+            (rotations, translations). "rotations" is the numpy integer array
+            of the rotation matrices for scaled positions
+            "translations" gives the numpy float64 array of the translation
+            vectors in scaled positions.
         """
 
         # Get number of symmetry operations and allocate symmetry operations
@@ -211,29 +242,38 @@ class SymmetryFinder(object):
         By default returns fractional coord symmops.
         But cartesian can be returned too.
         """
-        (rotation, translation) = self.get_symmetry()
+        (rotation, translation) = self._get_symmetry()
         symmops = []
         for rot, trans in zip(rotation, translation):
             if cartesian:
                 rot = np.dot(self._structure.lattice.md2c, np.dot(rot,
                                                 self._structure.lattice.mc2d))
                 trans = np.dot(self._structure.lattice.md2c, trans)
-            op = SymmOp.from_rotation_matrix_and_translation_vector(rot, trans)
+            op = SymmOp.from_rotation_and_translation(rot, trans)
             symmops.append(op)
         return symmops
 
     def get_symmetrized_structure(self):
+        """
+        Get a symmetrized structure. A symmetrized structure is one where the
+        sites have been grouped into symmetrically equivalent groups.
+
+        Returns:
+            pymatgen.symmetry.structure.SymmetrizedStructure object.
+        """
         ds = self.get_symmetry_dataset()
         sg = Spacegroup(self.get_spacegroup_symbol(),
                         self.get_spacegroup_number(),
                         self.get_symmetry_operations())
-        #self.get_refined_structure()
         return SymmetrizedStructure(self._structure, sg,
                                     ds["equivalent_atoms"])
 
     def get_refined_structure(self):
         """
-        Return refined Structure
+        Get the refined structure based on detected symmetry.
+
+        Returns:
+            Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
@@ -255,9 +295,12 @@ class SymmetryFinder(object):
 
     def find_primitive(self):
         """
-        A primitive cell in the input cell is searched and returned
-        as an Structure object.
-        If no primitive cell is found, (None, None, None) is returned.
+        Find a primitive version of the unit cell.
+
+        Returns:
+            A primitive cell in the input cell is searched and returned
+            as an Structure object. If no primitive cell is found, None is
+            returned.
         """
 
         # Atomic positions have to be specified by scaled positions for spglib.
@@ -277,8 +320,59 @@ class SymmetryFinder(object):
             #structure.
             return None
 
+    def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
+        """
+        Irreducible k-points are searched from the input kpoints. The result is
+        returned as a map of numbers. The array index of map corresponds to the
+        reducible k-point numbering. After finding irreducible k-points, the
+        indices of the irreducible k-points are mapped to the elements of map,
+        i.e., number of unique values in map is the number of the irreducible
+        k-points.
 
-def get_pointgroup(rotations):
+        Args:
+            kpoints:
+                Input kpoints as a (Nx3) array.
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            Numbering of reducible kpoints. Equivalent kpoints will have the
+            same number. The number of unique values is the number of the
+            irreducible kpoints.
+        """
+        npkpoints = np.array(kpoints)
+        mapping = np.zeros(npkpoints.shape[0], dtype=int)
+        positions = self._positions.copy()
+        lattice = self._transposed_latt.copy()
+        numbers = self._numbers.copy()
+        spg.ir_kpoints(mapping, npkpoints, lattice, positions, numbers,
+                       is_time_reversal * 1, self._symprec)
+        return mapping
+
+    def get_ir_kpoints(self, kpoints, is_time_reversal=True):
+        """
+        Irreducible k-points are searched from the input kpoints.
+
+        Args:
+            kpoints:
+                Input kpoints as a (Nx3) array.
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            A set of irreducible kpoints.
+        """
+        mapping = self.get_ir_kpoints_mapping(kpoints, is_time_reversal)
+        irr_kpts = []
+        n = []
+        for i, kpts in enumerate(kpoints):
+            if mapping[i] not in n:
+                irr_kpts.append(kpts)
+                n.append(i)
+        return irr_kpts
+
+
+def get_point_group(rotations):
     """
     Return point group in international table symbol and number.
     The symbols are mapped to the numbers as follows:

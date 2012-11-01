@@ -49,18 +49,13 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.1.3dev)
------------------------------
+Latest Change Log (v2.2.4)
+--------------------------
 
-1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
-2. New smartio module that intelligently reads structure input files based on
-   file extension.
-3. Spglib_adaptor module has been renamed to finder for brevity.
-4. Upgraded spglib to version 1.2.2. Improved handling of spglib install on
-   Mac OS X and Solaris.
-5. Major cleanup of code for PEP8 compliance.
-6. Cssr module now supports reading of input files.
-7. Miscellaneous bug fixes and speed improvements.
+1. Fixed bug in hexagonal cell KPOINTS file generation.
+2. New RelaxationAnalyzer to compare structures.
+3. New *beta* bond valence analyzer.
+4. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2
@@ -78,8 +73,17 @@ bug-free. If you have  distutils installed, you can just type:
 
    easy_install pymatgen
    
-to install pymatgen with most of the dependencies set up. Otherwise, the latest
-stable source can be downloaded at the `PyPI`_ site as well.
+or
+
+::
+
+   pip install pymatgen
+   
+if you have setuptools or pip installed to install pymatgen with most of the
+dependencies set up. Otherwise, the latest stable source can be downloaded at
+the `PyPI`_ site as well. Note that you may need to install numpy before
+installing pymatgen as numpy's distutils is needed to compile the spglib
+library.
 
 Alternatively, the bleeding edge developmental version is at the public
 pymatgen github repo at 
@@ -160,7 +164,7 @@ examples of the core capabilities and objects::
    occupation : 1.00
    >>> 
    >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.spglib_adaptor import SymmetryFinder
+   ... from pymatgen.symmetry.finder import SymmetryFinder
    >>> finder = SymmetryFinder(structure)
    >>> finder.get_spacegroup_symbol()
    'Pm-3m'
