@@ -789,7 +789,6 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         eigenvals = {Spin.up: [list_bs[0]._bands[Spin.up][i]
                                for i in range(nb_bands)]}
         for i in range(nb_bands):
-            #eigenvals[Spin.up].append({"energy":[], "occup":[]})
             for bs in list_bs[1:]:
                 for e in bs._bands[Spin.up][i]:
                     eigenvals[Spin.up][i].append(e)
@@ -797,7 +796,6 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
             eigenvals[Spin.down] = [list_bs[0]._bands[Spin.down][i]
                                     for i in range(nb_bands)]
             for i in range(nb_bands):
-                #eigenvals[Spin.down].append({"energy":[], "occup":[]})
                 for bs in list_bs[1:]:
                     for e in bs._bands[Spin.down][i]:
                         eigenvals[Spin.down][i].append(e)
