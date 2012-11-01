@@ -353,7 +353,6 @@ class Vasprun(object):
 
         neigenvalues = [len(v['up']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
-
         for i in range(min_eigenvalues):
             eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0]
                                        for j in range(len(kpoints))])
@@ -499,17 +498,38 @@ class Vasprun(object):
             len(self.final_structure)
         vasp_output["crystal"] = self.final_structure.to_dict
         vasp_output["efermi"] = self.efermi
-        vasp_output["eigenvalues"] = {}
+        vasp_output['eigenvalues'] = {}
         for (spin, index), values in self.eigenvalues.items():
-            if str(index) not in vasp_output["eigenvalues"]:
-                vasp_output["eigenvalues"][str(index)] = {str(spin): values}
+            if index not in vasp_output['eigenvalues']:
+                vasp_output['eigenvalues'][index] = {str(spin): values}
             else:
-                vasp_output["eigenvalues"][str(index)][str(spin)] = values
+                vasp_output['eigenvalues'][index][str(spin)] = values
+
+        vasp_output['projected_eigenvalues'] = []
+        if len(self.projected_eigenvalues) != 0:
+            for i in range(len(vasp_output['eigenvalues'])):
+                vasp_output['projected_eigenvalues'].append({})
+                for spin in vasp_output['eigenvalues'][i]:
+                    vasp_output['projected_eigenvalues'][i][spin] = []
+                    for j in range(len(vasp_output['eigenvalues'][i][spin])):
+                        vasp_output['projected_eigenvalues'][i][spin].append(
+                                                                        {})
+            for (spin, kpoint_index, band_index, ion_index, orbital), value \
+                in self.projected_eigenvalues.items():
+                if orbital not in vasp_output['projected_eigenvalues'][
+                            kpoint_index][str(spin)][band_index]:
+                    vasp_output['projected_eigenvalues'][kpoint_index][
+                    str(spin)][band_index][orbital] = [0.0
+                    for s in range(len(self.final_structure.sites))]
+
+                else:
+                    vasp_output['projected_eigenvalues'][kpoint_index][
+                    str(spin)][band_index][orbital][ion_index] = value
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
         vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
-                                is_gap_direct=is_direct))
-        d["output"] = vasp_output
+                         is_gap_direct=is_direct))
+        d['output'] = vasp_output
 
         return clean_json(d, strict=True)
 
@@ -1894,7 +1914,8 @@ class VaspParserError(Exception):
         return "VaspParserError : " + self.msg
 
 
-def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
+def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
+                                                   projections=False):
     """
     this method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
@@ -1908,9 +1929,12 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
             Directory containing all bandstructure runs.
         efermi:
             Efermi for bandstructure.
+        projections:
+            True if you want to get the data on site projections if any
+            Note that this is sometimes very large
 
     Returns:
-        (bandstructure_up, bandstructure_down)
+        A BandStructure Object
     """
     #ToDo: Add better error handling!!!
     if os.path.exists(os.path.join(dir_name, "branch_0")):
@@ -1930,7 +1954,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, "vasprun.xml")
             if os.path.exists(xml_file):
-                run = Vasprun(xml_file)
+                run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # It might be better to throw an exception
@@ -1942,8 +1966,8 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None):
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
         if os.path.exists(xml_file):
-            return Vasprun(xml_file).get_band_structure(kpoints_filename=None,
-                                                        efermi=efermi)
+            return Vasprun(xml_file, parse_projected_eigen=projections) \
+            .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
 
