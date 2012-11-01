@@ -82,8 +82,8 @@ class InsertSitesTransformation(AbstractTransformation):
         d["init_args"] = {"species": self._species, "coords": self._coords,
                           "coords_are_cartesian": self._cartesian,
                           "validate_proximity": self._validate_proximity}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -129,8 +129,8 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices_species_map": self._indices_species_map}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -169,8 +169,8 @@ class RemoveSitesTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices_to_remove": self._indices}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -224,8 +224,8 @@ class TranslateSitesTransformation(AbstractTransformation):
         d["init_args"] = {"indices_to_move": self._indices,
                                "translation_vector": self._vector,
                                "vector_in_frac_coords": self._frac}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
 
@@ -260,11 +260,18 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         removing the highest energy site first, then followed by the next
         highest energy site, and so on. It is guaranteed to find a solution
         in a reasonable time, but it is also likely to be highly inaccurate.
+
+    ALGO_ENUMERATE:
+        This algorithm uses the EnumerateStructureTransformation to perform
+        ordering. This algo returns *complete* orderings up to a single unit
+        cell size. It is more robust than the ALGO_COMPLETE, but requires
+        Gus Hart's enumlib to be installed.
     """
 
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
+    ALGO_ENUMERATE = 3
 
     def __init__(self, indices, fractions, algo=ALGO_COMPLETE):
         """
@@ -435,6 +442,22 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         return all_structures
 
+    def enumerate_ordering(self, structure):
+        # Generate the disordered structure first.
+        editor = StructureEditor(structure)
+        for indices, fraction in zip(self._indices, self._fractions):
+            for ind in indices:
+                new_sp = {sp: occu * fraction
+                          for sp, occu
+                          in structure[ind].species_and_occu.items()}
+                editor.replace_site(ind, new_sp)
+        mod_s = editor.modified_structure
+        # Perform enumeration
+        from pymatgen.transformations.advanced_transformations import \
+            EnumerateStructureTransformation
+        trans = EnumerateStructureTransformation()
+        return trans.apply_transformation(mod_s, 10000)
+
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         Apply the transformation.
@@ -493,6 +516,9 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         elif self._algo == PartialRemoveSitesTransformation.ALGO_BEST_FIRST:
             all_structures = self.best_first_ordering(structure,
                                                       num_remove_dict)
+        elif self._algo == PartialRemoveSitesTransformation.ALGO_ENUMERATE:
+            all_structures = self.enumerate_ordering(structure)
+
         opt_s = all_structures[0]["structure"]
         return opt_s if not return_ranked_list \
             else all_structures[0:num_to_return]
@@ -519,6 +545,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"indices": self._indices,
                           "fractions": self._fractions, "algo": self._algo}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d

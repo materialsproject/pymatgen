@@ -33,6 +33,7 @@ from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.util.decorators import cached_class
 import pymatgen
 
 
@@ -326,8 +327,7 @@ class Poscar(VaspInput):
         velocities = []
         if len(chunks) > 1:
             for line in chunks[1].strip().split("\n"):
-                velocities.append([float(tok)
-                                   for tok in re.split("\s+", line.strip())])
+                velocities.append([float(tok) for tok in line.split()])
 
         predictor_corrector = []
         if len(chunks) > 2:
@@ -335,8 +335,7 @@ class Poscar(VaspInput):
             predictor_corrector.append([int(lines[0])])
             for line in lines[1:]:
                 predictor_corrector.append([float(tok)
-                                            for tok in re.split("\s+",
-                                                                line.strip())])
+                                            for tok in line.split()])
 
         return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
                       velocities=velocities,
@@ -415,8 +414,8 @@ class Poscar(VaspInput):
     @property
     def to_dict(self):
         d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.to_dict
         d["true_names"] = self.true_names
         d["selective_dynamics"] = self.selective_dynamics
@@ -563,15 +562,15 @@ class Incar(dict, VaspInput):
     @property
     def to_dict(self):
         d = {k: v for k, v in self.items()}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
         i = Incar()
         for k, v in d.items():
-            if k not in ("module", "class"):
+            if k not in ("@module", "@class"):
                 i[k] = v
         return i
 
@@ -672,7 +671,7 @@ class Incar(dict, VaspInput):
         try:
             if key in list_keys:
                 output = list()
-                toks = re.split("\s+", val)
+                toks = val.split()
 
                 for tok in toks:
                     m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
@@ -928,7 +927,7 @@ class Kpoints(VaspInput):
                       abs(angles[i] - 120) < hex_angle_tol]
 
         is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] ==
+                        and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
         style = Kpoints.supported_modes.Gamma
@@ -1010,14 +1009,19 @@ class Kpoints(VaspInput):
             else Kpoints.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
+        labels = []
         tet_number = 0
         tet_weight = 0
         tet_connections = None
 
         for i in xrange(3, 3 + num_kpts):
-            toks = re.split("\s+", lines[i])
+            toks = lines[i].split()
             kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
             kpts_weights.append(float(toks[3]))
+            if len(toks) > 4:
+                labels.append(toks[4])
+            else:
+                labels.append(None)
         try:
             #Deal with tetrahedron method
             if lines[3 + num_kpts].strip().lower()[0] == "t":
@@ -1036,7 +1040,7 @@ class Kpoints(VaspInput):
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                        kpts=kpts, kpts_weights=kpts_weights,
                        tet_number=tet_number, tet_weight=tet_weight,
-                       tet_connections=tet_connections)
+                       tet_connections=tet_connections, labels=labels)
 
     def write_file(self, filename):
         """
@@ -1088,8 +1092,8 @@ class Kpoints(VaspInput):
         for para in optional_paras:
             if para in self.__dict__:
                 d[para] = self.__dict__[para]
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -1116,6 +1120,7 @@ elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
     VASP_PSP_DIR = config.get("VASP", "pspdir")
 
 
+@cached_class
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1230,12 +1235,6 @@ class Potcar(list, VaspInput):
 
     DEFAULT_FUNCTIONAL = "PBE"
 
-    """
-    Cache for PotcarSingles. Results in orders of magnitude faster generation
-    of output when doing high-throughput run generation.
-    """
-    _cache = {}
-
     def __init__(self, symbols=None, functional=DEFAULT_FUNCTIONAL,
                  sym_potcar_map=None):
         """
@@ -1258,8 +1257,8 @@ class Potcar(list, VaspInput):
     @property
     def to_dict(self):
         d = {"functional": self.functional, "symbols": self.symbols}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
@@ -1323,9 +1322,5 @@ class Potcar(list, VaspInput):
                 self.append(PotcarSingle(sym_potcar_map[el]))
         else:
             for el in symbols:
-                if (el, functional) in Potcar._cache:
-                    self.append(Potcar._cache[(el, functional)])
-                else:
-                    p = PotcarSingle.from_symbol_and_functional(el, functional)
-                    self.append(p)
-                    Potcar._cache[(el, functional)] = p
+                p = PotcarSingle.from_symbol_and_functional(el, functional)
+                self.append(p)

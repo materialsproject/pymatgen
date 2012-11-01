@@ -22,11 +22,11 @@ from pymatgen.serializers.json_coders import MSONable
 
 
 class Lattice(MSONable):
-    '''
+    """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
     degrees unless otherwise stated.
-    '''
+    """
 
     def __init__(self, matrix):
         """
@@ -67,17 +67,17 @@ class Lattice(MSONable):
 
     @property
     def md2c(self):
-        '''Matrix for converting direct to cartesian coordinates'''
+        """Matrix for converting direct to cartesian coordinates"""
         return np.copy(self._md2c)
 
     @property
     def mc2d(self):
-        '''Matrix for converting cartesian to direct coordinates'''
+        """Matrix for converting cartesian to direct coordinates"""
         return np.copy(self._mc2d)
 
     @property
     def matrix(self):
-        '''Copy of matrix representing the Lattice'''
+        """Copy of matrix representing the Lattice"""
         return np.copy(self._matrix)
 
     def get_cartesian_coords(self, fractional_coords):
@@ -210,7 +210,7 @@ class Lattice(MSONable):
 
     @staticmethod
     def from_lengths_and_angles(abc, ang):
-        '''
+        """
         Create a Lattice using unit cell lengths and angles (in degrees).
 
         Args:
@@ -221,13 +221,13 @@ class Lattice(MSONable):
 
         Returns:
             A Lattice with the specified lattice parameters.
-        '''
+        """
         return Lattice.from_parameters(abc[0], abc[1], abc[2],
                                        ang[0], ang[1], ang[2])
 
     @staticmethod
     def from_parameters(a, b, c, alpha, beta, gamma):
-        '''
+        """
         Create a Lattice using unit cell lengths and angles (in degrees).
 
         Args:
@@ -246,7 +246,7 @@ class Lattice(MSONable):
 
         Returns:
             A Lattice with the specified lattice parameters.
-        '''
+        """
         to_r = lambda degrees: np.radians(degrees)
 
         alpha_r = to_r(alpha)
@@ -342,9 +342,9 @@ class Lattice(MSONable):
 
     @property
     def lengths_and_angles(self):
-        '''
+        """
         Returns (lattice lengths, lattice angles).
-        '''
+        """
         return self._lengths, self._angles
 
     @property
@@ -359,15 +359,15 @@ class Lattice(MSONable):
         return Lattice([k1, k2, k3])
 
     def __repr__(self):
-        f = lambda x: '%0.6f' % x
+        f = lambda x: "%0.6f" % x
         outs = []
-        outs.append('Lattice')
-        outs.append('    abc : ' + ' '.join(map(f, self.abc)))
-        outs.append(' angles : ' + ' '.join(map(f, self.angles)))
-        outs.append(' volume : %0.4f' % self.volume)
-        outs.append('      A : ' + ' '.join(map(f, self._matrix[0])))
-        outs.append('      B : ' + ' '.join(map(f, self._matrix[1])))
-        outs.append('      C : ' + ' '.join(map(f, self._matrix[2])))
+        outs.append("Lattice")
+        outs.append("    abc : " + " ".join(map(f, self.abc)))
+        outs.append(" angles : " + " ".join(map(f, self.angles)))
+        outs.append(" volume : %0.4f" % self.volume)
+        outs.append("      A : " + " ".join(map(f, self._matrix[0])))
+        outs.append("      B : " + " ".join(map(f, self._matrix[1])))
+        outs.append("      C : " + " ".join(map(f, self._matrix[2])))
         return "\n".join(outs)
 
     def __eq__(self, other):
@@ -383,7 +383,7 @@ class Lattice(MSONable):
         return 7
 
     def __str__(self):
-        return '\n'.join([' '.join(["%.6f" % i for i in row])
+        return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
     @property
@@ -391,17 +391,17 @@ class Lattice(MSONable):
         """""
         Json-serialization dict representation of the Lattice.
         """
-        d = {'matrix': self._matrix.tolist(),
-             'a': float(self.a),
-             'b': float(self.b),
-             'c': float(self.c),
-             'alpha': float(self.alpha),
-             'beta': float(self.beta),
-             'gamma': float(self.gamma),
-             'volume': float(self.volume)
+        d = {"matrix": self._matrix.tolist(),
+             "a": float(self.a),
+             "b": float(self.b),
+             "c": float(self.c),
+             "alpha": float(self.alpha),
+             "beta": float(self.beta),
+             "gamma": float(self.gamma),
+             "volume": float(self.volume)
              }
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         return d
 
     def get_primitive_lattice(self, lattice_type):
@@ -414,15 +414,15 @@ class Lattice(MSONable):
                 R - rhombohedral, A - A-centered, B - B-centered,
                 C - C-centered, I - body-centered, F - F-centered.
         """
-        if lattice_type == 'P':
+        if lattice_type == "P":
             return Lattice(self._matrix)
         conv_to_prim = {
-            'R': np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
-            'A': np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
-            'B': np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
-            'C': np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
-            'I': np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
-            'F': np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
+            "R": np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
+            "A": np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
+            "B": np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
+            "C": np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
+            "I": np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
+            "F": np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
         }
         return Lattice(np.dot(conv_to_prim[lattice_type], self._matrix))
 

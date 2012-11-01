@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 A module to perform experimental thermochemical data analysis.
-'''
+"""
 
 from __future__ import division
 
@@ -68,38 +68,35 @@ class ThermoData(object):
 
     @staticmethod
     def from_dict(data):
-        return ThermoData(data['type'], data['compound_name'],
-                          data['phaseinfo'], data['formula'],
-                          data['value'], data['ref'], data['method'],
-                          data['temp_range'], data.get('uncertainty', None))
+        return ThermoData(data["type"], data["compound_name"],
+                          data["phaseinfo"], data["formula"],
+                          data["value"], data["ref"], data["method"],
+                          data["temp_range"], data.get("uncertainty", None))
 
     @property
     def to_dict(self):
         d = dict()
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-        d['type'] = self.type
-        d['formula'] = self.formula
-        d['compound_name'] = self.compound_name
-        d['phaseinfo'] = self.phaseinfo
-        d['value'] = self.value
-        d['temp_range'] = self.temp_range
-        d['method'] = self.method
-        d['ref'] = self.ref
-        d['uncertainty'] = self.uncertainty
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["type"] = self.type
+        d["formula"] = self.formula
+        d["compound_name"] = self.compound_name
+        d["phaseinfo"] = self.phaseinfo
+        d["value"] = self.value
+        d["temp_range"] = self.temp_range
+        d["method"] = self.method
+        d["ref"] = self.ref
+        d["uncertainty"] = self.uncertainty
         return d
 
     def __repr__(self):
-        props = ['formula', 'compound_name', 'phaseinfo', 'type', 'temp_range',
-                 'value', 'method', 'ref', "uncertainty"]
+        props = ["formula", "compound_name", "phaseinfo", "type", "temp_range",
+                 "value", "method", "ref", "uncertainty"]
         output = ["{} : {}".format(k, getattr(self, k)) for k in props]
         return "\n".join(output)
 
     def __str__(self):
-
-        return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(self.type,
-                                                              self.formula,
-                                                              self.phaseinfo,
-                                                              self.value,
-                                                              self.temp_range,
-                                                              self.ref)
+        return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(
+            self.type, self.formula, self.phaseinfo, self.value,
+            self.temp_range, self.ref
+        )

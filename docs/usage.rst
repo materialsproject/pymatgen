@@ -86,15 +86,15 @@ dict for converting into json. To use the PMGJSONEncoder, simply add it as the
 
    json.dumps(object, cls=PMGJSONEncoder)
 
-The PMGJSONDecoder depends on finding a "module" and "class" key in the dict in
-order to decode the necessary python object. In general, the PMGJSONEncoder will
+The PMGJSONDecoder depends on finding a "@module" and "@class" key in the dict 
+to decode the necessary python object. In general, the PMGJSONEncoder will
 add these keys if they are not present, but for better long term stability
 (e.g., there may be situations where to_dict is called directly rather than
 through the encoder), the easiest way is to add the following to any to_dict
 property::
     
-   d['module'] = self.__class__.__module__
-   d['class'] = self.__class__.__name__
+   d["@module"] = self.__class__.__module__
+   d["@class"] = self.__class__.__name__
         
 To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
 load, e.g.,

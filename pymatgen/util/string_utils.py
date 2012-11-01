@@ -15,7 +15,7 @@ __date__ = "$Sep 23, 2011M$"
 import re
 
 
-def generate_latex_table(results, header=None):
+def generate_latex_table(results, header=None, caption=None, label=None):
     """
     Generates a string latex table from a sequence of sequence.
 
@@ -28,32 +28,33 @@ def generate_latex_table(results, header=None):
     """
     body = []
     if header != None:
-        body.append(" & ".join(header))
+        body.append(" & ".join(header) + "\\\\")
         body.append("\\hline")
     maxlength = 0
     for result in results:
         maxlength = max(maxlength, len(result))
-        body.append(" & ".join([str(m) for m in result]))
-    colstr = 'c' * maxlength
+        body.append(" & ".join([str(m) for m in result]) + "\\\\")
+    colstr = "c" * maxlength
     output = []
-    output.append('\\begin{table}[htp]')
-    output.append('\\caption{Enter caption}')
-    output.append('\\label{mytablelabel}')
-    output.append('\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}' +
-                  colstr + '}')
-    output.append('\\hline')
-    output.append("\\\\\n".join(body) + "\\\\")
-    output.append('\\hline')
-    output.append('\\end{tabular*}')
-    output.append('\\end{table}')
+    output.append("\\begin{table}[H]")
+    output.append("\\caption{{{}}}".format(caption if caption else
+                                           "Caption"))
+    output.append("\\label{{{}}}".format(label if label else "Label"))
+    output.append("\\begin{tabular*}{\\textwidth}{@{\\extracolsep{\\fill}}" +
+                  colstr + "}")
+    output.append("\\hline")
+    output.append("\n".join(body))
+    output.append("\\hline")
+    output.append("\\end{tabular*}")
+    output.append("\\end{table}")
     return "\n".join(output)
 
 
 def str_delimited(results, header=None, delimiter="\t"):
     """
     Given a tuple of tuples, generate a delimited string form.
-    >>> results = [['a','b','c'],['d','e','f'],[1,2,3]]
-    >>> print str_delimited(results,delimiter=',')
+    >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
+    >>> print str_delimited(results,delimiter=",")
     a,b,c
     d,e,f
     1,2,3
@@ -65,7 +66,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     Returns:
         Aligned string output in a table-like format.
     """
-    returnstr = ''
+    returnstr = ""
     if header != None:
         returnstr += delimiter.join(header) + "\n"
     return returnstr + "\n".join([delimiter.join([str(m) for m in result])
@@ -75,7 +76,7 @@ def str_delimited(results, header=None, delimiter="\t"):
 def str_aligned(results, header=None):
     """
     Given a tuple, generate a nicely aligned string form.
-    >>> results = [['a','b','cz'],['d','ez','f'],[1,2,3]]
+    >>> results = [["a","b","cz"],["d","ez","f"],[1,2,3]]
     >>> print str_aligned(results)
     a    b   cz
     d   ez    f
@@ -98,7 +99,7 @@ def str_aligned(results, header=None):
         stringlengths.append(col_max_len)
         count += 1
     format_string = "   ".join(["%" + str(d) + "s" for d in stringlengths])
-    returnstr = ''
+    returnstr = ""
     if header != None:
         header_str = format_string % tuple(header)
         returnstr += header_str + "\n"
@@ -143,7 +144,23 @@ def latexify(formula):
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
     """
-    return re.sub(r"(\d+)", r'$_{\1}$', formula)
+    return re.sub(r"(\d+)", r"$_{\1}$", formula)
+
+
+def latexify_spacegroup(spacegroup_symbol):
+    """
+    Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
+    P2$_{1}$/c and P-1 is converted to P$\overline{1}$.
+
+    Args:
+        spacegroup_symbol:
+            A spacegroup symbol
+
+    Returns:
+        A latex formatted spacegroup with proper subscripts and overlines.
+    """
+    sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
+    return re.sub(r"-(\d)", r"$\overline{\1}$", sym)
 
 
 if __name__ == "__main__":

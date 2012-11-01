@@ -13,7 +13,7 @@ __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "$Sep 23, 2011M$"
+__date__ = "Aug 1 2012"
 
 from math import pi, sqrt, log, exp, cos, sin, erfc, factorial
 from datetime import datetime
@@ -160,11 +160,11 @@ class EwaldSummation(object):
             total_energy_matrix[:, i] *= scaling_factor
 
         if len(matches) != len(sub_structure):
-            print "Missing sites."
-            print len(matches)
-            print len(sub_structure)
-            print "unmatched = {}".format([site for site in sub_structure
-                                           if site not in matches])
+            output = ["Missing sites."]
+            for site in sub_structure:
+                if site not in matches:
+                    output.append("unmatched = {}".format(site))
+            raise ValueError("\n".join(output))
 
         return sum(sum(total_energy_matrix))
 

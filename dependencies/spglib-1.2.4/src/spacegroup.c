@@ -16,7 +16,7 @@
 
 #include "debug.h"
 
-#define REDUCE_RATE 0.95
+#define REDUCE_RATE 0.2
 
 static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
 				 const double symprec);
@@ -26,6 +26,12 @@ static int get_hall_number(double origin_shift[3],
 			   SPGCONST Cell * primitive,
 			   SPGCONST Symmetry * symmetry,
 			   const double symprec);
+static int get_hall_number_local_iteration(double origin_shift[3],
+					   double conv_lattice[3][3],
+					   Centering * centering,
+					   SPGCONST Cell * primitive,
+					   SPGCONST Symmetry * symmetry,
+					   const double symprec);
 static int get_hall_number_local(double origin_shift[3],
 				 double conv_lattice[3][3],
 				 Centering * centering,
@@ -155,9 +161,8 @@ static int get_hall_number(double origin_shift[3],
 			   SPGCONST Symmetry * symmetry,
 			   const double symprec)
 {
-  int pg_num, attempt, hall_number=0;
+  int pg_num, hall_number=0;
   double tolerance;
-  Symmetry * sym_reduced;
 
   pg_num = ptg_get_pointgroup_number(symmetry);
   if (pg_num > -1) {
@@ -175,11 +180,42 @@ static int get_hall_number(double origin_shift[3],
   /* The situation this happens is that symmetry operations found */
   /* don't match any of hall symbol database due to tricky */
   /* displacements of atoms from the exact points. */
+  hall_number = get_hall_number_local_iteration(origin_shift,
+						conv_lattice,
+						centering,
+						primitive,
+						symmetry,
+						symprec);
+#ifdef SPGWARNING
+  if (hall_number == 0) {
+    warning_print("spglib: Iterative attempt with sym_reduce_operation to find Hall symbol failed.\n");
+    warning_print("spglib: The final tolerance = %e.\n", tolerance );
+  }
+#endif
+
+ ret:
+  return hall_number;
+}
+
+static int get_hall_number_local_iteration(double origin_shift[3],
+					   double conv_lattice[3][3],
+					   Centering * centering,
+					   SPGCONST Cell * primitive,
+					   SPGCONST Symmetry * symmetry,
+					   const double symprec)
+{
+  int attempt, pg_num, hall_number=0;
+  double tolerance;
+  Symmetry * sym_reduced;
+
   tolerance = symprec;
-  for (attempt = 0; attempt < 100; attempt++) {
+  for (attempt = 0; attempt < 20; attempt++) {
     tolerance *= REDUCE_RATE;
     sym_reduced = sym_reduce_operation(primitive, symmetry, tolerance);
     pg_num = ptg_get_pointgroup_number(sym_reduced);
+
+    debug_print("get_hall_number: pg_num = %d\n", pg_num);
+
     if (pg_num > -1) {
       hall_number = get_hall_number_local(origin_shift,
 					  conv_lattice,
@@ -189,18 +225,16 @@ static int get_hall_number(double origin_shift[3],
 					  symprec);
       if (hall_number > 0) {
 	sym_free_symmetry(sym_reduced);
-	warning_print("spglib: Tolerance to find Hall symbol was changed to %f\n", tolerance);
-	goto ret;
+	warning_print("spglib: Tolerance to find Hall symbol was changed to %e\n", tolerance);
+	break;
       }
     }
     sym_free_symmetry(sym_reduced);
   }
 
-  warning_print("spglib: Iterative attempt to find Hall symbol was failed.");
-
- ret:
   return hall_number;
 }
+
 
 static int get_hall_number_local(double origin_shift[3],
 				 double conv_lattice[3][3],

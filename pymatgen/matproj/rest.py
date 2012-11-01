@@ -23,7 +23,6 @@ import urllib
 import httplib
 import json
 
-
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -81,7 +80,13 @@ class MPRester(object):
         """
         headers = {"x-api-key": self.api_key}
         conn = httplib.HTTPSConnection(self.host)
-        url = "/rest/{}/{}/{}".format(chemsys_formula_id, data_type, prop)
+        if prop:
+            url = "/rest/v1/materials/{}/{}/{}".format(chemsys_formula_id,
+                                                       data_type, prop)
+        else:
+            url = "/rest/v1/materials/{}/{}".format(chemsys_formula_id,
+                                                       data_type)
+
         try:
             conn.request("GET", url, headers=headers)
             response = conn.getresponse()
@@ -239,7 +244,7 @@ class MPRester(object):
                                    "properties": properties})
         headers = {"x-api-key": self.api_key}
         conn = httplib.HTTPSConnection(self.host)
-        conn.request("POST", "/rest/mpquery", body=params, headers=headers)
+        conn.request("POST", "/rest/v1/mpquery", body=params, headers=headers)
         response = conn.getresponse()
         data = json.loads(response.read(), cls=PMGJSONDecoder)
         return data

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 .. versionadded:: 1.9.0
 
 This module implements the abstract base class for msonable pymatgen objects,
@@ -24,10 +24,10 @@ objects are supported as well.
     long term stability, the easiest way is to add the following to any to_dict
     property::
 
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
 
-'''
+"""
 
 from __future__ import division
 
@@ -77,14 +77,14 @@ class MSONable(object):
         return json.dumps(self, cls=PMGJSONEncoder)
 
     def write_to_json_file(self, filename):
-        '''
+        """
         Writes the mson representation to a file.
 
         Args:
             filename:
                 filename to write to. It is recommended that the file extension
                 be ".mson".
-        '''
+        """
         with zopen(filename, "wb") as f:
             json.dump(self, f, cls=PMGJSONEncoder)
 
@@ -101,10 +101,10 @@ class PMGJSONEncoder(json.JSONEncoder):
     def default(self, o):
         try:
             d = o.to_dict
-            if "module" not in d:
-                d["module"] = o.__class__.__module__
-            if "class" not in d:
-                d['class'] = o.__class__.__name__
+            if "@module" not in d:
+                d["@module"] = o.__class__.__module__
+            if "@class" not in d:
+                d["@class"] = o.__class__.__name__
             return d
         except:
             return json.JSONEncoder.default(self, o)
@@ -130,14 +130,24 @@ class PMGJSONDecoder(json.JSONDecoder):
         pymatgen objects.
         """
         if isinstance(d, dict):
-            if 'module' in d and 'class' in d:
-                mod = __import__(d['module'], globals(), locals(),
-                                 [d['class']], -1)
-                if hasattr(mod, d['class']):
-                    cls = getattr(mod, d['class'])
+            if "@module" in d and "@class" in d:
+                modname = d["@module"]
+                classname = d["@class"]
+            elif "module" in d and "class" in d:
+                modname = d["module"]
+                classname = d["class"]
+            else:
+                modname = None
+            if modname:
+                mod = __import__(modname, globals(), locals(),
+                                 [classname], -1)
+                if hasattr(mod, classname):
+                    cls = getattr(mod, classname)
                     data = {k: v for k, v in d.items() if k not in ["module",
-                                                                    "class"]}
-                    if hasattr(cls, 'from_dict'):
+                                                                    "class",
+                                                                    "@module",
+                                                                    "@class"]}
+                    if hasattr(cls, "from_dict"):
                         return cls.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v) \
                     for k, v in d.items()}

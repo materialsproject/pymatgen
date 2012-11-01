@@ -145,7 +145,8 @@ class VaspInputSet(AbstractVaspInputSet):
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
     """
-    def __init__(self, name, config_file=None, user_incar_settings=None):
+    def __init__(self, name, config_file=None, user_incar_settings=None,
+                 constrain_total_magmom=False):
         """
         Args:
             name:
@@ -157,6 +158,10 @@ class VaspInputSet(AbstractVaspInputSet):
                 User INCAR settings. This allows a user to override INCAR
                 settings, e.g., setting a different MAGMOM for various elements
                 or species.
+            constrain_total_magmom:
+                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+                the sum of the expected MAGMOM for all species. Defaults to
+                False.
         """
         self.name = name
         if config_file is None:
@@ -164,7 +169,8 @@ class VaspInputSet(AbstractVaspInputSet):
             config_file = os.path.join(module_dir, "VaspInputSets.cfg")
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
-        self._config.readfp(open(config_file))
+        with open(config_file, "r") as f:
+            self._config.readfp(f)
 
         self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
@@ -172,8 +178,10 @@ class VaspInputSet(AbstractVaspInputSet):
         for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
             if key in self.incar_settings:
                 self.incar_settings[key] = json.loads(self.incar_settings[key])
-        self.user_incar_settings = user_incar_settings if user_incar_settings \
-            else {}
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+        self.set_nupdown = constrain_total_magmom
 
     def get_incar(self, structure):
         incar = Incar()
@@ -183,8 +191,6 @@ class VaspInputSet(AbstractVaspInputSet):
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
-            if key in self.user_incar_settings:
-                setting = self.user_incar_settings[key]
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
@@ -224,6 +230,10 @@ class VaspInputSet(AbstractVaspInputSet):
             for key in incar.keys():
                 if key.startswith('LDAU'):
                     del incar[key]
+
+        if self.set_nupdown:
+            nupdown = sum([mag if mag > 0.6 else 0 for mag in incar['MAGMOM']])
+            incar['NUPDOWN'] = nupdown
 
         return incar
 
@@ -280,18 +290,30 @@ class MITVaspInputSet(VaspInputSet):
     2011, 50(8), 2295-2310.
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
-    def __init__(self, user_incar_settings=None):
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         VaspInputSet.__init__(self, "MITMatgen",
-                              user_incar_settings=user_incar_settings)
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
+
+
+class MITGGAVaspInputSet(VaspInputSet):
+    """
+    Typical implementation of input set for a GGA run based on MIT parameters.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        VaspInputSet.__init__(self, "MITGGA",
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
 
 
 class MITHSEVaspInputSet(VaspInputSet):
     """
     Typical implementation of input set for a HSE run.
     """
-    def __init__(self, user_incar_settings=None):
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         VaspInputSet.__init__(self, "MITHSE",
-                              user_incar_settings=user_incar_settings)
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
 
 
 class MaterialsProjectVaspInputSet(VaspInputSet):
@@ -303,9 +325,10 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
     which result in different fitted values (even though the methodology of
     fitting is exactly the same as the MIT scheme).
     """
-    def __init__(self, user_incar_settings=None):
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         VaspInputSet.__init__(self, "MaterialsProject",
-                              user_incar_settings=user_incar_settings)
+                              user_incar_settings=user_incar_settings,
+                              constrain_total_magmom=constrain_total_magmom)
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
@@ -345,9 +368,9 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             dirname = os.path.join(output_dir, '{}_{}'.format(formula, i))
         if sanitize:
             s = s.copy(sanitize=True)
-        vasp_input_set.write_input(s, dirname,
-                                   make_dir_if_not_present=
-                                   make_dir_if_not_present)
+        vasp_input_set.write_input(
+            s, dirname, make_dir_if_not_present=make_dir_if_not_present
+        )
         if include_cif:
             from pymatgen.io.cifio import CifWriter
             writer = CifWriter(s)
