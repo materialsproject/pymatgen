@@ -17,14 +17,6 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`bond_valence2` Module
----------------------------
-
-.. automodule:: pymatgen.analysis.bond_valence2
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`ewald` Module
 -------------------
 
