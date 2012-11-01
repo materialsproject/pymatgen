@@ -1263,7 +1263,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
         '''
         (formula, factor) = self.get_reduced_formula_and_factor()
-        return (Composition.from_formula(formula), factor)
+        newComp = Composition({el: self[el] / factor for el in self})
+        
+        return (newComp, factor)
 
     def get_reduced_formula_and_factor(self):
         '''
