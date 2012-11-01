@@ -351,7 +351,7 @@ class SymmetryFinder(object):
 
     def get_ir_kpoints(self, kpoints, is_time_reversal=True):
         """
-        Irreducible k-points are searched from the input kpoints. 
+        Irreducible k-points are searched from the input kpoints.
 
         Args:
             kpoints:
