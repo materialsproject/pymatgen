@@ -9,6 +9,14 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bond_valence` Module
+--------------------------
+
+.. automodule:: pymatgen.analysis.bond_valence
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`ewald` Module
 -------------------
 

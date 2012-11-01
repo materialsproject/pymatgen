@@ -927,7 +927,7 @@ class Kpoints(VaspInput):
                       abs(angles[i] - 120) < hex_angle_tol]
 
         is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] ==
+                        and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
         style = Kpoints.supported_modes.Gamma
