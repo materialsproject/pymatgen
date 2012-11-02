@@ -50,6 +50,16 @@ class BVAnalyzerTest(unittest.TestCase):
                - 2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
                - 2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
+        parser = CifParser(os.path.join(test_dir, "Li4Fe3Mn1(PO4)4.cif"))
+        s = parser.get_structures()[0]
+        ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
+               - 2, -2, -2, -2, -2, -2, -2, -2, -2]
+        self.assertEqual(self.analyzer.get_valences(s), ans)
+        parser = CifParser(os.path.join(test_dir, "NaFePO4.cif"))
+        s = parser.get_structures()[0]
+        ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
+               - 2, -2, -2, -2, -2, -2, -2, -2, -2]
+        self.assertEqual(self.analyzer.get_valences(s), ans)
 
     def test_get_oxi_state_structure(self):
         parser = CifParser(os.path.join(test_dir, "LiMn2O4.cif"))
