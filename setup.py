@@ -86,7 +86,7 @@ setup(
                     "cif": ["PyCifRW>=3.3"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
-                  "pymatgen.analysis": ["bvparm2011.json"],
+                  "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
