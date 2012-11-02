@@ -115,6 +115,23 @@ class BVAnalyzer(object):
         self.max_radius = max_radius
         self.max_permutations = max_permutations
 
+    def _calc_site_probabilities(self, site, nn, anion_el):
+        el = site.specie.symbol
+        bv_sum = calculate_bv_sum(site, nn, anion_el, scale_factor=1.015)
+        prob = {}
+        for sp, data in ICSD_BV_DATA.items():
+            if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
+                u = data["mean"]
+                sigma = data["std"]
+                #Calculate posterior probability. Note that constant
+                #factors are ignored. They have no effect on the results.
+                prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 /
+                                         2 / (sigma ** 2)) \
+                                         / sigma * PRIOR_PROB[sp]
+        #Normalize the probabilities
+        prob = {k: v / sum(prob.values()) for k, v in prob.items()}
+        return prob
+
     def get_valences(self, structure):
         """
         Returns a list of valences for the structure. This currently works only
@@ -145,18 +162,13 @@ class BVAnalyzer(object):
             symm_structure = structure
             equi_sites = [[site] for site in structure]
 
+        #Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites, key=lambda sites:-sites[0].specie.X)
 
-        all_nn = structure.get_all_neighbors(self.max_radius)
+        #all_nn = structure.get_all_neighbors(self.max_radius)
 
         #The anion element is the most electronegative element.
         anion_el = Element(equi_sites[0][0].specie.symbol)
-
-        def get_equi_index(site):
-            for j, sites in enumerate(equi_sites):
-                if site in sites:
-                    return j
-            raise ValueError("Can't find equi-index!")
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.
@@ -164,23 +176,9 @@ class BVAnalyzer(object):
         all_prob = []
         for sites in equi_sites:
             test_site = sites[0]
-            el = test_site.specie.symbol
-            ind = structure.sites.index(test_site)
-            bv_sum = calculate_bv_sum(test_site, all_nn[ind], anion_el,
-                                      scale_factor=1.015)
-            prob = {}
-            for sp, data in ICSD_BV_DATA.items():
-                if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
-                    u = data["mean"]
-                    sigma = data["std"]
-                    #Calculate posterior probability. Note that constant
-                    #factors are ignored. They have no effect on the results.
-                    prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 /
-                                             2 / (sigma ** 2)) \
-                                             / sigma * PRIOR_PROB[sp]
-            #Normalize the probabilities
-            prob = {k: v / sum(prob.values()) for k, v in prob.items()}
-
+            nn = structure.get_neighbors(test_site, self.max_radius)
+            prob = self._calc_site_probabilities(test_site, nn,
+                                                 anion_el)
             all_prob.append(prob)
             val = list(prob.keys())
             #Sort valences in order of decreasing probability.
@@ -217,10 +215,14 @@ class BVAnalyzer(object):
 
         if found:
             best = sorted(scores.keys(), key=lambda k: scores[k])[-1]
-            all_oxi = []
-            for site in structure:
-                all_oxi.append(int(best[get_equi_index(site)]))
-            return all_oxi
+
+            def get_equi_index(site):
+                for j, sites in enumerate(equi_sites):
+                    if site in sites:
+                        return j
+                raise ValueError("Can't find equi-index!")
+
+            return [int(best[get_equi_index(site)]) for site in structure]
         else:
             raise ValueError("Valences cannot be assigned!")
 
