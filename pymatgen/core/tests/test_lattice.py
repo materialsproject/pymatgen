@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
+from __future__ import division
+
 import unittest
 from pymatgen.core.lattice import Lattice
 import numpy as np
+
 
 class  LatticeTestCase(unittest.TestCase):
 
@@ -17,29 +20,37 @@ class  LatticeTestCase(unittest.TestCase):
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
         for i in range(0, 3):
             for j in range(0, 3):
-                self.assertAlmostEqual(lattice.matrix[i][j], lattice2.matrix[i][j], 5, "Inconsistent matrix from two inits!")
+                self.assertAlmostEqual(lattice.matrix[i][j],
+                                       lattice2.matrix[i][j], 5,
+                                       "Inconsistent matrix from two inits!")
         primlatt = lattice.get_primitive_lattice('I')
         (lengths, angles) = primlatt.lengths_and_angles
         for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], 7.81674529, 5, "Wrong primitive lattice obtained!")
-            self.assertAlmostEqual(angles[i], 109.47122063, 5, "Wrong primitive lattice obtained!")
+            self.assertAlmostEqual(lengths[i], 7.81674529, 5,
+                                   "Wrong primitive lattice obtained!")
+            self.assertAlmostEqual(angles[i], 109.47122063, 5,
+                                   "Wrong primitive lattice obtained!")
 
         coord = lattice.get_cartesian_coords(np.array([0.5, 0.5, 0.5]))
         prim_frac = primlatt.get_fractional_coords(coord)
         for i in range(0, 3):
             self.assertAlmostEqual(coord[i], 4.513, 5, "Wrong coord!")
-            self.assertAlmostEqual(prim_frac[i], 1, 5, "Wrong primitive frac coord!")
+            self.assertAlmostEqual(prim_frac[i], 1, 5,
+                                   "Wrong primitive frac coord!")
 
     def test_static_methods(self):
-
-        lengths_c = [ 3.840198, 3.84019885, 3.8401976 ]
-        angles_c = [ 119.99998575, 90, 60.00000728]
-        mat_c = [[3.840198, 0.000000, 0.000000], [1.920099, 3.325710, 0.000000], [0.000000, -2.217138, 3.135509]] #should give the lengths and angles above
+        lengths_c = [3.840198, 3.84019885, 3.8401976]
+        angles_c = [119.99998575, 90, 60.00000728]
+        mat_c = [[3.840198, 0.000000, 0.0000], [1.920099, 3.325710, 0.000000],
+                 [0.000000, -2.217138, 3.135509]]
+        #should give the lengths and angles above
         newlatt = Lattice(mat_c)
         (lengths, angles) = newlatt.lengths_and_angles
         for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], lengths_c[i], 5, "Lengths incorrect!")
-            self.assertAlmostEqual(angles[i], angles_c[i], 5, "Angles incorrect!")
+            self.assertAlmostEqual(lengths[i], lengths_c[i], 5,
+                                   "Lengths incorrect!")
+            self.assertAlmostEqual(angles[i], angles_c[i], 5,
+                                   "Angles incorrect!")
         (lengths, angles) = Lattice.from_lengths_and_angles(lengths, angles).lengths_and_angles
         for i in range(0, 3):
             self.assertAlmostEqual(lengths[i], lengths_c[i], 5, "Lengths incorrect!")
@@ -58,16 +69,21 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertEqual(xyz[2], 4.5)
 
     def test_consistency(self):
-        '''when only lengths and angles are given for constructors, the internal matrix representation is ambiguous since the lattice rotation is not specified.
-        This test makes sure that a consistent definition is specified for the lattice rotation when using different constructors from lengths angles
         '''
-        l = [ 3.840198, 3.84019885, 3.8401976 ]
-        a = [ 119.99998575, 90, 60.00000728]
+        when only lengths and angles are given for constructors, the
+        internal matrix representation is ambiguous since the lattice rotation
+        is not specified.
+        This test makes sure that a consistent definition is specified for the
+        lattice rotation when using different constructors from lengths angles
+        '''
+        l = [3.840198, 3.84019885, 3.8401976]
+        a = [119.99998575, 90, 60.00000728]
         mat1 = Lattice.from_lengths_and_angles(l, a).matrix
         mat2 = Lattice.from_parameters(l[0], l[1], l[2], a[0], a[1], a[2]).matrix
         for i in range(0, 3):
             for j in range(0, 3):
-                self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5, "Lattice constructors do not define a consistent rotation matrix")
+                self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5,
+                                       "Lattice constructors do not define a consistent rotation matrix")
 
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
@@ -104,7 +120,22 @@ class  LatticeTestCase(unittest.TestCase):
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
-            self.assertAlmostEqual(reduced_random_latt.volume, random_latt.volume)
+            self.assertAlmostEqual(reduced_random_latt.volume,
+                                   random_latt.volume)
+
+    def test_get_niggli_reduced_lattice(self):
+        latt = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60,
+                                       109 + 28 / 60,
+                                       134 + 53 / 60)
+        reduced_cell = latt.get_niggli_reduced_lattice()
+
+        abc, angles = reduced_cell.lengths_and_angles
+        self.assertAlmostEqual(abc[0], 2, 3)
+        self.assertAlmostEqual(abc[1], 3, 3)
+        self.assertAlmostEqual(abc[2], 3, 3)
+        self.assertAlmostEqual(angles[0], 116.382862211, 3)
+        self.assertAlmostEqual(angles[1], 94.769786460000006, 3)
+        self.assertAlmostEqual(angles[2], 109.465857052, 3)
 
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
