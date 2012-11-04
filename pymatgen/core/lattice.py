@@ -50,7 +50,7 @@ class Lattice(MSONable):
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
 
-        self._matrix = np.array(matrix).reshape((3, 3))
+        self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
         self._md2c = np.transpose(self._matrix)
         self._mc2d = npl.inv(np.transpose(self._matrix))
@@ -262,7 +262,7 @@ class Lattice(MSONable):
         vector_b = [-b * np.sin(to_r(alpha)) * np.cos(gamma_star), b
                     * np.sin(to_r(alpha)) * np.sin(gamma_star), b
                     * np.cos(to_r(alpha))]
-        vector_c = np.array([0.0, 0.0, float(c)])
+        vector_c = [0.0, 0.0, float(c)]
         return Lattice([vector_a, vector_b, vector_c])
 
     @staticmethod
