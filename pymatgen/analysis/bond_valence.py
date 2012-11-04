@@ -51,7 +51,7 @@ with open(os.path.join(module_dir, "icsd_bv.json"), "r") as f:
                   for sp, data in all_data["occurrence"].items()}
 
 
-def calculate_bv_sum(site, nn_list, anion_el, scale_factor=1):
+def calculate_bv_sum(site, nn_list, scale_factor=1):
     """
     Calculates the BV sum of a site.
 
@@ -71,7 +71,7 @@ def calculate_bv_sum(site, nn_list, anion_el, scale_factor=1):
     bvsum = 0
     for (nn, dist) in nn_list:
         el2 = Element(nn.specie.symbol)
-        if (el1 == anion_el or el2 == anion_el) and el1 != el2:
+        if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
             r1 = BV_PARAMS[el1]["r"]
             r2 = BV_PARAMS[el2]["r"]
             c1 = BV_PARAMS[el1]["c"]
@@ -126,7 +126,7 @@ class BVAnalyzer(object):
 
     def _calc_site_probabilities(self, site, nn, anion_el):
         el = site.specie.symbol
-        bv_sum = calculate_bv_sum(site, nn, anion_el,
+        bv_sum = calculate_bv_sum(site, nn,
                                   scale_factor=self.dist_scale_factor)
         prob = {}
         for sp, data in ICSD_BV_DATA.items():
