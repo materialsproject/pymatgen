@@ -14,6 +14,8 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
+import math
+
 import numpy as np
 import numpy.linalg as npl
 from numpy import pi
@@ -564,3 +566,114 @@ class Lattice(MSONable):
                     u[k:3, (k - 2):k] = result
 
         return Lattice(a.T)
+
+    def get_niggli_reduced_lattice(self, tol=1e-5):
+        """
+        Get the Niggli reduced lattice using the numerically stable algo
+        proposed by R. W. Grosse-Kunstleve, N. K. Sauter, & P. D. Adams,
+        Acta Crystallographica Section A Foundations of Crystallography, 2003,
+        60(1), 1-6. doi:10.1107/S010876730302186X
+
+        Args:
+            tol:
+                The numerical tolerance. The default of 1e-5 should result in
+                stable behavior for most cases.
+        """
+        a = self._matrix[0]
+        b = self._matrix[1]
+        c = self._matrix[2]
+        e = tol * self.volume ** (1 / 3)
+        #Define metric tensor
+        G = [[np.dot(a, a), np.dot(a, b), np.dot(a, c)],
+             [np.dot(a, b), np.dot(b, b), np.dot(b, c)],
+             [np.dot(a, c), np.dot(b, c), np.dot(c, c)]]
+        G = np.array(G)
+
+        while True:
+            #The steps are labelled as Ax as per the labelling scheme in the
+            #paper.
+            (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
+                                  2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
+
+            if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
+                #A1
+                M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+            if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
+                #A2
+                M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+                continue
+
+            l = 0 if abs(E) < e else E / abs(E)
+            m = 0 if abs(N) < e else N / abs(N)
+            n = 0 if abs(Y) < e else Y / abs(Y)
+            if l * m * n == 1:
+                # A3
+                i = -1 if l == -1 else 1
+                j = -1 if m == -1 else 1
+                k = -1 if n == -1 else 1
+                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+            elif l * m * n == 0 or l * m * n == -1:
+                # A4
+                i = j = k = 1
+                i = -1 if l == 1 else 1
+                j = -1 if m == 1 else 1
+                k = -1 if n == 1 else 1
+
+                if i * j * k == -1:
+                    if n == 0:
+                        k = -1
+                    elif m == 0:
+                        j = -1
+                    elif l == 0:
+                        i = -1
+                M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+
+            (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
+                                  2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
+
+            #A5
+            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or \
+                    (abs(E + B) < e and Y < -e):
+                M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+                continue
+
+            #A6
+            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or \
+                    (abs(A + N) < e and Y < -e):
+                M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+                continue
+
+            #A7
+            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or \
+                    (abs(A + Y) < e and N < -e):
+                M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+                continue
+
+            #A8
+            if E + N + Y + A + B < -e or \
+                    (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
+                M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
+                G = np.dot(np.transpose(M), np.dot(G, M))
+                continue
+            break
+
+        A = G[0, 0]
+        B = G[1, 1]
+        C = G[2, 2]
+        E = 2 * G[1, 2]
+        N = 2 * G[0, 2]
+        Y = 2 * G[0, 1]
+        a = math.sqrt(A)
+        b = math.sqrt(B)
+        c = math.sqrt(C)
+        alpha = math.acos(E / 2 / b / c) / math.pi * 180
+        beta = math.acos(N / 2 / a / c) / math.pi * 180
+        gamma = math.acos(Y / 2 / a / c) / math.pi * 180
+        return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
