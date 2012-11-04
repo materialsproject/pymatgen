@@ -51,10 +51,13 @@ class  LatticeTestCase(unittest.TestCase):
                                    "Lengths incorrect!")
             self.assertAlmostEqual(angles[i], angles_c[i], 5,
                                    "Angles incorrect!")
-        (lengths, angles) = Lattice.from_lengths_and_angles(lengths, angles).lengths_and_angles
+        (lengths, angles) = \
+            Lattice.from_lengths_and_angles(lengths, angles).lengths_and_angles
         for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], lengths_c[i], 5, "Lengths incorrect!")
-            self.assertAlmostEqual(angles[i], angles_c[i], 5, "Angles incorrect!")
+            self.assertAlmostEqual(lengths[i], lengths_c[i], 5,
+                                   "Lengths incorrect!")
+            self.assertAlmostEqual(angles[i], angles_c[i], 5,
+                                   "Angles incorrect!")
 
     def test_attributes(self):
         """docstring for test_attributes"""
@@ -79,19 +82,19 @@ class  LatticeTestCase(unittest.TestCase):
         l = [3.840198, 3.84019885, 3.8401976]
         a = [119.99998575, 90, 60.00000728]
         mat1 = Lattice.from_lengths_and_angles(l, a).matrix
-        mat2 = Lattice.from_parameters(l[0], l[1], l[2], a[0], a[1], a[2]).matrix
+        mat2 = Lattice.from_parameters(l[0], l[1], l[2],
+                                       a[0], a[1], a[2]).matrix
         for i in range(0, 3):
             for j in range(0, 3):
-                self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5,
-                                       "Lattice constructors do not define a consistent rotation matrix")
+                self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5)
 
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = np.array([0.000000, 1.000000, 0.000000,
-                                 1.000000, 0.000000, 1.000000,
-                                 - 2.000000, 0.000000, 1.000000]).reshape((3, 3))
+        expected_ans = np.array([0.0, 1.0, 0.0,
+                                 1.0, 0.0, 1.0,
+                                 - 2.0, 0.0, 1.0]).reshape((3, 3))
         self.assertTrue(np.allclose(reduced_latt.matrix, expected_ans))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
         latt = [7.164750, 2.481942, 0.000000,
@@ -106,9 +109,9 @@ class  LatticeTestCase(unittest.TestCase):
                                     expected_ans))
         self.assertAlmostEqual(reduced_latt.volume, Lattice(latt).volume)
 
-        expected_ans = np.array([0.000000, 10.000000, 10.000000,
-                                 10.000000, 10.000000, 0.000000,
-                                 30.000000, -30.000000, 40.000000]).reshape((3, 3))
+        expected_ans = np.array([0.0, 10.0, 10.0,
+                                 10.0, 10.0, 0.0,
+                                 30.0, -30.0, 40.0]).reshape((3, 3))
 
         lattice = np.array([100., 0., 10., 10., 10., 20., 10., 10., 10.])
         lattice = lattice.reshape(3, 3)
@@ -137,6 +140,15 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertAlmostEqual(angles[1], 94.769786460000006, 3)
         self.assertAlmostEqual(angles[2], 109.465857052, 3)
 
+        mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
+        latt = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
+        reduced_cell = latt.get_niggli_reduced_lattice()
+        abc, angles = reduced_cell.lengths_and_angles
+        for l in abc:
+            self.assertAlmostEqual(l, 5, 3)
+        for a in angles:
+            self.assertAlmostEqual(a, 90, 3)
+
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
         t = Lattice.from_dict(d)
@@ -146,4 +158,3 @@ class  LatticeTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
