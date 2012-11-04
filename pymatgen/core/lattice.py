@@ -578,6 +578,9 @@ class Lattice(MSONable):
             tol:
                 The numerical tolerance. The default of 1e-5 should result in
                 stable behavior for most cases.
+
+        Returns:
+            Niggli-reduced lattice.
         """
         a = self._matrix[0]
         b = self._matrix[1]
