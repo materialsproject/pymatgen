@@ -101,7 +101,7 @@ class BVAnalyzer(object):
     is selected.
     """
 
-    def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=1000000,
+    def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
                  distance_scale_factor=1.015):
         """
         Args:
@@ -193,17 +193,30 @@ class BVAnalyzer(object):
             val = list(prob.keys())
             #Sort valences in order of decreasing probability.
             val = sorted(val, key=lambda v:-prob[v])
-            valences.append(val)
+            #Retain probabilities that are at least 1/100 of highest prob.
+            valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
+                                   val))
 
         #Based on the max allowed permutations, determine the number of
         #candidates per site.
-        ncand_per_site = int(floor(self.max_permutations **
-                                   (1 / len(valences))))
-        ncand_per_site = max(1, ncand_per_site)
-        valences = [v[0:min(ncand_per_site, len(v))] for v in valences]
+        num_perm = 0
+        selected_valences = [[v.pop(0)] for v in valences]
+        while num_perm < self.max_permutations:
+            max_prob = 0
+            ind = -1
+            for i, v in enumerate(valences):
+                if len(v) > 0 and all_prob[i][v[0]] > max_prob:
+                    max_prob = v[0]
+                    ind = i
+            if ind == -1:
+                break
+            else:
+                selected_valences[ind].append(valences[ind].pop(0))
+            num_perm = reduce(operator.mul, map(len, selected_valences))
+
         scores = {}
         #Find valid valence combinations and score them by total probability.
-        for v_set in itertools.product(*valences):
+        for v_set in itertools.product(*selected_valences):
             total = 0
             el_oxi = collections.defaultdict(list)
             for i, sites in enumerate(equi_sites):
