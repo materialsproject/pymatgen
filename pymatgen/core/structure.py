@@ -591,6 +591,25 @@ class Structure(SiteCollection, MSONable):
         sites = sorted(self)
         return Structure.from_sites(sites)
 
+    def get_reduced_structure(self, reduction_algo="niggli"):
+        """
+        Get a reduced structure.
+
+        Args:
+            reduction_algo:
+                The lattice reduction algorithm to use. Currently supported
+                options are "niggli" or "LLL".
+        """
+        if reduction_algo == "niggli":
+            reduced_latt = self.lattice.get_niggli_reduced_lattice()
+        elif reduction_algo == "LLL":
+            reduced_latt = self.lattice.get_lll_reduced_lattice()
+        else:
+            raise ValueError("Invalid reduction algo : {}"
+                             .format(reduction_algo))
+
+        return Structure(reduced_latt, self.species, self.cart_coords, coords_are_cartesian=True)
+
     def copy(self, site_properties=None, sanitize=False):
         """
         Convenience method to get a copy of the structure, with options to add
