@@ -18,7 +18,7 @@ import json
 import itertools
 import os
 import operator
-from math import exp, sqrt, floor
+from math import exp, sqrt
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -161,7 +161,9 @@ class BVAnalyzer(object):
         els = [Element(el.symbol) for el in structure.composition.elements]
 
         if not set(els).issubset(set(BV_PARAMS.keys())):
-            raise ValueError("Valences cannot be assigned!")
+            raise ValueError(
+                "Structure contains elements not in set of BV parameters!"
+            )
 
         #Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
