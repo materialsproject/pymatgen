@@ -33,6 +33,7 @@ from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
 from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.alchemy.transmuters import StandardTransmuter
 
 save_file = "vasp_data.gz"
 
@@ -208,7 +209,8 @@ def convert_fmt(args):
             c.write_file(out_filename)
         elif oformat == "VASP":
             input_set = MaterialsProjectVaspInputSet()
-            input_set.write_input(structure, output_dir=out_filename)
+            transmuter = StandardTransmuter.from_structures([structure], [])
+            transmuter.write_vasp_input(input_set, output_dir=out_filename)
 
     except Exception as ex:
         print "Error converting file. Are they in the right format?"
