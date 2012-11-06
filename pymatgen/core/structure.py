@@ -31,6 +31,7 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
+from pymatgen.core.physical_constants import AMU_TO_KG
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -343,7 +344,7 @@ class Structure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        constant = 1.660468
+        constant = AMU_TO_KG * 1000 / 1e-24
         return self.composition.weight / self.volume * constant
 
     @property
@@ -1303,49 +1304,10 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a pretty normalized formula and a multiplicative factor, i.e.,
         Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        is_int = lambda x: x == int(x)
-        all_int = all([is_int(x) for x in self._elmap.values()])
+        all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
             return (re.sub("\s", "", self.formula), 1)
-
-        sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(),
-                      key=lambda s: smart_element_or_specie(s).X)
-
-        syms = filter(lambda s: sym_amt[s] != 0, syms)
-        num_el = len(syms)
-        contains_polyanion = (num_el >= 3 and \
-            smart_element_or_specie(syms[num_el - 1]).X
-            - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
-
-        factor = reduce(gcd, self._elmap.values())
-        reduced_form = ""
-        n = num_el
-        if contains_polyanion:
-            n -= 2
-
-        for i in range(0, n):
-            s = syms[i]
-            normamt = sym_amt[s] * 1.0 / factor
-            reduced_form += s + formula_double_format(normamt)
-
-        if contains_polyanion:
-            poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
-                            for i in range(n, num_el)}
-            poly_comp = Composition(poly_sym_amt)
-            (poly_form, poly_factor) = \
-                poly_comp.get_reduced_formula_and_factor()
-
-            if poly_factor != 1:
-                reduced_form += "({}){}".format(poly_form, int(poly_factor))
-            else:
-                reduced_form += poly_form
-
-        if reduced_form in Composition.special_formulas:
-            reduced_form = Composition.special_formulas[reduced_form]
-            factor = factor / 2
-
-        return (reduced_form, factor)
+        return reduce_formula(self.to_dict)
 
     def get_fractional_composition(self):
         """
@@ -1744,6 +1706,55 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                                                               m_points2,
                                                               factor):
                         yield match
+
+
+def reduce_formula(sym_amt):
+    """
+    Help method to reduce a sym_amt dict to a reduced formula and factor.
+
+    Args:
+        Dict of the form {symbol: amount}.
+
+    Returns:
+        (reduced_formula, factor).
+    """
+    syms = sorted(sym_amt.keys(),
+                  key=lambda s: smart_element_or_specie(s).X)
+
+    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
+                      syms)
+    num_el = len(syms)
+    contains_polyanion = (num_el >= 3 and
+                          Element(syms[num_el - 1]).X
+                          - Element(syms[num_el - 2]).X < 1.65)
+
+    factor = reduce(gcd, sym_amt.values())
+    reduced_form = []
+    n = num_el - 2 if contains_polyanion else num_el
+    for i in range(0, n):
+        s = syms[i]
+        normamt = sym_amt[s] * 1.0 / factor
+        reduced_form.append(s)
+        reduced_form.append(formula_double_format(normamt))
+
+    if contains_polyanion:
+        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
+                        for i in range(n, num_el)}
+        (poly_form, poly_factor) = reduce_formula(poly_sym_amt)
+
+        if poly_factor != 1:
+            reduced_form.append("({}){}".format(poly_form, int(poly_factor)))
+        else:
+            reduced_form.append(poly_form)
+
+    reduced_form = "".join(reduced_form)
+
+    if reduced_form in Composition.special_formulas:
+        reduced_form = Composition.special_formulas[reduced_form]
+        factor = factor / 2
+
+    return (reduced_form, factor)
+
 
 if __name__ == "__main__":
     import doctest
