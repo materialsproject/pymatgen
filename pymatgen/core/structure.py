@@ -1317,11 +1317,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
         syms = filter(lambda s: sym_amt[s] != 0, syms)
         num_el = len(syms)
-        contains_polyanion = False
-        if num_el >= 3:
-            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X
-                                  - smart_element_or_specie(syms[num_el - 2]).X
-                                  < 1.65)
+        contains_polyanion = (num_el >= 3 and \
+            smart_element_or_specie(syms[num_el - 1]).X
+            - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
 
         factor = reduce(gcd, self._elmap.values())
         reduced_form = ""
@@ -1335,27 +1333,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             reduced_form += s + formula_double_format(normamt)
 
         if contains_polyanion:
-            polyamounts = list()
-            polyamounts.append(sym_amt[syms[num_el - 2]] / factor)
-            polyamounts.append(sym_amt[syms[num_el - 1]] / factor)
-            polyfactor = reduce(gcd, polyamounts)
-            for i in range(n, num_el):
-                s = syms[i]
-                normamt = sym_amt[s] / factor / polyfactor
-                if normamt != 1.0:
-                    if normamt != int(normamt):
-                        polyfactor = 1
-                        break
+            poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
+                            for i in range(n, num_el)}
+            poly_comp = Composition(poly_sym_amt)
+            (poly_form, poly_factor) = \
+                poly_comp.get_reduced_formula_and_factor()
 
-            poly_form = ""
-
-            for i in range(n, num_el):
-                s = syms[i]
-                normamt = sym_amt[s] / factor / polyfactor
-                poly_form += s + formula_double_format(normamt)
-
-            if polyfactor != 1:
-                reduced_form += "({}){}".format(poly_form, int(polyfactor))
+            if poly_factor != 1:
+                reduced_form += "({}){}".format(poly_form, int(poly_factor))
             else:
                 reduced_form += poly_form
 
@@ -1769,4 +1754,3 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
