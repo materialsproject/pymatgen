@@ -170,10 +170,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Checks if structure is ordered, meaning no partial occupancies in any
         of the sites.
         """
-        for site in self:
-            if not site.is_ordered:
-                return False
-        return True
+        return all((site.is_ordered for site in self))
 
     def get_angle(self, i, j, k):
         """
