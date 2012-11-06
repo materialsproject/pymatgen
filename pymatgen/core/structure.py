@@ -1283,9 +1283,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             if el in o:
                 #this summation is neccessary for structures with multiple 
                 #oxidation states for a single element
-                o[el] += self[el]
+                o[el] += self[sp]
             else:
-                o[el] = self[el]
+                o[el] = self[sp]
         return Composition(o)
 
     @property
