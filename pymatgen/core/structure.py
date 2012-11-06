@@ -1297,7 +1297,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a normalized composition and a multiplicative factor,
         i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        (formula, factor) = self.get_reduced_formula_and_factor()
+        factor = self.get_reduced_formula_and_factor()[1]
         reduced_comp = Composition({el: self[el] / factor for el in self})
         return (reduced_comp, factor)
 
