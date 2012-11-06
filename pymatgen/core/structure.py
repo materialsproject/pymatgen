@@ -1512,12 +1512,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0}
         """
-        d = {}
+        d = collections.defaultdict(float)
         for e, a in self.items():
-            if e.symbol in d:
-                d[e.symbol] += a
-            else:
-                d[e.symbol] = a
+            d[e.symbol] += a
         return d
 
     @property
