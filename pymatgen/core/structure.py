@@ -608,7 +608,8 @@ class Structure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return Structure(reduced_latt, self.species, self.cart_coords, coords_are_cartesian=True)
+        return Structure(reduced_latt, self.species, self.cart_coords,
+                         coords_are_cartesian=True)
 
     def copy(self, site_properties=None, sanitize=False):
         """
