@@ -1272,6 +1272,23 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return " ".join(formula)
 
     @property
+    def element_composition(self):
+        """
+        Returns the composition replacing any species by the corresponding 
+        element.
+        """
+        o = {}
+        for sp in self.elements:
+            el = Element.from_Z(sp.Z)
+            if el in o:
+                #this summation is neccessary for structures with multiple 
+                #oxidation states for a single element
+                o[el] += self[el]
+            else:
+                o[el] = self[el]
+        return Composition(o)
+
+    @property
     def reduced_composition(self):
         """
         Returns the reduced composition,i.e. amounts normalized by greatest
