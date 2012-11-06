@@ -1095,9 +1095,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     >>> comp.num_atoms
     7.0
     >>> comp.reduced_formula
-    "LiFePO4"
+    'LiFePO4'
     >>> comp.formula
-    "Li1 Fe1 P1 O4"
+    'Li1 Fe1 P1 O4'
     >>> comp.get_wt_fraction(Element("Li"))
     0.04399794666951898
     >>> comp.num_atoms
@@ -1274,18 +1274,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     @property
     def element_composition(self):
         """
-        Returns the composition replacing any species by the corresponding 
+        Returns the composition replacing any species by the corresponding
         element.
         """
-        o = {}
-        for sp in self.elements:
-            el = Element.from_Z(sp.Z)
-            if el in o:
-                #this summation is neccessary for structures with multiple 
-                #oxidation states for a single element
-                o[el] += self[sp]
-            else:
-                o[el] = self[sp]
+        o = collections.defaultdict(float)
+        for sp in self:
+            o[Element(sp.symbol)] += self[sp]
         return Composition(o)
 
     @property
@@ -1773,3 +1767,4 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+
