@@ -272,24 +272,28 @@ class PDPlotter(object):
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(elements)
         missing_lines = {}
-        all_coords = []
+        excluded_region = []
         for entry, lines in chempot_ranges.items():
+            comp = entry.composition
             center_x = 0
             center_y = 0
             coords = []
+            contain_zero = any([comp.get_atomic_fraction(el) == 0
+                                for el in elements])
+            is_boundary = (not contain_zero) and \
+                sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, "ko-")
+                plt.plot(x, y, "k-")
 
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
                         center_x += coord[0]
                         center_y += coord[1]
-                all_coords.extend(line.coords)
-            comp = entry.composition
-            contain_zero = any([comp.get_atomic_fraction(el) == 0
-                                for el in elements])
+                if is_boundary:
+                    excluded_region.extend(line.coords)
+
             if coords and contain_zero:
                 missing_lines[entry] = coords
             else:
@@ -300,28 +304,14 @@ class PDPlotter(object):
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
-        #This is a bit hacky, but it"s a way to shade the forbidden chemical
-        #potential regions.
-        all_coords.append([xlim[0], ylim[1]])
-        all_coords.append([xlim[1], ylim[0]])
-        all_coords.append([xlim[0], ylim[0]])
-        facets = get_convex_hull(all_coords)
-        excluded_boundary = []
-        for f in facets:
-            if f[0] == len(all_coords) - 1 or f[1] == len(all_coords) - 1:
-                continue
-            if (all_coords[f[0]][0] != xlim[1] or
-                all_coords[f[1]][0] != xlim[1]) and \
-                (all_coords[f[0]][1] != ylim[1] or
-                 all_coords[f[1]][1] != ylim[1]):
-                excluded_boundary.append(tuple(all_coords[f[0]]))
-                excluded_boundary.append(tuple(all_coords[f[1]]))
-        excluded_boundary = list(set(excluded_boundary))
-        excluded_boundary = sorted(excluded_boundary, key=lambda c: c[0])
-        excluded_boundary.append((xlim[1], ylim[1]))
-        x = [c[0] for c in excluded_boundary]
-        y = [c[1] for c in excluded_boundary]
+        #Shade the forbidden chemical potential regions.
+        excluded_region.append([xlim[1], ylim[1]])
+        excluded_region = sorted(excluded_region, key=lambda c: c[0])
+        (x, y) = np.transpose(excluded_region)
         plt.fill(x, y, "0.80")
+
+        #The hull does not generate the missing horizontal and vertical lines.
+        #The following code fixes this.
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():

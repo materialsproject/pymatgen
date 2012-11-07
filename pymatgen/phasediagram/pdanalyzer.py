@@ -313,24 +313,25 @@ class PDAnalyzer(object):
             allowable chemical potential range of each entry.
         """
         all_chempots = []
-        facets = self._pd.facets
+        pd = self._pd
+        facets = pd.facets
         for facet in facets:
             chempots = self.get_facet_chempots(facet)
-            all_chempots.append([chempots[el] for el in self._pd.elements])
-        inds = [i for i, el in enumerate(self._pd.elements) if el in elements]
-        el_energies = {el: self._pd.el_refs[el].energy_per_atom
+            all_chempots.append([chempots[el] for el in pd.elements])
+        inds = [i for i, el in enumerate(pd.elements) if el in elements]
+        el_energies = {el: pd.el_refs[el].energy_per_atom
                        for el in elements}
         chempot_ranges = collections.defaultdict(list)
-        for facet in get_convex_hull(all_chempots):
-            for combi in itertools.combinations(facet, 2):
+        for ufacet in get_convex_hull(all_chempots):
+            for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
                 data2 = facets[combi[1]]
-                common_facet = set(data1).intersection(set(data2))
-                if len(common_facet) == len(elements):
-                    common_entries = [self._pd.qhull_entries[i]
-                                      for i in common_facet]
+                common_ent_ind = set(data1).intersection(set(data2))
+                if len(common_ent_ind) == len(elements):
+                    common_entries = [pd.qhull_entries[i]
+                                      for i in common_ent_ind]
                     data = np.array([[all_chempots[i][j]
-                                      - el_energies[self._pd.elements[j]]
+                                      - el_energies[pd.elements[j]]
                                       for j in inds] for i in combi])
                     sim = Simplex(data)
                     for entry in common_entries:
