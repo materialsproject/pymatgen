@@ -4,6 +4,8 @@
 This module provides classes to create phase diagrams.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
@@ -15,7 +17,6 @@ __date__ = "Jul 11, 2012"
 import numpy as np
 import collections
 import logging
-import itertools
 
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
@@ -79,10 +80,6 @@ class PhaseDiagram (object):
                                   for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
-        self._qhull_data = None
-        self._facets = None
-        self._qhull_entries = None
-        self._stable_entries = None
         self._use_external_qhull = use_external_qhull
         self._make_phasediagram()
 
@@ -239,9 +236,10 @@ class PhaseDiagram (object):
         #Determine the elemental references based on lowest energy for each.
         el_refs = {}
         for entry in self._all_entries:
-            if entry.composition.is_element:
-                for el in entry.composition.elements:
-                    if entry.composition[el] > Composition.amount_tolerance:
+            comp = entry.composition
+            if comp.is_element:
+                for el in comp.elements:
+                    if comp[el] > Composition.amount_tolerance:
                         break
                 e_per_atom = entry.energy_per_atom
                 if el not in el_refs:
@@ -268,22 +266,22 @@ class PhaseDiagram (object):
         """
         stable_entries = set()
         dim = len(self._elements)
-        self._qhull_data = self._create_convhull_data()
-        if len(self._qhull_data) == dim:
-            self._facets = [range(len(self._elements))]
+        qhull_data = self._create_convhull_data()
+        if len(qhull_data) == dim:
+            self._facets = [range(dim)]
         else:
-            self._facets = get_convex_hull(self._qhull_data,
-                                           self._use_external_qhull)
-            logger.debug("Final facets are\n{}".format(self._facets))
+            facets = get_convex_hull(qhull_data,
+                                     self._use_external_qhull)
+            logger.debug("Final facets are\n{}".format(facets))
 
             logger.debug("Removing vertical facets...")
             finalfacets = list()
-            for facet in self._facets:
+            for facet in facets:
                 facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
-                    facetmatrix[count] = np.array(self._qhull_data[vertex])
+                    facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
                     if len(self._qhull_entries[vertex].composition) > 1:
@@ -294,10 +292,10 @@ class PhaseDiagram (object):
                 else:
                     logger.debug("Removing vertical facet : {}".format(facet))
             self._facets = finalfacets
-
         for facet in self._facets:
             for vertex in facet:
                 stable_entries.add(self._qhull_entries[vertex])
+        self._qhull_data = qhull_data
         self._stable_entries = stable_entries
 
     def __repr__(self):
