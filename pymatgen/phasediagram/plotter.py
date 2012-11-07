@@ -4,6 +4,8 @@
 This module provides classes for plotting PhaseDiagram objects.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
@@ -276,21 +278,21 @@ class PDPlotter(object):
             coords = []
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, "k")
-                center_x += sum(x)
-                center_y += sum(y)
+                plt.plot(x, y, "ko-")
+
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
-                    else:
-                        coords.remove(coord.tolist())
+                        center_x += coord[0]
+                        center_y += coord[1]
                 all_coords.extend(line.coords)
             comp = entry.composition
-            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
-            if coords and frac_sum < 0.99:
+            contain_zero = any([comp.get_atomic_fraction(el) == 0
+                                for el in elements])
+            if coords and contain_zero:
                 missing_lines[entry] = coords
             else:
-                xy = (center_x / 2 / len(lines), center_y / 2 / len(lines))
+                xy = (center_x / len(coords), center_y / len(coords))
                 plt.annotate(latexify(entry.name), xy, fontsize=22)
 
         ax = plt.gca()
@@ -319,31 +321,38 @@ class PDPlotter(object):
         x = [c[0] for c in excluded_boundary]
         y = [c[1] for c in excluded_boundary]
         plt.fill(x, y, "0.80")
-
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():
-            center_x = 0
-            center_y = 0
+            center_x = sum([c[0] for c in coords])
+            center_y = sum([c[1] for c in coords])
             comp = entry.composition
-            if not comp.is_element:
-                for coord in coords:
-                    x = None
-                    y = None
-                    if entry.composition.get_atomic_fraction(el0) < 0.01:
-                        x = [coord[0], min(xlim)]
-                        y = [coord[1], coord[1]]
-                    elif entry.composition.get_atomic_fraction(el1) < 0.01:
-                        x = [coord[0], coord[0]]
-                        y = [coord[1], min(ylim)]
-                    if x and y:
+            is_x = entry.composition.get_atomic_fraction(el0) < 0.01
+            is_y = entry.composition.get_atomic_fraction(el1) < 0.01
+            n = len(coords)
+            if not (is_x and is_y):
+                if is_x:
+                    coords = sorted(coords, key=lambda c: c[1])
+                    for i in [0, -1]:
+                        x = [min(xlim), coords[i][0]]
+                        y = [coords[i][1], coords[i][1]]
                         plt.plot(x, y, "k")
-                        center_x += sum(x)
-                        center_y += sum(y)
+                        center_x += min(xlim)
+                        center_y += coords[i][1]
+                elif is_y:
+                    coords = sorted(coords, key=lambda c: c[0])
+                    for i in [0, -1]:
+                        x = [coords[i][0], coords[i][0]]
+                        y = [coords[i][1], min(ylim)]
+                        plt.plot(x, y, "k")
+                        center_x += coords[i][0]
+                        center_y += min(ylim)
+                xy = (center_x / (n + 2), center_y / (n + 2))
             else:
-                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
-                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
-            xy = (center_x / 2 / len(coords), center_y / 2 / len(coords))
+                center_x = sum(coord[0] for coord in coords) + xlim[0]
+                center_y = sum(coord[1] for coord in coords) + ylim[0]
+                xy = (center_x / (n + 1), center_y / (n + 1))
+
             plt.annotate(latexify(entry.name), xy,
                          horizontalalignment="center",
                          verticalalignment="center", fontsize=22)
