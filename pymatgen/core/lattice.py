@@ -121,7 +121,7 @@ class Lattice(MSONable):
         Returns:
             Cubic lattice of dimensions a x a x a.
         """
-        return Lattice(np.array([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]]))
+        return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
 
     @staticmethod
     def tetragonal(a, c):
@@ -586,10 +586,13 @@ class Lattice(MSONable):
         b = self._matrix[1]
         c = self._matrix[2]
         e = tol * self.volume ** (1 / 3)
+
+        dot = np.dot
+        transpose = np.transpose
         #Define metric tensor
-        G = [[np.dot(a, a), np.dot(a, b), np.dot(a, c)],
-             [np.dot(a, b), np.dot(b, b), np.dot(b, c)],
-             [np.dot(a, c), np.dot(b, c), np.dot(c, c)]]
+        G = [[dot(a, a), dot(a, b), dot(a, c)],
+             [dot(a, b), dot(b, b), dot(b, c)],
+             [dot(a, c), dot(b, c), dot(c, c)]]
         G = np.array(G)
 
         while True:
@@ -601,11 +604,11 @@ class Lattice(MSONable):
             if A > B + e or (abs(A - B) < e and abs(E) > abs(N) + e):
                 #A1
                 M = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
             if (B > C + e) or (abs(B - C) < e and abs(N) > abs(Y) + e):
                 #A2
                 M = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
                 continue
 
             l = 0 if abs(E) < e else E / abs(E)
@@ -617,7 +620,7 @@ class Lattice(MSONable):
                 j = -1 if m == -1 else 1
                 k = -1 if n == -1 else 1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
             elif l * m * n == 0 or l * m * n == -1:
                 # A4
                 i = j = k = 1
@@ -633,7 +636,7 @@ class Lattice(MSONable):
                     elif l == 0:
                         i = -1
                 M = [[i, 0, 0], [0, j, 0], [0, 0, k]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
 
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
@@ -642,28 +645,28 @@ class Lattice(MSONable):
             if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or \
                     (abs(E + B) < e and Y < -e):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
                 continue
 
             #A6
             if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or \
                     (abs(A + N) < e and Y < -e):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
                 continue
 
             #A7
             if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or \
                     (abs(A + Y) < e and N < -e):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
                 continue
 
             #A8
             if E + N + Y + A + B < -e or \
                     (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
-                G = np.dot(np.transpose(M), np.dot(G, M))
+                G = dot(transpose(M), dot(G, M))
                 continue
             break
 

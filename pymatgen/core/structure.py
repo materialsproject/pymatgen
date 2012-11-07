@@ -445,9 +445,10 @@ class Structure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         pcoords = self._lattice.get_fractional_coords(pt)
         axis_ranges = []
+        floor = math.floor
         for i in range(3):
-            rangemax = int(math.floor(pcoords[i] + nmax[i]))
-            rangemin = int(math.floor(pcoords[i] - nmax[i]))
+            rangemax = int(floor(pcoords[i] + nmax[i]))
+            rangemin = int(floor(pcoords[i] - nmax[i]))
             axis_ranges.append(range(rangemin, rangemax + 1))
         neighbors = []
         n = len(self._sites)
@@ -455,18 +456,18 @@ class Structure(SiteCollection, MSONable):
                                  for site in self._sites])
 
         frac_2_cart = self._lattice.get_cartesian_coords
-        pts = np.array([pt] * n)
+        pts = [pt] * n
         for image in itertools.product(*axis_ranges):
-            shift = np.array([image] * n)
+            shift = [image] * n
             fcoords = site_fcoords + shift
             coords = frac_2_cart(fcoords)
             dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
-                    nnsite = PeriodicSite(self._sites[i].species_and_occu,
+                    nnsite = PeriodicSite(self[i].species_and_occu,
                                           fcoords[i], self._lattice,
-                                          properties=self._sites[i].properties)
+                                          properties=self[i].properties)
                     neighbors.append((nnsite, dists[i]))
         return neighbors
 
@@ -525,11 +526,11 @@ class Structure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         unit_cell_sites = [site.to_unit_cell for site in self._sites]
-
-        for site in self._sites:
+        floor = math.floor
+        for site in self:
             pcoords = site.frac_coords
-            inmax = [int(math.floor(pcoords[i] + nmax[i])) for i in xrange(3)]
-            inmin = [int(math.floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            inmax = [int(floor(pcoords[i] + nmax[i])) for i in xrange(3)]
+            inmin = [int(floor(pcoords[i] - nmax[i])) for i in xrange(3)]
             site_nminmax.append(zip(inmin, inmax))
 
         nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
@@ -541,7 +542,7 @@ class Structure(SiteCollection, MSONable):
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
-        n = len(self._sites)
+        n = len(self)
         for image in itertools.product(*all_ranges):
             for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
@@ -599,9 +600,9 @@ class Structure(SiteCollection, MSONable):
                 options are "niggli" or "LLL".
         """
         if reduction_algo == "niggli":
-            reduced_latt = self.lattice.get_niggli_reduced_lattice()
+            reduced_latt = self._lattice.get_niggli_reduced_lattice()
         elif reduction_algo == "LLL":
-            reduced_latt = self.lattice.get_lll_reduced_lattice()
+            reduced_latt = self._lattice.get_lll_reduced_lattice()
         else:
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))

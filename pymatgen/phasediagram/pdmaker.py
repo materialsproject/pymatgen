@@ -15,6 +15,7 @@ __date__ = "Jul 11, 2012"
 import numpy as np
 import collections
 import logging
+import itertools
 
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
@@ -236,17 +237,18 @@ class PhaseDiagram (object):
         """
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
-        self._el_refs = dict()
+        el_refs = {}
         for entry in self._all_entries:
             if entry.composition.is_element:
                 for el in entry.composition.elements:
                     if entry.composition[el] > Composition.amount_tolerance:
                         break
                 e_per_atom = entry.energy_per_atom
-                if el not in self._el_refs:
-                    self._el_refs[el] = entry
-                elif self._el_refs[el].energy_per_atom > e_per_atom:
-                    self._el_refs[el] = entry
+                if el not in el_refs:
+                    el_refs[el] = entry
+                elif el_refs[el].energy_per_atom > e_per_atom:
+                    el_refs[el] = entry
+        self._el_refs = el_refs
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
@@ -255,7 +257,7 @@ class PhaseDiagram (object):
             else:
                 logger.debug("Removing positive formation energy entry " +
                              "{}".format(entry))
-        entries_to_process.extend([entry for entry in self._el_refs.values()])
+        entries_to_process.extend([entry for entry in el_refs.values()])
 
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
