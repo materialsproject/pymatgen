@@ -23,6 +23,7 @@ from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.comp_geometry.simplex import Simplex
+from pymatgen.util.coord_utils import get_convex_hull
 
 
 class PDAnalyzer(object):
@@ -312,24 +313,22 @@ class PDAnalyzer(object):
             allowable chemical potential range of each entry.
         """
         all_chempots = []
-        for facet in self._pd.facets:
+        facets = self._pd.facets
+        for facet in facets:
             chempots = self.get_facet_chempots(facet)
             all_chempots.append([chempots[el] for el in self._pd.elements])
-        from pymatgen.util.coord_utils import get_convex_hull
         inds = [i for i, el in enumerate(self._pd.elements) if el in elements]
         el_energies = {el: self._pd.el_refs[el].energy_per_atom
                        for el in elements}
         chempot_ranges = collections.defaultdict(list)
         for facet in get_convex_hull(all_chempots):
-            all_entries = []
             for combi in itertools.combinations(facet, 2):
-                data1 = self._pd.facets[combi[0]]
-                data2 = self._pd.facets[combi[1]]
+                data1 = facets[combi[0]]
+                data2 = facets[combi[1]]
                 common_facet = set(data1).intersection(set(data2))
                 if len(common_facet) == len(elements):
                     common_entries = [self._pd.qhull_entries[i]
                                       for i in common_facet]
-                    all_entries.append(set(common_entries))
                     data = np.array([[all_chempots[i][j]
                                       - el_energies[self._pd.elements[j]]
                                       for j in inds] for i in combi])
