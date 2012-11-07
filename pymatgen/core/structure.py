@@ -1726,8 +1726,8 @@ def reduce_formula(sym_amt):
                       syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
-                          Element(syms[num_el - 1]).X
-                          - Element(syms[num_el - 2]).X < 1.65)
+                          smart_element_or_specie(syms[num_el - 1]).X
+                          - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
 
     factor = reduce(gcd, sym_amt.values())
     reduced_form = []
