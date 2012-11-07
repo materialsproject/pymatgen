@@ -16,6 +16,7 @@ __date__ = "May 16, 2012"
 
 import numpy as np
 import itertools
+import collections
 
 from pymatgen.core.structure import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
@@ -310,29 +311,30 @@ class PDAnalyzer(object):
             simplices are the sides of the N-1 dim polytope bounding the
             allowable chemical potential range of each entry.
         """
-        elrefs = self._pd.el_refs
-        chempot_ranges = {}
-        for entry in self._pd.stable_entries:
-            all_facets = self._get_facets(entry.composition)
-            simplices = []
-            # For each entry, go through all possible combinations of 2 facets.
-            for facets in itertools.combinations(all_facets, 2):
-                # Get the intersection of the 2 facets.
-                inter = set(facets[0]).intersection(set(facets[1]))
-
-                #Check if the intersection has N-1 vertices. if so, add the
-                #line to the list of simplices.
-                if len(inter) == self._pd.dim - 1:
-                    coords = []
-                    for facet in facets:
-                        chempots = self.get_facet_chempots(facet)
-                        coords.append([chempots[el]
-                                       - elrefs[el].energy_per_atom
-                                       for el in elements])
-                    sim = Simplex(coords)
-                    simplices.append(sim)
-
-            if len(simplices) > 0:
-                chempot_ranges[entry] = simplices
+        all_chempots = []
+        for facet in self._pd.facets:
+            chempots = self.get_facet_chempots(facet)
+            all_chempots.append([chempots[el] for el in self._pd.elements])
+        from pymatgen.util.coord_utils import get_convex_hull
+        inds = [i for i, el in enumerate(self._pd.elements) if el in elements]
+        el_energies = {el: self._pd.el_refs[el].energy_per_atom
+                       for el in elements}
+        chempot_ranges = collections.defaultdict(list)
+        for facet in get_convex_hull(all_chempots):
+            all_entries = []
+            for combi in itertools.combinations(facet, 2):
+                data1 = self._pd.facets[combi[0]]
+                data2 = self._pd.facets[combi[1]]
+                common_facet = set(data1).intersection(set(data2))
+                if len(common_facet) == len(elements):
+                    common_entries = [self._pd.qhull_entries[i]
+                                      for i in common_facet]
+                    all_entries.append(set(common_entries))
+                    data = np.array([[all_chempots[i][j]
+                                      - el_energies[self._pd.elements[j]]
+                                      for j in inds] for i in combi])
+                    sim = Simplex(data)
+                    for entry in common_entries:
+                        chempot_ranges[entry].append(sim)
 
         return chempot_ranges
