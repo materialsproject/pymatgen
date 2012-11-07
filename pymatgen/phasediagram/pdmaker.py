@@ -420,6 +420,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.normalize_terminals = normalize_terminal_compositions
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
+        self.species_mapping = species_mapping
         PhaseDiagram.__init__(self, pentries,
                               elements=species_mapping.values(),
                               use_external_qhull=use_external_qhull)
