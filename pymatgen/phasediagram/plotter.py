@@ -21,6 +21,8 @@ import itertools
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.coord_utils import get_convex_hull
+from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.coord_utils import in_coord_list
 
 
 class PDPlotter(object):
@@ -122,7 +124,7 @@ class PDPlotter(object):
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+
         plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
@@ -265,8 +267,7 @@ class PDPlotter(object):
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        from pymatgen.util.coord_utils import in_coord_list
+
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(elements)
