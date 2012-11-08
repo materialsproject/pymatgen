@@ -38,7 +38,6 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
 
         #test with a supercell
-        print "supercell"
         mod = SupercellMaker(self.a, scaling_matrix=[[2, 0, 0], [0, 1, 0], [0, 0, 1]])
         a_super = mod.modified_structure
         fitter = StructureFitter(self.b, a_super)
