@@ -261,10 +261,6 @@ class StructureFitter(object):
         # We set the structure with fewer sites as fixed,
         # and scale the structures to the same density
         (fixed, to_fit) = self._scale_structures(a, b)
-        #print "fixed"
-        #print fixed
-        #print "to_fit"
-        #print to_fit
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume\
                                   / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
@@ -344,15 +340,13 @@ class StructureFitter(object):
                 else:
                     for k, v in correspondance.items():
                         logger.debug(str(k) + " fits on " + str(v))
-                fixed_nb_of_fit_per_site = [0 for i in range(len(fixed.sites))]
+                fixed_nb_of_fit_per_site = [0] * len(fixed.sites)
                 for t in correspondance:
                     reduced_site = correspondance[t].to_unit_cell
                     for y in range(len(fixed.sites)):
                         if fixed.sites[y] == reduced_site:
                             fixed_nb_of_fit_per_site[y] = \
                                            fixed_nb_of_fit_per_site[y] + 1
-                #print fixed
-                print "direct", fixed_nb_of_fit_per_site
                 if len(set(fixed_nb_of_fit_per_site)) != 1:
                     all_match = False
                     continue
@@ -409,19 +403,17 @@ class StructureFitter(object):
                                          "correspondance array has equivalent"
                                          " sites.")
                             continue
-
-                    nstruct_nb_of_fit_per_site = [0 for i in
-                                                  range(len(nstruct.sites))]
-                    for t in inv_correspondance:
-                        reduced_site = inv_correspondance[t].to_unit_cell
-                        for y in range(len(nstruct.sites)):
-                            if nstruct.sites[y] == reduced_site:
-                                nstruct_nb_of_fit_per_site[y] = \
-                                        nstruct_nb_of_fit_per_site[y] + 1
-                    print "inv", nstruct_nb_of_fit_per_site
-                    if len(set(nstruct_nb_of_fit_per_site)) != 1:
-                        all_match = False
-                        continue
+                    if len(nstruct.sites) == len(fixed.sites):
+                        nstruct_nb_of_fit_per_site = [0] * len(nstruct.sites)
+                        for t in inv_correspondance:
+                            reduced_site = inv_correspondance[t].to_unit_cell
+                            for y in range(len(nstruct.sites)):
+                                if nstruct.sites[y] == reduced_site:
+                                    nstruct_nb_of_fit_per_site[y] = \
+                                            nstruct_nb_of_fit_per_site[y] + 1
+                        if len(set(nstruct_nb_of_fit_per_site)) != 1:
+                            all_match = False
+                            continue
 
                     found_map = True
                     mapping_op = op
