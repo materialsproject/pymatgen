@@ -752,7 +752,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                           projections=projections)
 
 
-def get_reconstructed_band_structure(list_bs, efermi=None):
+def get_reconstructed_band_structure(list_bs, efermi=None, structure=None):
         """
         This method takes a list of band structures
         and reconstruct one band structure object from all of them
@@ -801,7 +801,7 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
                         eigenvals[Spin.down][i].append(e)
         if isinstance(list_bs[0], BandStructureSymmLine):
             return BandStructureSymmLine(kpoints, eigenvals, rec_lattice,
-                                         efermi, labels_dict)
+                                         efermi, labels_dict, structure=structure)
         else:
             return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
-                                 labels_dict)
+                                 labels_dict, structure=structure)
