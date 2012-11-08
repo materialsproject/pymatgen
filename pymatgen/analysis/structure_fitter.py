@@ -55,7 +55,7 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 timeout=300, symmetry_tol=0):
+                 timeout=300, symmetry_tol=0, reduce_structures=True):
         """
         Fits two structures. All fitting parameters have been set with defaults
         that should work in most cases.
@@ -90,8 +90,10 @@ class StructureFitter(object):
                 based on that symmetry tolerance in angstrom. Structures with
                 different symmetries are not fitted to each other. A good value
                 is around 0.1. Defaults to 0.
+            reduce_structures:
+                Whether to reduce structures to the primitive LLL cell.
+                Defaults to True.
         """
-
         self._tolerance_cell_misfit = tolerance_cell_misfit
         self._tolerance_atomic_misfit = tolerance_atomic_misfit
         self._supercells_allowed = supercells_allowed
@@ -111,6 +113,11 @@ class StructureFitter(object):
             sg_b = finder_b.get_spacegroup_number()
             same_sg = sg_a == sg_b
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
+            if reduce_structures:
+                self._structure_a = \
+                    finder_a.find_primitive().get_reduced_structure("LLL")
+                self._structure_b = \
+                    finder_b.find_primitive().get_reduced_structure("LLL")
 
         if not symmetry_tol or same_sg:
             self._mapping_op = None
