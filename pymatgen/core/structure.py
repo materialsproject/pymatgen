@@ -31,6 +31,7 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
+from pymatgen.core.physical_constants import AMU_TO_KG
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -170,10 +171,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Checks if structure is ordered, meaning no partial occupancies in any
         of the sites.
         """
-        for site in self:
-            if not site.is_ordered:
-                return False
-        return True
+        return all((site.is_ordered for site in self))
 
     def get_angle(self, i, j, k):
         """
@@ -346,7 +344,7 @@ class Structure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        constant = 1.660468
+        constant = AMU_TO_KG * 1000 / 1e-24
         return self.composition.weight / self.volume * constant
 
     @property
@@ -447,9 +445,10 @@ class Structure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         pcoords = self._lattice.get_fractional_coords(pt)
         axis_ranges = []
+        floor = math.floor
         for i in range(3):
-            rangemax = int(math.floor(pcoords[i] + nmax[i]))
-            rangemin = int(math.floor(pcoords[i] - nmax[i]))
+            rangemax = int(floor(pcoords[i] + nmax[i]))
+            rangemin = int(floor(pcoords[i] - nmax[i]))
             axis_ranges.append(range(rangemin, rangemax + 1))
         neighbors = []
         n = len(self._sites)
@@ -457,18 +456,18 @@ class Structure(SiteCollection, MSONable):
                                  for site in self._sites])
 
         frac_2_cart = self._lattice.get_cartesian_coords
-        pts = np.array([pt] * n)
+        pts = [pt] * n
         for image in itertools.product(*axis_ranges):
-            shift = np.array([image] * n)
+            shift = [image] * n
             fcoords = site_fcoords + shift
             coords = frac_2_cart(fcoords)
             dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
             withindists = (dists <= r)
             for i in range(n):
                 if withindists[i]:
-                    nnsite = PeriodicSite(self._sites[i].species_and_occu,
+                    nnsite = PeriodicSite(self[i].species_and_occu,
                                           fcoords[i], self._lattice,
-                                          properties=self._sites[i].properties)
+                                          properties=self[i].properties)
                     neighbors.append((nnsite, dists[i]))
         return neighbors
 
@@ -527,11 +526,11 @@ class Structure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         unit_cell_sites = [site.to_unit_cell for site in self._sites]
-
-        for site in self._sites:
+        floor = math.floor
+        for site in self:
             pcoords = site.frac_coords
-            inmax = [int(math.floor(pcoords[i] + nmax[i])) for i in xrange(3)]
-            inmin = [int(math.floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            inmax = [int(floor(pcoords[i] + nmax[i])) for i in xrange(3)]
+            inmin = [int(floor(pcoords[i] - nmax[i])) for i in xrange(3)]
             site_nminmax.append(zip(inmin, inmax))
 
         nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
@@ -543,7 +542,7 @@ class Structure(SiteCollection, MSONable):
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
-        n = len(self._sites)
+        n = len(self)
         for image in itertools.product(*all_ranges):
             for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
@@ -590,6 +589,26 @@ class Structure(SiteCollection, MSONable):
         """
         sites = sorted(self)
         return Structure.from_sites(sites)
+
+    def get_reduced_structure(self, reduction_algo="niggli"):
+        """
+        Get a reduced structure.
+
+        Args:
+            reduction_algo:
+                The lattice reduction algorithm to use. Currently supported
+                options are "niggli" or "LLL".
+        """
+        if reduction_algo == "niggli":
+            reduced_latt = self._lattice.get_niggli_reduced_lattice()
+        elif reduction_algo == "LLL":
+            reduced_latt = self._lattice.get_lll_reduced_lattice()
+        else:
+            raise ValueError("Invalid reduction algo : {}"
+                             .format(reduction_algo))
+
+        return Structure(reduced_latt, self.species, self.cart_coords,
+                         coords_are_cartesian=True)
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -1076,9 +1095,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     >>> comp.num_atoms
     7.0
     >>> comp.reduced_formula
-    "LiFePO4"
+    'LiFePO4'
     >>> comp.formula
-    "Li1 Fe1 P1 O4"
+    'Li1 Fe1 P1 O4'
     >>> comp.get_wt_fraction(Element("Li"))
     0.04399794666951898
     >>> comp.num_atoms
@@ -1253,6 +1272,17 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return " ".join(formula)
 
     @property
+    def element_composition(self):
+        """
+        Returns the composition replacing any species by the corresponding
+        element.
+        """
+        o = collections.defaultdict(float)
+        for sp in self:
+            o[Element(sp.symbol)] += self[sp]
+        return Composition(o)
+
+    @property
     def reduced_composition(self):
         """
         Returns the reduced composition,i.e. amounts normalized by greatest
@@ -1266,82 +1296,30 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a normalized composition and a multiplicative factor,
         i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        (formula, factor) = self.get_reduced_formula_and_factor()
-        return (Composition.from_formula(formula), factor)
+        factor = self.get_reduced_formula_and_factor()[1]
+        reduced_comp = Composition({el: self[el] / factor for el in self})
+        return (reduced_comp, factor)
 
     def get_reduced_formula_and_factor(self):
         """
         Returns a pretty normalized formula and a multiplicative factor, i.e.,
         Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        is_int = lambda x: x == int(x)
-        all_int = all([is_int(x) for x in self._elmap.values()])
+        all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
             return (re.sub("\s", "", self.formula), 1)
-
-        sym_amt = self.to_dict
-        syms = sorted(sym_amt.keys(),
-                      key=lambda s: smart_element_or_specie(s).X)
-
-        syms = filter(lambda s: sym_amt[s] != 0, syms)
-        num_el = len(syms)
-        contains_polyanion = False
-        if num_el >= 3:
-            contains_polyanion = (smart_element_or_specie(syms[num_el - 1]).X
-                                  - smart_element_or_specie(syms[num_el - 2]).X
-                                  < 1.65)
-
-        factor = reduce(gcd, self._elmap.values())
-        reduced_form = ""
-        n = num_el
-        if contains_polyanion:
-            n -= 2
-
-        for i in range(0, n):
-            s = syms[i]
-            normamt = sym_amt[s] * 1.0 / factor
-            reduced_form += s + formula_double_format(normamt)
-
-        if contains_polyanion:
-            polyamounts = list()
-            polyamounts.append(sym_amt[syms[num_el - 2]] / factor)
-            polyamounts.append(sym_amt[syms[num_el - 1]] / factor)
-            polyfactor = reduce(gcd, polyamounts)
-            for i in range(n, num_el):
-                s = syms[i]
-                normamt = sym_amt[s] / factor / polyfactor
-                if normamt != 1.0:
-                    if normamt != int(normamt):
-                        polyfactor = 1
-                        break
-
-            poly_form = ""
-
-            for i in range(n, num_el):
-                s = syms[i]
-                normamt = sym_amt[s] / factor / polyfactor
-                poly_form += s + formula_double_format(normamt)
-
-            if polyfactor != 1:
-                reduced_form += "({}){}".format(poly_form, int(polyfactor))
-            else:
-                reduced_form += poly_form
-
-        if reduced_form in Composition.special_formulas:
-            reduced_form = Composition.special_formulas[reduced_form]
-            factor = factor / 2
-
-        return (reduced_form, factor)
+        return reduce_formula(self.to_dict)
 
     def get_fractional_composition(self):
         """
-        Returns the normalized composition which the number of species sum to 1.
-        
+        Returns the normalized composition which the number of species sum to
+        1.
+
         Returns:
             Normalized composition which the number of species sum to 1.
         """
         natoms = self._natoms
-        frac_map = {k:v / natoms for k, v in self._elmap.items()}
+        frac_map = {k: v / natoms for k, v in self._elmap.items()}
         return Composition(frac_map)
 
     @property
@@ -1494,12 +1472,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0}
         """
-        d = {}
+        d = collections.defaultdict(float)
         for e, a in self.items():
-            if e.symbol in d:
-                d[e.symbol] += a
-            else:
-                d[e.symbol] = a
+            d[e.symbol] += a
         return d
 
     @property
@@ -1732,6 +1707,55 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                                                               m_points2,
                                                               factor):
                         yield match
+
+
+def reduce_formula(sym_amt):
+    """
+    Help method to reduce a sym_amt dict to a reduced formula and factor.
+
+    Args:
+        Dict of the form {symbol: amount}.
+
+    Returns:
+        (reduced_formula, factor).
+    """
+    syms = sorted(sym_amt.keys(),
+                  key=lambda s: smart_element_or_specie(s).X)
+
+    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
+                      syms)
+    num_el = len(syms)
+    contains_polyanion = (num_el >= 3 and
+                          smart_element_or_specie(syms[num_el - 1]).X
+                          - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
+
+    factor = reduce(gcd, sym_amt.values())
+    reduced_form = []
+    n = num_el - 2 if contains_polyanion else num_el
+    for i in range(0, n):
+        s = syms[i]
+        normamt = sym_amt[s] * 1.0 / factor
+        reduced_form.append(s)
+        reduced_form.append(formula_double_format(normamt))
+
+    if contains_polyanion:
+        poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor
+                        for i in range(n, num_el)}
+        (poly_form, poly_factor) = reduce_formula(poly_sym_amt)
+
+        if poly_factor != 1:
+            reduced_form.append("({}){}".format(poly_form, int(poly_factor)))
+        else:
+            reduced_form.append(poly_form)
+
+    reduced_form = "".join(reduced_form)
+
+    if reduced_form in Composition.special_formulas:
+        reduced_form = Composition.special_formulas[reduced_form]
+        factor = factor / 2
+
+    return (reduced_form, factor)
+
 
 if __name__ == "__main__":
     import doctest
