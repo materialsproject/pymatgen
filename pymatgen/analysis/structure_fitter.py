@@ -261,6 +261,10 @@ class StructureFitter(object):
         # We set the structure with fewer sites as fixed,
         # and scale the structures to the same density
         (fixed, to_fit) = self._scale_structures(a, b)
+        #print "fixed"
+        #print fixed
+        #print "to_fit"
+        #print to_fit
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume\
                                   / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
@@ -347,7 +351,8 @@ class StructureFitter(object):
                         if fixed.sites[y] == reduced_site:
                             fixed_nb_of_fit_per_site[y] = \
                                            fixed_nb_of_fit_per_site[y] + 1
-
+                #print fixed
+                print "direct", fixed_nb_of_fit_per_site
                 if len(set(fixed_nb_of_fit_per_site)) != 1:
                     all_match = False
                     continue
@@ -381,7 +386,6 @@ class StructureFitter(object):
                                      "not fit - Step 2")
                         break
                     inv_correspondance[fixed_site] = closest
-
                 if all_match:
                     if not are_sites_unique(inv_correspondance.values(),
                                             False):
@@ -399,7 +403,7 @@ class StructureFitter(object):
                     # equivalent sites
                     if fixed.num_sites != to_fit.num_sites:
                         logger.debug("Testing sites unique")
-                        if not are_sites_unique(correspondance.values()):
+                        if not are_sites_unique(inv_correspondance.values()):
                             all_match = False
                             logger.debug("Rejected because the smallest "
                                          "correspondance array has equivalent"
@@ -414,7 +418,7 @@ class StructureFitter(object):
                             if nstruct.sites[y] == reduced_site:
                                 nstruct_nb_of_fit_per_site[y] = \
                                         nstruct_nb_of_fit_per_site[y] + 1
-
+                    print "inv", nstruct_nb_of_fit_per_site
                     if len(set(nstruct_nb_of_fit_per_site)) != 1:
                         all_match = False
                         continue
@@ -455,7 +459,7 @@ class StructureFitter(object):
         # which structure do we want to fit to the other ?
         # assume that structure b has less sites and switch if needed
 
-        self.fixed_is_a = a.num_sites > b.num_sites
+        self.fixed_is_a = a.num_sites < b.num_sites
         (fixed, to_fit) = (a, b) if self.fixed_is_a else (b, a)
 
         # scale the structures to the same density
