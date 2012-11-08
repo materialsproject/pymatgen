@@ -334,14 +334,23 @@ class StructureFitter(object):
 
                 if not all_match:
                     continue
-
                 if not are_sites_unique(correspondance.values(), False):
                     all_match = False
                     continue
                 else:
                     for k, v in correspondance.items():
                         logger.debug(str(k) + " fits on " + str(v))
+                fixed_nb_of_fit_per_site = [0 for i in range(len(fixed.sites))]
+                for t in correspondance:
+                    reduced_site = correspondance[t].to_unit_cell
+                    for y in range(len(fixed.sites)):
+                        if fixed.sites[y] == reduced_site:
+                            fixed_nb_of_fit_per_site[y] = \
+                                           fixed_nb_of_fit_per_site[y] + 1
 
+                if len(set(fixed_nb_of_fit_per_site)) != 1:
+                    all_match = False
+                    continue
                 # now check to see if the converse is true -- do all of the
                 # sites of fixed match up with a site in toFit
                 # this used to not be here. This fixes a bug.
@@ -396,6 +405,19 @@ class StructureFitter(object):
                                          "correspondance array has equivalent"
                                          " sites.")
                             continue
+
+                    nstruct_nb_of_fit_per_site = [0 for i in
+                                                  range(len(nstruct.sites))]
+                    for t in inv_correspondance:
+                        reduced_site = inv_correspondance[t].to_unit_cell
+                        for y in range(len(nstruct.sites)):
+                            if nstruct.sites[y] == reduced_site:
+                                nstruct_nb_of_fit_per_site[y] = \
+                                        nstruct_nb_of_fit_per_site[y] + 1
+
+                    if len(set(nstruct_nb_of_fit_per_site)) != 1:
+                        all_match = False
+                        continue
 
                     found_map = True
                     mapping_op = op
