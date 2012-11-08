@@ -4,6 +4,8 @@
 This module provides classes to create phase diagrams.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
@@ -78,10 +80,6 @@ class PhaseDiagram (object):
                                   for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
-        self._qhull_data = None
-        self._facets = None
-        self._qhull_entries = None
-        self._stable_entries = None
         self._use_external_qhull = use_external_qhull
         self._make_phasediagram()
 
@@ -236,17 +234,19 @@ class PhaseDiagram (object):
         """
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
-        self._el_refs = dict()
+        el_refs = {}
         for entry in self._all_entries:
-            if entry.composition.is_element:
-                for el in entry.composition.elements:
-                    if entry.composition[el] > Composition.amount_tolerance:
+            comp = entry.composition
+            if comp.is_element:
+                for el in comp.elements:
+                    if comp[el] > Composition.amount_tolerance:
                         break
                 e_per_atom = entry.energy_per_atom
-                if el not in self._el_refs:
-                    self._el_refs[el] = entry
-                elif self._el_refs[el].energy_per_atom > e_per_atom:
-                    self._el_refs[el] = entry
+                if el not in el_refs:
+                    el_refs[el] = entry
+                elif el_refs[el].energy_per_atom > e_per_atom:
+                    el_refs[el] = entry
+        self._el_refs = el_refs
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
@@ -255,7 +255,7 @@ class PhaseDiagram (object):
             else:
                 logger.debug("Removing positive formation energy entry " +
                              "{}".format(entry))
-        entries_to_process.extend([entry for entry in self._el_refs.values()])
+        entries_to_process.extend([entry for entry in el_refs.values()])
 
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
@@ -266,22 +266,22 @@ class PhaseDiagram (object):
         """
         stable_entries = set()
         dim = len(self._elements)
-        self._qhull_data = self._create_convhull_data()
-        if len(self._qhull_data) == dim:
-            self._facets = [range(len(self._elements))]
+        qhull_data = self._create_convhull_data()
+        if len(qhull_data) == dim:
+            self._facets = [range(dim)]
         else:
-            self._facets = get_convex_hull(self._qhull_data,
-                                           self._use_external_qhull)
-            logger.debug("Final facets are\n{}".format(self._facets))
+            facets = get_convex_hull(qhull_data,
+                                     self._use_external_qhull)
+            logger.debug("Final facets are\n{}".format(facets))
 
             logger.debug("Removing vertical facets...")
             finalfacets = list()
-            for facet in self._facets:
+            for facet in facets:
                 facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
-                    facetmatrix[count] = np.array(self._qhull_data[vertex])
+                    facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
                     if len(self._qhull_entries[vertex].composition) > 1:
@@ -292,10 +292,10 @@ class PhaseDiagram (object):
                 else:
                     logger.debug("Removing vertical facet : {}".format(facet))
             self._facets = finalfacets
-
         for facet in self._facets:
             for vertex in facet:
                 stable_entries.add(self._qhull_entries[vertex])
+        self._qhull_data = qhull_data
         self._stable_entries = stable_entries
 
     def __repr__(self):
@@ -420,6 +420,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.normalize_terminals = normalize_terminal_compositions
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
+        self.species_mapping = species_mapping
         PhaseDiagram.__init__(self, pentries,
                               elements=species_mapping.values(),
                               use_external_qhull=use_external_qhull)

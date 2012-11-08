@@ -15,10 +15,13 @@ class PhaseDiagramTest(unittest.TestCase):
         self.pd = PhaseDiagram(self.entries)
 
     def test_stable_entries(self):
-        stable_formulas = [ent.composition.reduced_formula for ent in self.pd.stable_entries]
-        expected_stable = ["Fe2O3", "Li5FeO4", "LiFeO2", "Fe3O4", "Li", "Fe", "Li2O", "O2", "FeO"]
+        stable_formulas = [ent.composition.reduced_formula
+                           for ent in self.pd.stable_entries]
+        expected_stable = ["Fe2O3", "Li5FeO4", "LiFeO2", "Fe3O4", "Li", "Fe",
+                           "Li2O", "O2", "FeO"]
         for formula in expected_stable:
-            self.assertTrue(formula in stable_formulas, formula + " not in stable entries!")
+            self.assertTrue(formula in stable_formulas,
+                            formula + " not in stable entries!")
 
     def test_get_formation_energy(self):
         stable_formation_energies = {ent.composition.reduced_formula:

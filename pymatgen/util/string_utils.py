@@ -144,7 +144,7 @@ def latexify(formula):
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
     """
-    return re.sub(r"(\d+)", r"$_{\1}$", formula)
+    return re.sub(r"([A-Za-z\(\)])(\d+)", r"\1$_{\2}$", formula)
 
 
 def latexify_spacegroup(spacegroup_symbol):

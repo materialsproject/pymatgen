@@ -4,6 +4,8 @@
 This module provides classes for plotting PhaseDiagram objects.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
@@ -18,7 +20,8 @@ import itertools
 
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.util.string_utils import latexify
-from pymatgen.util.coord_utils import get_convex_hull
+from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.util.coord_utils import in_coord_list
 
 
 class PDPlotter(object):
@@ -120,7 +123,7 @@ class PDPlotter(object):
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
+
         plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         (lines, labels, unstable) = self.pd_plot_data
@@ -263,87 +266,83 @@ class PDPlotter(object):
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         """
-        from pymatgen.util.plotting_utils import get_publication_quality_plot
-        from pymatgen.util.coord_utils import in_coord_list
+
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
         chempot_ranges = analyzer.get_chempot_range_map(elements)
         missing_lines = {}
-        all_coords = []
+        excluded_region = []
         for entry, lines in chempot_ranges.items():
+            comp = entry.composition
             center_x = 0
             center_y = 0
             coords = []
+            contain_zero = any([comp.get_atomic_fraction(el) == 0
+                                for el in elements])
+            is_boundary = (not contain_zero) and \
+                sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, "k")
-                center_x += sum(x)
-                center_y += sum(y)
+                plt.plot(x, y, "k-")
+
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
-                    else:
-                        coords.remove(coord.tolist())
-                all_coords.extend(line.coords)
-            comp = entry.composition
-            frac_sum = sum([comp.get_atomic_fraction(el) for el in elements])
-            if coords and frac_sum < 0.99:
+                        center_x += coord[0]
+                        center_y += coord[1]
+                if is_boundary:
+                    excluded_region.extend(line.coords)
+
+            if coords and contain_zero:
                 missing_lines[entry] = coords
             else:
-                xy = (center_x / 2 / len(lines), center_y / 2 / len(lines))
+                xy = (center_x / len(coords), center_y / len(coords))
                 plt.annotate(latexify(entry.name), xy, fontsize=22)
 
         ax = plt.gca()
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
 
-        #This is a bit hacky, but it"s a way to shade the forbidden chemical
-        #potential regions.
-        all_coords.append([xlim[0], ylim[1]])
-        all_coords.append([xlim[1], ylim[0]])
-        all_coords.append([xlim[0], ylim[0]])
-        facets = get_convex_hull(all_coords)
-        excluded_boundary = []
-        for f in facets:
-            if f[0] == len(all_coords) - 1 or f[1] == len(all_coords) - 1:
-                continue
-            if (all_coords[f[0]][0] != xlim[1] or
-                all_coords[f[1]][0] != xlim[1]) and \
-                (all_coords[f[0]][1] != ylim[1] or
-                 all_coords[f[1]][1] != ylim[1]):
-                excluded_boundary.append(tuple(all_coords[f[0]]))
-                excluded_boundary.append(tuple(all_coords[f[1]]))
-        excluded_boundary = list(set(excluded_boundary))
-        excluded_boundary = sorted(excluded_boundary, key=lambda c: c[0])
-        excluded_boundary.append((xlim[1], ylim[1]))
-        x = [c[0] for c in excluded_boundary]
-        y = [c[1] for c in excluded_boundary]
+        #Shade the forbidden chemical potential regions.
+        excluded_region.append([xlim[1], ylim[1]])
+        excluded_region = sorted(excluded_region, key=lambda c: c[0])
+        (x, y) = np.transpose(excluded_region)
         plt.fill(x, y, "0.80")
 
+        #The hull does not generate the missing horizontal and vertical lines.
+        #The following code fixes this.
         el0 = elements[0]
         el1 = elements[1]
         for entry, coords in missing_lines.items():
-            center_x = 0
-            center_y = 0
+            center_x = sum([c[0] for c in coords])
+            center_y = sum([c[1] for c in coords])
             comp = entry.composition
-            if not comp.is_element:
-                for coord in coords:
-                    x = None
-                    y = None
-                    if entry.composition.get_atomic_fraction(el0) < 0.01:
-                        x = [coord[0], min(xlim)]
-                        y = [coord[1], coord[1]]
-                    elif entry.composition.get_atomic_fraction(el1) < 0.01:
-                        x = [coord[0], coord[0]]
-                        y = [coord[1], min(ylim)]
-                    if x and y:
+            is_x = entry.composition.get_atomic_fraction(el0) < 0.01
+            is_y = entry.composition.get_atomic_fraction(el1) < 0.01
+            n = len(coords)
+            if not (is_x and is_y):
+                if is_x:
+                    coords = sorted(coords, key=lambda c: c[1])
+                    for i in [0, -1]:
+                        x = [min(xlim), coords[i][0]]
+                        y = [coords[i][1], coords[i][1]]
                         plt.plot(x, y, "k")
-                        center_x += sum(x)
-                        center_y += sum(y)
+                        center_x += min(xlim)
+                        center_y += coords[i][1]
+                elif is_y:
+                    coords = sorted(coords, key=lambda c: c[0])
+                    for i in [0, -1]:
+                        x = [coords[i][0], coords[i][0]]
+                        y = [coords[i][1], min(ylim)]
+                        plt.plot(x, y, "k")
+                        center_x += coords[i][0]
+                        center_y += min(ylim)
+                xy = (center_x / (n + 2), center_y / (n + 2))
             else:
-                center_x = sum(coord[0] for coord in coords) * 2 + xlim[0]
-                center_y = sum(coord[1] for coord in coords) * 2 + ylim[0]
-            xy = (center_x / 2 / len(coords), center_y / 2 / len(coords))
+                center_x = sum(coord[0] for coord in coords) + xlim[0]
+                center_y = sum(coord[1] for coord in coords) + ylim[0]
+                xy = (center_x / (n + 1), center_y / (n + 1))
+
             plt.annotate(latexify(entry.name), xy,
                          horizontalalignment="center",
                          verticalalignment="center", fontsize=22)

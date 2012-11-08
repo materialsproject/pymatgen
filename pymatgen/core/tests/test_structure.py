@@ -522,5 +522,6 @@ class CompositionTest(unittest.TestCase):
         for c in self.comp:
             self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
 
+
 if __name__ == '__main__':
     unittest.main()

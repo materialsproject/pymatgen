@@ -243,6 +243,29 @@ class StandardTransmuter(object):
                 assert isinstance(ts, TransformedStructure)
             self.transformed_structures.extend(tstructs_or_transmuter)
 
+    @staticmethod
+    def from_structures(structures, transformations=[],
+                        extend_collection=0):
+        """
+        Alternative constructor from structures rather than
+        TransformedStructures.
+
+        Args:
+            structures:
+                Sequence of structures
+            transformations:
+                New transformations to be applied to all structures
+            extend_collection:
+                Whether to use more than one output structure from one-to-many
+                transformations. extend_collection can be a number, which
+                determines the maximum branching for each transformation.
+
+        Returns:
+            StandardTransmuter
+        """
+        tstruct = [TransformedStructure(s, []) for s in structures]
+        return StandardTransmuter(tstruct, transformations, extend_collection)
+
 
 class CifTransmuter(StandardTransmuter):
 
