@@ -115,6 +115,7 @@ class StructureFitter(object):
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
             self._structure_a = finder_a.find_primitive()
             self._structure_b = finder_b.find_primitive()
+            self._supercells_allowed = False
 
         if reduce_structures:
             self._structure_a = self._structure_a.get_reduced_structure()
