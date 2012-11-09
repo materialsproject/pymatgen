@@ -709,6 +709,6 @@ class Lattice(MSONable):
                 if dot(np.cross(a[0], b[0]), c[0]) > 0:
                     return Lattice([a[0], b[0], c[0]])
                 else:
-                    return Lattice([a[0], b[0], -c[0]])
+                    return Lattice([-a[0], -b[0], -c[0]])
 
         raise ValueError("can't find niggli")
