@@ -681,5 +681,5 @@ class Lattice(MSONable):
         c = math.sqrt(C)
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
-        gamma = math.acos(Y / 2 / a / c) / math.pi * 180
+        gamma = math.acos(Y / 2 / a / b) / math.pi * 180
         return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
