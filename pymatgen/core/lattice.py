@@ -15,6 +15,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import math
+import itertools
 
 import numpy as np
 import numpy.linalg as npl
@@ -681,5 +682,33 @@ class Lattice(MSONable):
         c = math.sqrt(C)
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
-        gamma = math.acos(Y / 2 / a / c) / math.pi * 180
-        return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        gamma = math.acos(Y / 2 / a / b) / math.pi * 180
+
+        search_range = int(round(max(self._lengths) / min(a, b, c)))
+        candidates = [[], [], []]
+        for frac in itertools.product(xrange(-search_range, search_range),
+                                         xrange(-search_range, search_range),
+                                         xrange(-search_range, search_range)):
+            cart = self.get_cartesian_coords(frac)
+            param = np.linalg.norm(cart)
+            if abs(param - a) < 1e-8:
+                candidates[0].append(cart)
+            if abs(param - b) < 1e-8:
+                candidates[1].append(cart)
+            if abs(param - c) < 1e-8:
+                candidates[2].append(cart)
+
+        for a, b, c in itertools.product(*candidates):
+            if abs(get_angle(a, b) - gamma) < 1e-8 and \
+                    abs(get_angle(b, c) - alpha) < 1e-8 and \
+                    abs(get_angle(a, c) - beta) < 1e-8:
+                return Lattice([a, b, c])
+
+        raise ValueError("can't find niggli")
+
+
+def get_angle(v1, v2):
+    x = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
+    angle = np.arccos(x) * 180. / pi
+    angle = np.around(angle, 9)
+    return angle
