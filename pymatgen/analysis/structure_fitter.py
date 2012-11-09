@@ -91,7 +91,7 @@ class StructureFitter(object):
                 different symmetries are not fitted to each other. A good value
                 is around 0.1. Defaults to 0.
             reduce_structures:
-                Whether to reduce structures to the primitive LLL cell.
+                Whether to reduce structures to the primitive niggli cell.
                 Defaults to True.
         """
         self._tolerance_cell_misfit = tolerance_cell_misfit
@@ -115,9 +115,9 @@ class StructureFitter(object):
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
             if reduce_structures:
                 self._structure_a = \
-                    finder_a.find_primitive().get_reduced_structure("LLL")
+                    finder_a.find_primitive().get_reduced_structure()
                 self._structure_b = \
-                    finder_b.find_primitive().get_reduced_structure("LLL")
+                    finder_b.find_primitive().get_reduced_structure()
 
         if not symmetry_tol or same_sg:
             self._mapping_op = None

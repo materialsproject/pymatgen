@@ -599,6 +599,7 @@ class Structure(SiteCollection, MSONable):
                 The lattice reduction algorithm to use. Currently supported
                 options are "niggli" or "LLL".
         """
+        print self._lattice
         if reduction_algo == "niggli":
             reduced_latt = self._lattice.get_niggli_reduced_lattice()
         elif reduction_algo == "LLL":
@@ -608,7 +609,7 @@ class Structure(SiteCollection, MSONable):
                              .format(reduction_algo))
 
         return Structure(reduced_latt, self.species, self.cart_coords,
-                         coords_are_cartesian=True)
+                         coords_are_cartesian=True, to_unit_cell=True)
 
     def copy(self, site_properties=None, sanitize=False):
         """
