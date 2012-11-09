@@ -705,6 +705,10 @@ class Lattice(MSONable):
             if abs(get_angle(a, b) - gamma) < e and \
                     abs(get_angle(b, c) - alpha) < e and \
                     abs(get_angle(a, c) - beta) < e:
-                return Lattice([a[0], b[0], c[0]])
+                #Make sure coordinate system is right-handed
+                if dot(np.cross(a[0], b[0]), c[0]) > 0:
+                    return Lattice([a[0], b[0], c[0]])
+                else:
+                    return Lattice([a[0], b[0], -c[0]])
 
         raise ValueError("can't find niggli")

@@ -131,13 +131,12 @@ class  LatticeTestCase(unittest.TestCase):
                                        109 + 28 / 60,
                                        134 + 53 / 60)
         reduced_cell = latt.get_niggli_reduced_lattice()
-
         abc, angles = reduced_cell.lengths_and_angles
         self.assertAlmostEqual(abc[0], 2, 3)
         self.assertAlmostEqual(abc[1], 3, 3)
         self.assertAlmostEqual(abc[2], 3, 3)
-        self.assertAlmostEqual(angles[0], 116.382862211, 3)
-        self.assertAlmostEqual(angles[1], 94.769786460000006, 3)
+        self.assertAlmostEqual(angles[0], 63.617144775, 3)
+        self.assertAlmostEqual(angles[1], 85.230209712000004, 3)
         self.assertAlmostEqual(angles[2], 109.466666667, 3)
 
         mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]

@@ -599,7 +599,6 @@ class Structure(SiteCollection, MSONable):
                 The lattice reduction algorithm to use. Currently supported
                 options are "niggli" or "LLL".
         """
-        print self._lattice
         if reduction_algo == "niggli":
             reduced_latt = self._lattice.get_niggli_reduced_lattice()
         elif reduction_algo == "LLL":

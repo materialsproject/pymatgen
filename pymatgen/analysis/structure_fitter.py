@@ -553,8 +553,10 @@ class StructureFitter(object):
                                        for row in to_fit.lattice.matrix])
         possible_rots = []
         inv_fixed = np.linalg.inv(fixed_unit_matrix.transpose())
+        #Take into account possible inversion.
         for p in itertools.permutations(to_fit_unit_matrix):
             possible_rots.append(np.dot(np.array(p).transpose(), inv_fixed))
+            possible_rots.append(-possible_rots[-1])
         return possible_rots
 
     @property
