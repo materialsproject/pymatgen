@@ -113,11 +113,12 @@ class StructureFitter(object):
             sg_b = finder_b.get_spacegroup_number()
             same_sg = sg_a == sg_b
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
-            if reduce_structures:
-                self._structure_a = \
-                    finder_a.find_primitive().get_reduced_structure()
-                self._structure_b = \
-                    finder_b.find_primitive().get_reduced_structure()
+            self._structure_a = finder_a.find_primitive()
+            self._structure_b = finder_b.find_primitive()
+
+        if reduce_structures:
+            self._structure_a = self._structure_a.get_reduced_structure()
+            self._structure_b = self._structure_b.get_reduced_structure()
 
         if not symmetry_tol or same_sg:
             self._mapping_op = None

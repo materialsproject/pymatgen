@@ -685,9 +685,8 @@ class Lattice(MSONable):
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
         search_range = int(round(max(self._lengths) / min(a, b, c)))
-        all_frac = list(itertools.product(xrange(-search_range, search_range),
-                                          xrange(-search_range, search_range),
-                                          xrange(-search_range, search_range)))
+        search_range = xrange(-search_range, search_range)
+        all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
         cart = self.get_cartesian_coords(all_frac)
         latt_params = np.sum(cart ** 2, axis=1) ** 0.5
         data = zip(cart, latt_params)
