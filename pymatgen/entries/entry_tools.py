@@ -59,29 +59,30 @@ def group_entries_by_structure(entries, species_to_remove=None,
                  for entry in entries]
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
-        logger.debug(
+        logger.info(
             "Reference tid = {}, formula = {}".format(unmatched[0][0].entry_id,
                                                       ref_host.formula)
         )
         ref_formula = ref_host.composition.anonymized_formula if anonymized \
             else ref_host.composition.reduced_formula
-        logger.debug("Reference host = {}".format(ref_formula))
+        logger.info("Reference host = {}".format(ref_formula))
         matches = [unmatched[0]]
         for i in xrange(1, len(unmatched)):
             test_host = unmatched[i][1]
-            logger.debug("Testing tid = {}, formula = {}"
+            logger.info("Testing tid = {}, formula = {}"
                          .format(unmatched[i][0].entry_id, test_host.formula))
             test_formula = test_host.composition.anonymized_formula \
                 if anonymized else test_host.composition.reduced_formula
-            logger.debug("Test host = {}".format(test_formula))
+            logger.info("Test host = {}".format(test_formula))
             if test_formula == ref_formula:
                 fitter = StructureFitter(ref_host, test_host,
                                          anonymized=anonymized,
                                          symmetry_tol=symmetry_tol,
                                          fitting_accuracy=fitting_accuracy)
                 if fitter.fit_found:
-                    logger.debug("Fit found")
+                    logger.info("Fit found")
                     matches.append(unmatched[i])
         all_matches.append([m[0] for m in matches])
         unmatched = filter(lambda x: x not in matches, unmatched)
+        logger.info("{} unmatched remaining".format(len(unmatched)))
     return all_matches
