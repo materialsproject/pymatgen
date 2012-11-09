@@ -113,8 +113,12 @@ class StructureFitter(object):
             sg_b = finder_b.get_spacegroup_number()
             same_sg = sg_a == sg_b
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
-            self._structure_a = finder_a.find_primitive()
-            self._structure_b = finder_b.find_primitive()
+            prim_a = finder_a.find_primitive()
+            prim_b = finder_b.find_primitive()
+            finder_a = SymmetryFinder(prim_a, symprec=symmetry_tol)
+            finder_b = SymmetryFinder(prim_b, symprec=symmetry_tol)
+            self._structure_a = finder_a.get_refined_structure()
+            self._structure_b = finder_b.get_refined_structure()
             self._supercells_allowed = False
 
         if reduce_structures:
