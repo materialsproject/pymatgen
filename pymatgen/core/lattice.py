@@ -684,7 +684,7 @@ class Lattice(MSONable):
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
-        search_range = int(round(max(self._lengths) / min(a, b, c)))
+        search_range = int(round(max(self._lengths) / min(a, b, c))) + 1
         search_range = xrange(-search_range, search_range)
         all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
         cart = self.get_cartesian_coords(all_frac)
