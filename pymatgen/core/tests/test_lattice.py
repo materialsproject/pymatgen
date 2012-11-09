@@ -138,7 +138,7 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertAlmostEqual(abc[2], 3, 3)
         self.assertAlmostEqual(angles[0], 116.382862211, 3)
         self.assertAlmostEqual(angles[1], 94.769786460000006, 3)
-        self.assertAlmostEqual(angles[2], 109.465857052, 3)
+        self.assertAlmostEqual(angles[2], 109.466666667, 3)
 
         mat = [[5.0, 0, 0], [0, 5.0, 0], [5.0, 0, 5.0]]
         latt = Lattice(np.dot([[1, 1, 1], [1, 1, 0], [0, 1, 1]], mat))
@@ -148,6 +148,14 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertAlmostEqual(l, 5, 3)
         for a in angles:
             self.assertAlmostEqual(a, 90, 3)
+
+        latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314,
+                        4.751000, 0.0, -1.654628, 4.751000])
+        ans = [[-1.432950, -2.481942, 0.0],
+               [-2.8659, 0.0, 0.0],
+               [-1.432950, -0.827314, -4.751000]]
+        self.assertTrue(np.allclose(latt.get_niggli_reduced_lattice().matrix,
+                                    ans))
 
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
