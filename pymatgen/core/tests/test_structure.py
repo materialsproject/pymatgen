@@ -327,6 +327,7 @@ class CompositionTest(unittest.TestCase):
         self.comp.append(Composition.from_formula("Li3Fe2Mo3O12"))
         self.comp.append(Composition.from_formula("Li3Fe2((PO4)3(CO3)5)2"))
         self.comp.append(Composition.from_formula("Li1.5Si0.5"))
+        self.comp.append(Composition.from_formula("ZnOH"))
 
         self.indeterminate_comp = []
         self.indeterminate_comp.append(
@@ -370,7 +371,7 @@ class CompositionTest(unittest.TestCase):
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
                             'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54',
-                            'Li1.5 Si0.5']
+                            'Li1.5 Si0.5', 'Zn1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
         self.assertRaises(ValueError, Composition.from_formula, "(co2)(po4)2")
@@ -400,14 +401,14 @@ class CompositionTest(unittest.TestCase):
     def test_alphabetical_formula(self):
         correct_formulas = ['Fe2 Li3 O12 P3', 'Fe1 Li3 O5 P1', 'Li1 Mn2 O4',
                             'Li4 O4', 'Fe2 Li3 Mo3 O12', 'C10 Fe2 Li3 O54 P6',
-                            'Li1.5 Si0.5']
+                            'Li1.5 Si0.5', 'H1 O1 Zn1']
         all_formulas = [c.alphabetical_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
 
     def test_reduced_composition(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
-                                    'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
+                                    'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5', 'ZnHO']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i]
                              .get_reduced_composition_and_factor()[0],
@@ -417,18 +418,18 @@ class CompositionTest(unittest.TestCase):
     def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
-                                    'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5']
+                                    'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5', 'ZnHO']
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
     def test_num_atoms(self):
-        correct_num_atoms = [20, 10, 7, 8, 20, 75, 2]
+        correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
         all_natoms = [c.num_atoms for c in self.comp]
         self.assertEqual(all_natoms, correct_num_atoms)
 
     def test_weight(self):
         correct_weights = [417.427086, 187.63876199999999, 180.81469, 91.7616,
-                           612.3258, 1302.430172, 24.454250000000002]
+                           612.3258, 1302.430172, 24.454250000000002, 82.41634]
         all_weights = [c.weight for c in self.comp]
         self.assertAlmostEqual(all_weights, correct_weights, 5)
 
@@ -443,7 +444,7 @@ class CompositionTest(unittest.TestCase):
 
     def test_anonymized_formula(self):
         expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2',
-                             'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5']
+                             'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5', 'ABC']
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,
                              expected_formulas[i])
