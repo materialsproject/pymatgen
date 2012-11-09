@@ -28,6 +28,8 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
 class FuncTest(unittest.TestCase):
 
     def test_group_entries_by_structure(self):
+        import logging
+        logging.basicConfig(level=logging.INFO)
         with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as f:
             entries = json.load(f, cls=PMGJSONDecoder)
         groups = group_entries_by_structure(entries, symmetry_tol=0.1)
