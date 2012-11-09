@@ -11,6 +11,7 @@ from pymatgen.io.cifio import CifParser
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
 
+
 class StructureFitterTest(unittest.TestCase):
 
     def setUp(self):
@@ -21,7 +22,9 @@ class StructureFitterTest(unittest.TestCase):
         coords.append(np.array([0.75, 0.5, 0.2]))
         coords.append(np.array([0.5, 0.5, 0.5]))
 
-        lattice = Lattice(np.array([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]))
+        lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                    [1.9200989668, 3.3257101909, 0.00],
+                                    [0.00, -2.2171384943, 3.1355090603]]))
         self.a = Structure(lattice, [fe, si], coords)
         self.b = Structure(lattice, [fe, si], coords)
 
@@ -30,7 +33,8 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
 
         #Now to try with rotated structure
-        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, np.array([0, 0, 1]))
+        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False,
+                                                    np.array([0, 0, 1]))
         editor = StructureEditor(self.a)
         editor.apply_operation(op)
         fitter = StructureFitter(self.b, editor.modified_structure)
@@ -38,7 +42,8 @@ class StructureFitterTest(unittest.TestCase):
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
 
         #test with a supercell
-        mod = SupercellMaker(self.a, scaling_matrix=[[2, 0, 0], [0, 1, 0], [0, 0, 1]])
+        mod = SupercellMaker(self.a, scaling_matrix=[[2, 0, 0], [0, 1, 0],
+                                                     [0, 0, 1]])
         a_super = mod.modified_structure
         fitter = StructureFitter(self.b, a_super)
         self.assertTrue(fitter.mapping_op != None, "No fit found!")
@@ -67,6 +72,7 @@ class StructureFitterTest(unittest.TestCase):
         fitter = StructureFitter(b, a, anonymized=True)
         self.assertTrue(fitter.mapping_op != None, "Fit should be found when NaFePO4 and LiFePo4 are fitted in anonymized mode!")
         self.assertEqual({el1.symbol:el2.symbol for el1, el2 in fitter.el_mapping.items()}, {"O":"O", "Fe":"Fe", "Na":"Li", "P":"P"})
+
 
 class SupportFunctionTest(unittest.TestCase):
 

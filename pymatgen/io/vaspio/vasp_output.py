@@ -1950,18 +1950,19 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
 
         # populate branches with Bandstructure instances
         branches = []
-
+        structure = None
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, "vasprun.xml")
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
+                structure = run.final_structure
             else:
                 # It might be better to throw an exception
                 warnings.warn("Skipping {}. Unable to find {}"
                               .format(d=dir_name, f=xml_file))
 
-        return get_reconstructed_band_structure(branches, efermi)
+        return get_reconstructed_band_structure(branches, efermi, structure)
     else:
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
@@ -1972,7 +1973,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
             return None
 
 
-def get_adjusted_fermi_level(run_static, band_structure):
+def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
     When running a band structure computations the fermi level needs to be
     take from the static run that gave the charge density used for the non-self
@@ -1986,8 +1987,10 @@ def get_adjusted_fermi_level(run_static, band_structure):
     level. This procedure has shown to detect correctly most insulators.
 
     Args:
-        run_static:
-            a Vasprun object for the static run
+        cbm:
+            the cbm of the static run
+        efermi:
+            the fermi energy of the static run
         run_bandstructure:
             a band_structure object
 
@@ -1997,10 +2000,10 @@ def get_adjusted_fermi_level(run_static, band_structure):
     #make a working copy of band_structure
     bs_working = BandStructureSymmLine.from_dict(band_structure.to_dict)
     if bs_working.is_metal():
-        e = run_static.efermi
-        while e < run_static.eigenvalue_band_properties[1]:
+        e = efermi
+        while e < cbm:
             e += 0.01
             bs_working._efermi = e
             if not bs_working.is_metal():
                 return e
-    return run_static.efermi
+    return efermi

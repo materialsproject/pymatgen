@@ -55,7 +55,7 @@ class StructureFitter(object):
     def __init__(self, structure_a, structure_b, tolerance_cell_misfit=0.1,
                  tolerance_atomic_misfit=1.0, supercells_allowed=True,
                  anonymized=False, fitting_accuracy=FAST_FIT,
-                 timeout=300, symmetry_tol=0):
+                 timeout=300, symmetry_tol=0, reduce_structures=True):
         """
         Fits two structures. All fitting parameters have been set with defaults
         that should work in most cases.
@@ -90,8 +90,10 @@ class StructureFitter(object):
                 based on that symmetry tolerance in angstrom. Structures with
                 different symmetries are not fitted to each other. A good value
                 is around 0.1. Defaults to 0.
+            reduce_structures:
+                Whether to reduce structures to the primitive LLL cell.
+                Defaults to True.
         """
-
         self._tolerance_cell_misfit = tolerance_cell_misfit
         self._tolerance_atomic_misfit = tolerance_atomic_misfit
         self._supercells_allowed = supercells_allowed
@@ -111,6 +113,11 @@ class StructureFitter(object):
             sg_b = finder_b.get_spacegroup_number()
             same_sg = sg_a == sg_b
             logger.debug("Spacegroup numbers: A-{}, B-{}".format(sg_a, sg_b))
+            if reduce_structures:
+                self._structure_a = \
+                    finder_a.find_primitive().get_reduced_structure("LLL")
+                self._structure_b = \
+                    finder_b.find_primitive().get_reduced_structure("LLL")
 
         if not symmetry_tol or same_sg:
             self._mapping_op = None
@@ -334,14 +341,22 @@ class StructureFitter(object):
 
                 if not all_match:
                     continue
-
                 if not are_sites_unique(correspondance.values(), False):
                     all_match = False
                     continue
                 else:
                     for k, v in correspondance.items():
                         logger.debug(str(k) + " fits on " + str(v))
-
+                fixed_nb_of_fit_per_site = [0] * len(fixed.sites)
+                for t in correspondance:
+                    reduced_site = correspondance[t].to_unit_cell
+                    for y in range(len(fixed.sites)):
+                        if fixed.sites[y] == reduced_site:
+                            fixed_nb_of_fit_per_site[y] = \
+                                           fixed_nb_of_fit_per_site[y] + 1
+                if len(set(fixed_nb_of_fit_per_site)) != 1:
+                    all_match = False
+                    continue
                 # now check to see if the converse is true -- do all of the
                 # sites of fixed match up with a site in toFit
                 # this used to not be here. This fixes a bug.
@@ -372,7 +387,6 @@ class StructureFitter(object):
                                      "not fit - Step 2")
                         break
                     inv_correspondance[fixed_site] = closest
-
                 if all_match:
                     if not are_sites_unique(inv_correspondance.values(),
                                             False):
@@ -390,11 +404,22 @@ class StructureFitter(object):
                     # equivalent sites
                     if fixed.num_sites != to_fit.num_sites:
                         logger.debug("Testing sites unique")
-                        if not are_sites_unique(correspondance.values()):
+                        if not are_sites_unique(inv_correspondance.values()):
                             all_match = False
                             logger.debug("Rejected because the smallest "
                                          "correspondance array has equivalent"
                                          " sites.")
+                            continue
+                    if len(nstruct.sites) == len(fixed.sites):
+                        nstruct_nb_of_fit_per_site = [0] * len(nstruct.sites)
+                        for t in inv_correspondance:
+                            reduced_site = inv_correspondance[t].to_unit_cell
+                            for y in range(len(nstruct.sites)):
+                                if nstruct.sites[y] == reduced_site:
+                                    nstruct_nb_of_fit_per_site[y] = \
+                                            nstruct_nb_of_fit_per_site[y] + 1
+                        if len(set(nstruct_nb_of_fit_per_site)) != 1:
+                            all_match = False
                             continue
 
                     found_map = True
@@ -433,7 +458,7 @@ class StructureFitter(object):
         # which structure do we want to fit to the other ?
         # assume that structure b has less sites and switch if needed
 
-        self.fixed_is_a = a.num_sites > b.num_sites
+        self.fixed_is_a = a.num_sites < b.num_sites
         (fixed, to_fit) = (a, b) if self.fixed_is_a else (b, a)
 
         # scale the structures to the same density
