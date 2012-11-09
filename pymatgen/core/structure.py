@@ -1309,7 +1309,14 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
             return (re.sub("\s", "", self.formula), 1)
-        return reduce_formula(self.to_dict)
+
+        (formula, factor) = reduce_formula(self.to_dict)
+
+        if formula in Composition.special_formulas:
+            formula = Composition.special_formulas[formula]
+            factor = factor / 2
+
+        return (formula, factor)
 
     def get_fractional_composition(self):
         """
@@ -1750,10 +1757,6 @@ def reduce_formula(sym_amt):
             reduced_form.append(poly_form)
 
     reduced_form = "".join(reduced_form)
-
-    if reduced_form in Composition.special_formulas:
-        reduced_form = Composition.special_formulas[reduced_form]
-        factor = factor / 2
 
     return (reduced_form, factor)
 
