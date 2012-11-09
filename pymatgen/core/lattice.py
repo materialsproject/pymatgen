@@ -685,30 +685,27 @@ class Lattice(MSONable):
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
         search_range = int(round(max(self._lengths) / min(a, b, c)))
-        candidates = [[], [], []]
-        for frac in itertools.product(xrange(-search_range, search_range),
-                                         xrange(-search_range, search_range),
-                                         xrange(-search_range, search_range)):
-            cart = self.get_cartesian_coords(frac)
-            param = np.linalg.norm(cart)
-            if abs(param - a) < 1e-8:
-                candidates[0].append(cart)
-            if abs(param - b) < 1e-8:
-                candidates[1].append(cart)
-            if abs(param - c) < 1e-8:
-                candidates[2].append(cart)
+        all_frac = list(itertools.product(xrange(-search_range, search_range),
+                                          xrange(-search_range, search_range),
+                                          xrange(-search_range, search_range)))
+        cart = self.get_cartesian_coords(all_frac)
+        latt_params = np.sum(cart ** 2, axis=1) ** 0.5
+        data = zip(cart, latt_params)
+        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
+                      for l in (a, b, c)]
+
+        def get_angle(v1, v2):
+            x = np.dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = min(1, x)
+            x = max(-1, x)
+            angle = np.arccos(x) * 180. / pi
+            angle = np.around(angle, 9)
+            return angle
 
         for a, b, c in itertools.product(*candidates):
-            if abs(get_angle(a, b) - gamma) < 1e-8 and \
-                    abs(get_angle(b, c) - alpha) < 1e-8 and \
-                    abs(get_angle(a, c) - beta) < 1e-8:
-                return Lattice([a, b, c])
+            if abs(get_angle(a, b) - gamma) < e and \
+                    abs(get_angle(b, c) - alpha) < e and \
+                    abs(get_angle(a, c) - beta) < e:
+                return Lattice([a[0], b[0], c[0]])
 
         raise ValueError("can't find niggli")
-
-
-def get_angle(v1, v2):
-    x = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-    angle = np.arccos(x) * 180. / pi
-    angle = np.around(angle, 9)
-    return angle
