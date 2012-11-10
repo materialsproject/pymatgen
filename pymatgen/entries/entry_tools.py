@@ -81,7 +81,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
 
     Args:
         entries:
-            Sequence of entries.
+            Sequence of ComputedStructureEntries.
         species_to_remove:
             Sometimes you want to compare a host framework (e.g., in Li-ion
             battery analysis). This allows you to specify species to remove
