@@ -99,7 +99,7 @@ def qvertex_target(data, index):
     index is the index of the targeted point
     Returns the vertices of the voronoi construction around this target point.
     """
-    return run_qhull_command(['qvoronoi', 'p QV' + str(index)], data, float, 2)
+    return run_qhull_command(['qvoronoi', 'p', 'QV' + str(index)], data, float, 2)
 
 
 def get_lines_voronoi(data):
