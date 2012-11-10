@@ -201,12 +201,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        hashcode = 0
-        for el in self._species.keys():
-            #Ignore elements with zero amounts.
-            if self[el] != 0:
-                hashcode += el.Z
-        return 7
+        hashcode = sum((el.Z * occu for el, occu in self._species.items()))
+        return hashcode
 
     def __contains__(self, el):
         return el in self._species
@@ -233,7 +229,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         automatically sorted in LiFePO4.
         """
         def avg_electroneg(sps):
-            return sum([sp.X * occu for sp, occu in sps.items()])
+            return sum((sp.X * occu for sp, occu in sps.items()))
         if avg_electroneg(self._species) < avg_electroneg(other._species):
             return -1
         if avg_electroneg(self._species) > avg_electroneg(other._species):
@@ -315,8 +311,7 @@ class PeriodicSite(Site, MSONable):
             if coords_are_cartesian else coords
 
         if to_unit_cell:
-            for i, fcoords in enumerate(self._fcoords):
-                self._fcoords[i] = fcoords - floor(fcoords)
+            self._fcoords = coords_to_unit_cell(self._fcoords)
         c_coords = self._lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
 

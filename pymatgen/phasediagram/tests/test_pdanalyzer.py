@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO

@@ -19,7 +19,7 @@ __date__ = "Apr 30, 2012"
 import json
 
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, \
     PMGJSONEncoder
 

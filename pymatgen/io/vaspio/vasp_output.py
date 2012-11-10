@@ -30,7 +30,8 @@ import logging
 import numpy as np
 
 from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, clean_json
-from pymatgen.core.structure import Structure, Composition
+from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \

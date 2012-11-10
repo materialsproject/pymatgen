@@ -19,7 +19,7 @@ import os
 import ConfigParser
 from collections import defaultdict
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
 from pymatgen.io.vaspio_set import VaspInputSet
 

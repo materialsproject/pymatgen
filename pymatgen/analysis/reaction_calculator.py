@@ -20,7 +20,7 @@ import numpy as np
 from collections import defaultdict
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 
 logger = logging.getLogger(__name__)
 
