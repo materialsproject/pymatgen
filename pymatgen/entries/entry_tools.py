@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Created on Feb 24, 2012
+This module implements functions to perform various useful operations on
+entries, such as grouping entries by structure.
 '''
 
 from __future__ import division
