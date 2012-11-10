@@ -68,9 +68,7 @@ else:
 
 extension = Extension("pymatgen._spglib",
                       include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-                      extra_compile_args=extra_compile,
-                      extra_link_args=extra_link
+                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources
                       )
 
 scripts = [os.path.join("scripts", f) for f in os.listdir("scripts")]
