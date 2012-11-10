@@ -2298,7 +2298,6 @@ static int is_hall_symbol_hexa(double shift[3],
   int i, hall_number;
 
   for (i = 0; i < 12; i++) {
-    debug_print("Hexa generator No. %d\n", i + 1);
     for (hall_number = 462; hall_number < 489; hall_number++) {
       if (is_hall_symbol(shift,
 			 hall_number,
@@ -2580,16 +2579,8 @@ static int is_hall_symbol(double shift[3],
 
   unpack_generators(rot, generators);
 
-  debug_print("Start Hall symbol check\n");
-  debug_print("Generators\n");
-  debug_print_matrix_i3(rot[0]);
-  debug_print_matrix_i3(rot[1]);
-  debug_print_matrix_i3(rot[2]);
-  debug_print("Test Hall symbol #%d.\n", hall_number);
-
   spgdb_get_operation_index(operation_index, hall_number);
   if (! (operation_index[0] == symmetry->size)) {
-    debug_print("Hall symbol #%d doesn't match.\n", hall_number);
     goto not_found;
   }
 
@@ -2601,11 +2592,6 @@ static int is_hall_symbol(double shift[3],
 				       centering,
 				       VSpU);
 
-    debug_print("origin shift: %f %f %f\n",
-		shift[0],
-		shift[1],
-		shift[2]);
-
     if (is_origin_shift) {
       if (is_match_database(hall_number,
 			    shift,
@@ -2614,7 +2600,6 @@ static int is_hall_symbol(double shift[3],
 	goto found;
       }
     }
-    debug_print("Hall symbol #%d doesn't match.\n", hall_number);
   } else {
     goto not_found;
   }
@@ -2649,7 +2634,6 @@ static int get_translations(double trans[3][3],
       if (mat_check_identity_matrix_i3(symmetry->rot[j], rot[i])) {
 	mat_copy_vector_d3(trans[i], symmetry->trans[j]);
 	is_found = 1;
-	debug_print("trans%d found! %f %f %f\n", i, trans[i][0], trans[i][1], trans[i][2]);
 	break;
       }
     }
@@ -2658,7 +2642,6 @@ static int get_translations(double trans[3][3],
     }
   }
 
-  debug_print("all translations found!\n");
   return 1;
 
  not_found:
@@ -2795,8 +2778,6 @@ static int get_origin_shift(double shift[3],
   int operation_index[2];
   double dw[9], tmp_dw[3], tmp_shift[3];
 
-  debug_print("*** get_origin_shift ***\n");
-
   spgdb_get_operation_index(operation_index, hall_number);
 
   /* The obtained dw is reduced to that of primitve cell by centerings. */
@@ -2818,16 +2799,6 @@ static int get_origin_shift(double shift[3],
     }
   }
 
-
-#ifdef DEBUG
-  printf("VSpU\n");
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 9; j++) {
-      printf("%4.1f ", VSpU[i][j]);
-    }
-    printf("\n");
-  }
-#endif
 
   /* VSpU*dw is given for the primitive cell if there is centering. */
   for (i = 0; i < 3; i++) {
@@ -2855,9 +2826,6 @@ static int set_dw(double dw[3],
   int rot_db[3][3];
   double trans_db[3], tmp_dw[3];
 
-  debug_print("Generator\n");
-  debug_print_matrix_i3(rot);
-
   for (i = 0; i < operation_index[0]; i++) {
     /* rotation matrix matching and set difference of translations */
     spgdb_get_operation(rot_db, trans_db, operation_index[1] + i);
@@ -2868,15 +2836,6 @@ static int set_dw(double dw[3],
       }
       /* Transform dw to that of primitive cell if there is centering. */
       transform_translation(dw, centering, tmp_dw);
-
-      debug_print("trans(db): %f %f %f\n",
-		  trans_db[0], trans_db[1], trans_db[2]);
-      debug_print("trans    : %f %f %f\n",
-		  trans[0], trans[1], trans[2]);
-
-      debug_print("dw       : %f %f %f\n",
-		  dw[0], dw[1], dw[2]);
-
       goto found;
     }
   }
@@ -2921,29 +2880,7 @@ static int is_match_database(const int hall_number,
 	  found_list[j] = 1;
 	  is_found = 1;
 	  
-	  debug_print("---match!(%d)---\n", i+1);
-	  debug_print_matrix_i3(rot_db);
-	  debug_print("trans(db)   : %f %f %f\n",
-		      trans_db[0], trans_db[1], trans_db[2]);
-	  debug_print("trans       : %f %f %f\n",
-		      symmetry->trans[i][0],
-		      symmetry->trans[i][1],
-		      symmetry->trans[i][2]);
-	  debug_print("trans (conv): %f %f %f\n",
-		      conv_trans[0], conv_trans[1], conv_trans[2]);
-
 	  break;
-	} else {
-	  ;
-	  debug_print("---not match!(%d)---\n", i+1);
-	  debug_print_matrix_i3(rot_db);
-	  debug_print("trans(db): %f %f %f\n", trans_db[0], trans_db[1], trans_db[2]);
-	  debug_print("trans    : %f %f %f\n",
-		      symmetry->trans[i][0],
-		      symmetry->trans[i][1],
-		      symmetry->trans[i][2]);
-	  debug_print("trans (conv): %f %f %f\n",
-		      conv_trans[0], conv_trans[1], conv_trans[2]);
 	}
       }
     }
@@ -2952,7 +2889,6 @@ static int is_match_database(const int hall_number,
     }
   }
 
-  debug_print("is_match OK!\n");
   return 1;
 
  not_found:

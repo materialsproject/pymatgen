@@ -1,5 +1,73 @@
+2012-10-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.3
+
+	Rethink algorithms to search symmetry operations for speed-up and
+	stability. Many small modifications are applied. Some parts of the
+	codes that look unnecessary were removed but this change might
+	make the code unstable.
+
+	* symmetry.c (get_translation):
+
+	Improve OpenMP efficiency. Number of atoms to enable OpenMP
+	concurrency is set as 1000 (NUM_ATOMS_CRITERION_FOR_OPENMP).
+
+2012-10-09  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (sym_get_pure_translation, get_translation):
+
+	In 'sym_get_pure_translation', iterative approach to search
+	pure_translation was employed. But 'sym_get_pure_translation' was
+	only used from two functions in primitive.c. In these two
+	functions, tolerance is iteratively reduced when the search
+	fails. Because there is no need to do iteration twice, the
+	iteration part in 'sym_get_pure_translation' was removed.
+
+	* primitive.{c,h}:
+
+	'get_primitive_with_pure_translation' was replaced by
+	'get_primitive_and_pure_translation'. The former was only used
+	from 'get_operation' in symmetry.c and the interative approach was
+	implemented in 'get_operation'. The iterative part was moved into
+	'get_primitive_and_pure_translation'.
+
+	The Primitive structure was defined in primitive.h. This just
+	packs Cell * primitive_cell and VecDBL * pure_trans. The Primitive
+	structure is only used in 'get_operation' in symmetry.c and
+	'(prm_)get_primitive_and_pure_translation' in primitive.c.
+
+
+2012-10-08  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spacegroup.c (get_hall_number_local_iteration):
+
+	REDUCE_RATE to reduce number of symmetry operations is changed
+	from 0.2 to 0.95. Symmetry operations depend on tolerance
+	delicately.
+
+	* Remove many lines of debug_print:
+
+	Now to follow the flow is more important than to see the
+	detailed behavior of implementation.
+
+2012-10-03  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.2.5
+	* primitive.c:
+
+	Separate out get_primitive_with_mapping_table from
+	prm_get_primitive_with_mapping_table. Rename
+	prm_get_primitive_with_all to
+	get_primitive_with_pure_translation.
+	In get_primitive_with_pure_translation, it was
+	  if (pure_trans->size > 0)
+	but not it was fixed to
+	  if (pure_trans->size > 1)
+	not to search primitive cell when pure_trans->size == 1.
+
 2012-10-01  Atsushi Togo  <atz.togo@gmail.com>
 
+	* Version 1.2.4
 	* kpoint.c (get_ir_reciprocal_mesh):
 
 	In spglib, k-point grid is indexed as, for example,
