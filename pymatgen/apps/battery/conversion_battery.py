@@ -17,7 +17,7 @@ __status__ = "Beta"
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.physical_constants import ELECTRON_TO_AMPERE_HOURS
 from pymatgen.analysis.reaction_calculator import BalancedReaction
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.phasediagram.pdmaker import PhaseDiagram

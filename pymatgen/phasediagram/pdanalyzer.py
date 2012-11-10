@@ -18,7 +18,7 @@ import numpy as np
 import itertools
 import collections
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction

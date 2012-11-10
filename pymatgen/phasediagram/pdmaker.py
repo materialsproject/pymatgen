@@ -18,7 +18,7 @@ import numpy as np
 import collections
 import logging
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
 from pymatgen.core.periodic_table import DummySpecie
