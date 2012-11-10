@@ -239,16 +239,6 @@ static int get_Delaunay_reduction(double red_lattice[3][3],
     }
   }
 
-
-#ifdef DEBUG
-  debug_print("Delaunay reduction:\n");
-  debug_print_matrix_d3(red_lattice);
-  double metric[3][3];
-  mat_get_metric(metric, red_lattice);
-  debug_print("It's metric tensor.\n");
-  debug_print_matrix_d3(metric);
-#endif
-
   return 1;
 
  err:

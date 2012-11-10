@@ -1,0 +1,10 @@
+--- symmetry.c	2012-11-09 21:37:08.000000000 -0500
++++ symmetry.new	2012-11-09 21:30:56.000000000 -0500
+@@ -4,7 +4,6 @@
+ #include <math.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <omp.h>
+ #include "cell.h"
+ #include "debug.h"
+ #include "lattice.h"
