@@ -2,10 +2,10 @@ import unittest
 
 from nose.exc import SkipTest
 
-from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, get_minkowski_red, get_vasp_kpoint_file_sym
+from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
+    get_minkowski_red, get_vasp_kpoint_file_sym
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
-import numpy as np
 from pymatgen.util.io_utils import which
 
 
@@ -27,7 +27,8 @@ class AconvaspCallerTest(unittest.TestCase):
     def test_get_num_division_kpoints(self):
         if not aconvasp_present:
             raise SkipTest("aconvasp not present. Skipping...")
-        self.assertListEqual(get_num_division_kpoints(self.struct, 500), [6, 7, 6])
+        self.assertListEqual(get_num_division_kpoints(self.struct, 500),
+                             [6, 7, 6])
 
     def test_get_minkowski_red(self):
         if not aconvasp_present:
@@ -41,7 +42,8 @@ class AconvaspCallerTest(unittest.TestCase):
     def test_get_vasp_kpoint_file_sym(self):
         if not aconvasp_present:
             raise SkipTest("aconvasp not present. Skipping...")
-        self.assertEqual(get_vasp_kpoint_file_sym(self.struct).split("\n")[0], "FCC (face-centered cubic) G-X-W-K-G-L-U-W-L-K U-X")
+        self.assertEqual(get_vasp_kpoint_file_sym(self.struct).split("\n")[0],
+                         "FCC (face-centered cubic) G-X-W-K-G-L-U-W-L-K U-X")
 
 
 if __name__ == '__main__':
