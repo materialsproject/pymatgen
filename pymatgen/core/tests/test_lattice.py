@@ -13,7 +13,7 @@ class  LatticeTestCase(unittest.TestCase):
         self.lattice = Lattice.cubic(10.0)
         self.tetragonal = Lattice.tetragonal(10, 20)
 
-    def test_initialization(self):
+    def test_init(self):
         a = 9.026
         lattice = Lattice.cubic(a)
         self.assertIsNotNone(lattice, "Initialization from new_cubic failed")
@@ -30,13 +30,33 @@ class  LatticeTestCase(unittest.TestCase):
                                    "Wrong primitive lattice obtained!")
             self.assertAlmostEqual(angles[i], 109.47122063, 5,
                                    "Wrong primitive lattice obtained!")
-
         coord = lattice.get_cartesian_coords(np.array([0.5, 0.5, 0.5]))
         prim_frac = primlatt.get_fractional_coords(coord)
         for i in range(0, 3):
             self.assertAlmostEqual(coord[i], 4.513, 5, "Wrong coord!")
             self.assertAlmostEqual(prim_frac[i], 1, 5,
                                    "Wrong primitive frac coord!")
+
+    def test_get_cartesian_or_frac_coord(self):
+        coord = self.lattice.get_cartesian_coords(np.array([0.15, 0.3, 0.4]))
+        self.assertTrue(np.allclose(coord, [1.5, 3., 4.]))
+        self.assertTrue(np.allclose(self.tetragonal
+                                    .get_fractional_coords([12.12312, 45.2134,
+                                                            1.3434]),
+                                    [1.212312, 4.52134, 0.06717]))
+
+        #Random testing that get_cart and get_frac coords reverses each other.
+        rand_coord = np.random.random_sample(3)
+        coord = self.tetragonal.get_cartesian_coords(rand_coord)
+        fcoord = self.tetragonal.get_fractional_coords(coord)
+        self.assertTrue(np.allclose(fcoord, rand_coord))
+
+    def test_reciprocal_lattice(self):
+        self.assertTrue(np.allclose(self.lattice.reciprocal_lattice.matrix,
+                                    0.628319 * np.eye(3)))
+        self.assertTrue(np.allclose(self.tetragonal.reciprocal_lattice.matrix,
+                                    [[0.628319, 0., 0.], [0., 0.628319, 0],
+                                     [0., 0., 0.3141590]]))
 
     def test_static_methods(self):
         lengths_c = [3.840198, 3.84019885, 3.8401976]
