@@ -180,25 +180,33 @@ class MoleculeEditorTest(unittest.TestCase):
 
     def test_modified_structure(self):
         self.modifier.insert_site(1, "Si", [0, 0.25, 0])
-        self.assertEqual(self.modifier.modified_structure.formula, "Si1 H4 C1", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Si1 H4 C1",
+                         "Wrong formula!")
 
         self.modifier.delete_site(0)
-        self.assertEqual(self.modifier.modified_structure.formula, "Si1 H4", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Si1 H4",
+                         "Wrong formula!")
 
         self.modifier.replace_site(0, "Ge")
-        self.assertEqual(self.modifier.modified_structure.formula, "Ge1 H4", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Ge1 H4",
+                         "Wrong formula!")
 
         self.modifier.append_site("Si", [0, 0.75, 0])
         self.modifier.replace_species({Element("Si"): Element("Ge")})
 
-        self.assertEqual(self.modifier.modified_structure.formula, "Ge2 H4", "Wrong formula!")
+        self.assertEqual(self.modifier.modified_structure.formula, "Ge2 H4",
+                         "Wrong formula!")
 
-        self.modifier.replace_species({Element("Ge"): {Element("Ge"):0.5, Element("Si"):0.5}})
-        self.assertEqual(self.modifier.modified_structure.formula, "Si1 Ge1 H4", "Wrong formula!")
+        self.modifier.replace_species({Element("Ge"): {Element("Ge"): 0.5,
+                                                       Element("Si"): 0.5}})
+        self.assertEqual(self.modifier.modified_structure.formula,
+                         "Si1 Ge1 H4", "Wrong formula!")
 
         #this should change the .5Si .5Ge sites to .75Si .25Ge
-        self.modifier.replace_species({Element("Ge"): {Element("Ge"):0.5, Element("Si"):0.5}})
-        self.assertEqual(self.modifier.modified_structure.formula, "Si1.5 Ge0.5 H4", "Wrong formula!")
+        self.modifier.replace_species({Element("Ge"): {Element("Ge"): 0.5,
+                                                       Element("Si"): 0.5}})
+        self.assertEqual(self.modifier.modified_structure.formula,
+                         "Si1.5 Ge0.5 H4", "Wrong formula!")
 
         d = 0.1
         pre_perturbation_sites = self.modifier.modified_structure.sites
@@ -206,7 +214,8 @@ class MoleculeEditorTest(unittest.TestCase):
         post_perturbation_sites = self.modifier.modified_structure.sites
 
         for i, x in enumerate(pre_perturbation_sites):
-            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d, 3, "Bad perturbation distance")
+            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
+                                   3, "Bad perturbation distance")
 
     def test_add_site_property(self):
         self.modifier.add_site_property("charge", [4.1, -2, -2, -2, -2])
@@ -224,4 +233,3 @@ class MoleculeEditorTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
