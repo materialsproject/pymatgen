@@ -337,11 +337,9 @@ class Lattice(MSONable):
         """
         Return the reciprocal lattice.
         """
-        v = 2 * np.pi / self.volume
-        k1 = np.cross(self._matrix[1], self._matrix[2]) * v
-        k2 = np.cross(self._matrix[2], self._matrix[0]) * v
-        k3 = np.cross(self._matrix[0], self._matrix[1]) * v
-        return Lattice([k1, k2, k3])
+        v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
+             for i in xrange(3)]
+        return Lattice(np.array(v) * 2 * np.pi / self.volume)
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
