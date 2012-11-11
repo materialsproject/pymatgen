@@ -274,6 +274,7 @@ class StructureFitter(object):
         # We set the structure with fewer sites as fixed,
         # and scale the structures to the same density
         (fixed, to_fit) = self._scale_structures(a, b)
+
         # Defines the atom misfit tolerance
         tol_atoms = self._tolerance_atomic_misfit * (3 * 0.7405 * fixed.volume\
                                   / (4 * math.pi * fixed.num_sites)) ** (1 / 3)
@@ -436,7 +437,6 @@ class StructureFitter(object):
         return (found_map, mapping_op, biggest_dist)
 
     def __str__(self):
-
         output = ["Fitting structures"]
         output.append("\nStructure 1:")
         output.append(str(self._structure_a))
@@ -514,17 +514,19 @@ class StructureFitter(object):
                         considered_rots.append((x, y, z))
                         yield (shells[0][x], shells[1][y], shells[2][z])
             test_rotations = random_rot()
-
+        det = np.linalg.det
+        inv = np.linalg.inv
+        fixed_vol = fixed.volume
         for pool in test_rotations:
             if all([nn.species_and_occu == origin.species_and_occu \
                     for nn in pool]):
                 # Can a unitary transformation bring the cell vectors together?
                 coords = [nn.coords - origin.coords for nn in pool]
                 cell_v = np.array(coords).transpose()
-                det = np.linalg.det(cell_v)
-                if abs(det) < 0.001 or abs(abs(det) - fixed.volume) > 0.01:
+                d = det(cell_v)
+                if abs(d) < 0.001 or abs(abs(d) - fixed_vol) > 0.001:
                     continue
-                rot = np.dot(fixed_basis, np.linalg.inv(cell_v))
+                rot = np.dot(fixed_basis, inv(cell_v))
                 r = SymmOp.from_rotation_and_translation(rot,
                                                          np.array([0, 0, 0]))
 
