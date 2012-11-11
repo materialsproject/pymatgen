@@ -250,19 +250,19 @@ class Lattice(MSONable):
         Returns:
             A Lattice with the specified lattice parameters.
         """
-        to_r = lambda degrees: np.radians(degrees)
 
-        alpha_r = to_r(alpha)
-        beta_r = to_r(beta)
-        gamma_r = to_r(gamma)
-
-        gamma_star = np.arccos((np.cos(alpha_r) * np.cos(beta_r)
-                               - np.cos(gamma_r)) / (np.sin(alpha_r)
-                               * np.sin(beta_r)))
-        vector_a = [a * np.sin(to_r(beta)), 0.0, a * np.cos(to_r(beta))]
-        vector_b = [-b * np.sin(to_r(alpha)) * np.cos(gamma_star), b
-                    * np.sin(to_r(alpha)) * np.sin(gamma_star), b
-                    * np.cos(to_r(alpha))]
+        alpha_r = np.radians(alpha)
+        beta_r = np.radians(beta)
+        gamma_r = np.radians(gamma)
+        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r)) \
+            / (np.sin(alpha_r) * np.sin(beta_r))
+        #Sometimes rounding errors result in values slightly > 1.
+        val = val if abs(val) <= 1 else val / abs(val)
+        gamma_star = np.arccos(val)
+        vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+        vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                    b * np.sin(alpha_r) * np.sin(gamma_star),
+                    b * np.cos(alpha_r)]
         vector_c = [0.0, 0.0, float(c)]
         return Lattice([vector_a, vector_b, vector_c])
 
