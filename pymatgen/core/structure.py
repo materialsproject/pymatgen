@@ -1069,4 +1069,3 @@ class StructureError(Exception):
 
     def __str__(self):
         return "Structure Error : " + self.msg
-
