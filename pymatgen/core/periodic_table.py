@@ -276,13 +276,13 @@ class Element(object):
     def __eq__(self, other):
         if not isinstance(other, Element):
             return False
-        return self.Z == other.Z
+        return self._z == other._z
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return self.Z
+        return self._z
 
     def __repr__(self):
         return "Element " + self.symbol
@@ -561,7 +561,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self.oxi_state
+        return self._z * 100 + self._oxi_state
 
     def __lt__(self, other):
         """

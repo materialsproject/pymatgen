@@ -19,7 +19,7 @@ import itertools
 
 import numpy as np
 import numpy.linalg as npl
-from numpy import pi
+from numpy import pi, dot, transpose
 
 from pymatgen.serializers.json_coders import MSONable
 
@@ -53,15 +53,14 @@ class Lattice(MSONable):
 
         self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._md2c = np.transpose(self._matrix)
-        self._mc2d = npl.inv(np.transpose(self._matrix))
+        self._mc2d = npl.inv(transpose(self._matrix))
 
         lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
         angles = np.zeros((3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = np.dot(self._matrix[j], self._matrix[k]) / \
+            angles[i] = dot(self._matrix[j], self._matrix[k]) / \
                 (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
@@ -71,7 +70,7 @@ class Lattice(MSONable):
     @property
     def md2c(self):
         """Matrix for converting direct to cartesian coordinates"""
-        return np.copy(self._md2c)
+        return np.copy(transpose(self._matrix))
 
     @property
     def mc2d(self):
@@ -94,8 +93,7 @@ class Lattice(MSONable):
         Returns:
             Cartesian coordinates
         """
-        return np.transpose(np.dot(self._md2c,
-                                   np.transpose(fractional_coords)))
+        return dot(fractional_coords, self._matrix)
 
     def get_fractional_coords(self, cart_coords):
         """
@@ -108,7 +106,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return np.transpose(np.dot(self._mc2d, np.transpose(cart_coords)))
+        return dot(cart_coords, self._mc2d.T)
 
     @staticmethod
     def cubic(a):
@@ -427,7 +425,7 @@ class Lattice(MSONable):
             "I": np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
             "F": np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
         }
-        return Lattice(np.dot(conv_to_prim[lattice_type], self._matrix))
+        return Lattice(dot(conv_to_prim[lattice_type], self._matrix))
 
     def get_most_compact_basis_on_lattice(self):
         """
@@ -446,7 +444,7 @@ class Lattice(MSONable):
             """
             take care of c
             """
-            if np.dot(a, b) > 0:
+            if dot(a, b) > 0:
                 diffvector = a - b
             else:
                 diffvector = a + b
@@ -461,7 +459,7 @@ class Lattice(MSONable):
             """
             take care of b
             """
-            if np.dot(a, c) > 0:
+            if dot(a, c) > 0:
                 diffvector = a - c
             else:
                 diffvector = a + c
@@ -476,7 +474,7 @@ class Lattice(MSONable):
             """
             take care of a
             """
-            if np.dot(c, b) > 0:
+            if dot(c, b) > 0:
                 diffvector = c - b
             else:
                 diffvector = c + b
@@ -507,14 +505,11 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = np.transpose(self._matrix.copy())
+        a = transpose(self._matrix.copy())
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
         m = np.zeros(3)  # These are the norm squared of each vec.
-
-        # We are going to use dot a lot. Let's make an alias.
-        dot = np.dot
 
         b[:, 0] = a[:, 0]
         m[0] = dot(b[:, 0], b[:, 0])
@@ -588,8 +583,6 @@ class Lattice(MSONable):
         c = self._matrix[2]
         e = tol * self.volume ** (1 / 3)
 
-        dot = np.dot
-        transpose = np.transpose
         #Define metric tensor
         G = [[dot(a, a), dot(a, b), dot(a, c)],
              [dot(a, b), dot(b, b), dot(b, c)],
@@ -694,7 +687,7 @@ class Lattice(MSONable):
                       for l in (a, b, c)]
 
         def get_angle(v1, v2):
-            x = np.dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
             x = min(1, x)
             x = max(-1, x)
             angle = np.arccos(x) * 180. / pi
