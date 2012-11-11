@@ -139,6 +139,11 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.specie2 = DummySpecie("X", 2, {"spin": 3})
         self.assertEqual(self.specie2.spin, 3)
 
+    def test_eq(self):
+        self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))
+        self.assertFalse(DummySpecie("Xg") == DummySpecie("Xg", 3))
+        self.assertTrue(DummySpecie("Xg", 3) == DummySpecie("Xg", 3))
+
     def test_from_string(self):
         sp = DummySpecie.from_string("X")
         self.assertEqual(sp.oxi_state, 0)

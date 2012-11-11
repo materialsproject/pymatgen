@@ -285,10 +285,10 @@ class Element(object):
         return self._z
 
     def __repr__(self):
-        return "Element " + self.symbol
+        return "Element " + self._symbol
 
     def __str__(self):
-        return self.symbol
+        return self._symbol
 
     def __cmp__(self, other):
         """
@@ -296,7 +296,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self.X - other.X)
+        return (self._x - other._x)
 
     def __lt__(self, other):
         """
@@ -304,13 +304,13 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self.X < other.X)
+        return (self._x < other._x)
 
     @staticmethod
     def from_Z(z):
         """Get an element from an atomic number"""
-        for sym in _pt_data.keys():
-            if Element(sym).Z == z:
+        for sym, data in _pt_data.items():
+            if data["Atomic no"] == z:
                 return Element(sym)
         raise ValueError("No element with this atomic number")
 
@@ -348,7 +348,7 @@ class Element(object):
         """
         Returns the periodic table row of the element.
         """
-        Z = self.Z
+        Z = self._z
         total = 0
         if Z >= 57 and Z <= 70:
             return 8
@@ -366,7 +366,7 @@ class Element(object):
         """
         Returns the periodic table group of the element.
         """
-        Z = self.Z
+        Z = self._z
         if Z == 1:
             return 1
         if Z == 2:
@@ -416,21 +416,20 @@ class Element(object):
         True if element is noble gas.
         """
         ns = [2, 10, 18, 36, 54, 86, 118]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_transition_metal(self):
         """
         True if element is a transition metal.
         """
-
         ns = list(range(21, 31))
         ns.extend(range(39, 49))
         ns.append(57)
         ns.extend(range(72, 81))
         ns.append(89)
         ns.extend(range(104, 113))
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_rare_earth_metal(self):
@@ -445,7 +444,7 @@ class Element(object):
         True if element is a metalloid.
         """
         ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
-        return self.symbol in ns
+        return self._symbol in ns
 
     @property
     def is_alkali(self):
@@ -453,7 +452,7 @@ class Element(object):
         True if element is an alkali metal.
         """
         ns = [3, 11, 19, 37, 55, 87]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_alkaline(self):
@@ -461,7 +460,7 @@ class Element(object):
         True if element is an alkaline earth metal (group II).
         """
         ns = [4, 12, 20, 38, 56, 88]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_halogen(self):
@@ -469,21 +468,21 @@ class Element(object):
         True if element is a halogen.
         """
         ns = [9, 17, 35, 53, 85]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_lanthanoid(self):
         """
         True if element is a lanthanoid.
         """
-        return self.Z > 56 and self.Z < 72
+        return self._z > 56 and self._z < 72
 
     @property
     def is_actinoid(self):
         """
         True if element is a actinoid.
         """
-        return self.Z > 88 and self.Z < 104
+        return self._z > 88 and self._z < 104
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
@@ -494,11 +493,9 @@ class Element(object):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self._symbol}
 
 
 class Specie(MSONable):
@@ -561,7 +558,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self._z * 100 + self._oxi_state
+        return self.Z * 100 + self._oxi_state
 
     def __lt__(self, other):
         """
@@ -613,10 +610,10 @@ class Specie(MSONable):
 
     def __str__(self):
         output = self.symbol
-        if self.oxi_state >= 0:
-            output += formula_double_format(self.oxi_state) + "+"
+        if self._oxi_state >= 0:
+            output += formula_double_format(self._oxi_state) + "+"
         else:
-            output += formula_double_format(-self.oxi_state) + "-"
+            output += formula_double_format(-self._oxi_state) + "-"
         return output
 
     def __deepcopy__(self, memo):
@@ -624,13 +621,11 @@ class Specie(MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        d["oxidation_state"] = self._oxi_state
-        d["properties"] = self._properties
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self.symbol,
+                "oxidation_state": self._oxi_state,
+                "properties": self._properties}
 
     @staticmethod
     def from_dict(d):
@@ -732,13 +727,11 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        d["oxidation_state"] = self._oxi_state
-        d["properties"] = self._properties
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self.symbol,
+                "oxidation_state": self._oxi_state,
+                "properties": self._properties}
 
     @staticmethod
     def from_dict(d):

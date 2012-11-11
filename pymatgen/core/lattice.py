@@ -53,7 +53,7 @@ class Lattice(MSONable):
 
         self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._mc2d = npl.inv(transpose(self._matrix))
+        self._inv_matrix = npl.inv(self._matrix)
 
         lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
         angles = np.zeros((3), float)
@@ -66,16 +66,6 @@ class Lattice(MSONable):
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
-
-    @property
-    def md2c(self):
-        """Matrix for converting direct to cartesian coordinates"""
-        return np.copy(transpose(self._matrix))
-
-    @property
-    def mc2d(self):
-        """Matrix for converting cartesian to direct coordinates"""
-        return np.copy(self._mc2d)
 
     @property
     def matrix(self):
@@ -106,7 +96,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return dot(cart_coords, self._mc2d.T)
+        return dot(cart_coords, self._inv_matrix)
 
     @staticmethod
     def cubic(a):
@@ -270,13 +260,7 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
-        a = d["a"]
-        b = d["b"]
-        c = d["c"]
-        alpha = d["alpha"]
-        beta = d["beta"]
-        gamma = d["gamma"]
-        return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        return Lattice(d["matrix"])
 
     @property
     def angles(self):
@@ -392,17 +376,16 @@ class Lattice(MSONable):
         """""
         Json-serialization dict representation of the Lattice.
         """
-        d = {"matrix": self._matrix.tolist(),
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist(),
              "a": float(self.a),
              "b": float(self.b),
              "c": float(self.c),
              "alpha": float(self.alpha),
              "beta": float(self.beta),
              "gamma": float(self.gamma),
-             "volume": float(self.volume)
-             }
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+             "volume": float(self.volume)}
         return d
 
     def get_primitive_lattice(self, lattice_type):
