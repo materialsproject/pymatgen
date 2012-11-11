@@ -56,7 +56,8 @@ Latest Change Log (v2.2.5dev)
    algo using data-mined ICSD data.
 2. Speed up and improvements to core classes.
 3. Improved structure fitter (credits to Geoffroy Hautier).
-4. Miscellaneous bug fixes.
+4. Brand new entry_tools module (pymatgen.entries.entry_tools).
+5. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2
