@@ -28,6 +28,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 
@@ -155,6 +156,57 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     def to_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__}
         d["init_args"] = {"oxidation_states": self.oxi_states}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+
+class AutoOxiStateDecorationTransformation(AbstractTransformation):
+    """
+    This transformation automatically decorates a structure with oxidation
+    states using a bond valence approach.
+    """
+
+    def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
+                 distance_scale_factor=1.015):
+        """
+        Args:
+            symm_tol:
+                Symmetry tolerance used to determine which sites are
+                symmetrically equivalent. Set to 0 to turn off symmetry.
+            max_radius:
+                Maximum radius in Angstrom used to find nearest neighbors.
+            max_permutations:
+                The maximum number of permutations of oxidation states to test.
+            distance_scale_factor:
+                A scale factor to be applied. This is useful for scaling
+                distances, esp in the case of calculation-relaxed structures
+                which may tend to under (GGA) or over bind (LDA). The default
+                of 1.015 works for GGA. For experimental structure, set this to
+                1.
+        """
+        self.analyzer = BVAnalyzer(symm_tol, max_radius, max_permutations,
+                                   distance_scale_factor)
+
+    def apply_transformation(self, structure):
+        return self.analyzer.get_oxi_state_decorated_structure(structure)
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    @property
+    def to_dict(self):
+        d = {"name": self.__class__.__name__, "version": __version__}
+        d["init_args"] = {"symm_tol": self.analyzer.symm_tol,
+                          "max_radius": self.analyzer.max_radius,
+                          "max_permutations": self.analyzer.max_permutations,
+                          "distance_scale_factor":
+        self.analyzer.dist_scale_factor}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
