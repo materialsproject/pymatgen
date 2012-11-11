@@ -38,6 +38,108 @@ class Element(object):
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
     ensuring that a particular element behaves like a singleton.
+
+    ..attribute: name
+
+       Long name for element. E.g., "Hydrogen".
+
+    ..attribute: atomic_mass
+
+        Atomic mass for the element.
+
+    .. attribute: atomic_radius
+
+        Atomic radius for the element.
+
+    ..attribute: mendeleev_no
+
+        Mendeleev number
+
+    ..attribute: electrical_resistivity
+
+        Electrical resistivity
+
+    .. attribute: velocity_of_sound
+
+        Velocity of sound
+
+    ..attribute: reflectivity
+
+        Reflectivity
+
+    ..attribute: refractive_index
+
+        Refractice index
+
+    ..attribute: poissons_ratio
+
+        Poisson's ratio
+
+    ..attribute: molar_volume
+
+        Molar volume
+
+    .. attribute: electronic_structure
+
+        Electronic structure. Simplified form with HTML formatting.
+        E.g., The electronic structure for Fe is represented as
+        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+
+    .. attribute: thermal_conductivity
+
+        Thermal conductivity
+
+    .. attribute: boiling_point
+
+        Boiling point
+
+    .. attribute: melting_point
+
+        Melting point
+
+    .. attribute: critical_temperature
+
+        Critical temperature
+
+    .. attribute: superconduction_temperature
+
+        Superconduction temperature
+
+    .. attribute: liquid_range
+
+        Liquid range
+
+    .. attribute: bulk_modulus
+
+        Bulk modulus
+
+    .. attribute: youngs_modulus
+
+        Young's modulus
+
+    .. attribute: brinell_hardness
+
+        Brinell hardness
+
+    .. attribute: rigidity_modulus
+
+        Rigidity modulus
+
+    .. attribute: mineral_hardness
+
+        Mineral hardness
+
+    .. attribute: vickers_hardness
+
+        Vicker's hardness
+
+    .. attribute: density_of_solid
+
+        Density of solid phase
+
+    .. attribute: coefficient_of_linear_thermal_expansion
+
+        Coefficient of linear thermal expansion
     """
 
     def __init__(self, symbol):
@@ -54,6 +156,22 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
+
+    def __getattr__(self, a):
+        if a.lower() in ["name", "atomic_mass", "atomic_radius",
+                         "mendeleev_no", "electrical_resistivity",
+                         "velocity_of_sound", "reflectivity",
+                         "refractive_index", "poissons_ratio", "molar_volume",
+                         "electronic_structure", "thermal_conductivity",
+                         "boiling_point", "melting_point",
+                         "critical_temperature", "superconduction_temperature",
+                         "liquid_range", "bulk_modulus", "youngs_modulus",
+                         "brinell_hardness", "rigidity_modulus",
+                         "mineral_hardness", "vickers_hardness",
+                         "density_of_solid",
+                         "coefficient_of_linear_thermal_expansion"]:
+            return self._data[a.capitalize().replace("_", " ")]
+        raise AttributeError(a)
 
     @property
     def average_ionic_radius(self):
@@ -99,21 +217,6 @@ class Element(object):
         return self.Z
 
     @property
-    def name(self):
-        """Full name for element"""
-        return self._data["Name"]
-
-    @property
-    def atomic_mass(self):
-        """Atomic mass"""
-        return self._data["Atomic mass"]
-
-    @property
-    def atomic_radius(self):
-        """Atomic radius"""
-        return self._data["Atomic radius"]
-
-    @property
     def max_oxidation_state(self):
         """Maximum oxidation state for element"""
         if "Oxidation states" in self._data:
@@ -138,50 +241,6 @@ class Element(object):
         return tuple(self._data.get("Common oxidation states", list()))
 
     @property
-    def mendeleev_no(self):
-        """Mendeleev number"""
-        return self._data["Mendeleev no"]
-
-    @property
-    def electrical_resistivity(self):
-        """Electrical resistivity"""
-        return self._data["Electrical resistivity"]
-
-    @property
-    def velocity_of_sound(self):
-        """Velocity of sound"""
-        return self._data["Velocity of sound"]
-
-    @property
-    def reflectivity(self):
-        """Reflectivity"""
-        return self._data["Reflectivity"]
-
-    @property
-    def refractive_index(self):
-        """Refractice index"""
-        return self._data["Refractive index"]
-
-    @property
-    def poissons_ratio(self):
-        """Poisson"s ratio"""
-        return self._data["Poissons ratio"]
-
-    @property
-    def molar_volume(self):
-        """Molar volume"""
-        return self._data["Molar volume"]
-
-    @property
-    def electronic_structure(self):
-        """
-        Electronic structure. Simplified form with HTML formatting.
-        E.g., The electronic structure for Fe is represented as
-        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
-        """
-        return self._data["Electronic structure"]
-
-    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
@@ -202,76 +261,6 @@ class Element(object):
             sym = data[0].replace("[", "").replace("]", "")
             data = Element(sym).full_electronic_structure + data[1:]
         return data
-
-    @property
-    def thermal_conductivity(self):
-        """Thermal conductivity"""
-        return self._data["Thermal conductivity"]
-
-    @property
-    def boiling_point(self):
-        """Boiling point"""
-        return self._data["Boiling point"]
-
-    @property
-    def melting_point(self):
-        """Melting point"""
-        return self._data["Melting point"]
-
-    @property
-    def critical_temperature(self):
-        """Critical temperature"""
-        return self._data["Critical temperature"]
-
-    @property
-    def superconduction_temperature(self):
-        """Superconduction temperature"""
-        return self._data["Superconduction temperature"]
-
-    @property
-    def liquid_range(self):
-        """Liquid range"""
-        return self._data["Liquid range"]
-
-    @property
-    def bulk_modulus(self):
-        """Bulk modulus"""
-        return self._data["Bulk modulus"]
-
-    @property
-    def youngs_modulus(self):
-        """Young"s modulus"""
-        return self._data["Youngs modulus"]
-
-    @property
-    def brinell_hardness(self):
-        """Brinell hardness"""
-        return self._data["Brinell hardness"]
-
-    @property
-    def rigidity_modulus(self):
-        """Rigidity modulous"""
-        return self._data["Rigidity modulus"]
-
-    @property
-    def mineral_hardness(self):
-        """Mineral hardness"""
-        return self._data["Mineral hardness"]
-
-    @property
-    def vickers_hardness(self):
-        """Vicker"s hardness"""
-        return self._data["Vickers hardness"]
-
-    @property
-    def density_of_solid(self):
-        """Density of solid phase"""
-        return self._data["Density of solid"]
-
-    @property
-    def coefficient_of_linear_thermal_expansion(self):
-        """Coefficient of linear thermal expansion"""
-        return self._data["Coefficient of linear thermal expansion"]
 
     def __eq__(self, other):
         if not isinstance(other, Element):
