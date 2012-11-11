@@ -135,6 +135,12 @@ class PeriodicSiteTest(unittest.TestCase):
         self.assertFalse((abs(dist_old - dist_new) < 1e-8) ^
                          (jimage_old == jimage_new).all(),
                          "If old dist == new dist, images must be the same!")
+        latt = Lattice.from_parameters(3.0, 4.0, 10.0, 3.0, 1.0, 2.0)
+        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
+        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
+        (dist, img) = site.distance_and_image(site2)
+        self.assertAlmostEqual(dist, 1.1304420998572722)
+        self.assertEqual(list(img), [0, -1, -1])
 
     def test_is_periodic_image(self):
         other = PeriodicSite("Fe", np.array([1.25, 2.35, 4.45]), self.lattice)
