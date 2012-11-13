@@ -17,7 +17,7 @@ __date__ = "May 16, 2011"
 
 import re
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 

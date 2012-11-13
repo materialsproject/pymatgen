@@ -54,7 +54,10 @@ Latest Change Log (v2.2.5dev)
 
 1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
    algo using data-mined ICSD data.
-2. Miscellaneous bug fixes.
+2. Speed up and improvements to core classes.
+3. Improved structure fitter (credits to Geoffroy Hautier).
+4. Brand new entry_tools module (pymatgen.entries.entry_tools).
+5. Miscellaneous bug fixes.
 
 .. toctree::
    :maxdepth: 2

@@ -377,11 +377,11 @@ class BSPlotter(object):
             for i in range(self._nb_bands):
                     plt.plot(data['distances'],
                              [e for e in data['energy'][str(Spin.up)][i]],
-                             'b-', linewidth=band_linewidth)
+                             'bx', linewidth=band_linewidth)
                     if self._bs.is_spin_polarized:
                         plt.plot(data['distances'],
                                 [e for e in data['energy'][str(Spin.down)][i]],
-                                 'r-', linewidth=band_linewidth)
+                                 'rx', linewidth=band_linewidth)
         else:
             for i in range(self._nb_bands):
                 uniques = {}

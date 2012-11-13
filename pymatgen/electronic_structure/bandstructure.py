@@ -775,7 +775,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                           projections=projections)
 
 
-def get_reconstructed_band_structure(list_bs, efermi=None):
+def get_reconstructed_band_structure(list_bs, efermi=None, structure=None):
         """
         This method takes a list of band structures
         and reconstruct one band structure object from all of them

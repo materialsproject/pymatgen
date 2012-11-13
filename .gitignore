@@ -14,5 +14,6 @@ build
 .pydevproject
 .settings
 .externalToolBuilders
+.idea
 distribute*.egg
 distribute*.tar.gz
