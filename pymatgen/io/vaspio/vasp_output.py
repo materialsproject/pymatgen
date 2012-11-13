@@ -1915,7 +1915,7 @@ class VaspParserError(Exception):
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
-                                                   projections=False):
+                                            structure=None, projections=False):
     """
     this method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
