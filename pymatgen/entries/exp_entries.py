@@ -15,7 +15,7 @@ __date__ = "Jun 27, 2012"
 
 
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.thermochemistry import ThermoData
 

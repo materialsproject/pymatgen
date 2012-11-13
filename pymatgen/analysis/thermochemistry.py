@@ -14,7 +14,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Jun 10, 2012"
 
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 
 
 STANDARD_TEMP = 298.0

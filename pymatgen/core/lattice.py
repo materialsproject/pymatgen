@@ -15,10 +15,11 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import math
+import itertools
 
 import numpy as np
 import numpy.linalg as npl
-from numpy import pi
+from numpy import pi, dot, transpose
 
 from pymatgen.serializers.json_coders import MSONable
 
@@ -52,30 +53,19 @@ class Lattice(MSONable):
 
         self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._md2c = np.transpose(self._matrix)
-        self._mc2d = npl.inv(np.transpose(self._matrix))
+        self._inv_matrix = npl.inv(self._matrix)
 
         lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
         angles = np.zeros((3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = np.dot(self._matrix[j], self._matrix[k]) / \
+            angles[i] = dot(self._matrix[j], self._matrix[k]) / \
                 (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
-
-    @property
-    def md2c(self):
-        """Matrix for converting direct to cartesian coordinates"""
-        return np.copy(self._md2c)
-
-    @property
-    def mc2d(self):
-        """Matrix for converting cartesian to direct coordinates"""
-        return np.copy(self._mc2d)
 
     @property
     def matrix(self):
@@ -93,8 +83,7 @@ class Lattice(MSONable):
         Returns:
             Cartesian coordinates
         """
-        return np.transpose(np.dot(self._md2c,
-                                   np.transpose(fractional_coords)))
+        return dot(fractional_coords, self._matrix)
 
     def get_fractional_coords(self, cart_coords):
         """
@@ -107,7 +96,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return np.transpose(np.dot(self._mc2d, np.transpose(cart_coords)))
+        return dot(cart_coords, self._inv_matrix)
 
     @staticmethod
     def cubic(a):
@@ -249,19 +238,19 @@ class Lattice(MSONable):
         Returns:
             A Lattice with the specified lattice parameters.
         """
-        to_r = lambda degrees: np.radians(degrees)
 
-        alpha_r = to_r(alpha)
-        beta_r = to_r(beta)
-        gamma_r = to_r(gamma)
-
-        gamma_star = np.arccos((np.cos(alpha_r) * np.cos(beta_r)
-                               - np.cos(gamma_r)) / (np.sin(alpha_r)
-                               * np.sin(beta_r)))
-        vector_a = [a * np.sin(to_r(beta)), 0.0, a * np.cos(to_r(beta))]
-        vector_b = [-b * np.sin(to_r(alpha)) * np.cos(gamma_star), b
-                    * np.sin(to_r(alpha)) * np.sin(gamma_star), b
-                    * np.cos(to_r(alpha))]
+        alpha_r = np.radians(alpha)
+        beta_r = np.radians(beta)
+        gamma_r = np.radians(gamma)
+        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r)) \
+            / (np.sin(alpha_r) * np.sin(beta_r))
+        #Sometimes rounding errors result in values slightly > 1.
+        val = val if abs(val) <= 1 else val / abs(val)
+        gamma_star = np.arccos(val)
+        vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+        vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                    b * np.sin(alpha_r) * np.sin(gamma_star),
+                    b * np.cos(alpha_r)]
         vector_c = [0.0, 0.0, float(c)]
         return Lattice([vector_a, vector_b, vector_c])
 
@@ -271,13 +260,7 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
-        a = d["a"]
-        b = d["b"]
-        c = d["c"]
-        alpha = d["alpha"]
-        beta = d["beta"]
-        gamma = d["gamma"]
-        return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        return Lattice(d["matrix"])
 
     @property
     def angles(self):
@@ -354,11 +337,9 @@ class Lattice(MSONable):
         """
         Return the reciprocal lattice.
         """
-        v = 2 * np.pi / self.volume
-        k1 = np.cross(self._matrix[1], self._matrix[2]) * v
-        k2 = np.cross(self._matrix[2], self._matrix[0]) * v
-        k3 = np.cross(self._matrix[0], self._matrix[1]) * v
-        return Lattice([k1, k2, k3])
+        v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
+             for i in xrange(3)]
+        return Lattice(np.array(v) * 2 * np.pi / self.volume)
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
@@ -393,17 +374,16 @@ class Lattice(MSONable):
         """""
         Json-serialization dict representation of the Lattice.
         """
-        d = {"matrix": self._matrix.tolist(),
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self._matrix.tolist(),
              "a": float(self.a),
              "b": float(self.b),
              "c": float(self.c),
              "alpha": float(self.alpha),
              "beta": float(self.beta),
              "gamma": float(self.gamma),
-             "volume": float(self.volume)
-             }
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+             "volume": float(self.volume)}
         return d
 
     def get_primitive_lattice(self, lattice_type):
@@ -426,7 +406,7 @@ class Lattice(MSONable):
             "I": np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
             "F": np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
         }
-        return Lattice(np.dot(conv_to_prim[lattice_type], self._matrix))
+        return Lattice(dot(conv_to_prim[lattice_type], self._matrix))
 
     def get_most_compact_basis_on_lattice(self):
         """
@@ -445,7 +425,7 @@ class Lattice(MSONable):
             """
             take care of c
             """
-            if np.dot(a, b) > 0:
+            if dot(a, b) > 0:
                 diffvector = a - b
             else:
                 diffvector = a + b
@@ -460,7 +440,7 @@ class Lattice(MSONable):
             """
             take care of b
             """
-            if np.dot(a, c) > 0:
+            if dot(a, c) > 0:
                 diffvector = a - c
             else:
                 diffvector = a + c
@@ -475,7 +455,7 @@ class Lattice(MSONable):
             """
             take care of a
             """
-            if np.dot(c, b) > 0:
+            if dot(c, b) > 0:
                 diffvector = c - b
             else:
                 diffvector = c + b
@@ -506,14 +486,11 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = np.transpose(self._matrix.copy())
+        a = transpose(self._matrix.copy())
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
         m = np.zeros(3)  # These are the norm squared of each vec.
-
-        # We are going to use dot a lot. Let's make an alias.
-        dot = np.dot
 
         b[:, 0] = a[:, 0]
         m[0] = dot(b[:, 0], b[:, 0])
@@ -587,8 +564,6 @@ class Lattice(MSONable):
         c = self._matrix[2]
         e = tol * self.volume ** (1 / 3)
 
-        dot = np.dot
-        transpose = np.transpose
         #Define metric tensor
         G = [[dot(a, a), dot(a, b), dot(a, c)],
              [dot(a, b), dot(b, b), dot(b, c)],
@@ -681,5 +656,33 @@ class Lattice(MSONable):
         c = math.sqrt(C)
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
-        gamma = math.acos(Y / 2 / a / c) / math.pi * 180
-        return Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        gamma = math.acos(Y / 2 / a / b) / math.pi * 180
+
+        search_range = int(round(max(self._lengths) / min(a, b, c))) + 1
+        search_range = xrange(-search_range, search_range)
+        all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
+        cart = self.get_cartesian_coords(all_frac)
+        latt_params = np.sum(cart ** 2, axis=1) ** 0.5
+        data = zip(cart, latt_params)
+        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
+                      for l in (a, b, c)]
+
+        def get_angle(v1, v2):
+            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = min(1, x)
+            x = max(-1, x)
+            angle = np.arccos(x) * 180. / pi
+            angle = np.around(angle, 9)
+            return angle
+
+        for a, b, c in itertools.product(*candidates):
+            if abs(get_angle(a, b) - gamma) < e and \
+                    abs(get_angle(b, c) - alpha) < e and \
+                    abs(get_angle(a, c) - beta) < e:
+                #Make sure coordinate system is right-handed
+                if dot(np.cross(a[0], b[0]), c[0]) > 0:
+                    return Lattice([a[0], b[0], c[0]])
+                else:
+                    return Lattice([-a[0], -b[0], -c[0]])
+
+        raise ValueError("can't find niggli")

@@ -13,7 +13,7 @@
 #include "symmetry.h"
 
 #include "debug.h"
-
+#define NUM_ATOMS_CRITERION_FOR_OPENMP 1000
 #define REDUCE_RATE 0.95
 #define PI 3.14159265358979323846
 /* Tolerance of angle between lattice vectors in degrees */
@@ -65,20 +65,28 @@ static int get_operation(int rot[][3][3],
 static Symmetry * reduce_operation(SPGCONST Cell * cell,
 				   SPGCONST Symmetry * symmetry,
 				   const double symprec);
+static void search_translation_part(int lat_point_atoms[],
+				    SPGCONST Cell * cell,
+				    SPGCONST int rot[3][3],
+				    const int min_atom_index,
+				    const double origin[3],
+				    const double symprec,
+				    const int is_identity);
 static int is_overlap_all_atoms(const double test_trans[3],
 				SPGCONST int rot[3][3],
 				SPGCONST Cell * cell,
 				const double symprec,
 				const int is_identity);
-static PointSymmetry transform_pointsymmetry(SPGCONST PointSymmetry * point_sym_prim,
-					     SPGCONST double new_lattice[3][3],
-					     SPGCONST double original_lattice[3][3]);
+static PointSymmetry
+transform_pointsymmetry(SPGCONST PointSymmetry * point_sym_prim,
+			SPGCONST double new_lattice[3][3],
+			SPGCONST double original_lattice[3][3]);
 static int get_space_group_operation(int rot[][3][3],
 				     double trans[][3],
 				     SPGCONST PointSymmetry *lattice_sym,
 				     SPGCONST Cell *primitive,
 				     const double symprec);
-static int get_operation_supercell(int rot[][3][3],
+static int recover_operations_supercell(int rot[][3][3],
 				   double trans[][3],
 				   const int num_sym, 
 				   const VecDBL * pure_trans,
@@ -142,7 +150,6 @@ Symmetry * sym_get_operation(SPGCONST Cell *cell,
 
   num_sym = get_operation(rot->mat, trans->vec, cell, symprec);
 
-
   symmetry = sym_alloc_symmetry(num_sym);
   for (i = 0; i < num_sym; i++) {
     mat_copy_matrix_i3(symmetry->rot[i], rot->mat[i]);
@@ -181,34 +188,18 @@ VecDBL * sym_get_pure_translation(SPGCONST Cell *cell,
 				  const double symprec)
 {
   int attempt, multi;
-  double tolerance;
   VecDBL * pure_trans;
 
-  tolerance = symprec;
-  
-  for (attempt = 0; attempt < 100; attempt++) {
-    pure_trans = get_translation(identity, cell, tolerance, 1);
-    multi = pure_trans->size;
-    if ((cell->size / multi) * multi == cell->size) {
-      goto found;
-    } else {
-      mat_free_VecDBL(pure_trans);
-      tolerance *= REDUCE_RATE;
-    }
+  pure_trans = get_translation(identity, cell, symprec, 1);
+  multi = pure_trans->size;
+  if ((cell->size / multi) * multi == cell->size) {
+    debug_print("sym_get_pure_translation: pure_trans->size = %d\n", multi);
+  } else {
+    ;
+    warning_print("spglib: Finding pure translation failed (line %d, %s).\n", __LINE__, __FILE__);
+    warning_print("        cell->size %d, multi %d\n", cell->size, multi);
   }
 
-  pure_trans = mat_alloc_VecDBL(0);
-  warning_print("spglib: Finding pure translation failed (line %d, %s).\n", __LINE__, __FILE__);
-  warning_print("        cell->size %d, multi %d\n", cell->size, multi);
-
- found:
-
-#ifdef SPGWARNING
-  if (attempt > 0) {
-    printf("spglib: Tolerance to search pure_translation is changed to %f\n", tolerance);
-  }
-#endif
-  
   return pure_trans;
 }
 
@@ -267,85 +258,44 @@ static int get_operation(int rot[][3][3],
 			 SPGCONST Cell *cell,
 			 const double symprec)
 {
-  int num_sym, attempt, is_found;
-  double tolerance;
+  int num_sym;
   PointSymmetry lattice_sym;
-  Cell *primitive;
+  Primitive primitive;
   VecDBL *pure_trans;
-#ifdef DEBUG
-  int i;
-#endif
-  debug_print("*** get_symmetry (found symmetry operations) *** \n");
+
+  debug_print("get_operation:\n");
 
   num_sym = 0;
 
-  /* Lattice symmetry for input cell*/
   lattice_sym = get_lattice_symmetry(cell, symprec);
   if (lattice_sym.size == 0) {
     debug_print("get_lattice_symmetry failed.\n");
     goto end;
   }
 
-  tolerance = symprec;
-  for (attempt = 0; attempt < 100; attempt++) {
-    is_found = 0;
-    pure_trans = sym_get_pure_translation(cell, tolerance);
-    if (pure_trans->size == 0) {
-      mat_free_VecDBL(pure_trans);
-      goto end;
-    }
-
-    /* Obtain primitive cell */
-    primitive = prm_get_primitive_with_pure_translations(cell,
-							 pure_trans,
-							 tolerance);
-    if (primitive->size > 0) {
-      is_found = 1;
-      break;
-    }
-    cel_free_cell(primitive);
-    mat_free_VecDBL(pure_trans);
-    tolerance *= REDUCE_RATE;
-    warning_print("spglib: Reduce tolerance to %f\n", tolerance);
-    warning_print("(line %d, %s).\n", __LINE__, __FILE__);
-  }
-
-  if (! is_found) {goto end;}
+  primitive = prm_get_primitive_and_pure_translations(cell, symprec);
+  if (primitive.cell->size == 0) {goto deallocate_and_end;}
 
   lattice_sym = transform_pointsymmetry(&lattice_sym,
-					primitive->lattice,
+					primitive.cell->lattice,
 					cell->lattice);
   if (lattice_sym.size == 0) {goto deallocate_and_end;}
 
-  /* Symmetry operation search for primitive cell */
   num_sym = get_space_group_operation(rot, trans, &lattice_sym,
-				      primitive, symprec);
+				      primitive.cell, symprec);
 
-  /* Recover symmetry operation for the input structure (overwritten) */
-  num_sym = get_operation_supercell(rot,
-				    trans,
-				    num_sym,
-				    pure_trans,
-				    cell,
-				    primitive);
+  num_sym = recover_operations_supercell(rot,
+					 trans,
+					 num_sym,
+					 primitive.pure_trans,
+					 cell,
+					 primitive.cell);
 
  deallocate_and_end:
-  cel_free_cell(primitive);
-  mat_free_VecDBL(pure_trans);
+  cel_free_cell(primitive.cell);
+  mat_free_VecDBL(primitive.pure_trans);
 
  end:
-#ifdef DEBUG
-  debug_print("num_sym = %d\n", num_sym);
-  debug_print("num_lattice_sym = %d\n", lattice_sym.size);
-  debug_print("Lattice \n");
-  debug_print_matrix_d3(cell->lattice);
-  for (i = 0; i < num_sym; i++) {
-    debug_print("--- %d ---\n", i + 1);
-    debug_print_matrix_i3(rot[i]);
-    debug_print("%f %f %f\n", trans[i][0], trans[i][1], trans[i][2]);
-  }
-#endif
-  
   return num_sym;
 }
 
@@ -358,6 +308,8 @@ static Symmetry * reduce_operation(SPGCONST Cell * cell,
   PointSymmetry point_symmetry;
   MatINT *rot;
   VecDBL *trans;
+
+  debug_print("reduce_operation:\n");
 
   point_symmetry = get_lattice_symmetry(cell, symprec);
   rot = mat_alloc_MatINT(symmetry->size);
@@ -390,7 +342,7 @@ static Symmetry * reduce_operation(SPGCONST Cell * cell,
   mat_free_MatINT(rot);
   mat_free_VecDBL(trans);
 
-  debug_print("reduce_operation: num_sym = %d\n", num_sym);
+  debug_print("  num_sym %d -> %d\n", symmetry->size, num_sym);
 
   return sym_reduced;
 }
@@ -402,12 +354,11 @@ static VecDBL * get_translation(SPGCONST int rot[3][3],
 				const double symprec,
 				const int is_identity)
 {
-  int i, j, min_atom_index, num_trans = 0;
-  int *is_found;
-  double origin[3];
-  VecDBL *tmp_trans, *trans;
+  int i, j, min_atom_index, num_min_type_atoms, atom_i, num_trans = 0;
+  int *is_found, *min_type_atoms;
+  double origin[3], vec[3];
+  VecDBL *trans;
 
-  tmp_trans = mat_alloc_VecDBL(cell->size);
   is_found = (int*) malloc(sizeof(int)*cell->size);
   for (i = 0; i < cell->size; i++) {
     is_found[i] = 0;
@@ -419,25 +370,53 @@ static VecDBL * get_translation(SPGCONST int rot[3][3],
   /* Set min_atom_index as the origin to measure the distance between atoms. */
   mat_multiply_matrix_vector_id3(origin, rot, cell->position[min_atom_index]);
 
-  
-#pragma omp parallel for private(j)
-  for (i = 0; i < cell->size; i++) {	/* test translation */
-    if (cell->types[i] != cell->types[min_atom_index]) {
-      continue;
+#ifdef _OPENMP
+  if (cell->size < NUM_ATOMS_CRITERION_FOR_OPENMP) {
+    search_translation_part(is_found,
+			    cell,
+			    rot,
+			    min_atom_index,
+			    origin,
+			    symprec,
+			    is_identity);
+  } else {
+    /* Collect indices of atoms with the type where the minimum number */
+    /* of atoms belong. */
+    min_type_atoms = (int*) malloc(sizeof(int)*cell->size);
+    num_min_type_atoms = 0;
+    for (i = 0; i < cell->size; i++) {
+      if (cell->types[i] == cell->types[min_atom_index]) {
+	min_type_atoms[num_min_type_atoms] = i;
+	num_min_type_atoms++;
+      }
+    }
+#pragma omp parallel for private(j, vec)
+    for (i = 0; i < num_min_type_atoms; i++) {
+      for (j = 0; j < 3; j++) {
+	vec[j] = cell->position[min_type_atoms[i]][j] - origin[j];
+      }
+      if (is_overlap_all_atoms(vec,
+			       rot,
+			       cell,
+			       symprec,
+			       is_identity)) {
+	is_found[min_type_atoms[i]] = 1;
+      }
     }
 
-    for (j = 0; j < 3; j++) {
-      tmp_trans->vec[i][j] = cell->position[i][j] - origin[j];
-    }
-    if (is_overlap_all_atoms(tmp_trans->vec[i],
-			     rot,
-			     cell,
-			     symprec,
-			     is_identity)) {
-      is_found[i] = 1;
-    }
+    free(min_type_atoms);
   }
+#else
+  search_translation_part(is_found,
+			  cell,
+			  rot,
+			  min_atom_index,
+			  origin,
+			  symprec,
+			  is_identity);
+#endif
 
+  
   for (i = 0; i < cell->size; i++) {
     num_trans += is_found[i];
   }
@@ -445,16 +424,46 @@ static VecDBL * get_translation(SPGCONST int rot[3][3],
   num_trans = 0;
   for (i = 0; i < cell->size; i++) {
     if (is_found[i]) {
-      mat_copy_vector_d3(trans->vec[num_trans], tmp_trans->vec[i]);
+      for (j = 0; j < 3; j++) {
+	trans->vec[num_trans][j] = cell->position[i][j] - origin[j];
+      }
       num_trans++;
     }
   }
 
-  mat_free_VecDBL(tmp_trans);
   free(is_found);
   is_found = NULL;
   
   return trans;
+}
+
+static void search_translation_part(int lat_point_atoms[],
+				    SPGCONST Cell * cell,
+				    SPGCONST int rot[3][3],
+				    const int min_atom_index,
+				    const double origin[3],
+				    const double symprec,
+				    const int is_identity)
+{
+  int i, j;
+  double vec[3];
+
+  for (i = 0; i < cell->size; i++) {
+    if (cell->types[i] != cell->types[min_atom_index]) {
+      continue;
+    }
+
+    for (j = 0; j < 3; j++) {
+      vec[j] = cell->position[i][j] - origin[j];
+    }
+    if (is_overlap_all_atoms(vec,
+			     rot,
+			     cell,
+			     symprec,
+			     is_identity)) {
+      lat_point_atoms[i] = 1;
+    }
+  }
 }
 
 static int is_overlap_all_atoms(const double trans[3],
@@ -470,7 +479,7 @@ static int is_overlap_all_atoms(const double trans[3],
   symprec2 = symprec*symprec;
   
   for (i = 0; i < cell->size; i++) {
-    if (is_identity) {
+    if (is_identity) { /* Identity matrix is treated as special for speed. */
       for (j = 0; j < 3; j++) {
 	pos_rot[j] = cell->position[i][j] + trans[j];
       }
@@ -497,14 +506,6 @@ static int is_overlap_all_atoms(const double trans[3],
 	  is_found = 1;
 	  break;
 	}
-	
-	/* if (cel_is_overlap(cell->position[j], */
-	/* 		     pos_rot, */
-	/* 		     cell->lattice, */
-	/* 		     symprec)) {*/
-	/* is_found = 1; */
-	/* break; */
-	/* } */
       }
     }
 
@@ -562,10 +563,11 @@ static int get_space_group_operation(int rot[][3][3],
   int i, j, k, num_sym;
   VecDBL **tmp_trans;
 
+  debug_print("get_space_group_operation:\n");
+  
   num_sym = 0;
   tmp_trans = (VecDBL**) malloc(sizeof(VecDBL*) * lattice_sym->size);
 
-#pragma omp parallel for
   for (i = 0; i < lattice_sym->size; i++) {
     /* get translation corresponding to a rotation */
     tmp_trans[i] = get_translation(lattice_sym->rot[i], cell, symprec, 0);
@@ -589,12 +591,12 @@ static int get_space_group_operation(int rot[][3][3],
   return num_sym;
 }
 
-static int get_operation_supercell(int rot[][3][3],
-				   double trans[][3],
-				   const int num_sym, 
-				   const VecDBL * pure_trans,
-				   SPGCONST Cell *cell,
-				   SPGCONST Cell *primitive)
+static int recover_operations_supercell(int rot[][3][3],
+					double trans[][3],
+					const int num_sym, 
+					const VecDBL * pure_trans,
+					SPGCONST Cell *cell,
+					SPGCONST Cell *primitive)
 {
   int i, j, k, multi;
   double inv_prim_lat[3][3], drot[3][3], trans_mat[3][3], trans_mat_inv[3][3];
@@ -605,7 +607,7 @@ static int get_operation_supercell(int rot[][3][3],
   trans_prim = mat_alloc_VecDBL(num_sym);
   multi = pure_trans->size;
 
-  debug_print("get_operation_supercell\n");
+  debug_print("recover_operations_supercell:\n");
 
   mat_inverse_matrix_d3(inv_prim_lat, primitive->lattice, 0);
   mat_multiply_matrix_d3(trans_mat, inv_prim_lat, cell->lattice);
@@ -677,10 +679,6 @@ static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,
 	}
 	mat_multiply_matrix_di3(lattice, min_lattice, axes);
 	mat_get_metric(metric, lattice);
-
-	debug_print_matrix_i3(axes);
-	debug_print_matrix_d3(metric);
-	debug_print_matrix_d3(metric_orig);
 	
 	if (is_identity_metric(metric, metric_orig, symprec)) {
 	  mat_copy_matrix_i3(lattice_sym.rot[num_sym], axes);
@@ -722,7 +720,6 @@ static int is_identity_metric(SPGCONST double metric_rotated[3][3],
     length_orig[i] = sqrt(metric_orig[i][i]);
     length_rot[i] = sqrt(metric_rotated[i][i]);
     if (mat_Dabs(length_orig[i] - length_rot[i]) > symprec) {
-      debug_print("eliminate by length\n");
       goto fail;
     }
   }
@@ -748,7 +745,6 @@ static int is_identity_metric(SPGCONST double metric_rotated[3][3],
 		     (length_orig[k] + length_rot[k])) / 4;
       if (sin_dtheta2 > 1e-12) {
 	if (sin_dtheta2 * length_ave2 > symprec * symprec) {
-	  debug_print("eliminate by angle %f %f %20.17f %e\n", cos1, cos2, x, sin_dtheta2);
 	  goto fail;
 	}
       }
@@ -773,9 +769,10 @@ static double get_angle(SPGCONST double metric[3][3],
   return acos(metric[i][j] / length_i / length_j) / PI * 180;
 }
 
-static PointSymmetry transform_pointsymmetry(SPGCONST PointSymmetry * lat_sym_orig,
-					     SPGCONST double new_lattice[3][3],
-					     SPGCONST double original_lattice[3][3])
+static PointSymmetry
+transform_pointsymmetry(SPGCONST PointSymmetry * lat_sym_orig,
+			SPGCONST double new_lattice[3][3],
+			SPGCONST double original_lattice[3][3])
 {
   int i, size;
   double trans_mat[3][3], inv_mat[3][3], drot[3][3];
@@ -802,7 +799,7 @@ static PointSymmetry transform_pointsymmetry(SPGCONST PointSymmetry * lat_sym_or
     }
   }
 
-#ifdef DEBUG
+#ifdef SPGWARNING
   if (! (lat_sym_orig->size == size)) {
     warning_print("spglib: Some of point symmetry operations were dropped.");
     warning_print("(line %d, %s).\n", __LINE__, __FILE__);

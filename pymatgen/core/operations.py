@@ -81,11 +81,10 @@ class SymmOp(MSONable):
         return SymmOp(affine_matrix, tol)
 
     @staticmethod
-    def from_rotation_matrix_and_translation_vector(rotation_matrix=((1, 0, 0),
-                                                                     (0, 1, 0),
-                                                                     (0, 0, 1)),
-                                                    translation_vec=(0, 0, 0),
-                                                    tol=0.1):
+    def from_rotation_matrix_and_translation_vector(
+        rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        translation_vec=(0, 0, 0),
+        tol=0.1):
         """
         .. deprecated:: 2.2.1
             Use :func:`from_rotation_and_translation` instead.

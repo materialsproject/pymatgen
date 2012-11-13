@@ -149,6 +149,25 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
         self.assertEqual(str(s[2].specie), "O2-")
 
 
+class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        t = AutoOxiStateDecorationTransformation()
+        s = t.apply_transformation(p.structure)
+        expected_oxi = {"Li": 1, "P": 5, "O":-2, "Fe": 2}
+        for site in s:
+            self.assertEqual(site.specie.oxi_state,
+                             expected_oxi[site.specie.symbol])
+
+    def to_from_dict(self):
+        t = AutoOxiStateDecorationTransformation()
+        d = t.to_dict
+        t = AutoOxiStateDecorationTransformation.from_dict(d)
+        self.assertEqual(t.analyzer.dist_scale_factor, 1.015)
+
+
 class OxidationStateRemovalTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):

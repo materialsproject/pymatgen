@@ -8,7 +8,8 @@ __version__ = "2.2.5dev"
 Useful aliases for commonly used objects and modules.
 """
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Structure, Molecule, Composition
+from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 from pymatgen.electronic_structure.core import Spin, Orbital

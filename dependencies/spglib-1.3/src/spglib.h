@@ -1,4 +1,4 @@
-/* spglib.h version 1.2.4 */
+/* spglib.h version 1.3 */
 /* Copyright (C) 2008 Atsushi Togo */
 
 #ifndef __spglib_H__

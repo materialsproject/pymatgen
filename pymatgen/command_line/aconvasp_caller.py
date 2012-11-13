@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-'''
+"""
 Interface with command line aconvasp. http://aflowlib.org/
-Only tested on Linux. Inspired by Shyue's qhull_caller
+Only tested on Linux. Inspired by Shyue"s qhull_caller
 WARNING: you need to have a convasp in your path for this to work
-'''
+"""
 
 __author__ = "Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -15,8 +15,6 @@ __status__ = "Production"
 __date__ = "$Nov 22, 2011M$"
 
 import subprocess
-import numpy as np
-import os
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 
@@ -38,7 +36,7 @@ def get_num_division_kpoints(structure, kppa):
     Get kpoint divisions for a given k-point density (per reciprocal-atom):
     kppa and a given structure
     """
-    output = run_aconvasp_command(['aconvasp', '--kpoints', str(kppa)],
+    output = run_aconvasp_command(["aconvasp", "--kpoints", str(kppa)],
                                   structure)
     tmp = output[0].rsplit("\n")[6].rsplit(" ")
     return [int(tmp[5]), int(tmp[6]), int(tmp[7])]
@@ -48,7 +46,7 @@ def get_minkowski_red(structure):
     """
     Get a minkowski reduced structure
     """
-    output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
+    output = run_aconvasp_command(["aconvasp", "--kpath"], structure)
     started = False
     poscar_string = ""
     if "ERROR" in output[1]:
@@ -65,9 +63,10 @@ def get_minkowski_red(structure):
 
 def get_vasp_kpoint_file_sym(structure):
     """
-    get a kpoint file ready to be ran in VASP along the symmetry lines of the Brillouin Zone
+    get a kpoint file ready to be ran in VASP along the symmetry lines of the
+    Brillouin Zone
     """
-    output = run_aconvasp_command(['aconvasp', '--kpath'], structure)
+    output = run_aconvasp_command(["aconvasp", "--kpath"], structure)
     if "ERROR" in output[1]:
         raise AconvaspError(output[1])
     started = False
@@ -83,12 +82,11 @@ def get_vasp_kpoint_file_sym(structure):
     return kpoints_string
 
 
-
 class AconvaspError(Exception):
-    '''
+    """
     Exception class for aconvasp.
     Raised when the aconvasp gives an error
-    '''
+    """
 
     def __init__(self, msg):
         self.msg = msg

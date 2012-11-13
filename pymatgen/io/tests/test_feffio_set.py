@@ -23,7 +23,7 @@ class FeffInputSetTest(unittest.TestCase):
 TITLE Source:  CoO19128
 TITLE Structure Summary:  Co2 O2
 TITLE Reduced formula:  CoO
-TITLE space group: (Cm), space number:  (8)
+TITLE space group: (Cmc2_1), space number:  (36)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
@@ -36,7 +36,7 @@ TITLE sites: 4
         header = FeffInputSet.get_header(x, structure, 'CoO19128')
         self.maxDiff = 1000
         self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines(), "Failed to read HEADER file")
+                         header.splitlines())
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES")

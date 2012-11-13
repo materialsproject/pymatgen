@@ -1,4 +1,4 @@
-/* bravais.c */
+/* refinement.c */
 /* Copyright (C) 2011 Atsushi Togo */
 
 #include <math.h>
@@ -7,9 +7,7 @@
 #include "refinement.h"
 #include "cell.h"
 #include "mathfunc.h"
-#include "pointgroup.h"
 #include "primitive.h"
-#include "spacegroup.h"
 #include "spg_database.h"
 #include "site_symmetry.h"
 #include "symmetry.h"
