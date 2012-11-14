@@ -18,7 +18,7 @@ import math
 import itertools
 
 import numpy as np
-import numpy.linalg as npl
+from numpy.linalg import det, inv
 from numpy import pi, dot, transpose
 
 from pymatgen.serializers.json_coders import MSONable
@@ -53,15 +53,15 @@ class Lattice(MSONable):
 
         self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._inv_matrix = npl.inv(self._matrix)
+        self._inv_matrix = inv(self._matrix)
 
         lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
         angles = np.zeros((3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = dot(self._matrix[j], self._matrix[k]) / \
-                (lengths[j] * lengths[k])
+            angles[i] = dot(self._matrix[j], self._matrix[k]) /\
+                        (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
@@ -214,7 +214,7 @@ class Lattice(MSONable):
             A Lattice with the specified lattice parameters.
         """
         return Lattice.from_parameters(abc[0], abc[1], abc[2],
-                                       ang[0], ang[1], ang[2])
+            ang[0], ang[1], ang[2])
 
     @staticmethod
     def from_parameters(a, b, c, alpha, beta, gamma):
@@ -242,8 +242,8 @@ class Lattice(MSONable):
         alpha_r = np.radians(alpha)
         beta_r = np.radians(beta)
         gamma_r = np.radians(gamma)
-        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r)) \
-            / (np.sin(alpha_r) * np.sin(beta_r))
+        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+              / (np.sin(alpha_r) * np.sin(beta_r))
         #Sometimes rounding errors result in values slightly > 1.
         val = val if abs(val) <= 1 else val / abs(val)
         gamma_star = np.arccos(val)
@@ -323,7 +323,7 @@ class Lattice(MSONable):
         """
         Volume of the unit cell.
         """
-        return abs(npl.det(self._matrix))
+        return abs(det(self._matrix))
 
     @property
     def lengths_and_angles(self):
@@ -430,8 +430,8 @@ class Lattice(MSONable):
             else:
                 diffvector = a + b
             diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or \
-                    diffnorm < np.linalg.norm(b):
+            if diffnorm < np.linalg.norm(a) or\
+               diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(a) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -445,8 +445,8 @@ class Lattice(MSONable):
             else:
                 diffvector = a + c
             diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or \
-                    diffnorm < np.linalg.norm(c):
+            if diffnorm < np.linalg.norm(a) or\
+               diffnorm < np.linalg.norm(c):
                 if np.linalg.norm(a) < np.linalg.norm(c):
                     c = diffvector
                 else:
@@ -460,8 +460,8 @@ class Lattice(MSONable):
             else:
                 diffvector = c + b
             diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(c) or \
-                    diffnorm < np.linalg.norm(b):
+            if diffnorm < np.linalg.norm(c) or\
+               diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(c) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -514,9 +514,9 @@ class Lattice(MSONable):
                     u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
 
             # Check the Lovasz condition.
-            if dot(b[:, k - 1], b[:, k - 1]) >= \
-                    (delta - abs(u[k - 1, k - 2]) ** 2) * \
-                    dot(b[:, (k - 2)], b[:, (k - 2)]):
+            if dot(b[:, k - 1], b[:, k - 1]) >=\
+               (delta - abs(u[k - 1, k - 2]) ** 2) *\
+               dot(b[:, (k - 2)], b[:, (k - 2)]):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
@@ -528,9 +528,9 @@ class Lattice(MSONable):
                 #Update the Gram-Schmidt coefficients
                 for s in xrange(k - 1, k + 1):
                     u[s - 1, 0:(s - 1)] = dot(a[:, s - 1].T,
-                                              b[:, 0:(s - 1)]) / m[0:(s - 1)]
+                        b[:, 0:(s - 1)]) / m[0:(s - 1)]
                     b[:, s - 1] = a[:, s - 1] - dot(b[:, 0:(s - 1)],
-                                                    u[s - 1, 0:(s - 1)].T)
+                        u[s - 1, 0:(s - 1)].T)
                     m[s - 1] = dot(b[:, s - 1], b[:, s - 1])
 
                 if k > 2:
@@ -617,29 +617,29 @@ class Lattice(MSONable):
                                   2 * G[1, 2], 2 * G[0, 2], 2 * G[0, 1])
 
             #A5
-            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or \
-                    (abs(E + B) < e and Y < -e):
+            if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or\
+               (abs(E + B) < e and Y < -e):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A6
-            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or \
-                    (abs(A + N) < e and Y < -e):
+            if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or\
+               (abs(A + N) < e and Y < -e):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A7
-            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or \
-                    (abs(A + Y) < e and N < -e):
+            if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or\
+               (abs(A + Y) < e and N < -e):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A8
-            if E + N + Y + A + B < -e or \
-                    (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
+            if E + N + Y + A + B < -e or\
+               (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -676,9 +676,9 @@ class Lattice(MSONable):
             return angle
 
         for a, b, c in itertools.product(*candidates):
-            if abs(get_angle(a, b) - gamma) < e and \
-                    abs(get_angle(b, c) - alpha) < e and \
-                    abs(get_angle(a, c) - beta) < e:
+            if abs(get_angle(a, b) - gamma) < e and\
+               abs(get_angle(b, c) - alpha) < e and\
+               abs(get_angle(a, c) - beta) < e:
                 #Make sure coordinate system is right-handed
                 if dot(np.cross(a[0], b[0]), c[0]) > 0:
                     return Lattice([a[0], b[0], c[0]])
