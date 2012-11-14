@@ -532,7 +532,7 @@ class Structure(SiteCollection, MSONable):
 
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
-        neighbors = [list() for i in range(len(self._sites))]
+        neighbors = [list() for i in xrange(len(self._sites))]
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
@@ -551,7 +551,7 @@ class Structure(SiteCollection, MSONable):
                                               site.lattice,
                                               properties=site.properties)
                         item = (nnsite, dists[i], j) if include_index\
-                        else (nnsite, dists[i])
+                            else (nnsite, dists[i])
                         neighbors[i].append(item)
         return neighbors
 
@@ -696,9 +696,9 @@ class Structure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=str(self.composition))]
-        outs.append("Reduced Formula: {}"
-        .format(self.composition.reduced_formula))
+        outs = ["Structure Summary ({s})".format(s=str(self.composition)),
+                "Reduced Formula: {}"
+                .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
         outs.append("abc   : " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.abc]))
@@ -896,8 +896,8 @@ class Molecule(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=str(self.composition))]
-        outs.append("Reduced Formula: " + self.composition.reduced_formula)
+        outs = ["Molecule Summary ({s})".format(s=str(self.composition)),
+                "Reduced Formula: " + self.composition.reduced_formula]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
@@ -934,7 +934,6 @@ class Molecule(SiteCollection, MSONable):
         props = {}
 
         for site_dict in d["sites"]:
-            sp = site_dict["species"]
             species.append({Specie(sp["element"], sp["oxidation_state"])
                             if "oxidation_state" in sp else
                             Element(sp["element"]): sp["occu"]
