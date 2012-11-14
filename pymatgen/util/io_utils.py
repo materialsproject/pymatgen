@@ -15,7 +15,6 @@ __date__ = "Sep 23, 2011"
 import re
 import numpy
 import os
-import string
 
 
 def zopen(filename, *args, **kwargs):
@@ -128,11 +127,12 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     for line in reader:
         for i in range(len(search)):
             match = search[i][0].search(line)
-            if match and (search[i][1] == None or search[i][1](results, line)):
-                if debug != None:
+            if match and (search[i][1] is not None
+                          or search[i][1](results, line)):
+                if debug is not None:
                     debug(results, match)
                 search[i][2](results, match)
-                if postdebug != None:
+                if postdebug is not None:
                     postdebug(results, match)
 
     reader.close()
@@ -172,7 +172,7 @@ def clean_json(input_json, strict=False):
         else:
             if isinstance(input_json, basestring):
                 return str(input_json)
-            elif input_json == None:
+            elif input_json is None:
                 return 'None'
             else:
                 return clean_json(input_json.to_dict, strict=strict)
@@ -198,29 +198,29 @@ def which(program):
     return None
 
 
-def read_backwards(m_file, BLKSIZE=4096):
+def reverse_readline(stream, blk_size=4096):
     """
     Method to read a file line-by-line, but backwards. This allows one to
     efficiently get data at the end of a file.
 
     Based on code by Peter Astrand <astrand@cendio.se>, using modifications by
     Raymond Hettinger.
-    
-    Attributes:
-        m_file:
-            The file to read (backwards)
-        BLKSIZE:
-            The buffer size
+
+    Args:
+        stream:
+            File stream to read (backwards)
+        blk_size:
+            The buffer size. Defaults to 4096.
     """
 
     buf = ""
-    m_file.seek(-1, 2)
-    lastchar = m_file.read(1)
+    stream.seek(-1, 2)
+    lastchar = stream.read(1)
     trailing_newline = (lastchar == "\n")
-    
+
     while 1:
         newline_pos = buf.rfind("\n")
-        pos = m_file.tell()
+        pos = stream.tell()
         if newline_pos != -1:
             # Found a newline
             line = buf[newline_pos + 1:]
@@ -230,10 +230,10 @@ def read_backwards(m_file, BLKSIZE=4096):
             yield line
         elif pos:
             # Need to fill buffer
-            toread = min(BLKSIZE, pos)
-            m_file.seek(-toread, 1)
-            buf = m_file.read(toread) + buf
-            m_file.seek(-toread, 1)
+            toread = min(blk_size, pos)
+            stream.seek(-toread, 1)
+            buf = stream.read(toread) + buf
+            stream.seek(-toread, 1)
             if pos == toread:
                 buf = "\n" + buf
         else:

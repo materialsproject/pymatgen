@@ -29,7 +29,8 @@ import logging
 
 import numpy as np
 
-from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, clean_json
+from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
+    clean_json, reverse_readline
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -1066,8 +1067,7 @@ class Outcar(object):
         self.filename = filename
         self.is_stopped = False
         with zopen(filename, "r") as f:
-            read_charge = False
-            read_mag = False
+            read_charge_mag = False
             charge = []
             mag = []
             header = []
@@ -1076,71 +1076,61 @@ class Outcar(object):
             nelect = None
             efermi = None
 
-            # Only check the last 10,000 lines for content
-            # AJ has examples of OUTCARs with 23 million lines!!
-            # They take forever to parse and kill machines
-            MAX_LINES = 10000
-            SIZE_CUTOFF = 10000000  # 10MB
-            line_cutoff = 0
-            if os.path.getsize(filename) > SIZE_CUTOFF:
-                line_count = 0
-                for line in f:
-                    line_count += 1
-                line_cutoff = line_count - MAX_LINES
-                #rewind the file
-                f.seek(0)
-
             time_patt = re.compile("\((sec|kb)\)")
             efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
             nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                      "magnetization\s+(\S+)")
-
-            for idx, line in enumerate(f):
-                if idx >= line_cutoff:
-                    clean = line.strip()
-                    if clean == "total charge":
-                        read_charge = True
-                        charge = []
+            all_lines = []
+            for line in reverse_readline(f):
+                clean = line.strip()
+                all_lines.append(clean)
+                if clean.startswith("tot ") and not (charge and mag):
+                    read_charge_mag = True
+                    data = []
+                elif read_charge_mag:
+                    if clean.startswith("# of ion"):
+                        header = re.split("\s{2,}", line.strip())
+                        header.pop(0)
+                    elif clean == "total charge":
+                        data.reverse()
+                        charge = [dict(zip(header, v)) for v in data]
+                        read_charge_mag = False
                     elif clean == "magnetization (x)":
-                        read_mag = True
-                        mag = []
-                    elif read_charge or read_mag:
-                        if clean.startswith("# of ion"):
-                            header = re.split("\s{2,}", line.strip())
-                        elif clean.startswith("tot"):
-                            read_charge = False
-                            read_mag = False
-                        else:
-                            m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                            if m:
-                                to_append = charge if read_charge else mag
-                                data = re.findall("[\d\.\-]+", clean)
-                                to_append.append({header[i]: float(data[i])
-                                                  for i
-                                                  in xrange(1, len(header))})
-                    elif line.find("soft stop encountered!  aborting job") \
-                            != -1:
-                        self.is_stopped = True
+                        data.reverse()
+                        mag = [dict(zip(header, v)) for v in data]
+                        read_charge_mag = False
                     else:
-                        if time_patt.search(line):
-                            tok = line.strip().split(":")
-                            run_stats[tok[0].strip()] = float(tok[1].strip())
+                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                        if m:
+                            toks = [float(i) for i in re.findall("[\d\.\-]+",
+                                                                 clean)]
+                            toks.pop(0)
+                            data.append(toks)
+                elif clean.find("soft stop encountered!  aborting job") != -1:
+                    self.is_stopped = True
+                else:
+                    if time_patt.search(line):
+                        tok = line.strip().split(":")
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                        continue
+                    m = efermi_patt.search(clean)
+                    if m:
+                        try:
+                            #try-catch because VASP sometimes prints
+                            #'E-fermi: ********     XC(G=0):  -6.1327
+                            #alpha+bet : -1.8238'
+                            efermi = float(m.group(1))
                             continue
-                        m = efermi_patt.search(clean)
-                        if m:
-                            try:
-                                #try-catch because VASP sometimes prints
-                                #'E-fermi: ********     XC(G=0):  -6.1327
-                                #alpha+bet : -1.8238'
-                                efermi = float(m.group(1))
-                                continue
-                            except:
-                                efermi = 0
-                                continue
-                        m = nelect_patt.search(clean)
-                        if m:
-                            nelect = float(m.group(1))
-                            total_mag = float(m.group(2))
+                        except:
+                            efermi = 0
+                            continue
+                    m = nelect_patt.search(clean)
+                    if m:
+                        nelect = float(m.group(1))
+                        total_mag = float(m.group(2))
+                if all([charge, mag, nelect, total_mag is not None, efermi,
+                        run_stats]):
+                    break
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
