@@ -253,7 +253,7 @@ class Element(object):
         def parse_orbital(orbstr):
             m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
             if m:
-                return (int(m.group(1)), m.group(2), int(m.group(3)))
+                return int(m.group(1)), m.group(2), int(m.group(3))
             return orbstr
 
         data = [parse_orbital(s) for s in estr.split(".")]
@@ -285,7 +285,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self._x - other._x)
+        return self._x - other._x
 
     def __lt__(self, other):
         """
@@ -293,11 +293,20 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self._x < other._x)
+        return self._x < other._x
 
     @staticmethod
     def from_Z(z):
-        """Get an element from an atomic number"""
+        """
+        Get an element from an atomic number.
+
+        Args:
+            z:
+                Atomic number
+
+        Returns:
+            Element with atomic number z.
+        """
         for sym, data in _pt_data.items():
             if data["Atomic no"] == z:
                 return Element(sym)
@@ -339,9 +348,9 @@ class Element(object):
         """
         Z = self._z
         total = 0
-        if Z >= 57 and Z <= 70:
+        if 57 <= Z <= 70:
             return 8
-        elif Z >= 89 and Z <= 102:
+        elif 89 <= Z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
@@ -360,7 +369,7 @@ class Element(object):
             return 1
         if Z == 2:
             return 18
-        if Z >= 3 and Z <= 18:
+        if 3 <= Z <= 18:
             if (Z - 2) % 8 == 0:
                 return 18
             elif (Z - 2) % 8 <= 2:
@@ -368,7 +377,7 @@ class Element(object):
             else:
                 return (10 + (Z - 2) % 8)
 
-        if Z >= 19 and Z <= 54:
+        if 19 <= Z <= 54:
             if (Z - 18) % 18 == 0:
                 return 18
             else:
@@ -391,7 +400,7 @@ class Element(object):
             block = "s"
         elif self.group in range(13, 19):
             block = "p"
-        elif (self.is_actinoid or self.is_lanthanoid):
+        elif self.is_actinoid or self.is_lanthanoid:
             block = "f"
         elif self.group in range(3, 13):
             block = "d"
@@ -471,7 +480,7 @@ class Element(object):
         """
         True if element is a actinoid.
         """
-        return self._z > 88 and self._z < 104
+        return 88 < self._z < 104
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
