@@ -143,9 +143,8 @@ class Vasprun(object):
                             "ionic_steps", "dos_has_errors",
                             "projected_eigenvalues"]
 
-    def __init__(self, filename, ionic_step_skip=None,
-                 parse_dos=True, parse_eigen=True,
-                 parse_projected_eigen=False):
+    def __init__(self, filename, ionic_step_skip=None, parse_dos=True,
+                 parse_eigen=True, parse_projected_eigen=False):
         """
         Args:
             filename:
@@ -326,7 +325,7 @@ class Vasprun(object):
                                       "non-self-consistent (ICHARG=11) if not "
                                       "hybrid")
 
-        if efermi == None:
+        if efermi is None:
             efermi = self.efermi
 
         kpoint_file = Kpoints.from_file(kpoints_filename)
@@ -340,7 +339,6 @@ class Vasprun(object):
         if 'projected_eigenvalues' in self.to_dict['output']:
             dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
-        eigenvals = {}
         p_eigenvals = {}
         if "up" in dict_eigen["1"] and "down" in dict_eigen["1"]\
                 and self.incar['ISPIN'] == 2:
@@ -379,14 +377,14 @@ class Vasprun(object):
         #for this we look at the presence of the LHFCALC tag and of k-points
         #that have weights=0.0
         hybrid_band = False
-        if self.parameters['LHFCALC'] == True:
+        if self.parameters['LHFCALC']:
             for l in kpoint_file.labels:
                 if l != None:
                     hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band == True:
+        if kpoint_file.style == "Line_mode" or hybrid_band:
             labels_dict = {}
-            if hybrid_band == True:
+            if hybrid_band:
                 start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
                     if self.actual_kpoints_weights[i] == 0.0:
@@ -440,17 +438,16 @@ class Vasprun(object):
                 elif occu <= 1e-8 and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
-        return (cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint)
+        return cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint
 
     @property
     def to_dict(self):
         """
         Json-serializable dict representation.
         """
-        d = {}
-        d["vasp_version"] = self.vasp_version
-        d["has_vasp_completed"] = self.converged
-        d["nsites"] = len(self.final_structure)
+        d = {"vasp_version": self.vasp_version,
+             "has_vasp_completed": self.converged,
+             "nsites": len(self.final_structure)}
         comp = self.final_structure.composition
         d["unit_cell_formula"] = comp.to_dict
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
@@ -1408,16 +1405,11 @@ class Outcar(object):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["efermi"] = self.efermi
-        d["run_stats"] = self.run_stats
-        d["magnetization"] = self.magnetization
-        d["charge"] = self.charge
-        d["total_magnetization"] = self.total_mag
-        d["nelect"] = self.nelect
-        d["is_stopped"] = self.is_stopped
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__, "efermi": self.efermi,
+             "run_stats": self.run_stats, "magnetization": self.magnetization,
+             "charge": self.charge, "total_magnetization": self.total_mag,
+             "nelect": self.nelect, "is_stopped": self.is_stopped}
         return d
 
 
@@ -1590,7 +1582,7 @@ class VolumetricData(object):
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
             else:
                 data = {"total": all_dataset[0]}
-            return (poscar, data)
+            return poscar, data
 
     def write_file(self, file_name, vasp4_compatible=False):
         """

@@ -889,8 +889,7 @@ class Molecule(SiteCollection, MSONable):
         return bonds
 
     def __repr__(self):
-        outs = []
-        outs.append("Molecule Summary")
+        outs = ["Molecule Summary"]
         for s in self:
             outs.append(repr(s))
         return "\n".join(outs)

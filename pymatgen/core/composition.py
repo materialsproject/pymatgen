@@ -248,7 +248,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         factor = self.get_reduced_formula_and_factor()[1]
         reduced_comp = Composition({el: self[el] / factor for el in self})
-        return (reduced_comp, factor)
+        return reduced_comp, factor
 
     def get_reduced_formula_and_factor(self):
         """
@@ -265,7 +265,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             formula = Composition.special_formulas[formula]
             factor = factor / 2
 
-        return (formula, factor)
+        return formula, factor
 
     def get_fractional_composition(self):
         """
