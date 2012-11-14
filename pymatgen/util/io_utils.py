@@ -4,7 +4,7 @@
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -15,6 +15,7 @@ __date__ = "Sep 23, 2011"
 import re
 import numpy
 import os
+import string
 
 
 def zopen(filename, *args, **kwargs):
@@ -195,3 +196,46 @@ def which(program):
                 return exe_file
 
     return None
+
+
+def read_backwards(m_file, BLKSIZE=4096):
+    """
+    Method to read a file line-by-line, but backwards. This allows one to
+    efficiently get data at the end of a file.
+
+    Based on code by Peter Astrand <astrand@cendio.se>, using modifications by
+    Raymond Hettinger.
+    
+    Attributes:
+        m_file:
+            The file to read (backwards)
+        BLKSIZE:
+            The buffer size
+    """
+
+    buf = ""
+    m_file.seek(-1, 2)
+    lastchar = m_file.read(1)
+    trailing_newline = (lastchar == "\n")
+    
+    while 1:
+        newline_pos = buf.rfind("\n")
+        pos = m_file.tell()
+        if newline_pos != -1:
+            # Found a newline
+            line = buf[newline_pos + 1:]
+            buf = buf[:newline_pos]
+            if pos or newline_pos or trailing_newline:
+                line += "\n"
+            yield line
+        elif pos:
+            # Need to fill buffer
+            toread = min(BLKSIZE, pos)
+            m_file.seek(-toread, 1)
+            buf = m_file.read(toread) + buf
+            m_file.seek(-toread, 1)
+            if pos == toread:
+                buf = "\n" + buf
+        else:
+            # Start-of-file
+            return
