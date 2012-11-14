@@ -15,7 +15,6 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-
 import abc
 import math
 import collections
@@ -34,7 +33,6 @@ from pymatgen.core.composition import Composition
 
 class SiteCollection(collections.Sequence, collections.Hashable):
     __metaclass__ = abc.ABCMeta
-
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -193,10 +191,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Corrects for stupid numerical error which may result in acos being
         operated on a number with absolute value larger than 1
         """
-        if ans > 1:
-            ans = 1
-        elif ans < -1:
-            ans = -1
+        ans = min(ans, 1)
+        ans = max(-1, ans)
         return math.acos(ans) * 180 / math.pi
 
     def get_dihedral(self, i, j, k, l):
@@ -283,22 +279,22 @@ class Structure(SiteCollection, MSONable):
         else:
             self._lattice = Lattice(lattice)
 
-        self._sites = []
+        sites = []
         for i in xrange(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            self._sites.append(PeriodicSite(species[i], coords[i],
-                                            self._lattice, to_unit_cell,
-                                            coords_are_cartesian,
-                                            properties=prop))
+            sites.append(PeriodicSite(species[i], coords[i],
+                                      self._lattice, to_unit_cell,
+                                      coords_are_cartesian,
+                                      properties=prop))
 
         if validate_proximity:
-            for (s1, s2) in itertools.combinations(self._sites, 2):
+            for (s1, s2) in itertools.combinations(sites, 2):
                 if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
                     raise StructureError(("Structure contains sites that are ",
                                           "less than 0.01 Angstrom apart!"))
-        self._sites = tuple(self._sites)
+        self._sites = tuple(sites)
 
     @staticmethod
     def from_sites(sites):
@@ -555,7 +551,7 @@ class Structure(SiteCollection, MSONable):
                                               site.lattice,
                                               properties=site.properties)
                         item = (nnsite, dists[i], j) if include_index\
-                            else (nnsite, dists[i])
+                        else (nnsite, dists[i])
                         neighbors[i].append(item)
         return neighbors
 
@@ -603,7 +599,7 @@ class Structure(SiteCollection, MSONable):
             reduced_latt = self._lattice.get_lll_reduced_lattice()
         else:
             raise ValueError("Invalid reduction algo : {}"
-                             .format(reduction_algo))
+            .format(reduction_algo))
 
         return Structure(reduced_latt, self.species, self.cart_coords,
                          coords_are_cartesian=True, to_unit_cell=True)
@@ -694,9 +690,7 @@ class Structure(SiteCollection, MSONable):
         return structs
 
     def __repr__(self):
-        outs = []
-        outs.append("Structure Summary")
-        outs.append(repr(self.lattice))
+        outs = ["Structure Summary", repr(self.lattice)]
         for s in self:
             outs.append(repr(s))
         return "\n".join(outs)
@@ -704,7 +698,7 @@ class Structure(SiteCollection, MSONable):
     def __str__(self):
         outs = ["Structure Summary ({s})".format(s=str(self.composition))]
         outs.append("Reduced Formula: {}"
-                    .format(self.composition.reduced_formula))
+        .format(self.composition.reduced_formula))
         to_s = lambda x: "%0.6f" % x
         outs.append("abc   : " + " ".join([to_s(i).rjust(10)
                                            for i in self.lattice.abc]))
@@ -846,6 +840,7 @@ class Molecule(SiteCollection, MSONable):
             Two Molecule objects representing the two clusters formed from
             breaking the bond.
         """
+        global clusters
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
 
@@ -871,7 +866,6 @@ class Molecule(SiteCollection, MSONable):
 
             if len(unmatched) == len(sites):
                 raise ValueError("Not all sites are matched!")
-                break
             sites = unmatched
 
         return (Molecule.from_sites(cluster) for cluster in clusters)
@@ -908,7 +902,8 @@ class Molecule(SiteCollection, MSONable):
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
             outs.append(" ".join([str(i + 1), site.species_string,
-                        " ".join([to_s(j).rjust(12) for j in site.coords])]))
+                                  " ".join([to_s(j).rjust(12) for j in
+                                            site.coords])]))
         return "\n".join(outs)
 
     @property
@@ -916,10 +911,9 @@ class Molecule(SiteCollection, MSONable):
         """
         Json-serializable dict representation of Molecule
         """
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["sites"] = [site.to_dict for site in self]
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "sites": [site.to_dict for site in self]}
         return d
 
     @staticmethod
