@@ -43,9 +43,7 @@ class PhaseDiagram (object):
        doi:10.1016/j.elecom.2010.01.010
     """
 
-    """
-    Tolerance for determining if formation energy is positive.
-    """
+    # Tolerance for determining if formation energy is positive.
     formation_energy_tol = 1e-11
 
     def __init__(self, entries, elements=None, use_external_qhull=False):
@@ -74,7 +72,7 @@ class PhaseDiagram (object):
                 some instances. Nonetheless, scipy Delaunay seems to work well
                 enough for phase diagrams with < 4 components.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
@@ -303,11 +301,10 @@ class PhaseDiagram (object):
 
     def __str__(self):
         symbols = [el.symbol for el in self._elements]
-        output = []
-        output.append("{} phase diagram".format("-".join(symbols)))
-        output.append("{} stable phases: ".format(len(self._stable_entries)))
-        output.append(", ".join([entry.name
-                                 for entry in self._stable_entries]))
+        output = ["{} phase diagram".format("-".join(symbols)),
+                  "{} stable phases: ".format(len(self._stable_entries)),
+                  ", ".join([entry.name
+                             for entry in self._stable_entries])]
         return "\n".join(output)
 
 
@@ -354,20 +351,15 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 scipy.spatial.Delaunay. See the doc for the PhaseDiagram class
                 for an explanation of the pros and cons.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        allentries = list()
-        for entry in entries:
-            if not (entry.is_element and
-                    (entry.composition.elements[0] in chempots)):
-                allentries.append(GrandPotPDEntry(entry, chempots))
+        allentries = [GrandPotPDEntry(e, chempots) for e in entries
+                      if not (e.is_element and
+                              (e.composition.elements[0] in chempots))]
         self.chempots = chempots
-        filteredels = list()
-        for el in elements:
-            if el not in chempots:
-                filteredels.append(el)
+        filteredels = filter(lambda el: el not in chempots, elements)
         elements = sorted(filteredels)
         super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements,
                                                          use_external_qhull)
@@ -390,9 +382,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     elements.
     """
 
-    """
-    Tolerance for determining if amount of a composition is positive.
-    """
+    # Tolerance for determining if amount of a composition is positive.
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions,
@@ -473,4 +463,4 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #If the reaction can't be balanced, the entry does not fall
                 #into the phase space. We ignore them.
                 pass
-        return (new_entries, sp_mapping)
+        return new_entries, sp_mapping
