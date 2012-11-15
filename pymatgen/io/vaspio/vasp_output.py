@@ -1122,14 +1122,14 @@ class Outcar(object):
                             efermi = float(m.group(1))
                             continue
                         except:
-                            efermi = 0
+                            efermi = None
                             continue
                     m = nelect_patt.search(clean)
                     if m:
                         nelect = float(m.group(1))
                         total_mag = float(m.group(2))
-                if all([charge, mag, nelect, total_mag is not None, efermi,
-                        run_stats]):
+                if all([charge, mag, nelect, total_mag is not None,
+                        efermi is not None, run_stats]):
                     break
 
             self.run_stats = run_stats
