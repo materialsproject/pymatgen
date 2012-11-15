@@ -1128,8 +1128,8 @@ class Outcar(object):
                     if m:
                         nelect = float(m.group(1))
                         total_mag = float(m.group(2))
-                if all([charge, mag, nelect, total_mag is not None,
-                        efermi is not None, run_stats]):
+                if all([nelect, total_mag is not None, efermi is not None,
+                        run_stats]):
                     break
 
             self.run_stats = run_stats

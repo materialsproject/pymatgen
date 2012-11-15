@@ -13,6 +13,12 @@ __email__ = "ajain@lbl.gov"
 __date__ = "Nov 14, 2012"
 
 import unittest
+import os
+
+import pymatgen
+
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
+                        '..', 'test_files')
 
 
 class BackwardsReaderTest(unittest.TestCase):
@@ -24,10 +30,12 @@ class BackwardsReaderTest(unittest.TestCase):
         order, i.e. the first line that is read corresponds to the last line.
         number
         """
-        with open("three_thousand_lines.txt") as f:
+        with open(os.path.join(test_dir, "three_thousand_lines.txt")) as f:
             for idx, line in enumerate(reverse_readline(f)):
                 self.assertEqual(int(line), self.NUMLINES - idx,
-                                 "read_backwards read {} whereas it should have read {}".format(int(line), self.NUMLINES - idx))
+                                 "read_backwards read {} whereas it should "
+                                 "have read {}".format(
+                                     int(line), self.NUMLINES - idx))
 
 
 if __name__ == "__main__":
