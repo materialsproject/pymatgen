@@ -85,11 +85,7 @@ class PDAnalyzer(object):
         """
         Get the facets that a composition falls into.
         """
-        memberfacets = list()
-        for facet in self._pd.facets:
-            if self._in_facet(facet, comp):
-                memberfacets.append(facet)
-        return memberfacets
+        return filter(lambda f: self._in_facet(f, comp), self._pd.facets)
 
     def _get_facet(self, comp):
         """
