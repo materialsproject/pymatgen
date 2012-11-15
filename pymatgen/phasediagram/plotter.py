@@ -64,10 +64,9 @@ class PDPlotter(object):
         pd = self._pd
         entries = pd.qhull_entries
         data = np.array(pd.qhull_data)
-        facetlines = self.lines
-        lines = list()
-        stable_entries = dict()
-        for line in facetlines:
+        lines = []
+        stable_entries = {}
+        for line in self.lines:
             entry1 = entries[line[0]]
             entry2 = entries[line[1]]
             if self._dim == 2:
@@ -105,7 +104,7 @@ class PDPlotter(object):
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
-        return (lines, stable_entries, unstable_entries)
+        return lines, stable_entries, unstable_entries
 
     def show(self, label_stable=True, label_unstable=True):
         """

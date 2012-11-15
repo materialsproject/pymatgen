@@ -139,8 +139,7 @@ class PMGJSONDecoder(json.JSONDecoder):
             else:
                 modname = None
             if modname:
-                mod = __import__(modname, globals(), locals(),
-                                 [classname], -1)
+                mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls = getattr(mod, classname)
                     data = {k: v for k, v in d.items() if k not in ["module",

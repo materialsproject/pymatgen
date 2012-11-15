@@ -930,7 +930,7 @@ class Molecule(SiteCollection, MSONable):
         """
         species = []
         coords = []
-        props = {}
+        props = collections.defaultdict(list)
 
         for site_dict in d["sites"]:
             species.append({Specie(sp["element"], sp["oxidation_state"])
@@ -940,10 +940,8 @@ class Molecule(SiteCollection, MSONable):
             coords.append(site_dict["xyz"])
             siteprops = site_dict.get("properties", {})
             for k, v in siteprops.items():
-                if k not in props:
-                    props[k] = [v]
-                else:
-                    props[k].append(v)
+                props[k].append(v)
+
         return Molecule(species, coords, site_properties=props)
 
     def get_distance(self, i, j):
