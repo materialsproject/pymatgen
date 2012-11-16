@@ -4,9 +4,8 @@ __author__ = "Shyue Ping Ong, Anubhav Jain, Michael Kocher, " + \
 __date__ = "Nov 1, 2012"
 __version__ = "2.2.5dev"
 
-"""
-Useful aliases for commonly used objects and modules.
-"""
+#Useful aliases for commonly used objects and modules.
+
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule
