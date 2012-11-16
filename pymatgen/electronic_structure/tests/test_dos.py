@@ -77,9 +77,23 @@ class CompleteDosTest(unittest.TestCase):
                              - sum_element.densities[Spin.down])
                          < 0.0001).all())
 
-        self.assertIsNotNone(dos.get_site_dos(dos.structure[0]))
-        self.assertIsNotNone(dos.get_site_orbital_dos(dos.structure[0],
-                                                      Orbital.s))
+        site = dos.structure[0]
+        self.assertIsNotNone(dos.get_site_dos(site))
+        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(Spin
+        .up)), 2.0391)
+        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(Spin
+        .down)), 2.0331999999999995)
+        self.assertIsNotNone(dos.get_site_orbital_dos(site, Orbital.s))
+        egt2g = dos.get_site_t2g_eg_resolved_dos(site)
+        self.assertAlmostEqual(sum(egt2g["e_g"].get_densities(Spin.up)),
+                               0.0)
+        self.assertAlmostEqual(sum(egt2g["t2g"].get_densities(Spin.up)),
+                               0.0)
+        egt2g = dos.get_site_t2g_eg_resolved_dos(dos.structure[4])
+        self.assertAlmostEqual(sum(egt2g["e_g"].get_densities(Spin.up)),
+                               15.004399999999997)
+        self.assertAlmostEqual(sum(egt2g["t2g"].get_densities(Spin.up)),
+                               22.910399999999999)
         self.assertAlmostEqual(dos.get_cbm_vbm(), (3.8729, 1.8140000000000001))
 
         self.assertAlmostEqual(dos.get_interpolated_value(9.9)[Spin.up],

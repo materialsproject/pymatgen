@@ -17,6 +17,7 @@ __date__ = "Sep 23, 2011"
 import abc
 import itertools
 import warnings
+import collections
 
 import numpy as np
 from pymatgen.core.periodic_table import Specie, Element
@@ -40,9 +41,9 @@ class StructureModifier(object):
 
     @abc.abstractproperty
     def original_structure(self):
-        '''
+        """
         Returns the original structure.
-        '''
+        """
         return
 
 
@@ -367,11 +368,14 @@ class StructureEditor(StructureModifier):
                              "specified in the dictionary.")
 
     def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
         for i, site in enumerate(self._sites):
-            new_sp = {}
+            new_sp = collections.defaultdict(float)
             for el, occu in site.species_and_occu.items():
                 sym = el.symbol
-                new_sp[Element(sym)] = occu
+                new_sp[Element(sym)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
                                     self._lattice,
                                     coords_are_cartesian=False,
@@ -379,11 +383,11 @@ class StructureEditor(StructureModifier):
             self._sites[i] = new_site
 
     def to_unit_cell(self, tolerance=0.1):
-        '''
+        """
         Returns all the sites to their position inside the unit cell.
         If there is a site within the tolerance already there, the site is
         deleted instead of moved.
-        '''
+        """
         new_sites = []
         for site in self._sites:
             distances = [close_site.distance(site) for close_site in new_sites]
@@ -393,6 +397,9 @@ class StructureEditor(StructureModifier):
 
     @property
     def original_structure(self):
+        """
+        The original structure.
+        """
         return self._original_structure
 
     @property
@@ -409,7 +416,7 @@ class StructureEditor(StructureModifier):
 
 class SupercellMaker(StructureModifier):
     """
-    Makes a supercell
+    Makes a supercell.
     """
 
     def __init__(self, structure, scaling_matrix=((1, 0, 0),
