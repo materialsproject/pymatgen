@@ -101,7 +101,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             pt:
                 cartesian coordinates of point.
         """
-        return np.linalg.norm(np.array(pt) - np.array(self._coords))
+        return np.linalg.norm(np.array(pt) - self._coords)
 
     @property
     def species_string(self):
@@ -214,9 +214,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return self._species.__iter__()
 
     def __repr__(self):
-        outs = []
-        outs.append("Non-periodic Site")
-        outs.append("xyz        : (%0.4f, %0.4f, %0.4f)" % tuple(self.coords))
+        outs = ["Non-periodic Site",
+                "xyz        : (%0.4f, %0.4f, %0.4f)" % tuple(self.coords)]
         for k, v in self._species.items():
             outs.append("element    : %s" % k.symbol)
             outs.append("occupation : %0.2f" % v)
@@ -249,11 +248,11 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             d = spec.to_dict
             d["occu"] = occu
             species_list.append(d)
-        d = {"name": self.species_string, "species": species_list,
-             "occu": occu, "xyz": [float(c) for c in self._coords],
-             "properties": self._properties}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        d = {"name": self.species_string, "species": species_list, "occu": occu,
+             "xyz": [float(c) for c in self._coords],
+             "properties": self._properties,
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
         return d
 
     @staticmethod
@@ -519,9 +518,8 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        outs = []
-        outs.append("Periodic Site")
-        outs.append("abc : (%0.4f, %0.4f, %0.4f)" % tuple(self._fcoords))
+        outs = ["Periodic Site",
+                "abc : (%0.4f, %0.4f, %0.4f)" % tuple(self._fcoords)]
         for k, v in self._species.items():
             outs.append("element    : %s" % k.symbol)
             outs.append("occupation : %0.2f" % v)
@@ -540,10 +538,9 @@ class PeriodicSite(Site, MSONable):
         d = {"label": self.species_string, "species": species_list,
              "occu": occu, "xyz": [float(c) for c in self._coords],
              "abc": [float(c) for c in self._fcoords],
-             "lattice": self._lattice.to_dict,
-             "properties": self._properties}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+             "lattice": self._lattice.to_dict, "properties": self._properties,
+             "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
         return d
 
     @staticmethod

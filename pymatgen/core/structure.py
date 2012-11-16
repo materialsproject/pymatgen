@@ -716,11 +716,9 @@ class Structure(SiteCollection, MSONable):
         """
         Json-serializable dict representation of Structure
         """
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["lattice"] = self._lattice.to_dict
-        d["sites"] = []
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "lattice": self._lattice.to_dict, "sites": []}
         for site in self:
             site_dict = site.to_dict
             del site_dict["lattice"]
@@ -840,7 +838,6 @@ class Molecule(SiteCollection, MSONable):
             Two Molecule objects representing the two clusters formed from
             breaking the bond.
         """
-        global clusters
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
 
