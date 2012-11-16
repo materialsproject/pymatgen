@@ -305,8 +305,10 @@ class CompleteDos(Dos):
                     The pdoss are supplied as an {Site:{Orbital:{
                     Spin:Densities}}}
             """
-        Dos.__init__(self, total_dos.efermi, total_dos.energies,
-                     total_dos.densities)
+        self.efermi = total_dos.efermi
+        self.energies = np.array(total_dos.energies)
+        self.densities = {k: np.array(d)
+                          for k, d in total_dos.densities.items()}
         self.pdos = pdoss
         self.structure = structure
 

@@ -54,8 +54,7 @@ class Kpoint(MSONable):
 
         if to_unit_cell:
             for i in xrange(len(self._fcoords)):
-                self._fcoords[i] = self._fcoords[i] - \
-                    math.floor(self._fcoords[i])
+                self._fcoords[i] -= math.floor(self._fcoords[i])
 
         self._ccoords = lattice.get_cartesian_coords(self._fcoords)
 
@@ -121,12 +120,11 @@ class Kpoint(MSONable):
         """
         Json-serializable dict representation of a kpoint
         """
-        d = {"lattice": self.lattice.to_dict,
-             "fcoords": list(self.frac_coords),
-             "ccoords": list(self.cart_coords), "label": self.label}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"lattice": self.lattice.to_dict,
+                "fcoords": list(self.frac_coords),
+                "ccoords": list(self.cart_coords), "label": self.label,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class BandStructure(object):
@@ -135,8 +133,8 @@ class BandStructure(object):
     it's defined by a list of kpoints + energies for each of them
     """
 
-    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict={},
-                 coords_are_cartesian=False, structure=None, projections={}):
+    def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict=None,
+                 coords_are_cartesian=False, structure=None, projections=None):
         """
         Args:
             kpoints:
@@ -186,12 +184,13 @@ class BandStructure(object):
         self._kpoints = []
         self._labels_dict = {}
         self._structure = structure
-        self._projections = projections
+        self._projections = projections if projections else {}
+        if labels_dict is None:
+            labels_dict = {}
 
-        if len(projections) != 0 and self._structure == None:
-
-            raise Exception("if projections are provided a structure object" \
-                            "needs also to be given")
+        if len(projections) != 0 and self._structure is None:
+            raise Exception("if projections are provided a structure object"
+                            " needs also to be given")
 
         for k in kpoints:
             #let see if this kpoint has been assigned a label
@@ -336,7 +335,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
-                 coords_are_cartesian=False, structure=None, projections={}):
+                 coords_are_cartesian=False, structure=None,
+                 projections=None):
         """
         Args:
             kpoints:
@@ -389,7 +389,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         previous_label = self._kpoints[0].label
         for i in range(len(self._kpoints)):
             label = self._kpoints[i].label
-            if label != None and previous_label != None:
+            if label is not None and previous_label is not None:
                 self._distance.append(previous_distance)
             else:
                 self._distance.append(
@@ -435,7 +435,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         #if the kpoint has no label it can"t have a repetition along the band
         #structure line object
 
-        if self._kpoints[index].label == None:
+        if self._kpoints[index].label is None:
             return [index]
 
         list_index_kpoints = []
@@ -513,7 +513,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                             kpointvbm = self._kpoints[j]
 
         list_index_kpoints = []
-        if kpointvbm.label != None:
+        if kpointvbm.label is not None:
             for i in range(len(self._kpoints)):
                 if self._kpoints[i].label == kpointvbm.label:
                     list_index_kpoints.append(i)
@@ -702,12 +702,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         Json-serializable dict representation of BandStructureSymmLine.
         """
-        d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
-        d["lattice_rec"] = self._lattice_rec.to_dict
-        d["efermi"] = self._efermi
-        d["kpoints"] = []
+        d = {"module": self.__class__.__module__,
+             "class": self.__class__.__name__,
+             "lattice_rec": self._lattice_rec.to_dict, "efermi": self._efermi,
+             "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
         for k in self._kpoints:
@@ -775,7 +773,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                           projections=projections)
 
 
-def get_reconstructed_band_structure(list_bs, efermi=None, structure=None):
+def get_reconstructed_band_structure(list_bs, efermi=None):
         """
         This method takes a list of band structures
         and reconstruct one band structure object from all of them
@@ -796,7 +794,7 @@ def get_reconstructed_band_structure(list_bs, efermi=None, structure=None):
             A BandStructure or BandStructureSymmLine object (depending on
             the type of the list_bs objects)
         """
-        if efermi == None:
+        if efermi is None:
             efermi = sum([b.efermi for b in list_bs]) / len(list_bs)
 
         kpoints = []
