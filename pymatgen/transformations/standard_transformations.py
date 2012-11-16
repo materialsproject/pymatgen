@@ -65,11 +65,9 @@ class IdentityTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "init_args": {},
-             "version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "init_args": {},
+                "version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class RotationTransformation(AbstractTransformation):
@@ -118,12 +116,11 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"axis": self._axis, "angle": self._angle,
-                          "angle_in_radians": self._angle_in_radians}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"axis": self._axis, "angle": self._angle,
+                              "angle_in_radians": self._angle_in_radians},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class OxidationStateDecorationTransformation(AbstractTransformation):
@@ -154,11 +151,10 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"oxidation_states": self.oxi_states}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"oxidation_states": self.oxi_states},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class AutoOxiStateDecorationTransformation(AbstractTransformation):
@@ -201,15 +197,15 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"symm_tol": self.analyzer.symm_tol,
-                          "max_radius": self.analyzer.max_radius,
-                          "max_permutations": self.analyzer.max_permutations,
-                          "distance_scale_factor":
-        self.analyzer.dist_scale_factor}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"symm_tol": self.analyzer.symm_tol,
+                              "max_radius": self.analyzer.max_radius,
+                              "max_permutations": self.analyzer
+                              .max_permutations,
+                              "distance_scale_factor":
+                                  self.analyzer.dist_scale_factor},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
@@ -231,11 +227,9 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {}, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class SupercellTransformation(AbstractTransformation):
@@ -295,11 +289,10 @@ class SupercellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"scaling_matrix": self._matrix}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"scaling_matrix": self._matrix},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class SubstitutionTransformation(AbstractTransformation):
@@ -391,11 +384,10 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"species_to_remove": self._species}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"species_to_remove": self._species},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
@@ -468,9 +460,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         return True
 
     def __str__(self):
-        spec_str = ["Species = {}".format(self._specie)]
-        spec_str.append("Fraction to remove = {}".format(self._frac))
-        spec_str.append("ALGO = {}".format(self._algo))
+        spec_str = ["Species = {}".format(self._specie),
+                    "Fraction to remove = {}".format(self._frac),
+                    "ALGO = {}".format(self._algo)]
         return "PartialRemoveSpecieTransformation : " + ", ".join(spec_str)
 
     def __repr__(self):
@@ -482,12 +474,12 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"specie_to_remove": self._specie,
-                          "fraction_to_remove": self._frac, "algo": self._algo}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"specie_to_remove": self._specie,
+                              "fraction_to_remove": self._frac,
+                              "algo": self._algo},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
@@ -699,11 +691,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"algo": self._algo}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"algo": self._algo},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @property
     def lowest_energy_structure(self):
@@ -878,11 +869,9 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {}, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class PerturbStructureTransformation(AbstractTransformation):
@@ -922,8 +911,7 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"amplitude": self._amp}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"amplitude": self._amp},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
