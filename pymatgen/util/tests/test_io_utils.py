@@ -36,7 +36,15 @@ class BackwardsReaderTest(unittest.TestCase):
                                  "read_backwards read {} whereas it should "
                                  "have read {}".format(
                                      int(line), self.NUMLINES - idx))
-
+    
+    def test_empty_file(self):
+        """
+        make sure an empty file does not throw an error when reverse_readline is called
+        this was a problem with an earlier implementation
+        """
+        with open(os.path.join(test_dir, "empty_file.txt")) as f:
+            for idx, line in enumerate(reverse_readline(f)):
+                raise ValueError("an empty file is being read!")
 
 if __name__ == "__main__":
     unittest.main()
