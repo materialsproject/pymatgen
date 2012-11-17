@@ -260,7 +260,11 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
-        return Lattice(d["matrix"])
+        if "matrix" in d:
+            return Lattice(d["matrix"])
+        else:
+            return Lattice.from_parameters(d["a"], d["b"], d["c"],
+                                           d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
@@ -374,17 +378,16 @@ class Lattice(MSONable):
         """""
         Json-serialization dict representation of the Lattice.
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "matrix": self._matrix.tolist(),
-             "a": float(self.a),
-             "b": float(self.b),
-             "c": float(self.c),
-             "alpha": float(self.alpha),
-             "beta": float(self.beta),
-             "gamma": float(self.gamma),
-             "volume": float(self.volume)}
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "matrix": self._matrix.tolist(),
+                 "a": float(self.a),
+                 "b": float(self.b),
+                 "c": float(self.c),
+                 "alpha": float(self.alpha),
+                 "beta": float(self.beta),
+                 "gamma": float(self.gamma),
+                 "volume": float(self.volume)}
 
     def get_primitive_lattice(self, lattice_type):
         """
