@@ -106,7 +106,7 @@ class PMGJSONEncoder(json.JSONEncoder):
             if "@class" not in d:
                 d["@class"] = o.__class__.__name__
             return d
-        except:
+        except AttributeError:
             return json.JSONEncoder.default(self, o)
 
 
