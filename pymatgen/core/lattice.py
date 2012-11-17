@@ -347,14 +347,12 @@ class Lattice(MSONable):
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
-        outs = []
-        outs.append("Lattice")
-        outs.append("    abc : " + " ".join(map(f, self.abc)))
-        outs.append(" angles : " + " ".join(map(f, self.angles)))
-        outs.append(" volume : %0.4f" % self.volume)
-        outs.append("      A : " + " ".join(map(f, self._matrix[0])))
-        outs.append("      B : " + " ".join(map(f, self._matrix[1])))
-        outs.append("      C : " + " ".join(map(f, self._matrix[2])))
+        outs = ["Lattice", "    abc : " + " ".join(map(f, self.abc)),
+                " angles : " + " ".join(map(f, self.angles)),
+                " volume : %0.4f" % self.volume,
+                "      A : " + " ".join(map(f, self._matrix[0])),
+                "      B : " + " ".join(map(f, self._matrix[1])),
+                "      C : " + " ".join(map(f, self._matrix[2]))]
         return "\n".join(outs)
 
     def __eq__(self, other):
@@ -601,7 +599,6 @@ class Lattice(MSONable):
                 G = dot(transpose(M), dot(G, M))
             elif l * m * n == 0 or l * m * n == -1:
                 # A4
-                i = j = k = 1
                 i = -1 if l == 1 else 1
                 j = -1 if m == 1 else 1
                 k = -1 if n == 1 else 1
@@ -642,7 +639,7 @@ class Lattice(MSONable):
 
             #A8
             if E + N + Y + A + B < -e or\
-               (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
+               (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue

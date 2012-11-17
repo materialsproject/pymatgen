@@ -83,24 +83,24 @@ class PDPlotter(object):
             stable_entries[labelcoord[0]] = entry1
             stable_entries[labelcoord[1]] = entry2
 
-        allentries = pd.all_entries
-        alldata = np.array(pd.all_entries_hulldata)
+        all_entries = pd.all_entries
+        all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(0, len(allentries)):
-            entry = allentries[i]
+        for i in xrange(0, len(all_entries)):
+            entry = all_entries[i]
             if entry not in stable:
                 if self._dim == 2:
-                    x = [alldata[i][0], alldata[i][0]]
+                    x = [all_data[i][0], all_data[i][0]]
                     y = [pd.get_form_energy_per_atom(entry),
                          pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
-                    coord = triangular_coord([alldata[i, 0:2],
-                                              alldata[i, 0:2]])
+                    coord = triangular_coord([all_data[i, 0:2],
+                                              all_data[i, 0:2]])
                 else:
-                    coord = tet_coord([alldata[i, 0:3], alldata[i, 0:3],
-                                       alldata[i, 0:3]])
+                    coord = tet_coord([all_data[i, 0:3], all_data[i, 0:3],
+                                       all_data[i, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
@@ -143,8 +143,8 @@ class PDPlotter(object):
             plt.axis("off")
             center = (0.5, math.sqrt(3) / 6)
         else:
-            allcoords = labels.keys()
-            miny = min([c[1] for c in allcoords])
+            all_coords = labels.keys()
+            miny = min([c[1] for c in all_coords])
             ybuffer = max(abs(miny) * 0.1, 0.1)
             plt.xlim((-0.1, 1.1))
             plt.ylim((miny - ybuffer, ybuffer))
@@ -351,6 +351,7 @@ class PDPlotter(object):
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
                    .format(el1.symbol))
         plt.tight_layout()
+        plt.savefig("chempot.eps")
         plt.show()
 
     def get_contour_pd_plot(self):
