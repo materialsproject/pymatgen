@@ -198,32 +198,33 @@ def which(program):
     return None
 
 
-def reverse_readline(stream, blk_size=4096):
+def reverse_readline(m_file, blk_size=4096):
     """
     Method to read a file line-by-line, but backwards. This allows one to
     efficiently get data at the end of a file.
 
     Based on code by Peter Astrand <astrand@cendio.se>, using modifications by
-    Raymond Hettinger.
+    Raymond Hettinger and Kevin German.
+    http://code.activestate.com/recipes/439045-read-a-text-file-backwards-yet-another-implementat/
 
     Args:
-        stream:
+        m_file:
             File stream to read (backwards)
         blk_size:
             The buffer size. Defaults to 4096.
     """
 
     buf = ""
-    stream.seek(-1, 2)
-    lastchar = stream.read(1)
+    m_file.seek(0, 2)
+    lastchar = m_file.read(1)
     trailing_newline = (lastchar == "\n")
-
+    
     while 1:
         newline_pos = buf.rfind("\n")
-        pos = stream.tell()
+        pos = m_file.tell()
         if newline_pos != -1:
             # Found a newline
-            line = buf[newline_pos + 1:]
+            line = buf[newline_pos+1:]
             buf = buf[:newline_pos]
             if pos or newline_pos or trailing_newline:
                 line += "\n"
@@ -231,9 +232,9 @@ def reverse_readline(stream, blk_size=4096):
         elif pos:
             # Need to fill buffer
             toread = min(blk_size, pos)
-            stream.seek(-toread, 1)
-            buf = stream.read(toread) + buf
-            stream.seek(-toread, 1)
+            m_file.seek(pos-toread, 0)
+            buf = m_file.read(toread) + buf
+            m_file.seek(pos-toread, 0)
             if pos == toread:
                 buf = "\n" + buf
         else:
