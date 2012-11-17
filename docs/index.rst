@@ -133,6 +133,49 @@ detailed :doc:`usage pages </usage>` (toc given below), and
 
    usage
 
+Command line - matgenie.py
+--------------------------
+
+To demonstrate the capabilities of pymatgen and to make it easy for users to
+quickly use the functionality, pymatgen comes with a set of useful scripts
+that utilize the library to perform all kinds of analyses. You can find these
+ scripts in `scripts directory of pymatgen's github repo
+ <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+
+Here, we will discuss the most versatile of these scripts,
+known as matgenie.py. The typical usage of matgenie.py is::
+
+    matgenie.py {analyze,plot,convert,symm,view} additional_arguments
+
+At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
+--help" to bring up a useful help message on how to use these subcommands.
+Here are a few examples of typical usages::
+
+    #Parses all vasp runs in a directory and display the basic energy
+    #information. Saves the data in a file called vasp_data.gz for subsequent
+    #reuse.
+
+    matgenie.py analyze .
+
+    #Plot the dos from the vasprun.xml file.
+
+    matgenie.py plotdos vasprun.xml
+
+    #Convert between file formats. The script attempts to intelligently
+    #determine the file type. Input file types supported include CIF,
+    #vasprun.xml, POSCAR, CSSR.You can force the script to assume certain file
+    #types by specifying additional arguments. See matgenie.py convert -h.
+
+    matgenie.py convert input_filename output_filename.
+
+    #Obtain spacegroup information.
+
+    matgenie.py symm -s filename1 filename2
+
+    #Visualize a structure. Requires VTK to be installed.
+
+    matgenie.py view filename
+
 Aliases
 -------
 

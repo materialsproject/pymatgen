@@ -289,7 +289,7 @@ if __name__ == "__main__":
                              help="Sort criteria. Defaults to energy / atom.")
     parser_vasp.set_defaults(func=parse_vasp)
 
-    parser_plot = subparsers.add_parser("plot", help="Plotting for dos.")
+    parser_plot = subparsers.add_parser("plotdos", help="Plotting for dos.")
     parser_plot.add_argument("filename", metavar="filename", type=str, nargs=1,
                              help="vasprun.xml file to plot")
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
