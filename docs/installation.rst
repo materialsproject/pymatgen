@@ -242,39 +242,43 @@ After the CMakeCache.txt file is generated, type:
 	
 With any luck, you should have vtk with the necessary python wrappers installed.
 
-OpenBabel (tested on v2.3.0)
+OpenBabel (tested on v2.3.2)
 ----------------------------
 
 Mac OS X 10.7 - 10.8
 ~~~~~~~~~~~~~~~~~~~~
 
 openbabel must be compiled with python bindings for integration with pymatgen.
-For some reason, openbabel v2.3.1 is harder to compile on Mac OS Lion than I
-thought. But I managed to get v2.3.0 to work. Here are the steps that I took to
-make it work:
+Here are the steps that I took to make it work:
 
 1. Install cmake from http://cmake.org/cmake/resources/software.html.
-2. Download openbabel 2.3.0 *source code* from
+2. Download openbabel 2.3.2 *source code* from
    http://sourceforge.net/projects/openbabel/files/openbabel/2.3.0/.
-3. Download Eigen version 2.0 (newer versions will *not* work) from
+3. Download Eigen version 3.0 from
    http://eigen.tuxfamily.org/index.php?title=Main_Page
-4. Extract your Eigen and openbabel source distributions:
+4. Install pkg-config (easiest way is to install homebrew and do the following:
+
+::
+    brew install pkg-config
+
+5. Extract your Eigen and openbabel source distributions:
 
 ::
 
-   tar -zxvf openbabel-2.3.0.tar.gz
-   tar -zxvf eigen2.tar.gz 
+   tar -zxvf openbabel-2.3.2.tar.gz
+   tar -zxvf eigen3.tar.gz
    
 5. Now you should have two directories. Assuming that your openbabel src is in 
-   a directory called "openbabel-2.3.0" and your eigen source is in a directory
-   called "eigen2", do the following steps.
+   a directory called "openbabel-2.3.2" and your eigen source is in a directory
+   called "eigen3", do the following steps.
    
 ::
 
-   mv openbabel-2.3.0 ob-src
+   mv openbabel-2.3.2 ob-src
    mkdir ob-build
    cd ob-build
-   cmake -DPYTHON_BINDINGS=ON -DEIGEN2_INCLUDE_DIR=../eigen2 ../ob-src 2>&1 | tee cmake.out
+   cmake -DPYTHON_BINDINGS=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 |
+    tee cmake.out
    make -j2
    sudo make install
    
