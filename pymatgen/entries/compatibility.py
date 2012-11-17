@@ -9,7 +9,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 19, 2012"
@@ -111,10 +111,9 @@ class Compatibility(EntryPostProcessor):
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
 
-        ucorr = self.u_corrections
         cpdenergies = self.cpd_energies
         calc_u = entry.parameters["hubbards"]
-        calc_u = defaultdict(int) if calc_u == None else calc_u
+        calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
         #Check that POTCARs are valid
         rform = comp.reduced_formula
@@ -160,12 +159,7 @@ class Compatibility(EntryPostProcessor):
             An list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        proc_entries = list()
-        for entry in entries:
-            proc_entry = self.process_entry(entry)
-            if proc_entry != None:
-                proc_entries.append(proc_entry)
-        return proc_entries
+        return filter(None, map(self.process_entry, entries))
 
     @property
     def corrected_compound_formulas(self):
