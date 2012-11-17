@@ -182,6 +182,12 @@ class  LatticeTestCase(unittest.TestCase):
         for i in range(3):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
+        del d["matrix"]
+        print d
+        t = Lattice.from_dict(d)
+        for i in range(3):
+            self.assertEqual(t.abc[i], self.tetragonal.abc[i])
+            self.assertEqual(t.angles[i], self.tetragonal.angles[i])
 
 if __name__ == '__main__':
     unittest.main()
