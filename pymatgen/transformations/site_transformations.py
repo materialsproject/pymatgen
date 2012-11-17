@@ -151,7 +151,8 @@ class RemoveSitesTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "RemoveSitesTransformation :" + ", ".join(self._indices)
+        return "RemoveSitesTransformation :" + ", ".join(map(str,
+                                                             self._indices))
 
     def __repr__(self):
         return self.__str__()
