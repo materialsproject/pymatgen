@@ -314,7 +314,8 @@ class PDAnalyzer(object):
         for facet in facets:
             chempots = self.get_facet_chempots(facet)
             all_chempots.append([chempots[el] for el in pd.elements])
-        inds = [i for i, el in enumerate(pd.elements) if el in elements]
+        inds = [pd.elements.index(el) for el in elements]
+
         el_energies = {el: pd.el_refs[el].energy_per_atom
                        for el in elements}
         chempot_ranges = collections.defaultdict(list)
