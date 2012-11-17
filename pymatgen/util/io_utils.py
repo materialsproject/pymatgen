@@ -123,19 +123,18 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
         if isinstance(entry[0], str):
             entry[0] = re.compile(entry[0])
 
-    reader = zopen(filename)
-    for line in reader:
-        for i in range(len(search)):
-            match = search[i][0].search(line)
-            if match and (search[i][1] is not None
-                          or search[i][1](results, line)):
-                if debug is not None:
-                    debug(results, match)
-                search[i][2](results, match)
-                if postdebug is not None:
-                    postdebug(results, match)
+    with zopen(filename) as f:
+        for line in f:
+            for i in range(len(search)):
+                match = search[i][0].search(line)
+                if match and (search[i][1] is not None
+                              or search[i][1](results, line)):
+                    if debug is not None:
+                        debug(results, match)
+                    search[i][2](results, match)
+                    if postdebug is not None:
+                        postdebug(results, match)
 
-    reader.close()
     return results
 
 
@@ -200,8 +199,8 @@ def which(program):
 
 def reverse_readline(m_file, blk_size=4096):
     """
-    Method to read a file line-by-line, but backwards. This allows one to
-    efficiently get data at the end of a file.
+    Generator method to read a file line-by-line, but backwards. This allows
+    one to efficiently get data at the end of a file.
 
     Based on code by Peter Astrand <astrand@cendio.se>, using modifications by
     Raymond Hettinger and Kevin German.
@@ -212,6 +211,11 @@ def reverse_readline(m_file, blk_size=4096):
             File stream to read (backwards)
         blk_size:
             The buffer size. Defaults to 4096.
+
+    Returns:
+        Generator that returns lines from the file. Similar behavior to the
+        file.readline() method, except the lines are returned from the back
+        of the file.
     """
 
     buf = ""
