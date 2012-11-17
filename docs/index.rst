@@ -139,8 +139,8 @@ Command line - matgenie.py
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
 that utilize the library to perform all kinds of analyses. You can find these
- scripts in `scripts directory of pymatgen's github repo
- <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+scripts in `scripts directory of pymatgen's github repo
+<https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
