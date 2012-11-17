@@ -405,21 +405,18 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             Boolean indication whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
     """
-    #dnames_count = collections.defaultdict(int)
-    count = 0
-    for s in transformed_structures:
+    for i, s in enumerate(transformed_structures):
         formula = re.sub("\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,
-                                   "{}_{}".format(formula, count))
+                                   "{}_{}".format(formula, i))
         else:
             dirname = os.path.join(output_dir,
-                                   "{}_{}".format(formula, count))
+                                   "{}_{}".format(formula, i))
         s.write_vasp_input(vasp_input_set, dirname,
                            create_directory=create_directory)
         if include_cif:
             from pymatgen.io.cifio import CifWriter
             writer = CifWriter(s.final_structure)
             writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
-        count += 1
