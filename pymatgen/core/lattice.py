@@ -56,7 +56,7 @@ class Lattice(MSONable):
         self._inv_matrix = inv(self._matrix)
 
         lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
-        angles = np.zeros((3), float)
+        angles = np.zeros(3, float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
