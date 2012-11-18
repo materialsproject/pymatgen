@@ -330,5 +330,5 @@ class AbstractElectrode(Sequence, MSONable):
             else self.min_voltage
         max_voltage = max_voltage if max_voltage is not None \
             else self.max_voltage
-        return filter(lambda p: p.voltage >= min_voltage and \
-                      p.voltage <= max_voltage, self.voltage_pairs)
+        return filter(lambda p: min_voltage <= p.voltage <= max_voltage,
+                      self.voltage_pairs)
