@@ -41,6 +41,13 @@ class PhaseDiagram (object):
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
+
+    .. attribute:: use_external_qhull
+
+        If set to True, the code will use an external command line call to
+        Qhull to calculate the convex hull data. This requires the user to have
+        qhull installed and the executables "qconvex" available in the path.
+        Otherwise, the code uses scipy.spatial.Delaunay.
     """
 
     # Tolerance for determining if formation energy is positive.
@@ -62,13 +69,13 @@ class PhaseDiagram (object):
                 to Qhull to calculate the convex hull data. This requires the
                 user to have qhull installed and the executables "qconvex"
                 available in his path. By default, the code uses the
-                scipy.spatail.Delaunay.
+                scipy.spatial.Delaunay.
 
                 The benefit of using external qhull is that a) it is much
                 faster, especially for higher-dimensional hulls with many
                 entries, and b) it is more robustly tested. The scipy Delaunay
                 class is relatively new, and we have found some issues with
-                higher-dimensional hulls, with non-sensical results given in
+                higher-dimensional hulls, with nonsensical results given in
                 some instances. Nonetheless, scipy Delaunay seems to work well
                 enough for phase diagrams with < 4 components.
         """
@@ -78,7 +85,7 @@ class PhaseDiagram (object):
                                   for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
-        self._use_external_qhull = use_external_qhull
+        self.use_external_qhull = use_external_qhull
         self._make_phasediagram()
 
     @property
@@ -269,7 +276,7 @@ class PhaseDiagram (object):
             self._facets = [range(dim)]
         else:
             facets = get_convex_hull(qhull_data,
-                                     self._use_external_qhull)
+                                     self.use_external_qhull)
             logger.debug("Final facets are\n{}".format(facets))
 
             logger.debug("Removing vertical facets...")
