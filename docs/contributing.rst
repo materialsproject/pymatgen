@@ -1,22 +1,8 @@
-Ways to contribute
-==================
-
-1. Report issues and bugs. A simple way that anyone can contribute is simply to
-   report bugs and issues to the developing team. You can either send an email
-   to the `pymatgen's Google Groups page`_ or even
-   better, submit an Issue in our
-   `github page <https://github.com/materialsproject/pymatgen/issues>`_.
-   
-2. Submitting new code. Another way to contribute is to submit new
-   code/bugfixes to pymatgen. While you can always zip your code and email it
-   to the maintainer of pymatgen, the best way for anyone to develop pymatgen
-   is by adopting the collaborative Github workflow (see section below).
-   
 Collaborative Github Workflow
 =============================
 
 For developers interested in expanding pymatgen for their own purposes, we
-recommend forking pymatgen directly from the 
+recommend forking pymatgen directly from the
 `pymatgen GitHub repo`_. Here's a typical workflow (adapted from
 http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
@@ -27,7 +13,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 
 1. Create a free GitHub account (if you don't already have one) and perform the
    necessary setup (e.g., install SSH keys etc.).
-2. Fork the pymatgen GitHub repo, i.e., go to the main 
+2. Fork the pymatgen GitHub repo, i.e., go to the main
    `pymatgen GitHub repo`_ and click fork to create a copy of the pymatgen code
    base on your own Github account.
 3. Install git on your local machine (if you don't already have it).
@@ -35,7 +21,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    your local repo and only publish changes when they are ready to be merged:
 
    ::
-   
+
        git clone git@github.com:YOURNAME/pymatgen.git
 
    Note that the entire Github repo is fairly large because of the presence of
@@ -45,9 +31,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
 6. Code (see `Coding Guidelines`_). Commit early and commit often. Keep your
    code up to date. You need to add the main repository to the list of your
    remotes. Let's name the upstream repo as mpmaster (materialsproject master).
-   
+
    ::
-       
+
        git remote add mpmaster git://github.com/materialsproject/pymatgen.git
 
    Make sure your repository is clean (no uncommitted changes) and is currently
@@ -55,25 +41,25 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    master.
 
    ::
-   
+
       git checkout master
-   
+
    Then you can pull all the new commits from the main line
-   
+
    ::
-   
+
       git pull mpmaster master
-      
+
    Remember, pull is a combination of the commands fetch and merge, so there may
    be merge conflicts to be manually resolved.
 
 7. Publish your contributions. Assuming that you now have a couple of commits
    that you would like to contribute to the main repository. Please follow the
    following steps:
-   
+
    a. If your change is based on a relatively old state of the main repository,
       then you should probably bring your repository up-to-date first to see if
-      the change is not creating any merge conflicts. 
+      the change is not creating any merge conflicts.
    b. Check that everything compiles cleanly and passes all tests.
       The pymatgen repo comes with a complete set of tests for all modules. If
       you have written new modules or methods, you must write tests for the new
@@ -83,15 +69,15 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    c. If everything is ok, publish the commits to your github repository.
 
       ::
-      
+
          git push origin master
 
 8. Now that your commit is published, it doesn't mean that it has already been
-   merged into the main repository. You should issue a merge request to 
+   merged into the main repository. You should issue a merge request to
    pymatgen' maintainers. They will pull your commits and run their own tests
    before releasing.
-   
-   
+
+
 Coding Guidelines
 =================
 
@@ -114,7 +100,7 @@ following must be satisfied for your contributions to be accepted into pymatgen.
 4. **IDE** We highly recommend the use of Eclipse + PyDev. You should also set
    up pylint and pep8 and turn those on within the Eclipse PyDev setup. This
    will warn of any issues with coding styles.
-   
+
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
 

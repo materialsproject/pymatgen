@@ -50,7 +50,7 @@ become a member of `pymatgen's Google Groups page`_.
    *The code is mightier than the pen.*
 
 Latest Change Log (v2.2.5dev)
------------------------------
+=============================
 
 1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
    algo using data-mined ICSD data.
@@ -61,48 +61,56 @@ Latest Change Log (v2.2.5dev)
    reading of OUTCAR files by orders of magnitude.
 6. Miscellaneous bug fixes.
 
-.. toctree::
-   :maxdepth: 2
-
-   changelog
+:doc:`Older versions </changelog>`
 
 Getting pymatgen
 ================
 
+Stable version
+--------------
+
 pymatgen is now in the Python Package Index (`PyPI`_). The version on
 PyPI is always the latest stable release that will be hopefully, be relatively
-bug-free. If you have  distutils installed, you can just type:
-
-::
+bug-free. If you have setuptools or pip installed installed,
+you can just type::
 
    easy_install pymatgen
 
-or
-
-::
+or::
 
    pip install pymatgen
 
-if you have setuptools or pip installed to install pymatgen with most of the
-dependencies set up. Otherwise, the latest stable source can be downloaded at
-the `PyPI`_ site as well. Note that you may need to install numpy before
-installing pymatgen as numpy's distutils is needed to compile the spglib
-library.
+to install pymatgen with most of the dependencies set up. Otherwise,
+the latest stable source can be downloaded at the `PyPI`_ site as well. Note
+that you may need to *install numpy before installing pymatgen as numpy's
+distutils is needed to compile the spglib library used for symmetry analysis*.
+
+Developmental version
+---------------------
 
 Alternatively, the bleeding edge developmental version is at the public
-pymatgen github repo at
-https://github.com/materialsproject/pymatgen/tarball/master. These developmental
-versions are likely to be more buggy, but may contain new features. Note that
-the GitHub versions include test files as well for complete unittesting.
+pymatgen's `Github repo
+<https://github.com/materialsproject/pymatgen/tarball/master>`_. The
+developmental version is likely to be more buggy, but may contain new
+features. Note that the GitHub versions include test files as well for
+complete unit testing.
 
 From the source, you can type::
 
    python setup.py install
 
+or to install the package in developmental mode::
+
+   python setup.py develop
+
 With these basic steps, you should be able to use most of the basic
-functionality of pymatgen. However, some extra functionality do require
-additional setup. Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+functionality of pymatgen. However, some extra functionality (generation of
+POTCARs) do require additional setup. Please see the following sections for
+further details on the dependencies needed, where to get them and how to
+install them.
+
+Detailed installation help
+--------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -124,14 +132,7 @@ typical workflow would involve a user converting data (structure, calculations,
 etc.) from various sources (first principles calculations, crystallographic and
 molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
-manipulation or analyses. Users are strongly encouraged to explore the
-detailed :doc:`usage pages </usage>` (toc given below), and
-:doc:`the API docs </modules>`.
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
+manipulation or analyses.
 
 Command line - matgenie.py
 --------------------------
@@ -179,7 +180,7 @@ Here are a few examples of typical usages::
 Aliases
 -------
 
-From version 2.0.0 of pymatgen, useful aliases for commonly used Objects are
+From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
 now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
 examples of the core capabilities and objects::
@@ -223,6 +224,18 @@ examples of the core capabilities and objects::
 
 The above illustrates only the most basic capabilities of pymatgen.
 
+Advanced Usage
+--------------
+
+Users are strongly encouraged to explore the
+detailed :doc:`usage pages </usage>` (toc given below), and
+:doc:`the API docs </modules>`.
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
+
 Contributing
 ============
 
@@ -237,8 +250,21 @@ anyone to use our code as-is, but if you could take a few moment to give back
 to pymatgen in some small way, it would be greatly appreciated. A benefit of
 contributing is that your code will now be used by other researchers who use
 pymatgen, and we will include an acknowledgement to you (and any related
-publications) in pymatgen. Read on to find out about the various ways you can
-contribute.
+publications) in pymatgen.
+
+1. Report issues and bugs. A simple way that anyone can contribute is simply to
+   report bugs and issues to the developing team. You can either send an email
+   to the `pymatgen's Google Groups page`_ or even
+   better, submit an Issue in our
+   `github page <https://github.com/materialsproject/pymatgen/issues>`_.
+
+2. Submitting new code. Another way to contribute is to submit new
+   code/bugfixes to pymatgen. While you can always zip your code and email it
+   to the maintainer of pymatgen, the best way for anyone to develop pymatgen
+   is by adopting the collaborative Github workflow (see section below).
+
+Developing for pymatgen
+-----------------------
 
 .. toctree::
    :maxdepth: 2
@@ -248,16 +274,11 @@ contribute.
 API/Reference Docs
 ==================
 
-The API documentation for pymatgen is provided at the link below.
-
-.. toctree::
-   :maxdepth: 1
-
-   modules
-
 The API docs are generated using Sphinx auto-doc and outlines the purpose of all
 modules and classes, and the expected argument and returned objects for most
-methods.
+methods. They are available at this link below
+
+:doc:`pymatgen API docs </modules>`.
 
 Citing pymatgen
 ===============
@@ -265,10 +286,12 @@ Citing pymatgen
 If you use pymatgen in your research, please consider citing the following
 work:
 
-   Shyue Ping Ong, William Davidson Richard, Anubhav Jain, Geoffroy Hautier,
+   Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
-   Open-Source Python Library for Materials Analysis.* - Submitted
+   Open-Source Python Library for Materials Analysis.* Computational
+   Materials Science, 2012, `doi:10.1016/j.commatsci.2012.10.028
+   <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
@@ -284,7 +307,8 @@ outlined the following work:
    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
    K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
    functional theory calculations.* Computational Materials Science, 2011,
-   50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
+   50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
+   <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
 
 pymatgen.phasediagram package
 -----------------------------
@@ -294,12 +318,13 @@ analysis, is based on the work of Ong et al. and are used in following works:
 
    S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
    First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
-   1798-1807. doi:10.1021/cm702327g
+   1798-1807. `doi:10.1021/cm702327g <http://dx.doi.org/10.1021/cm702327g>`_
 
    S. P. Ong, A. Jain, G. Hautier, B. Kang, and G. Ceder. *Thermal stabilities
    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
    principles calculations.* Electrochemistry Communications, 2010, 12(3),
-   427-430. doi:10.1016/j.elecom.2010.01.010
+   427-430. `doi:10.1016/j.elecom.2010.01.010
+   <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
 
 pymatgen.entries.compatibility module
 -------------------------------------
@@ -310,7 +335,8 @@ is based on the following work:
 
    A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
    G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
-   Physical Review B, 2011, 84(4), 045115. doi:10.1103/PhysRevB.84.045115
+   Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
+   <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
 
 pymatgen.symmetry
 -----------------

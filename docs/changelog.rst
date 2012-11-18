@@ -1,5 +1,5 @@
-Older versions
-==============
+Change log
+==========
 
 Version 2.2.4
 -------------
@@ -70,19 +70,19 @@ Version 2.0.0
 2. Useful aliases for commonly used Objects, similar in style to numpy.
    Supported objects include Element, Composition, Structure, Molecule, Spin
    and Orbital. For example, the following will now work::
-   
+
       import pymatgen as mg
-      
+
       # Elemental Si
       fe = mg.Element("Si")
-      
+
       # Composition of Fe2O3
       comp = mg.Composition("Fe2O3")
-      
+
       # CsCl structure
-      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
+      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"],
                               [[0, 0, 0], [0.5, 0.5, 0.5]])
-      
+
 3. New PDAnalyzer method to generate chemical potential maps.
 4. Enhanced POSCAR class to support parsing of velocities and more formatting
    options.
@@ -140,7 +140,7 @@ Version 1.6.0
 
 1. Beta of pymatgen.borg package implemented for high-throughput data assimilation.
 2. Added ComputedEntry classes for handling calculated data.
-3. New method of specifying VASP pseudopotential location using a VASP_PSP_DIR 
-   environment variable. 
+3. New method of specifying VASP pseudopotential location using a VASP_PSP_DIR
+   environment variable.
 4. Bug fix for pymatgen.symmetry
 5. Ewald sum speed up by factor of 2 or more.
