@@ -42,7 +42,7 @@ div.body {
     background-color: #fafafa;
     color: #3E4349;
     padding: 1em 30px 30px 30px;
-    font-size: 0.9em;
+    font-size: 1em;
     border-left:1px solid #ddd;
 }
  
@@ -225,7 +225,7 @@ div.body h6 {
     border-bottom: 1px solid #ddd;
 }
  
-div.body h1 { margin-top: 0; font-size: 280%; }
+div.body h1 { margin-top: 0; font-size: 250%; }
 div.body h2 { font-size: 200%; }
 div.body h3 { font-size: 180%; }
 div.body h4 { font-size: 150%; }
@@ -289,11 +289,11 @@ p.admonition-title:after {
 pre {
     font: 12px/18px 'Droid Sans Mono', arial, serif;
     padding: 10px;
-    background-color: #fcfadd;
+    background-color: #fcfeee;
     border:1px solid #ddd;
     color: #222222;
     line-height: 1.5em;
-    font-size: 1.1em;
+    font-size: 1em;
     margin: 1.5em 0 1.5em 0;
     -webkit-box-shadow: 0px 0px 4px #d8d8d8;
     -moz-box-shadow: 0px 0px 4px #d8d8d8;
