@@ -4,6 +4,8 @@
 This module provides classes to create phase diagrams.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
@@ -16,7 +18,7 @@ import numpy as np
 import collections
 import logging
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.util.coord_utils import get_convex_hull
 from pymatgen.core.periodic_table import DummySpecie
@@ -39,11 +41,16 @@ class PhaseDiagram (object):
        of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
+
+    .. attribute:: use_external_qhull
+
+        If set to True, the code will use an external command line call to
+        Qhull to calculate the convex hull data. This requires the user to have
+        qhull installed and the executables "qconvex" available in the path.
+        Otherwise, the code uses scipy.spatial.Delaunay.
     """
 
-    """
-    Tolerance for determining if formation energy is positive.
-    """
+    # Tolerance for determining if formation energy is positive.
     formation_energy_tol = 1e-11
 
     def __init__(self, entries, elements=None, use_external_qhull=False):
@@ -62,27 +69,23 @@ class PhaseDiagram (object):
                 to Qhull to calculate the convex hull data. This requires the
                 user to have qhull installed and the executables "qconvex"
                 available in his path. By default, the code uses the
-                scipy.spatail.Delaunay.
+                scipy.spatial.Delaunay.
 
                 The benefit of using external qhull is that a) it is much
                 faster, especially for higher-dimensional hulls with many
                 entries, and b) it is more robustly tested. The scipy Delaunay
                 class is relatively new, and we have found some issues with
-                higher-dimensional hulls, with non-sensical results given in
+                higher-dimensional hulls, with nonsensical results given in
                 some instances. Nonetheless, scipy Delaunay seems to work well
                 enough for phase diagrams with < 4 components.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
-        self._qhull_data = None
-        self._facets = None
-        self._qhull_entries = None
-        self._stable_entries = None
-        self._use_external_qhull = use_external_qhull
+        self.use_external_qhull = use_external_qhull
         self._make_phasediagram()
 
     @property
@@ -236,17 +239,19 @@ class PhaseDiagram (object):
         """
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
-        self._el_refs = dict()
+        el_refs = {}
         for entry in self._all_entries:
-            if entry.composition.is_element:
-                for el in entry.composition.elements:
-                    if entry.composition[el] > Composition.amount_tolerance:
+            comp = entry.composition
+            if comp.is_element:
+                for el in comp.elements:
+                    if comp[el] > Composition.amount_tolerance:
                         break
                 e_per_atom = entry.energy_per_atom
-                if el not in self._el_refs:
-                    self._el_refs[el] = entry
-                elif self._el_refs[el].energy_per_atom > e_per_atom:
-                    self._el_refs[el] = entry
+                if el not in el_refs:
+                    el_refs[el] = entry
+                elif el_refs[el].energy_per_atom > e_per_atom:
+                    el_refs[el] = entry
+        self._el_refs = el_refs
         # Remove positive formation energy entries
         entries_to_process = list()
         for entry in self._all_entries:
@@ -255,7 +260,7 @@ class PhaseDiagram (object):
             else:
                 logger.debug("Removing positive formation energy entry " +
                              "{}".format(entry))
-        entries_to_process.extend([entry for entry in self._el_refs.values()])
+        entries_to_process.extend([entry for entry in el_refs.values()])
 
         self._qhull_entries = entries_to_process
         return self._process_entries_qhulldata(entries_to_process)
@@ -266,22 +271,22 @@ class PhaseDiagram (object):
         """
         stable_entries = set()
         dim = len(self._elements)
-        self._qhull_data = self._create_convhull_data()
-        if len(self._qhull_data) == dim:
-            self._facets = [range(len(self._elements))]
+        qhull_data = self._create_convhull_data()
+        if len(qhull_data) == dim:
+            self._facets = [range(dim)]
         else:
-            self._facets = get_convex_hull(self._qhull_data,
-                                           self._use_external_qhull)
-            logger.debug("Final facets are\n{}".format(self._facets))
+            facets = get_convex_hull(qhull_data,
+                                     self.use_external_qhull)
+            logger.debug("Final facets are\n{}".format(facets))
 
             logger.debug("Removing vertical facets...")
             finalfacets = list()
-            for facet in self._facets:
+            for facet in facets:
                 facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
-                    facetmatrix[count] = np.array(self._qhull_data[vertex])
+                    facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
                     if len(self._qhull_entries[vertex].composition) > 1:
@@ -292,10 +297,10 @@ class PhaseDiagram (object):
                 else:
                     logger.debug("Removing vertical facet : {}".format(facet))
             self._facets = finalfacets
-
         for facet in self._facets:
             for vertex in facet:
                 stable_entries.add(self._qhull_entries[vertex])
+        self._qhull_data = qhull_data
         self._stable_entries = stable_entries
 
     def __repr__(self):
@@ -303,11 +308,10 @@ class PhaseDiagram (object):
 
     def __str__(self):
         symbols = [el.symbol for el in self._elements]
-        output = []
-        output.append("{} phase diagram".format("-".join(symbols)))
-        output.append("{} stable phases: ".format(len(self._stable_entries)))
-        output.append(", ".join([entry.name
-                                 for entry in self._stable_entries]))
+        output = ["{} phase diagram".format("-".join(symbols)),
+                  "{} stable phases: ".format(len(self._stable_entries)),
+                  ", ".join([entry.name
+                             for entry in self._stable_entries])]
         return "\n".join(output)
 
 
@@ -354,20 +358,15 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 scipy.spatial.Delaunay. See the doc for the PhaseDiagram class
                 for an explanation of the pros and cons.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        allentries = list()
-        for entry in entries:
-            if not (entry.is_element and
-                    (entry.composition.elements[0] in chempots)):
-                allentries.append(GrandPotPDEntry(entry, chempots))
+        allentries = [GrandPotPDEntry(e, chempots) for e in entries
+                      if not (e.is_element and
+                              (e.composition.elements[0] in chempots))]
         self.chempots = chempots
-        filteredels = list()
-        for el in elements:
-            if el not in chempots:
-                filteredels.append(el)
+        filteredels = filter(lambda el: el not in chempots, elements)
         elements = sorted(filteredels)
         super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements,
                                                          use_external_qhull)
@@ -390,9 +389,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     elements.
     """
 
-    """
-    Tolerance for determining if amount of a composition is positive.
-    """
+    # Tolerance for determining if amount of a composition is positive.
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions,
@@ -420,6 +417,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.normalize_terminals = normalize_terminal_compositions
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
+        self.species_mapping = species_mapping
         PhaseDiagram.__init__(self, pentries,
                               elements=species_mapping.values(),
                               use_external_qhull=use_external_qhull)
@@ -472,4 +470,4 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #If the reaction can't be balanced, the entry does not fall
                 #into the phase space. We ignore them.
                 pass
-        return (new_entries, sp_mapping)
+        return new_entries, sp_mapping

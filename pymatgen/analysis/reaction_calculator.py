@@ -20,7 +20,7 @@ import numpy as np
 from collections import defaultdict
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 
 logger = logging.getLogger(__name__)
 
@@ -194,11 +194,12 @@ class Reaction(MSONable):
             factor:
                 Factor to normalize to. Defaults to 1.
         """
-        current_el_amount = sum([self._all_comp[i][element]
-                                 * abs(self._coeffs[i])
-                                 for i in xrange(len(self._all_comp))]) / 2
+        all_comp = self._all_comp
+        coeffs = self._coeffs
+        current_el_amount = sum([all_comp[i][element] * abs(coeffs[i])
+                                 for i in xrange(len(all_comp))]) / 2
         scale_factor = factor / current_el_amount
-        self._coeffs = [c * scale_factor for c in self._coeffs]
+        self._coeffs = [c * scale_factor for c in coeffs]
 
     def get_el_amount(self, element):
         """
@@ -485,11 +486,8 @@ class ComputedReaction(Reaction):
         def update_calc_energies(entry):
             (comp, factor) = \
                 entry.composition.get_reduced_composition_and_factor()
-            if comp not in calc_energies:
-                calc_energies[comp] = entry.energy / factor
-            else:
-                calc_energies[comp] = min(calc_energies[comp],
-                                          entry.energy / factor)
+            calc_energies[comp] = min(calc_energies.get(comp, float('inf')),
+                                      entry.energy / factor)
         map(update_calc_energies, self._reactant_entries)
         map(update_calc_energies, self._product_entries)
         return self.calculate_energy(calc_energies)

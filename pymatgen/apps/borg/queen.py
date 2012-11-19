@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
-'''
+"""
 
 from __future__ import division
 

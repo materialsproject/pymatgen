@@ -318,7 +318,7 @@ class SymmetryFinder(object):
         else:
             #Not sure if we should return None or just return the full
             #structure.
-            return None
+            return self._structure
 
     def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
         """

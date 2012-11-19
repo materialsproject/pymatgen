@@ -16,12 +16,14 @@ __date__ = "May 16, 2012"
 
 import numpy as np
 import itertools
+import collections
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.comp_geometry.simplex import Simplex
+from pymatgen.util.coord_utils import get_convex_hull
 
 
 class PDAnalyzer(object):
@@ -49,6 +51,7 @@ class PDAnalyzer(object):
                 Phase Diagram to analyze.
         """
         self._pd = pd
+        self._use_external_qhull = pd.use_external_qhull
 
     def _make_comp_matrix(self, complist):
         """
@@ -83,11 +86,7 @@ class PDAnalyzer(object):
         """
         Get the facets that a composition falls into.
         """
-        memberfacets = list()
-        for facet in self._pd.facets:
-            if self._in_facet(facet, comp):
-                memberfacets.append(facet)
-        return memberfacets
+        return filter(lambda f: self._in_facet(f, comp), self._pd.facets)
 
     def _get_facet(self, comp):
         """
@@ -139,8 +138,8 @@ class PDAnalyzer(object):
         hullenergy = sum([entry.energy_per_atom * amt
                           for entry, amt in decomp.items()])
         if abs(eperatom) < PDAnalyzer.numerical_tol:
-            return (decomp, 0)
-        return (decomp, eperatom - hullenergy)
+            return decomp, 0
+        return decomp, eperatom - hullenergy
 
     def get_e_above_hull(self, entry):
         """
@@ -175,7 +174,8 @@ class PDAnalyzer(object):
         if entry.is_element:
             return 0
         entries = [e for e in self._pd.stable_entries if e != entry]
-        modpd = PhaseDiagram(entries, self._pd.elements)
+        modpd = PhaseDiagram(entries, self._pd.elements,
+                             use_external_qhull=self._use_external_qhull)
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
 
@@ -269,9 +269,9 @@ class PDAnalyzer(object):
             return True
 
         for c in chempots:
-            gcpd = GrandPotentialPhaseDiagram(stable_entries,
-                                              {element: c - 0.01},
-                                              self._pd.elements)
+            gcpd = GrandPotentialPhaseDiagram(
+                stable_entries, {element: c - 0.01},
+                self._pd.elements, use_external_qhull=self._use_external_qhull)
             analyzer = PDAnalyzer(gcpd)
             decomp = [gcentry.original_entry.composition for gcentry,
                       amt in analyzer.get_decomposition(gccomp).items()
@@ -310,29 +310,31 @@ class PDAnalyzer(object):
             simplices are the sides of the N-1 dim polytope bounding the
             allowable chemical potential range of each entry.
         """
-        elrefs = self._pd.el_refs
-        chempot_ranges = {}
-        for entry in self._pd.stable_entries:
-            all_facets = self._get_facets(entry.composition)
-            simplices = []
-            # For each entry, go through all possible combinations of 2 facets.
-            for facets in itertools.combinations(all_facets, 2):
-                # Get the intersection of the 2 facets.
-                inter = set(facets[0]).intersection(set(facets[1]))
+        all_chempots = []
+        pd = self._pd
+        facets = pd.facets
+        for facet in facets:
+            chempots = self.get_facet_chempots(facet)
+            all_chempots.append([chempots[el] for el in pd.elements])
+        inds = [pd.elements.index(el) for el in elements]
 
-                #Check if the intersection has N-1 vertices. if so, add the
-                #line to the list of simplices.
-                if len(inter) == self._pd.dim - 1:
-                    coords = []
-                    for facet in facets:
-                        chempots = self.get_facet_chempots(facet)
-                        coords.append([chempots[el]
-                                       - elrefs[el].energy_per_atom
-                                       for el in elements])
-                    sim = Simplex(coords)
-                    simplices.append(sim)
-
-            if len(simplices) > 0:
-                chempot_ranges[entry] = simplices
+        el_energies = {el: pd.el_refs[el].energy_per_atom
+                       for el in elements}
+        chempot_ranges = collections.defaultdict(list)
+        for ufacet in get_convex_hull(
+                all_chempots, use_external_qhull=self._use_external_qhull):
+            for combi in itertools.combinations(ufacet, 2):
+                data1 = facets[combi[0]]
+                data2 = facets[combi[1]]
+                common_ent_ind = set(data1).intersection(set(data2))
+                if len(common_ent_ind) == len(elements):
+                    common_entries = [pd.qhull_entries[i]
+                                      for i in common_ent_ind]
+                    data = np.array([[all_chempots[i][j]
+                                      - el_energies[pd.elements[j]]
+                                      for j in inds] for i in combi])
+                    sim = Simplex(data)
+                    for entry in common_entries:
+                        chempot_ranges[entry].append(sim)
 
         return chempot_ranges

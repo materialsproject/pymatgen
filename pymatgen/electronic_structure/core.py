@@ -42,7 +42,7 @@ class Spin(object):
             return self._name
 
         def __eq__(self, other):
-            if other == None:
+            if other is None:
                 return False
             return self._name == other._name
 
@@ -98,7 +98,7 @@ class Orbital(object):
             return self._name
 
         def __eq__(self, other):
-            if other == None:
+            if other is None:
                 return False
             return self._name == other._name
 
@@ -107,6 +107,10 @@ class Orbital(object):
 
         @property
         def orbital_type(self):
+            """
+            String indicating the type of orbital. Is always uppercase. E.g.,
+            S, P, D, F, etc.
+            """
             return self._name[0].upper()
 
         def __str__(self):
@@ -136,6 +140,9 @@ class Orbital(object):
 
     @staticmethod
     def from_vasp_index(i):
+        """
+        Returns an orbital based on the index of the orbital in VASP runs.
+        """
         for orb in Orbital.all_orbitals:
             if int(orb) == i:
                 return orb
@@ -143,6 +150,9 @@ class Orbital(object):
 
     @staticmethod
     def from_string(orb_str):
+        """
+        Returns an orbital from a string representation, e.g., "s", "px".
+        """
         for orb in Orbital.all_orbitals:
             if str(orb) == orb_str:
                 return orb

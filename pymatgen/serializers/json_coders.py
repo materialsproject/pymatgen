@@ -106,7 +106,7 @@ class PMGJSONEncoder(json.JSONEncoder):
             if "@class" not in d:
                 d["@class"] = o.__class__.__name__
             return d
-        except:
+        except AttributeError:
             return json.JSONEncoder.default(self, o)
 
 
@@ -139,8 +139,7 @@ class PMGJSONDecoder(json.JSONDecoder):
             else:
                 modname = None
             if modname:
-                mod = __import__(modname, globals(), locals(),
-                                 [classname], -1)
+                mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls = getattr(mod, classname)
                     data = {k: v for k, v in d.items() if k not in ["module",

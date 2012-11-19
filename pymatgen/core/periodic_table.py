@@ -38,6 +38,108 @@ class Element(object):
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
     ensuring that a particular element behaves like a singleton.
+
+    ..attribute: name
+
+       Long name for element. E.g., "Hydrogen".
+
+    ..attribute: atomic_mass
+
+        Atomic mass for the element.
+
+    .. attribute: atomic_radius
+
+        Atomic radius for the element.
+
+    ..attribute: mendeleev_no
+
+        Mendeleev number
+
+    ..attribute: electrical_resistivity
+
+        Electrical resistivity
+
+    .. attribute: velocity_of_sound
+
+        Velocity of sound
+
+    ..attribute: reflectivity
+
+        Reflectivity
+
+    ..attribute: refractive_index
+
+        Refractice index
+
+    ..attribute: poissons_ratio
+
+        Poisson's ratio
+
+    ..attribute: molar_volume
+
+        Molar volume
+
+    .. attribute: electronic_structure
+
+        Electronic structure. Simplified form with HTML formatting.
+        E.g., The electronic structure for Fe is represented as
+        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+
+    .. attribute: thermal_conductivity
+
+        Thermal conductivity
+
+    .. attribute: boiling_point
+
+        Boiling point
+
+    .. attribute: melting_point
+
+        Melting point
+
+    .. attribute: critical_temperature
+
+        Critical temperature
+
+    .. attribute: superconduction_temperature
+
+        Superconduction temperature
+
+    .. attribute: liquid_range
+
+        Liquid range
+
+    .. attribute: bulk_modulus
+
+        Bulk modulus
+
+    .. attribute: youngs_modulus
+
+        Young's modulus
+
+    .. attribute: brinell_hardness
+
+        Brinell hardness
+
+    .. attribute: rigidity_modulus
+
+        Rigidity modulus
+
+    .. attribute: mineral_hardness
+
+        Mineral hardness
+
+    .. attribute: vickers_hardness
+
+        Vicker's hardness
+
+    .. attribute: density_of_solid
+
+        Density of solid phase
+
+    .. attribute: coefficient_of_linear_thermal_expansion
+
+        Coefficient of linear thermal expansion
     """
 
     def __init__(self, symbol):
@@ -54,6 +156,22 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
+
+    def __getattr__(self, a):
+        if a.lower() in ["name", "atomic_mass", "atomic_radius",
+                         "mendeleev_no", "electrical_resistivity",
+                         "velocity_of_sound", "reflectivity",
+                         "refractive_index", "poissons_ratio", "molar_volume",
+                         "electronic_structure", "thermal_conductivity",
+                         "boiling_point", "melting_point",
+                         "critical_temperature", "superconduction_temperature",
+                         "liquid_range", "bulk_modulus", "youngs_modulus",
+                         "brinell_hardness", "rigidity_modulus",
+                         "mineral_hardness", "vickers_hardness",
+                         "density_of_solid",
+                         "coefficient_of_linear_thermal_expansion"]:
+            return self._data[a.capitalize().replace("_", " ")]
+        raise AttributeError(a)
 
     @property
     def average_ionic_radius(self):
@@ -99,21 +217,6 @@ class Element(object):
         return self.Z
 
     @property
-    def name(self):
-        """Full name for element"""
-        return self._data["Name"]
-
-    @property
-    def atomic_mass(self):
-        """Atomic mass"""
-        return self._data["Atomic mass"]
-
-    @property
-    def atomic_radius(self):
-        """Atomic radius"""
-        return self._data["Atomic radius"]
-
-    @property
     def max_oxidation_state(self):
         """Maximum oxidation state for element"""
         if "Oxidation states" in self._data:
@@ -138,50 +241,6 @@ class Element(object):
         return tuple(self._data.get("Common oxidation states", list()))
 
     @property
-    def mendeleev_no(self):
-        """Mendeleev number"""
-        return self._data["Mendeleev no"]
-
-    @property
-    def electrical_resistivity(self):
-        """Electrical resistivity"""
-        return self._data["Electrical resistivity"]
-
-    @property
-    def velocity_of_sound(self):
-        """Velocity of sound"""
-        return self._data["Velocity of sound"]
-
-    @property
-    def reflectivity(self):
-        """Reflectivity"""
-        return self._data["Reflectivity"]
-
-    @property
-    def refractive_index(self):
-        """Refractice index"""
-        return self._data["Refractive index"]
-
-    @property
-    def poissons_ratio(self):
-        """Poisson"s ratio"""
-        return self._data["Poissons ratio"]
-
-    @property
-    def molar_volume(self):
-        """Molar volume"""
-        return self._data["Molar volume"]
-
-    @property
-    def electronic_structure(self):
-        """
-        Electronic structure. Simplified form with HTML formatting.
-        E.g., The electronic structure for Fe is represented as
-        [Ar].3d<sup>6</sup>.4s<sup>2</sup>
-        """
-        return self._data["Electronic structure"]
-
-    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
@@ -194,7 +253,7 @@ class Element(object):
         def parse_orbital(orbstr):
             m = re.match("(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
             if m:
-                return (int(m.group(1)), m.group(2), int(m.group(3)))
+                return int(m.group(1)), m.group(2), int(m.group(3))
             return orbstr
 
         data = [parse_orbital(s) for s in estr.split(".")]
@@ -203,92 +262,22 @@ class Element(object):
             data = Element(sym).full_electronic_structure + data[1:]
         return data
 
-    @property
-    def thermal_conductivity(self):
-        """Thermal conductivity"""
-        return self._data["Thermal conductivity"]
-
-    @property
-    def boiling_point(self):
-        """Boiling point"""
-        return self._data["Boiling point"]
-
-    @property
-    def melting_point(self):
-        """Melting point"""
-        return self._data["Melting point"]
-
-    @property
-    def critical_temperature(self):
-        """Critical temperature"""
-        return self._data["Critical temperature"]
-
-    @property
-    def superconduction_temperature(self):
-        """Superconduction temperature"""
-        return self._data["Superconduction temperature"]
-
-    @property
-    def liquid_range(self):
-        """Liquid range"""
-        return self._data["Liquid range"]
-
-    @property
-    def bulk_modulus(self):
-        """Bulk modulus"""
-        return self._data["Bulk modulus"]
-
-    @property
-    def youngs_modulus(self):
-        """Young"s modulus"""
-        return self._data["Youngs modulus"]
-
-    @property
-    def brinell_hardness(self):
-        """Brinell hardness"""
-        return self._data["Brinell hardness"]
-
-    @property
-    def rigidity_modulus(self):
-        """Rigidity modulous"""
-        return self._data["Rigidity modulus"]
-
-    @property
-    def mineral_hardness(self):
-        """Mineral hardness"""
-        return self._data["Mineral hardness"]
-
-    @property
-    def vickers_hardness(self):
-        """Vicker"s hardness"""
-        return self._data["Vickers hardness"]
-
-    @property
-    def density_of_solid(self):
-        """Density of solid phase"""
-        return self._data["Density of solid"]
-
-    @property
-    def coefficient_of_linear_thermal_expansion(self):
-        """Coefficient of linear thermal expansion"""
-        return self._data["Coefficient of linear thermal expansion"]
-
     def __eq__(self, other):
         if not isinstance(other, Element):
             return False
-        return self.Z == other.Z
+        return self._z == other._z
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return self.Z
+        return self._z
 
     def __repr__(self):
-        return "Element " + self.symbol
+        return "Element " + self._symbol
 
     def __str__(self):
-        return self.symbol
+        return self._symbol
 
     def __cmp__(self, other):
         """
@@ -296,7 +285,7 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self.X - other.X)
+        return self._x - other._x
 
     def __lt__(self, other):
         """
@@ -304,13 +293,22 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return (self.X < other.X)
+        return self._x < other._x
 
     @staticmethod
     def from_Z(z):
-        """Get an element from an atomic number"""
-        for sym in _pt_data.keys():
-            if Element(sym).Z == z:
+        """
+        Get an element from an atomic number.
+
+        Args:
+            z:
+                Atomic number
+
+        Returns:
+            Element with atomic number z.
+        """
+        for sym, data in _pt_data.items():
+            if data["Atomic no"] == z:
                 return Element(sym)
         raise ValueError("No element with this atomic number")
 
@@ -348,11 +346,11 @@ class Element(object):
         """
         Returns the periodic table row of the element.
         """
-        Z = self.Z
+        Z = self._z
         total = 0
-        if Z >= 57 and Z <= 70:
+        if 57 <= Z <= 70:
             return 8
-        elif Z >= 89 and Z <= 102:
+        elif 89 <= Z <= 102:
             return 9
 
         for i in range(len(_pt_row_sizes)):
@@ -366,12 +364,12 @@ class Element(object):
         """
         Returns the periodic table group of the element.
         """
-        Z = self.Z
+        Z = self._z
         if Z == 1:
             return 1
         if Z == 2:
             return 18
-        if Z >= 3 and Z <= 18:
+        if 3 <= Z <= 18:
             if (Z - 2) % 8 == 0:
                 return 18
             elif (Z - 2) % 8 <= 2:
@@ -379,7 +377,7 @@ class Element(object):
             else:
                 return (10 + (Z - 2) % 8)
 
-        if Z >= 19 and Z <= 54:
+        if 19 <= Z <= 54:
             if (Z - 18) % 18 == 0:
                 return 18
             else:
@@ -402,7 +400,7 @@ class Element(object):
             block = "s"
         elif self.group in range(13, 19):
             block = "p"
-        elif (self.is_actinoid or self.is_lanthanoid):
+        elif self.is_actinoid or self.is_lanthanoid:
             block = "f"
         elif self.group in range(3, 13):
             block = "d"
@@ -416,21 +414,20 @@ class Element(object):
         True if element is noble gas.
         """
         ns = [2, 10, 18, 36, 54, 86, 118]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_transition_metal(self):
         """
         True if element is a transition metal.
         """
-
         ns = list(range(21, 31))
         ns.extend(range(39, 49))
         ns.append(57)
         ns.extend(range(72, 81))
         ns.append(89)
         ns.extend(range(104, 113))
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_rare_earth_metal(self):
@@ -445,7 +442,7 @@ class Element(object):
         True if element is a metalloid.
         """
         ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
-        return self.symbol in ns
+        return self._symbol in ns
 
     @property
     def is_alkali(self):
@@ -453,7 +450,7 @@ class Element(object):
         True if element is an alkali metal.
         """
         ns = [3, 11, 19, 37, 55, 87]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_alkaline(self):
@@ -461,7 +458,7 @@ class Element(object):
         True if element is an alkaline earth metal (group II).
         """
         ns = [4, 12, 20, 38, 56, 88]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_halogen(self):
@@ -469,21 +466,21 @@ class Element(object):
         True if element is a halogen.
         """
         ns = [9, 17, 35, 53, 85]
-        return self.Z in ns
+        return self._z in ns
 
     @property
     def is_lanthanoid(self):
         """
         True if element is a lanthanoid.
         """
-        return self.Z > 56 and self.Z < 72
+        return self._z > 56 and self._z < 72
 
     @property
     def is_actinoid(self):
         """
         True if element is a actinoid.
         """
-        return self.Z > 88 and self.Z < 104
+        return 88 < self._z < 104
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
@@ -494,11 +491,9 @@ class Element(object):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self._symbol}
 
 
 class Specie(MSONable):
@@ -549,8 +544,8 @@ class Specie(MSONable):
         """
         if not isinstance(other, Specie):
             return False
-        return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+        return self.symbol == other.symbol\
+        and self._oxi_state == other._oxi_state
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -561,7 +556,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self.oxi_state
+        return self.Z * 100 + self._oxi_state
 
     def __lt__(self, other):
         """
@@ -613,10 +608,10 @@ class Specie(MSONable):
 
     def __str__(self):
         output = self.symbol
-        if self.oxi_state >= 0:
-            output += formula_double_format(self.oxi_state) + "+"
+        if self._oxi_state >= 0:
+            output += formula_double_format(self._oxi_state) + "+"
         else:
-            output += formula_double_format(-self.oxi_state) + "-"
+            output += formula_double_format(-self._oxi_state) + "-"
         return output
 
     def __deepcopy__(self, memo):
@@ -624,18 +619,16 @@ class Specie(MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        d["oxidation_state"] = self._oxi_state
-        d["properties"] = self._properties
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self.symbol,
+                "oxidation_state": self._oxi_state,
+                "properties": self._properties}
 
     @staticmethod
     def from_dict(d):
         return Specie(d["element"], d["oxidation_state"],
-                      d.get("properties", None))
+            d.get("properties", None))
 
 
 class DummySpecie(Specie, MSONable):
@@ -732,18 +725,16 @@ class DummySpecie(Specie, MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["element"] = self.symbol
-        d["oxidation_state"] = self._oxi_state
-        d["properties"] = self._properties
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "element": self.symbol,
+                "oxidation_state": self._oxi_state,
+                "properties": self._properties}
 
     @staticmethod
     def from_dict(d):
         return DummySpecie(d["element"], d["oxidation_state"],
-                           d.get("properties", None))
+            d.get("properties", None))
 
 
 @singleton

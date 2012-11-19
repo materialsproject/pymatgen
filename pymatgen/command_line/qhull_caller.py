@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 Interface with command line qhull.
 Needs qhull installed. You can get it from http://www.qhull.org/.
-'''
+"""
 
 from __future__ import division
 
@@ -26,7 +26,7 @@ def run_qhull_command(command, data, proc_command=int, output_skip=1):
     """
     Helper function for actual qconvex and qvoronoi and qvertex commands.
     """
-    assert len(data) > 0,"Data is empty"
+    assert len(data) > 0, "Data is empty"
     prep_str = str(len(data[0])) + "\n"
     prep_str += str(len(data)) + "\n"
     prep_str += "\n".join([' '.join([str(i) for i in row]) for row in data])
@@ -99,7 +99,7 @@ def qvertex_target(data, index):
     index is the index of the targeted point
     Returns the vertices of the voronoi construction around this target point.
     """
-    return run_qhull_command(['qvoronoi', 'p QV' + str(index)], data, float, 2)
+    return run_qhull_command(['qvoronoi', 'p', 'QV' + str(index)], data, float, 2)
 
 
 def get_lines_voronoi(data):
@@ -140,7 +140,7 @@ def get_lines_voronoi(data):
 
                     dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)
                                                       * np.linalg.norm(n2)))
-                    if(dot < 1.05 and dot > 0.95):
+                    if 1.05 > dot > 0.95:
                         continue
                     list_lines.append({'start': list_points[line[0]],
                                        'end': list_points[line[1]]})

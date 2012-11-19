@@ -34,12 +34,9 @@ TITLE sites: 4
 
     def test_get_header(self):
         header = FeffInputSet.get_header(x, structure, 'CoO19128')
-        print '\n\n'
-        print header
-        print '\n\nheader_string'
-        print FeffInputSetTest.header_string
+        self.maxDiff = 1000
         self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines(), "Failed to read HEADER file")
+                         header.splitlines())
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES")

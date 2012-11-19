@@ -78,13 +78,12 @@ class InsertSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"species": self._species, "coords": self._coords,
-                          "coords_are_cartesian": self._cartesian,
-                          "validate_proximity": self._validate_proximity}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"species": self._species, "coords": self._coords,
+                              "coords_are_cartesian": self._cartesian,
+                              "validate_proximity": self._validate_proximity},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
@@ -112,7 +111,8 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + \
-            ", ".join([k + "->" + v for k, v in self._species_map.items()])
+            ", ".join(["{}->{}".format(k,v) + v for k, v in
+                       self._indices_species_map.items()])
 
     def __repr__(self):
         return self.__str__()
@@ -127,11 +127,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"indices_species_map": self._indices_species_map}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"indices_species_map": self._indices_species_map},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class RemoveSitesTransformation(AbstractTransformation):
@@ -152,7 +151,8 @@ class RemoveSitesTransformation(AbstractTransformation):
         return editor.modified_structure
 
     def __str__(self):
-        return "RemoveSitesTransformation :" + ", ".join(self._indices)
+        return "RemoveSitesTransformation :" + ", ".join(map(str,
+                                                             self._indices))
 
     def __repr__(self):
         return self.__str__()
@@ -167,11 +167,10 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"indices_to_remove": self._indices}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"indices_to_remove": self._indices},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class TranslateSitesTransformation(AbstractTransformation):
@@ -203,7 +202,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def __str__(self):
         return "TranslateSitesTransformation for indices " + \
             "{}, vect {} and vect_in_frac_coords = {}".format(self._indices,
-                                        self._translation_vector, self._frac)
+                                        self._vector, self._frac)
 
     def __repr__(self):
         return self.__str__()
@@ -220,13 +219,12 @@ class TranslateSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"indices_to_move": self._indices,
-                               "translation_vector": self._vector,
-                               "vector_in_frac_coords": self._frac}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"indices_to_move": self._indices,
+                              "translation_vector": self._vector,
+                              "vector_in_frac_coords": self._frac},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class PartialRemoveSitesTransformation(AbstractTransformation):
@@ -501,7 +499,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         try:
             num_to_return = int(return_ranked_list)
-        except:
+        except ValueError:
             num_to_return = 1
 
         num_to_return = max(1, num_to_return)
@@ -526,7 +524,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def __str__(self):
         return "PartialRemoveSitesTransformation : Indices and fraction" + \
                " to remove = {}, ALGO = {}".format(self._specie,
-                                                   self._indices_fraction_dict,
+                                                   self._indices,
                                                    self._algo)
 
     def __repr__(self):
@@ -542,9 +540,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"indices": self._indices,
-                          "fractions": self._fractions, "algo": self._algo}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"indices": self._indices,
+                              "fractions": self._fractions, "algo": self._algo},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}

@@ -67,6 +67,9 @@ class SymmOp(MSONable):
                 A rank 1 numpy.array specifying a translation vector.
             tol:
                 Tolerance to determine if rotation matrix is valid.
+
+        Returns:
+            SymmOp object
         """
         rotation_matrix = np.array(rotation_matrix)
         translation_vec = np.array(translation_vec)
@@ -81,11 +84,10 @@ class SymmOp(MSONable):
         return SymmOp(affine_matrix, tol)
 
     @staticmethod
-    def from_rotation_matrix_and_translation_vector(rotation_matrix=((1, 0, 0),
-                                                                     (0, 1, 0),
-                                                                     (0, 0, 1)),
-                                                    translation_vec=(0, 0, 0),
-                                                    tol=0.1):
+    def from_rotation_matrix_and_translation_vector(
+        rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        translation_vec=(0, 0, 0),
+        tol=0.1):
         """
         .. deprecated:: 2.2.1
             Use :func:`from_rotation_and_translation` instead.
@@ -100,6 +102,9 @@ class SymmOp(MSONable):
                 A rank 1 numpy.array specifying a translation vector.
             tol:
                 Tolerance to determine if rotation matrix is valid.
+
+        Returns:
+            SymmOp object
         """
         import warnings
         warnings.warn("This method has been deprecated from version 2.2.1. "
@@ -108,7 +113,8 @@ class SymmOp(MSONable):
                                                     translation_vec, tol)
 
     def __eq__(self, other):
-        return (abs(self.affine_matrix - other.affine_matrix) < self.tol).all()
+        return np.allclose(self.affine_matrix, other.affine_matrix,
+                           atol=self.tol)
 
     def __hash__(self):
         return 7
@@ -117,10 +123,8 @@ class SymmOp(MSONable):
         return self.__str__()
 
     def __str__(self):
-        output = ["Rot:"]
-        output.append(str(self.affine_matrix[0:3][:, 0:3]))
-        output.append("tau")
-        output.append(str(self.affine_matrix[0:3][:, 3]))
+        output = ["Rot:", str(self.affine_matrix[0:3][:, 0:3]), "tau",
+                  str(self.affine_matrix[0:3][:, 3])]
         return "\n".join(output)
 
     def operate(self, point):
@@ -131,9 +135,11 @@ class SymmOp(MSONable):
             point:
                 A cartesian coordinate represented as a rank 1 numpy array
                 of 3 elements.
+
+        Returns:
+            Coordinates of point after operation.
         """
         affine_point = np.array([point[0], point[1], point[2], 1])
-        affine_point[0:3] = point
         return np.dot(self.affine_matrix, affine_point)[0:3]
 
     def apply_rotation_only(self, vector):
@@ -157,14 +163,14 @@ class SymmOp(MSONable):
             point_b:
                 Second point.
             tol:
-                Tolerance for checking.
+                Absolute tolerance for checking.
 
         Returns:
             True if self.operate(point_a) == point_b or vice versa.
         """
-        if (abs(self.operate(point_a) - point_b) < tol).all():
+        if np.allclose(self.operate(point_a), point_b, atol=tol):
             return True
-        if (abs(self.operate(point_b) - point_a) < tol).all():
+        if np.allclose(self.operate(point_b), point_a, atol=tol):
             return True
         return False
 
@@ -289,11 +295,9 @@ class SymmOp(MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["matrix"] = self.affine_matrix.tolist()
-        d["tolerance"] = self.tol
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
         return d
 
     @staticmethod
