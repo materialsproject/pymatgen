@@ -252,19 +252,21 @@ contributing is that your code will now be used by other researchers who use
 pymatgen, and we will include an acknowledgement to you (and any related
 publications) in pymatgen.
 
-1. Report issues and bugs. A simple way that anyone can contribute is simply to
-   report bugs and issues to the developing team. You can either send an email
-   to the `pymatgen's Google Groups page`_ or even
-   better, submit an Issue in our
-   `github page <https://github.com/materialsproject/pymatgen/issues>`_.
+Reporting bugs
+--------------
 
-2. Submitting new code. Another way to contribute is to submit new
-   code/bugfixes to pymatgen. While you can always zip your code and email it
-   to the maintainer of pymatgen, the best way for anyone to develop pymatgen
-   is by adopting the collaborative Github workflow (see section below).
+A simple way that anyone can contribute is simply to report bugs and issues
+to the developing team. You can either send an email to the `pymatgen's
+Google Groups page`_ or even better, submit an Issue in our `github page
+<https://github.com/materialsproject/pymatgen/issues>`_.
 
 Developing for pymatgen
 -----------------------
+
+Another way to contribute is to submit new code/bugfixes to pymatgen. While
+you can always zip your code and email it to the maintainer of pymatgen,
+the best way for anyone to develop pymatgen is by adopting the collaborative
+Github workflow (see section below).
 
 .. toctree::
    :maxdepth: 2
