@@ -49,8 +49,8 @@ become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
 
-Latest Change Log (v2.2.5dev)
-=============================
+Latest Change Log
+=================
 
 1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
    algo using data-mined ICSD data.
