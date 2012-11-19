@@ -1,6 +1,5 @@
 import glob
 import os
-import sys
 
 from distribute_setup import use_setuptools
 use_setuptools(version='0.6.10')
@@ -38,7 +37,7 @@ to be made for the long term health of the code.
 For documentation and usage guide, please refer to the latest documentation at
 our github page (http://materialsproject.github.com/pymatgen/). If you wish to
 be notified via email of pymatgen releases, you may become a member of
-pymatgen"s Google Groups page
+pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
