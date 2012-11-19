@@ -27,7 +27,8 @@ import numpy as np
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.io_utils import zopen
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, Composition
+from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 
 

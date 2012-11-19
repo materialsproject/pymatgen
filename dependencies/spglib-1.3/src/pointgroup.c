@@ -378,7 +378,7 @@ Pointgroup ptg_get_pointgroup(const int pointgroup_number)
   pointgroup.holohedry = pointgroup_type.holohedry;
   pointgroup.laue = pointgroup_type.laue;
 
-  debug_print("Point group: %s\n", pointgroup_type.symbol);
+  debug_print("ptg_get_pointgroup: %s\n", pointgroup_type.symbol);
 
   return pointgroup;
 }
@@ -413,7 +413,7 @@ Centering ptg_get_transformation_matrix(double trans_mat[3][3],
 			  pointgroup.transform_mat,
 			  correction_mat);
 
-  debug_print("correction matrix\n");
+  debug_print("correction matrix:\n");
   debug_print_matrix_d3(correction_mat);
 
   return centering;
@@ -462,6 +462,8 @@ static int get_pointgroup_number(SPGCONST PointSymmetry * pointsym)
   int table[10];
   PointgroupType pointgroup_type;
 
+  debug_print("get_pointgroup_number:");
+  
   /* Get list of point symmetry operations */
   if (! get_pointgroup_class_table(table, pointsym)) {
     pg_num = -1;
@@ -482,6 +484,7 @@ static int get_pointgroup_number(SPGCONST PointSymmetry * pointsym)
   }
 
  end:
+  debug_print(" %d\n", pg_num);
   return pg_num;
 }
 

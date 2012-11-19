@@ -1,6 +1,5 @@
 import glob
 import os
-import sys
 
 from distribute_setup import use_setuptools
 use_setuptools(version='0.6.10')
@@ -38,17 +37,16 @@ to be made for the long term health of the code.
 For documentation and usage guide, please refer to the latest documentation at
 our github page (http://materialsproject.github.com/pymatgen/). If you wish to
 be notified via email of pymatgen releases, you may become a member of
-pymatgen"s Google Groups page
+pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
-# Get 1.2.x for spglib
-spglibs = glob.glob(os.path.join("dependencies", "spglib-1.2.*"))
+# Get spglib
+spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
 if len(spglibs) == 0:
-    raise ValueError("No spglib-1.2.* found in dependencies/")
-spgvers = [int(s[s.rfind('.') + 1:]) for s in
-           [os.path.split(p)[-1] for p in spglibs]]
-spglibdir = spglibs[spgvers.index(max(spgvers))]
+    raise ValueError("No spglib found in dependencies/")
+spglibdir = spglibs[0]
+
 # set rest of spglib
 spgsrcdir = os.path.join(spglibdir, "src")
 include_dirs = [spgsrcdir]
@@ -58,19 +56,9 @@ sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
            "spg_database.c", "spglib.c", "symmetry.c"]
 sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
 
-if os.name == "posix" and sys.platform in ("darwin", "sunos5"):
-    print "Mac OS detected. Compiling without openmp..."
-    extra_compile = []
-    extra_link = []
-else:
-    extra_compile = ["-fopenmp"]
-    extra_link = ["-lgomp"]
-
 extension = Extension("pymatgen._spglib",
                       include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-                      extra_compile_args=extra_compile,
-                      extra_link_args=extra_link
+                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources
                       )
 
 scripts = [os.path.join("scripts", f) for f in os.listdir("scripts")]
@@ -86,7 +74,7 @@ setup(
                     "cif": ["PyCifRW>=3.3"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
-                  "pymatgen.analysis": ["bvparm2011.json"],
+                  "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},

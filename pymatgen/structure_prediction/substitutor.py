@@ -108,12 +108,10 @@ class Substitutor(MSONable):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["kwargs"] = self._kwargs
-        d["threshold"] = self._threshold
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "kwargs": self._kwargs, "threshold": self._threshold,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):

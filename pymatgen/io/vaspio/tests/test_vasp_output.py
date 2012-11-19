@@ -19,10 +19,11 @@ import json
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun
-from pymatgen import __file__, Spin, Orbital
+import pymatgen
+from pymatgen import Spin, Orbital
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
+                        '..', 'test_files')
 
 
 class VasprunTest(unittest.TestCase):

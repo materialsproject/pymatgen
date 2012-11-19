@@ -16,7 +16,7 @@
 
 #include "debug.h"
 
-#define REDUCE_RATE 0.2
+#define REDUCE_RATE 0.95
 
 static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
 				 const double symprec);
@@ -83,8 +83,6 @@ Symmetry * spa_get_conventional_symmetry(SPGCONST double transform_mat[3][3],
 					 const Centering centering,
 					 const Symmetry *primitive_sym)
 {
-  debug_print("spa_get_conventional_symmetry:\n");
-  
   return get_conventional_symmetry(transform_mat,
 				   centering,
 				   primitive_sym);
@@ -162,8 +160,9 @@ static int get_hall_number(double origin_shift[3],
 			   const double symprec)
 {
   int pg_num, hall_number=0;
-  double tolerance;
 
+  debug_print("get_hall_number:\n");
+  
   pg_num = ptg_get_pointgroup_number(symmetry);
   if (pg_num > -1) {
     hall_number = get_hall_number_local(origin_shift,
@@ -186,12 +185,6 @@ static int get_hall_number(double origin_shift[3],
 						primitive,
 						symmetry,
 						symprec);
-#ifdef SPGWARNING
-  if (hall_number == 0) {
-    warning_print("spglib: Iterative attempt with sym_reduce_operation to find Hall symbol failed.\n");
-    warning_print("spglib: The final tolerance = %e.\n", tolerance );
-  }
-#endif
 
  ret:
   return hall_number;
@@ -208,13 +201,14 @@ static int get_hall_number_local_iteration(double origin_shift[3],
   double tolerance;
   Symmetry * sym_reduced;
 
+  debug_print("get_hall_number_local_iteration:\n");
+
   tolerance = symprec;
-  for (attempt = 0; attempt < 20; attempt++) {
+  for (attempt = 0; attempt < 100; attempt++) {
     tolerance *= REDUCE_RATE;
+    debug_print("  Attempt %d tolerance = %f\n", attempt, tolerance);
     sym_reduced = sym_reduce_operation(primitive, symmetry, tolerance);
     pg_num = ptg_get_pointgroup_number(sym_reduced);
-
-    debug_print("get_hall_number: pg_num = %d\n", pg_num);
 
     if (pg_num > -1) {
       hall_number = get_hall_number_local(origin_shift,
@@ -225,12 +219,17 @@ static int get_hall_number_local_iteration(double origin_shift[3],
 					  symprec);
       if (hall_number > 0) {
 	sym_free_symmetry(sym_reduced);
-	warning_print("spglib: Tolerance to find Hall symbol was changed to %e\n", tolerance);
 	break;
       }
     }
     sym_free_symmetry(sym_reduced);
   }
+
+#ifdef SPGWARNING
+  if (hall_number == 0) {
+    warning_print("spglib: Iterative attempt with sym_reduce_operation to find Hall symbol failed.\n");
+  }
+#endif
 
   return hall_number;
 }
@@ -248,8 +247,6 @@ static int get_hall_number_local(double origin_shift[3],
   Symmetry * conv_symmetry;
 
   debug_print("get_hall_number_local:\n");
-  debug_print("primitive->lattice:\n");
-  debug_print_matrix_d3(primitive->lattice);
   
   *centering = ptg_get_transformation_matrix(trans_mat,
 					     symmetry->rot,
@@ -258,9 +255,6 @@ static int get_hall_number_local(double origin_shift[3],
   mat_multiply_matrix_d3(conv_lattice,
 			 primitive->lattice,
 			 trans_mat);
-
-  debug_print("conv_lattice:\n");
-  debug_print_matrix_d3(conv_lattice);
 
   conv_symmetry = get_conventional_symmetry(trans_mat,
 					    *centering,
@@ -287,27 +281,6 @@ static Symmetry * get_conventional_symmetry(SPGCONST double transform_mat[3][3],
   double tmp_matrix_d3[3][3], shift[4][3];
   double symmetry_rot_d3[3][3], primitive_sym_rot_d3[3][3];
   Symmetry *symmetry;
-
-#ifdef DEBUG
-  debug_print("get_conventional_symmetry:\n");
-  debug_print("transformation matrix:\n");
-  for (i = 0; i < 3; i++) {
-    debug_print("%f %f %f\n",
-		transform_mat[i][0],
-		transform_mat[i][1],
-		transform_mat[i][2]);
-  }
-  debug_print("orig sym size: %d\n", primitive_sym->size);
-  
-  for (i = 0; i < primitive_sym->size; i++) {
-    debug_print("--- %d ---\n", i + 1);
-    debug_print_matrix_i3(primitive_sym->rot[i]);
-    debug_print("%f %f %f\n",
-		primitive_sym->trans[i][0],
-		primitive_sym->trans[i][1],
-		primitive_sym->trans[i][2]);
-  }
-#endif
 
   size = primitive_sym->size;
 
@@ -393,19 +366,6 @@ static Symmetry * get_conventional_symmetry(SPGCONST double transform_mat[3][3],
       }
     }
   }
-
-#ifdef DEBUG
-  debug_print("Multi: %d\n", multi);
-  debug_print("Centering: %d\n", centering);
-  debug_print("sym size: %d\n", symmetry->size);
-  
-  for (i = 0; i < symmetry->size; i++) {
-    debug_print("--- %d ---\n", i + 1);
-    debug_print_matrix_i3(symmetry->rot[i]);
-    debug_print("%f %f %f\n", symmetry->trans[i][0],
-		symmetry->trans[i][1], symmetry->trans[i][2]);
-  }
-#endif
 
   return symmetry;
 }

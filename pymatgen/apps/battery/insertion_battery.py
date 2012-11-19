@@ -17,7 +17,7 @@ __status__ = "Beta"
 
 import itertools
 
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.core.physical_constants import ELECTRON_TO_AMPERE_HOURS
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.entries import PDEntry
@@ -55,9 +55,7 @@ class InsertionElectrode(AbstractElectrode):
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
 
-        """
-        Set an artifical energy for each element for convex hull generation
-        """
+        #Set an artifical energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
 
         pdentries = []
@@ -298,29 +296,27 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode"s properties in dict format.
         """
-
-        d = {}
-        d["average_voltage"] = self.get_average_voltage()
-        d["max_voltage"] = self.max_voltage
-        d["min_voltage"] = self.min_voltage
-        d["max_delta_volume"] = self.max_delta_volume
-        d["max_voltage_step"] = self.max_voltage_step
-        d["capacity_grav"] = self.get_capacity_grav()
-        d["capacity_vol"] = self.get_capacity_vol()
-        d["energy_grav"] = self.get_specific_energy()
-        d["energy_vol"] = self.get_energy_density()
-        d["working_ion"] = self._working_ion.symbol
-        d["nsteps"] = self.num_steps
-        d["framework"] = self._vpairs[0].framework.to_data_dict
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
         ion = self.working_ion
-        d["formula_charge"] = chg_comp.reduced_formula
-        d["formula_discharge"] = dischg_comp.reduced_formula
-        d["fracA_charge"] = chg_comp.get_atomic_fraction(ion)
-        d["fracA_discharge"] = dischg_comp.get_atomic_fraction(ion)
-        d["max_instability"] = self.get_max_instability()
-        d["min_instability"] = self.get_min_instability()
+        d = {"average_voltage": self.get_average_voltage(),
+             "max_voltage": self.max_voltage,
+             "min_voltage": self.min_voltage,
+             "max_delta_volume": self.max_delta_volume,
+             "max_voltage_step": self.max_voltage_step,
+             "capacity_grav": self.get_capacity_grav(),
+             "capacity_vol": self.get_capacity_vol(),
+             "energy_grav": self.get_specific_energy(),
+             "energy_vol": self.get_energy_density(),
+             "working_ion": self._working_ion.symbol,
+             "nsteps": self.num_steps,
+             "framework": self._vpairs[0].framework.to_data_dict,
+             "formula_charge": chg_comp.reduced_formula,
+             "formula_discharge": dischg_comp.reduced_formula,
+             "fracA_charge": chg_comp.get_atomic_fraction(ion),
+             "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
+             "max_instability": self.get_max_instability(),
+             "min_instability": self.get_min_instability()}
         if print_subelectrodes:
             f_dict = lambda c: c.to_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = map(f_dict,
@@ -352,12 +348,10 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["entries"] = [entry.to_dict for entry in self._entries]
-        d["working_ion_entry"] = self.working_ion_entry.to_dict
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "entries": [entry.to_dict for entry in self._entries],
+                "working_ion_entry": self.working_ion_entry.to_dict}
 
 
 class InsertionVoltagePair(AbstractVoltagePair):
@@ -447,7 +441,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
                                       - (comp_charge[working_element]
                                          / norm_charge)
 
-        self._voltage = ((entry_charge.energy / norm_charge) - \
+        self._voltage = ((entry_charge.energy / norm_charge) -
                          (entry_discharge.energy / norm_discharge)) / \
                          self._num_ions_transferred \
                          + working_ion_entry.energy_per_atom
@@ -508,14 +502,14 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = ["Insertion voltage pair with working ion {}"
-                  .format(self._working_ion_entry.composition.reduced_formula)]
-        output.append("V = {}, mAh = {}".format(self.voltage, self.mAh))
-        output.append("mass_charge = {}, mass_discharge = {}"
-                      .format(self.mass_charge, self.mass_discharge))
-        output.append("vol_charge = {}, vol_discharge = {}"
-                      .format(self.vol_charge, self.vol_discharge))
-        output.append("frac_charge = {}, frac_discharge = {}"
-                      .format(self.frac_charge, self.frac_discharge))
+                  .format(self._working_ion_entry.composition.reduced_formula),
+                  "V = {}, mAh = {}".format(self.voltage, self.mAh),
+                  "mass_charge = {}, mass_discharge = {}"
+                  .format(self.mass_charge, self.mass_discharge),
+                  "vol_charge = {}, vol_discharge = {}"
+                  .format(self.vol_charge, self.vol_discharge),
+                  "frac_charge = {}, frac_discharge = {}"
+                  .format(self.frac_charge, self.frac_discharge)]
         return "\n".join(output)
 
     def __str__(self):

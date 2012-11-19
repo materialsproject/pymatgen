@@ -84,8 +84,8 @@ class Simplex(object):
 
     def __repr__(self):
         output = ["{}-simplex in {}D space".format(self.simplex_dim,
-                                                   self.space_dim)]
-        output.append("Vertices:")
+                                                   self.space_dim),
+                  "Vertices:"]
         for coord in self._coords:
             output.append("\t({})".format(", ".join([str(i) for i in coord])))
         return "\n".join(output)

@@ -16,11 +16,10 @@ __date__ = "Nov 27, 2011"
 import numpy as np
 import warnings
 import math
+import logging
 
 from pymatgen.command_line.qhull_caller import qconvex
 
-import logging
-logger = logging.getLogger("mg.pymatpro.coord_utils")
 
 def in_coord_list(coord_list, coord, **kwargs):
     """
@@ -87,6 +86,7 @@ def get_convex_hull(coords, use_external_qhull=False):
     Returns:
         List of list of int, representing facets of the convex hull.
     """
+    logger = logging.getLogger(__name__)
     if not use_external_qhull:
         try:
             from scipy.spatial import Delaunay

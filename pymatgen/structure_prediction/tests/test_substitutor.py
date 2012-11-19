@@ -3,7 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Specie
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.structure_prediction.substitution_probability import test_table
 from pymatgen.structure_prediction.substitutor import Substitutor
 

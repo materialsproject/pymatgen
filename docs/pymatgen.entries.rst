@@ -25,6 +25,14 @@ entries Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`entry_tools` Module
+-------------------------
+
+.. automodule:: pymatgen.entries.entry_tools
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`exp_entries` Module
 -------------------------
 
