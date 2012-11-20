@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module defines a class representing an arbitrary Simplex in arbitrary
 dimensional space.
-'''
+"""
 
 from __future__ import division
 
@@ -65,6 +65,9 @@ class Simplex(object):
                 Point to test
             tolerance:
                 Tolerance to test if point is in simplex.
+
+        Returns:
+            Boolean indicating whether the point is in the simplex.
         """
         origin = self._coords[0]
         bary_coords = np.array([self._coords[i] - origin

@@ -157,8 +157,8 @@ div.sphinxsidebar input {
     border: 1px solid #ddd;
     border-bottom: 1px solid #bbb;
     font-family: 'Droid Sans', helvetica, arial, serif;
-    font-size: 1.3em;
-    padding: 0.2em 0.4em;
+    font-size: 1.2em;
+    padding: 0.2em 0.1em;
     -moz-box-shadow: 0px 0px 3px rgba(0,0,0,0.1);
     -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,0.1);
     box-shadow: 0px 0px 3px rgba(0,0,0,0.1);
