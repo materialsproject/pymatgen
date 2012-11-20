@@ -19,11 +19,12 @@ from collections import OrderedDict
 import numpy as np
 import logging
 import math
+import itertools
+
+from pyhull import qvoronoi, qconvex
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.io_utils import clean_json
-from pymatgen.command_line.qhull_caller import qvertex_target, \
-    get_lines_voronoi
 
 logger = logging.getLogger('BSPlotter')
 
@@ -280,8 +281,6 @@ class BSPlotter(object):
                     True if the band structure is metallic (i.e., there is at
                     least one band crossing the fermi level).
         """
-        zero_energy = None
-
         if self._bs.is_metal():
             zero_energy = self._bs.efermi
         else:
@@ -487,7 +486,7 @@ class BSPlotter(object):
         x_max = data['distances'][-1]
         plt.xlim(0, x_max)
 
-        if ylim == None:
+        if ylim is None:
             if self._bs.is_metal():
                 # Plot A Metal
                 if zero_to_efermi:
@@ -625,7 +624,6 @@ class BSPlotter(object):
         """
             plot the Brillouin zone
         """
-        import pymatgen.command_line.qhull_caller
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         mpl.rcParams['legend.fontsize'] = 10
@@ -1034,3 +1032,55 @@ class BSPlotterProjected(BSPlotter):
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
         count = count + 1
         return plt
+
+
+def qvertex_target(data, index):
+    """
+    Input data should be in the form of a list of a list of floats.
+    index is the index of the targeted point
+    Returns the vertices of the voronoi construction around this target point.
+    """
+    output = qvoronoi("p Qv"+str(index), data)
+    output.pop(0)
+    output.pop(1)
+    return [[float(i) for i in row] for row in output]
+
+
+def get_lines_voronoi(data):
+    output = qconvex("o", data)
+
+    nb_points = int(output[1].split(" ")[0])
+    list_lines = []
+    list_points = []
+    for i in range(2, 2 + nb_points):
+        list_points.append([float(c) for c in output[i].strip().split()])
+    facets = []
+    for i in range(2 + nb_points, len(output)):
+        if output[i] != '':
+            tmp = output[i].strip().split(" ")
+            facets.append([int(tmp[j]) for j in range(1, len(tmp))])
+
+    for i in range(len(facets)):
+        for line in itertools.combinations(facets[i], 2):
+            for j in range(len(facets)):
+                if i != j and line[0] in facets[j] and line[1] in facets[j]:
+                    #check if the two facets i and j are not coplanar
+                    vector1 = np.array(list_points[facets[j][0]])\
+                              - np.array(list_points[facets[j][1]])
+                    vector2 = np.array(list_points[facets[j][0]])\
+                              - np.array(list_points[facets[j][2]])
+                    n1 = np.cross(vector1, vector2)
+                    vector1 = np.array(list_points[facets[i][0]])\
+                              - np.array(list_points[facets[i][1]])
+                    vector2 = np.array(list_points[facets[i][0]])\
+                              - np.array(list_points[facets[i][2]])
+                    n2 = np.cross(vector1, vector2)
+
+                    dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)
+                                                      * np.linalg.norm(n2)))
+                    if 1.05 > dot > 0.95:
+                        continue
+                    list_lines.append({'start': list_points[line[0]],
+                                       'end': list_points[line[1]]})
+                    break
+    return list_lines

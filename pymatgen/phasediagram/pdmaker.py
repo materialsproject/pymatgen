@@ -14,13 +14,16 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Jul 11, 2012"
 
-import numpy as np
 import collections
 import logging
 
+import numpy as np
+
+from pyhull.convex_hull import ConvexHull
+
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
-from pymatgen.util.coord_utils import get_convex_hull
+
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
@@ -65,19 +68,10 @@ class PhaseDiagram (object):
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the the entries themselves.
             use_external_qhull:
-                If set to True, the code will use an external command line call
-                to Qhull to calculate the convex hull data. This requires the
-                user to have qhull installed and the executables "qconvex"
-                available in his path. By default, the code uses the
-                scipy.spatial.Delaunay.
-
-                The benefit of using external qhull is that a) it is much
-                faster, especially for higher-dimensional hulls with many
-                entries, and b) it is more robustly tested. The scipy Delaunay
-                class is relatively new, and we have found some issues with
-                higher-dimensional hulls, with nonsensical results given in
-                some instances. Nonetheless, scipy Delaunay seems to work well
-                enough for phase diagrams with < 4 components.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
@@ -85,7 +79,6 @@ class PhaseDiagram (object):
                                   for entry in entries])
         self._all_entries = entries
         self._elements = tuple(elements)
-        self.use_external_qhull = use_external_qhull
         self._make_phasediagram()
 
     @property
@@ -275,17 +268,19 @@ class PhaseDiagram (object):
         if len(qhull_data) == dim:
             self._facets = [range(dim)]
         else:
-            facets = get_convex_hull(qhull_data,
-                                     self.use_external_qhull)
+            facets = ConvexHull(qhull_data).vertices
             logger.debug("Final facets are\n{}".format(facets))
 
             logger.debug("Removing vertical facets...")
-            finalfacets = list()
+            finalfacets = []
             for facet in facets:
+                print facet
                 facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
+                    print vertex
+                    print qhull_data[vertex]
                     facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
@@ -353,10 +348,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the entries themselves.
             use_external_qhull:
-                If set to True, the code will use an external command line call
-                to Qhull to calculate the convex hull data instead of
-                scipy.spatial.Delaunay. See the doc for the PhaseDiagram class
-                for an explanation of the pros and cons.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
@@ -368,8 +363,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         self.chempots = chempots
         filteredels = filter(lambda el: el not in chempots, elements)
         elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements,
-                                                         use_external_qhull)
+        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements)
 
     def __str__(self):
         output = []
@@ -404,8 +398,10 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 Terminal compositions of phase space. In the Li2O-P2O5 example,
                 these will be the Li2O and P2O5 compositions.
             use_external_qhull:
-                Similar to PhaseDiagram, set to True if you wish to use
-                external qhull command.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
             normalize_terminal_compositions:
                 Whether to normalize the terminal compositions to a per atom
                 basis. If normalized, the energy above hulls will be consistent
@@ -419,8 +415,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
         PhaseDiagram.__init__(self, pentries,
-                              elements=species_mapping.values(),
-                              use_external_qhull=use_external_qhull)
+                              elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """
