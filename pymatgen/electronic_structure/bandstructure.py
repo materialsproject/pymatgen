@@ -188,7 +188,7 @@ class BandStructure(object):
         if labels_dict is None:
             labels_dict = {}
 
-        if len(projections) != 0 and self._structure is None:
+        if len(self._projections) != 0 and self._structure is None:
             raise Exception("if projections are provided a structure object"
                             " needs also to be given")
 
