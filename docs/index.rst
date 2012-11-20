@@ -52,14 +52,8 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
-   algo using data-mined ICSD data.
-2. Speed up and improvements to core classes.
-3. Improved structure fitter (credits to Geoffroy Hautier).
-4. Brand new entry_tools module (pymatgen.entries.entry_tools).
-5. Vastly improved Outcar parser based on reverse parsing that speeds up
-   reading of OUTCAR files by orders of magnitude.
-6. Miscellaneous bug fixes.
+1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
+2. Miscellaneous bug fixes.
 
 :doc:`Older versions </changelog>`
 
