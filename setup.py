@@ -67,7 +67,7 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version=__version__,
-    install_requires=["numpy>=1.5", "pyhull>=1.0"],
+    install_requires=["numpy>=1.5", "pyhull>=1.1"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
