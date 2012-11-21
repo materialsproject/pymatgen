@@ -19,12 +19,12 @@ import itertools
 import collections
 
 from pyhull.convex_hull import ConvexHull
+from pyhull.simplex import Simplex
 
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
-from pymatgen.comp_geometry.simplex import Simplex
 
 
 class PDAnalyzer(object):
