@@ -168,7 +168,6 @@ def parse_vasp(args):
             get_energies(d, args.reanalyze, args.verbose, args.pretty,
                          args.detailed, args.sort[0])
     if args.ion_list:
-        ion_list = list()
         if args.ion_list[0] == "All":
             ion_list = None
         else:
