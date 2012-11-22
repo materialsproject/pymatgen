@@ -45,13 +45,13 @@ pymatgen's Google Groups page
    using the pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy
    packages. From pymatgen v2.1 onwards, pyspglib should be automatically
    compiled as an extension during the install process via setup.py.
+4. pyhull 1.1+: For generation of phase diagrams.
 
 ### Optional Python Libraries ###
 
 Optional python libraries that are required if you need certain features
 
-1. scipy 0.10+ (highly recommended) - For use in Gaussian smearing and phase
-   diagram construction using scipy.spatial.Delaunay.
+1. scipy 0.10+ (highly recommended) - For use in Gaussian smearing.
 2. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
 3. PyCifRW (highly recommended): For reading and writing Crystallographic 
    Information Format (CIF) files. Get it from http://pycifrw.berlios.de/ or a
@@ -72,13 +72,9 @@ Optional python libraries that are required if you need certain features
 Optional non-python libraries (because no good pythonic alternative exists at 
 the moment) required only for certain features.
 
-1. [Qhull](http://www.qhull.org/) : Needed for bond length analysis
-   (structure_analyzer.py), or if you use the use_external_qhull option in phase
-   diagram generation.. The executable qconvex and qvoronoi must be in the
-   path.
-2. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies 
+1. [ffmpeg](http://www.http://ffmpeg.org//) : Needed for generation of movies
    (structure_vtk.py).  The executable ffmpeg must be in the path.
-3. [enum](http://enum.sourceforge.org) : Needed for the use of
+2. [enum](http://enum.sourceforge.org) : Needed for the use of
    EnumerateStructureTransformation and the pymatgen.command_line.enumlib_caller
    module. This library by Gus Hart provides a robust way to enumerate
    derivative structures. It can be used to completely enumerate all
