@@ -100,9 +100,9 @@ import sys
 <a name="NW3ci9XB-1p0Y9w-1-u4" href="#NWD3ci9XB-2"><i>&lt;CifFile class&gt;</i></a>
 <a name="NW3ci9XB-1p0Y9w-1-u5" href="#NWD3ci9XB-E"><i>&lt;Define an error class&gt;</i></a>
 <a name="NW3ci9XB-1p0Y9w-1-u6" href="#NWD3ci9XB-F"><i>&lt;CIF Dictionary type&gt;</i></a>
-<a name="NW3ci9XB-1p0Y9w-1-u7" href="#NWD3ci9XB-y"><i>&lt;A valid CIF block&gt;</i></a>
-<a name="NW3ci9XB-1p0Y9w-1-u8" href="#NWD3ci9XB-15"><i>&lt;A valid CIF file&gt;</i></a>
-<a name="NW3ci9XB-1p0Y9w-1-u9" href="#NWD3ci9XB-17"><i>&lt;Top-level functions&gt;</i></a>
+<a name="NW3ci9XB-1p0Y9w-1-u7" href="#NWD3ci9XB-11"><i>&lt;A valid CIF block&gt;</i></a>
+<a name="NW3ci9XB-1p0Y9w-1-u8" href="#NWD3ci9XB-18"><i>&lt;A valid CIF file&gt;</i></a>
+<a name="NW3ci9XB-1p0Y9w-1-u9" href="#NWD3ci9XB-1A"><i>&lt;Top-level functions&gt;</i></a>
 <a name="NW3ci9XB-1p0Y9w-1-u10" href="#NW3ci9XB-3vMMG4-1"><i>&lt;Utility functions&gt;</i></a>
 <a name="NW3ci9XB-1p0Y9w-1-u11" href="#NWD3ci9XB-D"><i>&lt;Read in a CIF file&gt;</i></a>
 
@@ -185,6 +185,17 @@ class CifLoopBlock(StarFile.LoopBlock):
         if newloop.dimension &gt; 1:
             raise  CifError( 'Attempt to insert inner loop, loop level %d' % dimension)
         StarFile.LoopBlock.insert_loop(self,newloop,**kwargs)
+
+    def Loopify(self,datanamelist):
+        if self.dimension &gt; 0:
+            return
+        else: 
+            StarFile.LoopBlock.Loopify(self,datanamelist)
+            # convert new loop to CifLoopBlock
+            newloop = self.GetLoop(datanamelist[0])
+            cifloop = CifLoopBlock(newloop)
+            self.remove_loop(newloop)
+            self.insert_loop(cifloop)
 
 </pre><p><h2><a name="NWD3ci9XB-5">Cif Block class</a></h2>
 <p>
@@ -485,7 +496,7 @@ def checklengths(self):
 postcheck for nested loops and other disallowed STAR funkiness.
 <p>
 <pre><a name="NW3ci9XB-3BuWxl-1" href="#NWD3ci9XB-D"><dfn>&lt;Read in a CIF file&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
-def ReadCif(filename,strict=1,maxlength=2048,scantype=&quot;standard&quot;,grammar=&quot;1.1&quot;):
+def ReadCif(filename,strict=1,maxlength=2048,scantype=&quot;standard&quot;,grammar=None):
     proto_cif = StarFile.ReadStar(filename,maxlength,scantype=scantype,grammar=grammar)
     # convert to CifFile
     proto_cif = CifFile(proto_cif)
@@ -554,27 +565,27 @@ class CifDic(StarFile.BlockCollection):
     <a name="NW3ci9XB-3wJ3RN-1-u2" href="#NWD3ci9XB-H"><i>&lt;Dictionary determination function&gt;</i></a>
     <a name="NW3ci9XB-3wJ3RN-1-u3" href="#NWD3ci9XB-I"><i>&lt;Deal with DDL1 differences&gt;</i></a>
     <a name="NW3ci9XB-3wJ3RN-1-u4" href="#NWD3ci9XB-J"><i>&lt;Iron out DDL2 strangeness&gt;</i></a> 
-    <a name="NW3ci9XB-3wJ3RN-1-u5" href="#NWD3ci9XB-L"><i>&lt;Normalise DDLm save frame names&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u6" href="#NWD3ci9XB-M"><i>&lt;Parse DDLm validity information&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u7" href="#NWD3ci9XB-R"><i>&lt;Perform DDLm imports&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u8" href="#NWD3ci9XB-K"><i>&lt;Load categories with DDL2-type information&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u9" href="#NWD3ci9XB-q"><i>&lt;Add type information&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u10" href="#NWD3ci9XB-N"><i>&lt;Add category information&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u11" href="#NWD3ci9XB-P"><i>&lt;List all items in a category&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u12" href="#NWD3ci9XB-Q"><i>&lt;Return a single packet by key&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u13" href="#NWD3ci9XB-1B"><i>&lt;Extract number and esd&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u14" href="#NWD3ci9XB-x"><i>&lt;Analyse range&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u15" href="#NWD3ci9XB-r"><i>&lt;Transform drel to python&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u16" href="#NWD3ci9XB-s"><i>&lt;Store dREL functions&gt;</i></a> 
-    <a name="NW3ci9XB-3wJ3RN-1-u17" href="#NWD3ci9XB-u"><i>&lt;Switch on numpy arrays&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u18" href="#NWD3ci9XB-t"><i>&lt;Derive item information&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u19" href="#NWD3ci9XB-v"><i>&lt;Convert string to appropriate type&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u20" href="#NWD3ci9XB-Y"><i>&lt;Item-level validation&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u21" href="#NWD3ci9XB-e"><i>&lt;Loop-level validation&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u22" href="#NWD3ci9XB-j"><i>&lt;Cross-item validation&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u5" href="#NWD3ci9XB-O"><i>&lt;Normalise DDLm save frame names&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u6" href="#NWD3ci9XB-P"><i>&lt;Parse DDLm validity information&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u7" href="#NWD3ci9XB-U"><i>&lt;Perform DDLm imports&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u8" href="#NWD3ci9XB-N"><i>&lt;Load categories with DDL2-type information&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u9" href="#NWD3ci9XB-t"><i>&lt;Add type information&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u10" href="#NWD3ci9XB-Q"><i>&lt;Add category information&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u11" href="#NWD3ci9XB-S"><i>&lt;List all items in a category&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u12" href="#NWD3ci9XB-T"><i>&lt;Return a single packet by key&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u13" href="#NWD3ci9XB-1E"><i>&lt;Extract number and esd&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u14" href="#NWD3ci9XB-10"><i>&lt;Analyse range&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u15" href="#NWD3ci9XB-u"><i>&lt;Transform drel to python&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u16" href="#NWD3ci9XB-v"><i>&lt;Store dREL functions&gt;</i></a> 
+    <a name="NW3ci9XB-3wJ3RN-1-u17" href="#NWD3ci9XB-x"><i>&lt;Switch on numpy arrays&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u18" href="#NWD3ci9XB-w"><i>&lt;Derive item information&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u19" href="#NWD3ci9XB-y"><i>&lt;Convert string to appropriate type&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u20" href="#NWD3ci9XB-b"><i>&lt;Item-level validation&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u21" href="#NWD3ci9XB-h"><i>&lt;Loop-level validation&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u22" href="#NWD3ci9XB-m"><i>&lt;Cross-item validation&gt;</i></a>
     <a name="NW3ci9XB-3wJ3RN-1-u23" href="#NW3ci9XB-KIB8u-1"><i>&lt;Block-level validation&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u24" href="#NWD3ci9XB-W"><i>&lt;Run validation tests&gt;</i></a>
-    <a name="NW3ci9XB-3wJ3RN-1-u25" href="#NWD3ci9XB-X"><i>&lt;Optimisation on/off&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u24" href="#NWD3ci9XB-Z"><i>&lt;Run validation tests&gt;</i></a>
+    <a name="NW3ci9XB-3wJ3RN-1-u25" href="#NWD3ci9XB-a"><i>&lt;Optimisation on/off&gt;</i></a>
 
 </pre><p>We want to be able to accept strings, giving the file name
 of the CIF dictionary, and pre-initialised <code>CifFile</code> objects.  We do
@@ -851,6 +862,18 @@ parent item attributes in the child items, moving sub-children down to
 their level.  Sub children may not exist at all, so we create them if
 necessary.
 <p>
+To make life more interesting, the PDBX have an entry_pc placeholder in
+which additional (and sometimes repeated) parent-child relationships
+can be expressed. We cannot assume that any given parent-child relationship 
+is stated at a single site in the file.  What is more, it appears that
+multiple parents for a single child are defined in the _entry.pdbx_pc entry.
+Our changes to the file pre-checking are therefore restricted to making
+sure that the child contains information about the parents; we do not
+interfere with the parent's information about the children, even if we
+consider that to be superfluous.  Note that we will have to add
+parent-child validity checks to check consistency among all these
+relationships.
+<p>
 Update: in the DDL-2.1.6 file, only the parents/children are looped,
 rather than the item names, so we have to check looping separately.
 <p>
@@ -867,11 +890,33 @@ that you can determine it from the item name.  We add in the category for
 simplicity.
 <p>
 <pre><a name="NW3ci9XB-dwixN-1" href="#NWD3ci9XB-J"><dfn>&lt;Iron out DDL2 strangeness&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<a name="NW3ci9XB-dwixN-1-u1" href="#NWD3ci9XB-M"><i>&lt;Loopify parent-child relationships&gt;</i></a>
+
 def DDL2_normalise(self):
    listed_defs = filter(lambda a:isinstance(self[a].get('_item.name'),ListType),self.keys()) 
    # now filter out all the single element lists!
    dodgy_defs = filter(lambda a:len(self[a]['_item.name']) &gt; 1, listed_defs)
    for item_def in dodgy_defs:
+      <a name="NW3ci9XB-dwixN-1-u2" href="#NWD3ci9XB-K"><i>&lt;Repopulate child definitions&gt;</i></a>
+   <a name="NW3ci9XB-dwixN-1-u3" href="#NWD3ci9XB-L"><i>&lt;Populate parent and child links correctly&gt;</i></a>
+   # now flatten any single element lists
+   single_defs = filter(lambda a:len(self[a]['_item.name'])==1,listed_defs)
+   for flat_def in single_defs:
+       flat_keys = self[flat_def].GetLoop('_item.name').keys()
+       for flat_key in flat_keys: self[flat_def][flat_key] = self[flat_def][flat_key][0]
+   # now deal with the multiple lists
+   # next we do aliases
+   all_aliases = filter(lambda a:self[a].has_key('_item_aliases.alias_name'),self.keys()) 
+   for aliased in all_aliases:
+      my_aliases = listify(self[aliased]['_item_aliases.alias_name'])
+      for alias in my_aliases:
+          self[alias] = self[aliased].copy()   #we are going to delete stuff...
+          del self[alias][&quot;_item_aliases.alias_name&quot;]
+
+</pre><p><a name="NWD3ci9XB-K">As some DDL2 dictionaries neglect children, we repopulate the skeleton or non-existent definitions that</a>
+may be provided in the dictionary.
+<p>
+<pre><a name="NW3ci9XB-3fS11R-1" href="#NWD3ci9XB-K"><dfn>&lt;Repopulate child definitions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-J">&lt;-U</a>)</b>
       # print &quot;DDL2 norm: processing %s&quot; % item_def
       thisdef = self[item_def]
       packet_no = thisdef['_item.name'].index(item_def)
@@ -893,50 +938,118 @@ def DDL2_normalise(self):
       self[item_def]['_item.name'] = item_def
       self[item_def]['_item.category_id'] = realcat
       self[item_def]['_item.mandatory_code'] = realmand
-   # go through any _item_linked tables
-   dodgy_defs = filter(lambda a:isinstance(self[a].get('_item_linked.child_name'),ListType),self.keys()) 
-   dodgy_defs = filter(lambda a:len(self[a]['_item_linked.child_name']) &gt; 1, dodgy_defs)
-   for item_def in dodgy_defs:
-      thisdef = self[item_def]
-      child_list = thisdef.get('_item_linked.child_name',[])
-      parents = thisdef.get('_item_linked.parent_name',[])
-      # zap the parents, they will confuse us!!
-      del thisdef['_item_linked.parent_name']
-      if isinstance(child_list,StringType):
-          self[child_list]['_item_linked.parent_name'] = parents
-          self[parents]['_item_linked.child_name'] = child_list 
-      else:
-          # for each parent, find the list of children.
-          family = map(None,parents,child_list)
-          notmychildren = family
-          while len(notmychildren):
-              # get all children of first entry
-              mychildren = filter(lambda a:a[0]==notmychildren[0][0],family)
-              # print &quot;Parent %s: %d children&quot; % (notmychildren[0][0],len(mychildren))
-              for parent,child in mychildren:   #parent is the same for all
-                  self[child]['_item_linked.parent_name'] = parent
-              # put all the children into the parent
-              try:
-                  del self[mychildren[0][0]]['_item_linked.child_name']
-              except ValueError: pass
-              self[mychildren[0][0]]['_item_linked.child_name'] = map(lambda a:a[1],mychildren)
-              # now make a new,smaller list
-              notmychildren = filter(lambda a:a[0]!=mychildren[0][0],notmychildren)
-   # now flatten any single element lists
-   single_defs = filter(lambda a:len(self[a]['_item.name'])==1,listed_defs)
-   for flat_def in single_defs:
-       flat_keys = self[flat_def].GetLoop('_item.name').keys()
-       for flat_key in flat_keys: self[flat_def][flat_key] = self[flat_def][flat_key][0]
-   # now deal with the multiple lists
-   # next we do aliases
-   all_aliases = filter(lambda a:self[a].has_key('_item_aliases.alias_name'),self.keys()) 
-   for aliased in all_aliases:
-      my_aliases = listify(self[aliased]['_item_aliases.alias_name'])
-      for alias in my_aliases:
-          self[alias] = self[aliased].copy()   #we are going to delete stuff...
-          del self[alias][&quot;_item_aliases.alias_name&quot;]
 
-</pre><p><a name="NWD3ci9XB-K">Loading the DDL1 categories with DDL2-type information.  DDL2 people wisely</a>
+</pre><p><a name="NWD3ci9XB-L">Populating parent and child links.  The DDL2 model uses parent-child relationships</a>
+to create relational database behaviour.  This means that the emphasis is on simply
+linking two ids together directionally.  This link is not necessarily inside a definition that
+is being linked, but we require that any parents and children are identified within the 
+definition that they relate to.  This means we have to sometimes relocate and expand links.
+As an item can simultaneously be both a parent and a child, we need to explicitly fill in
+the links even within a single definition.
+<p>
+<pre><a name="NW3ci9XB-2mdYdD-1" href="#NWD3ci9XB-L"><dfn>&lt;Populate parent and child links correctly&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-J">&lt;-U</a>)</b>
+target_defs = filter(lambda a:self[a].has_key('_item_linked.child_name') or \
+                              self[a].has_key('_item_linked.parent_name'),self.keys())
+# now dodgy_defs contains all definition blocks with more than one child/parent link
+for item_def in dodgy_defs: self.create_pcloop(item_def)           #regularise appearance
+for item_def in dodgy_defs:
+      print 'Processing %s' % item_def
+      thisdef = self[item_def]
+      child_list = thisdef['_item_linked.child_name']
+      parents = thisdef['_item_linked.parent_name']
+      # for each parent, find the list of children.
+      family = zip(parents,child_list)
+      notmychildren = family         #We aim to remove non-children
+      # Loop over the parents, relocating as necessary
+      while len(notmychildren):
+         # get all children of first entry
+         mychildren = filter(lambda a:a[0]==notmychildren[0][0],family)
+         print &quot;Parent %s: %d children&quot; % (notmychildren[0][0],len(mychildren))
+         for parent,child in mychildren:   #parent is the same for all
+                  # Make sure that we simply add in the new entry for the child, not replace it,
+                  # otherwise we might spoil the child entry loop structure
+                  try:
+                      childloop = self[child].GetLoop('_item_linked.parent_name')
+                  except KeyError:
+                      print 'Creating new parent entry %s for definition %s' % (parent,child)
+                      self[child]['_item_linked.parent_name'] = [parent]
+                      childloop = self[child].GetLoop('_item_linked.parent_name')
+                      childloop.AddLoopItem(('_item_linked.child_name',[child]))
+                      continue
+                  else:
+                      # A parent loop already exists and so will a child loop due to the
+                      # call to create_pcloop above
+                      pars = [a for a in childloop if getattr(a,'_item_linked.child_name','')==child]
+                      goodpars = [a for a in pars if getattr(a,'_item_linked.parent_name','')==parent]
+                      if len(goodpars)&gt;0:   #no need to add it
+                          print 'Skipping duplicated parent - child entry in %s: %s - %s' % (child,parent,child)
+                          continue
+                      print 'Adding %s to %s entry' % (parent,child)
+                      newpacket = childloop.GetPacket(0)   #essentially a copy, I hope
+                      setattr(newpacket,'_item_linked.child_name',child)
+                      setattr(newpacket,'_item_linked.parent_name',parent)
+                      childloop.AddPacket(newpacket)
+         #
+         # Make sure the parent also points to the children.  We get
+         # the current entry, then add our 
+         # new values if they are not there already
+         # 
+         parent_name = mychildren[0][0]
+         old_children = self[parent_name].get('_item_linked.child_name',[])
+         old_parents = self[parent_name].get('_item_linked.parent_name',[])
+         oldfamily = zip(old_parents,old_children)
+         newfamily = []
+         print 'Old parents -&gt; %s' % `old_parents`
+         for jj, childname in mychildren:
+             alreadythere = filter(lambda a:a[0]==parent_name and a[1] ==childname,oldfamily)
+             if len(alreadythere)&gt;0: continue
+             'Adding new child %s to parent definition at %s' % (childname,parent_name)
+             old_children.append(childname)
+             old_parents.append(parent_name)
+         # Now output the loop, blowing away previous definitions.  If there is something
+         # else in this category, we are destroying it.
+         newloop = CifLoopBlock(dimension=1)
+         newloop.AddLoopItem(('_item_linked.parent_name',old_parents))
+         newloop.AddLoopItem(('_item_linked.child_name',old_children))
+         del self[parent_name]['_item_linked.parent_name']
+         del self[parent_name]['_item_linked.child_name']
+         self[parent_name].insert_loop(newloop)
+         print 'New parents -&gt; %s' % `self[parent_name]['_item_linked.parent_name']`
+         # now make a new,smaller list
+         notmychildren = filter(lambda a:a[0]!=mychildren[0][0],notmychildren)
+
+</pre><p><a name="NWD3ci9XB-M">In order to handle parent-child relationships in a regular way, we want to assume</a>
+that all parent-child entries occur in a loop, with both members present.  This 
+routine does that for us.  If the parent is missing, it is assumed to be the
+currently-defined item.  If the child is missing, likewise.
+<p>
+<pre><a name="NW3ci9XB-25V7S2-1" href="#NWD3ci9XB-M"><dfn>&lt;Loopify parent-child relationships&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-J">&lt;-U</a>)</b>
+def create_pcloop(self,definition):
+    old_children = self[definition].get('_item_linked.child_name',[])
+    old_parents = self[definition].get('_item_linked.parent_name',[])
+    if isinstance(old_children,StringType): 
+         old_children = [old_children]
+    if isinstance(old_parents,StringType): 
+         old_parents = [old_parents]
+    if (len(old_children)==0 and len(old_parents)==0) or \
+       (len(old_children) &gt; 1 and len(old_parents)&gt;1):
+         return
+    if len(old_children)==0:
+         old_children = [definition]*len(old_parents)
+    if len(old_parents)==0:
+         old_parents = [definition]*len(old_children)
+    newloop = CifLoopBlock(dimension=1)
+    newloop.AddLoopItem(('_item_linked.parent_name',old_parents)) 
+    newloop.AddLoopItem(('_item_linked.child_name',old_children)) 
+    try:
+        del self[definition]['_item_linked.parent_name']
+        del self[definition]['_item_linked.child_name']
+    except KeyError:
+        pass
+    self[definition].insert_loop(newloop)
+        
+    
+</pre><p><a name="NWD3ci9XB-N">Loading the DDL1 categories with DDL2-type information.  DDL2 people wisely</a>
 put category-wide information in the category definition rather than
 spreading it out between category items.  We collect this information together
 here.
@@ -945,7 +1058,7 @@ This routine is the big time-waster in initialising a DDL1 dictionary, so we hav
 attempted to optimize it by locally defining functions, instead of using lambdas,
 and making one loop through the dictionary instead of hundreds.
 <p>
-<pre><a name="NW3ci9XB-3AhpA5-1" href="#NWD3ci9XB-K"><dfn>&lt;Load categories with DDL2-type information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3AhpA5-1" href="#NWD3ci9XB-N"><dfn>&lt;Load categories with DDL2-type information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def ddl1_cat_load(self):
     deflist = self.keys()       #slight optimization
     cat_mand_dic = {}
@@ -990,7 +1103,7 @@ def get_ddl1_entry(self,cat_name):
     else:
         return possibles[0]
 
-</pre><p><a name="NWD3ci9XB-L">Normalise DDLm datanames.  While there is no strict requirement that the save frame name</a>
+</pre><p><a name="NWD3ci9XB-O">Normalise DDLm datanames.  While there is no strict requirement that the save frame name</a>
 corresponds to the name of the data item defined therein, we make it equivalent so that
 all of our access methods work nicely.  Pending a detailed description of how variable
 names used in dREL methods are derived, we go the harder route and concatenate the category
@@ -999,7 +1112,7 @@ that we do not alter category definitions., and we operate through the standard 
 method of the block collection class in order to properly manage the upper/lower case
 housekeeping.
 <p>
-<pre><a name="NW3ci9XB-3o6eHJ-1" href="#NWD3ci9XB-L"><dfn>&lt;Normalise DDLm save frame names&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3o6eHJ-1" href="#NWD3ci9XB-O"><dfn>&lt;Normalise DDLm save frame names&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def ddlm_normalise(self):
     for key,value in self.dictionary.items():
        if value.has_key(&quot;_name.category_id&quot;):
@@ -1008,13 +1121,13 @@ def ddlm_normalise(self):
            # delete the old one
            del self[key]
     
-</pre><p><a name="NWD3ci9XB-M">DDLm introduces validity information in the enclosing datablock.  It is a loop of scope,</a>
+</pre><p><a name="NWD3ci9XB-P">DDLm introduces validity information in the enclosing datablock.  It is a loop of scope,</a>
 attribute values where the scope is one of dictionary (everywhere), category (whole
 category) and item (just the single definition).  Validity can be <code>+</code> (mandatory), 
 <code>.</code> encouraged and <code>!</code> not allowed.  It only appears in the DDLm attributes dictionary, so
 this information is blank unless we are dealing with the DDLm dictionary.
 <p>
-<pre><a name="NW3ci9XB-2z7Xsr-1" href="#NWD3ci9XB-M"><dfn>&lt;Parse DDLm validity information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2z7Xsr-1" href="#NWD3ci9XB-P"><dfn>&lt;Parse DDLm validity information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def ddlm_parse_valid(self):
     if not self.dic_as_cif[self.master_key].has_key(&quot;_dictionary_valid.scope&quot;):
         return
@@ -1028,16 +1141,16 @@ def ddlm_parse_valid(self):
             elif valid_info[i]==&quot;!&quot;:
                self.scopes_naughty[scope.lower()].append(valid_info[i+1].lower())
 
-</pre><p><a name="NWD3ci9XB-N">Dictionaries have the category-wide information in the category</a>
+</pre><p><a name="NWD3ci9XB-Q">Dictionaries have the category-wide information in the category</a>
 definition area.  We create a map from data block / save frame header to
 category id.  For DDL1 the block name has square brackets appended. For DDL2
 the category name is kept in the _category.id attribute.  For DDLm, we need
 to find all entries with a _definition.scope of &quot;Category&quot;.
 <p>
-<pre><a name="NW3ci9XB-pLwr9-1" href="#NWD3ci9XB-N"><dfn>&lt;Add category information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-pLwr9-1" href="#NWD3ci9XB-Q"><dfn>&lt;Add category information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def add_category_info(self):
     if self.diclang == &quot;DDLm&quot;:
-        <a name="NW3ci9XB-pLwr9-1-u1" href="#NWD3ci9XB-O"><i>&lt;Get list of DDLm categories&gt;</i></a>
+        <a name="NW3ci9XB-pLwr9-1-u1" href="#NWD3ci9XB-R"><i>&lt;Get list of DDLm categories&gt;</i></a>
     else:
         <a name="NW3ci9XB-pLwr9-1-u2" href="#NW3ci9XB-361UlY-1"><i>&lt;Get list of DDL1/2 categories&gt;</i></a>
     # match ids and entries in the dictionary
@@ -1045,36 +1158,36 @@ def add_category_info(self):
     self.cat_map = {}
     for catid,cat in catpairs:self.cat_map[catid] = cat
 
-</pre><pre><a name="NW3ci9XB-361UlY-1" href="#NW3ci9XB-361UlY-1"><dfn>&lt;Get list of DDL1/2 categories&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-N">&lt;-U</a>)</b>
+</pre><pre><a name="NW3ci9XB-361UlY-1" href="#NW3ci9XB-361UlY-1"><dfn>&lt;Get list of DDL1/2 categories&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Q">&lt;-U</a>)</b>
 categories = filter(lambda a:self[a].has_key(&quot;_category.id&quot;),self.keys())
 # get the category id
 category_ids = map(lambda a:self[a][&quot;_category.id&quot;],categories)
 
-</pre><p><a name="NWD3ci9XB-O">Note that as of Oct 2007 we don't know if _definition.scope is mandatory,</a>
+</pre><p><a name="NWD3ci9XB-R">Note that as of Oct 2007 we don't know if _definition.scope is mandatory,</a>
 so we use a get instead of a straight square bracket.
 <p>
-<pre><a name="NW3ci9XB-3MObSb-1" href="#NWD3ci9XB-O"><dfn>&lt;Get list of DDLm categories&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-N">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3MObSb-1" href="#NWD3ci9XB-R"><dfn>&lt;Get list of DDLm categories&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Q">&lt;-U</a>)</b>
 categories = filter(lambda a:self[a].get(&quot;_definition.scope&quot;,&quot;Item&quot;)==&quot;Category&quot;,self.keys())
 category_ids = map(lambda a:self[a][&quot;_definition.id&quot;],categories)
 
 
-</pre><p><a name="NWD3ci9XB-P">This method was added to facilitate running dREL scripts, which treat</a>
+</pre><p><a name="NWD3ci9XB-S">This method was added to facilitate running dREL scripts, which treat</a>
 certain variables as having attributes which all belong to a single category.
 We may have to improve this routine later to allow for hierarchical
 resolution of datanames.  We return only the extension in keeping with
 dREL syntax.
 <p>
-<pre><a name="NW3ci9XB-2p94Oc-1" href="#NWD3ci9XB-P"><dfn>&lt;List all items in a category&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2p94Oc-1" href="#NWD3ci9XB-S"><dfn>&lt;List all items in a category&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def names_in_cat(self,cat):
     nameblocks = filter(lambda a:self[a].get(&quot;_name.category_id&quot;,&quot;&quot;).lower()
                          ==cat.lower(),self.keys())
     return map(lambda a:&quot;_&quot; + self[a][&quot;_name.category_id&quot;]+&quot;.&quot; + self[a][&quot;_name.object_id&quot;],nameblocks)
     
-</pre><p><a name="NWD3ci9XB-Q">This method was added for DDLm support.  We are passed a category and a</a>
+</pre><p><a name="NWD3ci9XB-T">This method was added for DDLm support.  We are passed a category and a</a>
 value, and must find a packet which has a matching key.  We use the keyname
 as a way of finding the loop.
 <p>
-<pre><a name="NW3ci9XB-3ygOeF-1" href="#NWD3ci9XB-Q"><dfn>&lt;Return a single packet by key&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3ygOeF-1" href="#NWD3ci9XB-T"><dfn>&lt;Return a single packet by key&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def get_key_pack(self,category,value,data):
     keyname = self[category][self.unique_spec]
     onepack = data.GetPackKey(keyname,value)
@@ -1088,7 +1201,7 @@ minimal set of save frame definitions.  We start at this top level and work down
 resolving import references recursively.  This will satisfy the requirement that
 conflicts are resolved from the most nested level upwards.
 <p>
-<a name="NWD3ci9XB-R">We use the built-in PyCIFRW merging methods.  Note that this merging is done on</a>
+<a name="NWD3ci9XB-U">We use the built-in PyCIFRW merging methods.  Note that this merging is done on</a>
 the CIFDIC object, and so the dic_as_cif object remains untouched.  Therefore, in future,
 audit and tracking information could be stored here.
 <p>
@@ -1096,14 +1209,14 @@ We originally used the _import_list.id list as the guide for how to import, howe
 draft dictionaries left off items that have a default value, and rather than edit them
 all in we defined how to extract the individual items instead.
 <p>
-<pre><a name="NW3ci9XB-oy09h-1" href="#NWD3ci9XB-R"><dfn>&lt;Perform DDLm imports&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-oy09h-1" href="#NWD3ci9XB-U"><dfn>&lt;Perform DDLm imports&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 <a name="NW3ci9XB-oy09h-1-u1" href="#NW3ci9XB-3xGXtY-1"><i>&lt;Master import routine&gt;</i></a>
-<a name="NW3ci9XB-oy09h-1-u2" href="#NWD3ci9XB-S"><i>&lt;Add another DDLM dictionary&gt;</i></a>
-<a name="NW3ci9XB-oy09h-1-u3" href="#NWD3ci9XB-T"><i>&lt;Add an external DDLM category&gt;</i></a>
-<a name="NW3ci9XB-oy09h-1-u4" href="#NWD3ci9XB-U"><i>&lt;Add an external DDLM category with children&gt;</i></a>
-<a name="NW3ci9XB-oy09h-1-u5" href="#NWD3ci9XB-V"><i>&lt;Add attributes to definitions&gt;</i></a>
+<a name="NW3ci9XB-oy09h-1-u2" href="#NWD3ci9XB-V"><i>&lt;Add another DDLM dictionary&gt;</i></a>
+<a name="NW3ci9XB-oy09h-1-u3" href="#NWD3ci9XB-W"><i>&lt;Add an external DDLM category&gt;</i></a>
+<a name="NW3ci9XB-oy09h-1-u4" href="#NWD3ci9XB-X"><i>&lt;Add an external DDLM category with children&gt;</i></a>
+<a name="NW3ci9XB-oy09h-1-u5" href="#NWD3ci9XB-Y"><i>&lt;Add attributes to definitions&gt;</i></a>
 
-</pre><pre><a name="NW3ci9XB-3xGXtY-1" href="#NW3ci9XB-3xGXtY-1"><dfn>&lt;Master import routine&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-R">&lt;-U</a>)</b>
+</pre><pre><a name="NW3ci9XB-3xGXtY-1" href="#NW3ci9XB-3xGXtY-1"><dfn>&lt;Master import routine&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-U">&lt;-U</a>)</b>
 def ddlm_import(self):
     import urllib
     #first check the outermost datablocks.  Note we expect our dREL
@@ -1185,16 +1298,16 @@ def resolve_path(self,file_loc):
     print &quot;Transformed %s to %s for import &quot; % (file_loc,new_url)
     return new_url
     
-</pre><p><a name="NWD3ci9XB-S">Merging a whole dictionary.  A dictionary is a collection of categories for</a>
+</pre><p><a name="NWD3ci9XB-V">Merging a whole dictionary.  A dictionary is a collection of categories for</a>
 the purposes of merging (later we may want to keep some audit information).
 <p>
-<pre><a name="NW3ci9XB-1RCfBL-1" href="#NWD3ci9XB-S"><dfn>&lt;Add another DDLM dictionary&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-R">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1RCfBL-1" href="#NWD3ci9XB-V"><dfn>&lt;Add another DDLM dictionary&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-U">&lt;-U</a>)</b>
 def get_whole_dict(self,source_dict,on_dupl,on_miss):
     print &quot;Cat_map: `%s`&quot; % source_dict.cat_map.values()
     for source_cat in source_dict.cat_map.values():
         self.get_one_cat(source_dict,source_cat,on_dupl,on_miss)
    
-</pre><p><a name="NWD3ci9XB-T">Merging a single category.  If this category does not exist, we simply add</a>
+</pre><p><a name="NWD3ci9XB-W">Merging a single category.  If this category does not exist, we simply add</a>
 the category block and any members of the category.  If it does exist, we
 use the 'on_dupl' flag to resolve our behaviour, either ignoring, replacing,
 or dying a horrible death.
@@ -1202,7 +1315,7 @@ or dying a horrible death.
 If the specified block is missing in the external dictionary, we either skip
 it or die a horrible death.
 <p>
-<pre><a name="NW3ci9XB-gvyxy-1" href="#NWD3ci9XB-T"><dfn>&lt;Add an external DDLM category&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-R">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-gvyxy-1" href="#NWD3ci9XB-W"><dfn>&lt;Add an external DDLM category&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-U">&lt;-U</a>)</b>
 def get_one_cat(self,source_dict,source_cat,on_dupl,on_miss):
     ext_cat = source_dict.get(source_cat,&quot;&quot;)
     this_cat = self.get(source_cat,&quot;&quot;)
@@ -1239,19 +1352,19 @@ def add_one_defn(self,source_dict,cat_defn,on_dupl):
     else: self[cat_defn] = source_dict[cat_defn]
     print &quot;    &quot;+cat_defn
     
-</pre><p><a name="NWD3ci9XB-U">This actually follows the children of the category down.  We get a list of</a>
+</pre><p><a name="NWD3ci9XB-X">This actually follows the children of the category down.  We get a list of</a>
 child categories and add them one by one recursively.
 <p>
-<pre><a name="NW3ci9XB-2iC8Dv-1" href="#NWD3ci9XB-U"><dfn>&lt;Add an external DDLM category with children&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-R">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2iC8Dv-1" href="#NWD3ci9XB-X"><dfn>&lt;Add an external DDLM category with children&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-U">&lt;-U</a>)</b>
 def get_one_cat_with_children(self,source_dict,source_cat,on_dupl,on_miss):
     self.get_one_cat(source_dict,source_cat,on_dupl,on_miss)
     child_cats = filter(lambda a:source_dict[a][&quot;_category.parent_id&quot;]==source_dict[source_cat][&quot;_definition.id&quot;],source_dict.cat_map.values())
     for child_cat in child_cats: self.get_one_cat(source_dict,child_cat,on_dupl,on_miss) 
 
-</pre><p><a name="NWD3ci9XB-V">Importing into definitions.  We are adjusting only the attributes of a single</a>
+</pre><p><a name="NWD3ci9XB-Y">Importing into definitions.  We are adjusting only the attributes of a single</a>
 definition.
 <p>
-<pre><a name="NW3ci9XB-XIhZR-1" href="#NWD3ci9XB-V"><dfn>&lt;Add attributes to definitions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-R">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-XIhZR-1" href="#NWD3ci9XB-Y"><dfn>&lt;Add attributes to definitions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-U">&lt;-U</a>)</b>
 def import_attributes(self,mykey,source_dict,source_def,on_dupl,on_miss):
     # process missing 
     if not source_dict.has_key(source_def): 
@@ -1273,7 +1386,7 @@ def import_loop(self,mykey,source_dict,source_def,loop_name,on_miss):
     state_loop = source_dict[source_def].GetLoop(loop_name)
     self[mykey].insert_loop(state_loop) 
    
-</pre><p><a name="NWD3ci9XB-W">SectionValidation</a>
+</pre><p><a name="NWD3ci9XB-Z">SectionValidation</a>
 <p>
 These validation checks are intended to be called externally.  They return
 a dictionary keyed by item name with value being a list of the
@@ -1281,7 +1394,7 @@ results of the check functions.  The individual functions return a
 dictionary which contains at least the key &quot;result&quot;, and in case of error
 relevant keys relating to the error.
 <p>
-<pre><a name="NW3ci9XB-3UNEB0-1" href="#NWD3ci9XB-W"><dfn>&lt;Run validation tests&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3UNEB0-1" href="#NWD3ci9XB-Z"><dfn>&lt;Run validation tests&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def run_item_validation(self,item_name,item_value):
     return {item_name:map(lambda f:(f.__name__,f(item_name,item_value)),self.item_validation_funs)}
 
@@ -1297,7 +1410,7 @@ def run_block_validation(self,whole_block,globals={},fake_mand=False):
     # fix up the return values
     return {&quot;whole_block&quot;:results}
 
-</pre><p><a name="NWD3ci9XB-X">Optimization: the dictionary validation routines normally retain no history</a>
+</pre><p><a name="NWD3ci9XB-a">Optimization: the dictionary validation routines normally retain no history</a>
 of what has been checked, as they are executed on a per-item basis.  This
 leads to duplication of the uniqueness check, when there is more than one
 key, and duplication of the parent-child check, once for the parent and 
@@ -1306,7 +1419,7 @@ these checks will not be repeated.  This is safe only if none of the
 relevant items is altered while optimisation is on, and optimisation
 should be switched off as soon as all the checks are finished.
 <p>
-<pre><a name="NW3ci9XB-22OsLo-1" href="#NWD3ci9XB-X"><dfn>&lt;Optimisation on/off&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-22OsLo-1" href="#NWD3ci9XB-a"><dfn>&lt;Optimisation on/off&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def optimize_on(self):
     self.optimize = True
     self.done_keys = []
@@ -1319,22 +1432,22 @@ def optimize_off(self):
     self.done_children = []
     self.done_parents = []
 
-</pre><p><a name="NWD3ci9XB-Y">Some things are independent of where an item occurs in the file; we</a>
+</pre><p><a name="NWD3ci9XB-b">Some things are independent of where an item occurs in the file; we</a>
 check those things here.  All functions are expected to return a
 dictionary with at least one key: &quot;result&quot;, as well as optional
 keys depending on the type of error.
 <p>
-<pre><a name="NW3ci9XB-3sMsvG-1" href="#NWD3ci9XB-Y"><dfn>&lt;Item-level validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
-<a name="NW3ci9XB-3sMsvG-1-u1" href="#NWD3ci9XB-Z"><i>&lt;Validate the type of an item&gt;</i></a>
-<a name="NW3ci9XB-3sMsvG-1-u2" href="#NWD3ci9XB-a"><i>&lt;Validate esd presence&gt;</i></a>
-<a name="NW3ci9XB-3sMsvG-1-u3" href="#NWD3ci9XB-b"><i>&lt;Validate enumeration range&gt;</i></a>
-<a name="NW3ci9XB-3sMsvG-1-u4" href="#NWD3ci9XB-c"><i>&lt;Validate an enumeration&gt;</i></a>
-<a name="NW3ci9XB-3sMsvG-1-u5" href="#NWD3ci9XB-d"><i>&lt;Validate looping properties&gt;</i></a>
+<pre><a name="NW3ci9XB-3sMsvG-1" href="#NWD3ci9XB-b"><dfn>&lt;Item-level validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<a name="NW3ci9XB-3sMsvG-1-u1" href="#NWD3ci9XB-c"><i>&lt;Validate the type of an item&gt;</i></a>
+<a name="NW3ci9XB-3sMsvG-1-u2" href="#NWD3ci9XB-d"><i>&lt;Validate esd presence&gt;</i></a>
+<a name="NW3ci9XB-3sMsvG-1-u3" href="#NWD3ci9XB-e"><i>&lt;Validate enumeration range&gt;</i></a>
+<a name="NW3ci9XB-3sMsvG-1-u4" href="#NWD3ci9XB-f"><i>&lt;Validate an enumeration&gt;</i></a>
+<a name="NW3ci9XB-3sMsvG-1-u5" href="#NWD3ci9XB-g"><i>&lt;Validate looping properties&gt;</i></a>
 
 </pre><p>Validate the type of an item
 <p>
 We use the expressions for type that we have available to check that
-<a name="NWD3ci9XB-Z">the type of the item passed to us matches up.  We may have a list of</a>
+<a name="NWD3ci9XB-c">the type of the item passed to us matches up.  We may have a list of</a>
 items, so be aware of that.  We define a tiny matching function so
 that we don't have to do a double match to catch the non-matching
 case, which returns None and thus an attribute error if we immediately
@@ -1343,7 +1456,7 @@ try to get a group.
 Note also that none of the extant dictionaries use the 'none' or 'seq'
 values for type.  The seq value in particular would complicate matters.
 <p>
-<pre><a name="NW3ci9XB-3X4N7X-1" href="#NWD3ci9XB-Z"><dfn>&lt;Validate the type of an item&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3X4N7X-1" href="#NWD3ci9XB-c"><dfn>&lt;Validate the type of an item&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-b">&lt;-U</a>)</b>
 def validate_item_type(self,item_name,item_value):
     def mymatch(m,a):  
         res = m.match(a)
@@ -1362,7 +1475,7 @@ def validate_item_type(self,item_name,item_value):
     if len(check_all)&gt;0: return {&quot;result&quot;:False,&quot;bad_values&quot;:check_all}
     else: return {&quot;result&quot;:True}
 
-</pre><p><a name="NWD3ci9XB-a">Esds.  Numbers are sometimes not allowed to have esds appended.  The</a>
+</pre><p><a name="NWD3ci9XB-d">Esds.  Numbers are sometimes not allowed to have esds appended.  The</a>
 default is that esds are not OK, and we should also skip anything that
 has character type, as that is automatically not a candidate for esds.
 <p>
@@ -1370,7 +1483,7 @@ Note that we make use of the primitive type here; there are some
 cases where a string type looks like an esd, so unless we know
 we have a number we ignore these cases.
 <p>
-<pre><a name="NW3ci9XB-3EDnJP-1" href="#NWD3ci9XB-a"><dfn>&lt;Validate esd presence&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3EDnJP-1" href="#NWD3ci9XB-d"><dfn>&lt;Validate esd presence&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-b">&lt;-U</a>)</b>
 def validate_item_esd(self,item_name,item_value):
     if self[item_name].get(self.primitive_type) != 'numb':
         return {&quot;result&quot;:None}
@@ -1381,13 +1494,13 @@ def validate_item_esd(self,item_name,item_value):
     if len(check_all)&gt;0: return {&quot;result&quot;:False,&quot;bad_values&quot;:check_all}
     return {&quot;result&quot;:True}
 
-</pre><p><a name="NWD3ci9XB-b">Enumeration ranges.  Our dictionary has been prepared as for a DDL2</a>
+</pre><p><a name="NWD3ci9XB-e">Enumeration ranges.  Our dictionary has been prepared as for a DDL2</a>
 dictionary, where loops are used to specify closed or open ranges: if
 an entry exists where maximum and minimum values are equal, this means
 that this value is included in the range; otherwise, ranges are open.
 Our value is already numerical.
 <p>
-<pre><a name="NW3ci9XB-bFeJC-1" href="#NWD3ci9XB-b"><dfn>&lt;Validate enumeration range&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-bFeJC-1" href="#NWD3ci9XB-e"><dfn>&lt;Validate enumeration range&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-b">&lt;-U</a>)</b>
 def validate_enum_range(self,item_name,item_value):
     if not self[item_name].has_key(&quot;_item_range.minimum&quot;) and \
        not self[item_name].has_key(&quot;_item_range.maximum&quot;):
@@ -1418,12 +1531,12 @@ def validate_enum_range(self,item_name,item_value):
     if len(check_all)&gt;0: return {&quot;result&quot;:False,&quot;bad_values&quot;:check_all}
     else: return {&quot;result&quot;:True}
             
-</pre><p><a name="NWD3ci9XB-c">Note that we must make a copy of the enum list, otherwise when we</a>
+</pre><p><a name="NWD3ci9XB-f">Note that we must make a copy of the enum list, otherwise when we</a>
 add in our ? and . they will modify the Cif in place, very sneakily,
 and next time we have a loop length check, e.g. in writing out, we
 will probably have a mismatch.
 <p>
-<pre><a name="NW3ci9XB-377Zug-1" href="#NWD3ci9XB-c"><dfn>&lt;Validate an enumeration&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-377Zug-1" href="#NWD3ci9XB-f"><dfn>&lt;Validate an enumeration&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-b">&lt;-U</a>)</b>
 def validate_item_enum(self,item_name,item_value):
     try: 
         enum_list = self[item_name][self.enum_spec][:]
@@ -1437,13 +1550,13 @@ def validate_item_enum(self,item_name,item_value):
     if len(check_all)&gt;0: return {&quot;result&quot;:False,&quot;bad_values&quot;:check_all}
     else: return {&quot;result&quot;:True}
 
-</pre><p><a name="NWD3ci9XB-d">Check that something can be looped.  For DDL1 we have yes, no and both,</a>
+</pre><p><a name="NWD3ci9XB-g">Check that something can be looped.  For DDL1 we have yes, no and both,</a>
 For DDL2 there is no explicit restriction on looping beyond membership in
 a category.  Note that the DDL1 language specifies a default value of 'no'
 for this item,  so when not explicitly allowed by the dictionary, listing
 is prohibited.
 <p>
-<pre><a name="NW3ci9XB-3qqorq-1" href="#NWD3ci9XB-d"><dfn>&lt;Validate looping properties&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-Y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3qqorq-1" href="#NWD3ci9XB-g"><dfn>&lt;Validate looping properties&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-b">&lt;-U</a>)</b>
 def validate_looping(self,item_name,item_value):
     try:
         must_loop = self[item_name][self.must_loop_spec]
@@ -1455,21 +1568,21 @@ def validate_looping(self,item_name,item_value):
         return {&quot;result&quot;:False}
     return {&quot;result&quot;:True}
 
-</pre><p><a name="NWD3ci9XB-e">And some things are related to the group structure.  Note that these</a>
+</pre><p><a name="NWD3ci9XB-h">And some things are related to the group structure.  Note that these</a>
 functions do not require knowledge of the item values.
 <p>
-<pre><a name="NW3ci9XB-XJRRQ-1" href="#NWD3ci9XB-e"><dfn>&lt;Loop-level validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
-<a name="NW3ci9XB-XJRRQ-1-u1" href="#NWD3ci9XB-f"><i>&lt;Validate loop membership&gt;</i></a>
-<a name="NW3ci9XB-XJRRQ-1-u2" href="#NWD3ci9XB-g"><i>&lt;Validate loop key&gt;</i></a>
-<a name="NW3ci9XB-XJRRQ-1-u3" href="#NWD3ci9XB-h"><i>&lt;Validate loop mandatory items&gt;</i></a>
-<a name="NW3ci9XB-XJRRQ-1-u4" href="#NWD3ci9XB-i"><i>&lt;Get alternative item names&gt;</i></a>
+<pre><a name="NW3ci9XB-XJRRQ-1" href="#NWD3ci9XB-h"><dfn>&lt;Loop-level validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<a name="NW3ci9XB-XJRRQ-1-u1" href="#NWD3ci9XB-i"><i>&lt;Validate loop membership&gt;</i></a>
+<a name="NW3ci9XB-XJRRQ-1-u2" href="#NWD3ci9XB-j"><i>&lt;Validate loop key&gt;</i></a>
+<a name="NW3ci9XB-XJRRQ-1-u3" href="#NWD3ci9XB-k"><i>&lt;Validate loop mandatory items&gt;</i></a>
+<a name="NW3ci9XB-XJRRQ-1-u4" href="#NWD3ci9XB-l"><i>&lt;Get alternative item names&gt;</i></a>
 
-</pre><p><a name="NWD3ci9XB-f">Loop membership. </a>
+</pre><p><a name="NWD3ci9XB-i">Loop membership. </a>
 The most common constraints on a loop are that all items are from the same
 category, and that loops of a certain category must contain a certain key to
 be valid.  The latter test should be performed after the former test.
 <p>
-<pre><a name="NW3ci9XB-2Hf6dQ-1" href="#NWD3ci9XB-f"><dfn>&lt;Validate loop membership&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-e">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2Hf6dQ-1" href="#NWD3ci9XB-i"><dfn>&lt;Validate loop membership&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-h">&lt;-U</a>)</b>
 def validate_loop_membership(self,loop_names):
     try:
         categories = map(lambda a:self[a][self.cat_spec],loop_names)
@@ -1480,12 +1593,12 @@ def validate_loop_membership(self,loop_names):
         return {&quot;result&quot;:False,&quot;bad_items&quot;:bad_items}
     else: return {&quot;result&quot;:True}
 
-</pre><p><a name="NWD3ci9XB-g">The items specified by </a><code>_list_mandatory</code> (DDL1) must be present in a loop
+</pre><p><a name="NWD3ci9XB-j">The items specified by </a><code>_list_mandatory</code> (DDL1) must be present in a loop
 containing items of a given category (and it follows that only one loop
 in a given data block is available for any category containing such an
 item).
 <p>
-<pre><a name="NW3ci9XB-22iMZS-1" href="#NWD3ci9XB-g"><dfn>&lt;Validate loop key&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-e">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-22iMZS-1" href="#NWD3ci9XB-j"><dfn>&lt;Validate loop key&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-h">&lt;-U</a>)</b>
 def validate_loop_key(self,loop_names):
     category = self[loop_names[0]][self.cat_spec]
     # find any unique values which must be present 
@@ -1508,13 +1621,13 @@ def validate_loop_key(self,loop_names):
                         return {&quot;result&quot;:False,&quot;bad_items&quot;:loop_key}  # no alternates   
     return {&quot;result&quot;:True}
     
-</pre><p><a name="NWD3ci9XB-h">The </a><code>_list_reference</code> value specifies data names which must co-occur with the
+</pre><p><a name="NWD3ci9XB-k">The </a><code>_list_reference</code> value specifies data names which must co-occur with the
 defined data name.  We check that this is indeed the case for all items in the
 loop.  We trace through alternate values as well.  In DDL1 dictionaries, a
 name terminating with an underscore indicates that any(?) corresponding name
 is suitable.
 <p>
-<pre><a name="NW3ci9XB-2RWeh8-1" href="#NWD3ci9XB-h"><dfn>&lt;Validate loop mandatory items&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-e">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2RWeh8-1" href="#NWD3ci9XB-k"><dfn>&lt;Validate loop mandatory items&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-h">&lt;-U</a>)</b>
 def validate_loop_references(self,loop_names):
     must_haves = map(lambda a:self[a].get(self.list_ref_spec,None),loop_names)
     must_haves = filter(lambda a:a != None,must_haves)
@@ -1560,7 +1673,7 @@ name during normalisation, so all references to other item names
 (e.g. _item_dependent) have to be resolved using the present function. 
 <p>
 These aliases are returned in any case, so if we had a data file
-<a name="NWD3ci9XB-i">which mixed DDL1 and DDL2 style names, it may turn out to be</a>
+<a name="NWD3ci9XB-l">which mixed DDL1 and DDL2 style names, it may turn out to be</a>
 valid, and what's more, we wouldn't necessarily detect an error
 if a data name and its alias were present - need to ponder this.
 <p>
@@ -1569,7 +1682,7 @@ co-exist with the item name in the same datablock.  This includes
 aliases, and allows us to do a check that items and their aliases
 are not present at the same time in a data file.
 <p>
-<pre><a name="NW3ci9XB-1mNfP2-1" href="#NWD3ci9XB-i"><dfn>&lt;Get alternative item names&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-e">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1mNfP2-1" href="#NWD3ci9XB-l"><dfn>&lt;Get alternative item names&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-h">&lt;-U</a>)</b>
 def get_alternates(self,main_name,exclusive_only=False):
     alternates = self[main_name].get(self.related_func,None)
     alt_names = []
@@ -1591,24 +1704,24 @@ def get_alternates(self,main_name,exclusive_only=False):
     # print &quot;Alternates for %s: %s&quot; % (main_name,`alt_names`)
     return alt_names
     
-</pre><p><a name="NWD3ci9XB-j">Some checks require access to the entire data block.  These functions</a>
+</pre><p><a name="NWD3ci9XB-m">Some checks require access to the entire data block.  These functions</a>
 take both a provisional dictionary and a global dictionary; the
 provisional dictionary includes items which will go into the
 dictionary together with the current item, and the global
 dictionary includes items which apply to all data blocks (this is
 for validation of DDL1/2 dictionaries).
 <p>
-<pre><a name="NW3ci9XB-4OHeZn-1" href="#NWD3ci9XB-j"><dfn>&lt;Cross-item validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
-<a name="NW3ci9XB-4OHeZn-1-u1" href="#NWD3ci9XB-k"><i>&lt;Validate exclusion rules&gt;</i></a>
-<a name="NW3ci9XB-4OHeZn-1-u2" href="#NWD3ci9XB-l"><i>&lt;Validate parent child relations&gt;</i></a>
-<a name="NW3ci9XB-4OHeZn-1-u3" href="#NWD3ci9XB-m"><i>&lt;Validate presence of dependents&gt;</i></a>
-<a name="NW3ci9XB-4OHeZn-1-u4" href="#NWD3ci9XB-n"><i>&lt;Validate list uniqueness&gt;</i></a>
+<pre><a name="NW3ci9XB-4OHeZn-1" href="#NWD3ci9XB-m"><dfn>&lt;Cross-item validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<a name="NW3ci9XB-4OHeZn-1-u1" href="#NWD3ci9XB-n"><i>&lt;Validate exclusion rules&gt;</i></a>
+<a name="NW3ci9XB-4OHeZn-1-u2" href="#NWD3ci9XB-o"><i>&lt;Validate parent child relations&gt;</i></a>
+<a name="NW3ci9XB-4OHeZn-1-u3" href="#NWD3ci9XB-p"><i>&lt;Validate presence of dependents&gt;</i></a>
+<a name="NW3ci9XB-4OHeZn-1-u4" href="#NWD3ci9XB-q"><i>&lt;Validate list uniqueness&gt;</i></a>
 
-</pre><p><a name="NWD3ci9XB-k">DDL2 dictionaries introduce the &quot;alternate exclusive&quot; category for</a>
+</pre><p><a name="NWD3ci9XB-n">DDL2 dictionaries introduce the &quot;alternate exclusive&quot; category for</a>
 related items.  We also unilaterally include items listed in aliases
 as acting in this way.
 <p>
-<pre><a name="NW3ci9XB-1st01V-1" href="#NWD3ci9XB-k"><dfn>&lt;Validate exclusion rules&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-j">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1st01V-1" href="#NWD3ci9XB-n"><dfn>&lt;Validate exclusion rules&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-m">&lt;-U</a>)</b>
 def validate_exclusion(self,item_name,item_value,whole_block,provisional_items={},globals={}):
    alternates = map(lambda a:a.lower(),self.get_alternates(item_name,exclusive_only=True))
    item_name_list = map(lambda a:a.lower(),whole_block.keys())
@@ -1634,7 +1747,7 @@ The provisional items dictionary includes items that are going to be
 included with the present item  (in a single loop structure) so the 
 philosophy of inclusion must be all or nothing.
 <p>
-<a name="NWD3ci9XB-l">When validating DDL2 dictionaries themselves, we are allowed access to </a>
+<a name="NWD3ci9XB-o">When validating DDL2 dictionaries themselves, we are allowed access to </a>
 other definition blocks in order to resolve parent-child pointers.  
 We will be able to find
 these save frames inside the globals dictionary (they will in this case
@@ -1643,7 +1756,7 @@ be collected inside a CifBlock object).
 When removing, we look at the item to make sure that no child items require
 it to be present.
 <p>
-<pre><a name="NW3ci9XB-2zp6Kk-1" href="#NWD3ci9XB-l"><dfn>&lt;Validate parent child relations&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-j">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2zp6Kk-1" href="#NWD3ci9XB-o"><dfn>&lt;Validate parent child relations&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-m">&lt;-U</a>)</b>
 # validate that parent exists and contains matching values
 def validate_parent(self,item_name,item_value,whole_block,provisional_items={},globals={}):
     parent_item = self[item_name].get(self.parent_spec)
@@ -1752,13 +1865,13 @@ def validate_remove_parent_child(self,item_name,whole_block):
             return {&quot;result&quot;:False,&quot;child&quot;:child_item}
     return {&quot;result&quot;:True}
      
-</pre><p><a name="NWD3ci9XB-m">The DDL2 </a><code>_item_dependent</code> attribute at first glance appears to be the
+</pre><p><a name="NWD3ci9XB-p">The DDL2 </a><code>_item_dependent</code> attribute at first glance appears to be the
 same as <code>_list_reference</code>, however the dependent item does not have to appear
 in a loop at all, and neither does the other item name.  Perhaps this
 behaviour was intended to be implied by having looped <code>_names</code> in DDL1 
 dictionaries, but we can't be sure and so don't implement this yet.
 <p>
-<pre><a name="NW3ci9XB-2r2raq-1" href="#NWD3ci9XB-m"><dfn>&lt;Validate presence of dependents&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-j">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2r2raq-1" href="#NWD3ci9XB-p"><dfn>&lt;Validate presence of dependents&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-m">&lt;-U</a>)</b>
 def validate_dependents(self,item_name,item_value,whole_block,prov={},globals={}):
     try:
         dep_items = self[item_name][self.dep_spec][:]
@@ -1790,7 +1903,7 @@ with its label must be unique; however it would appear to implicitly apply
 to any index-type value in any dictionary.  This is used precisely once 
 in the cif_core dictionary in a non-intuitive manner, but we code for 
 this here.  The value of the <code>_list_uniqueness</code> attribute can actually 
-<a name="NWD3ci9XB-n">refer to another data name, which together with the defined name must </a>
+<a name="NWD3ci9XB-q">refer to another data name, which together with the defined name must </a>
 be unique.
 <p>
 DDL2 dictionaries do away with separate <code>_list_mandatory</code> and <code>_list_uniqueness</code>
@@ -1799,7 +1912,7 @@ it appears that they must be unique in combination, judging from the way
 that <code>_publ_body.label</code> and <code>_publ_body.element</code> are supposed to copy the cif_core
 dictionary.
 <p>
-<pre><a name="NW3ci9XB-1S88qJ-1" href="#NWD3ci9XB-n"><dfn>&lt;Validate list uniqueness&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-j">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1S88qJ-1" href="#NWD3ci9XB-q"><dfn>&lt;Validate list uniqueness&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-m">&lt;-U</a>)</b>
 def validate_uniqueness(self,item_name,item_value,whole_block,provisional_items={},
                                                               globals={}):
     category = self[item_name].get(self.cat_spec)
@@ -1856,8 +1969,8 @@ def validate_uniqueness(self,item_name,item_value,whole_block,provisional_items=
     return {&quot;result&quot;:True}
 
 </pre><pre><a name="NW3ci9XB-KIB8u-1" href="#NW3ci9XB-KIB8u-1"><dfn>&lt;Block-level validation&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
-<a name="NW3ci9XB-KIB8u-1-u1" href="#NWD3ci9XB-o"><i>&lt;Validate category presence&gt;</i></a>
-<a name="NW3ci9XB-KIB8u-1-u2" href="#NWD3ci9XB-p"><i>&lt;Fake mandatory category information&gt;</i></a>
+<a name="NW3ci9XB-KIB8u-1-u1" href="#NWD3ci9XB-r"><i>&lt;Validate category presence&gt;</i></a>
+<a name="NW3ci9XB-KIB8u-1-u2" href="#NWD3ci9XB-s"><i>&lt;Fake mandatory category information&gt;</i></a>
 
 </pre><p>DDL2 introduces a new idea, that of a mandatory category, items of
 which must be present.  We check only this particular fact, and 
@@ -1869,7 +1982,7 @@ Also, although the natural meaning for a DDL2 dictionary would be that
 items from these categories must appear in every definition block, this is not what
 happens in practice, as category definitions do not have anything from the
 (mandatory) _item_description category.  We therefore adopt the supremely
-<a name="NWD3ci9XB-o">useless meaning that mandatory categories in a dictionary context mean only</a>
+<a name="NWD3ci9XB-r">useless meaning that mandatory categories in a dictionary context mean only</a>
 that somewhere, maybe in only one save frame, an item from this category
 exists.  This interpretation is forced by using the &quot;fake_mand&quot; argument,
 which then assumes that the alternative routine will be used to set the
@@ -1878,7 +1991,7 @@ error information on a dictionary-wide basis.
 Note that this routine is constructed such that not all mandatory categories
 are checked in the event of a single failure.
 <p>
-<pre><a name="NW3ci9XB-8Nrn-1" href="#NWD3ci9XB-o"><dfn>&lt;Validate category presence&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-KIB8u-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-8Nrn-1" href="#NWD3ci9XB-r"><dfn>&lt;Validate category presence&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-KIB8u-1">&lt;-U</a>)</b>
 def validate_mandatory_category(self,whole_block,globals={},fake_mand=False):
     if fake_mand:
         return {&quot;result&quot;:True}
@@ -1903,7 +2016,7 @@ list of categories which appear in any of the save frames.
 It then returns a list of mandatory categories which are not
 present in the save frames or enclosing block.
 <p>
-<a name="NWD3ci9XB-p">This is for efficiency; as the validation routines are constructed</a>
+<a name="NWD3ci9XB-s">This is for efficiency; as the validation routines are constructed</a>
 on a per-block basis, and we try to treat save frames as block
 equivalents, we don't want to repeat checks more than we have to.
 <p>
@@ -1911,7 +2024,7 @@ As this is run outside the normal procedure, which is block based,
 we return the information in the same way that the run_data_checks
 routine would format it.
 <p>
-<pre><a name="NW3ci9XB-3ErMl-1" href="#NWD3ci9XB-p"><dfn>&lt;Fake mandatory category information&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-KIB8u-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3ErMl-1" href="#NWD3ci9XB-s"><dfn>&lt;Fake mandatory category information&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-KIB8u-1">&lt;-U</a>)</b>
 def find_prob_cats(self,whole_block):
     mand_cats = filter(lambda a:self[a].get(&quot;_category.mandatory_code&quot;,&quot;no&quot;)==&quot;yes&quot;,
                 self.keys())
@@ -1950,7 +2063,7 @@ In other regexp editing, the <code>\{</code> sequence inside the character sets 
 some of the regexps is actually interpreted as an escaped bracket, so the
 backslash vanishes.  We add it back in by doing a very hackish and ugly
 substitution which substitues these two characters anywhere that they 
-<a name="NWD3ci9XB-q">occur inside square brackets.  A final change is to insert a </a><code>\r</code> wherever
+<a name="NWD3ci9XB-t">occur inside square brackets.  A final change is to insert a </a><code>\r</code> wherever
 we find a <code>\n</code> - it seems that this has been left out. 
 After these changes, and appending on default
 expressions as well, we can now work with DDL2 expressions directly.
@@ -1959,7 +2072,7 @@ We keep the primitive code for the single reason that we need to
 know when we are dealing with a number that has an esd appended, and
 this is flagged by the primitive code being of type 'numb'.
 <p>
-<pre><a name="NW3ci9XB-YoTYq-1" href="#NWD3ci9XB-q"><dfn>&lt;Add type information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-YoTYq-1" href="#NWD3ci9XB-t"><dfn>&lt;Add type information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def add_type_info(self):
     if self.dic_as_cif[self.master_key].has_key(&quot;_item_type_list.construct&quot;): 
         types = self.dic_as_cif[self.master_key][&quot;_item_type_list.code&quot;]
@@ -2007,7 +2120,7 @@ called later.  Note that we generate the general-access functions separately.
 <p>
 We cannot restrict ourselves to local values as the transformed functions
 are called elsewhere.  We could include assignments to these variable names
-<a name="NWD3ci9XB-r">within the generated functions.</a>
+<a name="NWD3ci9XB-u">within the generated functions.</a>
 <p>
 If we were really serious about dictionary-driven software, the attribute
 lookups that follow would not use get(), but brackets and allow default
@@ -2016,7 +2129,7 @@ to the dictionary and consequent automated searches which I can't be bothered
 to do at this stage.  Just be aware that the default value in the get()
 statement is the _enumeration.default specified in ddl.dic...
 <p>
-<pre><a name="NW3ci9XB-2AwmD1-1" href="#NWD3ci9XB-r"><dfn>&lt;Transform drel to python&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2AwmD1-1" href="#NWD3ci9XB-u"><dfn>&lt;Transform drel to python&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def transform_drel(self):
     import drel_yacc
     parser = drel_yacc.parser
@@ -2043,11 +2156,11 @@ def transform_drel(self):
         self[derivable][&quot;_method.expression&quot;] = drel_yacc.make_func(pyth_meth,&quot;pyfunc&quot;,None) 
         print &quot;Final result:\n &quot; + self[derivable][&quot;_method.expression&quot;]
 
-</pre><p><a name="NWD3ci9XB-s">Drel functions are all stored in category 'functions' in our final dictionary.  We want to</a>
+</pre><p><a name="NWD3ci9XB-v">Drel functions are all stored in category 'functions' in our final dictionary.  We want to</a>
 convert them to executable python code and store them in an appropriate namespace which we
 can then pass to our individual item methods.
 <p>
-<pre><a name="NW3ci9XB-18tnAU-1" href="#NWD3ci9XB-s"><dfn>&lt;Store dREL functions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-18tnAU-1" href="#NWD3ci9XB-v"><dfn>&lt;Store dREL functions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def add_drel_funcs(self):
     import drel_yacc
     funclist = filter(lambda a:self[a].get(&quot;_name.category_id&quot;,&quot;&quot;)=='function',self.keys())
@@ -2071,7 +2184,7 @@ assuming that the above method was called during initialisation.  For single-val
 call the method directly.  For non-single-valued items, we need to call repeatedly to build up
 a complete packet.  We make use of our list of listable categories etc.
 <p>
-<a name="NWD3ci9XB-t">If we are building a List rather than a loop, we simply assign the value.  In</a>
+<a name="NWD3ci9XB-w">If we are building a List rather than a loop, we simply assign the value.  In</a>
 a later incarnation, this software should conduct a conformance check on values
 which are thus inserted.
 <p>
@@ -2080,7 +2193,7 @@ adds the '_enumerations.def_index_id' as an alternative way to derive a value fr
 During development, we deliberately allow errors arising from the method to
 be propagated so that we can see anything that might be wrong.
 <p>
-<pre><a name="NW3ci9XB-4XDBtm-1" href="#NWD3ci9XB-t"><dfn>&lt;Derive item information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4XDBtm-1" href="#NWD3ci9XB-w"><dfn>&lt;Derive item information&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def derive_item(self,key,cifdata,store_value = False):
     # store any default value in case we have a problem
     def_val = self[key].get(&quot;_enumeration.default&quot;,&quot;&quot;)
@@ -2130,13 +2243,13 @@ def derive_item(self,key,cifdata,store_value = False):
     else:              # No looped categories
        return pyfunc(self,cifdata)
 
-</pre><p><a name="NWD3ci9XB-u">In the single case of executing dREL methods, we wish to return numpy</a>
+</pre><p><a name="NWD3ci9XB-x">In the single case of executing dREL methods, we wish to return numpy</a>
 Arrays from our __getitem__ so that the mathematical operations proceed
 as expected for matrix etc. objects.  So we provide an alternative
 dictionary 'numerify' routine.  This switch might also work for general
 cases (i.e. non-dREL) but that is not tested.
 <p>
-<pre><a name="NW3ci9XB-1P9bgZ-1" href="#NWD3ci9XB-u"><dfn>&lt;Switch on numpy arrays&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1P9bgZ-1" href="#NWD3ci9XB-x"><dfn>&lt;Switch on numpy arrays&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def switch_numpy(self,to_val):
     if to_val:
         self.recursive_numerify = self.numpy_numerify
@@ -2144,7 +2257,7 @@ def switch_numpy(self,to_val):
         self.recursive_numerify = self.normal_numerify
 
 </pre><p>This function converts the string-valued items returned from the parser into
-<a name="NWD3ci9XB-v">types that correspond to the dictionary specifications.  For DDLm it must also</a>
+<a name="NWD3ci9XB-y">types that correspond to the dictionary specifications.  For DDLm it must also</a>
 deal with potentially complex structures containing both strings and numbers. We
 have tried to avoid introducing a dependence on Numpy in general for PyCIFRW,
 but once we get into the realm of DDLm we require Numpy arrays in order to
@@ -2153,7 +2266,7 @@ create the arrays from the StarList types, so needs access to numpy.  However,
 this routine is only called if a DDLm dictionary has been provided, so we
 should still have no Numpy dependence for non DDLm cases
 <p>
-<pre><a name="NW3ci9XB-4SRgOL-1" href="#NWD3ci9XB-v"><dfn>&lt;Convert string to appropriate type&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4SRgOL-1" href="#NWD3ci9XB-y"><dfn>&lt;Convert string to appropriate type&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def change_type(self,itemname,inval):
     import numpy
     # we need to iterate over the structure description.  For now we deal only with
@@ -2196,9 +2309,9 @@ def numpy_numerify(self,valarray):
     import numpy
     return numpy.array(self.normal_numerify(valarray))
 
-</pre><p><a name="NWD3ci9XB-w">We may be passed float values which have esds appended.  We catch this case</a>
+</pre><p><a name="NWD3ci9XB-z">We may be passed float values which have esds appended.  We catch this case</a>
 by searching for an opening round bracket
-<p><pre><a name="NW3ci9XB-g3svP-1" href="#NWD3ci9XB-w"><dfn>&lt;Convert value to float, ignore esd&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">U-&gt;</a>)</b>
+<p><pre><a name="NW3ci9XB-g3svP-1" href="#NWD3ci9XB-z"><dfn>&lt;Convert value to float, ignore esd&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">U-&gt;</a>)</b>
 def float_with_esd(inval):
     if isinstance(inval,StringType):
         j = inval.find(&quot;(&quot;)
@@ -2207,12 +2320,12 @@ def float_with_esd(inval):
         
     
                 
-</pre><p><a name="NWD3ci9XB-x">This function analyses a DDL1-type range expression,  returning</a>
+</pre><p><a name="NWD3ci9XB-10">This function analyses a DDL1-type range expression,  returning</a>
 a maximum and minimum value.  If the number
 format were ever to change, we need to change this right here, right
 now.
 <p>
-<pre><a name="NW3ci9XB-4azgpV-1" href="#NWD3ci9XB-x"><dfn>&lt;Analyse range&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4azgpV-1" href="#NWD3ci9XB-10"><dfn>&lt;Analyse range&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a>)</b>
 def getmaxmin(self,rangeexp):
     regexp = '(-?(([0-9]*[.]([0-9]+))|([0-9]+)[.]?)([eEdD][+-]?[0-9]+)?)*' 
     regexp = regexp + &quot;:&quot; + regexp
@@ -2230,7 +2343,7 @@ def getmaxmin(self,rangeexp):
 
 </pre><p><h2>Valid CIFS</h2>
 <p>
-<a name="NWD3ci9XB-y">A whole new can of worms is opened up when we require that a CIF is</a>
+<a name="NWD3ci9XB-11">A whole new can of worms is opened up when we require that a CIF is</a>
 not only syntactically correct, but valid according to the specified
 dictionary.
 <p>
@@ -2238,19 +2351,19 @@ A valid CIF is essentially a collection of valid CIF blocks.  It
 may be the case in the future that inter-block relationships need 
 to be checked, so we define a separate <code>ValidCifFile</code> class.
 <p>
-<pre><a name="NW3ci9XB-4FbZUP-1" href="#NWD3ci9XB-y"><dfn>&lt;A valid CIF block&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4FbZUP-1" href="#NWD3ci9XB-11"><dfn>&lt;A valid CIF block&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
 class ValidCifBlock(CifBlock):
-    <a name="NW3ci9XB-4FbZUP-1-u1" href="#NWD3ci9XB-z"><i>&lt;Initialise with dictionary&gt;</i></a>
-    <a name="NW3ci9XB-4FbZUP-1-u2" href="#NWD3ci9XB-10"><i>&lt;Run data checks&gt;</i></a>
-    <a name="NW3ci9XB-4FbZUP-1-u3" href="#NWD3ci9XB-12"><i>&lt;Check input data&gt;</i></a>
-    <a name="NW3ci9XB-4FbZUP-1-u4" href="#NWD3ci9XB-13"><i>&lt;Redefine item adding and removing&gt;</i></a>
-    <a name="NW3ci9XB-4FbZUP-1-u5" href="#NWD3ci9XB-11"><i>&lt;Validation report&gt;</i></a>
+    <a name="NW3ci9XB-4FbZUP-1-u1" href="#NWD3ci9XB-12"><i>&lt;Initialise with dictionary&gt;</i></a>
+    <a name="NW3ci9XB-4FbZUP-1-u2" href="#NWD3ci9XB-13"><i>&lt;Run data checks&gt;</i></a>
+    <a name="NW3ci9XB-4FbZUP-1-u3" href="#NWD3ci9XB-15"><i>&lt;Check input data&gt;</i></a>
+    <a name="NW3ci9XB-4FbZUP-1-u4" href="#NWD3ci9XB-16"><i>&lt;Redefine item adding and removing&gt;</i></a>
+    <a name="NW3ci9XB-4FbZUP-1-u5" href="#NWD3ci9XB-14"><i>&lt;Validation report&gt;</i></a>
 
-</pre><p><a name="NWD3ci9XB-z">The </a><code>dic</code> argument contains a previously initialised dictionary.  We
+</pre><p><a name="NWD3ci9XB-12">The </a><code>dic</code> argument contains a previously initialised dictionary.  We
 can alternatively provide a list of filenames/CifFiles which are merged
 according to mergemode.  Both cannot be provided. 
 <p>
-<pre><a name="NW3ci9XB-3qr6WR-1" href="#NWD3ci9XB-z"><dfn>&lt;Initialise with dictionary&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3qr6WR-1" href="#NWD3ci9XB-12"><dfn>&lt;Initialise with dictionary&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-11">&lt;-U</a>)</b>
 def __init__(self,dic = None, diclist=[], mergemode = &quot;replace&quot;,*args,**kwords):
     CifBlock.__init__(self,*args,**kwords)    
     if dic and diclist:
@@ -2266,12 +2379,12 @@ def __init__(self,dic = None, diclist=[], mergemode = &quot;replace&quot;,*args,
     if not self.run_data_checks()[0]:
         raise ValidCifError( self.report())
 
-</pre><p><a name="NWD3ci9XB-10">Run all of these data checks.  The dictionary validation methods return a</a>
+</pre><p><a name="NWD3ci9XB-13">Run all of these data checks.  The dictionary validation methods return a</a>
 list of tuples (validation function name, result) for each item.  
 When checking a full data block, we can make use of the optimisation
 facilities provided in the <code>CifDic</code> object.
 <p>
-<pre><a name="NW3ci9XB-4aT5tx-1" href="#NWD3ci9XB-10"><dfn>&lt;Run data checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4aT5tx-1" href="#NWD3ci9XB-13"><dfn>&lt;Run data checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-11">&lt;-U</a>)</b>
 def run_data_checks(self,verbose=False):
     self.v_result = {}
     self.fulldic.optimize_on()
@@ -2294,10 +2407,10 @@ def run_data_checks(self,verbose=False):
     #    print &quot;Baddies:&quot; + `self.v_result`
     return isvalid,self.v_result
 
-</pre><p><a name="NWD3ci9XB-11">Report back.  We summarize the contents of v_result.  This routine</a>
+</pre><p><a name="NWD3ci9XB-14">Report back.  We summarize the contents of v_result.  This routine</a>
 is probably broken.
 <p>
-<pre><a name="NW3ci9XB-2nScNo-1" href="#NWD3ci9XB-11"><dfn>&lt;Validation report&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2nScNo-1" href="#NWD3ci9XB-14"><dfn>&lt;Validation report&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-11">&lt;-U</a>)</b>
 def report(self):
    import cStringIO
    outstr = cStringIO.StringIO()
@@ -2310,12 +2423,12 @@ def report(self):
            outstr.write(&quot;\t%s\n&quot;)
    return outstr.getvalue()
 
-</pre><p><a name="NWD3ci9XB-12">It is not a mistake for a data name to be absent from any of the</a>
+</pre><p><a name="NWD3ci9XB-15">It is not a mistake for a data name to be absent from any of the</a>
 specified dictionaries, so we have to check that we have a match
 before running any data checks, rather than simply raising an error
 immediately.
 <p>
-<pre><a name="NW3ci9XB-yoDXZ-1" href="#NWD3ci9XB-12"><dfn>&lt;Check input data&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-y">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-yoDXZ-1" href="#NWD3ci9XB-15"><dfn>&lt;Check input data&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-11">&lt;-U</a>)</b>
 def single_item_check(self,item_name,item_value):
     #self.match_single_item(item_name)
     if not self.fulldic.has_key(item_name):
@@ -2363,14 +2476,14 @@ def remove_global_item_check(self,item_name):
     # if not isvalid: print &quot;Failures for %s:&quot; % item_name + `baddies`
     return isvalid,baddies
 
-</pre><p><a name="NWD3ci9XB-13">We need to override the base class methods here to prevent addition of an</a>
+</pre><p><a name="NWD3ci9XB-16">We need to override the base class methods here to prevent addition of an</a>
 item that would render an object invalid.  
 <p>
-<pre><a name="NW3ci9XB-4dKz9R-1" href="#NWD3ci9XB-13"><dfn>&lt;Redefine item adding and removing&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-y">&lt;-U</a>)</b>
-<a name="NW3ci9XB-4dKz9R-1-u1" href="#NWD3ci9XB-14"><i>&lt;Add to looped data with validity checks&gt;</i></a> 
+<pre><a name="NW3ci9XB-4dKz9R-1" href="#NWD3ci9XB-16"><dfn>&lt;Redefine item adding and removing&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-11">&lt;-U</a>)</b>
+<a name="NW3ci9XB-4dKz9R-1-u1" href="#NWD3ci9XB-17"><i>&lt;Add to looped data with validity checks&gt;</i></a> 
 <a name="NW3ci9XB-4dKz9R-1-u2" href="#NW3ci9XB-1ohXWY-1"><i>&lt;Add straight data&gt;</i></a>
 
-</pre><pre><a name="NW3ci9XB-1ohXWY-1" href="#NW3ci9XB-1ohXWY-1"><dfn>&lt;Add straight data&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-13">&lt;-U</a>)</b>
+</pre><pre><a name="NW3ci9XB-1ohXWY-1" href="#NW3ci9XB-1ohXWY-1"><dfn>&lt;Add straight data&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-16">&lt;-U</a>)</b>
 def AddCifItem(self,data):
     if isinstance(data[0],StringType):   # single item
         valid,problems = self.single_item_check(data[0],data[1])
@@ -2417,7 +2530,7 @@ def __delitem__(self,key):
         self.report_if_invalid(valid,problems)
     self.RemoveCifItem(key)
 
-</pre><p><a name="NWD3ci9XB-14">Adding to a loop.  We find the loop containing the dataname that</a>
+</pre><p><a name="NWD3ci9XB-17">Adding to a loop.  We find the loop containing the dataname that</a>
 we've been passed, and then append all of the (key,values) pairs that we
 are passed in <code>data</code>, which is a dictionary.  We expect that the data 
 have been sorted out for us, unlike when data are passed in <code>AddCifItem</code>, 
@@ -2425,7 +2538,7 @@ when there can be both unlooped and looped data in one set.  The dataname
 passed to this routine is simply a convenient way to refer to the
 loop, and has no other significance.
 <p>
-<pre><a name="NW3ci9XB-1IFjUM-1" href="#NWD3ci9XB-14"><dfn>&lt;Add to looped data with validity checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-13">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1IFjUM-1" href="#NWD3ci9XB-17"><dfn>&lt;Add to looped data with validity checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-16">&lt;-U</a>)</b>
 def AddToLoop(self,dataname,loopdata):
     # single item checks
     paired_data = loopdata.items()
@@ -2457,7 +2570,7 @@ it later.
 <p>
 As a convenience, we handle lists of filenames/CifFiles which are 
 supposed to be dictionaries, and pass them directly to the <code>ValidCifBlock</code>
-<a name="NWD3ci9XB-15">object which will merge as necessary.</a>
+<a name="NWD3ci9XB-18">object which will merge as necessary.</a>
 <p>
 Note that we have to set bigdic before calling __init__.  The various calls
 down through the inheritance hierarchy end up calling ValidCifBlock with
@@ -2466,12 +2579,12 @@ be called from within StarFile.__init__ if given a filename to read from,
 so we allow that bigdic might already have been set - and check for its
 existence before setting it again!
 <p>
-<pre><a name="NW3ci9XB-TwoIx-1" href="#NWD3ci9XB-15"><dfn>&lt;A valid CIF file&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-TwoIx-1" href="#NWD3ci9XB-18"><dfn>&lt;A valid CIF file&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
 class ValidCifFile(CifFile):
     <a name="NW3ci9XB-TwoIx-1-u1" href="#NW3ci9XB-1taQLY-1"><i>&lt;Initialise valid CIF&gt;</i></a>
-    <a name="NW3ci9XB-TwoIx-1-u2" href="#NWD3ci9XB-16"><i>&lt;Redefine add new block&gt;</i></a>
+    <a name="NW3ci9XB-TwoIx-1-u2" href="#NWD3ci9XB-19"><i>&lt;Redefine add new block&gt;</i></a>
 
-</pre><pre><a name="NW3ci9XB-1taQLY-1" href="#NW3ci9XB-1taQLY-1"><dfn>&lt;Initialise valid CIF&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-15">&lt;-U</a>)</b>
+</pre><pre><a name="NW3ci9XB-1taQLY-1" href="#NW3ci9XB-1taQLY-1"><dfn>&lt;Initialise valid CIF&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-18">&lt;-U</a>)</b>
 def __init__(self,dic=None,diclist=[],mergemode=&quot;replace&quot;,*args,**kwargs):
     if not diclist and not dic and not hasattr(self,'bigdic'):
         raise ValidCifError( &quot;At least one dictionary is required to create a ValidCifFile object&quot;)
@@ -2483,11 +2596,11 @@ def __init__(self,dic=None,diclist=[],mergemode=&quot;replace&quot;,*args,**kwar
     #for blockname in self.keys():
 #       self.dictionary[blockname]=ValidCifBlock(data=self.dictionary[blockname],dic=self.bigdic)
 
-</pre><p><a name="NWD3ci9XB-16">Whenever a new block is added, we have to additionally update our</a>
+</pre><p><a name="NWD3ci9XB-19">Whenever a new block is added, we have to additionally update our</a>
 match array and perform a validation run.  This definition shadows
 the definition in the parent class.
 <p>
-<pre><a name="NW3ci9XB-1kiPV9-1" href="#NWD3ci9XB-16"><dfn>&lt;Redefine add new block&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-15">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1kiPV9-1" href="#NWD3ci9XB-19"><dfn>&lt;Redefine add new block&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-18">&lt;-U</a>)</b>
 def NewBlock(self,blockname,blockcontents,**kwargs):
     CifFile.NewBlock(self,blockname,blockcontents,**kwargs)
     # dictionary[blockname] is now a CifBlock object.  We
@@ -2495,19 +2608,19 @@ def NewBlock(self,blockname,blockcontents,**kwargs):
     self.dictionary[blockname] = ValidCifBlock(dic=self.bigdic,
                                      data=self.dictionary[blockname])
 
-</pre><p><a name="NWD3ci9XB-17">We provide some functions for straight validation.  These serve as an</a>
+</pre><p><a name="NWD3ci9XB-1A">We provide some functions for straight validation.  These serve as an</a>
 example of the use of the CifDic class with the CifFile class.
 <p>
-<pre><a name="NW3ci9XB-pxSz9-1" href="#NWD3ci9XB-17"><dfn>&lt;Top-level functions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
-<a name="NW3ci9XB-pxSz9-1-u1" href="#NWD3ci9XB-18"><i>&lt;ValidationResult class&gt;</i></a>
-<a name="NW3ci9XB-pxSz9-1-u2" href="#NWD3ci9XB-19"><i>&lt;Validate against the given dictionaries&gt;</i></a>
-<a name="NW3ci9XB-pxSz9-1-u3" href="#NWD3ci9XB-1A"><i>&lt;Run dictionary validation checks&gt;</i></a>
+<pre><a name="NW3ci9XB-pxSz9-1" href="#NWD3ci9XB-1A"><dfn>&lt;Top-level functions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
+<a name="NW3ci9XB-pxSz9-1-u1" href="#NWD3ci9XB-1B"><i>&lt;ValidationResult class&gt;</i></a>
+<a name="NW3ci9XB-pxSz9-1-u2" href="#NWD3ci9XB-1C"><i>&lt;Validate against the given dictionaries&gt;</i></a>
+<a name="NW3ci9XB-pxSz9-1-u3" href="#NWD3ci9XB-1D"><i>&lt;Run dictionary validation checks&gt;</i></a>
 
-</pre><p><a name="NWD3ci9XB-18">A convenient wrapper class for dealing with the structure returned by</a>
+</pre><p><a name="NWD3ci9XB-1B">A convenient wrapper class for dealing with the structure returned by</a>
 validation.  Perhaps a more elegant approach would be to return one of
 these objects from validation rather than wrap the validation routines inside.
 <p>
-<pre><a name="NW3ci9XB-4PUS0Q-1" href="#NWD3ci9XB-18"><dfn>&lt;ValidationResult class&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-17">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-4PUS0Q-1" href="#NWD3ci9XB-1B"><dfn>&lt;ValidationResult class&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1A">&lt;-U</a>)</b>
 class ValidationResult:
     &quot;&quot;&quot;Represents validation result&quot;&quot;&quot;
     def __init__(self,results):
@@ -2548,14 +2661,14 @@ class ValidationResult:
     
 
         
-</pre><p><a name="NWD3ci9XB-19">We provide a function to do straight validation, using the built-in</a>
+</pre><p><a name="NWD3ci9XB-1C">We provide a function to do straight validation, using the built-in</a>
 methods of the dictionary type.  We need to create a single dictionary
 from the multiple dictionaries we are passed, before doing our check. Also,
 we allow validation of dictionaries themselves, by passing a special
 flag <code>isdic</code>.  This should only be used for DDL2 dictionaries.  DDL1
 dictionaries validate OK if (any) global block is deleted.
 <p>
-<pre><a name="NW3ci9XB-3NYcIP-1" href="#NWD3ci9XB-19"><dfn>&lt;Validate against the given dictionaries&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-17">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-3NYcIP-1" href="#NWD3ci9XB-1C"><dfn>&lt;Validate against the given dictionaries&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1A">&lt;-U</a>)</b>
 def validate(ciffile,dic = &quot;&quot;, diclist=[],mergemode=&quot;replace&quot;,isdic=False,fake_mand=True):
     check_file = CifFile(ciffile)
     if not dic:
@@ -2743,13 +2856,13 @@ def html_error_report(error_name,error_explanation,error_dics,annotate=[]):
       bodystring += &quot;&lt;/tr&gt;\n&quot;
    return retstring + headstring + bodystring + &quot;&lt;/table&gt;\n&quot;
 
-</pre><p><a name="NWD3ci9XB-1A">This function executes validation checks provided in the CifDic.  The </a>
+</pre><p><a name="NWD3ci9XB-1D">This function executes validation checks provided in the CifDic.  The </a>
 validation calls create a dictionary containing the test results for each
 item name.  Each item has a list of (test name,result) tuples.  After running
 the tests, we contract these lists to contain only false results, and then
 remove all items containing no false results.
 <p>
-<pre><a name="NW3ci9XB-2T9k5o-1" href="#NWD3ci9XB-1A"><dfn>&lt;Run dictionary validation checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-17">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-2T9k5o-1" href="#NWD3ci9XB-1D"><dfn>&lt;Run dictionary validation checks&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1A">&lt;-U</a>)</b>
 def run_data_checks(check_block,fulldic,globals={},fake_mand=False):
     v_result = {}
     for key in check_block.keys():
@@ -2769,16 +2882,16 @@ def run_data_checks(check_block,fulldic,globals={},fake_mand=False):
     return isvalid,v_result
     
 </pre><pre><a name="NW3ci9XB-3vMMG4-1" href="#NW3ci9XB-3vMMG4-1"><dfn>&lt;Utility functions&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-1">&lt;-U</a>)</b>
-<a name="NW3ci9XB-3vMMG4-1-u1" href="#NWD3ci9XB-1B"><i>&lt;Extract number and esd&gt;</i></a>
-<a name="NW3ci9XB-3vMMG4-1-u2" href="#NWD3ci9XB-w"><i>&lt;Convert value to float, ignore esd&gt;</i></a>
+<a name="NW3ci9XB-3vMMG4-1-u1" href="#NWD3ci9XB-1E"><i>&lt;Extract number and esd&gt;</i></a>
+<a name="NW3ci9XB-3vMMG4-1-u2" href="#NWD3ci9XB-z"><i>&lt;Convert value to float, ignore esd&gt;</i></a>
 <a name="NW3ci9XB-3vMMG4-1-u3" href="#NW3ci9XB-OX5Lr-1"><i>&lt;Append update&gt;</i></a>
 <a name="NW3ci9XB-3vMMG4-1-u4" href="#NW3ci9XB-3wFOOY-1"><i>&lt;Transpose data&gt;</i></a>
-<a name="NW3ci9XB-3vMMG4-1-u5" href="#NWD3ci9XB-1C"><i>&lt;Merge dictionaries as CIFs&gt;</i></a>
-<a name="NW3ci9XB-3vMMG4-1-u6" href="#NWD3ci9XB-1D"><i>&lt;Get topmost parent&gt;</i></a>
+<a name="NW3ci9XB-3vMMG4-1-u5" href="#NWD3ci9XB-1F"><i>&lt;Merge dictionaries as CIFs&gt;</i></a>
+<a name="NW3ci9XB-3vMMG4-1-u6" href="#NWD3ci9XB-1G"><i>&lt;Get topmost parent&gt;</i></a>
 
 </pre><p>This support function uses re capturing to work out the number's value. The
 re contains 7 groups: group 0 is the entire expression; group 1 is the overall
-<a name="NWD3ci9XB-1B">match in the part prior to esd brackets; group 2 is the match with a decimal</a>
+<a name="NWD3ci9XB-1E">match in the part prior to esd brackets; group 2 is the match with a decimal</a>
 point, group 3 is the digits after the decimal point, group 4 is the match 
 without a decimal point.  Group 5 is the esd bracket contents, and 
 group 6 is the exponent.
@@ -2787,7 +2900,7 @@ The esd should be returned as an independent number.  We count the number
 of digits after the decimal point, create the esd in terms of this, and then,
 if necessary, apply the exponent.
 <p>
-<pre><a name="NW3ci9XB-1oNFUk-1" href="#NWD3ci9XB-1B"><dfn>&lt;Extract number and esd&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a> <a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1oNFUk-1" href="#NWD3ci9XB-1E"><dfn>&lt;Extract number and esd&gt;=</dfn></a> <b>(<a href="#NWD3ci9XB-F">&lt;-U</a> <a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
 def get_number_with_esd(numstring):
     import string
     numb_re = '((-?(([0-9]*[.]([0-9]+))|([0-9]+)[.]?))([(][0-9]+[)])?([eEdD][+-]?[0-9]+)?)|(\?)|(\.)' 
@@ -2845,7 +2958,7 @@ def listify(item):
 def filter_present(namelist,datablocknames):
     return filter(lambda a:a in datablocknames,namelist)
 
-</pre><p><a name="NWD3ci9XB-1C">This uses the  </a><code>CifFile</code> merge method to merge a list of filenames,
+</pre><p><a name="NWD3ci9XB-1F">This uses the  </a><code>CifFile</code> merge method to merge a list of filenames,
 with an initial check to determine DDL1/DDL2 merge style.  In one
 case we merge save frames in a single block, in another case we
 merge data blocks.  These are different levels.
@@ -2854,7 +2967,7 @@ Note that the data block name is passed to specify the parts of each object
 to be merged, rather than the objects themselves (not doing this was a bug
 that was caught a while ago).
 <p>
-<pre><a name="NW3ci9XB-1UFwt0-1" href="#NWD3ci9XB-1C"><dfn>&lt;Merge dictionaries as CIFs&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-1UFwt0-1" href="#NWD3ci9XB-1F"><dfn>&lt;Merge dictionaries as CIFs&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
 # merge ddl dictionaries.  We should be passed filenames or CifFile
 # objects
 def merge_dic(diclist,mergemode=&quot;replace&quot;,ddlspec=None):
@@ -2879,13 +2992,13 @@ def merge_dic(diclist,mergemode=&quot;replace&quot;,ddlspec=None):
                          match_att=[&quot;_item.name&quot;],match_function=find_parent)
     return CifDic(basedic)
 
-</pre><p><a name="NWD3ci9XB-1D">Find the main item from a parent-child list.  We are asked to find the</a>
+</pre><p><a name="NWD3ci9XB-1G">Find the main item from a parent-child list.  We are asked to find the</a>
 topmost parent in a ddl2 definition block containing multiple item.names.
 We use the insight that the parent item will be that item which is not in
 the list of children as well.  If there are no item names, that means
 that we are dealing with something like a category -can they be merged?? 
 <p>
-<pre><a name="NW3ci9XB-Wt2mH-1" href="#NWD3ci9XB-1D"><dfn>&lt;Get topmost parent&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
+<pre><a name="NW3ci9XB-Wt2mH-1" href="#NWD3ci9XB-1G"><dfn>&lt;Get topmost parent&gt;=</dfn></a> <b>(<a href="#NW3ci9XB-3vMMG4-1">&lt;-U</a>)</b>
 def find_parent(ddl2_def):
     if not ddl2_def.has_key(&quot;_item.name&quot;):
        return None 
@@ -2904,89 +3017,92 @@ def find_parent(ddl2_def):
 
 <ul>
 <li><a href="#NWD3ci9XB-1"><i>&lt;*&gt;</i></a>: <a href="#NWD3ci9XB-1">D1</a>
-<li><a href="#NWD3ci9XB-y"><i>&lt;A valid CIF block&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-y">D2</a>
-<li><a href="#NWD3ci9XB-15"><i>&lt;A valid CIF file&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-15">D2</a>
+<li><a href="#NWD3ci9XB-11"><i>&lt;A valid CIF block&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-11">D2</a>
+<li><a href="#NWD3ci9XB-18"><i>&lt;A valid CIF file&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-18">D2</a>
 <li><a href="#NWD3ci9XB-B"><i>&lt;Add a data item&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-B">D2</a>
-<li><a href="#NWD3ci9XB-T"><i>&lt;Add an external DDLM category&gt;</i></a>: <a href="#NWD3ci9XB-R">U1</a>, <a href="#NWD3ci9XB-T">D2</a>
-<li><a href="#NWD3ci9XB-U"><i>&lt;Add an external DDLM category with children&gt;</i></a>: <a href="#NWD3ci9XB-R">U1</a>, <a href="#NWD3ci9XB-U">D2</a>
-<li><a href="#NWD3ci9XB-S"><i>&lt;Add another DDLM dictionary&gt;</i></a>: <a href="#NWD3ci9XB-R">U1</a>, <a href="#NWD3ci9XB-S">D2</a>
-<li><a href="#NWD3ci9XB-V"><i>&lt;Add attributes to definitions&gt;</i></a>: <a href="#NWD3ci9XB-R">U1</a>, <a href="#NWD3ci9XB-V">D2</a>
-<li><a href="#NWD3ci9XB-N"><i>&lt;Add category information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-N">D2</a>
-<li><a href="#NW3ci9XB-1ohXWY-1"><i>&lt;Add straight data&gt;</i></a>: <a href="#NWD3ci9XB-13">U1</a>, <a href="#NW3ci9XB-1ohXWY-1">D2</a>
-<li><a href="#NWD3ci9XB-14"><i>&lt;Add to looped data with validity checks&gt;</i></a>: <a href="#NWD3ci9XB-13">U1</a>, <a href="#NWD3ci9XB-14">D2</a>
-<li><a href="#NWD3ci9XB-q"><i>&lt;Add type information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-q">D2</a>
+<li><a href="#NWD3ci9XB-W"><i>&lt;Add an external DDLM category&gt;</i></a>: <a href="#NWD3ci9XB-U">U1</a>, <a href="#NWD3ci9XB-W">D2</a>
+<li><a href="#NWD3ci9XB-X"><i>&lt;Add an external DDLM category with children&gt;</i></a>: <a href="#NWD3ci9XB-U">U1</a>, <a href="#NWD3ci9XB-X">D2</a>
+<li><a href="#NWD3ci9XB-V"><i>&lt;Add another DDLM dictionary&gt;</i></a>: <a href="#NWD3ci9XB-U">U1</a>, <a href="#NWD3ci9XB-V">D2</a>
+<li><a href="#NWD3ci9XB-Y"><i>&lt;Add attributes to definitions&gt;</i></a>: <a href="#NWD3ci9XB-U">U1</a>, <a href="#NWD3ci9XB-Y">D2</a>
+<li><a href="#NWD3ci9XB-Q"><i>&lt;Add category information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-Q">D2</a>
+<li><a href="#NW3ci9XB-1ohXWY-1"><i>&lt;Add straight data&gt;</i></a>: <a href="#NWD3ci9XB-16">U1</a>, <a href="#NW3ci9XB-1ohXWY-1">D2</a>
+<li><a href="#NWD3ci9XB-17"><i>&lt;Add to looped data with validity checks&gt;</i></a>: <a href="#NWD3ci9XB-16">U1</a>, <a href="#NWD3ci9XB-17">D2</a>
+<li><a href="#NWD3ci9XB-t"><i>&lt;Add type information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-t">D2</a>
 <li><a href="#NWD3ci9XB-7"><i>&lt;Adjust emulation of a mapping type&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-7">D2</a>
-<li><a href="#NWD3ci9XB-x"><i>&lt;Analyse range&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-x">D2</a>
+<li><a href="#NWD3ci9XB-10"><i>&lt;Analyse range&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-10">D2</a>
 <li><a href="#NW3ci9XB-OX5Lr-1"><i>&lt;Append update&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NW3ci9XB-OX5Lr-1">D2</a>
 <li><a href="#NWD3ci9XB-9"><i>&lt;Assign a Cif Dictionary&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-9">D2</a>
 <li><a href="#NW3ci9XB-KIB8u-1"><i>&lt;Block-level validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NW3ci9XB-KIB8u-1">D2</a>
 <li><a href="#NWD3ci9XB-C"><i>&lt;Check data name lengths&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-C">D2</a>
-<li><a href="#NWD3ci9XB-12"><i>&lt;Check input data&gt;</i></a>: <a href="#NWD3ci9XB-y">U1</a>, <a href="#NWD3ci9XB-12">D2</a>
+<li><a href="#NWD3ci9XB-15"><i>&lt;Check input data&gt;</i></a>: <a href="#NWD3ci9XB-11">U1</a>, <a href="#NWD3ci9XB-15">D2</a>
 <li><a href="#NWD3ci9XB-F"><i>&lt;CIF Dictionary type&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-F">D2</a>
 <li><a href="#NWD3ci9XB-5"><i>&lt;CifBlock class&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-5">D2</a>
 <li><a href="#NWD3ci9XB-2"><i>&lt;CifFile class&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-2">D2</a>
 <li><a href="#NWD3ci9XB-4"><i>&lt;CifLoopBlock class&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-4">D2</a>
-<li><a href="#NWD3ci9XB-v"><i>&lt;Convert string to appropriate type&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-v">D2</a>
-<li><a href="#NWD3ci9XB-w"><i>&lt;Convert value to float, ignore esd&gt;</i></a>: <a href="#NWD3ci9XB-w">D1</a>, <a href="#NW3ci9XB-3vMMG4-1">U2</a>
+<li><a href="#NWD3ci9XB-y"><i>&lt;Convert string to appropriate type&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-y">D2</a>
+<li><a href="#NWD3ci9XB-z"><i>&lt;Convert value to float, ignore esd&gt;</i></a>: <a href="#NWD3ci9XB-z">D1</a>, <a href="#NW3ci9XB-3vMMG4-1">U2</a>
 <li><a href="#NW3ci9XB-3wCo6Z-1"><i>&lt;Copyright statement&gt;</i></a>: <a href="#NW3ci9XB-3wCo6Z-1">D1</a>, <a href="#NWD3ci9XB-1">U2</a>
-<li><a href="#NWD3ci9XB-j"><i>&lt;Cross-item validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-j">D2</a>
+<li><a href="#NWD3ci9XB-m"><i>&lt;Cross-item validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-m">D2</a>
 <li><a href="#NWD3ci9XB-I"><i>&lt;Deal with DDL1 differences&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-I">D2</a>
 <li><a href="#NWD3ci9XB-E"><i>&lt;Define an error class&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-E">D2</a>
-<li><a href="#NWD3ci9XB-t"><i>&lt;Derive item information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-t">D2</a>
+<li><a href="#NWD3ci9XB-w"><i>&lt;Derive item information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-w">D2</a>
 <li><a href="#NWD3ci9XB-H"><i>&lt;Dictionary determination function&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-H">D2</a>
-<li><a href="#NWD3ci9XB-1B"><i>&lt;Extract number and esd&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NW3ci9XB-3vMMG4-1">U2</a>, <a href="#NWD3ci9XB-1B">D3</a>
-<li><a href="#NWD3ci9XB-p"><i>&lt;Fake mandatory category information&gt;</i></a>: <a href="#NW3ci9XB-KIB8u-1">U1</a>, <a href="#NWD3ci9XB-p">D2</a>
-<li><a href="#NWD3ci9XB-i"><i>&lt;Get alternative item names&gt;</i></a>: <a href="#NWD3ci9XB-e">U1</a>, <a href="#NWD3ci9XB-i">D2</a>
-<li><a href="#NW3ci9XB-361UlY-1"><i>&lt;Get list of DDL1/2 categories&gt;</i></a>: <a href="#NWD3ci9XB-N">U1</a>, <a href="#NW3ci9XB-361UlY-1">D2</a>
-<li><a href="#NWD3ci9XB-O"><i>&lt;Get list of DDLm categories&gt;</i></a>: <a href="#NWD3ci9XB-N">U1</a>, <a href="#NWD3ci9XB-O">D2</a>
-<li><a href="#NWD3ci9XB-1D"><i>&lt;Get topmost parent&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NWD3ci9XB-1D">D2</a>
+<li><a href="#NWD3ci9XB-1E"><i>&lt;Extract number and esd&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NW3ci9XB-3vMMG4-1">U2</a>, <a href="#NWD3ci9XB-1E">D3</a>
+<li><a href="#NWD3ci9XB-s"><i>&lt;Fake mandatory category information&gt;</i></a>: <a href="#NW3ci9XB-KIB8u-1">U1</a>, <a href="#NWD3ci9XB-s">D2</a>
+<li><a href="#NWD3ci9XB-l"><i>&lt;Get alternative item names&gt;</i></a>: <a href="#NWD3ci9XB-h">U1</a>, <a href="#NWD3ci9XB-l">D2</a>
+<li><a href="#NW3ci9XB-361UlY-1"><i>&lt;Get list of DDL1/2 categories&gt;</i></a>: <a href="#NWD3ci9XB-Q">U1</a>, <a href="#NW3ci9XB-361UlY-1">D2</a>
+<li><a href="#NWD3ci9XB-R"><i>&lt;Get list of DDLm categories&gt;</i></a>: <a href="#NWD3ci9XB-Q">U1</a>, <a href="#NWD3ci9XB-R">D2</a>
+<li><a href="#NWD3ci9XB-1G"><i>&lt;Get topmost parent&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NWD3ci9XB-1G">D2</a>
 <li><a href="#NWD3ci9XB-6"><i>&lt;Initialise Cif Block&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-6">D2</a>
 <li><a href="#NWD3ci9XB-G"><i>&lt;Initialise Cif dictionary&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-G">D2</a>
 <li><a href="#NWD3ci9XB-3"><i>&lt;Initialise data structures&gt;</i></a>: <a href="#NWD3ci9XB-2">U1</a>, <a href="#NWD3ci9XB-3">D2</a>
-<li><a href="#NW3ci9XB-1taQLY-1"><i>&lt;Initialise valid CIF&gt;</i></a>: <a href="#NWD3ci9XB-15">U1</a>, <a href="#NW3ci9XB-1taQLY-1">D2</a>
-<li><a href="#NWD3ci9XB-z"><i>&lt;Initialise with dictionary&gt;</i></a>: <a href="#NWD3ci9XB-y">U1</a>, <a href="#NWD3ci9XB-z">D2</a>
+<li><a href="#NW3ci9XB-1taQLY-1"><i>&lt;Initialise valid CIF&gt;</i></a>: <a href="#NWD3ci9XB-18">U1</a>, <a href="#NW3ci9XB-1taQLY-1">D2</a>
+<li><a href="#NWD3ci9XB-12"><i>&lt;Initialise with dictionary&gt;</i></a>: <a href="#NWD3ci9XB-11">U1</a>, <a href="#NWD3ci9XB-12">D2</a>
 <li><a href="#NWD3ci9XB-J"><i>&lt;Iron out DDL2 strangeness&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-J">D2</a>
-<li><a href="#NWD3ci9XB-Y"><i>&lt;Item-level validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-Y">D2</a>
-<li><a href="#NWD3ci9XB-P"><i>&lt;List all items in a category&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-P">D2</a>
-<li><a href="#NWD3ci9XB-K"><i>&lt;Load categories with DDL2-type information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-K">D2</a>
-<li><a href="#NWD3ci9XB-e"><i>&lt;Loop-level validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-e">D2</a>
-<li><a href="#NW3ci9XB-3xGXtY-1"><i>&lt;Master import routine&gt;</i></a>: <a href="#NWD3ci9XB-R">U1</a>, <a href="#NW3ci9XB-3xGXtY-1">D2</a>
-<li><a href="#NWD3ci9XB-1C"><i>&lt;Merge dictionaries as CIFs&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NWD3ci9XB-1C">D2</a>
+<li><a href="#NWD3ci9XB-b"><i>&lt;Item-level validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-b">D2</a>
+<li><a href="#NWD3ci9XB-S"><i>&lt;List all items in a category&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-S">D2</a>
+<li><a href="#NWD3ci9XB-N"><i>&lt;Load categories with DDL2-type information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-N">D2</a>
+<li><a href="#NWD3ci9XB-h"><i>&lt;Loop-level validation&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-h">D2</a>
+<li><a href="#NWD3ci9XB-M"><i>&lt;Loopify parent-child relationships&gt;</i></a>: <a href="#NWD3ci9XB-J">U1</a>, <a href="#NWD3ci9XB-M">D2</a>
+<li><a href="#NW3ci9XB-3xGXtY-1"><i>&lt;Master import routine&gt;</i></a>: <a href="#NWD3ci9XB-U">U1</a>, <a href="#NW3ci9XB-3xGXtY-1">D2</a>
+<li><a href="#NWD3ci9XB-1F"><i>&lt;Merge dictionaries as CIFs&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NWD3ci9XB-1F">D2</a>
 <li><a href="#NWD3ci9XB-A"><i>&lt;Merge with another block&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-A">D2</a>
-<li><a href="#NWD3ci9XB-L"><i>&lt;Normalise DDLm save frame names&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-L">D2</a>
-<li><a href="#NWD3ci9XB-X"><i>&lt;Optimisation on/off&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-X">D2</a>
-<li><a href="#NWD3ci9XB-M"><i>&lt;Parse DDLm validity information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-M">D2</a>
-<li><a href="#NWD3ci9XB-R"><i>&lt;Perform DDLm imports&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-R">D2</a>
+<li><a href="#NWD3ci9XB-O"><i>&lt;Normalise DDLm save frame names&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-O">D2</a>
+<li><a href="#NWD3ci9XB-a"><i>&lt;Optimisation on/off&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-a">D2</a>
+<li><a href="#NWD3ci9XB-P"><i>&lt;Parse DDLm validity information&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-P">D2</a>
+<li><a href="#NWD3ci9XB-U"><i>&lt;Perform DDLm imports&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-U">D2</a>
+<li><a href="#NWD3ci9XB-L"><i>&lt;Populate parent and child links correctly&gt;</i></a>: <a href="#NWD3ci9XB-J">U1</a>, <a href="#NWD3ci9XB-L">D2</a>
 <li><a href="#NWD3ci9XB-D"><i>&lt;Read in a CIF file&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-D">D2</a>
-<li><a href="#NWD3ci9XB-16"><i>&lt;Redefine add new block&gt;</i></a>: <a href="#NWD3ci9XB-15">U1</a>, <a href="#NWD3ci9XB-16">D2</a>
-<li><a href="#NWD3ci9XB-13"><i>&lt;Redefine item adding and removing&gt;</i></a>: <a href="#NWD3ci9XB-y">U1</a>, <a href="#NWD3ci9XB-13">D2</a>
-<li><a href="#NWD3ci9XB-Q"><i>&lt;Return a single packet by key&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-Q">D2</a>
+<li><a href="#NWD3ci9XB-19"><i>&lt;Redefine add new block&gt;</i></a>: <a href="#NWD3ci9XB-18">U1</a>, <a href="#NWD3ci9XB-19">D2</a>
+<li><a href="#NWD3ci9XB-16"><i>&lt;Redefine item adding and removing&gt;</i></a>: <a href="#NWD3ci9XB-11">U1</a>, <a href="#NWD3ci9XB-16">D2</a>
+<li><a href="#NWD3ci9XB-K"><i>&lt;Repopulate child definitions&gt;</i></a>: <a href="#NWD3ci9XB-J">U1</a>, <a href="#NWD3ci9XB-K">D2</a>
+<li><a href="#NWD3ci9XB-T"><i>&lt;Return a single packet by key&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-T">D2</a>
 <li><a href="#NWD3ci9XB-8"><i>&lt;Return all looped names&gt;</i></a>: <a href="#NWD3ci9XB-5">U1</a>, <a href="#NWD3ci9XB-8">D2</a>
-<li><a href="#NWD3ci9XB-10"><i>&lt;Run data checks&gt;</i></a>: <a href="#NWD3ci9XB-y">U1</a>, <a href="#NWD3ci9XB-10">D2</a>
-<li><a href="#NWD3ci9XB-1A"><i>&lt;Run dictionary validation checks&gt;</i></a>: <a href="#NWD3ci9XB-17">U1</a>, <a href="#NWD3ci9XB-1A">D2</a>
-<li><a href="#NWD3ci9XB-W"><i>&lt;Run validation tests&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-W">D2</a>
-<li><a href="#NWD3ci9XB-s"><i>&lt;Store dREL functions&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-s">D2</a>
-<li><a href="#NWD3ci9XB-u"><i>&lt;Switch on numpy arrays&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-u">D2</a>
-<li><a href="#NWD3ci9XB-17"><i>&lt;Top-level functions&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-17">D2</a>
-<li><a href="#NWD3ci9XB-r"><i>&lt;Transform drel to python&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-r">D2</a>
+<li><a href="#NWD3ci9XB-13"><i>&lt;Run data checks&gt;</i></a>: <a href="#NWD3ci9XB-11">U1</a>, <a href="#NWD3ci9XB-13">D2</a>
+<li><a href="#NWD3ci9XB-1D"><i>&lt;Run dictionary validation checks&gt;</i></a>: <a href="#NWD3ci9XB-1A">U1</a>, <a href="#NWD3ci9XB-1D">D2</a>
+<li><a href="#NWD3ci9XB-Z"><i>&lt;Run validation tests&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-Z">D2</a>
+<li><a href="#NWD3ci9XB-v"><i>&lt;Store dREL functions&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-v">D2</a>
+<li><a href="#NWD3ci9XB-x"><i>&lt;Switch on numpy arrays&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-x">D2</a>
+<li><a href="#NWD3ci9XB-1A"><i>&lt;Top-level functions&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NWD3ci9XB-1A">D2</a>
+<li><a href="#NWD3ci9XB-u"><i>&lt;Transform drel to python&gt;</i></a>: <a href="#NWD3ci9XB-F">U1</a>, <a href="#NWD3ci9XB-u">D2</a>
 <li><a href="#NW3ci9XB-3wFOOY-1"><i>&lt;Transpose data&gt;</i></a>: <a href="#NW3ci9XB-3vMMG4-1">U1</a>, <a href="#NW3ci9XB-3wFOOY-1">D2</a>
 <li><a href="#NW3ci9XB-3vMMG4-1"><i>&lt;Utility functions&gt;</i></a>: <a href="#NWD3ci9XB-1">U1</a>, <a href="#NW3ci9XB-3vMMG4-1">D2</a>
-<li><a href="#NWD3ci9XB-19"><i>&lt;Validate against the given dictionaries&gt;</i></a>: <a href="#NWD3ci9XB-17">U1</a>, <a href="#NWD3ci9XB-19">D2</a>
-<li><a href="#NWD3ci9XB-c"><i>&lt;Validate an enumeration&gt;</i></a>: <a href="#NWD3ci9XB-Y">U1</a>, <a href="#NWD3ci9XB-c">D2</a>
-<li><a href="#NWD3ci9XB-o"><i>&lt;Validate category presence&gt;</i></a>: <a href="#NW3ci9XB-KIB8u-1">U1</a>, <a href="#NWD3ci9XB-o">D2</a>
-<li><a href="#NWD3ci9XB-b"><i>&lt;Validate enumeration range&gt;</i></a>: <a href="#NWD3ci9XB-Y">U1</a>, <a href="#NWD3ci9XB-b">D2</a>
-<li><a href="#NWD3ci9XB-a"><i>&lt;Validate esd presence&gt;</i></a>: <a href="#NWD3ci9XB-Y">U1</a>, <a href="#NWD3ci9XB-a">D2</a>
-<li><a href="#NWD3ci9XB-k"><i>&lt;Validate exclusion rules&gt;</i></a>: <a href="#NWD3ci9XB-j">U1</a>, <a href="#NWD3ci9XB-k">D2</a>
-<li><a href="#NWD3ci9XB-n"><i>&lt;Validate list uniqueness&gt;</i></a>: <a href="#NWD3ci9XB-j">U1</a>, <a href="#NWD3ci9XB-n">D2</a>
-<li><a href="#NWD3ci9XB-g"><i>&lt;Validate loop key&gt;</i></a>: <a href="#NWD3ci9XB-e">U1</a>, <a href="#NWD3ci9XB-g">D2</a>
-<li><a href="#NWD3ci9XB-h"><i>&lt;Validate loop mandatory items&gt;</i></a>: <a href="#NWD3ci9XB-e">U1</a>, <a href="#NWD3ci9XB-h">D2</a>
-<li><a href="#NWD3ci9XB-f"><i>&lt;Validate loop membership&gt;</i></a>: <a href="#NWD3ci9XB-e">U1</a>, <a href="#NWD3ci9XB-f">D2</a>
-<li><a href="#NWD3ci9XB-d"><i>&lt;Validate looping properties&gt;</i></a>: <a href="#NWD3ci9XB-Y">U1</a>, <a href="#NWD3ci9XB-d">D2</a>
-<li><a href="#NWD3ci9XB-l"><i>&lt;Validate parent child relations&gt;</i></a>: <a href="#NWD3ci9XB-j">U1</a>, <a href="#NWD3ci9XB-l">D2</a>
-<li><a href="#NWD3ci9XB-m"><i>&lt;Validate presence of dependents&gt;</i></a>: <a href="#NWD3ci9XB-j">U1</a>, <a href="#NWD3ci9XB-m">D2</a>
-<li><a href="#NWD3ci9XB-Z"><i>&lt;Validate the type of an item&gt;</i></a>: <a href="#NWD3ci9XB-Y">U1</a>, <a href="#NWD3ci9XB-Z">D2</a>
-<li><a href="#NWD3ci9XB-11"><i>&lt;Validation report&gt;</i></a>: <a href="#NWD3ci9XB-y">U1</a>, <a href="#NWD3ci9XB-11">D2</a>
-<li><a href="#NWD3ci9XB-18"><i>&lt;ValidationResult class&gt;</i></a>: <a href="#NWD3ci9XB-17">U1</a>, <a href="#NWD3ci9XB-18">D2</a>
+<li><a href="#NWD3ci9XB-1C"><i>&lt;Validate against the given dictionaries&gt;</i></a>: <a href="#NWD3ci9XB-1A">U1</a>, <a href="#NWD3ci9XB-1C">D2</a>
+<li><a href="#NWD3ci9XB-f"><i>&lt;Validate an enumeration&gt;</i></a>: <a href="#NWD3ci9XB-b">U1</a>, <a href="#NWD3ci9XB-f">D2</a>
+<li><a href="#NWD3ci9XB-r"><i>&lt;Validate category presence&gt;</i></a>: <a href="#NW3ci9XB-KIB8u-1">U1</a>, <a href="#NWD3ci9XB-r">D2</a>
+<li><a href="#NWD3ci9XB-e"><i>&lt;Validate enumeration range&gt;</i></a>: <a href="#NWD3ci9XB-b">U1</a>, <a href="#NWD3ci9XB-e">D2</a>
+<li><a href="#NWD3ci9XB-d"><i>&lt;Validate esd presence&gt;</i></a>: <a href="#NWD3ci9XB-b">U1</a>, <a href="#NWD3ci9XB-d">D2</a>
+<li><a href="#NWD3ci9XB-n"><i>&lt;Validate exclusion rules&gt;</i></a>: <a href="#NWD3ci9XB-m">U1</a>, <a href="#NWD3ci9XB-n">D2</a>
+<li><a href="#NWD3ci9XB-q"><i>&lt;Validate list uniqueness&gt;</i></a>: <a href="#NWD3ci9XB-m">U1</a>, <a href="#NWD3ci9XB-q">D2</a>
+<li><a href="#NWD3ci9XB-j"><i>&lt;Validate loop key&gt;</i></a>: <a href="#NWD3ci9XB-h">U1</a>, <a href="#NWD3ci9XB-j">D2</a>
+<li><a href="#NWD3ci9XB-k"><i>&lt;Validate loop mandatory items&gt;</i></a>: <a href="#NWD3ci9XB-h">U1</a>, <a href="#NWD3ci9XB-k">D2</a>
+<li><a href="#NWD3ci9XB-i"><i>&lt;Validate loop membership&gt;</i></a>: <a href="#NWD3ci9XB-h">U1</a>, <a href="#NWD3ci9XB-i">D2</a>
+<li><a href="#NWD3ci9XB-g"><i>&lt;Validate looping properties&gt;</i></a>: <a href="#NWD3ci9XB-b">U1</a>, <a href="#NWD3ci9XB-g">D2</a>
+<li><a href="#NWD3ci9XB-o"><i>&lt;Validate parent child relations&gt;</i></a>: <a href="#NWD3ci9XB-m">U1</a>, <a href="#NWD3ci9XB-o">D2</a>
+<li><a href="#NWD3ci9XB-p"><i>&lt;Validate presence of dependents&gt;</i></a>: <a href="#NWD3ci9XB-m">U1</a>, <a href="#NWD3ci9XB-p">D2</a>
+<li><a href="#NWD3ci9XB-c"><i>&lt;Validate the type of an item&gt;</i></a>: <a href="#NWD3ci9XB-b">U1</a>, <a href="#NWD3ci9XB-c">D2</a>
+<li><a href="#NWD3ci9XB-14"><i>&lt;Validation report&gt;</i></a>: <a href="#NWD3ci9XB-11">U1</a>, <a href="#NWD3ci9XB-14">D2</a>
+<li><a href="#NWD3ci9XB-1B"><i>&lt;ValidationResult class&gt;</i></a>: <a href="#NWD3ci9XB-1A">U1</a>, <a href="#NWD3ci9XB-1B">D2</a>
 </ul>
 <ul>
 </ul>

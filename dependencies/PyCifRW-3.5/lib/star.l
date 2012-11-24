@@ -93,6 +93,7 @@ _{TrueNonBlank}+            {return(DDATA_NAME);}
 					    return(DEND_SC_LINE);}
 
 ([^\n\r\t \"#$\'_\[\]\0]{TrueNonBlank}*) {return(DDATA_VALUE_1);}
+([^\n\r\t \"#$\'_\0]{TrueNonBlank}*) {return(DDATA_VALUE_OLD);}
 
 \'{TrueChar}*\'  {/* this code borrowed from star.l in
                  starbase.  We can't write a rule in 

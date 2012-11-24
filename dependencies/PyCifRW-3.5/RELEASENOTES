@@ -1,22 +1,17 @@
-Release Notes for PyCIFRW-3.3  
+Release Notes for PyCIFRW-3.5  
 =============================
 
 New in this release
 ===================
 
-This release updates the installation system to the ez-install style
-using Python 'eggs' (analogous to Java 'jars').  The usual 
-'python setup.py install' command will continue to work.
+An overzealous rejection of leading brackets in CIF 1.1 undelimited data values
+has caused grief for countless PyCIFRW users.  The grammar has now been corrected
+to the published specifications, and the compiled scanner fixed to recognise the
+older grammar as well.  The parser will automatically try to find the correct
+grammar if the grammar is not specified (starting from 1.1 and then trying 1.0)
 
-A small bugfix is also included to make the way contents of loop
-packets are addressed consistent.  The dot notation / getattr
-command should always be used, and dictionary style access is no
-longer possible.
-
-Work on DDLm support continues.  Details are not yet documented.
-
-Bug fixes (since 3.0)
-=====================
+Changes since 3.0
+=================
 
 (3.0)
 * deepcopy failed when copying CifFile objects due to the
@@ -65,6 +60,11 @@ block is performed sensibly.
 * Loop packets were inconsistently returned as either dictionaries or lists,
   depending on the method of access; this has been fixed so that now they
   always look like lists with attributes corresponding to the data name
+
+(3.4)
+* This release contains an extensive bugfix for incorrect handling of
+parent-child entries in DDL2 dictionaries, leading to a failure to
+validate DDL2 dictionaries.
 
 Improvements/Changes (since 3.0)
 ================================

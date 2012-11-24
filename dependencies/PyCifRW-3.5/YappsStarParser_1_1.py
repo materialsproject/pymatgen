@@ -137,7 +137,8 @@ class StarParserScanner(yappsrt.Scanner):
         ('start_sc_line', re.compile('(\n|\r\n);([^\n\r])*(\r\n|\r|\n)+')),
         ('sc_line_of_text', re.compile('[^;\r\n]([^\r\n])*(\r\n|\r|\n)+')),
         ('end_sc_line', re.compile(';')),
-        ('data_value_1', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_\\(\\{\\[\\]][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
+        ('data_value_1', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_\\[\\]][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
+        ('data_value_old', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
         ('END', re.compile('$')),
     ]
     def __init__(self, str):

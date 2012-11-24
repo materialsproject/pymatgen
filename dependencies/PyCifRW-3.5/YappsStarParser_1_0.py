@@ -137,7 +137,8 @@ class StarParserScanner(yappsrt.Scanner):
         ('start_sc_line', re.compile('(\n|\r\n);([^\n\r])*(\r\n|\r|\n)+')),
         ('sc_line_of_text', re.compile('[^;\r\n]([^\r\n])*(\r\n|\r|\n)+')),
         ('end_sc_line', re.compile(';')),
-        ('data_value_1', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
+        ('data_value_1', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_\\[\\]][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
+        ('data_value_old', re.compile('((?!(((S|s)(A|a)(V|v)(E|e)_[^\\s]*)|((G|g)(L|l)(O|o)(B|b)(A|a)(L|l)_[^\\s]*)|((S|s)(T|t)(O|o)(P|p)_[^\\s]*)|((D|d)(A|a)(T|t)(A|a)_[^\\s]*)))[^\\s"#$\'_][^\\s]*)|\'((\'(?=\\S))|([^\n\r\x0c\']))*\'+|"(("(?=\\S))|([^\n\r"]))*"+')),
         ('END', re.compile('$')),
     ]
     def __init__(self, str):
@@ -203,10 +204,13 @@ class StarParser(yappsrt.Parser):
 
     def data_value(self, _parent=None):
         _context = self.Context(_parent, self._scanner, self._pos, 'data_value', [])
-        _token = self._peek('data_value_1', 'start_sc_line')
+        _token = self._peek('data_value_1', 'data_value_old', 'start_sc_line')
         if _token == 'data_value_1':
             data_value_1 = self._scan('data_value_1')
             thisval = stripstring(data_value_1)
+        elif _token == 'data_value_old':
+            data_value_old = self._scan('data_value_old')
+            thisval = stripstring(data_value_old)
         else: # == 'start_sc_line'
             sc_lines_of_text = self.sc_lines_of_text(_context)
             thisval = stripextras(sc_lines_of_text)
@@ -234,7 +238,7 @@ class StarParser(yappsrt.Parser):
     def loopfield(self, _parent=None):
         _context = self.Context(_parent, self._scanner, self._pos, 'loopfield', [])
         toploop=LoopBlock(dimension=1,overwrite=False);curloop=toploop;poploop=None;dim=1
-        while self._peek('data_name', 'LBLOCK', 'STOP', 'data_value_1', 'start_sc_line') not in ['data_value_1', 'start_sc_line']:
+        while self._peek('data_name', 'LBLOCK', 'STOP', 'data_value_1', 'data_value_old', 'start_sc_line') in ['data_name', 'LBLOCK', 'STOP']:
             _token = self._peek('data_name', 'LBLOCK', 'STOP')
             if _token == 'data_name':
                 data_name = self._scan('data_name')
@@ -245,24 +249,24 @@ class StarParser(yappsrt.Parser):
             else: # == 'STOP'
                 STOP = self._scan('STOP')
                 curloop=poploop;dim=dim-1
-        if self._peek() not in ['data_name', 'LBLOCK', 'STOP', 'data_value_1', 'start_sc_line']:
-            raise yappsrt.SyntaxError(charpos=self._scanner.get_prev_char_pos(), context=_context, msg='Need one of ' + ', '.join(['data_name', 'LBLOCK', 'STOP', 'data_value_1', 'start_sc_line']))
+        if self._peek() not in ['data_name', 'LBLOCK', 'STOP', 'data_value_1', 'data_value_old', 'start_sc_line']:
+            raise yappsrt.SyntaxError(charpos=self._scanner.get_prev_char_pos(), context=_context, msg='Need one of ' + ', '.join(['data_name', 'LBLOCK', 'STOP', 'data_value_1', 'data_value_old', 'start_sc_line']))
         return toploop
 
     def loopvalues(self, _parent=None):
         _context = self.Context(_parent, self._scanner, self._pos, 'loopvalues', [])
         data_value = self.data_value(_context)
         dataloop=[[data_value]]
-        while self._peek('data_value_1', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading') in ['data_value_1', 'STOP', 'start_sc_line']:
-            _token = self._peek('data_value_1', 'STOP', 'start_sc_line')
+        while self._peek('data_value_1', 'data_value_old', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading') in ['data_value_1', 'data_value_old', 'STOP', 'start_sc_line']:
+            _token = self._peek('data_value_1', 'data_value_old', 'STOP', 'start_sc_line')
             if _token != 'STOP':
                 data_value = self.data_value(_context)
                 dataloop[-1].append(monitor('loopval',data_value))
             else: # == 'STOP'
                 STOP = self._scan('STOP')
                 dataloop.append([])
-        if self._peek() not in ['data_value_1', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading']:
-            raise yappsrt.SyntaxError(charpos=self._scanner.get_prev_char_pos(), context=_context, msg='Need one of ' + ', '.join(['data_value_1', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading']))
+        if self._peek() not in ['data_value_1', 'data_value_old', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading']:
+            raise yappsrt.SyntaxError(charpos=self._scanner.get_prev_char_pos(), context=_context, msg='Need one of ' + ', '.join(['data_value_1', 'data_value_old', 'STOP', 'start_sc_line', 'LBLOCK', 'data_name', 'save_end', 'save_heading', 'END', 'data_heading']))
         return dataloop
 
     def save_frame(self, _parent=None):

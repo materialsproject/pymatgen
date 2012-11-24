@@ -56,6 +56,17 @@ class CifLoopBlock(StarFile.LoopBlock):
             raise  CifError( 'Attempt to insert inner loop, loop level %d' % dimension)
         StarFile.LoopBlock.insert_loop(self,newloop,**kwargs)
 
+    def Loopify(self,datanamelist):
+        if self.dimension > 0:
+            return
+        else: 
+            StarFile.LoopBlock.Loopify(self,datanamelist)
+            # convert new loop to CifLoopBlock
+            newloop = self.GetLoop(datanamelist[0])
+            cifloop = CifLoopBlock(newloop)
+            self.remove_loop(newloop)
+            self.insert_loop(cifloop)
+
 class CifBlock(CifLoopBlock):
     def __init__(self,data = (), strict = 1, maxoutlength=2048,wraplength=80,overwrite=True,dimension=0):
         self.strict = strict
@@ -462,61 +473,129 @@ class CifDic(StarFile.BlockCollection):
             (base_types,base_constructs,prim_types)
             ))
      
+    def create_pcloop(self,definition):
+        old_children = self[definition].get('_item_linked.child_name',[])
+        old_parents = self[definition].get('_item_linked.parent_name',[])
+        if isinstance(old_children,StringType): 
+             old_children = [old_children]
+        if isinstance(old_parents,StringType): 
+             old_parents = [old_parents]
+        if (len(old_children)==0 and len(old_parents)==0) or \
+           (len(old_children) > 1 and len(old_parents)>1):
+             return
+        if len(old_children)==0:
+             old_children = [definition]*len(old_parents)
+        if len(old_parents)==0:
+             old_parents = [definition]*len(old_children)
+        newloop = CifLoopBlock(dimension=1)
+        newloop.AddLoopItem(('_item_linked.parent_name',old_parents)) 
+        newloop.AddLoopItem(('_item_linked.child_name',old_children)) 
+        try:
+            del self[definition]['_item_linked.parent_name']
+            del self[definition]['_item_linked.child_name']
+        except KeyError:
+            pass
+        self[definition].insert_loop(newloop)
+            
+        
+
     def DDL2_normalise(self):
        listed_defs = filter(lambda a:isinstance(self[a].get('_item.name'),ListType),self.keys()) 
        # now filter out all the single element lists!
        dodgy_defs = filter(lambda a:len(self[a]['_item.name']) > 1, listed_defs)
        for item_def in dodgy_defs:
-          # print "DDL2 norm: processing %s" % item_def
-          thisdef = self[item_def]
-          packet_no = thisdef['_item.name'].index(item_def)
-          realcat = thisdef['_item.category_id'][packet_no] 
-          realmand = thisdef['_item.mandatory_code'][packet_no]
-          # first add in all the missing categories
-          # we don't replace the entry in the list corresponding to the
-          # current item, as that would wipe out the information we want
-          for child_no in range(len(thisdef['_item.name'])):
-              if child_no == packet_no: continue
-              child_name = thisdef['_item.name'][child_no]
-              child_cat = thisdef['_item.category_id'][child_no]
-              child_mand = thisdef['_item.mandatory_code'][child_no]
-              if not self.has_key(child_name):
-                  self[child_name] = CifBlock()
-                  self[child_name]['_item.name'] = child_name
-              self[child_name]['_item.category_id'] = child_cat
-              self[child_name]['_item.mandatory_code'] = child_mand
-          self[item_def]['_item.name'] = item_def
-          self[item_def]['_item.category_id'] = realcat
-          self[item_def]['_item.mandatory_code'] = realmand
-       # go through any _item_linked tables
-       dodgy_defs = filter(lambda a:isinstance(self[a].get('_item_linked.child_name'),ListType),self.keys()) 
-       dodgy_defs = filter(lambda a:len(self[a]['_item_linked.child_name']) > 1, dodgy_defs)
+                # print "DDL2 norm: processing %s" % item_def
+                thisdef = self[item_def]
+                packet_no = thisdef['_item.name'].index(item_def)
+                realcat = thisdef['_item.category_id'][packet_no] 
+                realmand = thisdef['_item.mandatory_code'][packet_no]
+                # first add in all the missing categories
+                # we don't replace the entry in the list corresponding to the
+                # current item, as that would wipe out the information we want
+                for child_no in range(len(thisdef['_item.name'])):
+                    if child_no == packet_no: continue
+                    child_name = thisdef['_item.name'][child_no]
+                    child_cat = thisdef['_item.category_id'][child_no]
+                    child_mand = thisdef['_item.mandatory_code'][child_no]
+                    if not self.has_key(child_name):
+                        self[child_name] = CifBlock()
+                        self[child_name]['_item.name'] = child_name
+                    self[child_name]['_item.category_id'] = child_cat
+                    self[child_name]['_item.mandatory_code'] = child_mand
+                self[item_def]['_item.name'] = item_def
+                self[item_def]['_item.category_id'] = realcat
+                self[item_def]['_item.mandatory_code'] = realmand
+
+       target_defs = filter(lambda a:self[a].has_key('_item_linked.child_name') or \
+                                     self[a].has_key('_item_linked.parent_name'),self.keys())
+       # now dodgy_defs contains all definition blocks with more than one child/parent link
+       for item_def in dodgy_defs: self.create_pcloop(item_def)           #regularise appearance
        for item_def in dodgy_defs:
-          thisdef = self[item_def]
-          child_list = thisdef.get('_item_linked.child_name',[])
-          parents = thisdef.get('_item_linked.parent_name',[])
-          # zap the parents, they will confuse us!!
-          del thisdef['_item_linked.parent_name']
-          if isinstance(child_list,StringType):
-              self[child_list]['_item_linked.parent_name'] = parents
-              self[parents]['_item_linked.child_name'] = child_list 
-          else:
-              # for each parent, find the list of children.
-              family = map(None,parents,child_list)
-              notmychildren = family
-              while len(notmychildren):
-                  # get all children of first entry
-                  mychildren = filter(lambda a:a[0]==notmychildren[0][0],family)
-                  # print "Parent %s: %d children" % (notmychildren[0][0],len(mychildren))
-                  for parent,child in mychildren:   #parent is the same for all
-                      self[child]['_item_linked.parent_name'] = parent
-                  # put all the children into the parent
-                  try:
-                      del self[mychildren[0][0]]['_item_linked.child_name']
-                  except ValueError: pass
-                  self[mychildren[0][0]]['_item_linked.child_name'] = map(lambda a:a[1],mychildren)
-                  # now make a new,smaller list
-                  notmychildren = filter(lambda a:a[0]!=mychildren[0][0],notmychildren)
+             print 'Processing %s' % item_def
+             thisdef = self[item_def]
+             child_list = thisdef['_item_linked.child_name']
+             parents = thisdef['_item_linked.parent_name']
+             # for each parent, find the list of children.
+             family = zip(parents,child_list)
+             notmychildren = family         #We aim to remove non-children
+             # Loop over the parents, relocating as necessary
+             while len(notmychildren):
+                # get all children of first entry
+                mychildren = filter(lambda a:a[0]==notmychildren[0][0],family)
+                print "Parent %s: %d children" % (notmychildren[0][0],len(mychildren))
+                for parent,child in mychildren:   #parent is the same for all
+                         # Make sure that we simply add in the new entry for the child, not replace it,
+                         # otherwise we might spoil the child entry loop structure
+                         try:
+                             childloop = self[child].GetLoop('_item_linked.parent_name')
+                         except KeyError:
+                             print 'Creating new parent entry %s for definition %s' % (parent,child)
+                             self[child]['_item_linked.parent_name'] = [parent]
+                             childloop = self[child].GetLoop('_item_linked.parent_name')
+                             childloop.AddLoopItem(('_item_linked.child_name',[child]))
+                             continue
+                         else:
+                             # A parent loop already exists and so will a child loop due to the
+                             # call to create_pcloop above
+                             pars = [a for a in childloop if getattr(a,'_item_linked.child_name','')==child]
+                             goodpars = [a for a in pars if getattr(a,'_item_linked.parent_name','')==parent]
+                             if len(goodpars)>0:   #no need to add it
+                                 print 'Skipping duplicated parent - child entry in %s: %s - %s' % (child,parent,child)
+                                 continue
+                             print 'Adding %s to %s entry' % (parent,child)
+                             newpacket = childloop.GetPacket(0)   #essentially a copy, I hope
+                             setattr(newpacket,'_item_linked.child_name',child)
+                             setattr(newpacket,'_item_linked.parent_name',parent)
+                             childloop.AddPacket(newpacket)
+                #
+                # Make sure the parent also points to the children.  We get
+                # the current entry, then add our 
+                # new values if they are not there already
+                # 
+                parent_name = mychildren[0][0]
+                old_children = self[parent_name].get('_item_linked.child_name',[])
+                old_parents = self[parent_name].get('_item_linked.parent_name',[])
+                oldfamily = zip(old_parents,old_children)
+                newfamily = []
+                print 'Old parents -> %s' % `old_parents`
+                for jj, childname in mychildren:
+                    alreadythere = filter(lambda a:a[0]==parent_name and a[1] ==childname,oldfamily)
+                    if len(alreadythere)>0: continue
+                    'Adding new child %s to parent definition at %s' % (childname,parent_name)
+                    old_children.append(childname)
+                    old_parents.append(parent_name)
+                # Now output the loop, blowing away previous definitions.  If there is something
+                # else in this category, we are destroying it.
+                newloop = CifLoopBlock(dimension=1)
+                newloop.AddLoopItem(('_item_linked.parent_name',old_parents))
+                newloop.AddLoopItem(('_item_linked.child_name',old_children))
+                del self[parent_name]['_item_linked.parent_name']
+                del self[parent_name]['_item_linked.child_name']
+                self[parent_name].insert_loop(newloop)
+                print 'New parents -> %s' % `self[parent_name]['_item_linked.parent_name']`
+                # now make a new,smaller list
+                notmychildren = filter(lambda a:a[0]!=mychildren[0][0],notmychildren)
+
        # now flatten any single element lists
        single_defs = filter(lambda a:len(self[a]['_item.name'])==1,listed_defs)
        for flat_def in single_defs:
@@ -1956,7 +2035,7 @@ def find_parent(ddl2_def):
     return result[0]
 
 
-def ReadCif(filename,strict=1,maxlength=2048,scantype="standard",grammar="1.1"):
+def ReadCif(filename,strict=1,maxlength=2048,scantype="standard",grammar=None):
     proto_cif = StarFile.ReadStar(filename,maxlength,scantype=scantype,grammar=grammar)
     # convert to CifFile
     proto_cif = CifFile(proto_cif)
