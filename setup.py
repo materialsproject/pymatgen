@@ -67,7 +67,7 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version=__version__,
-    install_requires=["numpy>=1.5", "pyhull>=1.3.3"],
+    install_requires=["numpy>=1.5", "pyhull>=1.3.5"],
     dependency_links = [
         "https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.5.tar.gz"
     ],
