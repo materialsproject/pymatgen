@@ -6,6 +6,7 @@ char * tokens[] = {"END","LBLOCK","GLOBAL","STOP",
 		 "data_heading","data_name",
 		 "start_sc_line","sc_line_of_text",
 		 "end_sc_line","data_value_1",
+                 "data_value_old",
 		 "(error)"};
 char * input_string;     /* where flex gets input */
 size_t string_pos;          /* current position */
@@ -41,4 +42,5 @@ extern size_t in_string_len;
 #define DSC_LINE_OF_TEXT 9
 #define DEND_SC_LINE 10 
 #define DDATA_VALUE_1 11
-#define DERROR 12
+#define DDATA_VALUE_OLD 12
+#define DERROR 13

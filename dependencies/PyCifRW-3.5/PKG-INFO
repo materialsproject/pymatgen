@@ -1,8 +1,8 @@
 Metadata-Version: 1.0
 Name: PyCifRW
-Version: 3.3
+Version: 3.5
 Summary: CIF/STAR file support for Python
-Home-page: http://pycifrw.berlios.de
+Home-page: https://bitbucket.org/jamesrhester/pycifrw/wiki/Home
 Author: James Hester
 Author-email: jamesrhester at gmail.com
 License: UNKNOWN

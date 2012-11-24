@@ -26,7 +26,7 @@ clean:
 YappsStarParser_1_0.py: YappsStarParser.nw
 	notangle -R1.0_syntax YappsStarParser.nw > YappsStarParser_1_0.g
 	python ./yapps3/yapps2.py YappsStarParser_1_0.g
-#
+ 
 YappsStarParser_1_1.py: YappsStarParser.nw
 	notangle -R1.1_syntax YappsStarParser.nw > YappsStarParser_1_1.g
 	python ./yapps3/yapps2.py YappsStarParser_1_1.g

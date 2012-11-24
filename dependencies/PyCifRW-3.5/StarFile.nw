@@ -70,7 +70,7 @@ current block.  Same as typing [['del block[item]']]
 \item [[GetLoop(dataname)]]: for looped data item [[dataname]], get a list
 of all itemnames and values co-occurring in this loop.  Returns an error
 if [[dataname]] is not in a loop.
-\item [[AddLoop(dataname,data)]]: add [[data]] to the loop containing
+\item [[AddToLoop(dataname,data)]]: add [[data]] to the loop containing
 [[dataname]].  If dataname is not a looped item, an error is returned.
 If (data) has the wrong length, an error is returned. 
 \item [[loops()]]: return a list containing all looped names, grouped into
@@ -472,7 +472,7 @@ We allow fast reads using the compiled StarScan module
 by passing the option 'flex' to this routine.  We also permit an
 already-opened stream to be passed to us (thanks to Boris Dusek for
 this contribution).  There are 3 possible syntax variations: very old
-CIF files allowed unquoted data values to begin with open brackets,
+CIF files allowed unquoted data values to begin with open square brackets,
 version 1.1 disallowed this, and DDLm-conformant files interpret these
 as actual bracket expressions.  The different grammars are
 selected by a command-line switch.
@@ -481,14 +481,10 @@ We save our URL for possible later use in finding files relative to the location
 this file e.g. with DDLm dictionary imports.
 
 <<Read in a STAR file>>=
-def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar='1.1'):
+def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar=None):
     import string
-    if grammar=="1.1":
-        import YappsStarParser_1_1 as Y
-    elif grammar=="1.0":
-        import YappsStarParser_1_0 as Y
-    elif grammar=="DDLm":
-        import YappsStarParser_DDLm as Y
+    import YappsStarParser_1_1 as Y1
+    import YappsStarParser_1_0 as Y0
     if isinstance(filename,basestring):
         filestream = urlopen(filename)
     else:
@@ -512,15 +508,31 @@ def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar
         if toolong:
             pos = split.index(toolong[0])
             raise StarError( 'Line %d contains more than %d characters' % (pos+1,maxlength))
-    try: 
+    if grammar is None: 
+        target_grammars = (Y1,Y0)
+    elif grammar =='1.1':
+        target_grammars = (Y1,)
+    elif grammar =='1.0':
+        target_grammars = (Y0,)
+    elif grammar=="DDLm":
+        import YappsStarParser_DDLm as YM
+        target_grammars = (YM,)
+    grammar_found = False
+    for Y in target_grammars:
+      try:
 	if scantype == 'standard':
             parser = Y.StarParser(Y.StarParserScanner(text))
         else:
 	    parser = Y.StarParser(Y.yappsrt.Scanner(None,[],text,scantype='flex'))
         proto_star = getattr(parser,"input")()
-    except Y.yappsrt.SyntaxError:
+      except Y.yappsrt.SyntaxError:
         errorstring = 'Syntax error in input file: last value parsed was %s' % Y.lastval
         errorstring = errorstring + '\nParser status: %s' % `parser._scanner`
+        continue
+      else:
+        grammar_found = True
+        break
+    if not grammar_found:
         raise StarError( errorstring)
     # duplication check on all blocks
     audit_result = map(lambda a:(a,proto_star[a].audit()),proto_star.keys())
@@ -587,6 +599,7 @@ class LoopBlock:
     <<Audit for repeated names>>
     <<Get co-looped names>>
     <<Add to looped data>>
+    <<Transform a group of tags to a subgroup>>
     <<Functions for printing out>>
 
 @ If given non-zero data to initialise the block with, we either
@@ -1152,6 +1165,21 @@ def AddToLoop(self,dataname,loopdata):
     for itemname,itemvalue in loopdata.items():
         thisloop[itemname] = itemvalue
 
+@ A single-valued set of tags at the top level is isomorphic to those tags
+placed in a loop with a single packet.  Likewise, looped data can be
+transferred to a star sub-loop.
+
+<<Transform a group of tags to a subgroup>>=
+def Loopify(self,datanamelist):
+    thisloop = self.GetLoop(datanamelist[0])
+    badmatch = filter(lambda a:a in datanamelist,thisloop.keys())
+    if len(badmatch)==len(datanamelist):    #all at same level so is OK
+        newloop = LoopBlock(dimension=self.dimension+1)
+        for name in datanamelist: 
+            newloop[name]=[self[name]]
+            del self[name]
+        self.insert_loop(newloop) 
+ 
 @ Removing a data item.  We delete the item, and if it is looped, and
 nothing is left in the loop, we remove that element of the list. 
 

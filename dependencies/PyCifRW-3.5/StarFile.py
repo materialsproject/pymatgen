@@ -565,6 +565,16 @@ class LoopBlock:
         for itemname,itemvalue in loopdata.items():
             thisloop[itemname] = itemvalue
 
+    def Loopify(self,datanamelist):
+        thisloop = self.GetLoop(datanamelist[0])
+        badmatch = filter(lambda a:a in datanamelist,thisloop.keys())
+        if len(badmatch)==len(datanamelist):    #all at same level so is OK
+            newloop = LoopBlock(dimension=self.dimension+1)
+            for name in datanamelist: 
+                newloop[name]=[self[name]]
+                del self[name]
+            self.insert_loop(newloop) 
+     
     def SetOutputLength(self,wraplength=80,maxoutlength=2048):
         if wraplength > maxoutlength:
             raise StarError("Wrap length (requested %d) must be <= Maximum line length (requested %d)" % (wraplength,maxoutlength))
@@ -1003,14 +1013,10 @@ class StarLengthError(Exception):
         self.value = value
     def __str__(self):
         return '\nStar length error: ' + self.value
-def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar='1.1'):
+def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar=None):
     import string
-    if grammar=="1.1":
-        import YappsStarParser_1_1 as Y
-    elif grammar=="1.0":
-        import YappsStarParser_1_0 as Y
-    elif grammar=="DDLm":
-        import YappsStarParser_DDLm as Y
+    import YappsStarParser_1_1 as Y1
+    import YappsStarParser_1_0 as Y0
     if isinstance(filename,basestring):
         filestream = urlopen(filename)
     else:
@@ -1034,15 +1040,31 @@ def ReadStar(filename,maxlength=2048,dest=StarFile(),scantype='standard',grammar
         if toolong:
             pos = split.index(toolong[0])
             raise StarError( 'Line %d contains more than %d characters' % (pos+1,maxlength))
-    try: 
+    if grammar is None: 
+        target_grammars = (Y1,Y0)
+    elif grammar =='1.1':
+        target_grammars = (Y1,)
+    elif grammar =='1.0':
+        target_grammars = (Y0,)
+    elif grammar=="DDLm":
+        import YappsStarParser_DDLm as YM
+        target_grammars = (YM,)
+    grammar_found = False
+    for Y in target_grammars:
+      try:
         if scantype == 'standard':
             parser = Y.StarParser(Y.StarParserScanner(text))
         else:
             parser = Y.StarParser(Y.yappsrt.Scanner(None,[],text,scantype='flex'))
         proto_star = getattr(parser,"input")()
-    except Y.yappsrt.SyntaxError:
+      except Y.yappsrt.SyntaxError:
         errorstring = 'Syntax error in input file: last value parsed was %s' % Y.lastval
         errorstring = errorstring + '\nParser status: %s' % `parser._scanner`
+        continue
+      else:
+        grammar_found = True
+        break
+    if not grammar_found:
         raise StarError( errorstring)
     # duplication check on all blocks
     audit_result = map(lambda a:(a,proto_star[a].audit()),proto_star.keys())
