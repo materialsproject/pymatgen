@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-A master convenience script for many tools for vasp analysis.
+A master convenience script with many tools for vasp and structure analysis.
 """
 
 from __future__ import division
