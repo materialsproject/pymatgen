@@ -274,13 +274,10 @@ class PhaseDiagram (object):
             logger.debug("Removing vertical facets...")
             finalfacets = []
             for facet in facets:
-                print facet
                 facetmatrix = np.zeros((len(facet), len(facet)))
                 count = 0
                 is_element_facet = True
                 for vertex in facet:
-                    print vertex
-                    print qhull_data[vertex]
                     facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
