@@ -233,17 +233,16 @@ class PhaseDiagram (object):
         logger.debug("Creating convex hull data...")
         #Determine the elemental references based on lowest energy for each.
         el_refs = {}
-        for entry in self._all_entries:
-            comp = entry.composition
-            if comp.is_element:
-                for el in comp.elements:
-                    if comp[el] > Composition.amount_tolerance:
-                        break
-                e_per_atom = entry.energy_per_atom
-                if el not in el_refs:
-                    el_refs[el] = entry
-                elif el_refs[el].energy_per_atom > e_per_atom:
-                    el_refs[el] = entry
+
+        for el in self._elements:
+            el_entries = filter(lambda e: e.composition.is_element and
+                                          e.composition.elements[0] == el,
+                                self._all_entries)
+            if len(el_entries) == 0:
+                raise PhaseDiagramError("There are no entries associated with"
+                                        " terminal {}.".format(el))
+            el_refs[el] = sorted(el_entries,
+                                 key=lambda e: e.energy_per_atom)[0]
         self._el_refs = el_refs
         # Remove positive formation energy entries
         entries_to_process = list()
@@ -463,3 +462,19 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #into the phase space. We ignore them.
                 pass
         return new_entries, sp_mapping
+
+
+class PhaseDiagramError(Exception):
+    """
+    An exception class for Phase Diagram.
+    """
+    def __init__(self, msg):
+        """
+        Args:
+            msg:
+                The error message.
+        """
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
