@@ -227,8 +227,7 @@ class PhaseDiagram (object):
             if len(el_entries) == 0:
                 raise PhaseDiagramError("There are no entries associated with"
                                         " terminal {}.".format(el))
-            el_refs[el] = sorted(el_entries,
-                                 key=lambda e: e.energy_per_atom)[0]
+            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
         return el_refs
 
     def _create_convhull_data(self):
