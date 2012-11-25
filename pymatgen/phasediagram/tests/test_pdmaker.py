@@ -4,15 +4,25 @@ import os
 from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, CompoundPhaseDiagram
+    GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
 
 
 class PhaseDiagramTest(unittest.TestCase):
 
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
+        (self.elements, self.entries) = \
+            PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
         self.pd = PhaseDiagram(self.entries)
+
+    def test_init(self):
+        #Ensure that a bad set of entries raises a PD error. Remove all Li
+        #from self.entries.
+        entries = filter(lambda e: (not e.composition.is_element) or
+                                   e.composition.elements[0] != Element("Li"),
+                         self.entries)
+        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries,
+                          self.elements)
 
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula
