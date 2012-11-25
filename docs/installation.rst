@@ -153,46 +153,6 @@ run it.
 	python setup.py build
 	python setup.py install
 
-Spglib (tested on v1.2)
------------------------
-
-Mac OS X 10.7
-~~~~~~~~~~~~~
-
-Download spglib from http://spglib.sourceforge.net/ and then enter the following
-commands:
-
-::
-
-	tar -zxvf spglib-1.1.2.tar.gz
-	cd spglib-1.1.2
-	./configure
-	make
-	sudo make install
-	cd python/ase
-	sudo python setup.py install
-
-If you are using the version in the dependencies directory of pymatgen, you can
-simply do:
-
-::
-
-   cd dependencies/spglib-1.2
-   sudo python setup.py install
-
-Qhull (tested on v2012.1)
--------------------------
-
-Mac OS X 10.7
-~~~~~~~~~~~~~
-
-Typical installation with make fails with the following error:
-
-	cc1plus: error: unrecognized command line option "-Wno-sign-conversion"
-
-Simply removing "-Wno-sign-conversion" where it appears in the Makefile and then
-doing make followed by make install works fine.
-
 VTK (tested on v5.10.0)
 -----------------------
 
