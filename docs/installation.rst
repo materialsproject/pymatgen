@@ -8,11 +8,7 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyspglib 1.2+: For symmetry finding. Needed if you are using the
-   pymatgen.symmetry, pymatgen.transformation and pymatgen.alchemy packages.
-   From pymatgen v2.1 onwards, pyspglib should be automatically compiled as an
-   extension during the install process via setup.py.
-4. pyhull 1.1+: For generation of phase diagrams.
+3. pyhull 1.1+: For generation of phase diagrams.
 
 Optional Python Libraries
 -------------------------
