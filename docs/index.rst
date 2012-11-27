@@ -52,14 +52,13 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
-   algo using data-mined ICSD data.
-2. Speed up and improvements to core classes.
-3. Improved structure fitter (credits to Geoffroy Hautier).
-4. Brand new entry_tools module (pymatgen.entries.entry_tools).
-5. Vastly improved Outcar parser based on reverse parsing that speeds up
-   reading of OUTCAR files by orders of magnitude.
-6. Miscellaneous bug fixes.
+1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
+   Please note that this change implies that the pyhull package is now a
+   required dependency. If you install pymatgen through the usual
+   easy_install or pip install methods, this should be taken care of
+   automatically for you. Otherwise, please look for the pyhull package on
+   PyPI to download and install it.
+2. Miscellaneous bug fixes.
 
 :doc:`Older versions </changelog>`
 
@@ -83,14 +82,14 @@ or::
 to install pymatgen with most of the dependencies set up. Otherwise,
 the latest stable source can be downloaded at the `PyPI`_ site as well. Note
 that you may need to *install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib library used for symmetry analysis*.
+distutils is needed to compile the spglib extension used for symmetry
+analysis*.
 
 Developmental version
 ---------------------
 
 Alternatively, the bleeding edge developmental version is at the public
-pymatgen's `Github repo
-<https://github.com/materialsproject/pymatgen/tarball/master>`_. The
+pymatgen's `Github repo <https://github.com/materialsproject/pymatgen>`_. The
 developmental version is likely to be more buggy, but may contain new
 features. Note that the GitHub versions include test files as well for
 complete unit testing.
@@ -146,7 +145,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze,plot,convert,symm,view} additional_arguments
+    matgenie.py {analyze, plot, convert, symm, view} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
@@ -227,9 +226,8 @@ The above illustrates only the most basic capabilities of pymatgen.
 Advanced Usage
 --------------
 
-Users are strongly encouraged to explore the
-detailed :doc:`usage pages </usage>` (toc given below), and
-:doc:`the API docs </modules>`.
+Users are strongly encouraged to explore the detailed :doc:`usage pages
+</usage>` (toc given below), and :doc:`the API docs </modules>`.
 
 .. toctree::
    :maxdepth: 2
@@ -282,8 +280,8 @@ methods. They are available at this link below
 
 :doc:`pymatgen API docs </modules>`.
 
-Citing pymatgen
-===============
+How to cite pymatgen
+====================
 
 If you use pymatgen in your research, please consider citing the following
 work:
@@ -300,8 +298,8 @@ In addition, some of pymatgen's functionality is based on scientific advances
 If you use some of these functionality in your research, you may wish to
 consider citing the following works:
 
-pymatgen.io.vaspio_set module
------------------------------
+pymatgen.io.vaspio_set
+----------------------
 
 The MIT parameter sets, which are optimized for high-throughput computing, are
 outlined the following work:
@@ -312,8 +310,8 @@ outlined the following work:
    50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
    <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
 
-pymatgen.phasediagram package
------------------------------
+pymatgen.phasediagram
+---------------------
 
 The phase diagram code, in particular the grand canonical phase diagram
 analysis, is based on the work of Ong et al. and are used in following works:
@@ -328,8 +326,8 @@ analysis, is based on the work of Ong et al. and are used in following works:
    427-430. `doi:10.1016/j.elecom.2010.01.010
    <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
 
-pymatgen.entries.compatibility module
--------------------------------------
+pymatgen.entries.compatibility
+------------------------------
 
 The compatibility processing, which allows mixing of GGA and GGA+U runs that
 have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
@@ -339,6 +337,23 @@ is based on the following work:
    G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
    Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
    <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
+
+pymatgen.matproj
+----------------
+
+The matproj package contains an interface to the `Materials Project REST API
+<http://www.materialsproject.org/open>`_ (Materials API). If you use data
+from the Materials Project, please cite the following works:
+
+    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+    K. Persson, G. Ceder. *A high-throughput infrastructure for density
+    functional theory calculations.* Computational Materials Science, 2011,
+    50(8), 2295–2310. `doi:10 .1016/j.commatsci.2011.02.023
+    <http://dx.doi.org/10 .1016/j.commatsci.2011.02.023>`_
+
+    S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
+    D. Skinner, K. Persson, G. Ceder. *The Materials Project.*
+    http://materialsproject.org/
 
 pymatgen.symmetry
 -----------------

@@ -18,12 +18,13 @@ import numpy as np
 import itertools
 import collections
 
+from pyhull.convex_hull import ConvexHull
+from pyhull.simplex import Simplex
+
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
-from pymatgen.comp_geometry.simplex import Simplex
-from pymatgen.util.coord_utils import get_convex_hull
 
 
 class PDAnalyzer(object):
@@ -51,7 +52,6 @@ class PDAnalyzer(object):
                 Phase Diagram to analyze.
         """
         self._pd = pd
-        self._use_external_qhull = pd.use_external_qhull
 
     def _make_comp_matrix(self, complist):
         """
@@ -174,8 +174,7 @@ class PDAnalyzer(object):
         if entry.is_element:
             return 0
         entries = [e for e in self._pd.stable_entries if e != entry]
-        modpd = PhaseDiagram(entries, self._pd.elements,
-                             use_external_qhull=self._use_external_qhull)
+        modpd = PhaseDiagram(entries, self._pd.elements)
         analyzer = PDAnalyzer(modpd)
         return analyzer.get_decomp_and_e_above_hull(entry)[1]
 
@@ -270,8 +269,8 @@ class PDAnalyzer(object):
 
         for c in chempots:
             gcpd = GrandPotentialPhaseDiagram(
-                stable_entries, {element: c - 0.01},
-                self._pd.elements, use_external_qhull=self._use_external_qhull)
+                stable_entries, {element: c - 0.01}, self._pd.elements
+            )
             analyzer = PDAnalyzer(gcpd)
             decomp = [gcentry.original_entry.composition for gcentry,
                       amt in analyzer.get_decomposition(gccomp).items()
@@ -321,8 +320,7 @@ class PDAnalyzer(object):
         el_energies = {el: pd.el_refs[el].energy_per_atom
                        for el in elements}
         chempot_ranges = collections.defaultdict(list)
-        for ufacet in get_convex_hull(
-                all_chempots, use_external_qhull=self._use_external_qhull):
+        for ufacet in ConvexHull(all_chempots).vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
                 data2 = facets[combi[1]]

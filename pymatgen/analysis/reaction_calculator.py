@@ -17,6 +17,7 @@ __date__ = "Jul 11 2012"
 import logging
 import itertools
 import numpy as np
+import re
 from collections import defaultdict
 
 from pymatgen.serializers.json_coders import MSONable
@@ -308,6 +309,17 @@ class Reaction(MSONable):
         """
         return self.normalized_repr_and_factor()[0]
 
+    def __eq__(self, other):
+        if other is None:
+            return False
+        for comp in self._all_comp:
+            if self.get_coeff(comp) != other.get_coeff(comp):
+                return False
+        return True
+
+    def __hash__(self):
+        return 7
+
     def __repr__(self):
         return self.__str__()
 
@@ -330,12 +342,10 @@ class Reaction(MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["reactants"] = [comp.to_dict for comp in self._input_reactants]
-        d["products"] = [comp.to_dict for comp in self._input_products]
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "reactants": [comp.to_dict for comp in self._input_reactants],
+                "products": [comp.to_dict for comp in self._input_products]}
 
     @staticmethod
     def from_dict(d):
@@ -383,12 +393,13 @@ class BalancedReaction(Reaction):
 
     def __init__(self, reactants_coeffs, products_coeffs):
         """
-        Reactants and products to be specified as dict of
-        pymatgen.core.structure.Composition : coeff.
+        Reactants and products to be specified as dict of {Composition: coeff}.
 
         Args:
-            reactants : Reactants as dict of {Composition: amt}.
-            products : Products as dict of {Composition: amt}.
+            reactants:
+                Reactants as dict of {Composition: amt}.
+            products:
+                Products as dict of {Composition: amt}.
         """
 
         coeffs = []
@@ -433,16 +444,12 @@ class BalancedReaction(Reaction):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        #String comp needed because comp.to_dict results in dict which is
-        #non-hashable
-        d["reactants"] = {str(comp): coeff
-                          for comp, coeff in self._input_rct.items()}
-        d["products"] = {str(comp): coeff
-                         for comp, coeff in self._input_prd.items()}
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "reactants": {str(comp): coeff
+                              for comp, coeff in self._input_rct.items()},
+                "products": {str(comp): coeff
+                             for comp, coeff in self._input_prd.items()}}
 
     @staticmethod
     def from_dict(d):
@@ -451,6 +458,25 @@ class BalancedReaction(Reaction):
         products = {Composition(comp): coeff
                     for comp, coeff in d["products"].items()}
         return BalancedReaction(reactants, products)
+
+    @staticmethod
+    def from_string(rxn_string):
+        """
+        Generates a balanced reaction from a string. The reaciton must
+        already be balanced.
+
+        Args:
+            rxn_string:
+                The reaction string. For example, "4 Li + O2-> 2Li2O"
+
+        Returns:
+            BalancedReaction
+        """
+        rct_str, prod_str = rxn_string.split("->")
+        def get_comp_amt(comp_str):
+            return {Composition(m.group(2)): float(m.group(1) or 1)
+                    for m in re.finditer("([\d\.]*)\s*([A-Z][\w\.]*)", comp_str)}
+        return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 
 class ComputedReaction(Reaction):
@@ -494,14 +520,10 @@ class ComputedReaction(Reaction):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        #String comp needed because comp.to_dict results in dict which is
-        #non-hashable
-        d["reactants"] = [e.to_dict for e in self._reactant_entries]
-        d["products"] = [e.to_dict for e in self._product_entries]
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "reactants": [e.to_dict for e in self._reactant_entries],
+                "products": [e.to_dict for e in self._product_entries]}
 
     @staticmethod
     def from_dict(d):

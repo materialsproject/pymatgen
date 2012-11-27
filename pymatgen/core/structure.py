@@ -1052,7 +1052,12 @@ class StructureError(Exception):
     """
 
     def __init__(self, msg):
+        """
+        Args:
+            msg:
+                The error message.
+        """
         self.msg = msg
 
     def __str__(self):
-        return "Structure Error : " + self.msg
+        return self.msg

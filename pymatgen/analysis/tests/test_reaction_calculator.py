@@ -1,7 +1,7 @@
 import unittest
 
 from pymatgen import Composition
-from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
+from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction,\
     ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
 
@@ -9,7 +9,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 class ReactionTest(unittest.TestCase):
 
     def test_init(self):
-
         reactants = [Composition("Fe"),
                      Composition("O2")]
         products = [Composition("Fe2O3")]
@@ -98,6 +97,16 @@ class ReactionTest(unittest.TestCase):
                           "1.000 LiLa3Ti3CrO12 -> 1.500 La2Ti2O3 + 2.750 O2 + 1.000 LiCrO2",
                           "Wrong reaction obtained!")
 
+    def test_equals(self):
+        reactants = [Composition("Fe"),
+                     Composition("O2")]
+        products = [Composition("Fe2O3")]
+        rxn = Reaction(reactants, products)
+        reactants = [Composition("O2"), Composition("Fe")]
+        products = [Composition("Fe2O3")]
+        rxn2 = Reaction(reactants, products)
+        self.assertTrue(rxn == rxn2)
+
     def test_normalize_to(self):
         products = [Composition("Fe"), Composition("O2")]
         reactants = [Composition("Fe2O3")]
@@ -107,11 +116,10 @@ class ReactionTest(unittest.TestCase):
                           "Wrong reaction obtained!")
 
     def test_calculate_energy(self):
-
         reactants = [Composition("MgO"), Composition("Al2O3")]
         products = [Composition("MgAl2O4")]
-        energies = {Composition("MgO"):-0.1, Composition("Al2O3"):-0.2,
-                    Composition("MgAl2O4"):-0.5}
+        energies = {Composition("MgO"): -0.1, Composition("Al2O3"): -0.2,
+                    Composition("MgAl2O4"): -0.5}
         rxn = Reaction(reactants, products)
         self.assertEquals(str(rxn),
                           "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
@@ -119,12 +127,13 @@ class ReactionTest(unittest.TestCase):
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.2, 5)
 
     def test_products_reactants(self):
-        reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"), Composition("O2")]
+        reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"),
+                     Composition("O2")]
         products = [Composition("LiFePO4")]
-        energies = {Composition("Li3Fe2(PO4)3"):-0.1,
-                    Composition("Fe2O3"):-0.2,
-                    Composition("O2"):-0.2,
-                    Composition("LiFePO4"):-0.5}
+        energies = {Composition("Li3Fe2(PO4)3"): -0.1,
+                    Composition("Fe2O3"): -0.2,
+                    Composition("O2"): -0.2,
+                    Composition("LiFePO4"): -0.5}
         rxn = Reaction(reactants, products)
 
         self.assertIn(Composition("O2"), rxn.products, "O not in products!")
@@ -132,7 +141,8 @@ class ReactionTest(unittest.TestCase):
                       "Li3Fe2(PO4)4 not in reactants!")
         self.assertEquals(str(rxn),
                           "0.333 Li3Fe2(PO4)3 + 0.167 Fe2O3 -> 0.250 O2 + 1.000 LiFePO4")
-        self.assertEquals(rxn.normalized_repr, "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
+        self.assertEquals(rxn.normalized_repr,
+                          "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.48333333, 5)
 
     def test_to_from_dict(self):
@@ -145,7 +155,6 @@ class ReactionTest(unittest.TestCase):
 
 
 class BalancedReactionTest(unittest.TestCase):
-
     def test_init(self):
         rct = {Composition('K2SO4'): 3, Composition('Na2S'): 1,
                Composition('Li'): 24}
@@ -153,7 +162,7 @@ class BalancedReactionTest(unittest.TestCase):
                 Composition('Li2O'): 12}
         rxn = BalancedReaction(rct, prod)
         self.assertEquals(str(rxn),
-                          "24.000 Li + 1.000 Na2S + 3.000 K2SO4 -> 12.000 Li2O + 2.000 K2S + 2.000 KNaS")
+                          '1.000 Na2S + 24.000 Li + 3.000 K2SO4 -> 12.000 Li2O + 2.000 K2S + 2.000 KNaS')
 
         #Test unbalanced exception
         rct = {Composition('K2SO4'): 1,
@@ -173,17 +182,22 @@ class BalancedReactionTest(unittest.TestCase):
         for comp in new_rxn.all_comp:
             self.assertEqual(new_rxn.get_coeff(comp), rxn.get_coeff(comp))
 
+    def test_from_string(self):
+        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1},
+                               {Composition("Li2O"): 2})
+        self.assertEqual(rxn,
+                         BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
+
 
 class ComputedReactionTest(unittest.TestCase):
-
     def setUp(self):
-        d = [{"correction": 0.0, "data": {}, "energy":-108.56492362,
+        d = [{"correction": 0.0, "data": {}, "energy": -108.56492362,
               "parameters": {}, "composition": {"Li": 54}},
-             {"correction": 0.0, "data": {}, "energy":-577.94689128,
+             {"correction": 0.0, "data": {}, "energy": -577.94689128,
               "parameters": {}, "composition": {"O": 32, "Li": 64}},
-             {"correction": 0.0, "data": {}, "energy":-17.02844794,
+             {"correction": 0.0, "data": {}, "energy": -17.02844794,
               "parameters": {}, "composition": {"O": 2}},
-             {"correction": 0.0, "data": {}, "energy":-959.64693323,
+             {"correction": 0.0, "data": {}, "energy": -959.64693323,
               "parameters": {}, "composition": {"O": 72, "Li": 72}}]
         entries = []
         for e in d:
