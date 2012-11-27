@@ -12,15 +12,18 @@ __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Jul 11, 2012"
+__date__ = "Nov 25, 2012"
 
-import numpy as np
 import collections
 import logging
 
+import numpy as np
+
+from pyhull.convex_hull import ConvexHull
+
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
-from pymatgen.util.coord_utils import get_convex_hull
+
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
@@ -42,12 +45,40 @@ class PhaseDiagram (object):
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
 
-    .. attribute:: use_external_qhull
+    .. attribute: elements:
 
-        If set to True, the code will use an external command line call to
-        Qhull to calculate the convex hull data. This requires the user to have
-        qhull installed and the executables "qconvex" available in the path.
-        Otherwise, the code uses scipy.spatial.Delaunay.
+        Elements in the phase diagram.
+
+    ..attribute: all_entries
+
+        All entries provided for Phase Diagram construction. Note that this
+        does not mean that all these entries are actually used in the phase
+        diagram. For example, this includes the positive formation energy
+        entries that are filtered out before Phase Diagram construction.
+
+    .. attribute: qhull_data
+
+        Data used in the convex hull operation. This is essentially a matrix of
+        composition data and energy per atom values created from qhull_entries.
+
+    .. attribute: dim
+
+        The dimensionality of the phase diagram.
+
+    .. attribute: facets
+
+        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
+
+    .. attribute: el_refs:
+
+        List of elemental references for the phase diagrams. These are
+        entries corresponding to the lowest energy element entries for simple
+        compositional phase diagrams.
+
+    .. attribute: qhull_entries:
+
+        Actual entries used in convex hull. Excludes all positive formation
+        energy entries.
     """
 
     # Tolerance for determining if formation energy is positive.
@@ -65,75 +96,46 @@ class PhaseDiagram (object):
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the the entries themselves.
             use_external_qhull:
-                If set to True, the code will use an external command line call
-                to Qhull to calculate the convex hull data. This requires the
-                user to have qhull installed and the executables "qconvex"
-                available in his path. By default, the code uses the
-                scipy.spatial.Delaunay.
-
-                The benefit of using external qhull is that a) it is much
-                faster, especially for higher-dimensional hulls with many
-                entries, and b) it is more robustly tested. The scipy Delaunay
-                class is relatively new, and we have found some issues with
-                higher-dimensional hulls, with nonsensical results given in
-                some instances. Nonetheless, scipy Delaunay seems to work well
-                enough for phase diagrams with < 4 components.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        self._all_entries = entries
-        self._elements = tuple(elements)
-        self.use_external_qhull = use_external_qhull
-        self._make_phasediagram()
+        self.all_entries = entries
+        self.elements = tuple(elements)
+        dim = len(self.elements)
+        self.el_refs = self._get_el_refs()
+        (self.qhull_entries, qhull_data) = self._create_convhull_data()
+        if len(qhull_data) == dim:
+            self.facets = [range(dim)]
+        else:
+            facets = ConvexHull(qhull_data).vertices
+            logger.debug("Final facets are\n{}".format(facets))
 
-    @property
-    def all_entries(self):
-        """
-        All entries provided for Phase Diagram construction. Note that this
-        does not mean that all these entries are actually used in the phase
-        diagram. For example, this includes the positive formation energy
-        entries that are filtered out before Phase Diagram construction.
-        """
-        return self._all_entries
-
-    @property
-    def dim(self):
-        """
-        The dimensionality of the phase diagram
-        """
-        return len(self._elements)
-
-    @property
-    def elements(self):
-        """
-        Elements in the phase diagram.
-        """
-        return self._elements
-
-    @property
-    def facets(self):
-        """
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
-        """
-        return self._facets
-
-    @property
-    def qhull_data(self):
-        """
-        Data used in the convex hull operation. This is essentially a matrix of
-        composition data and energy per atom values created from qhull_entries.
-        """
-        return self._qhull_data
-
-    @property
-    def qhull_entries(self):
-        """
-        Actual entries used in convex hull. Excludes all positive formation
-        energy entries.
-        """
-        return self._qhull_entries
+            logger.debug("Removing vertical facets...")
+            finalfacets = []
+            for facet in facets:
+                facetmatrix = np.zeros((len(facet), len(facet)))
+                count = 0
+                is_element_facet = True
+                for vertex in facet:
+                    facetmatrix[count] = np.array(qhull_data[vertex])
+                    facetmatrix[count, dim - 1] = 1
+                    count += 1
+                    if len(self.qhull_entries[vertex].composition) > 1:
+                        is_element_facet = False
+                if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
+                   (not is_element_facet):
+                    finalfacets.append(facet)
+                else:
+                    logger.debug("Removing vertical facet : {}".format(facet))
+            self.facets = finalfacets
+        self.qhull_data = qhull_data
+        self.dim = dim
 
     @property
     def unstable_entries(self):
@@ -148,24 +150,19 @@ class PhaseDiagram (object):
         """
         Returns the stable entries in the phase diagram.
         """
-        return self._stable_entries
+        stable_entries = set()
+        for facet in self.facets:
+            for vertex in facet:
+                stable_entries.add(self.qhull_entries[vertex])
+        return stable_entries
 
     @property
     def all_entries_hulldata(self):
         """
-        Same as qhull_data, but for all entries rather than just positive
+        Same as qhull_data, but for all entries rather than just negative
         formation energy ones.
         """
-        return self._process_entries_qhulldata(self._all_entries)
-
-    @property
-    def el_refs(self):
-        """
-        List of elemental references for the phase diagrams. These are
-        entries corresponding to the lowest energy element entries for simple
-        compositional phase diagrams.
-        """
-        return self._el_refs
+        return self._process_entries_qhulldata(self.all_entries)
 
     def get_form_energy(self, entry):
         """
@@ -181,7 +178,7 @@ class PhaseDiagram (object):
         """
         comp = entry.composition
         energy = entry.energy - sum([comp[el] *
-                                     self._el_refs[el].energy_per_atom
+                                     self.el_refs[el].energy_per_atom
                                      for el in comp.elements])
         return energy
 
@@ -212,16 +209,26 @@ class PhaseDiagram (object):
         elemental fraction is fixed by the constraint that all compositions sum
         to 1. The choice of the elements is arbitrary.
         """
-        data = []
-        for entry in entries_to_process:
+        def make_row(entry):
             comp = entry.composition
-            energy_per_atom = entry.energy_per_atom
-            row = []
-            for i in xrange(1, len(self._elements)):
-                row.append(comp.get_atomic_fraction(self._elements[i]))
-            row.append(energy_per_atom)
-            data.append(row)
-        return data
+            row = [comp.get_atomic_fraction(self.elements[i])
+                   for i in xrange(1, len(self.elements))]
+            row.append(entry.energy_per_atom)
+            return row
+
+        return map(make_row, entries_to_process)
+
+    def _get_el_refs(self):
+        el_refs = {}
+        for el in self.elements:
+            el_entries = filter(lambda e: e.composition.is_element and
+                                          e.composition.elements[0] == el,
+                                self.all_entries)
+            if len(el_entries) == 0:
+                raise PhaseDiagramError("There are no entries associated with"
+                                        " terminal {}.".format(el))
+            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
+        return el_refs
 
     def _create_convhull_data(self):
         """
@@ -238,80 +245,27 @@ class PhaseDiagram (object):
         3. Generate the convex hull data.
         """
         logger.debug("Creating convex hull data...")
-        #Determine the elemental references based on lowest energy for each.
-        el_refs = {}
-        for entry in self._all_entries:
-            comp = entry.composition
-            if comp.is_element:
-                for el in comp.elements:
-                    if comp[el] > Composition.amount_tolerance:
-                        break
-                e_per_atom = entry.energy_per_atom
-                if el not in el_refs:
-                    el_refs[el] = entry
-                elif el_refs[el].energy_per_atom > e_per_atom:
-                    el_refs[el] = entry
-        self._el_refs = el_refs
         # Remove positive formation energy entries
-        entries_to_process = list()
-        for entry in self._all_entries:
+        qhull_entries = []
+        for entry in self.all_entries:
             if self.get_form_energy(entry) <= -self.formation_energy_tol:
-                entries_to_process.append(entry)
+                qhull_entries.append(entry)
             else:
                 logger.debug("Removing positive formation energy entry " +
                              "{}".format(entry))
-        entries_to_process.extend([entry for entry in el_refs.values()])
+        qhull_entries.extend(self.el_refs.values())
 
-        self._qhull_entries = entries_to_process
-        return self._process_entries_qhulldata(entries_to_process)
-
-    def _make_phasediagram(self):
-        """
-        Make the phase diagram.
-        """
-        stable_entries = set()
-        dim = len(self._elements)
-        qhull_data = self._create_convhull_data()
-        if len(qhull_data) == dim:
-            self._facets = [range(dim)]
-        else:
-            facets = get_convex_hull(qhull_data,
-                                     self.use_external_qhull)
-            logger.debug("Final facets are\n{}".format(facets))
-
-            logger.debug("Removing vertical facets...")
-            finalfacets = list()
-            for facet in facets:
-                facetmatrix = np.zeros((len(facet), len(facet)))
-                count = 0
-                is_element_facet = True
-                for vertex in facet:
-                    facetmatrix[count] = np.array(qhull_data[vertex])
-                    facetmatrix[count, dim - 1] = 1
-                    count += 1
-                    if len(self._qhull_entries[vertex].composition) > 1:
-                        is_element_facet = False
-                if abs(np.linalg.det(facetmatrix)) > 1e-8 and \
-                   (not is_element_facet):
-                    finalfacets.append(facet)
-                else:
-                    logger.debug("Removing vertical facet : {}".format(facet))
-            self._facets = finalfacets
-        for facet in self._facets:
-            for vertex in facet:
-                stable_entries.add(self._qhull_entries[vertex])
-        self._qhull_data = qhull_data
-        self._stable_entries = stable_entries
+        return qhull_entries, self._process_entries_qhulldata(qhull_entries)
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        symbols = [el.symbol for el in self._elements]
+        symbols = [el.symbol for el in self.elements]
         output = ["{} phase diagram".format("-".join(symbols)),
-                  "{} stable phases: ".format(len(self._stable_entries)),
+                  "{} stable phases: ".format(len(self.stable_entries)),
                   ", ".join([entry.name
-                             for entry in self._stable_entries])]
+                             for entry in self.stable_entries])]
         return "\n".join(output)
 
 
@@ -353,10 +307,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the entries themselves.
             use_external_qhull:
-                If set to True, the code will use an external command line call
-                to Qhull to calculate the convex hull data instead of
-                scipy.spatial.Delaunay. See the doc for the PhaseDiagram class
-                for an explanation of the pros and cons.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
@@ -368,18 +322,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         self.chempots = chempots
         filteredels = filter(lambda el: el not in chempots, elements)
         elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements,
-                                                         use_external_qhull)
+        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements)
 
     def __str__(self):
         output = []
-        chemsys = "-".join([el.symbol for el in self._elements])
+        chemsys = "-".join([el.symbol for el in self.elements])
         output.append("{} grand potential phase diagram with ".format(chemsys))
         output[-1] += ", ".join(["u{}={}".format(el, v)
                                  for el, v in self.chempots.items()])
-        output.append("{} stable phases: ".format(len(self._stable_entries)))
+        output.append("{} stable phases: ".format(len(self.stable_entries)))
         output.append(", ".join([entry.name
-                                 for entry in self._stable_entries]))
+                                 for entry in self.stable_entries]))
         return "\n".join(output)
 
 
@@ -404,8 +357,10 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 Terminal compositions of phase space. In the Li2O-P2O5 example,
                 these will be the Li2O and P2O5 compositions.
             use_external_qhull:
-                Similar to PhaseDiagram, set to True if you wish to use
-                external qhull command.
+                .. deprecated:: 2.3.0
+                    Since v2.3.0, pymatgen uses the pyhull package to generate
+                    convex hulls. This parameter is no longer used and is
+                    retained purely for backwards compatibility.
             normalize_terminal_compositions:
                 Whether to normalize the terminal compositions to a per atom
                 basis. If normalized, the energy above hulls will be consistent
@@ -419,8 +374,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
         PhaseDiagram.__init__(self, pentries,
-                              elements=species_mapping.values(),
-                              use_external_qhull=use_external_qhull)
+                              elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """
@@ -471,3 +425,19 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #into the phase space. We ignore them.
                 pass
         return new_entries, sp_mapping
+
+
+class PhaseDiagramError(Exception):
+    """
+    An exception class for Phase Diagram.
+    """
+    def __init__(self, msg):
+        """
+        Args:
+            msg:
+                The error message.
+        """
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg

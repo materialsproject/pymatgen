@@ -1,11 +1,10 @@
 import glob
 import os
+import sys
 
 from distribute_setup import use_setuptools
 use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
-from numpy.distutils.misc_util import get_numpy_include_dirs
-from pymatgen import __version__
 
 long_description = """
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -24,54 +23,54 @@ designers. These are some of the main features:
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
-The pymatgen library is free (as in free beer) to download and to use.
-However, we would also like you to help us improve this library by making your
-own contributions as well.  These contributions can be in the form of
-additional tools or modules you develop, or even simple things such as bug
-reports. Please contact the maintainer of this library (shyue@mit.edu) to find
-out how to include your contributions via github or for bug reports.
-Note that pymatgen, like all scientific research, will always be a work in
-progress. While the development team will always strive to avoid backward
-incompatible changes, they are sometimes unavoidable, and tough decisions have
-to be made for the long term health of the code.
-For documentation and usage guide, please refer to the latest documentation at
-our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+
+The latest stable version of pymatgen and its accompanying documentation
+(http://packages.python.org/pymatgen) is always on PyPI. The
+bleeding edge developmental version is available at our GitHub repo at
+https://github.com/materialsproject/pymatgen. If you wish to
 be notified via email of pymatgen releases, you may become a member of
 pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
 """
 
-# Get spglib
-spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
-if len(spglibs) == 0:
-    raise ValueError("No spglib found in dependencies/")
-spglibdir = spglibs[0]
+try:
+    from numpy.distutils.misc_util import get_numpy_include_dirs
+except ImportError:
+    print "numpy.distutils.misc_util cannot be imported."
+    print "numpy.distutils.misc_util is needed to build the spglib extension."
+    print "Please install numpy first before retrying setup."
+    sys.exit(-1)
 
-# set rest of spglib
-spgsrcdir = os.path.join(spglibdir, "src")
-include_dirs = [spgsrcdir]
-sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
-           "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
-           "sitesym_database.c", "site_symmetry.c", "spacegroup.c", "spin.c",
-           "spg_database.c", "spglib.c", "symmetry.c"]
-sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+def get_spglib_ext():
+    # Get spglib
+    spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
+    if len(spglibs) == 0:
+        raise ValueError("No spglib found in dependencies/")
+    spglibdir = spglibs[0]
 
-extension = Extension("pymatgen._spglib",
-                      include_dirs=include_dirs + get_numpy_include_dirs(),
-                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources
-                      )
-
-scripts = [os.path.join("scripts", f) for f in os.listdir("scripts")]
+    # set rest of spglib
+    spgsrcdir = os.path.join(spglibdir, "src")
+    include_dirs = [spgsrcdir]
+    sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
+               "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
+               "sitesym_database.c", "site_symmetry.c", "spacegroup.c", "spin.c",
+               "spg_database.c", "spglib.c", "symmetry.c"]
+    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+    return Extension("pymatgen._spglib",
+                     include_dirs=include_dirs + get_numpy_include_dirs(),
+                     sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
 
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version=__version__,
-    install_requires=["numpy>=1.5"],
-    extras_require={"phasediagrams": ["scipy>=0.10"],
+    version="2.3.0",
+    install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3"],
+    dependency_links = [
+        "https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.5.tar.gz"
+    ],
+    extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
-                    "ase_adaptor": ["ase>=3.3"],
-                    "cif": ["PyCifRW>=3.3"]},
+                    "ase_adaptor": ["ase>=3.3"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
@@ -104,6 +103,6 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     download_url="https://github.com/materialsproject/pymatgen/tarball/master",
-    ext_modules=[extension],
-    scripts=scripts
+    ext_modules=[get_spglib_ext()],
+    scripts=[os.path.join("scripts", f) for f in os.listdir("scripts")]
 )

@@ -181,7 +181,7 @@ class Lattice(MSONable):
         Returns:
             Hexagonal lattice of dimensions a x a x c.
         """
-        return Lattice.from_parameters(a, a, c, 90.0, 90.0, 120.0)
+        return Lattice.from_parameters(a, a, c, 90, 90, 120)
 
     @staticmethod
     def rhombohedral(a, alpha):

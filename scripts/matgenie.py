@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-A master convenience script for many tools for vasp analysis.
+A master convenience script with many tools for vasp and structure analysis.
 """
 
 from __future__ import division
@@ -168,7 +168,6 @@ def parse_vasp(args):
             get_energies(d, args.reanalyze, args.verbose, args.pretty,
                          args.detailed, args.sort[0])
     if args.ion_list:
-        ion_list = list()
         if args.ion_list[0] == "All":
             ion_list = None
         else:

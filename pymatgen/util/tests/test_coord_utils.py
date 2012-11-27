@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 25, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -15,7 +15,8 @@ __date__ = "Apr 25, 2012"
 
 import unittest
 
-from pymatgen.util.coord_utils import get_linear_interpolated_value, in_coord_list, get_convex_hull
+from pymatgen.util.coord_utils import get_linear_interpolated_value, \
+    in_coord_list
 
 class CoordUtilsTest(unittest.TestCase):
 
@@ -31,16 +32,5 @@ class CoordUtilsTest(unittest.TestCase):
         self.assertFalse(in_coord_list(coords, test_coord))
         self.assertTrue(in_coord_list(coords, test_coord, atol=0.15))
 
-    def test_get_convex_hull(self):
-        coords = [[0, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0], [0.2, 0.1, 0.2]]
-        hull1 = get_convex_hull(coords)
-        hull2 = get_convex_hull(coords, True)
-        hull1 = [set(l) for l in hull1]
-        hull2 = [set(l) for l in hull2]
-        self.assertEqual(hull1, hull2)
-        for l in hull1:
-            self.assertNotIn(4, l)
-
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -236,7 +236,7 @@ class BVAnalyzer(object):
                 scores[tuple(v_set)] = score
 
         if scores:
-            best = sorted(scores.keys(), key=lambda k: scores[k])[-1]
+            best = max(scores.keys(), key=lambda k: scores[k])
             assigned = {}
             for val, sites in zip(best, equi_sites):
                 for site in sites:

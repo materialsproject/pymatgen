@@ -14,11 +14,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
-import warnings
 import math
-import logging
-
-from pymatgen.command_line.qhull_caller import qconvex
 
 
 def in_coord_list(coord_list, coord, **kwargs):
@@ -69,35 +65,6 @@ def get_linear_interpolated_value(x_values, y_values, x):
     y2 = val_dict[x2]
 
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
-
-
-def get_convex_hull(coords, use_external_qhull=False):
-    """
-    Convenience method to compute convex hull for data using either scipy or
-    an external call to qconvex.
-
-    Args:
-        coords:
-            Sequence of sequence of floats, representing coordinates in N-D
-            space.
-        use_external_qhull:
-            Set to True to force the use of the command line qhull.
-
-    Returns:
-        List of list of int, representing facets of the convex hull.
-    """
-    logger = logging.getLogger(__name__)
-    if not use_external_qhull:
-        try:
-            from scipy.spatial import Delaunay
-            logger.debug("call Delaunay. coords={}".format(str(coords)))
-            delau = Delaunay(coords)
-            return delau.convex_hull
-        except ImportError:
-            warnings.warn("Error importing scipy.spatial. "
-                          "Ignoring use_external_qhull = False and "
-                          "attempting command-line qhull.")
-    return qconvex(coords)
 
 
 def coords_to_unit_cell(coords):

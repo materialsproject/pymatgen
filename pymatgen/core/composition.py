@@ -169,7 +169,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             #Ignore elements with zero amounts.
             if self[el] > self.amount_tolerance:
                 hashcode += el.Z
-        return 7
+        return hashcode
 
     def __contains__(self, el):
         return el in self._elmap
@@ -257,13 +257,13 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
-            return (re.sub("\s", "", self.formula), 1)
+            return self.formula.replace(" ", ""), 1
 
         (formula, factor) = reduce_formula(self.to_dict)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
-            factor = factor / 2
+            factor /= 2
 
         return formula, factor
 
@@ -453,13 +453,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns:
             A dict with many keys and values relating to Composition/Formula
         """
-        d = {}
-        d["reduced_cell_composition"] = self.to_reduced_dict
-        d["unit_cell_composition"] = self.to_dict
-        d["reduced_cell_formula"] = self.reduced_formula
-        d["elements"] = self.to_dict.keys()
-        d["nelements"] = len(self.to_dict.keys())
-        return d
+        return {"reduced_cell_composition": self.to_reduced_dict,
+                "unit_cell_composition": self.to_dict,
+                "reduced_cell_formula": self.reduced_formula,
+                "elements": self.to_dict.keys(),
+                "nelements": len(self.to_dict.keys())}
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
@@ -591,7 +589,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 return (f.replace(m.group(), "", 1), m_dict, m_points + points)
 
             #else return None
-            return (None, None, None)
+            return None, None, None
 
         fuzzy_formula = fuzzy_formula.strip()
 
@@ -707,7 +705,7 @@ def reduce_formula(sym_amt):
 
     reduced_form = "".join(reduced_form)
 
-    return (reduced_form, factor)
+    return reduced_form, factor
 
 
 if __name__ == "__main__":

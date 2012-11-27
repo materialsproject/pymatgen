@@ -25,11 +25,3 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`qhull_caller` Module
---------------------------
-
-.. automodule:: pymatgen.command_line.qhull_caller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
