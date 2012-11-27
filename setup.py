@@ -23,18 +23,11 @@ designers. These are some of the main features:
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
-The pymatgen library is free (as in free beer) to download and to use.
-However, we would also like you to help us improve this library by making your
-own contributions as well.  These contributions can be in the form of
-additional tools or modules you develop, or even simple things such as bug
-reports. Please contact the maintainer of this library (shyue@mit.edu) to find
-out how to include your contributions via github or for bug reports.
-Note that pymatgen, like all scientific research, will always be a work in
-progress. While the development team will always strive to avoid backward
-incompatible changes, they are sometimes unavoidable, and tough decisions have
-to be made for the long term health of the code.
-For documentation and usage guide, please refer to the latest documentation at
-our github page (http://materialsproject.github.com/pymatgen/). If you wish to
+
+The latest stable version of pymatgen and its accompanying documentation
+(http://packages.python.org/pymatgen) is always on PyPI. The
+bleeding edge developmental version is available at our GitHub repo at
+https://github.com/materialsproject/pymatgen. If you wish to
 be notified via email of pymatgen releases, you may become a member of
 pymatgen's Google Groups page
 (https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
