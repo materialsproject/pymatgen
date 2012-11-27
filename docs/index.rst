@@ -89,8 +89,7 @@ Developmental version
 ---------------------
 
 Alternatively, the bleeding edge developmental version is at the public
-pymatgen's `Github repo
-<https://github.com/materialsproject/pymatgen/tarball/master>`_. The
+pymatgen's `Github repo <https://github.com/materialsproject/pymatgen>`_. The
 developmental version is likely to be more buggy, but may contain new
 features. Note that the GitHub versions include test files as well for
 complete unit testing.
@@ -146,7 +145,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze,plot,convert,symm,view} additional_arguments
+    matgenie.py {analyze, plot, convert, symm, view} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
