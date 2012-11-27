@@ -12,9 +12,9 @@ Required for proper functioning of the code
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyhull 1.1+: For generation of phase diagrams.
-4. PyCifRW: For reading and writing Crystallographic Information Format (CIF)
-   files.
+3. pyhull 1.3.6+: For generation of phase diagrams.
+4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
+   (CIF) files.
 
 Optional Python Libraries
 -------------------------
