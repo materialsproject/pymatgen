@@ -71,14 +71,13 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="2.3.0dev",
-    install_requires=["numpy>=1.5", "pyhull>=1.3.6"],
+    install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3"],
     dependency_links = [
         "https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.5.tar.gz"
     ],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
-                    "ase_adaptor": ["ase>=3.3"],
-                    "cif": ["PyCifRW>=3.3"]},
+                    "ase_adaptor": ["ase>=3.3"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
