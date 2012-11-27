@@ -63,7 +63,7 @@ def get_spglib_ext():
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.3.0dev",
+    version="2.3.0",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3"],
     dependency_links = [
         "https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.5.tar.gz"
