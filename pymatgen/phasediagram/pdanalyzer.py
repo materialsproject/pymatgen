@@ -109,16 +109,13 @@ class PDAnalyzer(object):
             Decomposition as a dict of {PDEntry: amount}
         """
         facet = self._get_facet(comp)
-        complist = [self._pd.qhull_entries[i].composition for i in facet]
-        m = self._make_comp_matrix(complist)
+        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
+        m = self._make_comp_matrix(comp_list)
         compm = self._make_comp_matrix([comp])
-        decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
-        decomp = dict()
-        #Scrub away zero amounts
-        for i in xrange(len(decompamts)):
-            if abs(decompamts[i][0]) > PDAnalyzer.numerical_tol:
-                decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
-        return decomp
+        decomp_amts = np.linalg.solve(m.T, compm.T)
+        return {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
+                for i in xrange(len(decomp_amts))
+                if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
 
     def get_decomp_and_e_above_hull(self, entry):
         """
@@ -132,14 +129,14 @@ class PDAnalyzer(object):
             (decomp, energy above convex hull)  Stable entries should have
             energy above hull of 0.
         """
+        if entry in self._pd.stable_entries:
+            return {entry: 1}, 0
         comp = entry.composition
-        eperatom = entry.energy_per_atom
+        ehull = entry.energy_per_atom
         decomp = self.get_decomposition(comp)
-        hullenergy = sum([entry.energy_per_atom * amt
-                          for entry, amt in decomp.items()])
-        if abs(eperatom) < PDAnalyzer.numerical_tol:
-            return decomp, 0
-        return decomp, eperatom - hullenergy
+        ehull -= sum([entry.energy_per_atom * amt
+                      for entry, amt in decomp.items()])
+        return decomp, ehull
 
     def get_e_above_hull(self, entry):
         """
@@ -192,7 +189,7 @@ class PDAnalyzer(object):
         complist = [self._pd.qhull_entries[i].composition for i in facet]
         energylist = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
         m = self._make_comp_matrix(complist)
-        chempots = np.dot(np.linalg.inv(m), energylist)
+        chempots = np.linalg.solve(m, energylist)
         return dict(zip(self._pd.elements, chempots))
 
     def get_transition_chempots(self, element):
