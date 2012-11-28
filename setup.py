@@ -25,8 +25,8 @@ designers. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 The latest stable version of pymatgen and its accompanying documentation
-(http://packages.python.org/pymatgen) is always on PyPI. The
-bleeding edge developmental version is available at our GitHub repo at
+(http://packages.python.org/pymatgen) is always on PyPI. The bleeding edge
+developmental version is available at our GitHub repo at
 https://github.com/materialsproject/pymatgen. If you wish to
 be notified via email of pymatgen releases, you may become a member of
 pymatgen's Google Groups page
