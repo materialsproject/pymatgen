@@ -753,7 +753,7 @@ class Kpoints(VaspInput):
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
-                 kpts=[[1, 1, 1]], kpts_shift=(0, 0, 0),
+                 kpts=((1, 1, 1),), kpts_shift=(0, 0, 0),
                  kpts_weights=None, coord_type=None, labels=None,
                  tet_number=0, tet_weight=0, tet_connections=None):
         """
