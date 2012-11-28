@@ -288,7 +288,7 @@ class Poscar(VaspInput):
                 for i in xrange(len(natoms)):
                     atomic_symbols.extend([default_names[i]] * natoms[i])
                 vasp5_symbols = True
-            except:
+            except IndexError:
                 pass
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
@@ -301,7 +301,7 @@ class Poscar(VaspInput):
                             for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
-            except:
+            except (ValueError, IndexError):
                 #Defaulting to false names.
                 atomic_symbols = []
                 for i in xrange(len(natoms)):
@@ -532,7 +532,7 @@ class Incar(dict, VaspInput):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params=dict()):
+    def __init__(self, params=None):
         """
         Creates an Incar object.
 
@@ -541,7 +541,8 @@ class Incar(dict, VaspInput):
                 A set of input parameters as a dictionary.
         """
         super(Incar, self).__init__()
-        self.update(params)
+        if params:
+            self.update(params)
 
     def __setitem__(self, key, val):
         """

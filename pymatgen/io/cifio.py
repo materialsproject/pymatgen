@@ -128,7 +128,7 @@ class CifParser(object):
             oxi_states = {data["_atom_type_symbol"][i]:
                           float_from_str(data["_atom_type_oxidation_number"][i])
                           for i in xrange(len(data["_atom_type_symbol"]))}
-        except:
+        except (ValueError, KeyError):
             oxi_states = None
 
         coord_to_species = OrderedDict()
