@@ -316,13 +316,14 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        allentries = [GrandPotPDEntry(e, chempots) for e in entries
-                      if not (e.is_element and
-                              (e.composition.elements[0] in chempots))]
+
+        elements = set(elements).difference(chempots.keys())
+        all_entries = [GrandPotPDEntry(e, chempots) for e in entries
+                      if (not e.is_element) or
+                         e.composition.elements[0] in elements]
         self.chempots = chempots
-        filteredels = filter(lambda el: el not in chempots, elements)
-        elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements)
+
+        super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 
     def __str__(self):
         output = []

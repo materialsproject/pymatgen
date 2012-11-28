@@ -63,6 +63,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                                                                         "pdentries_test.csv"))
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"):-5},
                                              self.elements)
+        self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"):-6})
 
     def test_stable_entries(self):
         stable_formulas = [ent.original_entry.composition.reduced_formula
@@ -71,6 +72,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         for formula in expected_stable:
             self.assertTrue(formula in stable_formulas, formula +
                             " not in stable entries!")
+        self.assertEqual(len(self.pd6.stable_entries), 4)
 
     def test_get_formation_energy(self):
         stable_formation_energies = {ent.original_entry.composition.reduced_formula:self.pd.get_form_energy(ent) for ent in self.pd.stable_entries}
