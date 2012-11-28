@@ -80,3 +80,45 @@ def coords_to_unit_cell(coords):
         The coords mapped to within the unit cell.
     """
     return [i - math.floor(i) for i in coords]
+
+
+def pbc_diff(fcoord1, fcoord2):
+    """
+    Returns the 'fractional distance' between two coordinates taking into
+    account periodic boundary conditions.
+
+    Args:
+        fcoord1:
+            First fractional coordinate.
+        fcoord2:
+            Second fractional coordinate.
+
+    Returns:
+        Fractional distance. Each coordinate must have the property that
+        abs(a) < 0.5. Examples:
+        pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
+        pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
+    """
+    fdist = np.array(coords_to_unit_cell(fcoord1)) - \
+            np.array(coords_to_unit_cell(fcoord2))
+    return [a if abs(a) < 0.5 else a - a/abs(a) for a in fdist]
+
+
+def in_coord_list_pbc(coord_list, coord, **kwargs):
+    """
+    Tests if a particular coord is within a coord_list using numpy.allclose.
+
+    Args:
+        coord_list:
+            List of coords to test
+        coord:
+            Specific coordinates
+        kwargs:
+            keyword arguments supported by numpy.allclose. Please refer to
+            documentation for numpy.allclose.
+    """
+    for test in coord_list:
+        fdiff = pbc_diff(test, coord)
+        if np.allclose(fdiff, [0,0,0], **kwargs):
+            return True
+    return False

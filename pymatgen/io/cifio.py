@@ -26,6 +26,7 @@ import numpy as np
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.io_utils import zopen
+from pymatgen.util.coord_utils import in_coord_list_pbc
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
@@ -56,6 +57,19 @@ class CifParser(object):
 
     @staticmethod
     def from_string(cif_string, occupancy_tolerance=1.):
+        """
+        Creates a CifParser from a string.
+
+        Args:
+            cif_string:
+                String representation of a CIF.
+            occupancy_tolerance:
+                If total occupancy of a site is between 1 and
+                occupancy_tolerance, the occupancies will be scaled down to 1.
+
+        Returns:
+            CifParser
+        """
         output = StringIO.StringIO()
         output.write(cif_string)
         output.seek(0)
@@ -65,14 +79,14 @@ class CifParser(object):
         """
         Generate unique coordinates using coord and symmetry positions.
         """
-        coords = list()
+        coords = []
         for op in self.symmetry_operations:
             coord = op.operate(coord_in)
             if primitive:
                 cart = lattice.get_cartesian_coords(np.array(coord))
                 coord = primlattice.get_fractional_coords(cart)
             coord = np.array([i - math.floor(i) for i in coord])
-            if not coord_in_list(coord, coords, 1e-3):
+            if not in_coord_list_pbc(coords, coord, atol=1e-3):
                 coords.append(coord)
         return coords
 
@@ -141,8 +155,8 @@ class CifParser(object):
                 else:
                     coord_to_species[coord][el] = occu
 
-        allspecies = list()
-        allcoords = list()
+        allspecies = []
+        allcoords = []
 
         for coord, species in coord_to_species.items():
             coords = self._unique_coords(coord, primitive, lattice,
@@ -302,27 +316,6 @@ class CifWriter:
         """
         with open(filename, "w") as f:
             f.write(self.__str__())
-
-
-def around_diff_num(a, b):
-    """
-    Used to compare differences in fractional coordinates, taking into account
-    PBC.
-    """
-    diff_num = abs(a - b)
-    return diff_num if diff_num < 0.5 else abs(1 - diff_num)
-
-
-def coord_in_list(coord, coord_list, tol):
-    """
-    Helper method to check if coord is already in a list of coords, subject to
-    a tolerance.
-    """
-    for c in coord_list:
-        diff = np.array([around_diff_num(c[i], coord[i]) for i in xrange(3)])
-        if (diff < tol).all():
-            return True
-    return False
 
 
 def float_from_str(text):
