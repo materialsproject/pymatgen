@@ -332,9 +332,20 @@ def float_from_str(text):
     return float(re.sub("\(.+\)", "", text))
 
 
-def parse_symmetry_operations(symmops_str):
+def parse_symmetry_operations(symmops_str_list):
+    """
+    Help method to parse the symmetry operations.
+
+    Args:
+        symmops_str_list:
+            List of symmops strings of the form
+            ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', ...]
+
+    Returns:
+        List of SymmOps
+    """
     ops = []
-    for op_str in symmops_str:
+    for op_str in symmops_str_list:
         rot_matrix = np.zeros((3, 3))
         trans = np.zeros(3)
         toks = op_str.strip().split(",")
