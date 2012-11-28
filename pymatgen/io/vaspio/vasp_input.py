@@ -250,15 +250,15 @@ class Poscar(VaspInput):
             # In vasp, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
             vol = abs(det(lattice))
-            lattice = (-scale / vol) ** (1 / 3) * lattice
+            lattice *= (-scale / vol) ** (1 / 3)
         else:
-            lattice = scale * lattice
+            lattice *= scale
 
         vasp5_symbols = False
         try:
             natoms = [int(s) for s in lines[5].split()]
             ipos = 6
-        except:
+        except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
             natoms = [int(s) for s in lines[6].split()]
@@ -284,7 +284,7 @@ class Poscar(VaspInput):
         # specified is the default used.
         if default_names:
             try:
-                atomic_symbols = list()
+                atomic_symbols = []
                 for i in xrange(len(natoms)):
                     atomic_symbols.extend([default_names[i]] * natoms[i])
                 vasp5_symbols = True
@@ -303,7 +303,7 @@ class Poscar(VaspInput):
                 vasp5_symbols = True
             except:
                 #Defaulting to false names.
-                atomic_symbols = list()
+                atomic_symbols = []
                 for i in xrange(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
@@ -362,9 +362,7 @@ class Poscar(VaspInput):
         Returns:
             String representation of POSCAR.
         """
-        lines = [self.comment]
-        lines.append("1.0")
-        lines.append(str(self.structure.lattice))
+        lines = [self.comment, "1.0", str(self.structure.lattice)]
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
@@ -413,16 +411,14 @@ class Poscar(VaspInput):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["structure"] = self.structure.to_dict
-        d["true_names"] = self.true_names
-        d["selective_dynamics"] = self.selective_dynamics
-        d["velocities"] = self.velocities
-        d["predictor_corrector"] = self.predictor_corrector
-        d["comment"] = self.comment
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "structure": self.structure.to_dict,
+                "true_names": self.true_names,
+                "selective_dynamics": self.selective_dynamics,
+                "velocities": self.velocities,
+                "predictor_corrector": self.predictor_corrector,
+                "comment": self.comment}
 
     @staticmethod
     def from_dict(d):
@@ -670,7 +666,7 @@ class Incar(dict, VaspInput):
                 return int(numstr)
         try:
             if key in list_keys:
-                output = list()
+                output = []
                 toks = val.split()
 
                 for tok in toks:
@@ -696,7 +692,7 @@ class Incar(dict, VaspInput):
             if key in int_keys:
                 return int(val)
 
-        except:
+        except ValueError:
             return val.capitalize()
 
         return val.capitalize()
@@ -971,7 +967,7 @@ class Kpoints(VaspInput):
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
                     kpts_shift = [int(x) for x in lines[4].split()]
-                except:
+                except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
                 else Kpoints.monkhorst_automatic(kpts, kpts_shift)
@@ -1034,7 +1030,7 @@ class Kpoints(VaspInput):
                     tet_connections.append((int(toks[0]),
                                             [int(toks[j])
                                              for j in xrange(1, 5)]))
-        except:
+        except IndexError:
             pass
 
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
@@ -1054,10 +1050,7 @@ class Kpoints(VaspInput):
             f.write(self.__str__() + "\n")
 
     def __str__(self):
-        lines = []
-        lines.append(self.comment)
-        lines.append(str(self.num_kpts))
-        lines.append(self.style)
+        lines = [self.comment, str(self.num_kpts), self.style]
         style = self.style.lower()[0]
         if style == "Line-mode":
             lines.append(self.coord_type)
@@ -1272,7 +1265,7 @@ class Potcar(list, VaspInput):
         with zopen(filename, "r") as reader:
             fdata = reader.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n{0,1}\s*(.*?End of Dataset)",
+        potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
                                     re.S).findall(fdata)
         for p in potcar_strings:
             potcar.append(PotcarSingle(p))
