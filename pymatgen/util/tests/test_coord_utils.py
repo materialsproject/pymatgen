@@ -39,8 +39,12 @@ class CoordUtilsTest(unittest.TestCase):
         ([0.9, 0.1, 1.01], [0.3, 0.5, 0.9])
         self.assertTrue(np.allclose(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]),
                                     [-0.2, -0.4, 0.2]))
-        self.assertTrue(np.allclose(pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]),
+        self.assertTrue(np.allclose(pbc_diff([0.9, 0.1, 1.01],
+                                             [0.3, 0.5, 0.9]),
                                     [-0.4, -0.4, 0.11]))
+        self.assertTrue(np.allclose(pbc_diff([0.1, 0.6, 1.01],
+                                             [0.6, 0.1, 0.9]),
+                                    [-0.5, 0.5, 0.11]))
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]

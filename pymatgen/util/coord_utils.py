@@ -95,13 +95,13 @@ def pbc_diff(fcoord1, fcoord2):
 
     Returns:
         Fractional distance. Each coordinate must have the property that
-        abs(a) < 0.5. Examples:
+        abs(a) <= 0.5. Examples:
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
     fdist = np.array(coords_to_unit_cell(fcoord1)) - \
             np.array(coords_to_unit_cell(fcoord2))
-    return [a if abs(a) < 0.5 else a - a/abs(a) for a in fdist]
+    return [a if abs(a) <= 0.5 else a - a/abs(a) for a in fdist]
 
 
 def in_coord_list_pbc(coord_list, coord, **kwargs):
