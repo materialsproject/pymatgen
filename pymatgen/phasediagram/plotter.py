@@ -316,8 +316,8 @@ class PDPlotter(object):
             center_x = sum([c[0] for c in coords])
             center_y = sum([c[1] for c in coords])
             comp = entry.composition
-            is_x = entry.composition.get_atomic_fraction(el0) < 0.01
-            is_y = entry.composition.get_atomic_fraction(el1) < 0.01
+            is_x = comp.get_atomic_fraction(el0) < 0.01
+            is_y = comp.get_atomic_fraction(el1) < 0.01
             n = len(coords)
             if not (is_x and is_y):
                 if is_x:
