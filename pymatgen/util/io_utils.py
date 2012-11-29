@@ -18,6 +18,7 @@ import os
 from bz2 import BZ2File
 from gzip import GzipFile
 
+
 def zopen(filename, *args, **kwargs):
     """
     This wrapper wraps around the bz2, gzip and standard python's open function
