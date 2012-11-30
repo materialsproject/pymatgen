@@ -154,9 +154,9 @@ def get_points_in_sphere_pbc(lattice, points, center, r):
     n = len(points)
     fcoords = np.array(points)
     frac_2_cart = lattice.get_cartesian_coords
-    pts = [center] * n
+    pts = np.tile(center, (n, 1))
     for image in itertools.product(*axis_ranges):
-        shift = [image] * n
+        shift = np.tile(image, (n, 1))
         shifted_coords = fcoords + shift
         coords = frac_2_cart(shifted_coords)
         dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
