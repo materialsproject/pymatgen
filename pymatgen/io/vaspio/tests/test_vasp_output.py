@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 16, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -196,12 +196,18 @@ class ChgcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'CHGCAR.spin')
         chg = Chgcar.from_file(filepath)
         self.assertAlmostEqual(chg.get_integrated_diff(0, 1),
-                               - 0.0043898180006570475)
+                               -0.0043896932237534022)
         #test sum
         chg += chg
         self.assertAlmostEqual(chg.get_integrated_diff(0, 1),
-                               - 0.0043898180006570475 * 2)
+                               -0.0043896932237534022 * 2)
 
+        filepath = os.path.join(test_dir, 'CHGCAR.noncubic')
+        chg = Chgcar.from_file(filepath)
+        ans = [0.221423, 0.462059, 0.470549,0.434775, 0.860738]
+        for i in xrange(1, 6):
+            self.assertAlmostEqual(chg.get_integrated_diff(0, i/2), ans[i-1],
+                                   5)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
