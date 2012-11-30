@@ -10,11 +10,11 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Jul 16, 2012"
+__date__ = "Nov 30, 2012"
 
 import os
 import glob
@@ -490,14 +490,12 @@ class Vasprun(object):
         vasp_input["lattice_rec"] = self.lattice_rec.to_dict
         d["input"] = vasp_input
 
-        vasp_output = {}
-        vasp_output["ionic_steps"] = self.ionic_steps
-        vasp_output["final_energy"] = self.final_energy
-        vasp_output["final_energy_per_atom"] = self.final_energy / \
-            len(self.final_structure)
-        vasp_output["crystal"] = self.final_structure.to_dict
-        vasp_output["efermi"] = self.efermi
-        vasp_output['eigenvalues'] = {}
+        vasp_output = {"ionic_steps": self.ionic_steps,
+                       "final_energy": self.final_energy,
+                       "final_energy_per_atom": self.final_energy /\
+                                                len(self.final_structure),
+                       "crystal": self.final_structure.to_dict,
+                       "efermi": self.efermi, 'eigenvalues': {}}
         for (spin, index), values in self.eigenvalues.items():
             if index not in vasp_output['eigenvalues']:
                 vasp_output['eigenvalues'][index] = {str(spin): values}
@@ -949,7 +947,7 @@ def parse_parameters(val_type, val):
         val : Actual string value parsed for vasprun.xml.
     """
     if val_type == "logical":
-        return (val == "T")
+        return val == "T"
     elif val_type == "int":
         return int(val)
     elif val_type == "string":
@@ -1121,7 +1119,7 @@ class Outcar(object):
                             #alpha+bet : -1.8238'
                             efermi = float(m.group(1))
                             continue
-                        except:
+                        except ValueError:
                             efermi = None
                             continue
                     m = nelect_patt.search(clean)
@@ -1772,7 +1770,6 @@ class Procar(object):
         kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
         expr = re.compile("^\s*([0-9]+)\s+")
         dataexpr = re.compile("[\.0-9]+")
-        currentKpoint = 0
         weight = 0
         for l in lines:
             if kpointexpr.match(l):
@@ -1786,8 +1783,7 @@ class Procar(object):
                 linefloatdata = map(float, linedata)
                 index = int(linefloatdata.pop(0))
                 if index in self.data:
-                    self.data[index] = self.data[index] + \
-                        np.array(linefloatdata) * weight
+                    self.data[index] += np.array(linefloatdata) * weight
                 else:
                     self.data[index] = np.array(linefloatdata) * weight
 
