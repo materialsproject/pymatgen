@@ -1545,15 +1545,18 @@ class VolumetricData(object):
                     toks = line.split()
                     for tok in toks:
                         if data_count < ngrid_pts:
-                            dataset.append(float(tok))
+                            #This complicated procedure is necessary because
+                            #vasp outputs x as the fastest index, followed by y
+                            #then z.
+                            x = data_count % dim[0]
+                            y = int(math.floor(data_count / dim[0])) % dim[1]
+                            z = int(math.floor(data_count / dim[0] / dim[1]))
+                            dataset[x,y,z] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False
                         data_count = 0
-                        dataset = np.array(dataset)
-                        dataset = dataset.reshape(dim)
                         all_dataset.append(dataset)
-                        dataset = []
                 elif not poscar_read:
                     if line != "":
                         poscar_string.append(line)
@@ -1565,9 +1568,10 @@ class VolumetricData(object):
                     ngrid_pts = dim[0] * dim[1] * dim[2]
                     dimline = line
                     read_dataset = True
+                    dataset = np.zeros(dim)
                 elif line == dimline:
                     read_dataset = True
-
+                    dataset = np.zeros(dim)
             if len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
             else:
@@ -1650,7 +1654,7 @@ class VolumetricData(object):
             grid_struct = Structure(struct.lattice,
                                     ["H"] * self.ngridpts, coords)
             if not max_radius:
-                max_radius = min(self.structure.lattice.abc) / 2
+                max_radius = max(max(self.structure.lattice.abc) / 2, radius)
             sites_dist = grid_struct.get_sites_in_sphere(struct[ind].coords,
                                                          max_radius)
             self._distance_matrix[ind] = {"max_radius": max_radius,

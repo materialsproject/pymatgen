@@ -52,13 +52,12 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
-   Please note that this change implies that the pyhull package is now a
-   required dependency. If you install pymatgen through the usual
-   easy_install or pip install methods, this should be taken care of
-   automatically for you. Otherwise, please look for the pyhull package on
-   PyPI to download and install it.
-2. Miscellaneous bug fixes.
+1. Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
+   Previously, the parsing was done incorrectly because VASP actually provides
+   data by running through the x-axis first, followed by y, then z.
+2. Bug fix for reverse_readline so that it works for gzipped and bzipped
+   strucutures (courtesy of Anubhav Jain).
+3. Miscellaneous bug fixes.
 
 :doc:`Older versions </changelog>`
 

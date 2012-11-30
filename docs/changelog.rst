@@ -1,6 +1,16 @@
 Change log
 ==========
 
+Version 2.3.0
+-------------
+1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
+   Please note that this change implies that the pyhull package is now a
+   required dependency. If you install pymatgen through the usual
+   easy_install or pip install methods, this should be taken care of
+   automatically for you. Otherwise, please look for the pyhull package on
+   PyPI to download and install it.
+2. Miscellaneous bug fixes.
+
 Version 2.2.6
 -------------
 1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
