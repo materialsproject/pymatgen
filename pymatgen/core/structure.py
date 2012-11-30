@@ -512,14 +512,15 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
-        unit_cell_sites = [site.to_unit_cell for site in self._sites]
+        all_fcoords = [np.mod(c, 1) for c in self.frac_coords]
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
+        latt = self._lattice
         n = len(self)
         for image in itertools.product(*all_ranges):
-            for (j, site) in enumerate(unit_cell_sites):
-                fcoords = site.frac_coords + np.array(image)
+            for (j, fcoord) in enumerate(all_fcoords):
+                fcoords = fcoord + np.array(image)
                 coords = frac_2_cart(fcoords)
                 submat = np.tile(coords, (n, 1))
                 dists = (site_coords - submat) ** 2
@@ -527,8 +528,8 @@ class Structure(SiteCollection, MSONable):
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in range(n):
                     if withindists[i]:
-                        nnsite = PeriodicSite(site.species_and_occu, fcoords,
-                                              site.lattice,
+                        nnsite = PeriodicSite(self[i].species_and_occu,
+                                              fcoords, latt,
                                               properties=site.properties)
                         item = (nnsite, dists[i], j) if include_index\
                             else (nnsite, dists[i])
