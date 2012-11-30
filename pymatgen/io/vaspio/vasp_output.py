@@ -1659,7 +1659,7 @@ class VolumetricData(object):
         intchg = 0
         for (fcoords, dist, i) in filter(lambda d: d[1] <= radius,
                                          self._distance_matrix[ind]["data"]):
-            c = [int(round(i)) for i in np.mod(fcoords, 1) * a]
+            c = np.around(np.mod(fcoords, 1) * a)
             intchg += self.data["diff"][c[0], c[1], c[2]]
         return intchg / self.ngridpts
 

@@ -20,7 +20,7 @@ def chgcar_test():
     c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
     print c.get_integrated_diff(1, 2.5)
 
-cProfile.run('test()', 'testprof')
+cProfile.run('chgcar_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")
