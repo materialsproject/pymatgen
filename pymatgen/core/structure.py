@@ -434,35 +434,14 @@ class Structure(SiteCollection, MSONable):
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        recp_len = self._lattice.reciprocal_lattice.abc
-        sr = r + 0.15
-        nmax = [sr * l / (2 * math.pi) for l in recp_len]
-        pcoords = self._lattice.get_fractional_coords(pt)
-        axis_ranges = []
-        floor = math.floor
-        for i in range(3):
-            rangemax = int(floor(pcoords[i] + nmax[i]))
-            rangemin = int(floor(pcoords[i] - nmax[i]))
-            axis_ranges.append(range(rangemin, rangemax + 1))
+        site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        n = len(self._sites)
-        site_fcoords = np.array([site.to_unit_cell.frac_coords
-                                 for site in self._sites])
-
-        frac_2_cart = self._lattice.get_cartesian_coords
-        pts = [pt] * n
-        for image in itertools.product(*axis_ranges):
-            shift = [image] * n
-            fcoords = site_fcoords + shift
-            coords = frac_2_cart(fcoords)
-            dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
-            withindists = (dists <= r)
-            for i in range(n):
-                if withindists[i]:
-                    nnsite = PeriodicSite(self[i].species_and_occu,
-                                          fcoords[i], self._lattice,
-                                          properties=self[i].properties)
-                    neighbors.append((nnsite, dists[i]))
+        for fcoord, dist, i in get_points_in_sphere(self._lattice,
+                                                    site_fcoords, pt, r):
+            nnsite = PeriodicSite(self[i].species_and_occu,
+                                  fcoord, self._lattice,
+                                  properties=self[i].properties)
+            neighbors.append((nnsite, dist))
         return neighbors
 
     def get_neighbors(self, site, r):
@@ -1061,3 +1040,57 @@ class StructureError(Exception):
 
     def __str__(self):
         return self.msg
+
+
+def get_points_in_sphere(lattice, fcoords, pt, r):
+    """
+    Find all sites within a sphere from the point. This includes sites
+    in other periodic images.
+
+    Algorithm:
+
+    1. place sphere of radius r in crystal and determine minimum supercell
+       (parallelpiped) which would contain a sphere of radius r. for this
+       we need the projection of a_1 on a unit vector perpendicular
+       to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+       determine how many a_1"s it will take to contain the sphere.
+
+       Nxmax = r * length_of_b_1 / (2 Pi)
+
+    2. keep points falling within r.
+
+    Args:
+        pt:
+            cartesian coordinates of center of sphere.
+        r:
+            radius of sphere.
+
+    Returns:
+        [(site, dist) ...] since most of the time, subsequent processing
+        requires the distance.
+    """
+    recp_len = lattice.reciprocal_lattice.abc
+    sr = r + 0.15
+    nmax = [sr * l / (2 * math.pi) for l in recp_len]
+    pcoords = lattice.get_fractional_coords(pt)
+    axis_ranges = []
+    floor = math.floor
+    for i in range(3):
+        rangemax = int(floor(pcoords[i] + nmax[i]))
+        rangemin = int(floor(pcoords[i] - nmax[i]))
+        axis_ranges.append(range(rangemin, rangemax + 1))
+    neighbors = []
+    n = len(fcoords)
+    fcoords = np.array(fcoords)
+    frac_2_cart = lattice.get_cartesian_coords
+    pts = [pt] * n
+    for image in itertools.product(*axis_ranges):
+        shift = [image] * n
+        shifted_coords = fcoords + shift
+        coords = frac_2_cart(shifted_coords)
+        dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
+        within_r = dists <= r
+        for i in range(n):
+            if within_r[i]:
+                neighbors.append((shifted_coords[i], dists[i], i))
+    return neighbors

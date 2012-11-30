@@ -40,7 +40,6 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, \
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -1642,28 +1641,26 @@ class VolumetricData(object):
             return 0
 
         struct = self.structure
-
+        from pymatgen.core.structure import get_points_in_sphere
         a = self.dim
         if ind not in self._distance_matrix or \
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            grid_struct = Structure(struct.lattice,
-                                    ["H"] * self.ngridpts, coords)
             if not max_radius:
                 max_radius = max(max(self.structure.lattice.abc) / 2, radius)
-            sites_dist = grid_struct.get_sites_in_sphere(struct[ind].coords,
-                                                         max_radius)
+            sites_dist = get_points_in_sphere(struct.lattice, coords,
+                                              struct[ind].coords,
+                                              max_radius)
             self._distance_matrix[ind] = {"max_radius": max_radius,
                                           "data": sites_dist}
 
         intchg = 0
-        for (site, dist) in self._distance_matrix[ind]["data"]:
-            if dist < radius:
-                fcoords = site.to_unit_cell.frac_coords
-                c = [int(round(fcoords[i] * a[i])) for i in xrange(3)]
-                intchg += self.data["diff"][c[0], c[1], c[2]]
+        for (fcoords, dist, i) in filter(lambda d: d[1] <= radius,
+                                         self._distance_matrix[ind]["data"]):
+            c = [int(round(i)) for i in np.mod(fcoords, 1) * a]
+            intchg += self.data["diff"][c[0], c[1], c[2]]
         return intchg / self.ngridpts
 
     def get_average_along_axis(self, ind):

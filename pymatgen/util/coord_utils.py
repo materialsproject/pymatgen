@@ -14,7 +14,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
-import math
+from math import floor
 
 
 def in_coord_list(coord_list, coord, **kwargs):
@@ -67,21 +67,6 @@ def get_linear_interpolated_value(x_values, y_values, x):
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
 
-def coords_to_unit_cell(coords):
-    """
-    Map a set of fractional coordinates into the unit cell, i.e.
-    0 <= a < 1.
-
-    Args:
-        coords:
-            A sequence of fractional coords.
-
-    Returns:
-        The coords mapped to within the unit cell.
-    """
-    return [i - math.floor(i) for i in coords]
-
-
 def pbc_diff(fcoord1, fcoord2):
     """
     Returns the 'fractional distance' between two coordinates taking into
@@ -99,8 +84,7 @@ def pbc_diff(fcoord1, fcoord2):
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
-    fdist = np.array(coords_to_unit_cell(fcoord1)) - \
-            np.array(coords_to_unit_cell(fcoord2))
+    fdist = np.mod(fcoord1, 1) - np.mod(fcoord2, 1)
     return [a if abs(a) <= 0.5 else a - a/abs(a) for a in fdist]
 
 
