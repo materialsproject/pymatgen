@@ -29,6 +29,7 @@ import logging
 
 import numpy as np
 
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
     clean_json, reverse_readline
 from pymatgen.core.structure import Structure
@@ -1641,7 +1642,6 @@ class VolumetricData(object):
             return 0
 
         struct = self.structure
-        from pymatgen.core.structure import get_points_in_sphere
         a = self.dim
         if ind not in self._distance_matrix or \
                 self._distance_matrix[ind]["max_radius"] < radius:
@@ -1650,9 +1650,9 @@ class VolumetricData(object):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             if not max_radius:
                 max_radius = max(max(self.structure.lattice.abc) / 2, radius)
-            sites_dist = get_points_in_sphere(struct.lattice, coords,
-                                              struct[ind].coords,
-                                              max_radius)
+            sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
+                                                  struct[ind].coords,
+                                                  max_radius)
             self._distance_matrix[ind] = {"max_radius": max_radius,
                                           "data": sites_dist}
 
