@@ -499,7 +499,6 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
-        unit_cell_sites = [site.to_unit_cell for site in self._sites]
         floor = math.floor
         for site in self:
             pcoords = site.frac_coords
@@ -513,6 +512,7 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
+        unit_cell_sites = [site.to_unit_cell for site in self._sites]
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
@@ -521,7 +521,7 @@ class Structure(SiteCollection, MSONable):
             for (j, site) in enumerate(unit_cell_sites):
                 fcoords = site.frac_coords + np.array(image)
                 coords = frac_2_cart(fcoords)
-                submat = [coords] * n
+                submat = np.tile(coords, (n, 1))
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
