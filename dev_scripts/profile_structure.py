@@ -15,12 +15,12 @@ def test():
     nn = s.get_sites_in_sphere([0, 0, 0], 20)
     print len(nn)
 
-def test2():
-    from pymatgen.analysis.structure_fitter import StructureFitter
-    fitter = StructureFitter(s, s)
-    print fitter.fit_found
+def chgcar_test():
+    from pymatgen.io.vaspio import Chgcar
+    c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
+    print c.get_integrated_diff(1, 2.5)
 
-cProfile.run('test2()', 'testprof')
+cProfile.run('chgcar_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")
