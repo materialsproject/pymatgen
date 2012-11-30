@@ -14,10 +14,12 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 25, 2012"
 
 import unittest
+import itertools
 
 import numpy as np
+from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value, \
-    in_coord_list, pbc_diff, in_coord_list_pbc
+    in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc
 
 class CoordUtilsTest(unittest.TestCase):
 
@@ -54,7 +56,17 @@ class CoordUtilsTest(unittest.TestCase):
         test_coord = [0.99, 0.99, 0.99]
         self.assertFalse(in_coord_list_pbc(coords, test_coord, atol=0.01))
 
+    def test_get_points_in_sphere_pbc(self):
+        latt = Lattice.cubic(1)
+        pts = []
+        for a, b, c in itertools.product(xrange(10), xrange(10), xrange(10)):
+            pts.append([a/10, b/10, c/10])
 
+        self.assertEqual(len(get_points_in_sphere_pbc(latt, pts, [0,0,0],
+                                                      0.1)), 7)
+        self.assertEqual(len(get_points_in_sphere_pbc(latt, pts, [0.5,0.5,
+                                                                  0.5],
+                                                      0.5)), 515)
 
 if __name__ == "__main__":
     unittest.main()
