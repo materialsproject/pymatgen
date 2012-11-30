@@ -23,7 +23,7 @@ import bisect
 import numpy as np
 
 from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import get_points_in_sphere
 
 
 class EwaldSummation(object):
@@ -256,12 +256,15 @@ class EwaldSummation(object):
         erecip = np.zeros((numsites, numsites))
         forces = np.zeros((numsites, 3))
         coords = self._coords
-        recip = Structure(self._s.lattice.reciprocal_lattice, ["H"],
-                          [np.array([0, 0, 0])])
-        recip_nn = recip.get_neighbors(recip[0], self._gmax)
+        rcp_latt = self._s.lattice.reciprocal_lattice
+        recip_nn = get_points_in_sphere(rcp_latt, [[0, 0, 0]], [0, 0, 0],
+                                        self._gmax)
 
-        for (n, dist) in recip_nn:
-            gvect = n.coords
+        frac_to_cart = rcp_latt.get_cartesian_coords
+        for (fcoords, dist, i) in recip_nn:
+            if dist == 0:
+                continue
+            gvect = frac_to_cart(fcoords)
             gsquare = np.linalg.norm(gvect) ** 2
 
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
@@ -302,7 +305,7 @@ class EwaldSummation(object):
                  - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
             forces += np.tile(factor, (3, 1)).transpose() * gvect_tile
 
-        return (erecip * prefactor * EwaldSummation.CONV_FACT, forces)
+        return erecip * prefactor * EwaldSummation.CONV_FACT, forces
 
     def _calc_real_and_point(self):
         """
@@ -316,7 +319,7 @@ class EwaldSummation(object):
         coords = self._coords
         numsites = self._s.num_sites
         ereal = np.zeros((numsites, numsites))
-        epoint = np.zeros((numsites))
+        epoint = np.zeros(numsites)
         forces = np.zeros((numsites, 3))
         for i in xrange(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
@@ -336,25 +339,25 @@ class EwaldSummation(object):
                 forces[i] += fijpf * (coords[i] - nsite.coords) * \
                     qi * EwaldSummation.CONV_FACT
 
-        ereal = ereal * 0.5 * EwaldSummation.CONV_FACT
-        epoint = epoint * EwaldSummation.CONV_FACT
-        return (ereal, epoint, forces)
+        ereal *= 0.5 * EwaldSummation.CONV_FACT
+        epoint *= EwaldSummation.CONV_FACT
+        return ereal, epoint, forces
 
     @property
     def eta(self):
         return self._eta
 
     def __str__(self):
-        output = ["Real = " + str(self.real_space_energy)]
-        output.append("Reciprocal = " + str(self.reciprocal_space_energy))
-        output.append("Point = " + str(self.point_energy))
-        output.append("Total = " + str(self.total_energy))
-        output.append("Forces:\n" + str(self.forces))
+        output = ["Real = " + str(self.real_space_energy),
+                  "Reciprocal = " + str(self.reciprocal_space_energy),
+                  "Point = " + str(self.point_energy),
+                  "Total = " + str(self.total_energy),
+                  "Forces:\n" + str(self.forces)]
         return "\n".join(output)
 
 
 class EwaldMinimizer:
-    '''
+    """
     This class determines the manipulations that will minimize an ewald matrix,
     given a list of possible manipulations. This class does not perform the
     manipulations on a structure, but will return the list of manipulations
@@ -369,7 +372,7 @@ class EwaldMinimizer:
     order disordered structure transformation.
 
     Author - Will Richards
-    '''
+    """
 
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
@@ -383,7 +386,7 @@ class EwaldMinimizer:
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
-        '''
+        """
         Args:
             matrix:
                 a matrix of the ewald sum interaction energies. This is stored
@@ -401,7 +404,7 @@ class EwaldMinimizer:
                 structures so it may be necessary to overestimate and then
                 remove the duplicates later. (duplicate checking in this
                 process is extremely expensive)
-        '''
+        """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -441,20 +444,20 @@ class EwaldMinimizer:
         self._minimized_sum = self._output_lists[0][0]
 
     def minimize_matrix(self):
-        '''
+        """
         This method finds and returns the permutations that produce the lowest
         ewald sum calls recursive function to iterate through permutations
-        '''
+        """
         if self._algo == EwaldMinimizer.ALGO_FAST or \
             self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
             return self._recurse(self._matrix, self._m_list,
                                  set(range(len(self._matrix))))
 
     def add_m_list(self, matrix_sum, m_list):
-        '''
+        """
         This adds an m_list to the output_lists and updates the current
         minimum if the list is full.
-        '''
+        """
         if self._output_lists is None:
             self._output_lists = [[matrix_sum, m_list]]
         else:
@@ -468,7 +471,7 @@ class EwaldMinimizer:
             self._current_minimum = self._output_lists[-1][0]
 
     def best_case(self, matrix, m_list, indices_left):
-        '''
+        """
         Computes a best case given a matrix and manipulation list.
 
         Args:
@@ -480,7 +483,7 @@ class EwaldMinimizer:
             indices:
                 Set of indices which haven't had a permutation performed on
                 them.
-        '''
+        """
 
         m_indices = []
         fraction_list = []
@@ -541,7 +544,7 @@ class EwaldMinimizer:
         return next_index
 
     def _recurse(self, matrix, m_list, indices, output_m_list=[]):
-        '''
+        """
         This method recursively finds the minimal permutations using a binary
         tree search strategy.
 
@@ -553,7 +556,7 @@ class EwaldMinimizer:
             indices:
                 Set of indices which haven't had a permutation performed on
                 them.
-        '''
+        """
         #check to see if we've found all the solutions that we need
         if self._finished:
             return
@@ -626,9 +629,9 @@ def compute_average_oxidation_state(site):
     try:
         avg_oxi = sum([sp.oxi_state * occu
                        for sp, occu in site.species_and_occu.items()
-                       if sp != None])
+                       if sp is not None])
         return avg_oxi
-    except:
+    except AttributeError:
         pass
     try:
         return site.charge
