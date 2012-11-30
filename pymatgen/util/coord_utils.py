@@ -14,7 +14,8 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
-from math import floor
+import math
+import itertools
 
 
 def in_coord_list(coord_list, coord, **kwargs):
@@ -106,3 +107,61 @@ def in_coord_list_pbc(coord_list, coord, **kwargs):
         if np.allclose(fdiff, [0,0,0], **kwargs):
             return True
     return False
+
+
+def get_points_in_sphere_pbc(lattice, points, center, r):
+    """
+    Find all points within a sphere from the point taking into account
+    periodic boundary conditions. This includes sites in other periodic images.
+
+    Algorithm:
+
+    1. place sphere of radius r in crystal and determine minimum supercell
+       (parallelpiped) which would contain a sphere of radius r. for this
+       we need the projection of a_1 on a unit vector perpendicular
+       to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+       determine how many a_1"s it will take to contain the sphere.
+
+       Nxmax = r * length_of_b_1 / (2 Pi)
+
+    2. keep points falling within r.
+
+    Args:
+        lattice:
+            The lattice/basis for the periodic boundary conditions.
+        points:
+            All points in the lattice.
+        center:
+            cartesian coordinates of center of sphere.
+        r:
+            radius of sphere.
+
+    Returns:
+        [(site, dist) ...] since most of the time, subsequent processing
+        requires the distance.
+    """
+    recp_len = lattice.reciprocal_lattice.abc
+    sr = r + 0.15
+    nmax = [sr * l / (2 * math.pi) for l in recp_len]
+    pcoords = lattice.get_fractional_coords(center)
+    axis_ranges = []
+    floor = math.floor
+    for i in range(3):
+        rangemax = int(floor(pcoords[i] + nmax[i]))
+        rangemin = int(floor(pcoords[i] - nmax[i]))
+        axis_ranges.append(range(rangemin, rangemax + 1))
+    neighbors = []
+    n = len(points)
+    fcoords = np.array(points)
+    frac_2_cart = lattice.get_cartesian_coords
+    pts = [center] * n
+    for image in itertools.product(*axis_ranges):
+        shift = [image] * n
+        shifted_coords = fcoords + shift
+        coords = frac_2_cart(shifted_coords)
+        dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
+        within_r = dists <= r
+        for i in range(n):
+            if within_r[i]:
+                neighbors.append((shifted_coords[i], dists[i], i))
+    return neighbors
