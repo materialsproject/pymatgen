@@ -18,7 +18,6 @@ import os
 from bz2 import BZ2File
 from gzip import GzipFile
 
-
 def zopen(filename, *args, **kwargs):
     """
     This wrapper wraps around the bz2, gzip and standard python's open function
@@ -227,17 +226,19 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
         file.readline() method, except the lines are returned from the back
         of the file.
     """
+
     file_size = os.path.getsize(m_file.name)
 
     # If the file size is within our desired RAM use, just reverse it in memory
-    # GZip files must use this method because there is no way to negative seek.
+    # GZip files must use this method because there is no way to negative seek
     if file_size < max_mem or isinstance(m_file, GzipFile):
         for line in reversed(m_file.readlines()):
             yield line.rstrip()
     else:
         if isinstance(m_file, BZ2File):
             # for bz2 files, seeks are expensive. It is therefore in our best
-            # interest to maximize the blk_size within limits of desired RAM use
+            # interest to maximize the blk_size within limits of desired RAM
+            # use.
             blk_size = min(max_mem, file_size)
 
         buf = ""
