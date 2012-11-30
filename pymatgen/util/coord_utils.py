@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Utilities for manipulating coordinates or list of coordinates
+Utilities for manipulating coordinates or list of coordinates,
+in periodic boundary conditions or otherwise.
 """
 
 from __future__ import division
@@ -109,7 +110,7 @@ def in_coord_list_pbc(coord_list, coord, **kwargs):
     return False
 
 
-def get_points_in_sphere_pbc(lattice, points, center, r):
+def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     """
     Find all points within a sphere from the point taking into account
     periodic boundary conditions. This includes sites in other periodic images.
@@ -129,8 +130,8 @@ def get_points_in_sphere_pbc(lattice, points, center, r):
     Args:
         lattice:
             The lattice/basis for the periodic boundary conditions.
-        points:
-            All points in the lattice.
+        frac_points:
+            All points in the lattice in fractional coordinates.
         center:
             cartesian coordinates of center of sphere.
         r:
@@ -151,8 +152,8 @@ def get_points_in_sphere_pbc(lattice, points, center, r):
         rangemin = int(floor(pcoords[i] - nmax[i]))
         axis_ranges.append(range(rangemin, rangemax + 1))
     neighbors = []
-    n = len(points)
-    fcoords = np.array(points)
+    n = len(frac_points)
+    fcoords = np.array(frac_points)
     frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
     for image in itertools.product(*axis_ranges):
