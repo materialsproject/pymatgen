@@ -441,8 +441,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}
         """
-        reduced_formula = self.reduced_formula
-        c = Composition.from_formula(reduced_formula)
+        c = Composition(self.reduced_formula)
         return c.to_dict
 
     @property
