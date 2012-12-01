@@ -188,10 +188,9 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-        """
-        Corrects for stupid numerical error which may result in acos being
-        operated on a number with absolute value larger than 1
-        """
+
+        #Correct for stupid numerical error which may result in acos being
+        #operated on a number with absolute value larger than 1
         ans = min(ans, 1)
         ans = max(-1, ans)
         return math.acos(ans) * 180 / math.pi
@@ -520,17 +519,18 @@ class Structure(SiteCollection, MSONable):
         n = len(self)
         for image in itertools.product(*all_ranges):
             for (j, fcoord) in enumerate(all_fcoords):
-                fcoords = fcoord + np.array(image)
+                fcoords = fcoord + image
                 coords = frac_2_cart(fcoords)
                 submat = np.tile(coords, (n, 1))
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
+                sp = self[j].species_and_occu
+                props = self[j].properties
                 for i in range(n):
                     if withindists[i]:
-                        nnsite = PeriodicSite(self[i].species_and_occu,
-                                              fcoords, latt,
-                                              properties=site.properties)
+                        nnsite = PeriodicSite(sp, fcoords, latt,
+                                              properties=props)
                         item = (nnsite, dists[i], j) if include_index\
                             else (nnsite, dists[i])
                         neighbors[i].append(item)

@@ -447,8 +447,8 @@ class PeriodicSite(Site, MSONable):
         if jimage is None:
             #The following code is heavily vectorized to maximize speed.
             #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.array([-floor(i) for i in self._fcoords])
-            adj2 = np.array([-floor(i) for i in fcoords])
+            adj1 = -np.floor(self._fcoords)
+            adj2 = -np.floor(fcoords)
             #Shift coords to unitcell
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
@@ -467,8 +467,8 @@ class PeriodicSite(Site, MSONable):
             ind = dist.index(mindist)
             return mindist, adj2 - adj1 + images[ind]
 
-        mapped_vec = self.lattice.get_cartesian_coords(jimage + fcoords
-                                                       - self._fcoords)
+        mapped_vec = self._lattice.get_cartesian_coords(jimage + fcoords
+                                                        - self._fcoords)
         return np.linalg.norm(mapped_vec), jimage
 
     def distance_and_image(self, other, jimage=None):
