@@ -499,6 +499,7 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
+        unit_cell_sites = [site.to_unit_cell for site in self._sites]
         floor = math.floor
         for site in self:
             pcoords = site.frac_coords
@@ -512,27 +513,25 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
-        all_fcoords = [np.mod(c, 1) for c in self.frac_coords]
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
-        latt = self._lattice
         n = len(self)
         for image in itertools.product(*all_ranges):
-            for (j, fcoord) in enumerate(all_fcoords):
-                fcoords = fcoord + np.array(image)
+            for (j, site) in enumerate(unit_cell_sites):
+                fcoords = site.frac_coords + np.array(image)
                 coords = frac_2_cart(fcoords)
-                submat = np.tile(coords, (n, 1))
+                submat = [coords] * n
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 for i in range(n):
                     if withindists[i]:
-                        nnsite = PeriodicSite(self[i].species_and_occu,
-                                              fcoords, latt,
+                        nnsite = PeriodicSite(site.species_and_occu, fcoords,
+                                              site.lattice,
                                               properties=site.properties)
                         item = (nnsite, dists[i], j) if include_index\
-                            else (nnsite, dists[i])
+                        else (nnsite, dists[i])
                         neighbors[i].append(item)
         return neighbors
 
