@@ -198,7 +198,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         """
-        sym_amt = self.to_dict
+        sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(),
                       key=lambda s: smart_element_or_specie(s).X)
         formula = []
@@ -213,7 +213,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        sym_amt = self.to_dict
+        sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
         formula = []
         for s in syms:
@@ -258,8 +258,8 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
             return self.formula.replace(" ", ""), 1
-
-        (formula, factor) = reduce_formula(self.to_dict)
+        d = self.get_el_amt_dict()
+        (formula, factor) = reduce_formula(d)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
@@ -295,7 +295,10 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.keys()
 
     def __str__(self):
-        return self.formula
+        return " ".join(["{}{}".format(k,
+                                       formula_double_format(v,
+                                                             ignore_ones=False))
+                         for k, v in self.to_dict.items()])
 
     @property
     def num_atoms(self):
@@ -422,16 +425,27 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         return Composition(d)
 
-    @property
-    def to_dict(self):
+    def get_el_amt_dict(self):
         """
         Returns:
-            dict with element symbol and (unreduced) amount e.g.,
-            {"Fe": 4.0, "O":6.0}
+            dict with species symbol and (unreduced) amount e.g.,
+            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
         d = collections.defaultdict(float)
         for e, a in self.items():
             d[e.symbol] += a
+        return d
+
+    @property
+    def to_dict(self):
+        """
+        Returns:
+            dict with species symbol and (unreduced) amount e.g.,
+            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+        """
+        d = collections.defaultdict(float)
+        for e, a in self.items():
+            d[str(e)] += a
         return d
 
     @property
