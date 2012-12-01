@@ -20,7 +20,13 @@ def chgcar_test():
     c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
     print c.get_integrated_diff(1, 2.5, 3)
 
-cProfile.run('chgcar_test()', 'testprof')
+def vasprun_test():
+    from pymatgen.io.vaspio import Vasprun
+    v = Vasprun("../test_files/vasprun.xml")
+    print v.final_energy
+
+
+cProfile.run('vasprun_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")

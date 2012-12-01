@@ -265,12 +265,12 @@ class CifWriter:
             for sp, occu in site.species_and_occu.items():
                 atom_site_type_symbol.append(str(sp))
                 atom_site_symmetry_multiplicity.append("1")
-                atom_site_fract_x.append(str("{0:f}".format(site.a)))
-                atom_site_fract_y.append(str("{0:f}".format(site.b)))
-                atom_site_fract_z.append(str("{0:f}".format(site.c)))
+                atom_site_fract_x.append("{0:f}".format(site.a))
+                atom_site_fract_y.append("{0:f}".format(site.b))
+                atom_site_fract_z.append("{0:f}".format(site.c))
                 atom_site_attached_hydrogens.append("0")
                 atom_site_B_iso_or_equiv.append(".")
-                atom_site_label.append(str(sp.symbol) + str(count))
+                atom_site_label.append("{}{}".format(sp.symbol, count))
                 atom_site_occupancy.append(str(occu))
                 count += 1
 

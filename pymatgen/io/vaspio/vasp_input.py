@@ -244,7 +244,7 @@ class Poscar(VaspInput):
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
-        lattice = np.array([[float(s) for s in line.split()]
+        lattice = np.array([map(float, line.split())
                             for line in lines[2:5]])
         if scale < 0:
             # In vasp, a negative scale factor is treated as a volume. We need
@@ -256,12 +256,12 @@ class Poscar(VaspInput):
 
         vasp5_symbols = False
         try:
-            natoms = [int(s) for s in lines[5].split()]
+            natoms = map(int, lines[5].split())
             ipos = 6
         except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
-            natoms = [int(s) for s in lines[6].split()]
+            natoms = map(int, lines[6].split())
             atomic_symbols = list()
             for i in xrange(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
@@ -316,10 +316,10 @@ class Poscar(VaspInput):
         selective_dynamics = list() if sdynamics else None
         for i in xrange(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append([float(s) for s in toks[:3]])
+            coords.append(map(float, toks[:3]))
             if sdynamics:
-                selective_dynamics.append([True if tok.upper()[0] == "T"
-                                           else False for tok in toks[3:6]])
+                selective_dynamics.append([tok.upper()[0] == "T"
+                                           for tok in toks[3:6]])
 
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
@@ -963,11 +963,11 @@ class Kpoints(VaspInput):
 
         #Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
-            kpts = [int(x) for x in lines[3].split()]
+            kpts = map(int, lines[3].split())
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = [int(x) for x in lines[4].split()]
+                    kpts_shift = map(int, lines[4].split())
                 except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
@@ -977,8 +977,8 @@ class Kpoints(VaspInput):
         if num_kpts <= 0:
             style = Kpoints.supported_modes.Cartesian if style in "ck" \
                 else Kpoints.supported_modes.Reciprocal
-            kpts = [[float(x) for x in lines[i].split()] for i in xrange(3, 6)]
-            kpts_shift = [float(x) for x in lines[6].split()]
+            kpts = [map(float, lines[i].split()) for i in xrange(3, 6)]
+            kpts_shift = map(float, lines[6].split())
             return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                            kpts=kpts, kpts_shift=kpts_shift)
 
@@ -1013,7 +1013,7 @@ class Kpoints(VaspInput):
 
         for i in xrange(3, 3 + num_kpts):
             toks = lines[i].split()
-            kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
+            kpts.append([map(float, toks[0:3])])
             kpts_weights.append(float(toks[3]))
             if len(toks) > 4:
                 labels.append(toks[4])

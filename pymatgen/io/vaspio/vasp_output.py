@@ -763,25 +763,20 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.filename, self.incar_param)
             elif state["kpoints"]:
                 if state["varray"] == "kpointlist":
-                    self.actual_kpoints.append([float(x)
-                                                for x in
-                                                self.val.getvalue().split()])
+                    self.actual_kpoints.append(map(float,
+                                               self.val.getvalue().split()))
                 if state["varray"] == "weights":
                     val = float(self.val.getvalue())
                     self.actual_kpoints_weights.append(val)
                 if state["v"] == "divisions":
-                    self.kpoints.kpts = [[int(x)
-                                          for x
-                                          in self.val.getvalue().split()]]
+                    self.kpoints.kpts = [map(int, self.val.getvalue().split())]
                 elif state["v"] == "usershift":
-                    self.kpoints.kpts_shift = [float(x)
-                                               for x in
-                                               self.val.getvalue().split()]
+                    self.kpoints.kpts_shift = map(float,
+                                                  self.val.getvalue().split())
                 elif state["v"] == "genvec1" or state["v"] == "genvec2" or \
                         state["v"] == "genvec3" or state["v"] == "shift":
                     setattr(self.kpoints, state["v"],
-                            [float(x)
-                             for x in self.val.getvalue().split()])
+                            map(float, self.val.getvalue().split()))
 
     def _read_calc(self, name):
         state = self.state
@@ -791,13 +786,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.scdata.append(self.scstep)
             logger.debug("Finished reading scstep...")
         elif name == "varray" and state["varray"] == "forces":
-            self.forces = np.array([float(x)
-                                    for x in self.posstr.getvalue().split()])
+            self.forces = np.array(map(float,
+                                       self.posstr.getvalue().split()))
             self.forces.shape = (len(self.atomic_symbols), 3)
             self.read_positions = False
         elif name == "varray" and state["varray"] == "stress":
-            self.stress = np.array([float(x) for x
-                                    in self.posstr.getvalue().split()])
+            self.stress = np.array(map(float,
+                                       self.posstr.getvalue().split()))
             self.stress.shape = (3, 3)
             self.read_positions = False
         elif name == "calculation":
@@ -813,16 +808,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_lattice = False
             self.read_rec_lattice = False
         elif name == "structure":
-            self.lattice = np.array([float(x) for x
-                                     in self.latticestr.getvalue().split()])
-            self.lattice.shape = (3, 3)
-            self.pos = np.array([float(x) for x
-                                 in self.posstr.getvalue().split()])
+            self.lattice = map(float, self.latticestr.getvalue().split())
+            self.pos = np.array(map(float,
+                                    self.posstr.getvalue().split()))
             self.pos.shape = (len(self.atomic_symbols), 3)
             self.structures.append(Structure(self.lattice, self.atomic_symbols,
                                              self.pos))
-            self.lattice_rec = Lattice([float(x) for x
-                                        in self.latticerec.getvalue().split()])
+            self.lattice_rec = Lattice(map(float,
+                                       self.latticerec.getvalue().split()))
             self.read_structure = False
             self.read_positions = False
             self.read_lattice = False
@@ -842,7 +835,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "r" and state["partial"] and \
                     str(state["set"]).startswith("spin"):
                 tok = self.val.getvalue().split()
-                self.raw_data.append([float(i) for i in tok[1:]])
+                self.raw_data.append(map(float, tok[1:]))
             elif name == "set":
                 if state["total"] and str(state["set"]).startswith("spin"):
                     spin = Spin.up if state["set"] == "spin 1" else Spin.down
@@ -887,7 +880,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         state = self.state
         if name == "r" and str(state["set"]).startswith("kpoint"):
             tok = self.val.getvalue().split()
-            self.raw_data.append([float(i) for i in tok])
+            self.raw_data.append(map(float, tok))
         elif name == "set" and str(state["set"]).startswith("kpoint"):
             self.eigenvalues[(self.eigen_spin, self.eigen_kpoint - 1)] = \
                 self.raw_data
@@ -977,10 +970,10 @@ def parse_v_parameters(val_type, val, filename, param_name):
         Parsed value.
     """
     if val_type == "logical":
-        val = [True if i == "T" else False for i in val.split()]
+        val = map(lambda i: i == "T", val.split())
     elif val_type == "int":
         try:
-            val = [int(i) for i in val.split()]
+            val = map(int, val.split())
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
@@ -988,10 +981,10 @@ def parse_v_parameters(val_type, val, filename, param_name):
             if val is None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
-        val = [i for i in val.split()]
+        val = val.split()
     else:
         try:
-            val = [float(i) for i in val.split()]
+            val = map(float, val.split())
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
@@ -1163,8 +1156,8 @@ class Outcar(object):
 
             # Nonspin cases
             def er_ev(results, match):
-                results.er_ev[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)]) / 2
+                results.er_ev[Spin.up] = np.array(map(float,
+                                                      match.groups()[1:4])) / 2
                 results.er_ev[Spin.down] = results.er_ev[Spin.up]
                 results.context = 2
 
@@ -1562,7 +1555,7 @@ class VolumetricData(object):
                         poscar = Poscar.from_string("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
-                    dim = [int(i) for i in line.split()]
+                    dim = map(int, line.split())
                     ngrid_pts = dim[0] * dim[1] * dim[2]
                     dimline = line
                     read_dataset = True
