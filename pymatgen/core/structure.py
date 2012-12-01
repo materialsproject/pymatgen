@@ -188,10 +188,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-        """
-        Corrects for stupid numerical error which may result in acos being
-        operated on a number with absolute value larger than 1
-        """
+        # Corrects for stupid numerical error which may result in acos being
+        # operated on a number with absolute value larger than 1
         ans = min(ans, 1)
         ans = max(-1, ans)
         return math.acos(ans) * 180 / math.pi
