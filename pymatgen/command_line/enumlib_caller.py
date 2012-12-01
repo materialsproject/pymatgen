@@ -228,8 +228,7 @@ class EnumlibAdaptor(object):
 
         lattice = self.structure.lattice
 
-        output = [self.structure.formula]
-        output.append("bulk")
+        output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
         output.append("{}".format(len(index_species)))

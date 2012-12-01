@@ -18,6 +18,7 @@ import os
 from bz2 import BZ2File
 from gzip import GzipFile
 
+
 def zopen(filename, *args, **kwargs):
     """
     This wrapper wraps around the bz2, gzip and standard python's open function
@@ -57,9 +58,10 @@ def zpath(filename):
         filename with a zip extension (unless an unzipped version
         exists)
     """
-    for p in [filename, filename + '.gz', filename + '.bz2']:
-        if os.path.exists(p):
-            return p
+    for ext in ["", '.gz', '.GZ', '.bz2', '.BZ2', '.z', '.Z']:
+        zfilename = "{}{}".format(filename, ext)
+        if os.path.exists(zfilename):
+            return zfilename
     return filename
 
 
