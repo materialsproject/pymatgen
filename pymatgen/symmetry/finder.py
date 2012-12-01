@@ -142,19 +142,15 @@ class SymmetryFinder(object):
         n = self.get_spacegroup_number()
 
         f = lambda i, j: i <= n <= j
-        cs = {}
-        cs["triclinic"] = (1, 2)
-        cs["monoclinic"] = (3, 15)
-        cs["orthorhombic"] = (16, 74)
-        cs["tetragonal"] = (75, 142)
-        cs["trigonal"] = (143, 167)
-        cs["hexagonal"] = (168, 194)
-        cs["cubic"] = (195, 230)
+        cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
+              "orthorhombic": (16, 74), "tetragonal": (75, 142),
+              "trigonal": (143, 167), "hexagonal": (168, 194),
+              "cubic": (195, 230)}
 
         crystal_sytem = None
 
         for k, v in cs.items():
-            if f(*v) == True:
+            if f(*v):
                 crystal_sytem = k
                 break
         return crystal_sytem
@@ -234,7 +230,7 @@ class SymmetryFinder(object):
                                self._transposed_latt.copy(),
                                self._positions, self._numbers, self._symprec,
                                self._angle_tol)
-        return (rotation[:num_sym], translation[:num_sym])
+        return rotation[:num_sym], translation[:num_sym]
 
     def get_symmetry_operations(self, cartesian=False):
         """
