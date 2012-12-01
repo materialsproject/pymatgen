@@ -188,8 +188,9 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-        # Corrects for stupid numerical error which may result in acos being
-        # operated on a number with absolute value larger than 1
+
+        #Correct for stupid numerical error which may result in acos being
+        #operated on a number with absolute value larger than 1
         ans = min(ans, 1)
         ans = max(-1, ans)
         return math.acos(ans) * 180 / math.pi
@@ -497,7 +498,6 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
-        unit_cell_sites = [site.to_unit_cell for site in self._sites]
         floor = math.floor
         for site in self:
             pcoords = site.frac_coords
@@ -511,25 +511,28 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
+        all_fcoords = [np.mod(c, 1) for c in self.frac_coords]
 
         site_coords = np.array(self.cart_coords)
         frac_2_cart = self._lattice.get_cartesian_coords
+        latt = self._lattice
         n = len(self)
         for image in itertools.product(*all_ranges):
-            for (j, site) in enumerate(unit_cell_sites):
-                fcoords = site.frac_coords + np.array(image)
+            for (j, fcoord) in enumerate(all_fcoords):
+                fcoords = fcoord + image
                 coords = frac_2_cart(fcoords)
-                submat = [coords] * n
+                submat = np.tile(coords, (n, 1))
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
+                sp = self[j].species_and_occu
+                props = self[j].properties
                 for i in range(n):
                     if withindists[i]:
-                        nnsite = PeriodicSite(site.species_and_occu, fcoords,
-                                              site.lattice,
-                                              properties=site.properties)
+                        nnsite = PeriodicSite(sp, fcoords, latt,
+                                              properties=props)
                         item = (nnsite, dists[i], j) if include_index\
-                        else (nnsite, dists[i])
+                            else (nnsite, dists[i])
                         neighbors[i].append(item)
         return neighbors
 
