@@ -25,7 +25,6 @@ from pymatgen.io.vaspio_set import VaspInputSet
 from pymatgen.util.decorators import cached_class
 
 
-@cached_class
 class Compatibility(EntryPostProcessor):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
