@@ -28,11 +28,11 @@ from pymatgen.core.structure_modifier import StructureEditor
 
 #List of electronegative elements specified in M. O'Keefe, & N. Brese,
 #JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
-ELECTRONEG = [Element(sym) for sym in ["H",
-                                       "B", "C", "Si",
-                                       "N", "P", "As", "Sb",
-                                       "O", "S", "Se", "Te",
-                                       "F", "Cl", "Br", "I"]]
+ELECTRONEG = map(Element, ["H",
+                           "B", "C", "Si",
+                           "N", "P", "As", "Sb",
+                           "O", "S", "Se", "Te",
+                           "F", "Cl", "Br", "I"])
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
