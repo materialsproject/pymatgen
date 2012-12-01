@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 16, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -18,10 +18,12 @@ import os
 import numpy as np
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, PotcarSingle
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
+    PotcarSingle
 from pymatgen import Composition, Structure, __file__
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                        'test_files')
 
 class PoscarTest(unittest.TestCase):
 

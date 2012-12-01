@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements input and output processing from Gaussian.
-'''
+"""
 
 from __future__ import division
 
@@ -84,7 +84,7 @@ class GaussianInput(object):
                 paras[m.group(1)] = float(m.group(2))
         zmat_patt = re.compile("^\s*([A-Za-z]+)[\w\d\-\_]*"
                                "([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-        mixed_species_patt = re.compile("([A-Za-z]+)[\d\-\_]+")
+        mixed_species_patt = re.compile("([A-Za-z]+)[\d\-_]+")
         xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)\s+"
                               "([\d\.eE\-]+)\s+([\d\.eE\-]+)\s+"
                               "([\d\.eE\-]+)[\-\.\s,\w.]*$")
@@ -129,9 +129,8 @@ class GaussianInput(object):
                         ind = toks.pop(0)
                         data = toks.pop(0)
                         try:
-                            int(ind)
                             nn.append(int(ind))
-                        except:
+                        except ValueError:
                             nn.append(parsed_species.index(ind))
                         parameters.append(paras[data])
                     if len(nn) == 1:
@@ -208,7 +207,7 @@ class GaussianInput(object):
             for tok in route.split():
                 if tok.strip().startswith("#"):
                     continue
-                if re.match("\w+\/.*", tok):
+                if re.match("\w+/.*", tok):
                     d = tok.split("/")
                     functional = d[0]
                     basis_set = d[1]
@@ -487,8 +486,7 @@ class GaussianOutput(object):
                                 for l in coord_txt[2:]:
                                     toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append([float(i)
-                                                   for i in toks[3:6]])
+                                    coords.append(map(float, toks[3:6]))
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
