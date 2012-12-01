@@ -89,20 +89,16 @@ class EwaldSummation(object):
         self._gmax = recip_space_cut if recip_space_cut \
             else 2 * self._sqrt_eta * self._accf
 
-        """
-        The next few lines pre-compute certain quantities and store them. Ewald
-        summation is rather expensive, and these shortcuts are necessary to
-        obtain several factors of improvement in speedup.
-        """
+        # The next few lines pre-compute certain quantities and store them.
+        # Ewald summation is rather expensive, and these shortcuts are
+        # necessary to obtain several factors of improvement in speedup.
         self._oxi_states = [compute_average_oxidation_state(site)
                             for site in structure]
         self._coords = np.array(self._s.cart_coords)
         self._forces = np.zeros((len(structure), 3))
 
-        """
-        Now we call the relevant private methods to calculate the reciprocal
-        and real space terms.
-        """
+        # Now we call the relevant private methods to calculate the reciprocal
+        # and real space terms.
         (self._recip, recip_forces) = self._calc_recip()
         (self._real, self._point, real_point_forces) = \
             self._calc_real_and_point()
@@ -378,11 +374,11 @@ class EwaldMinimizer:
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    '''
+    """
     ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
     accuracy) as the minimizer runs. Attempts to limit the run time to
     approximately 30 minutes.
-    '''
+    """
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
