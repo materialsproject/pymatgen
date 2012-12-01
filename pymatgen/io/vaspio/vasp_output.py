@@ -1636,38 +1636,43 @@ class VolumetricData(object):
             ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
             data[:,1])
         """
-
-        radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
-
         #For non-spin-polarized runs, this is zero by definition.
-        data = np.zeros((nbins, 2))
-        data[:, 0] = radii
         if not self.is_spin_polarized:
+            radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
+            data = np.zeros((nbins, 2))
+            data[:, 0] = radii
             return data
 
-        max_r = max(radii)
         struct = self.structure
         a = self.dim
         if ind not in self._distance_matrix or\
-                self._distance_matrix[ind]["max_radius"] < max_r:
+                self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
                                                   struct[ind].coords,
-                                                  max_r)
-            self._distance_matrix[ind] = {"max_radius": max_r,
+                                                  radius)
+            self._distance_matrix[ind] = {"max_radius": radius,
                                           "data": sites_dist}
 
-        for (fcoords, dist, i) in filter(lambda d: d[1] <= max_r,
-                                         self._distance_matrix[ind]["data"]):
-            c = np.rint(np.mod(fcoords, 1) * a)
-            val = self.data["diff"][c[0], c[1], c[2]]
-            for i, r in enumerate(radii):
-                if dist <= r:
-                    data[i, 1] += val
 
-        data[:, 1] /= self.ngridpts
+        def get_val(fcoords):
+            c = np.rint(np.mod(fcoords, 1) * a)
+            return self.data["diff"][c[0], c[1], c[2]]
+
+        dists = []
+        vals = []
+        for (fcoords, dist, i) in filter(lambda d: d[1] <= radius,
+                                         self._distance_matrix[ind]["data"]):
+            dists.append(dist)
+            vals.append(get_val(fcoords))
+
+        hist, edges = np.histogram(dists, bins=nbins, range=[0, radius],
+                                   weights=vals)
+        data = np.zeros((nbins, 2))
+        data[:, 0] = edges[1:]
+        data[:, 1] = [sum(hist[0:i+1]) / self.ngridpts for i in xrange(nbins)]
         return data
 
     def get_average_along_axis(self, ind):

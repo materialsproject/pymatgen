@@ -18,7 +18,7 @@ def test():
 def chgcar_test():
     from pymatgen.io.vaspio import Chgcar
     c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
-    print c.get_integrated_diff(1, 2.5)
+    print c.get_integrated_diff(1, 2.5, 3)
 
 cProfile.run('chgcar_test()', 'testprof')
 p = pstats.Stats('testprof')
