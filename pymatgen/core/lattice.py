@@ -19,7 +19,7 @@ import itertools
 
 import numpy as np
 from numpy.linalg import det, inv
-from numpy import pi, dot, transpose
+from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
 
@@ -51,21 +51,21 @@ class Lattice(MSONable):
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
 
-        self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
+        m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._inv_matrix = inv(self._matrix)
+        self._inv_matrix = inv(m)
 
-        lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
+        lengths = np.sum(m ** 2, axis=1) ** 0.5
         angles = np.zeros(3, float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = dot(self._matrix[j], self._matrix[k]) /\
-                        (lengths[j] * lengths[k])
+            angles[i] = dot(m[j], m[k]) / (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
+        self._matrix = m
 
     @property
     def matrix(self):
@@ -239,9 +239,9 @@ class Lattice(MSONable):
             A Lattice with the specified lattice parameters.
         """
 
-        alpha_r = np.radians(alpha)
-        beta_r = np.radians(beta)
-        gamma_r = np.radians(gamma)
+        alpha_r = radians(alpha)
+        beta_r = radians(beta)
+        gamma_r = radians(gamma)
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
               / (np.sin(alpha_r) * np.sin(beta_r))
         #Sometimes rounding errors result in values slightly > 1.
