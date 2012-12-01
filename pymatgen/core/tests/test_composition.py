@@ -91,17 +91,13 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(comp.formula, "Li8 Fe6")
 
     def test_indeterminate_formula(self):
-        correct_formulas = []
-        correct_formulas.append(["Co1"])
-        correct_formulas.append(["Co1", "C1 O1"])
-        correct_formulas.append(["Co2 O3", "C1 O5"])
-        correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
-        correct_formulas.append(["N1 Ca1 Lu1", "U1 Al1 C1 N1"])
-        correct_formulas.append(["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11",
-                                 "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"])
-        correct_formulas.append(["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
-                                 "Po4 C2 O2"])
-        correct_formulas.append([])
+        correct_formulas = [["Co1"], ["Co1", "C1 O1"], ["Co2 O3", "C1 O5"],
+                            ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
+                            ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
+                            ["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11",
+                             "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"],
+                            ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
+                             "Po4 C2 O2"], []]
         for i, c in enumerate(correct_formulas):
             self.assertEqual([Composition.from_formula(comp) for comp in c],
                              self.indeterminate_comp[i])
@@ -172,6 +168,10 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(Composition.from_dict(sym_dict).reduced_formula,
                          "Fe3O4",
                          "Creation form sym_amount dictionary failed!")
+        comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
+        comp2 = Composition.from_dict(comp.to_dict)
+        self.assertEqual(comp, comp2)
+
 
     def test_to_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})

@@ -57,7 +57,10 @@ Latest Change Log
    data by running through the x-axis first, followed by y, then z.
 2. Bug fix for reverse_readline so that it works for gzipped and bzipped
    strucutures (courtesy of Anubhav Jain).
-3. Miscellaneous bug fixes.
+3. Fix "lossy" composition to_dict method.  Now composition.to_dict properly
+   returns a correct species string as a key for compositions using species,
+   instead of just the element symbols.
+4. Miscellaneous bug fixes.
 
 :doc:`Older versions </changelog>`
 
