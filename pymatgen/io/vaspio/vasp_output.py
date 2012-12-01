@@ -1614,7 +1614,7 @@ class VolumetricData(object):
             write_spin("diff")
         f.close()
 
-    def get_integrated_diff(self, ind, radius, max_radius=None):
+    def get_integrated_diff(self, ind, radius, nbins=1):
         """
         Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
@@ -1625,43 +1625,50 @@ class VolumetricData(object):
                 Index of atom.
             radius:
                 Radius of integration.
-            max_radius:
-                For speed, the code will precompute and cache distances for all
-                gridpoints up to max_radius. If obtaining the integrated charge
-                for the same ind up to a different radius, the code will use
-                the cahced distances, resulting in much faster retrieval of
-                data. If max_radius is None (the default), half of the minimum
-                cell length is used. For best results, choose a max_radius that
-                is close to the maximum value that you would be interested in.
+            nbins:
+                Number of bins. Defaults to 1. This allows one to obtain the
+                charge integration up to a list of the cumulative charge
+                integration values for radii for [radius/nbins,
+                2 * radius/nbins, ....].
 
         Returns:
-            Differential integrated charge.
+            Differential integrated charge as a np array of [[radius, value],
+            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            data[:,1])
         """
-        #For non-spin-polarized runs, this is zero by definition.
-        if not self.is_spin_polarized:
-            return 0
 
+        radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
+
+        #For non-spin-polarized runs, this is zero by definition.
+        data = np.zeros((nbins, 2))
+        data[:, 0] = radii
+        if not self.is_spin_polarized:
+            return data
+
+        max_r = max(radii)
         struct = self.structure
         a = self.dim
-        if ind not in self._distance_matrix or \
-                self._distance_matrix[ind]["max_radius"] < radius:
+        if ind not in self._distance_matrix or\
+                self._distance_matrix[ind]["max_radius"] < max_r:
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            if not max_radius:
-                max_radius = max(max(self.structure.lattice.abc) / 2, radius)
             sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
                                                   struct[ind].coords,
-                                                  max_radius)
-            self._distance_matrix[ind] = {"max_radius": max_radius,
+                                                  max_r)
+            self._distance_matrix[ind] = {"max_radius": max_r,
                                           "data": sites_dist}
 
-        intchg = 0
-        for (fcoords, dist, i) in filter(lambda d: d[1] <= radius,
+        for (fcoords, dist, i) in filter(lambda d: d[1] <= max_r,
                                          self._distance_matrix[ind]["data"]):
-            c = [int(round(i)) for i in np.mod(fcoords, 1) * a]
-            intchg += self.data["diff"][c[0], c[1], c[2]]
-        return intchg / self.ngridpts
+            c = np.rint(np.mod(fcoords, 1) * a)
+            val = self.data["diff"][c[0], c[1], c[2]]
+            for i, r in enumerate(radii):
+                if dist <= r:
+                    data[i, 1] += val
+
+        data[:, 1] /= self.ngridpts
+        return data
 
     def get_average_along_axis(self, ind):
         """

@@ -16,6 +16,7 @@ __date__ = "Jul 16, 2012"
 import unittest
 import os
 import json
+import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun
@@ -192,22 +193,21 @@ class ChgcarTest(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'CHGCAR.nospin')
         chg = Chgcar.from_file(filepath)
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 2), 0)
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 2)[0, 1], 0)
         filepath = os.path.join(test_dir, 'CHGCAR.spin')
         chg = Chgcar.from_file(filepath)
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 1),
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1)[0, 1],
                                -0.0043896932237534022)
         #test sum
         chg += chg
-        self.assertAlmostEqual(chg.get_integrated_diff(0, 1),
+        self.assertAlmostEqual(chg.get_integrated_diff(0, 1)[0, 1],
                                -0.0043896932237534022 * 2)
 
         filepath = os.path.join(test_dir, 'CHGCAR.noncubic')
         chg = Chgcar.from_file(filepath)
-        ans = [0.221423, 0.462059, 0.470549,0.434775, 0.860738]
-        for i in xrange(1, 6):
-            self.assertAlmostEqual(chg.get_integrated_diff(0, i/2), ans[i-1],
-                                   5)
+        ans = [0.221423, 0.462059, 0.470549, 0.434775, 0.860738, 2.1717482]
+        myans = chg.get_integrated_diff(0, 3, 6)
+        self.assertTrue(np.allclose(myans[:, 1], ans))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
