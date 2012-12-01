@@ -375,7 +375,7 @@ class Element(object):
             elif (Z - 2) % 8 <= 2:
                 return (Z - 2) % 8
             else:
-                return (10 + (Z - 2) % 8)
+                return 10 + (Z - 2) % 8
 
         if 19 <= Z <= 54:
             if (Z - 18) % 18 == 0:
@@ -473,7 +473,7 @@ class Element(object):
         """
         True if element is a lanthanoid.
         """
-        return self._z > 56 and self._z < 72
+        return 56 < self._z < 72
 
     @property
     def is_actinoid(self):
@@ -658,10 +658,8 @@ class DummySpecie(Specie, MSONable):
                 msg += " Choose a different dummy symbol."
                 raise ValueError(msg)
 
-        """
-        Set required attributes for DummySpecie to function like a Specie in
-        most instances.
-        """
+        # Set required attributes for DummySpecie to function like a Specie in
+        # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}

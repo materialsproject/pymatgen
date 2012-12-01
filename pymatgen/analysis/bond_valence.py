@@ -124,7 +124,7 @@ class BVAnalyzer(object):
         self.max_permutations = max_permutations
         self.dist_scale_factor = distance_scale_factor
 
-    def _calc_site_probabilities(self, site, nn, anion_el):
+    def _calc_site_probabilities(self, site, nn):
         el = site.specie.symbol
         bv_sum = calculate_bv_sum(site, nn,
                                   scale_factor=self.dist_scale_factor)
@@ -171,16 +171,10 @@ class BVAnalyzer(object):
             symm_structure = finder.get_symmetrized_structure()
             equi_sites = symm_structure.equivalent_sites
         else:
-            symm_structure = structure
             equi_sites = [[site] for site in structure]
 
         #Sort the equivalent sites by decreasing electronegativity.
         equi_sites = sorted(equi_sites, key=lambda sites:-sites[0].specie.X)
-
-        #all_nn = structure.get_all_neighbors(self.max_radius)
-
-        #The anion element is the most electronegative element.
-        anion_el = Element(equi_sites[0][0].specie.symbol)
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.
@@ -189,8 +183,7 @@ class BVAnalyzer(object):
         for sites in equi_sites:
             test_site = sites[0]
             nn = structure.get_neighbors(test_site, self.max_radius)
-            prob = self._calc_site_probabilities(test_site, nn,
-                                                 anion_el)
+            prob = self._calc_site_probabilities(test_site, nn)
             all_prob.append(prob)
             val = list(prob.keys())
             #Sort valences in order of decreasing probability.
