@@ -15,6 +15,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
+import collections
 
 from pymatgen.util.decorators import cached_class
 
@@ -24,33 +25,7 @@ class Spin(object):
     Enum type for Spin.  Only up and down.
     Usage: Spin.up, Spin.down.
     """
-
-    @cached_class
-    class _SpinImpl(object):
-        """
-        Internal representation for Spin. Not to be instantiated directly.
-        Use Spin enum types. Class is implemented as a cached class for
-        memory efficiency.
-        """
-        def __init__(self, name):
-            self._name = name
-
-        def __int__(self):
-            return 1 if self._name == "up" else -1
-
-        def __repr__(self):
-            return self._name
-
-        def __eq__(self, other):
-            if other is None:
-                return False
-            return self._name == other._name
-
-        def __hash__(self):
-            return self.__int__()
-
-        def __str__(self):
-            return self._name
+    up, down = (1, -1)
 
     @staticmethod
     def from_int(i):
@@ -68,8 +43,6 @@ class Spin(object):
         else:
             raise ValueError("Spin integers must be 1 or -1")
 
-    up = _SpinImpl("up")
-    down = _SpinImpl("down")
     all_spins = (up, down)
 
 
