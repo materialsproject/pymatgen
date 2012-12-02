@@ -120,7 +120,8 @@ class MPRester(object):
 
     def get_entries(self, chemsys_formula_id, compatible_only=True):
         """
-        Get a ComputedEntry corresponding to a material_id.
+        Get a ComputedEntry corresponding to  a chemical system, formula,
+        or materials_id.
 
         Args:
             chemsys_formula_id:
@@ -204,11 +205,11 @@ class MPRester(object):
 
     def get_entries_in_chemsys(self, elements, compatible_only=True):
         """
-        Get a list of ComputedEntries in a chemical system. For example,
-        elements = ["Li", "Fe", "O"] will return a list of all entries in the
-        Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz, Li,
-        Fe and O phases. Extremely useful for creating phase diagrams of entire
-        chemical systems.
+        Helper method to get a list of ComputedEntries in a chemical system.
+        For example, elements = ["Li", "Fe", "O"] will return a list of all
+        entries in the Li-Fe-O chemical system, i.e., all LixOy,
+        FexOy, LixFey, LixFeyOz, Li, Fe and O phases. Extremely useful for
+        creating phase diagrams of entire chemical systems.
 
         Args:
             elements:
