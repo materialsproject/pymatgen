@@ -42,8 +42,9 @@ pymatgen's Google Groups page
 2. numpy - For array, matrix and other numerical manipulations. Used extensively 
    by all core modules.
 3. pyhull 1.3.6+: For generation of phase diagrams.
-5. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
+4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
    (CIF) files.
+5. requests 0.14+: For the high-level interface to the Materials API.
 
 ### Optional Python Libraries ###
 
