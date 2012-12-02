@@ -459,7 +459,7 @@ class PeriodicSite(Site, MSONable):
             # Generate set of images required for testing.
             test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1]
                         for i in range(3)]
-            images = [image for image in itertools.product(*test_set)]
+            images = list(itertools.product(*test_set))
             # Create tiled cartesian coords for computing distances.
             vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
             vec = self._lattice.get_cartesian_coords(vec)

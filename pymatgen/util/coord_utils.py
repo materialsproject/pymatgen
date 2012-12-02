@@ -156,13 +156,13 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     fcoords = np.array(frac_points)
     frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
+    indices = np.array(range(n))
     for image in itertools.product(*axis_ranges):
         shift = np.tile(image, (n, 1))
         shifted_coords = fcoords + shift
         coords = frac_2_cart(shifted_coords)
         dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
         within_r = dists <= r
-        for i in range(n):
-            if within_r[i]:
-                neighbors.append((shifted_coords[i], dists[i], i))
+        d = [shifted_coords[within_r], dists[within_r], indices[within_r]]
+        neighbors.extend(np.transpose(d))
     return neighbors
