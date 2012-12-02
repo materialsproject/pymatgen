@@ -324,7 +324,7 @@ if __name__ == "__main__":
     parser_plotchg.add_argument("filename", metavar="filename", type=str, nargs=1,
                                 help="CHGCAR file to plot")
     parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
-                                nargs=1,
+                                nargs=1, required=True,
                                 help="Comma-separated list of indices to plot"
                                      ", e.g., 1,2,3,4.")
     parser_plotchg.add_argument("-r", "--radius", dest="radius", type=float,
