@@ -407,7 +407,7 @@ class Structure(SiteCollection, MSONable):
         """
         return self[i].distance(self[j], jimage)
 
-    def get_sites_in_sphere(self, pt, r):
+    def get_sites_in_sphere(self, pt, r, include_index=False):
         """
         Find all sites within a sphere from the point. This includes sites
         in other periodic images.
@@ -429,6 +429,9 @@ class Structure(SiteCollection, MSONable):
                 cartesian coordinates of center of sphere.
             r:
                 radius of sphere.
+            include_index:
+                boolean that determines whether the non-supercell site index
+                is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -441,10 +444,11 @@ class Structure(SiteCollection, MSONable):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
-            neighbors.append((nnsite, dist))
+            neighbors.append((nnsite, dist) if not include_index
+                             else (nnsite, dist, i))
         return neighbors
 
-    def get_neighbors(self, site, r):
+    def get_neighbors(self, site, r, include_index=False):
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
@@ -454,13 +458,17 @@ class Structure(SiteCollection, MSONable):
                 site, which is the center of the sphere.
             r:
                 radius of sphere.
+            include_index:
+                boolean that determines whether the non-supercell site index
+                is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        nn = self.get_sites_in_sphere(site.coords, r)
-        return [(s, dist) for (s, dist) in nn if site != s]
+        nn = self.get_sites_in_sphere(site.coords, r,
+                                      include_index=include_index)
+        return [d for d in nn if site != d[0]]
 
     def get_all_neighbors(self, r, include_index=False):
         """
@@ -478,7 +486,6 @@ class Structure(SiteCollection, MSONable):
         Args:
             r:
                 radius of sphere.
-
             include_index:
                 boolean that determines whether the non-supercell site index
                 is included in the returned data
@@ -511,12 +518,13 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
-        all_fcoords = [np.mod(c, 1) for c in self.frac_coords]
+        all_fcoords = np.mod(self.frac_coords, 1)
 
         site_coords = np.array(self.cart_coords)
-        frac_2_cart = self._lattice.get_cartesian_coords
         latt = self._lattice
+        frac_2_cart = latt.get_cartesian_coords
         n = len(self)
+        indices = np.array(range(n))
         for image in itertools.product(*all_ranges):
             for (j, fcoord) in enumerate(all_fcoords):
                 fcoords = fcoord + image
@@ -527,13 +535,12 @@ class Structure(SiteCollection, MSONable):
                 withindists = (dists <= r) * (dists > 1e-8)
                 sp = self[j].species_and_occu
                 props = self[j].properties
-                for i in range(n):
-                    if withindists[i]:
-                        nnsite = PeriodicSite(sp, fcoords, latt,
-                                              properties=props)
-                        item = (nnsite, dists[i], j) if include_index\
-                            else (nnsite, dists[i])
-                        neighbors[i].append(item)
+                for i in indices[withindists]:
+                    nnsite = PeriodicSite(sp, fcoords, latt,
+                                          properties=props)
+                    item = (nnsite, dists[i], j) if include_index else (
+                        nnsite, dists[i])
+                    neighbors[i].append(item)
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr):

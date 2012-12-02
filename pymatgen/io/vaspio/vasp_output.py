@@ -1647,21 +1647,18 @@ class VolumetricData(object):
                                                   struct[ind].coords,
                                                   radius)
             self._distance_matrix[ind] = {"max_radius": radius,
-                                          "data": sites_dist}
+                                          "data": np.array(sites_dist)}
 
+        data = self._distance_matrix[ind]["data"]
 
-        def get_val(fcoords):
-            c = np.rint(np.mod(fcoords, 1) * a)
-            return self.data["diff"][c[0], c[1], c[2]]
+        inds = data[:, 1] <= radius
+        dists = data[inds, 1]
+        data_inds = np.rint(np.mod([i for i in data[inds, 0]], 1) *
+                            np.tile(a, (len(dists), 1)))
+        vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
 
-        dists = []
-        vals = []
-        for (fcoords, dist, i) in filter(lambda d: d[1] <= radius,
-                                         self._distance_matrix[ind]["data"]):
-            dists.append(dist)
-            vals.append(get_val(fcoords))
-
-        hist, edges = np.histogram(dists, bins=nbins, range=[0, radius],
+        hist, edges = np.histogram(dists, bins=nbins,
+                                   range=[0, radius],
                                    weights=vals)
         data = np.zeros((nbins, 2))
         data[:, 0] = edges[1:]
