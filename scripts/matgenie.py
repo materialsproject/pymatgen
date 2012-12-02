@@ -21,7 +21,7 @@ import multiprocessing
 
 from collections import OrderedDict
 
-from pymatgen.io.vaspio import Outcar, Vasprun
+from pymatgen.io.vaspio import Outcar, Vasprun, Chgcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
@@ -157,6 +157,22 @@ def plot_dos(args):
     plotter = DosPlotter()
     plotter.add_dos_dict(all_dos)
     plotter.show()
+
+
+def plot_chgint(args):
+    chgcar = Chgcar.from_file(args.filename[0])
+    s = chgcar.structure
+    from pymatgen.util.plotting_utils import get_publication_quality_plot
+    plt = get_publication_quality_plot(12, 8)
+    for i in map(int, args.inds[0].split(",")):
+        d = chgcar.get_integrated_diff(i, args.radius, 30)
+        plt.plot(d[:, 0], d[:,1],
+                 label="Atom {} - {}".format(i, s[i].species_string))
+    plt.legend(loc="upper left")
+    plt.xlabel("Radius (A)")
+    plt.ylabel("Integrated charge (e)")
+    plt.tight_layout()
+    plt.show()
 
 
 def parse_vasp(args):
@@ -301,6 +317,20 @@ if __name__ == "__main__":
                              action="store_const", const=True,
                              help="plot orbital projected DOS")
     parser_plot.set_defaults(func=plot_dos)
+
+    parser_plotchg = subparsers.add_parser("plotchgint",
+                                           help="Plotting for the charge "
+                                                "integration.")
+    parser_plotchg.add_argument("filename", metavar="filename", type=str, nargs=1,
+                                help="CHGCAR file to plot")
+    parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
+                                nargs=1,
+                                help="Comma-separated list of indices to plot"
+                                     ", e.g., 1,2,3,4.")
+    parser_plotchg.add_argument("-r", "--radius", dest="radius", type=float,
+                                default=3,
+                                help="Radius of integration.")
+    parser_plotchg.set_defaults(func=plot_chgint)
 
     parser_convert = subparsers.add_parser("convert",
                                            help="File format conversion tools."
