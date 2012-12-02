@@ -341,7 +341,7 @@ class Vasprun(object):
             dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
         p_eigenvals = {}
-        if "up" in dict_eigen["1"] and "down" in dict_eigen["1"]\
+        if "1" in dict_eigen["1"] and "-1" in dict_eigen["1"]\
                 and self.incar['ISPIN'] == 2:
             eigenvals = {Spin.up: [], Spin.down: []}
             if len(dict_p_eigen) != 0:
@@ -351,26 +351,26 @@ class Vasprun(object):
             if len(dict_p_eigen) != 0:
                 p_eigenvals = {Spin.up: []}
 
-        neigenvalues = [len(v['up']) for v in dict_eigen.values()]
+        neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0]
+            eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
                                        for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
                 p_eigenvals[Spin.up].append(
                     [{Orbital.from_string(orb):
-                      dict_p_eigen[j]['up'][i][orb]
-                      for orb in dict_p_eigen[j]['up'][i]}
+                      dict_p_eigen[j]['1'][i][orb]
+                      for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
         if Spin.down in eigenvals:
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0]
+                eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
                                              for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append(
                         [{Orbital.from_string(orb):
-                          dict_p_eigen[j]['down'][i][orb]
-                          for orb in dict_p_eigen[j]['down'][i]}
+                          dict_p_eigen[j]['-1'][i][orb]
+                          for orb in dict_p_eigen[j]['-1'][i]}
                          for j in range(len(kpoints))]
                     )
 
@@ -380,7 +380,7 @@ class Vasprun(object):
         hybrid_band = False
         if self.parameters['LHFCALC']:
             for l in kpoint_file.labels:
-                if l != None:
+                if l is not None:
                     hybrid_band = True
 
         if kpoint_file.style == "Line_mode" or hybrid_band:
@@ -392,7 +392,7 @@ class Vasprun(object):
                         start_bs_index = i
                         break
                 for i in range(len(kpoint_file.kpts)):
-                    if kpoint_file.labels[i] != None:
+                    if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]
                 #remake the data only considering line band structure k-points
