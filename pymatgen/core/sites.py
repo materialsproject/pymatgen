@@ -305,12 +305,16 @@ class PeriodicSite(Site, MSONable):
                 {"magmom":5}. Defaults to None.
         """
         self._lattice = lattice
-        self._fcoords = self._lattice.get_fractional_coords(coords) \
-            if coords_are_cartesian else coords
+        if coords_are_cartesian:
+            self._fcoords = self._lattice.get_fractional_coords(coords)
+            c_coords = coords
+        else:
+            self._fcoords = coords
+            c_coords = lattice.get_cartesian_coords(coords)
 
         if to_unit_cell:
             self._fcoords = np.mod(self._fcoords, 1)
-        c_coords = self._lattice.get_cartesian_coords(self._fcoords)
+            c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
 
     @property
