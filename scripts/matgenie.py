@@ -8,10 +8,10 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
-__date__ = "Aug 14, 2012"
+__date__ = "Dec 1, 2012"
 
 import argparse
 import os
@@ -260,10 +260,10 @@ def parse_view(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
-    matgenie is a convenient script that uses pymatgen to perform many analyses
-    , plotting and format conversions. This script works based on several
-    sub-commands with their own options. To see the options for the sub-
-    commands, type "matgenie.py sub-command -h".""",
+    matgenie is a convenient script that uses pymatgen to perform many
+    analyses, plotting and format conversions. This script works based on
+    several sub-commands with their own options. To see the options for the
+    sub-commands, type "matgenie.py sub-command -h".""",
     epilog="""
     Author: Shyue Ping Ong
     Version: {}
