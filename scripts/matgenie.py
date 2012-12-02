@@ -162,9 +162,18 @@ def plot_dos(args):
 def plot_chgint(args):
     chgcar = Chgcar.from_file(args.filename[0])
     s = chgcar.structure
+
+    if args.inds:
+        atom_ind = map(int, args.inds[0].split(","))
+    else:
+        finder = SymmetryFinder(s, symprec=0.1)
+        sites = [sites[0] for sites in
+                 finder.get_symmetrized_structure().equivalent_sites]
+        atom_ind = [s.sites.index(site) for site in sites]
+
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
-    for i in map(int, args.inds[0].split(",")):
+    for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
         plt.plot(d[:, 0], d[:,1],
                  label="Atom {} - {}".format(i, s[i].species_string))
@@ -324,9 +333,11 @@ if __name__ == "__main__":
     parser_plotchg.add_argument("filename", metavar="filename", type=str, nargs=1,
                                 help="CHGCAR file to plot")
     parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
-                                nargs=1, required=True,
+                                nargs=1,
                                 help="Comma-separated list of indices to plot"
-                                     ", e.g., 1,2,3,4.")
+                                     ", e.g., 1,2,3,4. If not provided, "
+                                     "the code will plot the chgint for all "
+                                     "symmetrically distinct atoms detected.")
     parser_plotchg.add_argument("-r", "--radius", dest="radius", type=float,
                                 default=3,
                                 help="Radius of integration.")
