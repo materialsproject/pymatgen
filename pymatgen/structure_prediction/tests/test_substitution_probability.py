@@ -8,8 +8,6 @@ from pymatgen.core.periodic_table import Specie
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
 
 def get_table():
     """
@@ -17,8 +15,9 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_file = os.path.join(test_dir, 'structure_predictor_test_data',
-                             'test_lambda.json')
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            'struct_predictor_test_files')
+    json_file = os.path.join(data_dir, 'test_lambda.json')
     with open(json_file) as f:
         lambda_table = json.load(f)
     return lambda_table
