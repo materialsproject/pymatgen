@@ -74,6 +74,7 @@ setup(
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg"],
                   "pymatgen.entries": ["*.cfg"],
+                  "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "Will Richards, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, "
