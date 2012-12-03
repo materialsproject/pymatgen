@@ -18,9 +18,9 @@ import os
 import json
 
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen import PMGJSONDecoder, __file__
+from pymatgen import PMGJSONDecoder
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

@@ -20,10 +20,10 @@ import os
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
-from pymatgen import PMGJSONDecoder, __file__, Composition
+from pymatgen import PMGJSONDecoder, Composition
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 

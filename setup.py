@@ -12,6 +12,7 @@ for materials analysis. It currently powers the public Materials Project
 (http://www.materialsproject.org), an initiative to make calculated properties
 on a large number of materials available to materials researchers and
 designers. These are some of the main features:
+
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files
@@ -25,8 +26,8 @@ designers. These are some of the main features:
 5. Integration with the Materials Project REST API.
 
 The latest stable version of pymatgen and its accompanying documentation
-(http://packages.python.org/pymatgen) is always on PyPI. The
-bleeding edge developmental version is available at our GitHub repo at
+(http://packages.python.org/pymatgen) is always on PyPI. The bleeding edge
+developmental version is available at our GitHub repo at
 https://github.com/materialsproject/pymatgen. If you wish to
 be notified via email of pymatgen releases, you may become a member of
 pymatgen's Google Groups page
@@ -63,11 +64,9 @@ def get_spglib_ext():
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.3.0",
-    install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3"],
-    dependency_links = [
-        "https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.5.tar.gz"
-    ],
+    version="2.3.2b",
+    install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
+                      "requests>=0.14"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"]},
@@ -76,6 +75,7 @@ setup(
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg"],
                   "pymatgen.entries": ["*.cfg"],
+                  "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "Will Richards, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, "

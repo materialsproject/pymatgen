@@ -1,10 +1,26 @@
 #!/usr/bin/env python
 
 import unittest
+import json
+import os
 
 from pymatgen.core.periodic_table import Specie
 from pymatgen.structure_prediction.substitution_probability \
-    import SubstitutionProbability, test_table
+    import SubstitutionProbability
+
+
+def get_table():
+    """
+    Loads a lightweight lambda table for use in unit tests to reduce
+    initialization time, and make unit tests insensitive to changes in the
+    default lambda table.
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            'struct_predictor_test_files')
+    json_file = os.path.join(data_dir, 'test_lambda.json')
+    with open(json_file) as f:
+        lambda_table = json.load(f)
+    return lambda_table
 
 
 class SubstitutionProbabilityTest(unittest.TestCase):
@@ -33,7 +49,7 @@ class SubstitutionProbabilityTest(unittest.TestCase):
                                , "probability isn't correct")
 
     def test_mini_lambda_table(self):
-        sp = SubstitutionProbability(lambda_table=test_table(), alpha= -5.)
+        sp = SubstitutionProbability(lambda_table=get_table(), alpha= -5.)
         o2 = Specie('O', -2)
         s2 = Specie('S', -2)
         li1 = Specie('Li', 1)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 16, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -18,10 +18,13 @@ import os
 import numpy as np
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, PotcarSingle
-from pymatgen import Composition, Structure, __file__
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
+    PotcarSingle
+from pymatgen import Composition, Structure
+from nose.exc import SkipTest
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class PoscarTest(unittest.TestCase):
 
@@ -270,12 +273,16 @@ class PotcarSingleTest(unittest.TestCase):
             self.assertIsNotNone(getattr(self.psingle, k))
 
     def test_from_functional_and_symbols(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            raise SkipTest("VASP_PSP_DIR not set. Skipping...")
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 
 class PotcarTest(unittest.TestCase):
 
     def test_init(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            raise SkipTest("VASP_PSP_DIR not set. Skipping...")
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")

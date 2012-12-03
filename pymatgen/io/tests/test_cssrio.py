@@ -18,11 +18,10 @@ import os
 
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import __file__
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
-                            'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class CssrTest(unittest.TestCase):

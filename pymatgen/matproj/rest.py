@@ -19,9 +19,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jun 8, 2012"
 
-import urllib
-import httplib
+import requests
 import json
+import warnings
 
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
@@ -79,24 +79,69 @@ class MPRester(object):
                 general list of useful properties.
         """
         headers = {"x-api-key": self.api_key}
-        conn = httplib.HTTPSConnection(self.host)
         if prop:
-            url = "/rest/v1/materials/{}/{}/{}".format(chemsys_formula_id,
-                                                       data_type, prop)
+            url = "https://{}/rest/v1/materials/{}/{}/{}".format(
+                self.host, chemsys_formula_id, data_type, prop)
         else:
-            url = "/rest/v1/materials/{}/{}".format(chemsys_formula_id,
-                                                       data_type)
+            url = "https://{}/rest/v1/materials/{}/{}".format(
+                self.host, chemsys_formula_id, data_type)
 
         try:
-            conn.request("GET", url, headers=headers)
-            response = conn.getresponse()
-            data = json.loads(response.read(), cls=PMGJSONDecoder)
+            response = requests.get(url, headers=headers)
+            data = json.loads(response.text, cls=PMGJSONDecoder)
             if data["valid_response"]:
+                if data.get("warning"):
+                    warnings.warn(data["warning"])
                 return data["response"]
             else:
                 raise MPRestError(data["error"])
-        except httplib.HTTPException as ex:
+        except Exception as ex:
             raise MPRestError(str(ex))
+
+    def get_structures(self, chemsys_formula_id, final=True):
+        """
+        Get a Structure corresponding to a chemical system, formula,
+        or materials_id.
+
+        Args:
+            chemsys_formula_id:
+                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
+                materials_id (e.g., 1234).
+            final:
+                Whether to get the final structure, or the initial
+                (pre-relaxation) structure. Defaults to True.
+
+        Returns:
+            List of Structure objects.
+        """
+        prop = "final_structure" if final else "initial_structure"
+        data = self.get_data(chemsys_formula_id, prop=prop)
+        return [d[prop] for d in data]
+
+    def get_entries(self, chemsys_formula_id, compatible_only=True):
+        """
+        Get a ComputedEntry corresponding to  a chemical system, formula,
+        or materials_id.
+
+        Args:
+            chemsys_formula_id:
+                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
+                materials_id (e.g., 1234).
+            compatible_only:
+                Whether to return only "compatible" entries. Compatible entries
+                are entries that have been processed using the
+                MaterialsProjectCompatibility class, which performs adjustments
+                to allow mixing of GGA and GGA+U calculations for more accurate
+                phase diagrams and reaction energies.
+
+        Returns:
+            List of ComputedEntry objects.
+        """
+        data = self.get_data(chemsys_formula_id, prop="entry")
+        entries = [d["entry"] for d in data]
+        if compatible_only:
+            entries = MaterialsProjectCompatibility().process_entries(entries)
+        return entries
 
     def get_structure_by_material_id(self, material_id, final=True):
         """
@@ -160,11 +205,11 @@ class MPRester(object):
 
     def get_entries_in_chemsys(self, elements, compatible_only=True):
         """
-        Get a list of ComputedEntries in a chemical system. For example,
-        elements = ["Li", "Fe", "O"] will return a list of all entries in the
-        Li-Fe-O chemical system, i.e., all LixOy, FexOy, LixFey, LixFeyOz, Li,
-        Fe and O phases. Extremely useful for creating phase diagrams of entire
-        chemical systems.
+        Helper method to get a list of ComputedEntries in a chemical system.
+        For example, elements = ["Li", "Fe", "O"] will return a list of all
+        entries in the Li-Fe-O chemical system, i.e., all LixOy,
+        FexOy, LixFey, LixFeyOz, Li, Fe and O phases. Extremely useful for
+        creating phase diagrams of entire chemical systems.
 
         Args:
             elements:
@@ -179,11 +224,8 @@ class MPRester(object):
         Returns:
             List of ComputedEntries.
         """
-        data = self.get_data("-".join(elements), prop="entry")
-        entries = [d["entry"] for d in data]
-        if compatible_only:
-            entries = MaterialsProjectCompatibility().process_entries(entries)
-        return entries
+        return self.get_entries("-".join(elements),
+                                compatible_only=compatible_only)
 
     def get_exp_thermo_data(self, formula):
         """
@@ -238,16 +280,28 @@ class MPRester(object):
                 and formation energy per atom.
 
         Returns:
-            List of dict of data.
+            List of results. E.g.,
+            [{u'formula': {u'O': 1, u'Li': 2.0}},
+            {u'formula': {u'Na': 2.0, u'O': 2.0}},
+            {u'formula': {u'K': 1, u'O': 3.0}},
+            ...]
         """
-        params = urllib.urlencode({"criteria": criteria,
-                                   "properties": properties})
-        headers = {"x-api-key": self.api_key}
-        conn = httplib.HTTPSConnection(self.host)
-        conn.request("POST", "/rest/v1/mpquery", body=params, headers=headers)
-        response = conn.getresponse()
-        data = json.loads(response.read(), cls=PMGJSONDecoder)
-        return data
+        try:
+            payload = {"criteria": json.dumps(criteria),
+                       "properties": json.dumps(properties)}
+            headers = {"x-api-key": self.api_key}
+            response = requests.post(
+                "https://{}/rest/v1/mpquery".format(self.host),
+                headers=headers, data=payload)
+            data = json.loads(response.text, cls=PMGJSONDecoder)
+            if data["valid_response"]:
+                if data.get("warning"):
+                    warnings.warn(data["warning"])
+                return data["response"]["results"]
+            else:
+                raise MPRestError(data["error"])
+        except Exception as ex:
+            raise MPRestError(str(ex))
 
 
 class MPRestError(Exception):

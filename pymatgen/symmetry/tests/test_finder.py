@@ -25,10 +25,8 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.io.vaspio.vasp_output import Vasprun
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class SymmetryFinderTest(unittest.TestCase):
@@ -120,7 +118,6 @@ class SymmetryFinderTest(unittest.TestCase):
         """
         F m -3 m Li2O testing of converting to primitive cell
         """
-        self.assertIsNone(self.sg.find_primitive())
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         structure = parser.get_structures(False)[0]
         s = SymmetryFinder(structure)

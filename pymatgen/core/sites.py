@@ -23,7 +23,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.util.coord_utils import coords_to_unit_cell
+from pymatgen.util.coord_utils import pbc_diff
 
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
@@ -306,12 +306,16 @@ class PeriodicSite(Site, MSONable):
                 {"magmom":5}. Defaults to None.
         """
         self._lattice = lattice
-        self._fcoords = self._lattice.get_fractional_coords(coords) \
-            if coords_are_cartesian else coords
+        if coords_are_cartesian:
+            self._fcoords = self._lattice.get_fractional_coords(coords)
+            c_coords = coords
+        else:
+            self._fcoords = coords
+            c_coords = lattice.get_cartesian_coords(coords)
 
         if to_unit_cell:
-            self._fcoords = coords_to_unit_cell(self._fcoords)
-        c_coords = self._lattice.get_cartesian_coords(self._fcoords)
+            self._fcoords = np.mod(self._fcoords, 1)
+            c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
 
     @property
@@ -354,22 +358,20 @@ class PeriodicSite(Site, MSONable):
         """
         Copy of PeriodicSite translated to the unit cell.
         """
-        return PeriodicSite(self._species, coords_to_unit_cell(self._fcoords),
-                            self._lattice,
-                            properties=self._properties)
+        return PeriodicSite(self._species, np.mod(self._fcoords, 1),
+                            self._lattice, properties=self._properties)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
         Returns True if sites are periodic images of each other.
         """
-        if check_lattice and self.lattice != other.lattice:
+        if check_lattice and self._lattice != other._lattice:
             return False
-        if self.species_and_occu != other.species_and_occu:
+        if self._species != other._species:
             return False
-        frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
-        frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance
-                     for a in frac_diff]
-        return  all(frac_diff)
+
+        frac_diff = pbc_diff(self._fcoords, other._fcoords)
+        return  np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other):
         return self._species == other._species and \
@@ -449,15 +451,15 @@ class PeriodicSite(Site, MSONable):
         if jimage is None:
             #The following code is heavily vectorized to maximize speed.
             #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.array([-floor(i) for i in self._fcoords])
-            adj2 = np.array([-floor(i) for i in fcoords])
+            adj1 = -np.floor(self._fcoords)
+            adj2 = -np.floor(fcoords)
             #Shift coords to unitcell
             coord1 = self._fcoords + adj1
             coord2 = fcoords + adj2
             # Generate set of images required for testing.
             test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1]
                         for i in range(3)]
-            images = [image for image in itertools.product(*test_set)]
+            images = list(itertools.product(*test_set))
             # Create tiled cartesian coords for computing distances.
             vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
             vec = self._lattice.get_cartesian_coords(vec)
@@ -469,8 +471,8 @@ class PeriodicSite(Site, MSONable):
             ind = dist.index(mindist)
             return mindist, adj2 - adj1 + images[ind]
 
-        mapped_vec = self.lattice.get_cartesian_coords(jimage + fcoords
-                                                       - self._fcoords)
+        mapped_vec = self._lattice.get_cartesian_coords(jimage + fcoords
+                                                        - self._fcoords)
         return np.linalg.norm(mapped_vec), jimage
 
     def distance_and_image(self, other, jimage=None):

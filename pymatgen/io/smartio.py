@@ -17,7 +17,7 @@ __date__ = "Jul 29, 2012"
 import re
 import os
 
-from pymatgen.io.vaspio import Vasprun, Poscar
+from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.cssrio import Cssr
 
@@ -41,6 +41,8 @@ def read_structure(filename):
     elif lower_filename.startswith("poscar") \
             or lower_filename.startswith("contcar"):
         return Poscar.from_file(filename, False).structure
+    elif lower_filename.startswith("chgcar"):
+        return Chgcar.from_file(filename).structure
     elif re.search("vasprun", lower_filename) \
             and re.search("xml", lower_filename):
         return Vasprun(filename).final_structure
