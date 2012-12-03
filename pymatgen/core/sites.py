@@ -23,6 +23,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.util.coord_utils import pbc_diff
 
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
@@ -364,14 +365,13 @@ class PeriodicSite(Site, MSONable):
         """
         Returns True if sites are periodic images of each other.
         """
-        if check_lattice and self.lattice != other.lattice:
+        if check_lattice and self._lattice != other._lattice:
             return False
-        if self.species_and_occu != other.species_and_occu:
+        if self._species != other._species:
             return False
-        frac_diff = abs(np.array(self._fcoords) - np.array(other._fcoords)) % 1
-        frac_diff = [abs(a) < tolerance or abs(a) > 1 - tolerance
-                     for a in frac_diff]
-        return  all(frac_diff)
+
+        frac_diff = pbc_diff(self._fcoords, other._fcoords)
+        return  np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other):
         return self._species == other._species and \
