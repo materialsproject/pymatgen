@@ -20,11 +20,10 @@ import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun
-import pymatgen
 from pymatgen import Spin, Orbital
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 
 class VasprunTest(unittest.TestCase):

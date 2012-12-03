@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 17, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -19,10 +19,9 @@ import os
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyzio import XYZ
 from pymatgen.io.vaspio.vasp_input import Poscar
-import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class XYZTest(unittest.TestCase):

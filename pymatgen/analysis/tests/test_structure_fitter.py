@@ -4,15 +4,14 @@ import numpy as np
 
 from pymatgen.analysis.structure_fitter import StructureFitter, \
     shear_invariant, sqrt_matrix
-from pymatgen import Element, Lattice, Structure, __file__
+from pymatgen import Element, Lattice, Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.cifio import CifParser
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
 
 class StructureFitterTest(unittest.TestCase):
 

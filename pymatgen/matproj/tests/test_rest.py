@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jun 9, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -25,9 +25,9 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class MPResterMock(MPRester):

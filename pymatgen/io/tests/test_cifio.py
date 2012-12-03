@@ -6,9 +6,9 @@ import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter, parse_symmetry_operations
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Specie, Lattice, Structure, __file__
+from pymatgen import Element, Specie, Lattice, Structure
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

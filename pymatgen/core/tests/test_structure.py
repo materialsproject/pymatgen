@@ -3,8 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Structure, Molecule, \
-    StructureError
+from pymatgen.core.structure import Structure, Molecule, StructureError
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random

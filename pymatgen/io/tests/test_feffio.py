@@ -4,12 +4,9 @@ import os
 
 from pymatgen.io.feffio import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
     FeffAtoms
-from pymatgen.io.cifio import CifParser
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 class  HeaderTest(unittest.TestCase):
 

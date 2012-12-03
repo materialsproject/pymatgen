@@ -21,6 +21,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value, \
     in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc
 
+
 class CoordUtilsTest(unittest.TestCase):
 
     def test_get_linear_interpolated_value(self):
