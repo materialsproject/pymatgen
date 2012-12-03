@@ -22,28 +22,26 @@ from fabric.state import env
 def makedoc():
     with lcd("docs"):
         local("sphinx-apidoc -o . -f ../pymatgen")
-
+        local("rm pymatgen.*.tests.rst")
         for f in glob.glob("docs/*.rst"):
-            if f.endswith('tests.rst'):
-                os.remove(f)
-            elif f.startswith('docs/pymatgen') and f.endswith('rst'):
+            if f.startswith('docs/pymatgen') and f.endswith('rst'):
                 newoutput = []
                 suboutput = []
                 subpackage = False
                 with open(f, 'r') as fid:
                     for line in fid:
-                        if line.strip() == "Subpackages":
+                        clean = line.strip()
+                        if clean == "Subpackages":
                             subpackage = True
-                        if not subpackage and not line.strip().endswith("tests"):
+                        if not subpackage and not clean.endswith("tests"):
                             newoutput.append(line)
                         else:
-                            if not line.strip().endswith("tests"):
+                            if not clean.endswith("tests"):
                                 suboutput.append(line)
-                            if line.strip().startswith("pymatgen") and not line.strip().endswith("tests"):
+                            if clean.startswith("pymatgen") and not clean.endswith("tests"):
                                 newoutput.extend(suboutput)
                                 subpackage = False
                                 suboutput = []
-
 
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
