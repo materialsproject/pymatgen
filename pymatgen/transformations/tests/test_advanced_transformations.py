@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 24, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -15,6 +15,7 @@ __date__ = "Jul 24, 2012"
 
 import unittest
 import os
+import json
 
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
@@ -23,12 +24,25 @@ from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation
-from pymatgen.structure_prediction.substitution_probability import test_table
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
 from nose.exc import SkipTest
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
+
+def get_table():
+    """
+    Loads a lightweight lambda table for use in unit tests to reduce
+    initialization time, and make unit tests insensitive to changes in the
+    default lambda table.
+    """
+    json_file = os.path.join(test_dir, 'structure_predictor_test_data',
+                             'test_lambda.json')
+    with open(json_file) as f:
+        lambda_table = json.load(f)
+    return lambda_table
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -158,7 +172,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = SubstitutionPredictorTransformation(threshold=1e-3, alpha= -5,
-                                                lambda_table=test_table())
+                                                lambda_table=get_table())
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -173,7 +187,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
 
     def test_to_dict(self):
         t = SubstitutionPredictorTransformation(threshold=2, alpha= -2,
-                                                lambda_table=test_table())
+                                                lambda_table=get_table())
         d = t.to_dict
         t = SubstitutionPredictorTransformation.from_dict(d)
         self.assertEqual(t._threshold, 2,

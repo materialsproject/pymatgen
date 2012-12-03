@@ -9,14 +9,17 @@ from pymatgen.core.composition import Composition
 from pymatgen.structure_prediction.substitutor import Substitutor
 
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
+
 def get_table():
     """
     Loads a lightweight lambda table for use in unit tests to reduce
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    module_dir = os.path.dirname(__file__)
-    json_file = os.path.join(module_dir, 'test_data', 'test_lambda.json')
+    json_file = os.path.join(test_dir, 'structure_predictor_test_data',
+                             'test_lambda.json')
     with open(json_file) as f:
         lambda_table = json.load(f)
     return lambda_table
