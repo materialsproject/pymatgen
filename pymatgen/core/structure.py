@@ -357,6 +357,8 @@ class Structure(SiteCollection, MSONable):
             return False
         if len(self) != len(other):
             return False
+        if self._lattice != other._lattice:
+            return False
         for site in self:
             if site not in other:
                 return False
