@@ -214,12 +214,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return self._species.__iter__()
 
     def __repr__(self):
-        outs = ["Non-periodic Site",
-                "xyz        : (%0.4f, %0.4f, %0.4f)" % tuple(self.coords)]
-        for k, v in self._species.items():
-            outs.append("element    : %s" % k.symbol)
-            outs.append("occupation : %0.2f" % v)
-        return "\n".join(outs)
+        return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
+            self.species_string, self._coords[0], self._coords[1],
+            self._coords[2]
+        )
 
     def __cmp__(self, other):
         """
@@ -520,12 +518,12 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        outs = ["Periodic Site",
-                "abc : (%0.4f, %0.4f, %0.4f)" % tuple(self._fcoords)]
-        for k, v in self._species.items():
-            outs.append("element    : %s" % k.symbol)
-            outs.append("occupation : %0.2f" % v)
-        return "\n".join(outs)
+        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " \
+               "{:.4f}]".format(
+            self.species_string, self._coords[0], self._coords[1],
+            self._coords[2], self._fcoords[0], self._fcoords[1],
+            self._fcoords[2]
+        )
 
     @property
     def to_dict(self):
