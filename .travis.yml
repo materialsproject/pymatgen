@@ -7,6 +7,6 @@ install: "pip install -r requirements.txt --use-mirrors"
 # extensions.
 before_script:
   - python setup.py install
-  - mv pymatgen tests
+  - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
 script: nosetests

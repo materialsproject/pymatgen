@@ -12,6 +12,7 @@ for materials analysis. It currently powers the public Materials Project
 (http://www.materialsproject.org), an initiative to make calculated properties
 on a large number of materials available to materials researchers and
 designers. These are some of the main features:
+
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
 2. Extensive io capabilities to manipulate many VASP input and output files
@@ -63,7 +64,7 @@ def get_spglib_ext():
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.3.1b",
+    version="2.3.1",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=0.14"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
