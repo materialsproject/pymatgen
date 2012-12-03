@@ -38,14 +38,13 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_file = os.path.join(test_dir, 'structure_predictor_test_data',
-                             'test_lambda.json')
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            'struct_predictor_test_files')
+    json_file = os.path.join(data_dir, 'test_lambda.json')
     with open(json_file) as f:
         lambda_table = json.load(f)
     return lambda_table
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
 
 if which('multienum.x') and which('makestr.x'):
     enumlib_present = True
