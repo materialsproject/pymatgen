@@ -10,3 +10,9 @@ before_script:
   - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
 script: nosetests
+notifications:
+  email:
+    recipients:
+      - pymatgen-dev@mit.edu
+    on_success: never
+    on_failure: always
