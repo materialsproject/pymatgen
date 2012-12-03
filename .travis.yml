@@ -3,5 +3,8 @@ python:
   - "2.7"
 # command to install dependencies
 install: "pip install -r requirements.txt --use-mirrors"
+# This is needed, otherwise, nosetests can't find the installed pymatgen C
+# extensions.
+before_script: mv pymatgen tests
 # command to run tests, e.g. python setup.py test
 script: nosetests

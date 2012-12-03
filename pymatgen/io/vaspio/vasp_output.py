@@ -1651,9 +1651,10 @@ class VolumetricData(object):
 
         data = self._distance_matrix[ind]["data"]
 
+        #Use boolean indexing to find all charges within the desired distance.
         inds = data[:, 1] <= radius
         dists = data[inds, 1]
-        data_inds = np.rint(np.mod([i for i in data[inds, 0]], 1) *
+        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) *
                             np.tile(a, (len(dists), 1)))
         vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
 
