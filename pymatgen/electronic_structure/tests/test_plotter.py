@@ -17,6 +17,7 @@ import unittest
 import os
 import json
 
+from nose.exc import SkipTest
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -28,11 +29,19 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class DosPlotterTest(unittest.TestCase):
 
     def setUp(self):
+        try:
+            import scipy
+        except ImportError:
+            raise SkipTest("scipy not present. Skipping...")
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
     def test_add_dos_dict(self):
+        try:
+            import scipy
+        except ImportError:
+            raise SkipTest("scipy not present. Skipping...")
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 0)
         self.plotter.add_dos_dict(self.dos.get_element_dos(),
@@ -41,6 +50,10 @@ class DosPlotterTest(unittest.TestCase):
         self.assertEqual(len(d), 4)
 
     def test_get_dos_dict(self):
+        try:
+            import scipy
+        except ImportError:
+            raise SkipTest("scipy not present. Skipping...")
         self.plotter.add_dos_dict(self.dos.get_element_dos(),
                                   key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()

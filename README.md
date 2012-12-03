@@ -1,4 +1,5 @@
 ## Introduction ##
+[![Build Status](https://travis-ci.org/materialsproject/pymatgen.png)](https://travis-ci.org/materialsproject/pymatgen)
 
 Pymatgen (**py**thon **mat**erials **gen**omics) is the python library that
 powers the Materials Project (http://www.materialsproject.org). These are some

@@ -23,8 +23,8 @@ def test_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    module_dir = os.path.dirname(pymatgen.__file__)
-    json_file = os.path.join(module_dir, 'structure_prediction', 'tests',
+    module_dir = os.path.dirname(__file__)
+    json_file = os.path.join(module_dir, 'tests',
                              'test_data', 'test_lambda.json')
     with open(json_file) as f:
         lambda_table = json.load(f)
@@ -49,9 +49,8 @@ class SubstitutionProbability(object):
         self._lambda_table = lambda_table
 
         if not lambda_table:
-            module_dir = os.path.dirname(pymatgen.__file__)
-            json_file = os.path.join(module_dir, 'structure_prediction',
-                                     'data', 'lambda.json')
+            module_dir = os.path.dirname(__file__)
+            json_file = os.path.join(module_dir, 'data', 'lambda.json')
             with open(json_file) as f:
                 lambda_table = json.load(f)
 
