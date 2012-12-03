@@ -238,26 +238,11 @@ Sites (5)
 5 H    -0.513360     0.889165    -0.363000"""
         self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
-Non-periodic Site
-xyz        : (0.0000, 0.0000, 0.0000)
-element    : C
-occupation : 1.00
-Non-periodic Site
-xyz        : (0.0000, 0.0000, 1.0890)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (1.0267, 0.0000, -0.3630)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (-0.5134, -0.8892, -0.3630)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (-0.5134, 0.8892, -0.3630)
-element    : H
-occupation : 1.00"""
+Site: C (0.0000, 0.0000, 0.0000)
+Site: H (0.0000, 0.0000, 1.0890)
+Site: H (1.0267, 0.0000, -0.3630)
+Site: H (-0.5134, -0.8892, -0.3630)
+Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(repr(self.mol), ans)
 
     def test_site_properties(self):
