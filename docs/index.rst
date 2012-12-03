@@ -151,7 +151,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze, plot, convert, symm, view} additional_arguments
+    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
@@ -190,24 +190,24 @@ now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
 examples of the core capabilities and objects::
 
-   >>> from pymatgen import Element, Composition, Lattice, Structure
+   >>> import pymatgen as mg
    >>>
-   >>> si = Element("Si")
+   >>> si = mg.Element("Si")
    >>> si.atomic_mass
    28.0855
    >>> si.melting_point
    u'1687 K'
    >>>
-   >>> comp = Composition("Fe2O3")
+   >>> comp = mg.Composition("Fe2O3")
    >>> comp.weight
    159.6882
-   >>> comp[Element("Fe")]
+   >>> comp[mg.Element("Fe")]
    2.0
-   >>> comp.get_atomic_fraction(Element("Fe"))
+   >>> comp.get_atomic_fraction(mg.Element("Fe"))
    0.4
-   >>>
-   >>> structure = Structure(Lattice.cubic(4.2), ["Cs", "Cl"],
-   ...                               [[0, 0, 0], [0.5, 0.5, 0.5]])
+   >>> lattice = mg.Lattice.cubic(4.2)
+   >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+   ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
    >>> structure.volume
    74.088000000000008
    >>> structure[0]
