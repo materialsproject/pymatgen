@@ -211,10 +211,7 @@ examples of the core capabilities and objects::
    >>> structure.volume
    74.088000000000008
    >>> structure[0]
-   Periodic Site
-   abc : (0.0000, 0.0000, 0.0000)
-   element    : Cs
-   occupation : 1.00
+   PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
    >>>
    >>> #Integrated symmetry tools from spglib.
    ... from pymatgen.symmetry.finder import SymmetryFinder
