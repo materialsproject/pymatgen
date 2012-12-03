@@ -20,6 +20,10 @@ class  PDAnalyzerTest(unittest.TestCase):
         for entry in self.pd.stable_entries:
             self.assertLess(self.analyzer.get_e_above_hull(entry), 1e-11,
                             "Stable entries should have e above hull of zero!")
+        for entry in self.pd.all_entries:
+            if entry not in self.pd.stable_entries:
+                self.assertGreaterEqual(self.analyzer.get_e_above_hull(entry),
+                                        0)
 
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:

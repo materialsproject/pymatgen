@@ -85,13 +85,11 @@ class PDEntry(MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["composition"] = self._composition.to_dict
-        d["energy"] = self._energy
-        d["name"] = self.name
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "composition": self._composition.to_dict,
+                "energy": self._energy,
+                "name": self.name}
 
     @staticmethod
     def from_dict(d):
@@ -121,12 +119,9 @@ class GrandPotPDEntry(PDEntry):
         grandpot = entry.energy - sum([comp[el] * pot
                                        for el, pot in chempots.items()])
         self.chempots = chempots
-        new_comp_map = dict()
-        for el in comp.elements:
-            if el not in chempots:
-                new_comp_map[el] = comp[el]
-        newcomposition = Composition(new_comp_map)
-        super(GrandPotPDEntry, self).__init__(newcomposition, grandpot,
+        new_comp_map = {el: comp[el] for el in comp.elements
+                        if el not in chempots}
+        super(GrandPotPDEntry, self).__init__(new_comp_map, grandpot,
                                               entry.name)
         self.name = name if name else entry.name
 
@@ -157,13 +152,11 @@ class GrandPotPDEntry(PDEntry):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["entry"] = self._original_entry.to_dict
-        d["chempots"] = {el.symbol: u for el, u in self.chempots.items()}
-        d["name"] = self.name
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "entry": self._original_entry.to_dict,
+                "chempots": {el.symbol: u for el, u in self.chempots.items()},
+                "name": self.name}
 
     @staticmethod
     def from_dict(d):
@@ -242,7 +235,7 @@ class PDEntryIO(object):
                         comp[Element(elements[ind - 1])] = float(row[ind])
                 entries.append(PDEntry(Composition(comp), energy, name))
         elements = [Element(el) for el in elements]
-        return (elements, entries)
+        return elements, entries
 
 
 class TransformedPDEntry(PDEntry):
@@ -283,10 +276,10 @@ class TransformedPDEntry(PDEntry):
         raise AttributeError(a)
 
     def __repr__(self):
-        output = ["TransformedPDEntry {}".format(self.composition)]
-        output.append(" with original composition {}"
-                      .format(self.original_entry.composition))
-        output.append(", E = {:.4f}".format(self.original_entry.energy))
+        output = ["TransformedPDEntry {}".format(self.composition),
+                  " with original composition {}"
+                  .format(self.original_entry.composition),
+                  ", E = {:.4f}".format(self.original_entry.energy)]
         return "".join(output)
 
     def __str__(self):
@@ -294,12 +287,10 @@ class TransformedPDEntry(PDEntry):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["entry"] = self._original_entry.to_dict
-        d["composition"] = self.composition
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "entry": self._original_entry.to_dict,
+                "composition": self.composition}
 
     @staticmethod
     def from_dict(d):

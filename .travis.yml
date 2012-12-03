@@ -1,0 +1,22 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install: "pip install -r requirements.txt --use-mirrors"
+# This is needed, otherwise, nosetests can't find the installed pymatgen C
+# extensions.
+before_script:
+  - python setup.py install
+  - mv pymatgen pmg
+# command to run tests, e.g. python setup.py test
+script: nosetests
+branches:
+  only:
+    - master
+    - stable
+notifications:
+  email:
+    recipients:
+      - pymatgen-dev@mit.edu
+    on_success: never
+    on_failure: always

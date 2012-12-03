@@ -15,10 +15,8 @@ __date__ = "Nov 14, 2012"
 import unittest
 import os
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class BackwardsReaderTest(unittest.TestCase):

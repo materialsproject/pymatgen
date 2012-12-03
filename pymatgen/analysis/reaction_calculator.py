@@ -298,8 +298,8 @@ class Reaction(MSONable):
                                                       reduced_formulas[i]))
         factor = scaled_coeffs[0] / self._coeffs[0]
 
-        return (" + ".join(reactant_str) + " -> " + " + ".join(product_str),
-                factor)
+        return " + ".join(reactant_str) + " -> " + " + ".join(product_str), \
+               factor
 
     @property
     def normalized_repr(self):

@@ -14,9 +14,13 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 25, 2012"
 
 import unittest
+import itertools
 
+import numpy as np
+from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value, \
-    in_coord_list
+    in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc
+
 
 class CoordUtilsTest(unittest.TestCase):
 
@@ -27,10 +31,43 @@ class CoordUtilsTest(unittest.TestCase):
         self.assertRaises(ValueError, get_linear_interpolated_value, xvals, yvals, 6)
 
     def test_in_coord_list(self):
-        coords = [[0, 0, 0], [1, 1, 0.3]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
         self.assertFalse(in_coord_list(coords, test_coord))
         self.assertTrue(in_coord_list(coords, test_coord, atol=0.15))
+        self.assertFalse(in_coord_list([0.99,0.99,0.99], test_coord,
+                                       atol=0.15))
+
+    def test_pbc_diff(self):
+        ([0.9, 0.1, 1.01], [0.3, 0.5, 0.9])
+        self.assertTrue(np.allclose(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]),
+                                    [-0.2, -0.4, 0.2]))
+        self.assertTrue(np.allclose(pbc_diff([0.9, 0.1, 1.01],
+                                             [0.3, 0.5, 0.9]),
+                                    [-0.4, -0.4, 0.11]))
+        self.assertTrue(np.allclose(pbc_diff([0.1, 0.6, 1.01],
+                                             [0.6, 0.1, 0.9]),
+                                    [-0.5, 0.5, 0.11]))
+
+    def test_in_coord_list_pbc(self):
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
+        test_coord = [0.1, 0.1, 0.1]
+        self.assertFalse(in_coord_list_pbc(coords, test_coord))
+        self.assertTrue(in_coord_list_pbc(coords, test_coord, atol=0.15))
+        test_coord = [0.99, 0.99, 0.99]
+        self.assertFalse(in_coord_list_pbc(coords, test_coord, atol=0.01))
+
+    def test_get_points_in_sphere_pbc(self):
+        latt = Lattice.cubic(1)
+        pts = []
+        for a, b, c in itertools.product(xrange(10), xrange(10), xrange(10)):
+            pts.append([a/10, b/10, c/10])
+
+        self.assertEqual(len(get_points_in_sphere_pbc(latt, pts, [0,0,0],
+                                                      0.1)), 7)
+        self.assertEqual(len(get_points_in_sphere_pbc(latt, pts, [0.5,0.5,
+                                                                  0.5],
+                                                      0.5)), 515)
 
 if __name__ == "__main__":
     unittest.main()

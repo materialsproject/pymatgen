@@ -244,24 +244,24 @@ class Poscar(VaspInput):
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
-        lattice = np.array([[float(s) for s in line.split()]
+        lattice = np.array([map(float, line.split())
                             for line in lines[2:5]])
         if scale < 0:
             # In vasp, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
             vol = abs(det(lattice))
-            lattice = (-scale / vol) ** (1 / 3) * lattice
+            lattice *= (-scale / vol) ** (1 / 3)
         else:
-            lattice = scale * lattice
+            lattice *= scale
 
         vasp5_symbols = False
         try:
-            natoms = [int(s) for s in lines[5].split()]
+            natoms = map(int, lines[5].split())
             ipos = 6
-        except:
+        except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
-            natoms = [int(s) for s in lines[6].split()]
+            natoms = map(int, lines[6].split())
             atomic_symbols = list()
             for i in xrange(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
@@ -284,11 +284,11 @@ class Poscar(VaspInput):
         # specified is the default used.
         if default_names:
             try:
-                atomic_symbols = list()
+                atomic_symbols = []
                 for i in xrange(len(natoms)):
                     atomic_symbols.extend([default_names[i]] * natoms[i])
                 vasp5_symbols = True
-            except:
+            except IndexError:
                 pass
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
@@ -301,9 +301,9 @@ class Poscar(VaspInput):
                             for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
-            except:
+            except (ValueError, IndexError):
                 #Defaulting to false names.
-                atomic_symbols = list()
+                atomic_symbols = []
                 for i in xrange(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
@@ -316,10 +316,10 @@ class Poscar(VaspInput):
         selective_dynamics = list() if sdynamics else None
         for i in xrange(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append([float(s) for s in toks[:3]])
+            coords.append(map(float, toks[:3]))
             if sdynamics:
-                selective_dynamics.append([True if tok.upper()[0] == "T"
-                                           else False for tok in toks[3:6]])
+                selective_dynamics.append([tok.upper()[0] == "T"
+                                           for tok in toks[3:6]])
 
         struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
 
@@ -362,9 +362,7 @@ class Poscar(VaspInput):
         Returns:
             String representation of POSCAR.
         """
-        lines = [self.comment]
-        lines.append("1.0")
-        lines.append(str(self.structure.lattice))
+        lines = [self.comment, "1.0", str(self.structure.lattice)]
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
@@ -413,16 +411,14 @@ class Poscar(VaspInput):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["structure"] = self.structure.to_dict
-        d["true_names"] = self.true_names
-        d["selective_dynamics"] = self.selective_dynamics
-        d["velocities"] = self.velocities
-        d["predictor_corrector"] = self.predictor_corrector
-        d["comment"] = self.comment
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "structure": self.structure.to_dict,
+                "true_names": self.true_names,
+                "selective_dynamics": self.selective_dynamics,
+                "velocities": self.velocities,
+                "predictor_corrector": self.predictor_corrector,
+                "comment": self.comment}
 
     @staticmethod
     def from_dict(d):
@@ -536,7 +532,7 @@ class Incar(dict, VaspInput):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params=dict()):
+    def __init__(self, params=None):
         """
         Creates an Incar object.
 
@@ -545,7 +541,8 @@ class Incar(dict, VaspInput):
                 A set of input parameters as a dictionary.
         """
         super(Incar, self).__init__()
-        self.update(params)
+        if params:
+            self.update(params)
 
     def __setitem__(self, key, val):
         """
@@ -670,7 +667,7 @@ class Incar(dict, VaspInput):
                 return int(numstr)
         try:
             if key in list_keys:
-                output = list()
+                output = []
                 toks = val.split()
 
                 for tok in toks:
@@ -696,7 +693,7 @@ class Incar(dict, VaspInput):
             if key in int_keys:
                 return int(val)
 
-        except:
+        except ValueError:
             return val.capitalize()
 
         return val.capitalize()
@@ -756,7 +753,7 @@ class Kpoints(VaspInput):
 
     def __init__(self, comment="Default gamma", num_kpts=0,
                  style=supported_modes.Gamma,
-                 kpts=[[1, 1, 1]], kpts_shift=(0, 0, 0),
+                 kpts=((1, 1, 1),), kpts_shift=(0, 0, 0),
                  kpts_weights=None, coord_type=None, labels=None,
                  tet_number=0, tet_weight=0, tet_connections=None):
         """
@@ -966,12 +963,12 @@ class Kpoints(VaspInput):
 
         #Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
-            kpts = [int(x) for x in lines[3].split()]
+            kpts = map(int, lines[3].split())
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = [int(x) for x in lines[4].split()]
-                except:
+                    kpts_shift = map(int, lines[4].split())
+                except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
                 else Kpoints.monkhorst_automatic(kpts, kpts_shift)
@@ -980,8 +977,8 @@ class Kpoints(VaspInput):
         if num_kpts <= 0:
             style = Kpoints.supported_modes.Cartesian if style in "ck" \
                 else Kpoints.supported_modes.Reciprocal
-            kpts = [[float(x) for x in lines[i].split()] for i in xrange(3, 6)]
-            kpts_shift = [float(x) for x in lines[6].split()]
+            kpts = [map(float, lines[i].split()) for i in xrange(3, 6)]
+            kpts_shift = map(float, lines[6].split())
             return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                            kpts=kpts, kpts_shift=kpts_shift)
 
@@ -1016,7 +1013,7 @@ class Kpoints(VaspInput):
 
         for i in xrange(3, 3 + num_kpts):
             toks = lines[i].split()
-            kpts.append([float(toks[0]), float(toks[1]), float(toks[2])])
+            kpts.append([map(float, toks[0:3])])
             kpts_weights.append(float(toks[3]))
             if len(toks) > 4:
                 labels.append(toks[4])
@@ -1034,7 +1031,7 @@ class Kpoints(VaspInput):
                     tet_connections.append((int(toks[0]),
                                             [int(toks[j])
                                              for j in xrange(1, 5)]))
-        except:
+        except IndexError:
             pass
 
         return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
@@ -1054,10 +1051,7 @@ class Kpoints(VaspInput):
             f.write(self.__str__() + "\n")
 
     def __str__(self):
-        lines = []
-        lines.append(self.comment)
-        lines.append(str(self.num_kpts))
-        lines.append(self.style)
+        lines = [self.comment, str(self.num_kpts), self.style]
         style = self.style.lower()[0]
         if style == "Line-mode":
             lines.append(self.coord_type)
@@ -1272,7 +1266,7 @@ class Potcar(list, VaspInput):
         with zopen(filename, "r") as reader:
             fdata = reader.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n{0,1}\s*(.*?End of Dataset)",
+        potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
                                     re.S).findall(fdata)
         for p in potcar_strings:
             potcar.append(PotcarSingle(p))

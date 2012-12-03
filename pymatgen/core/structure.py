@@ -29,6 +29,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -187,10 +188,9 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
         ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-        """
-        Corrects for stupid numerical error which may result in acos being
-        operated on a number with absolute value larger than 1
-        """
+
+        #Correct for stupid numerical error which may result in acos being
+        #operated on a number with absolute value larger than 1
         ans = min(ans, 1)
         ans = max(-1, ans)
         return math.acos(ans) * 180 / math.pi
@@ -357,6 +357,8 @@ class Structure(SiteCollection, MSONable):
             return False
         if len(self) != len(other):
             return False
+        if self._lattice != other._lattice:
+            return False
         for site in self:
             if site not in other:
                 return False
@@ -407,7 +409,7 @@ class Structure(SiteCollection, MSONable):
         """
         return self[i].distance(self[j], jimage)
 
-    def get_sites_in_sphere(self, pt, r):
+    def get_sites_in_sphere(self, pt, r, include_index=False):
         """
         Find all sites within a sphere from the point. This includes sites
         in other periodic images.
@@ -429,43 +431,26 @@ class Structure(SiteCollection, MSONable):
                 cartesian coordinates of center of sphere.
             r:
                 radius of sphere.
+            include_index:
+                boolean that determines whether the non-supercell site index
+                is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        recp_len = self._lattice.reciprocal_lattice.abc
-        sr = r + 0.15
-        nmax = [sr * l / (2 * math.pi) for l in recp_len]
-        pcoords = self._lattice.get_fractional_coords(pt)
-        axis_ranges = []
-        floor = math.floor
-        for i in range(3):
-            rangemax = int(floor(pcoords[i] + nmax[i]))
-            rangemin = int(floor(pcoords[i] - nmax[i]))
-            axis_ranges.append(range(rangemin, rangemax + 1))
+        site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        n = len(self._sites)
-        site_fcoords = np.array([site.to_unit_cell.frac_coords
-                                 for site in self._sites])
-
-        frac_2_cart = self._lattice.get_cartesian_coords
-        pts = [pt] * n
-        for image in itertools.product(*axis_ranges):
-            shift = [image] * n
-            fcoords = site_fcoords + shift
-            coords = frac_2_cart(fcoords)
-            dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
-            withindists = (dists <= r)
-            for i in range(n):
-                if withindists[i]:
-                    nnsite = PeriodicSite(self[i].species_and_occu,
-                                          fcoords[i], self._lattice,
-                                          properties=self[i].properties)
-                    neighbors.append((nnsite, dists[i]))
+        for fcoord, dist, i in get_points_in_sphere_pbc(self._lattice,
+                                                        site_fcoords, pt, r):
+            nnsite = PeriodicSite(self[i].species_and_occu,
+                                  fcoord, self._lattice,
+                                  properties=self[i].properties)
+            neighbors.append((nnsite, dist) if not include_index
+                             else (nnsite, dist, i))
         return neighbors
 
-    def get_neighbors(self, site, r):
+    def get_neighbors(self, site, r, include_index=False):
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
@@ -475,13 +460,17 @@ class Structure(SiteCollection, MSONable):
                 site, which is the center of the sphere.
             r:
                 radius of sphere.
+            include_index:
+                boolean that determines whether the non-supercell site index
+                is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
         """
-        nn = self.get_sites_in_sphere(site.coords, r)
-        return [(s, dist) for (s, dist) in nn if site != s]
+        nn = self.get_sites_in_sphere(site.coords, r,
+                                      include_index=include_index)
+        return [d for d in nn if site != d[0]]
 
     def get_all_neighbors(self, r, include_index=False):
         """
@@ -499,7 +488,6 @@ class Structure(SiteCollection, MSONable):
         Args:
             r:
                 radius of sphere.
-
             include_index:
                 boolean that determines whether the non-supercell site index
                 is included in the returned data
@@ -519,7 +507,6 @@ class Structure(SiteCollection, MSONable):
         sr = r + 0.15
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
-        unit_cell_sites = [site.to_unit_cell for site in self._sites]
         floor = math.floor
         for site in self:
             pcoords = site.frac_coords
@@ -533,26 +520,29 @@ class Structure(SiteCollection, MSONable):
         all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
 
         neighbors = [list() for i in xrange(len(self._sites))]
+        all_fcoords = np.mod(self.frac_coords, 1)
 
         site_coords = np.array(self.cart_coords)
-        frac_2_cart = self._lattice.get_cartesian_coords
+        latt = self._lattice
+        frac_2_cart = latt.get_cartesian_coords
         n = len(self)
+        indices = np.array(range(n))
         for image in itertools.product(*all_ranges):
-            for (j, site) in enumerate(unit_cell_sites):
-                fcoords = site.frac_coords + np.array(image)
+            for (j, fcoord) in enumerate(all_fcoords):
+                fcoords = fcoord + image
                 coords = frac_2_cart(fcoords)
-                submat = [coords] * n
+                submat = np.tile(coords, (n, 1))
                 dists = (site_coords - submat) ** 2
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
-                for i in range(n):
-                    if withindists[i]:
-                        nnsite = PeriodicSite(site.species_and_occu, fcoords,
-                                              site.lattice,
-                                              properties=site.properties)
-                        item = (nnsite, dists[i], j) if include_index\
-                            else (nnsite, dists[i])
-                        neighbors[i].append(item)
+                sp = self[j].species_and_occu
+                props = self[j].properties
+                for i in indices[withindists]:
+                    nnsite = PeriodicSite(sp, fcoords, latt,
+                                          properties=props)
+                    item = (nnsite, dists[i], j) if include_index else (
+                        nnsite, dists[i])
+                    neighbors[i].append(item)
         return neighbors
 
     def get_neighbors_in_shell(self, origin, r, dr):
