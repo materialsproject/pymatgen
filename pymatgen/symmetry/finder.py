@@ -240,11 +240,12 @@ class SymmetryFinder(object):
         """
         (rotation, translation) = self._get_symmetry()
         symmops = []
+        mat = self._structure.lattice.matrix.T
+        invmat = np.linalg.inv(mat)
         for rot, trans in zip(rotation, translation):
             if cartesian:
-                rot = np.dot(self._structure.lattice.md2c, np.dot(rot,
-                                                self._structure.lattice.mc2d))
-                trans = np.dot(self._structure.lattice.md2c, trans)
+                rot = np.dot(mat, np.dot(rot, invmat))
+                trans = np.dot(trans, self._structure.lattice.matrix)
             op = SymmOp.from_rotation_and_translation(rot, trans)
             symmops.append(op)
         return symmops

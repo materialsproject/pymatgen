@@ -5,10 +5,10 @@ import os
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MaterialsProjectVaspInputSet, MITGGAVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Specie, Lattice, Structure, __file__
+from pymatgen import Specie, Lattice, Structure
 from numpy import array
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

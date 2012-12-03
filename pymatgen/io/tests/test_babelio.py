@@ -22,10 +22,8 @@ from pymatgen.core.structure import Molecule
 import pymatgen.io.babelio as babelio
 from pymatgen.io.babelio import BabelMolAdaptor
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class BabelMolAdaptorTest(unittest.TestCase):

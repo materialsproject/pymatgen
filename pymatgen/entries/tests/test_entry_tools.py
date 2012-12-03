@@ -19,10 +19,9 @@ import json
 
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.entry_tools import group_entries_by_structure
-import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class FuncTest(unittest.TestCase):

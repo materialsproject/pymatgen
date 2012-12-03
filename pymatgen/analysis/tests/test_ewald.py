@@ -6,11 +6,8 @@ from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.io.vaspio.vasp_input import Poscar
 import numpy as np
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
-
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 class EwaldSummationTest(unittest.TestCase):
 

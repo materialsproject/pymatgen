@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on May 1, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -21,10 +21,8 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-import pymatgen
-
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class DosPlotterTest(unittest.TestCase):

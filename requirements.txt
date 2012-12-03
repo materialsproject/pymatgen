@@ -3,5 +3,3 @@ numpy>=1.5
 pyhull>=1.3.6
 PyCifRW>=3.3
 requests>=0.14
-scipy>=0.10
-matplotlib>=1.1

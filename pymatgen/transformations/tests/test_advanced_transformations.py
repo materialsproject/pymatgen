@@ -16,7 +16,7 @@ __date__ = "Jul 24, 2012"
 import unittest
 import os
 
-from pymatgen import Lattice, Structure, __file__
+from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation
 from pymatgen.transformations.advanced_transformations import \
@@ -30,7 +30,7 @@ from pymatgen.io.vaspio.vasp_input import Poscar
 from nose.exc import SkipTest
 
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 if which('multienum.x') and which('makestr.x'):

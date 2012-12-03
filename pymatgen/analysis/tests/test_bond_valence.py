@@ -19,14 +19,13 @@ __date__ = "Oct 24, 2012"
 import unittest
 import os
 
-import pymatgen
 from pymatgen.io.cifio import CifParser
 from pymatgen.core.periodic_table import Specie
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class BVAnalyzerTest(unittest.TestCase):
