@@ -3,7 +3,7 @@ import os
 import sys
 
 from distribute_setup import use_setuptools
-use_setuptools(version="2.3.2b"
+use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
 
 long_description = """
@@ -64,7 +64,7 @@ def get_spglib_ext():
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.3.2b"
+    version="2.3.2b",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=0.14"],
     extras_require={"electronic_structure": ["scipy>=0.10"],

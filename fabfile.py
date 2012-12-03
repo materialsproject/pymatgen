@@ -60,7 +60,7 @@ def test():
 
 def setver():
     from pymatgen import __version__
-    local("sed s/version=.*/version=\\\"{}\\\"/ setup.py > newsetup".format(__version__))
+    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(__version__))
     local("mv newsetup setup.py")
 
 def release():
