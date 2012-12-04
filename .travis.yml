@@ -6,8 +6,14 @@ install: "pip install -q -r requirements.txt --use-mirrors"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
+  - wget https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz
+  - tar -zxf python-ase-3.6.0.2515.tar.gz
+  - cd python-ase-3.6.0.2515
+  - python setup.py install
+  - cd ..
+  - rm -rf python-ase-3.6.0.2515
   - sudo apt-get update -qq
-  - sudo apt-get install -qq python-openbabel
+  - sudo apt-get install -qq python-openbabel python-scipy
   - python setup.py install
   - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
