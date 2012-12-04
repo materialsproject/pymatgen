@@ -421,7 +421,7 @@ class PeriodicSite(Site, MSONable):
                                                        - self._fcoords)
         dist = np.linalg.norm(mapped_vec)
         return dist, jimage
-
+    
     def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
         """
         Gets distance between site and a fractional coordinate assuming
@@ -449,17 +449,17 @@ class PeriodicSite(Site, MSONable):
         if jimage is None:
             #The following code is heavily vectorized to maximize speed.
             #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = -np.floor(self._fcoords)
-            adj2 = -np.floor(fcoords)
+            adj1 = np.floor(self._fcoords)
+            adj2 = np.floor(fcoords)
             #Shift coords to unitcell
-            coord1 = self._fcoords + adj1
-            coord2 = fcoords + adj2
+            coord1 = self._fcoords - adj1
+            coord2 = fcoords - adj2
             # Generate set of images required for testing.
-            test_set = [[-1, 0] if coord1[i] < coord2[i] else [0, 1]
-                        for i in range(3)]
-            images = list(itertools.product(*test_set))
+            # This is a cheat to create an 8x3 array of all length 3 combinations of 0,1
+            test_set = np.unpackbits(np.array([5, 57, 119], dtype=np.uint8)).reshape(8,3)
+            images = np.copysign(test_set, coord1-coord2)
             # Create tiled cartesian coords for computing distances.
-            vec = np.tile(coord2, (8, 1)) - np.tile(coord1, (8, 1)) + images
+            vec = np.tile(coord2 - coord1, (8, 1)) + images
             vec = self._lattice.get_cartesian_coords(vec)
             # Compute distances manually.
             dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
@@ -467,7 +467,7 @@ class PeriodicSite(Site, MSONable):
             # to the min distance.
             mindist = min(dist)
             ind = dist.index(mindist)
-            return mindist, adj2 - adj1 + images[ind]
+            return mindist, adj1 - adj2 + images[ind]
 
         mapped_vec = self._lattice.get_cartesian_coords(jimage + fcoords
                                                         - self._fcoords)
