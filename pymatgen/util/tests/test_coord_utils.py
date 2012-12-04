@@ -24,6 +24,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
 
 
 class CoordUtilsTest(unittest.TestCase):
+
     def test_get_linear_interpolated_value(self):
         xvals = [0, 1, 2, 3, 4, 5]
         yvals = [3, 6, 7, 8, 10, 12]
@@ -60,6 +61,9 @@ class CoordUtilsTest(unittest.TestCase):
         self.assertTrue(np.allclose(pbc_diff([0.1, 0.6, 1.01],
                                              [0.6, 0.1, 0.9]),
                                     [-0.5, 0.5, 0.11]))
+        self.assertTrue(np.allclose(pbc_diff([100.1, 0.2, 0.3],
+                                             [0123123.4, 0.5, 502312.6]),
+                                    [-0.3, -0.3, -0.3]))
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
