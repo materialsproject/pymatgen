@@ -352,3 +352,10 @@ def parse_symmetry_operations(symmops_str_list):
         op = SymmOp.from_rotation_and_translation(rot_matrix, trans)
         ops.append(op)
     return ops
+
+
+import os
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", 'test_files')
+
+parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
+print parser.get_structures()[0]
