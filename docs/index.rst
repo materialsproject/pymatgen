@@ -44,7 +44,7 @@ to be made for the long term health of the code.
 
 The most up-to-date documention is available at our github page
 (http://materialsproject.github.com/pymatgen/), where you can also report any
-bugs/issues. If you wish to be notified via email of pymatgen releases, you may
+bugs/issues. If you wish to be notified of pymatgen releases, you may
 become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
