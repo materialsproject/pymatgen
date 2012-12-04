@@ -61,6 +61,13 @@ def setver():
     local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(__version__))
     local("mv newsetup setup.py")
 
+def update_dev_doc():
+    makedoc()
+    with lcd("../docs/pymatgen/html/"):
+        local("git add .")
+        local("git commit -a -m \"Update dev docs\"")
+        local("git push")
+
 def release():
     setver()
     test()
