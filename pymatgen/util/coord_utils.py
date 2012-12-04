@@ -110,7 +110,7 @@ def pbc_diff(fcoords1, fcoords2):
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
-    fdist = np.mod(fcoords1, 1) - np.mod(fcoords2, 1)
+    fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
 
@@ -134,7 +134,7 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     if len(fcoord_list) == 0:
         return []
     fcoords = np.tile(fcoord, (len(fcoord_list), 1))
-    fdist = np.mod(fcoord_list, 1) - np.mod(fcoords, 1)
+    fdist = fcoord_list - fcoords
     fdist -= np.round(fdist)
     return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
 
