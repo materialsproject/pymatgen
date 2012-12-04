@@ -52,19 +52,8 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Significant improvements to the high-level interface to the Materials API.
-   New interface provides more options to make it easier to get structures and
-   entries, better warnings and error handling. It uses the *requests*
-   library for a cleaner API.
-2. Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
-   Previously, the parsing was done incorrectly because VASP actually provides
-   data by running through the x-axis first, followed by y, then z.
-3. Bug fix for reverse_readline so that it works for gzipped and bzipped
-   strucutures (courtesy of Anubhav Jain).
-4. Fix "lossy" composition to_dict method.  Now composition.to_dict properly
-   returns a correct species string as a key for compositions using species,
-   instead of just the element symbols.
-5. Miscellaneous bug fixes.
+1. More utilities for working with Periodic Boundary Conditions.
+2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
