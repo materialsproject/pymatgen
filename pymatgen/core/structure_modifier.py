@@ -24,6 +24,7 @@ from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class StructureModifier(object):
@@ -381,7 +382,7 @@ class StructureEditor(StructureModifier):
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
-
+    
     def to_unit_cell(self, tolerance=0.1):
         """
         Returns all the sites to their position inside the unit cell.
@@ -390,9 +391,19 @@ class StructureEditor(StructureModifier):
         """
         new_sites = []
         for site in self._sites:
-            distances = [close_site.distance(site) for close_site in new_sites]
-            if not distances or min(distances) > tolerance:
-                new_sites.append(site.to_unit_cell)
+            if not new_sites:
+                new_sites.append(site)
+                frac_coords = np.array([site.frac_coords])
+                continue
+            if get_points_in_sphere_pbc(self._lattice,
+                                        frac_coords,
+                                        site.coords,
+                                        tolerance):
+                continue
+            frac_coords = np.append(frac_coords,
+                                    [site.frac_coords%1],
+                                    axis = 0)
+            new_sites.append(site.to_unit_cell)
         self._sites = new_sites
 
     @property
