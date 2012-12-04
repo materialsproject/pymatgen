@@ -20,9 +20,9 @@ import math
 import itertools
 
 
-def in_coord_list(coord_list, coord, atol=1e-8):
+def find_in_coord_list(coord_list, coord, atol=1e-8):
     """
-    Tests if a particular coord is within a coord_list using numpy.allclose.
+    Find the indices of matches of a particular coord in a coord_list.
 
     Args:
         coord_list:
@@ -31,12 +31,33 @@ def in_coord_list(coord_list, coord, atol=1e-8):
             Specific coordinates
         atol:
             Absolute tolerance. Defaults to 1e-8.
+
+    Returns:
+        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
     """
     if len(coord_list) == 0:
-        return False
+        return []
     coords = np.tile(coord, (len(coord_list), 1))
     diff = coord_list - coords
-    return np.any(np.all(np.abs(diff) < atol, axis=1))
+    return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
+
+
+def in_coord_list(coord_list, coord, atol=1e-8):
+    """
+    Tests if a particular coord is within a coord_list.
+
+    Args:
+        coord_list:
+            List of coords to test
+        coord:
+            Specific coordinates
+        atol:
+            Absolute tolerance. Defaults to 1e-8.
+
+    Returns:
+        True if coord is in the coord list.
+    """
+    return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
 def get_linear_interpolated_value(x_values, y_values, x):
@@ -91,24 +112,47 @@ def pbc_diff(fcoord1, fcoord2):
     return fdist - np.round(fdist)
 
 
-def in_coord_list_pbc(coord_list, coord, atol=1e-8):
+def find_in_coord_list_pbc(coord_list, coord, atol=1e-8):
     """
-    Tests if a particular coord is within a coord_list using numpy.allclose.
+    Get the indices of all points in a fracitonal coord list that are
+    equal to a fractional coord (with a tolerance), taking into account
+    periodic boundary conditions.
 
     Args:
         coord_list:
-            List of coords to test
+            List of fractional coords
         coord:
-            Specific coordinates
+            A specific fractional coord to test.
         atol:
             Absolute tolerance. Defaults to 1e-8.
+
+    Returns:
+        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
     """
     if len(coord_list) == 0:
-        return False
+        return []
     coords = np.tile(coord, (len(coord_list), 1))
     fdist = np.mod(coord_list, 1) - np.mod(coords, 1)
     fdist -= np.round(fdist)
-    return np.any(np.all(np.abs(fdist) < atol, axis=1))
+    return np.where(np.all(np.abs(fdist) < atol, axis=1))[0]
+
+
+def in_coord_list_pbc(coord_list, coord, atol=1e-8):
+    """
+    Tests if a particular fractional coord is within a fractional coord_list.
+
+    Args:
+        coord_list:
+            List of fractional coords to test
+        coord:
+            A specific fractional coord to test.
+        atol:
+            Absolute tolerance. Defaults to 1e-8.
+
+    Returns:
+        True if coord is in the coord list.
+    """
+    return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
 def get_points_in_sphere_pbc(lattice, frac_points, center, r):
