@@ -152,7 +152,7 @@ def in_coord_list_pbc(coord_list, coord, atol=1e-8):
     Returns:
         True if coord is in the coord list.
     """
-    return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
+    return len(find_in_coord_list_pbc(coord_list, coord, atol=atol)) > 0
 
 
 def get_points_in_sphere_pbc(lattice, frac_points, center, r):
