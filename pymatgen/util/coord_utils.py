@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 """
-Utilities for manipulating coordinates or list of coordinates,
-in periodic boundary conditions or otherwise.
+Utilities for manipulating coordinates or list of coordinates, under periodic
+boundary conditions or otherwise. Many of these are heavily vectorized in
+numpy for performance.
 """
 
 from __future__ import division
@@ -19,7 +20,7 @@ import math
 import itertools
 
 
-def in_coord_list(coord_list, coord, **kwargs):
+def in_coord_list(coord_list, coord, atol=1e-8):
     """
     Tests if a particular coord is within a coord_list using numpy.allclose.
 
@@ -28,14 +29,14 @@ def in_coord_list(coord_list, coord, **kwargs):
             List of coords to test
         coord:
             Specific coordinates
-        kwargs:
-            keyword arguments supported by numpy.allclose. Please refer to
-            documentation for numpy.allclose.
+        atol:
+            Absolute tolerance. Defaults to 1e-8.
     """
-    for test in coord_list:
-        if np.allclose(test, coord, **kwargs):
-            return True
-    return False
+    if len(coord_list) == 0:
+        return False
+    coords = np.tile(coord, (len(coord_list), 1))
+    diff = coord_list - coords
+    return np.any(np.all(np.abs(diff) < atol, axis=1))
 
 
 def get_linear_interpolated_value(x_values, y_values, x):
@@ -87,10 +88,10 @@ def pbc_diff(fcoord1, fcoord2):
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
     fdist = np.mod(fcoord1, 1) - np.mod(fcoord2, 1)
-    return [a if abs(a) <= 0.5 else a - a/abs(a) for a in fdist]
+    return fdist - np.round(fdist)
 
 
-def in_coord_list_pbc(coord_list, coord, **kwargs):
+def in_coord_list_pbc(coord_list, coord, atol=1e-8):
     """
     Tests if a particular coord is within a coord_list using numpy.allclose.
 
@@ -99,15 +100,15 @@ def in_coord_list_pbc(coord_list, coord, **kwargs):
             List of coords to test
         coord:
             Specific coordinates
-        kwargs:
-            keyword arguments supported by numpy.allclose. Please refer to
-            documentation for numpy.allclose.
+        atol:
+            Absolute tolerance. Defaults to 1e-8.
     """
-    for test in coord_list:
-        fdiff = pbc_diff(test, coord)
-        if np.allclose(fdiff, [0,0,0], **kwargs):
-            return True
-    return False
+    if len(coord_list) == 0:
+        return False
+    coords = np.tile(coord, (len(coord_list), 1))
+    fdist = np.mod(coord_list, 1) - np.mod(coords, 1)
+    fdist -= np.round(fdist)
+    return np.any(np.all(np.abs(fdist) < atol, axis=1))
 
 
 def get_points_in_sphere_pbc(lattice, frac_points, center, r):
