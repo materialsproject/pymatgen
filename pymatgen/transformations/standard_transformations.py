@@ -343,11 +343,10 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"species_map": self._species_map}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"species_map": self._species_map},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class RemoveSpeciesTransformation(AbstractTransformation):
@@ -560,7 +559,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         try:
             num_to_return = int(return_ranked_list)
-        except:
+        except ValueError:
             num_to_return = 1
 
         num_to_return = max(1, num_to_return)

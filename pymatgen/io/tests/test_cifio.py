@@ -6,9 +6,9 @@ import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter, parse_symmetry_operations
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Specie, Lattice, Structure, __file__
+from pymatgen import Element, Specie, Lattice, Structure
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
@@ -30,13 +30,13 @@ class  CifIOTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure)
-        expected_cif_str = """#\#CIF1.1
+        ans = """#\#CIF1.1
 ##########################################################################
-#               Crystallographic Information Format file 
+#               Crystallographic Information Format file
 #               Produced by PyCifRW module
-# 
+#
 #  This is a CIF file.  CIF has been adopted by the International
-#  Union of Crystallography as the standard for data archiving and 
+#  Union of Crystallography as the standard for data archiving and
 #  transmission.
 #
 #  For information on this file format, follow the CIF links at
@@ -61,7 +61,7 @@ loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
    1  'x, y, z'
- 
+
 loop_
   _atom_site_type_symbol
   _atom_site_label
@@ -96,10 +96,10 @@ loop_
    O  O22  1  0.834290  0.953928  0.714616  0  .  1
    O  O23  1  0.903358  0.750000  0.258680  0  .  1
    O  O24  1  0.956628  0.250000  0.292862  0  .  1
- 
+
 """
-        self.assertEqual(str(writer), expected_cif_str,
-                         "Incorrectly generated cif string")
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
 
     def test_disordered(self):
         si = Element("Si")
@@ -114,11 +114,11 @@ loop_
         writer = CifWriter(struct)
         ans = """#\#CIF1.1
 ##########################################################################
-#               Crystallographic Information Format file 
+#               Crystallographic Information Format file
 #               Produced by PyCifRW module
-# 
+#
 #  This is a CIF file.  CIF has been adopted by the International
-#  Union of Crystallography as the standard for data archiving and 
+#  Union of Crystallography as the standard for data archiving and
 #  transmission.
 #
 #  For information on this file format, follow the CIF links at
@@ -143,7 +143,7 @@ loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
    1  'x, y, z'
- 
+
 loop_
   _atom_site_type_symbol
   _atom_site_label
@@ -157,9 +157,10 @@ loop_
    Si  Si1  1  0.000000  0.000000  0.000000  0  .  1
    Si  Si2  1  0.750000  0.500000  0.750000  0  .  0.5
    N  N3  1  0.750000  0.500000  0.750000  0  .  0.5
- 
+
 """
-        self.assertEqual(str(writer).strip(), ans.strip())
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
 
     def test_specie_cifwriter(self):
         si4 = Specie("Si", 4)
@@ -176,11 +177,11 @@ loop_
         writer = CifWriter(struct)
         ans = """#\#CIF1.1
 ##########################################################################
-#               Crystallographic Information Format file 
+#               Crystallographic Information Format file
 #               Produced by PyCifRW module
-# 
+#
 #  This is a CIF file.  CIF has been adopted by the International
-#  Union of Crystallography as the standard for data archiving and 
+#  Union of Crystallography as the standard for data archiving and
 #  transmission.
 #
 #  For information on this file format, follow the CIF links at
@@ -205,14 +206,14 @@ loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
    1  'x, y, z'
- 
+
 loop_
   _atom_type_symbol
   _atom_type_oxidation_number
    Si4+  4
    N3-  -3
    Si3+  3
- 
+
 loop_
   _atom_site_type_symbol
   _atom_site_label
@@ -228,16 +229,23 @@ loop_
    Si3+  Si3  1  0.750000  0.500000  0.750000  0  .  0.5
    N3-  N4  1  0.500000  0.500000  0.500000  0  .  1
 """
-        self.assertEqual(str(writer).strip(), ans.strip())
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
 
 
 class HelperFunctionTest(unittest.TestCase):
 
     def test_parse_symmetry_operations(self):
         toks = ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2',
-                'y+1/2, -x+1/2, z+1/2', '-x-1/2, y-1/2, -z-1/2', ]
+                'y+1/2, -x+1/2, z+1/2', '-x-1/2, y-1/2, -z-1/2']
         self.assertEqual(len(parse_symmetry_operations(toks)), 5)
-
+        toks = ['y+1/2, -x+1/2, z+1/2']
+        op = parse_symmetry_operations(toks)[0]
+        self.assertTrue(np.equal(op.affine_matrix,
+                                 [[ 0. ,  1. ,  0. ,  0.5],
+                                  [-1. ,  0. ,  0. ,  0.5],
+                                  [ 0. ,  0. ,  1. ,  0.5],
+                                  [ 0. ,  0. ,  0. ,  1. ]]).all())
 
 if __name__ == '__main__':
     unittest.main()

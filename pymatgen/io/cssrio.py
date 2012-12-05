@@ -38,13 +38,12 @@ class Cssr(object):
         self.structure = structure
 
     def __str__(self):
-        output = []
-        output.append("{:.4f} {:.4f} {:.4f}"
-                      .format(*self.structure.lattice.abc))
-        output.append("{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                      .format(*self.structure.lattice.angles))
-        output.append("{} 0".format(len(self.structure)))
-        output.append("0 {}".format(self.structure.formula))
+        output = ["{:.4f} {:.4f} {:.4f}"
+                  .format(*self.structure.lattice.abc),
+                  "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
+                  .format(*self.structure.lattice.angles),
+                  "{} 0".format(len(self.structure)),
+                  "0 {}".format(self.structure.formula)]
         for i, site in enumerate(self.structure.sites):
             output.append("{} {} {:.4f} {:.4f} {:.4f}"
                           .format(i + 1, site.specie, site.a, site.b, site.c))
@@ -75,9 +74,9 @@ class Cssr(object):
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = [float(l) for l in toks]
+        lengths = map(float, toks)
         toks = lines[1].split()
-        angles = [float(toks[i]) for i in xrange(3)]
+        angles = map(float, toks[0:3])
         latt = Lattice.from_lengths_and_angles(lengths, angles)
         sp = []
         coords = []

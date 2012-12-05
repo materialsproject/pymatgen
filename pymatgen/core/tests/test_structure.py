@@ -3,8 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.structure import Structure, Molecule, \
-    StructureError
+from pymatgen.core.structure import Structure, Molecule, StructureError
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random
@@ -45,7 +44,7 @@ class StructureTest(unittest.TestCase):
         coords.append([0.75, 0.5, 0.75])
         s = Structure(self.lattice, [{Specie('O', -2):1.0},
                                      {Specie('Mg', 2):0.8}], coords)
-        self.assertEqual(str(s.composition), 'Mg0.8 O1')
+        self.assertEqual(str(s.composition), 'Mg2+0.8 O2-1')
 
     def test_get_sorted_structure(self):
         coords = list()
@@ -239,26 +238,11 @@ Sites (5)
 5 H    -0.513360     0.889165    -0.363000"""
         self.assertEqual(str(self.mol), ans)
         ans = """Molecule Summary
-Non-periodic Site
-xyz        : (0.0000, 0.0000, 0.0000)
-element    : C
-occupation : 1.00
-Non-periodic Site
-xyz        : (0.0000, 0.0000, 1.0890)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (1.0267, 0.0000, -0.3630)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (-0.5134, -0.8892, -0.3630)
-element    : H
-occupation : 1.00
-Non-periodic Site
-xyz        : (-0.5134, 0.8892, -0.3630)
-element    : H
-occupation : 1.00"""
+Site: C (0.0000, 0.0000, 0.0000)
+Site: H (0.0000, 0.0000, 1.0890)
+Site: H (1.0267, 0.0000, -0.3630)
+Site: H (-0.5134, -0.8892, -0.3630)
+Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(repr(self.mol), ans)
 
     def test_site_properties(self):

@@ -33,12 +33,16 @@ class SymmetrizedStructure(Structure):
         self._spacegroup = spacegroup
         site_map = zip(self._sites, equivalent_positions)
         site_map = sorted(site_map, key=lambda x: x[1])
-        self._equivalent_sites = [[x[0] for x in g] \
+        self._equivalent_sites = [[x[0] for x in g]
                                   for k, g in itertools.groupby(site_map,
                                                         key=lambda x: x[1])]
 
     @property
     def equivalent_sites(self):
+        """
+        All the sites grouped by symmetry equivalence in the form of [[sites
+        in group1], [sites in group2], ...]
+        """
         return self._equivalent_sites
 
     def find_equivalent_sites(self, site):

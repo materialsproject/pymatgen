@@ -5,9 +5,9 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, __file__
+from pymatgen import Element
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

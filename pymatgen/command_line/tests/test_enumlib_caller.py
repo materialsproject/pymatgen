@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 22, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -19,7 +19,7 @@ import os
 from nose.exc import SkipTest
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
-from pymatgen import __file__, Element, Structure
+from pymatgen import Element, Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation
@@ -36,8 +36,8 @@ class EnumlibAdaptorTest(unittest.TestCase):
     def test_init(self):
         if not enumlib_present:
             raise SkipTest("enumlib not present. Skipping...")
-        test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                '..', 'test_files')
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files')
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
         struct = parser.get_structures(False)[0]
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.5}})

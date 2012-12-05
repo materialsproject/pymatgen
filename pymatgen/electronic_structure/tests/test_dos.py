@@ -4,10 +4,11 @@ import unittest
 import os
 import json
 
-from pymatgen import Spin, Orbital, __file__
+from nose.exc import SkipTest
+from pymatgen import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
@@ -34,6 +35,10 @@ class DosTest(unittest.TestCase):
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
     def test_get_smeared_densities(self):
+        try:
+            import scipy
+        except ImportError:
+            raise SkipTest("scipy not present. Skipping...")
         dos = self.dos
         smeared = dos.get_smeared_densities(0.2)
         dens = dos.densities

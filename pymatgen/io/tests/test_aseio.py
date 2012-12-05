@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 8, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -18,13 +18,12 @@ import os
 
 from nose.exc import SkipTest
 
-import pymatgen
 from pymatgen import Composition
 from pymatgen.io.vaspio.vasp_input import Poscar
 import pymatgen.io.aseio as aio
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class AseAtomsAdaptorTest(unittest.TestCase):

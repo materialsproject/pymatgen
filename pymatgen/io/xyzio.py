@@ -68,7 +68,7 @@ class XYZ(object):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))
-                coords.append(map(float, [m.group(k) for k in [2, 3, 4]]))
+                coords.append(map(float, m.groups()[2:5]))
         return XYZ(Molecule(sp, coords))
 
     @staticmethod
@@ -87,8 +87,7 @@ class XYZ(object):
             return XYZ.from_string(f.read())
 
     def __str__(self):
-        output = [str(len(self._mol))]
-        output.append(self._mol.composition.formula)
+        output = [str(len(self._mol)), self._mol.composition.formula]
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
         for site in self._mol:
             output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
