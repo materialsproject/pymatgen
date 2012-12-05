@@ -44,7 +44,7 @@ to be made for the long term health of the code.
 
 The most up-to-date documention is available at our github page
 (http://materialsproject.github.com/pymatgen/), where you can also report any
-bugs/issues. If you wish to be notified via email of pymatgen releases, you may
+bugs/issues. If you wish to be notified of pymatgen releases, you may
 become a member of `pymatgen's Google Groups page`_.
 
    *The code is mightier than the pen.*
@@ -52,13 +52,13 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
-   Please note that this change implies that the pyhull package is now a
-   required dependency. If you install pymatgen through the usual
-   easy_install or pip install methods, this should be taken care of
-   automatically for you. Otherwise, please look for the pyhull package on
-   PyPI to download and install it.
-2. Miscellaneous bug fixes.
+1. More utilities for working with Periodic Boundary Conditions.
+2. Improved MPRester that supports more data and a new method of specifying
+   the API key for heavy users via a MAPI_KEY environment variable. Please
+   refer to the :doc:`usage pages </usage>`_ for more information.
+3. Vastly improved POTCAR setup script in scripts directly that is now
+   installed as part of a default pymatgen installation.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -145,7 +145,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze, plot, convert, symm, view} additional_arguments
+    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
@@ -184,31 +184,28 @@ now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
 examples of the core capabilities and objects::
 
-   >>> from pymatgen import Element, Composition, Lattice, Structure
+   >>> import pymatgen as mg
    >>>
-   >>> si = Element("Si")
+   >>> si = mg.Element("Si")
    >>> si.atomic_mass
    28.0855
    >>> si.melting_point
    u'1687 K'
    >>>
-   >>> comp = Composition("Fe2O3")
+   >>> comp = mg.Composition("Fe2O3")
    >>> comp.weight
    159.6882
-   >>> comp[Element("Fe")]
+   >>> comp[mg.Element("Fe")]
    2.0
-   >>> comp.get_atomic_fraction(Element("Fe"))
+   >>> comp.get_atomic_fraction(mg.Element("Fe"))
    0.4
-   >>>
-   >>> structure = Structure(Lattice.cubic(4.2), ["Cs", "Cl"],
-   ...                               [[0, 0, 0], [0.5, 0.5, 0.5]])
+   >>> lattice = mg.Lattice.cubic(4.2)
+   >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+   ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
    >>> structure.volume
    74.088000000000008
    >>> structure[0]
-   Periodic Site
-   abc : (0.0000, 0.0000, 0.0000)
-   element    : Cs
-   occupation : 1.00
+   PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
    >>>
    >>> #Integrated symmetry tools from spglib.
    ... from pymatgen.symmetry.finder import SymmetryFinder

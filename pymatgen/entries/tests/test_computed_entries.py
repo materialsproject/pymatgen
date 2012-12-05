@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 18, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -19,10 +19,10 @@ import os
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
-import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
+
 filepath = os.path.join(test_dir, 'vasprun.xml')
 vasprun = Vasprun(filepath)
 

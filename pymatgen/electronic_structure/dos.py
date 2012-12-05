@@ -274,7 +274,7 @@ class Dos(MSONable):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__, "efermi": self.efermi,
                 "energies": list(self.energies),
-                "densities": {str(int(spin)): list(dens)
+                "densities": {str(spin): list(dens)
                               for spin, dens in self.densities.items()}}
 
 
@@ -374,7 +374,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
         """
-        spd_dos = dict()
+        spd_dos = {}
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
                 orbital_type = orb.orbital_type
@@ -394,7 +394,7 @@ class CompleteDos(Dos):
             dict of {Element: Dos}
         """
 
-        el_dos = dict()
+        el_dos = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
@@ -432,7 +432,7 @@ class CompleteDos(Dos):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "structure": self.structure.to_dict,
              "energies": list(self.energies),
-             "densities": {str(int(spin)): list(dens)
+             "densities": {str(spin): list(dens)
                            for spin, dens in self.densities.items()},
              "pdos": []}
         if len(self.pdos) > 0:

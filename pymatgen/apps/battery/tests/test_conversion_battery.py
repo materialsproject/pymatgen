@@ -17,12 +17,13 @@ import unittest
 import os
 import json
 
-from pymatgen import Composition, PMGJSONDecoder, __file__
+from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, \
     ConversionVoltagePair
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
 
 
 class ConversionElectrodeTest(unittest.TestCase):

@@ -1,14 +1,13 @@
 #!/usr/bin/python
 import unittest
 import os
-import pymatgen
 
 from pymatgen.io.feffio_set import FeffInputSet
 from pymatgen.io.feffio import FeffPot
 from pymatgen.io.cifio import CifParser
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 cif_file = 'CoO19128.cif'
 central_atom = 'O'
 cif_path = os.path.join(test_dir, cif_file)

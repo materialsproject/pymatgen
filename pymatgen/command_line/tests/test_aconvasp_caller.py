@@ -15,6 +15,8 @@ aconvasp_present = which('aconvasp')
 class AconvaspCallerTest(unittest.TestCase):
 
     def setUp(self):
+        if not aconvasp_present:
+            raise SkipTest("aconvasp not present. Skipping...")
         self.si = Element("Si")
         coords = list()
         coords.append([0, 0, 0])
@@ -25,14 +27,10 @@ class AconvaspCallerTest(unittest.TestCase):
         self.struct = Structure(self.lattice, [self.si, self.si], coords)
 
     def test_get_num_division_kpoints(self):
-        if not aconvasp_present:
-            raise SkipTest("aconvasp not present. Skipping...")
         self.assertListEqual(get_num_division_kpoints(self.struct, 500),
                              [6, 7, 6])
 
     def test_get_minkowski_red(self):
-        if not aconvasp_present:
-            raise SkipTest("aconvasp not present. Skipping...")
         new_struct = get_minkowski_red(self.struct)
         self.assertAlmostEqual(new_struct.lattice.a, 3.840198)
         self.assertAlmostEqual(new_struct.lattice.alpha, 60.0)
@@ -40,8 +38,6 @@ class AconvaspCallerTest(unittest.TestCase):
         self.assertEqual(new_struct.frac_coords[1][0], 0.25)
 
     def test_get_vasp_kpoint_file_sym(self):
-        if not aconvasp_present:
-            raise SkipTest("aconvasp not present. Skipping...")
         self.assertEqual(get_vasp_kpoint_file_sym(self.struct).split("\n")[0],
                          "FCC (face-centered cubic) G-X-W-K-G-L-U-W-L-K U-X")
 
