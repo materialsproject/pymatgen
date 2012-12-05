@@ -98,7 +98,6 @@ class MPRester(object):
 
         try:
             response = requests.get(url, headers=headers)
-            print response.text
             data = json.loads(response.text, cls=PMGJSONDecoder)
             if data["valid_response"]:
                 if data.get("warning"):
