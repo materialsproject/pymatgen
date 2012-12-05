@@ -6,8 +6,8 @@ interface to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
 To make use of the Materials Project REST interface, you need to be a
-registered user of the MaterialsProject, and apply on the MaterialsProject site
-for an API key. Currently, the http interface is still in limited beta.
+registered user of the MaterialsProject, and obtain an API key by going
+to your profile at https://wwwm.materialsproject.org/profile.
 """
 
 from __future__ import division
