@@ -19,6 +19,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jun 8, 2012"
 
+import os
 import requests
 import json
 import warnings
@@ -41,20 +42,29 @@ class MPRester(object):
                             "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "entry")
 
-    def __init__(self, api_key, host="www.materialsproject.org"):
+    def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
         Args:
             api_key:
                 A String API key for accessing the MaterialsProject REST
                 interface. Please apply on the Materials Project website for
                 one.
+
+                If this is None, the code will check if there is a "MAPI_KEY"
+                 environment variable set. If so, it will use that environment
+                 variable. This makes easier for heavy users to simply add
+                 this environment variable to their setups and MPRester can
+                 then be called without any arguments.
             host:
                 Url of host to access the MaterialsProject REST interface.
                 Defaults to the standard Materials Project REST address, but
                 can be changed to other urls implementing a similar interface.
         """
         self.host = host
-        self.api_key = api_key
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = os.environ.get("MAPI_KEY", "")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -88,6 +98,7 @@ class MPRester(object):
 
         try:
             response = requests.get(url, headers=headers)
+            print response.text
             data = json.loads(response.text, cls=PMGJSONDecoder)
             if data["valid_response"]:
                 if data.get("warning"):
