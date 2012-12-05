@@ -36,12 +36,13 @@ class MPRester(object):
     interface.
     """
 
-    supported_properties = ("structure", "initial_structure",
-                            "final_structure", "energy", "energy_per_atom",
-                            "formation_energy_per_atom", "nsites", "formula",
-                            "pretty_formula", "is_hubbard", "elements",
-                            "nelements", "e_above_hull", "hubbards",
-                            "is_compatible", "entry")
+    supported_properties = ("energy", "energy_per_atom", "volume",
+                            "formation_energy_per_atom", "nsites",
+                            "unit_cell_formula", "pretty_formula", "is_hubbard",
+                            "elements", "nelements", "e_above_hull", "hubbards",
+                            "is_compatible", "spacegroup", "task_ids",
+                            "band_gap", "density", "icsd_id", "cif",
+                            "total_magnetization")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
