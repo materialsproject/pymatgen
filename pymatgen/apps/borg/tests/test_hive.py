@@ -31,7 +31,8 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
         entry = self.drone.assimilate(test_dir)
@@ -62,7 +63,8 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_to_from_dict(self):
         d = self.structure_drone.to_dict
@@ -78,7 +80,8 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
 
     def test_assimilate(self):

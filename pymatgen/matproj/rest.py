@@ -5,9 +5,10 @@ This module provides classes to interface with the Materials Project http REST
 interface to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
-To make use of the Materials Project REST interface, you need to be a
-registered user of the MaterialsProject, and apply on the MaterialsProject site
-for an API key. Currently, the http interface is still in limited beta.
+To make use of the Materials Project REST application programming interface (
+Materials API), you need to be a registered user of the MaterialsProject,
+and obtain an API key by going to your profile at
+https://www.materialsproject.org/profile.
 """
 
 from __future__ import division
@@ -19,6 +20,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jun 8, 2012"
 
+import os
 import requests
 import json
 import warnings
@@ -34,27 +36,37 @@ class MPRester(object):
     interface.
     """
 
-    supported_properties = ("structure", "initial_structure",
-                            "final_structure", "energy", "energy_per_atom",
-                            "formation_energy_per_atom", "nsites", "formula",
-                            "pretty_formula", "is_hubbard", "elements",
-                            "nelements", "e_above_hull", "hubbards",
-                            "is_compatible", "entry")
+    supported_properties = ("energy", "energy_per_atom", "volume",
+                            "formation_energy_per_atom", "nsites",
+                            "unit_cell_formula", "pretty_formula", "is_hubbard",
+                            "elements", "nelements", "e_above_hull", "hubbards",
+                            "is_compatible", "spacegroup", "task_ids",
+                            "band_gap", "density", "icsd_id", "cif",
+                            "total_magnetization")
 
-    def __init__(self, api_key, host="www.materialsproject.org"):
+    def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
         Args:
             api_key:
                 A String API key for accessing the MaterialsProject REST
                 interface. Please apply on the Materials Project website for
                 one.
+
+                If this is None, the code will check if there is a "MAPI_KEY"
+                 environment variable set. If so, it will use that environment
+                 variable. This makes easier for heavy users to simply add
+                 this environment variable to their setups and MPRester can
+                 then be called without any arguments.
             host:
                 Url of host to access the MaterialsProject REST interface.
                 Defaults to the standard Materials Project REST address, but
                 can be changed to other urls implementing a similar interface.
         """
         self.host = host
-        self.api_key = api_key
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.api_key = os.environ.get("MAPI_KEY", "")
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """

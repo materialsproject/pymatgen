@@ -1,12 +1,21 @@
 language: python
 python:
   - "2.7"
+env:
+  global:
+    - secure: "OhNZ9tUYeLFAwv3fSk4WZh5WmY+uNnI9T+kBmWpSpGaC6TTyOdFbi2J+VIKO\nHM5eFQdNbYSph01L93R+PhhEfHi+JwGwPyhwEexlebNpuGOihW85WHmEbbKT\ntGHslGeoHzwlySqeaYmeusdl/dTOp8IFC1OPj6/H9oj2odE7iLg="
 # command to install dependencies
-install: "pip install -r requirements.txt --use-mirrors"
+install: "pip install -q -r requirements.txt --use-mirrors"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
-  - python setup.py install
+  - wget https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz
+  - tar -zxf python-ase-3.6.0.2515.tar.gz
+  - cd python-ase-3.6.0.2515
+  - python setup.py --quiet install
+  - cd ..
+  - rm -rf python-ase-3.6.0.2515
+  - python setup.py --quiet install
   - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
 script: nosetests

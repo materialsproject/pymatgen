@@ -1,10 +1,7 @@
-include *.md *.sh LICENSE
+include *.md LICENSE
 include distribute_setup.py
 recursive-include pymatgen *.py *.json *.cfg
 recursive-include scripts *.py
 recursive-include dependencies *
 prune **/**/tests
-prune dependencies/*/build
-prune dependencies/*/dist
-prune dependencies/*/*egg*
 prune **/**/**/tests
