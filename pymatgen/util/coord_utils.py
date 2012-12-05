@@ -31,6 +31,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
             Specific coordinates
         atol:
             Absolute tolerance. Defaults to 1e-8.
+            Accepts both scalar and array
 
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
@@ -53,7 +54,7 @@ def in_coord_list(coord_list, coord, atol=1e-8):
             Specific coordinates
         atol:
             Absolute tolerance. Defaults to 1e-8.
-
+            Accepts both scalar and array
     Returns:
         True if coord is in the coord list.
     """
