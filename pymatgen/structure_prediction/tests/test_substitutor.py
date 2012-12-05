@@ -16,7 +16,7 @@ def get_table():
     default lambda table.
     """
     data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            'struct_predictor_test_files')
+                            'test_files', "struct_predictor")
     json_file = os.path.join(data_dir, 'test_lambda.json')
     with open(json_file) as f:
         lambda_table = json.load(f)
