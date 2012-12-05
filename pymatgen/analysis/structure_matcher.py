@@ -18,7 +18,8 @@ from pymatgen.core.structure_modifier import BasisChange
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
-from pymatgen.transformations.standard_transformations import PrimitiveCellTransformation
+from pymatgen.transformations.standard_transformations import \
+    PrimitiveCellTransformation
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
 
 import numpy as np
