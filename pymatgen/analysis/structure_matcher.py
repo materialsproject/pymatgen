@@ -101,8 +101,8 @@ def compare_structures(struct1, struct2, ltol=0.2, atol=5,
     s1 = []
     for site in struct1:
         ind = None
-        for i, specie in enumerate(species_list):
-            if site.specie == specie:
+        for i, species in enumerate(species_list):
+            if site.species_and_occu == species:
                 ind = i
                 break
 
@@ -110,7 +110,7 @@ def compare_structures(struct1, struct2, ltol=0.2, atol=5,
             s1[ind] = np.append(s1[ind], [site.frac_coords], axis=0)
         else:
             s1.append(np.array([site.frac_coords]))
-            species_list.append(site.specie)
+            species_list.append(site.species_and_occu)
 
     zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
     s1 = [x[0] for x in zipped]
@@ -119,12 +119,12 @@ def compare_structures(struct1, struct2, ltol=0.2, atol=5,
 
     for site in struct2:
         ind = None
-        for i, specie in enumerate(species_list):
-            if site.specie == specie:
+        for i, species in enumerate(species_list):
+            if site.species_and_occu == species:
                 ind = i
                 break
             #get cart coords for s2
-        if s2_cart[ind]:
+        if s2_cart[ind] != []:
             s2_cart[ind] = np.append(s2_cart[ind], [site.coords], axis=0)
         else:
             s2_cart[ind] = np.array([site.coords])
