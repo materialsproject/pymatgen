@@ -1102,16 +1102,16 @@ class Kpoints(VaspInput):
                        kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
-#set the global VASP_PSP_DIR
-VASP_PSP_DIR = None
-if "VASP_PSP_DIR" in os.environ:
-    VASP_PSP_DIR = os.environ["VASP_PSP_DIR"]
-elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
-                                 "pymatgen.cfg")):
-    module_dir = os.path.dirname(pymatgen.__file__)
-    config = ConfigParser.SafeConfigParser()
-    config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-    VASP_PSP_DIR = config.get("VASP", "pspdir")
+def get_potcar_dir():
+    if "VASP_PSP_DIR" in os.environ:
+        return os.environ["VASP_PSP_DIR"]
+    elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
+                                     "pymatgen.cfg")):
+        module_dir = os.path.dirname(pymatgen.__file__)
+        config = ConfigParser.SafeConfigParser()
+        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+        return config.get("VASP", "pspdir")
+    return None
 
 
 @cached_class
@@ -1166,9 +1166,10 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        paths_to_try = [os.path.join(VASP_PSP_DIR, funcdir,
+        paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
                                      "POTCAR.{}.gz".format(symbol)),
-                        os.path.join(VASP_PSP_DIR, funcdir, symbol, "POTCAR")]
+                        os.path.join(get_potcar_dir(), funcdir, symbol,
+                                     "POTCAR")]
         for p in paths_to_try:
             if os.path.exists(p):
                 return PotcarSingle.from_file(p)
