@@ -64,6 +64,7 @@ def _perform_grouping(args):
                                          anonymized=anonymized,
                                          symmetry_tol=symmetry_tol,
                                          fitting_accuracy=fitting_accuracy)
+
                 if fitter.fit_found:
                     logger.info("Fit found")
                     matches.append(unmatched[i])
