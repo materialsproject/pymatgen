@@ -132,7 +132,7 @@ necessary dependencies.
 
 ## Generating POTCARs ##
 
-For the code to generate POTCAR files, it needs to know where the VASP
+For pymatgen to generate POTCAR files, it needs to know where the VASP
 pseudopotential files are.  We are not allowed to distribute these under the
 VASP license. The good news is that we have included a setup script to help you
 along.
