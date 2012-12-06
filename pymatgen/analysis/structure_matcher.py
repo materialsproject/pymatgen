@@ -60,15 +60,16 @@ def cmp_struct(s1, s2, frac_tol):
 def compare_structures(struct1, struct2, ltol=0.2, atol=5,
                        primitive_cell=False,
                        equivalent_species=[]):
-    # Same number of sites
-    if struct1.num_sites != struct2.num_sites:
-        return False
 
     #primitive cell transformation - Needs work
     if primitive_cell:
         prim = PrimitiveCellTransformation()
         struct1 = prim.apply_transformation(struct1)
         struct2 = prim.apply_transformation(struct2)
+
+    # Same number of sites
+    if struct1.num_sites != struct2.num_sites:
+        return False
 
     #compute niggli lattices, 
     nl1 = struct1.lattice.get_niggli_reduced_lattice()
