@@ -840,7 +840,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 if state["total"] and str(state["set"]).startswith("spin"):
                     spin = Spin.up if state["set"] == "spin 1" else Spin.down
                     self.tdos[spin] = self.dos_val
-                    self.idos[spin] = self.dos_val
+                    self.idos[spin] = self.idos_val
                     self.dos_energies = self.dos_energies_val
                     self.dos_energies_val = []
                     self.dos_val = []
