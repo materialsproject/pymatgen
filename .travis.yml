@@ -20,7 +20,6 @@ before_script:
   - sudo apt-get install -qq python-openbabel python-scipy
   - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages/
   - mv pymatgen pmg
-  - export PATH=$PATH:./cmd_line/enum/Linux_32bit
 # command to run tests, e.g. python setup.py test
 script: nosetests
 branches:
