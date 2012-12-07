@@ -62,6 +62,9 @@ class _OrbitalImpl(collections.namedtuple('_Orbital', 'name vasp_index')):
     def __hash__(self):
         return self.vasp_index
 
+    def __repr__(self):
+        return self.name
+
     def __str__(self):
         return self.name
 
