@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements plotter for DOS and band structure.
-'''
+"""
 
 from __future__ import division
 
@@ -180,7 +180,7 @@ class DosPlotter(object):
         else:
             xlim = plt.xlim()
             relevanty = [p[1] for p in allpts
-                         if p[0] > xlim[0] and p[0] < xlim[1]]
+                         if xlim[0] < p[0] < xlim[1]]
             plt.ylim((min(relevanty), max(relevanty)))
 
         if self.zero_at_efermi:
@@ -372,7 +372,7 @@ class BSPlotter(object):
         band_linewidth = 3
 
         data = self.bs_plot_data(zero_to_efermi)
-        if smooth == False:
+        if not smooth:
             for i in range(self._nb_bands):
                     plt.plot(data['distances'],
                              [e for e in data['energy'][str(Spin.up)][i]],
@@ -383,9 +383,7 @@ class BSPlotter(object):
                                  'r-', linewidth=band_linewidth)
         else:
             for i in range(self._nb_bands):
-                uniques = {}
-                uniques['distances'] = []
-                uniques['energy'] = []
+                uniques = {'distances': [], 'energy': []}
                 for j in range(1, len(data['distances'])):
                     if data['distances'][j] - data['distances'][j - 1] > 1e-13:
                         uniques['distances'].append(data['distances'][j - 1])
@@ -401,9 +399,7 @@ class BSPlotter(object):
                               for x in range(1000)],
                              'b-', linewidth=band_linewidth)
                 if self._bs.is_spin_polarized:
-                    uniques = {}
-                    uniques['distances'] = []
-                    uniques['energy'] = []
+                    uniques = {'distances': [], 'energy': []}
                     for j in range(1, len(data['distances'])):
                         if data['distances'][j] \
                         - data['distances'][j - 1] > 1e-13:
@@ -431,7 +427,7 @@ class BSPlotter(object):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                    if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already printed... skipping label {i}"
                                      .format(i=ticks['label'][i]))
                     else:
@@ -564,11 +560,11 @@ class BSPlotter(object):
         previous_label = self._bs._kpoints[0].label
         previous_branch = self._bs._branches[0]['name']
         for i, c in enumerate(self._bs._kpoints):
-            if c.label != None:
+            if c.label is not None:
                 tick_distance.append(self._bs._distance[i])
                 this_branch = None
                 for b in self._bs._branches:
-                    if i >= b['start_index'] and i <= b['end_index']:
+                    if b['start_index'] <= i <= b['end_index']:
                         this_branch = b['name']
                         break
                 if c.label != previous_label \
@@ -750,7 +746,7 @@ class BSPlotterProjected(BSPlotter):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                    if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label... "
                         "skipping label {i}".format(i=ticks['label'][i]))
                     else:
@@ -783,10 +779,7 @@ class BSPlotterProjected(BSPlotter):
             character for the corresponding element and orbital.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        fig_number = 0
-        for e in dictio:
-            for o in dictio[e]:
-                fig_number = fig_number + 1
+        fig_number = sum([len(v) for v in dictio.values()])
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
         data = self.bs_plot_data(zero_to_efermi)
         plt = get_publication_quality_plot(12, 8)
@@ -821,7 +814,7 @@ class BSPlotterProjected(BSPlotter):
                             markersize=proj[Spin.down][i][j][str(el)][o] \
                             * 15.0)
 
-                if ylim == None:
+                if ylim is None:
                     if self._bs.is_metal():
                         # Plot A Metal
                         if zero_to_efermi:
@@ -844,7 +837,7 @@ class BSPlotterProjected(BSPlotter):
                 else:
                     plt.ylim(ylim)
                 plt.title(str(el) + " " + str(o))
-                count = count + 1
+                count += 1
         return plt
 
     def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None):
@@ -900,7 +893,7 @@ class BSPlotterProjected(BSPlotter):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                    if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label..."
                                      "skipping label {i}".format(
                                         i=ticks['label'][i]))
@@ -936,7 +929,7 @@ class BSPlotterProjected(BSPlotter):
                         plt.plot(data['distances'][j],
                         data['energy'][str(Spin.down)][i][j], 'ro',
                         markersize=proj[Spin.down][i][j][str(el)] * 15.0)
-            if ylim == None:
+            if ylim is None:
                 if self._bs.is_metal():
                     # Plot A Metal
                     if zero_to_efermi:
@@ -959,7 +952,7 @@ class BSPlotterProjected(BSPlotter):
             else:
                 plt.ylim(ylim)
             plt.title(str(el))
-            count = count + 1
+            count += 1
         return plt
 
     def get_elt_projected_plots_color(self, zero_to_efermi=True,
@@ -985,7 +978,7 @@ class BSPlotterProjected(BSPlotter):
         """
         if len(self._bs._structure.composition.elements) > 3:
             raise ValueError
-        if elt_ordered == None:
+        if elt_ordered is None:
             elt_ordered = self._bs._structure.composition.elements
         proj = self._bs.get_projection_on_elements()
         data = self.bs_plot_data(zero_to_efermi)
@@ -1027,7 +1020,7 @@ class BSPlotterProjected(BSPlotter):
             if ticks['label'][i] is not None:
                 # don't print the same label twice
                 if i != 0:
-                    if (ticks['label'][i] == ticks['label'][i - 1]):
+                    if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label..."
                         "skipping label {i}".format(i=ticks['label'][i]))
                     else:
@@ -1043,7 +1036,7 @@ class BSPlotterProjected(BSPlotter):
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
             spins = [Spin.up, Spin.down]
-        if smooth == False:
+        if not smooth:
             for s in spins:
                 for i in range(self._nb_bands):
                     for j in range(len(data['energy'][str(s)][i]) - 1):
@@ -1054,7 +1047,7 @@ class BSPlotterProjected(BSPlotter):
                         for el in elt_ordered:
                             sum_e = sum_e + proj[s][i][j][str(el)]
                         if sum_e == 0.0:
-                            color = [0.0 for e in elt_ordered]
+                            color = [0.0] * len(elt_ordered)
                         else:
                             color = [proj[s][i][j][str(el)] / sum_e
                                      for el in elt_ordered]
