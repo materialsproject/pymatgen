@@ -71,11 +71,10 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"charge_balance_sp": self._charge_balance_sp}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"charge_balance_sp": self._charge_balance_sp},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class SuperTransformation(AbstractTransformation):
@@ -123,11 +122,10 @@ class SuperTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"transformations": self._transformations}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"transformations": self._transformations},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class MultipleSubstitutionTransformation(object):
@@ -227,14 +225,13 @@ class MultipleSubstitutionTransformation(object):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"sp_to_replace": self._sp_to_replace,
-                          "r_fraction": self._r_fraction,
-                          "substitution_dict": self._substitution_dict,
-                        "charge_balance_species": self._charge_balance_species}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"sp_to_replace": self._sp_to_replace,
+                              "r_fraction": self._r_fraction,
+                              "substitution_dict": self._substitution_dict,
+                              "charge_balance_species": self._charge_balance_species},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 
 class EnumerateStructureTransformation(AbstractTransformation):
@@ -296,7 +293,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         """
         try:
             num_to_return = int(return_ranked_list)
-        except:
+        except ValueError:
             num_to_return = 1
 
         if structure.is_ordered:
@@ -368,14 +365,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"symm_prec": self.symm_prec,
-                          "min_cell_size": self.min_cell_size,
-                          "max_cell_size": self.max_cell_size,
-                          "refine_structure": self.refine_structure}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"symm_prec": self.symm_prec,
+                              "min_cell_size": self.min_cell_size,
+                              "max_cell_size": self.max_cell_size,
+                              "refine_structure": self.refine_structure},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
+
     
 class SubstitutionPredictorTransformation(AbstractTransformation):
     """
@@ -405,12 +402,10 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         outputs = []
         for pred in preds:
             st = SubstitutionTransformation(pred['substitutions'])
-            output = {}
-            output['structure'] = st.apply_transformation(structure)
-            output['probability'] = pred['probability']
-            output['threshold'] = self._threshold
+            output = {'structure': st.apply_transformation(structure),
+                      'probability': pred['probability'],
+                      'threshold': self._threshold, 'substitutions': {}}
             #dictionary keys have to be converted to strings for JSON
-            output['substitutions'] = {}
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
             outputs.append(output)
@@ -432,9 +427,8 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = self._kwargs
+        d = {"name": self.__class__.__name__, "version": __version__,
+             "init_args": self._kwargs, "@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
         d["init_args"]["threshold"] = self._threshold
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
         return d

@@ -10,11 +10,11 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Jul 16, 2012"
+__date__ = "Nov 30, 2012"
 
 import os
 import glob
@@ -29,7 +29,9 @@ import logging
 
 import numpy as np
 
-from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, clean_json
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
+    clean_json, reverse_readline
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -38,7 +40,6 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
-
 
 logger = logging.getLogger(__name__)
 
@@ -143,9 +144,8 @@ class Vasprun(object):
                             "ionic_steps", "dos_has_errors",
                             "projected_eigenvalues"]
 
-    def __init__(self, filename, ionic_step_skip=None,
-                 parse_dos=True, parse_eigen=True,
-                 parse_projected_eigen=False):
+    def __init__(self, filename, ionic_step_skip=None, parse_dos=True,
+                 parse_eigen=True, parse_projected_eigen=False):
         """
         Args:
             filename:
@@ -321,7 +321,7 @@ class Vasprun(object):
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS needed to obtain band structure.')
 
-        if efermi == None:
+        if efermi is None:
             efermi = self.efermi
 
         kpoint_file = Kpoints.from_file(kpoints_filename)
@@ -335,9 +335,8 @@ class Vasprun(object):
         if 'projected_eigenvalues' in self.to_dict['output']:
             dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
-        eigenvals = {}
         p_eigenvals = {}
-        if "up" in dict_eigen["0"] and "down" in dict_eigen["0"]\
+        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"]\
                 and self.incar['ISPIN'] == 2:
             eigenvals = {Spin.up: [], Spin.down: []}
             if len(dict_p_eigen) != 0:
@@ -347,26 +346,26 @@ class Vasprun(object):
             if len(dict_p_eigen) != 0:
                 p_eigenvals = {Spin.up: []}
 
-        neigenvalues = [len(v['up']) for v in dict_eigen.values()]
+        neigenvalues = [len(v['1']) for v in dict_eigen.values()]
         min_eigenvalues = min(neigenvalues)
         for i in range(min_eigenvalues):
-            eigenvals[Spin.up].append([dict_eigen[str(j)]['up'][i][0]
+            eigenvals[Spin.up].append([dict_eigen[str(j)]['1'][i][0]
                                        for j in range(len(kpoints))])
             if len(dict_p_eigen) != 0:
                 p_eigenvals[Spin.up].append(
                     [{Orbital.from_string(orb):
-                      dict_p_eigen[j]['up'][i][orb]
-                      for orb in dict_p_eigen[j]['up'][i]}
+                      dict_p_eigen[j]['1'][i][orb]
+                      for orb in dict_p_eigen[j]['1'][i]}
                      for j in range(len(kpoints))])
         if Spin.down in eigenvals:
             for i in range(min_eigenvalues):
-                eigenvals[Spin.down].append([dict_eigen[str(j)]['down'][i][0]
+                eigenvals[Spin.down].append([dict_eigen[str(j)]['-1'][i][0]
                                              for j in range(len(kpoints))])
                 if len(dict_p_eigen) != 0:
                     p_eigenvals[Spin.down].append(
                         [{Orbital.from_string(orb):
-                          dict_p_eigen[j]['down'][i][orb]
-                          for orb in dict_p_eigen[j]['down'][i]}
+                          dict_p_eigen[j]['-1'][i][orb]
+                          for orb in dict_p_eigen[j]['-1'][i]}
                          for j in range(len(kpoints))]
                     )
 
@@ -374,21 +373,21 @@ class Vasprun(object):
         #for this we look at the presence of the LHFCALC tag and of k-points
         #that have weights=0.0
         hybrid_band = False
-        if self.parameters['LHFCALC'] == True:
+        if self.parameters['LHFCALC']:
             for l in kpoint_file.labels:
-                if l != None:
+                if l is not None:
                     hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band == True:
+        if kpoint_file.style == "Line_mode" or hybrid_band:
             labels_dict = {}
-            if hybrid_band == True:
+            if hybrid_band:
                 start_bs_index = 0
                 for i in range(len(self.actual_kpoints)):
                     if self.actual_kpoints_weights[i] == 0.0:
                         start_bs_index = i
                         break
                 for i in range(len(kpoint_file.kpts)):
-                    if kpoint_file.labels[i] != None:
+                    if kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = \
                             kpoint_file.kpts[i]
                 #remake the data only considering line band structure k-points
@@ -435,17 +434,16 @@ class Vasprun(object):
                 elif occu <= 1e-8 and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
-        return (cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint)
+        return cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint
 
     @property
     def to_dict(self):
         """
         Json-serializable dict representation.
         """
-        d = {}
-        d["vasp_version"] = self.vasp_version
-        d["has_vasp_completed"] = self.converged
-        d["nsites"] = len(self.final_structure)
+        d = {"vasp_version": self.vasp_version,
+             "has_vasp_completed": self.converged,
+             "nsites": len(self.final_structure)}
         comp = self.final_structure.composition
         d["unit_cell_formula"] = comp.to_dict
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
@@ -487,14 +485,12 @@ class Vasprun(object):
         vasp_input["lattice_rec"] = self.lattice_rec.to_dict
         d["input"] = vasp_input
 
-        vasp_output = {}
-        vasp_output["ionic_steps"] = self.ionic_steps
-        vasp_output["final_energy"] = self.final_energy
-        vasp_output["final_energy_per_atom"] = self.final_energy / \
-            len(self.final_structure)
-        vasp_output["crystal"] = self.final_structure.to_dict
-        vasp_output["efermi"] = self.efermi
-        vasp_output['eigenvalues'] = {}
+        vasp_output = {"ionic_steps": self.ionic_steps,
+                       "final_energy": self.final_energy,
+                       "final_energy_per_atom": self.final_energy /\
+                                                len(self.final_structure),
+                       "crystal": self.final_structure.to_dict,
+                       "efermi": self.efermi, 'eigenvalues': {}}
         for (spin, index), values in self.eigenvalues.items():
             if index not in vasp_output['eigenvalues']:
                 vasp_output['eigenvalues'][index] = {str(spin): values}
@@ -762,25 +758,20 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.filename, self.incar_param)
             elif state["kpoints"]:
                 if state["varray"] == "kpointlist":
-                    self.actual_kpoints.append([float(x)
-                                                for x in
-                                                self.val.getvalue().split()])
+                    self.actual_kpoints.append(map(float,
+                                               self.val.getvalue().split()))
                 if state["varray"] == "weights":
                     val = float(self.val.getvalue())
                     self.actual_kpoints_weights.append(val)
                 if state["v"] == "divisions":
-                    self.kpoints.kpts = [[int(x)
-                                          for x
-                                          in self.val.getvalue().split()]]
+                    self.kpoints.kpts = [map(int, self.val.getvalue().split())]
                 elif state["v"] == "usershift":
-                    self.kpoints.kpts_shift = [float(x)
-                                               for x in
-                                               self.val.getvalue().split()]
+                    self.kpoints.kpts_shift = map(float,
+                                                  self.val.getvalue().split())
                 elif state["v"] == "genvec1" or state["v"] == "genvec2" or \
                         state["v"] == "genvec3" or state["v"] == "shift":
                     setattr(self.kpoints, state["v"],
-                            [float(x)
-                             for x in self.val.getvalue().split()])
+                            map(float, self.val.getvalue().split()))
 
     def _read_calc(self, name):
         state = self.state
@@ -790,13 +781,13 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.scdata.append(self.scstep)
             logger.debug("Finished reading scstep...")
         elif name == "varray" and state["varray"] == "forces":
-            self.forces = np.array([float(x)
-                                    for x in self.posstr.getvalue().split()])
+            self.forces = np.array(map(float,
+                                       self.posstr.getvalue().split()))
             self.forces.shape = (len(self.atomic_symbols), 3)
             self.read_positions = False
         elif name == "varray" and state["varray"] == "stress":
-            self.stress = np.array([float(x) for x
-                                    in self.posstr.getvalue().split()])
+            self.stress = np.array(map(float,
+                                       self.posstr.getvalue().split()))
             self.stress.shape = (3, 3)
             self.read_positions = False
         elif name == "calculation":
@@ -812,16 +803,14 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_lattice = False
             self.read_rec_lattice = False
         elif name == "structure":
-            self.lattice = np.array([float(x) for x
-                                     in self.latticestr.getvalue().split()])
-            self.lattice.shape = (3, 3)
-            self.pos = np.array([float(x) for x
-                                 in self.posstr.getvalue().split()])
+            self.lattice = map(float, self.latticestr.getvalue().split())
+            self.pos = np.array(map(float,
+                                    self.posstr.getvalue().split()))
             self.pos.shape = (len(self.atomic_symbols), 3)
             self.structures.append(Structure(self.lattice, self.atomic_symbols,
                                              self.pos))
-            self.lattice_rec = Lattice([float(x) for x
-                                        in self.latticerec.getvalue().split()])
+            self.lattice_rec = Lattice(map(float,
+                                       self.latticerec.getvalue().split()))
             self.read_structure = False
             self.read_positions = False
             self.read_lattice = False
@@ -841,12 +830,12 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "r" and state["partial"] and \
                     str(state["set"]).startswith("spin"):
                 tok = self.val.getvalue().split()
-                self.raw_data.append([float(i) for i in tok[1:]])
+                self.raw_data.append(map(float, tok[1:]))
             elif name == "set":
                 if state["total"] and str(state["set"]).startswith("spin"):
                     spin = Spin.up if state["set"] == "spin 1" else Spin.down
                     self.tdos[spin] = self.dos_val
-                    self.idos[spin] = self.dos_val
+                    self.idos[spin] = self.idos_val
                     self.dos_energies = self.dos_energies_val
                     self.dos_energies_val = []
                     self.dos_val = []
@@ -886,7 +875,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         state = self.state
         if name == "r" and str(state["set"]).startswith("kpoint"):
             tok = self.val.getvalue().split()
-            self.raw_data.append([float(i) for i in tok])
+            self.raw_data.append(map(float, tok))
         elif name == "set" and str(state["set"]).startswith("kpoint"):
             self.eigenvalues[(self.eigen_spin, self.eigen_kpoint - 1)] = \
                 self.raw_data
@@ -946,7 +935,7 @@ def parse_parameters(val_type, val):
         val : Actual string value parsed for vasprun.xml.
     """
     if val_type == "logical":
-        return (val == "T")
+        return val == "T"
     elif val_type == "int":
         return int(val)
     elif val_type == "string":
@@ -976,10 +965,10 @@ def parse_v_parameters(val_type, val, filename, param_name):
         Parsed value.
     """
     if val_type == "logical":
-        val = [True if i == "T" else False for i in val.split()]
+        val = map(lambda i: i == "T", val.split())
     elif val_type == "int":
         try:
-            val = [int(i) for i in val.split()]
+            val = map(int, val.split())
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
@@ -987,10 +976,10 @@ def parse_v_parameters(val_type, val, filename, param_name):
             if val is None:
                 raise IOError("Error in parsing vasprun.xml")
     elif val_type == "string":
-        val = [i for i in val.split()]
+        val = val.split()
     else:
         try:
-            val = [float(i) for i in val.split()]
+            val = map(float, val.split())
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
@@ -1064,8 +1053,7 @@ class Outcar(object):
         self.filename = filename
         self.is_stopped = False
         with zopen(filename, "r") as f:
-            read_charge = False
-            read_mag = False
+            read_charge_mag = False
             charge = []
             mag = []
             header = []
@@ -1074,71 +1062,61 @@ class Outcar(object):
             nelect = None
             efermi = None
 
-            # Only check the last 10,000 lines for content
-            # AJ has examples of OUTCARs with 23 million lines!!
-            # They take forever to parse and kill machines
-            MAX_LINES = 10000
-            SIZE_CUTOFF = 10000000  # 10MB
-            line_cutoff = 0
-            if os.path.getsize(filename) > SIZE_CUTOFF:
-                line_count = 0
-                for line in f:
-                    line_count += 1
-                line_cutoff = line_count - MAX_LINES
-                #rewind the file
-                f.seek(0)
-
             time_patt = re.compile("\((sec|kb)\)")
             efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
             nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                      "magnetization\s+(\S+)")
-
-            for idx, line in enumerate(f):
-                if idx >= line_cutoff:
-                    clean = line.strip()
-                    if clean == "total charge":
-                        read_charge = True
-                        charge = []
+            all_lines = []
+            for line in reverse_readline(f):
+                clean = line.strip()
+                all_lines.append(clean)
+                if clean.startswith("tot ") and not (charge and mag):
+                    read_charge_mag = True
+                    data = []
+                elif read_charge_mag:
+                    if clean.startswith("# of ion"):
+                        header = re.split("\s{2,}", line.strip())
+                        header.pop(0)
+                    elif clean == "total charge":
+                        data.reverse()
+                        charge = [dict(zip(header, v)) for v in data]
+                        read_charge_mag = False
                     elif clean == "magnetization (x)":
-                        read_mag = True
-                        mag = []
-                    elif read_charge or read_mag:
-                        if clean.startswith("# of ion"):
-                            header = re.split("\s{2,}", line.strip())
-                        elif clean.startswith("tot"):
-                            read_charge = False
-                            read_mag = False
-                        else:
-                            m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                            if m:
-                                to_append = charge if read_charge else mag
-                                data = re.findall("[\d\.\-]+", clean)
-                                to_append.append({header[i]: float(data[i])
-                                                  for i
-                                                  in xrange(1, len(header))})
-                    elif line.find("soft stop encountered!  aborting job") \
-                            != -1:
-                        self.is_stopped = True
+                        data.reverse()
+                        mag = [dict(zip(header, v)) for v in data]
+                        read_charge_mag = False
                     else:
-                        if time_patt.search(line):
-                            tok = line.strip().split(":")
-                            run_stats[tok[0].strip()] = float(tok[1].strip())
+                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                        if m:
+                            toks = [float(i) for i in re.findall("[\d\.\-]+",
+                                                                 clean)]
+                            toks.pop(0)
+                            data.append(toks)
+                elif clean.find("soft stop encountered!  aborting job") != -1:
+                    self.is_stopped = True
+                else:
+                    if time_patt.search(line):
+                        tok = line.strip().split(":")
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                        continue
+                    m = efermi_patt.search(clean)
+                    if m:
+                        try:
+                            #try-catch because VASP sometimes prints
+                            #'E-fermi: ********     XC(G=0):  -6.1327
+                            #alpha+bet : -1.8238'
+                            efermi = float(m.group(1))
                             continue
-                        m = efermi_patt.search(clean)
-                        if m:
-                            try:
-                                #try-catch because VASP sometimes prints
-                                #'E-fermi: ********     XC(G=0):  -6.1327
-                                #alpha+bet : -1.8238'
-                                efermi = float(m.group(1))
-                                continue
-                            except:
-                                efermi = 0
-                                continue
-                        m = nelect_patt.search(clean)
-                        if m:
-                            nelect = float(m.group(1))
-                            total_mag = float(m.group(2))
+                        except ValueError:
+                            efermi = None
+                            continue
+                    m = nelect_patt.search(clean)
+                    if m:
+                        nelect = float(m.group(1))
+                        total_mag = float(m.group(2))
+                if all([nelect, total_mag is not None, efermi is not None,
+                        run_stats]):
+                    break
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
@@ -1173,8 +1151,8 @@ class Outcar(object):
 
             # Nonspin cases
             def er_ev(results, match):
-                results.er_ev[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)]) / 2
+                results.er_ev[Spin.up] = np.array(map(float,
+                                                      match.groups()[1:4])) / 2
                 results.er_ev[Spin.down] = results.er_ev[Spin.up]
                 results.context = 2
 
@@ -1403,16 +1381,11 @@ class Outcar(object):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["efermi"] = self.efermi
-        d["run_stats"] = self.run_stats
-        d["magnetization"] = self.magnetization
-        d["charge"] = self.charge
-        d["total_magnetization"] = self.total_mag
-        d["nelect"] = self.nelect
-        d["is_stopped"] = self.is_stopped
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__, "efermi": self.efermi,
+             "run_stats": self.run_stats, "magnetization": self.magnetization,
+             "charge": self.charge, "total_magnetization": self.total_mag,
+             "nelect": self.nelect, "is_stopped": self.is_stopped}
         return d
 
 
@@ -1558,15 +1531,18 @@ class VolumetricData(object):
                     toks = line.split()
                     for tok in toks:
                         if data_count < ngrid_pts:
-                            dataset.append(float(tok))
+                            #This complicated procedure is necessary because
+                            #vasp outputs x as the fastest index, followed by y
+                            #then z.
+                            x = data_count % dim[0]
+                            y = int(math.floor(data_count / dim[0])) % dim[1]
+                            z = int(math.floor(data_count / dim[0] / dim[1]))
+                            dataset[x,y,z] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False
                         data_count = 0
-                        dataset = np.array(dataset)
-                        dataset = dataset.reshape(dim)
                         all_dataset.append(dataset)
-                        dataset = []
                 elif not poscar_read:
                     if line != "":
                         poscar_string.append(line)
@@ -1574,18 +1550,19 @@ class VolumetricData(object):
                         poscar = Poscar.from_string("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
-                    dim = [int(i) for i in line.split()]
+                    dim = map(int, line.split())
                     ngrid_pts = dim[0] * dim[1] * dim[2]
                     dimline = line
                     read_dataset = True
+                    dataset = np.zeros(dim)
                 elif line == dimline:
                     read_dataset = True
-
+                    dataset = np.zeros(dim)
             if len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
             else:
                 data = {"total": all_dataset[0]}
-            return (poscar, data)
+            return poscar, data
 
     def write_file(self, file_name, vasp4_compatible=False):
         """
@@ -1625,7 +1602,7 @@ class VolumetricData(object):
             write_spin("diff")
         f.close()
 
-    def get_integrated_diff(self, ind, radius, max_radius=None):
+    def get_integrated_diff(self, ind, radius, nbins=1):
         """
         Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
@@ -1636,46 +1613,53 @@ class VolumetricData(object):
                 Index of atom.
             radius:
                 Radius of integration.
-            max_radius:
-                For speed, the code will precompute and cache distances for all
-                gridpoints up to max_radius. If obtaining the integrated charge
-                for the same ind up to a different radius, the code will use
-                the cahced distances, resulting in much faster retrieval of
-                data. If max_radius is None (the default), half of the minimum
-                cell length is used. For best results, choose a max_radius that
-                is close to the maximum value that you would be interested in.
+            nbins:
+                Number of bins. Defaults to 1. This allows one to obtain the
+                charge integration up to a list of the cumulative charge
+                integration values for radii for [radius/nbins,
+                2 * radius/nbins, ....].
 
         Returns:
-            Differential integrated charge.
+            Differential integrated charge as a np array of [[radius, value],
+            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            data[:,1])
         """
         #For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
-            return 0
+            radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
+            data = np.zeros((nbins, 2))
+            data[:, 0] = radii
+            return data
 
         struct = self.structure
-
         a = self.dim
-        if ind not in self._distance_matrix or \
+        if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            grid_struct = Structure(struct.lattice,
-                                    ["H"] * self.ngridpts, coords)
-            if not max_radius:
-                max_radius = min(self.structure.lattice.abc) / 2
-            sites_dist = grid_struct.get_sites_in_sphere(struct[ind].coords,
-                                                         max_radius)
-            self._distance_matrix[ind] = {"max_radius": max_radius,
-                                          "data": sites_dist}
+            sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
+                                                  struct[ind].coords,
+                                                  radius)
+            self._distance_matrix[ind] = {"max_radius": radius,
+                                          "data": np.array(sites_dist)}
 
-        intchg = 0
-        for (site, dist) in self._distance_matrix[ind]["data"]:
-            if dist < radius:
-                fcoords = site.to_unit_cell.frac_coords
-                c = [int(round(fcoords[i] * a[i])) for i in xrange(3)]
-                intchg += self.data["diff"][c[0], c[1], c[2]]
-        return intchg / self.ngridpts
+        data = self._distance_matrix[ind]["data"]
+
+        #Use boolean indexing to find all charges within the desired distance.
+        inds = data[:, 1] <= radius
+        dists = data[inds, 1]
+        data_inds = np.rint(np.mod(list(data[inds, 0]), 1) *
+                            np.tile(a, (len(dists), 1)))
+        vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
+
+        hist, edges = np.histogram(dists, bins=nbins,
+                                   range=[0, radius],
+                                   weights=vals)
+        data = np.zeros((nbins, 2))
+        data[:, 0] = edges[1:]
+        data[:, 1] = [sum(hist[0:i+1]) / self.ngridpts for i in xrange(nbins)]
+        return data
 
     def get_average_along_axis(self, ind):
         """
@@ -1781,7 +1765,6 @@ class Procar(object):
         kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
         expr = re.compile("^\s*([0-9]+)\s+")
         dataexpr = re.compile("[\.0-9]+")
-        currentKpoint = 0
         weight = 0
         for l in lines:
             if kpointexpr.match(l):
@@ -1795,8 +1778,7 @@ class Procar(object):
                 linefloatdata = map(float, linedata)
                 index = int(linefloatdata.pop(0))
                 if index in self.data:
-                    self.data[index] = self.data[index] + \
-                        np.array(linefloatdata) * weight
+                    self.data[index] += np.array(linefloatdata) * weight
                 else:
                     self.data[index] = np.array(linefloatdata) * weight
 

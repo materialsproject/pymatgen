@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 16, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -18,10 +18,13 @@ import os
 import numpy as np
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, PotcarSingle
-from pymatgen import Composition, Structure, __file__
+from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
+    PotcarSingle
+from pymatgen import Composition, Structure, zopen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test_files')
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class PoscarTest(unittest.TestCase):
 
@@ -236,7 +239,8 @@ class KpointsTest(unittest.TestCase):
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, 'POTCAR.Mn_pv'), 'r') as f:
+        with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+                                "POTCAR.Mn_pv.gz"), 'r') as f:
             self.psingle = PotcarSingle(f.read())
 
     def test_keywords(self):
@@ -270,12 +274,23 @@ class PotcarSingleTest(unittest.TestCase):
             self.assertIsNotNone(getattr(self.psingle, k))
 
     def test_from_functional_and_symbols(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            test_potcar_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),
+                "..", "..", "..", "..", "test_files"))
+            os.environ["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 
 class PotcarTest(unittest.TestCase):
 
     def test_init(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            test_potcar_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                           "..", "..", "..",
+                                                           "..",
+                                                           "test_files"))
+            os.environ["VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
@@ -283,12 +298,14 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
-        fe_potcar = open(os.path.join(test_dir, 'Fe_POTCAR')).read()
+        fe_potcar = zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+                                       "POTCAR.Fe_pv.gz")).read()
         #specify V instead of Fe - this makes sure the test won't pass if the
         #code just grabs the POTCAR from the config file (the config file would
         #grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
-        self.assertEqual(potcar.symbols, ["Fe"], "Wrong symbols read in for POTCAR")
+        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in "
+                                                    "for POTCAR")
 
 
 if __name__ == "__main__":

@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 """
-A master convenience script for many tools for vasp analysis.
+A master convenience script with many tools for vasp and structure analysis.
 """
 
 from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
-__date__ = "Aug 14, 2012"
+__date__ = "Dec 1, 2012"
 
 import argparse
 import os
@@ -21,7 +21,7 @@ import multiprocessing
 
 from collections import OrderedDict
 
-from pymatgen.io.vaspio import Outcar, Vasprun
+from pymatgen.io.vaspio import Outcar, Vasprun, Chgcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
@@ -159,6 +159,31 @@ def plot_dos(args):
     plotter.show()
 
 
+def plot_chgint(args):
+    chgcar = Chgcar.from_file(args.filename[0])
+    s = chgcar.structure
+
+    if args.inds:
+        atom_ind = map(int, args.inds[0].split(","))
+    else:
+        finder = SymmetryFinder(s, symprec=0.1)
+        sites = [sites[0] for sites in
+                 finder.get_symmetrized_structure().equivalent_sites]
+        atom_ind = [s.sites.index(site) for site in sites]
+
+    from pymatgen.util.plotting_utils import get_publication_quality_plot
+    plt = get_publication_quality_plot(12, 8)
+    for i in atom_ind:
+        d = chgcar.get_integrated_diff(i, args.radius, 30)
+        plt.plot(d[:, 0], d[:,1],
+                 label="Atom {} - {}".format(i, s[i].species_string))
+    plt.legend(loc="upper left")
+    plt.xlabel("Radius (A)")
+    plt.ylabel("Integrated charge (e)")
+    plt.tight_layout()
+    plt.show()
+
+
 def parse_vasp(args):
 
     default_energies = not (args.get_energies or args.ion_list)
@@ -168,7 +193,6 @@ def parse_vasp(args):
             get_energies(d, args.reanalyze, args.verbose, args.pretty,
                          args.detailed, args.sort[0])
     if args.ion_list:
-        ion_list = list()
         if args.ion_list[0] == "All":
             ion_list = None
         else:
@@ -245,10 +269,10 @@ def parse_view(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
-    matgenie is a convenient script that uses pymatgen to perform many analyses
-    , plotting and format conversions. This script works based on several
-    sub-commands with their own options. To see the options for the sub-
-    commands, type "matgenie.py sub-command -h".""",
+    matgenie is a convenient script that uses pymatgen to perform many
+    analyses, plotting and format conversions. This script works based on
+    several sub-commands with their own options. To see the options for the
+    sub-commands, type "matgenie.py sub-command -h".""",
     epilog="""
     Author: Shyue Ping Ong
     Version: {}
@@ -289,7 +313,7 @@ if __name__ == "__main__":
                              help="Sort criteria. Defaults to energy / atom.")
     parser_vasp.set_defaults(func=parse_vasp)
 
-    parser_plot = subparsers.add_parser("plot", help="Plotting for dos.")
+    parser_plot = subparsers.add_parser("plotdos", help="Plotting for dos.")
     parser_plot.add_argument("filename", metavar="filename", type=str, nargs=1,
                              help="vasprun.xml file to plot")
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
@@ -302,6 +326,22 @@ if __name__ == "__main__":
                              action="store_const", const=True,
                              help="plot orbital projected DOS")
     parser_plot.set_defaults(func=plot_dos)
+
+    parser_plotchg = subparsers.add_parser("plotchgint",
+                                           help="Plotting for the charge "
+                                                "integration.")
+    parser_plotchg.add_argument("filename", metavar="filename", type=str, nargs=1,
+                                help="CHGCAR file to plot")
+    parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
+                                nargs=1,
+                                help="Comma-separated list of indices to plot"
+                                     ", e.g., 1,2,3,4. If not provided, "
+                                     "the code will plot the chgint for all "
+                                     "symmetrically distinct atoms detected.")
+    parser_plotchg.add_argument("-r", "--radius", dest="radius", type=float,
+                                default=3,
+                                help="Radius of integration.")
+    parser_plotchg.set_defaults(func=plot_chgint)
 
     parser_convert = subparsers.add_parser("convert",
                                            help="File format conversion tools."

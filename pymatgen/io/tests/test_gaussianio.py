@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 17, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -16,10 +16,10 @@ __date__ = "Apr 17, 2012"
 import unittest
 import os
 
-from pymatgen import Molecule, __file__
+from pymatgen import Molecule
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

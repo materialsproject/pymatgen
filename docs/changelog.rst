@@ -1,5 +1,42 @@
-Older versions
-==============
+Change log
+==========
+
+Version 2.3.1
+-------------
+1. Significant improvements to the high-level interface to the Materials API.
+   New interface provides more options to make it easier to get structures and
+   entries, better warnings and error handling. It uses the *requests*
+   library for a cleaner API.
+2. Bug fix for VolumetricData parsing and methods such as CHGCAR and LOCPOT.
+   Previously, the parsing was done incorrectly because VASP actually provides
+   data by running through the x-axis first, followed by y, then z.
+3. Bug fix for reverse_readline so that it works for gzipped and bzipped
+   strucutures (courtesy of Anubhav Jain).
+4. Fix "lossy" composition to_dict method.  Now composition.to_dict properly
+   returns a correct species string as a key for compositions using species,
+   instead of just the element symbols.
+5. Miscellaneous bug fixes.
+
+Version 2.3.0
+-------------
+1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
+   Please note that this change implies that the pyhull package is now a
+   required dependency. If you install pymatgen through the usual
+   easy_install or pip install methods, this should be taken care of
+   automatically for you. Otherwise, please look for the pyhull package on
+   PyPI to download and install it.
+2. Miscellaneous bug fixes.
+
+Version 2.2.6
+-------------
+1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
+   algo using data-mined ICSD data.
+2. Speed up and improvements to core classes.
+3. Improved structure fitter (credits to Geoffroy Hautier).
+4. Brand new entry_tools module (pymatgen.entries.entry_tools).
+5. Vastly improved Outcar parser based on reverse parsing that speeds up
+   reading of OUTCAR files by orders of magnitude.
+6. Miscellaneous bug fixes.
 
 Version 2.2.4
 -------------
@@ -70,19 +107,19 @@ Version 2.0.0
 2. Useful aliases for commonly used Objects, similar in style to numpy.
    Supported objects include Element, Composition, Structure, Molecule, Spin
    and Orbital. For example, the following will now work::
-   
+
       import pymatgen as mg
-      
+
       # Elemental Si
       fe = mg.Element("Si")
-      
+
       # Composition of Fe2O3
       comp = mg.Composition("Fe2O3")
-      
+
       # CsCl structure
-      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"], 
+      structure = mg.Structure(mg.Lattice.cubic(4.2), ["Cs", "Cl"],
                               [[0, 0, 0], [0.5, 0.5, 0.5]])
-      
+
 3. New PDAnalyzer method to generate chemical potential maps.
 4. Enhanced POSCAR class to support parsing of velocities and more formatting
    options.
@@ -140,7 +177,7 @@ Version 1.6.0
 
 1. Beta of pymatgen.borg package implemented for high-throughput data assimilation.
 2. Added ComputedEntry classes for handling calculated data.
-3. New method of specifying VASP pseudopotential location using a VASP_PSP_DIR 
-   environment variable. 
+3. New method of specifying VASP pseudopotential location using a VASP_PSP_DIR
+   environment variable.
 4. Bug fix for pymatgen.symmetry
 5. Ewald sum speed up by factor of 2 or more.

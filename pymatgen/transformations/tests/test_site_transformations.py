@@ -56,13 +56,14 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         inv_t = t.inverse
         s = inv_t.apply_transformation(s)
         self.assertTrue(np.allclose(s[0].frac_coords, [0, 0, 0]))
+        str(t)
 
     def test_to_from_dict(self):
         d = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).to_dict
         t = TranslateSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
-
+        str(t)
 
 class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
 
@@ -87,6 +88,7 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         t = ReplaceSiteSpeciesTransformation({0: "Na"})
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Na1 Li3 O4")
+        str(t)
 
     def test_to_from_dict(self):
         d = ReplaceSiteSpeciesTransformation({0: "Na"}).to_dict
@@ -118,6 +120,7 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         t = RemoveSitesTransformation(range(2))
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
+        str(t)
 
     def test_to_from_dict(self):
         d = RemoveSitesTransformation(range(2)).to_dict

@@ -169,7 +169,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             #Ignore elements with zero amounts.
             if self[el] > self.amount_tolerance:
                 hashcode += el.Z
-        return 7
+        return hashcode
 
     def __contains__(self, el):
         return el in self._elmap
@@ -198,7 +198,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a formula string, with elements sorted by electronegativity,
         e.g., Li4 Fe4 P4 O16.
         """
-        sym_amt = self.to_dict
+        sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(),
                       key=lambda s: smart_element_or_specie(s).X)
         formula = []
@@ -213,7 +213,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns a formula string, with elements sorted by alphabetically
         e.g., Fe4 Li4 O16 P4.
         """
-        sym_amt = self.to_dict
+        sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
         formula = []
         for s in syms:
@@ -248,7 +248,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         factor = self.get_reduced_formula_and_factor()[1]
         reduced_comp = Composition({el: self[el] / factor for el in self})
-        return (reduced_comp, factor)
+        return reduced_comp, factor
 
     def get_reduced_formula_and_factor(self):
         """
@@ -257,15 +257,15 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
-            return (re.sub("\s", "", self.formula), 1)
-
-        (formula, factor) = reduce_formula(self.to_dict)
+            return self.formula.replace(" ", ""), 1
+        d = self.get_el_amt_dict()
+        (formula, factor) = reduce_formula(d)
 
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
-            factor = factor / 2
+            factor /= 2
 
-        return (formula, factor)
+        return formula, factor
 
     def get_fractional_composition(self):
         """
@@ -295,7 +295,10 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.keys()
 
     def __str__(self):
-        return self.formula
+        return " ".join(["{}{}".format(k,
+                                       formula_double_format(v,
+                                                             ignore_ones=False))
+                         for k, v in self.to_dict.items()])
 
     @property
     def num_atoms(self):
@@ -422,16 +425,27 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         return Composition(d)
 
-    @property
-    def to_dict(self):
+    def get_el_amt_dict(self):
         """
         Returns:
-            dict with element symbol and (unreduced) amount e.g.,
-            {"Fe": 4.0, "O":6.0}
+            dict with species symbol and (unreduced) amount e.g.,
+            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
         d = collections.defaultdict(float)
         for e, a in self.items():
             d[e.symbol] += a
+        return d
+
+    @property
+    def to_dict(self):
+        """
+        Returns:
+            dict with species symbol and (unreduced) amount e.g.,
+            {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
+        """
+        d = collections.defaultdict(float)
+        for e, a in self.items():
+            d[str(e)] += a
         return d
 
     @property
@@ -441,8 +455,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}
         """
-        reduced_formula = self.reduced_formula
-        c = Composition.from_formula(reduced_formula)
+        c = Composition(self.reduced_formula)
         return c.to_dict
 
     @property
@@ -453,13 +466,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns:
             A dict with many keys and values relating to Composition/Formula
         """
-        d = {}
-        d["reduced_cell_composition"] = self.to_reduced_dict
-        d["unit_cell_composition"] = self.to_dict
-        d["reduced_cell_formula"] = self.reduced_formula
-        d["elements"] = self.to_dict.keys()
-        d["nelements"] = len(self.to_dict.keys())
-        return d
+        return {"reduced_cell_composition": self.to_reduced_dict,
+                "unit_cell_composition": self.to_dict,
+                "reduced_cell_formula": self.reduced_formula,
+                "elements": self.to_dict.keys(),
+                "nelements": len(self.to_dict.keys())}
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
@@ -591,7 +602,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                 return (f.replace(m.group(), "", 1), m_dict, m_points + points)
 
             #else return None
-            return (None, None, None)
+            return None, None, None
 
         fuzzy_formula = fuzzy_formula.strip()
 
@@ -707,7 +718,7 @@ def reduce_formula(sym_amt):
 
     reduced_form = "".join(reduced_form)
 
-    return (reduced_form, factor)
+    return reduced_form, factor
 
 
 if __name__ == "__main__":

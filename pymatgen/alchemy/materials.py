@@ -59,7 +59,7 @@ class TransformedStructure(MSONable):
                 TransformedStructure. This can include tags (a list) or author
                 which will be parsed.
         """
-        history = [] if history == None else history
+        history = [] if history is None else history
         self._source = {}
         self._structures = []
         self._changes = []
@@ -124,7 +124,7 @@ class TransformedStructure(MSONable):
             self.append_filter(t)
 
     def __getitem__(self, index):
-        return (self._structures[index], self._changes[0:index])
+        return self._structures[index], self._changes[0:index]
 
     def __getattr__(self, name):
         return getattr(self._structures[-1], name)
@@ -244,14 +244,9 @@ class TransformedStructure(MSONable):
             json.dump(self.to_dict, fp)
 
     def __str__(self):
-        output = ["Current structure"]
-        output.append("------------")
-        output.append(str(self._structures[-1]))
-        output.append("\nSource")
-        output.append("------------")
-        output.append(str(self._source))
-        output.append("\nTransformation history")
-        output.append("------------")
+        output = ["Current structure", "------------",
+                  str(self._structures[-1]), "\nSource", "------------",
+                  str(self._source), "\nTransformation history", "------------"]
         for i, t in enumerate(self._changes):
             output.append("{} {}".format(t.to_dict,
                                          self._change_parameters[i]))
@@ -333,7 +328,7 @@ class TransformedStructure(MSONable):
         return d
 
     @staticmethod
-    def from_cif_string(cif_string, transformations=[], primitive=True,
+    def from_cif_string(cif_string, transformations=None, primitive=True,
                         occupancy_tolerance=1.):
         """
         Generates TransformedStructure from a cif string.
@@ -372,13 +367,16 @@ class TransformedStructure(MSONable):
         return TransformedStructure(s, transformations, [source_info])
 
     @staticmethod
-    def from_poscar_string(poscar_string, transformations=[]):
+    def from_poscar_string(poscar_string, transformations=None):
         """
         Generates TransformedStructure from a poscar string.
 
         Args:
             poscar_string:
                 Input POSCAR string.
+            transformations:
+                Sequence of transformations to be applied to the input
+                structure.
         """
         p = Poscar.from_string(poscar_string)
         if not p.true_names:

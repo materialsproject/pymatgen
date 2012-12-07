@@ -5,11 +5,11 @@ import os
 import json
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
-from pymatgen import Lattice, __file__
+from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 

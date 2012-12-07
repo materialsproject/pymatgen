@@ -17,12 +17,14 @@ __date__ = "Sep 23, 2011"
 import abc
 import itertools
 import warnings
+import collections
 
 import numpy as np
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class StructureModifier(object):
@@ -40,9 +42,9 @@ class StructureModifier(object):
 
     @abc.abstractproperty
     def original_structure(self):
-        '''
+        """
         Returns the original structure.
-        '''
+        """
         return
 
 
@@ -367,32 +369,48 @@ class StructureEditor(StructureModifier):
                              "specified in the dictionary.")
 
     def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
         for i, site in enumerate(self._sites):
-            new_sp = {}
+            new_sp = collections.defaultdict(float)
             for el, occu in site.species_and_occu.items():
                 sym = el.symbol
-                new_sp[Element(sym)] = occu
+                new_sp[Element(sym)] += occu
             new_site = PeriodicSite(new_sp, site.frac_coords,
                                     self._lattice,
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
-
+    
     def to_unit_cell(self, tolerance=0.1):
-        '''
+        """
         Returns all the sites to their position inside the unit cell.
         If there is a site within the tolerance already there, the site is
         deleted instead of moved.
-        '''
+        """
         new_sites = []
         for site in self._sites:
-            distances = [close_site.distance(site) for close_site in new_sites]
-            if not distances or min(distances) > tolerance:
-                new_sites.append(site.to_unit_cell)
+            if not new_sites:
+                new_sites.append(site)
+                frac_coords = np.array([site.frac_coords])
+                continue
+            if get_points_in_sphere_pbc(self._lattice,
+                                        frac_coords,
+                                        site.coords,
+                                        tolerance):
+                continue
+            frac_coords = np.append(frac_coords,
+                                    [site.frac_coords%1],
+                                    axis = 0)
+            new_sites.append(site.to_unit_cell)
         self._sites = new_sites
 
     @property
     def original_structure(self):
+        """
+        The original structure.
+        """
         return self._original_structure
 
     @property
@@ -409,7 +427,7 @@ class StructureEditor(StructureModifier):
 
 class SupercellMaker(StructureModifier):
     """
-    Makes a supercell
+    Makes a supercell.
     """
 
     def __init__(self, structure, scaling_matrix=((1, 0, 0),

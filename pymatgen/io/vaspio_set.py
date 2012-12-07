@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the Materials Project.  The basic concept behind an input
 set is to specify a scheme to generate a consistent set of Vasp inputs from a
 structure without further user intervention. This ensures comparability across
 runs.
-'''
+"""
 
 from __future__ import division
 
@@ -36,57 +36,69 @@ class AbstractVaspInputSet(object):
     __metaclass__ = abc.ABCMeta
 
     def get_poscar(self, structure):
-        '''
+        """
         Returns Poscar from a structure.
-        '''
+        """
         return Poscar(structure)
 
     @abc.abstractmethod
     def get_kpoints(self, structure):
-        '''
+        """
         Returns Kpoints from a structure.
 
         Args:
             structure:
                 Structure object
-        '''
+
+        Returns:
+            Kpoints object
+        """
         return
 
     @abc.abstractmethod
     def get_incar(self, structure):
-        '''
+        """
         Returns Incar from a structure.
 
         Args:
             structure:
                 Structure object
-        '''
+
+        Returns:
+            Incar object
+        """
         return
 
     @abc.abstractmethod
     def get_potcar(self, structure):
-        '''
+        """
         Returns Potcar from a structure.
 
         Args:
             structure:
                 Structure object
-        '''
+
+        Returns:
+            Potcar object
+        """
         return
 
     @abc.abstractmethod
     def get_potcar_symbols(self, structure):
-        '''
-        Returns Potcar from a structure.
+        """
+        Returns list of POTCAR symbols from a structure.
 
         Args:
             structure:
                 Structure object
-        '''
+
+        Returns:
+            List of POTCAR symbols
+        """
         return
 
     def get_all_vasp_input(self, structure, generate_potcar=True):
-        '''
+        """
         Returns all input files as a dict of {filename: vaspio object}
 
         Args:
@@ -99,7 +111,7 @@ class AbstractVaspInputSet(object):
 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
-        '''
+        """
         d = {'INCAR': self.get_incar(structure),
              'KPOINTS': self.get_kpoints(structure),
              'POSCAR': self.get_poscar(structure)}
@@ -208,7 +220,7 @@ class VaspInputSet(AbstractVaspInputSet):
                     incar[key] = [setting[most_electroneg].get(sym, 0)
                                   for sym in poscar.site_symbols]
                 else:
-                    incar[key] = [0 for sym in poscar.site_symbols]
+                    incar[key] = [0] * len(poscar.site_symbols)
             elif key == "EDIFF":
                 incar[key] = float(setting) * structure.num_sites
             else:
@@ -250,20 +262,19 @@ class VaspInputSet(AbstractVaspInputSet):
         return potcar_symbols
 
     def get_kpoints(self, structure):
-        '''
+        """
         Writes out a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes  for hexagonal cells and Monk grids otherwise.
 
         Algorithm:
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
-        '''
+        """
         dens = int(self.kpoints_settings['grid_density'])
         return Kpoints.automatic_density(structure, dens)
 
     def __str__(self):
-        output = [self.name]
-        output.append("")
+        output = [self.name, ""]
         section_names = ['INCAR settings', 'KPOINTS settings',
                          'POTCAR settings']
         count = 0

@@ -19,9 +19,9 @@ import os
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MITCompatibility
-import pymatgen
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
 
@@ -31,7 +31,8 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
         entry = self.drone.assimilate(test_dir)
@@ -62,7 +63,8 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_to_from_dict(self):
         d = self.structure_drone.to_dict
@@ -78,7 +80,8 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
 
     def test_get_valid_paths(self):
         for path in os.walk(test_dir):
-            self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
+            if path[0] == test_dir:
+                self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
 
     def test_assimilate(self):

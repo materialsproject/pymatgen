@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements a basic Spacegroup class
-'''
+"""
 
 from __future__ import division
 
