@@ -16,12 +16,11 @@ __date__ = "Jul 30, 2012"
 import unittest
 import os
 
-from pymatgen import __file__
 from pymatgen.io.smartio import read_structure
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
-                            'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class MethodsTest(unittest.TestCase):

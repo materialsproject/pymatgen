@@ -71,10 +71,9 @@ class ExpEntry(PDEntry, MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["thermodata"] = [td.to_dict for td in self._thermodata]
-        d["composition"] = self.composition.to_dict
-        d["temperature"] = self.temperature
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "thermodata": [td.to_dict for td in self._thermodata],
+                "composition": self.composition.to_dict,
+                "temperature": self.temperature}
+        

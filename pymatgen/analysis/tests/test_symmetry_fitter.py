@@ -5,15 +5,13 @@ import os
 import itertools
 
 from pymatgen.analysis.symmetry_fitter import SymmetryFitter
-from pymatgen import __file__
 from pymatgen.transformations.site_transformations import \
     RemoveSitesTransformation
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
 
 class SymmetryFitterTest(unittest.TestCase):
 

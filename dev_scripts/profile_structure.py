@@ -12,15 +12,21 @@ p = Poscar.from_file("../test_files/POSCAR.LiFePO4", check_for_POTCAR=False)
 s = p.structure
 
 def test():
-    nn = s.get_sites_in_sphere([0, 0, 0], 20)
+    nn = s.get_all_neighbors(20)
     print len(nn)
 
-def test2():
-    from pymatgen.analysis.structure_fitter import StructureFitter
-    fitter = StructureFitter(s, s)
-    print fitter.fit_found
+def chgcar_test():
+    from pymatgen.io.vaspio import Chgcar
+    c = Chgcar.from_file("../test_files/CHGCAR.noncubic")
+    print c.get_integrated_diff(1, 2.5, 3)
 
-cProfile.run('test2()', 'testprof')
+def vasprun_test():
+    from pymatgen.io.vaspio import Vasprun
+    v = Vasprun("../test_files/vasprun.xml")
+    print v.final_energy
+
+
+cProfile.run('vasprun_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")

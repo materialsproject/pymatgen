@@ -17,6 +17,14 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`composition` Module
+-------------------------
+
+.. automodule:: pymatgen.core.composition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`design_patterns` Module
 -----------------------------
 

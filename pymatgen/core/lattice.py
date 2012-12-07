@@ -19,7 +19,7 @@ import itertools
 
 import numpy as np
 from numpy.linalg import det, inv
-from numpy import pi, dot, transpose
+from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
 
@@ -51,21 +51,21 @@ class Lattice(MSONable):
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
 
-        self._matrix = np.array(matrix, dtype=np.float64).reshape((3, 3))
+        m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         #Store these matrices for faster access
-        self._inv_matrix = inv(self._matrix)
+        self._inv_matrix = inv(m)
 
-        lengths = np.sum(self._matrix ** 2, axis=1) ** 0.5
-        angles = np.zeros((3), float)
+        lengths = np.sum(m ** 2, axis=1) ** 0.5
+        angles = np.zeros(3, float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = dot(self._matrix[j], self._matrix[k]) /\
-                        (lengths[j] * lengths[k])
+            angles[i] = dot(m[j], m[k]) / (lengths[j] * lengths[k])
         angles = np.arccos(angles) * 180. / pi
         angles = np.around(angles, 9)
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
+        self._matrix = m
 
     @property
     def matrix(self):
@@ -181,7 +181,7 @@ class Lattice(MSONable):
         Returns:
             Hexagonal lattice of dimensions a x a x c.
         """
-        return Lattice.from_parameters(a, a, c, 90.0, 90.0, 120.0)
+        return Lattice.from_parameters(a, a, c, 90, 90, 120)
 
     @staticmethod
     def rhombohedral(a, alpha):
@@ -239,9 +239,9 @@ class Lattice(MSONable):
             A Lattice with the specified lattice parameters.
         """
 
-        alpha_r = np.radians(alpha)
-        beta_r = np.radians(beta)
-        gamma_r = np.radians(gamma)
+        alpha_r = radians(alpha)
+        beta_r = radians(beta)
+        gamma_r = radians(gamma)
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
               / (np.sin(alpha_r) * np.sin(beta_r))
         #Sometimes rounding errors result in values slightly > 1.
@@ -260,7 +260,11 @@ class Lattice(MSONable):
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
-        return Lattice(d["matrix"])
+        if "matrix" in d:
+            return Lattice(d["matrix"])
+        else:
+            return Lattice.from_parameters(d["a"], d["b"], d["c"],
+                                           d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
@@ -343,14 +347,12 @@ class Lattice(MSONable):
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
-        outs = []
-        outs.append("Lattice")
-        outs.append("    abc : " + " ".join(map(f, self.abc)))
-        outs.append(" angles : " + " ".join(map(f, self.angles)))
-        outs.append(" volume : %0.4f" % self.volume)
-        outs.append("      A : " + " ".join(map(f, self._matrix[0])))
-        outs.append("      B : " + " ".join(map(f, self._matrix[1])))
-        outs.append("      C : " + " ".join(map(f, self._matrix[2])))
+        outs = ["Lattice", "    abc : " + " ".join(map(f, self.abc)),
+                " angles : " + " ".join(map(f, self.angles)),
+                " volume : %0.4f" % self.volume,
+                "      A : " + " ".join(map(f, self._matrix[0])),
+                "      B : " + " ".join(map(f, self._matrix[1])),
+                "      C : " + " ".join(map(f, self._matrix[2]))]
         return "\n".join(outs)
 
     def __eq__(self, other):
@@ -374,17 +376,16 @@ class Lattice(MSONable):
         """""
         Json-serialization dict representation of the Lattice.
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "matrix": self._matrix.tolist(),
-             "a": float(self.a),
-             "b": float(self.b),
-             "c": float(self.c),
-             "alpha": float(self.alpha),
-             "beta": float(self.beta),
-             "gamma": float(self.gamma),
-             "volume": float(self.volume)}
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "matrix": self._matrix.tolist(),
+                 "a": float(self.a),
+                 "b": float(self.b),
+                 "c": float(self.c),
+                 "alpha": float(self.alpha),
+                 "beta": float(self.beta),
+                 "gamma": float(self.gamma),
+                 "volume": float(self.volume)}
 
     def get_primitive_lattice(self, lattice_type):
         """
@@ -598,7 +599,6 @@ class Lattice(MSONable):
                 G = dot(transpose(M), dot(G, M))
             elif l * m * n == 0 or l * m * n == -1:
                 # A4
-                i = j = k = 1
                 i = -1 if l == 1 else 1
                 j = -1 if m == 1 else 1
                 k = -1 if n == 1 else 1
@@ -639,7 +639,7 @@ class Lattice(MSONable):
 
             #A8
             if E + N + Y + A + B < -e or\
-               (abs(E + N + Y + A + B) < e and 2 * (A + N) + Y > e):
+               (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue

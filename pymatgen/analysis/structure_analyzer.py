@@ -19,7 +19,7 @@ import numpy as np
 import itertools
 import collections
 
-from pymatgen.command_line.qhull_caller import qvoronoi, qvertex
+from pyhull.voronoi import VoronoiTess
 
 
 class VoronoiCoordFinder(object):
@@ -40,7 +40,7 @@ class VoronoiCoordFinder(object):
                 A list of target species to determine coordination for.
         """
         self._structure = structure
-        if target == None:
+        if target is None:
             self._target = structure.composition.elements
         else:
             self._target = target
@@ -67,30 +67,26 @@ class VoronoiCoordFinder(object):
                                             VoronoiCoordFinder.default_cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
-        closest = qvoronoi(qvoronoi_input)
-        all_vertices = qvertex(qvoronoi_input)
+        voro = VoronoiTess(qvoronoi_input)
+        all_vertices = voro.vertices
 
-        result = []
-        angle = []
-        for i in range(len(all_vertices)):
-            if closest[i][1] == 0:
-                facets = []
-                result.append(neighbors[closest[i][2]])
-                for j in range(3, len(closest[i])):
-                    if closest[i][j] == 0:
-                        raise RuntimeError("This structure is pathological,"
-                                           " infinite vertex in the voronoi "
-                                           "construction")
-                    facets.append(all_vertices[closest[i][j] - 1])
+        results = {}
+        for nn, vind in voro.ridges.items():
+            if 0 in nn:
+                if 0 in vind:
+                    raise RuntimeError("This structure is pathological,"
+                                       " infinite vertex in the voronoi "
+                                       "construction")
 
-                angle.append(solid_angle(center.coords, facets))
+                facets = [all_vertices[i] for i in vind]
+                results[neighbors[nn[1]]] = solid_angle(center.coords, facets)
 
-        maxangle = max(angle)
+        maxangle = max(results.values())
 
         resultweighted = {}
-        for j in range(len(angle)):
-            if result[j].specie in localtarget:
-                resultweighted[result[j]] = angle[j] / maxangle
+        for nn, angle in results.items():
+            if nn.specie in localtarget:
+                resultweighted[nn] = angle / maxangle
 
         return resultweighted
 

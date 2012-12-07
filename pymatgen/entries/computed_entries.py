@@ -78,10 +78,9 @@ class ComputedEntry(PDEntry, MSONable):
         return super(ComputedEntry, self).energy
 
     def __repr__(self):
-        output = ["ComputedEntry {}".format(self.composition.formula)]
-        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
-        output.append("Correction = {:.4f}".format(self.correction))
-        output.append("Parameters:")
+        output = ["ComputedEntry {}".format(self.composition.formula),
+                  "Energy = {:.4f}".format(self.uncorrected_energy),
+                  "Correction = {:.4f}".format(self.correction), "Parameters:"]
         for k, v in self.parameters.items():
             output.append("{} = {}".format(k, v))
         output.append("Data:")
@@ -102,17 +101,15 @@ class ComputedEntry(PDEntry, MSONable):
 
     @property
     def to_dict(self):
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["energy"] = self.uncorrected_energy
-        d["composition"] = self.composition.to_dict
-        d["correction"] = self.correction
-        d["parameters"] = json.loads(json.dumps(self.parameters,
-                                                cls=PMGJSONEncoder))
-        d["data"] = json.loads(json.dumps(self.data, cls=PMGJSONEncoder))
-        d["entry_id"] = self.entry_id
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "energy": self.uncorrected_energy,
+                "composition": self.composition.to_dict,
+                "correction": self.correction,
+                "parameters": json.loads(json.dumps(self.parameters,
+                                                    cls=PMGJSONEncoder)),
+                "data": json.loads(json.dumps(self.data, cls=PMGJSONEncoder)),
+                "entry_id": self.entry_id}
 
 
 class ComputedStructureEntry(ComputedEntry):
@@ -148,10 +145,9 @@ class ComputedStructureEntry(ComputedEntry):
         self.structure = structure
 
     def __repr__(self):
-        output = ["ComputedStructureEntry {}".format(self.composition.formula)]
-        output.append("Energy = {:.4f}".format(self.uncorrected_energy))
-        output.append("Correction = {:.4f}".format(self.correction))
-        output.append("Parameters:")
+        output = ["ComputedStructureEntry {}".format(self.composition.formula),
+                  "Energy = {:.4f}".format(self.uncorrected_energy),
+                  "Correction = {:.4f}".format(self.correction), "Parameters:"]
         for k, v in self.parameters.items():
             output.append("{} = {}".format(k, v))
         output.append("Data:")

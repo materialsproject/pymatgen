@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
-'''
+"""
 
 from __future__ import division
 
@@ -41,6 +41,9 @@ class CovalentBond(object):
 
     @property
     def length(self):
+        """
+        Length of the bond.
+        """
         return self.site1.distance(self.site2)
 
     @staticmethod
@@ -60,6 +63,9 @@ class CovalentBond(object):
             bond_order:
                 Bond order to test. If None, the code simply checks against all
                 possible bond data. Defaults to None.
+
+        Returns:
+            Boolean indicating whether two sites are bonded.
         """
         sp1 = site1.species_and_occu.keys()[0]
         sp2 = site2.species_and_occu.keys()[0]
@@ -76,7 +82,6 @@ class CovalentBond(object):
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
     def __repr__(self):
-        output = ["Covalent bond"]
-        output.append("between {}".format(self.site1))
-        output.append("and {}".format(self.site2))
+        output = ["Covalent bond between {}".format(self.site1),
+                  "and {}".format(self.site2)]
         return " ".join(output)

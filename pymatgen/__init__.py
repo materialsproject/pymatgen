@@ -1,12 +1,11 @@
 __author__ = "Shyue Ping Ong, Anubhav Jain, Michael Kocher, " + \
              "Geoffroy Hautier, William Davidson Richard, Dan Gunter, " + \
              "Shreyas Cholia, Vincent L Chevrier, Rickard Armiento"
-__date__ = "Nov 1, 2012"
-__version__ = "2.2.5dev"
+__date__ = "Nov 26, 2012"
+__version__ = "2.3.2"
 
-"""
-Useful aliases for commonly used objects and modules.
-"""
+#Useful aliases for commonly used objects and modules.
+
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule

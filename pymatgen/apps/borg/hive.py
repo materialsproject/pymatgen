@@ -106,8 +106,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 supported by the Vasprun object.
         """
         self._inc_structure = inc_structure
-        self._parameters = set(["is_hubbard", "hubbards", "potcar_symbols",
-                                "run_type"])
+        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+                            "run_type"}
         if parameters:
             self._parameters.update(parameters)
         self._data = data if data else []
@@ -178,13 +178,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {"inc_structure": self._inc_structure,
-                     "parameters": self._parameters,
-                     "data": self._data}
-        d = {"init_args": init_args, "version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"init_args": {"inc_structure": self._inc_structure,
+                              "parameters": self._parameters,
+                              "data": self._data}, "version": __version__,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
@@ -208,8 +206,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 CONTCAR.
         """
         self._inc_structure = inc_structure
-        self._parameters = set(["is_hubbard", "hubbards", "potcar_symbols",
-                                "run_type"])
+        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+                            "run_type"}
 
     def assimilate(self, path):
         files = os.listdir(path)
@@ -251,7 +249,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 re.search("relax1", fname):
                                 files_to_parse[filename] = fname
                                 break
-                            if (fname in ("CONTCAR", "OSZICAR") and \
+                            if (fname in ("CONTCAR", "OSZICAR") and
                                 re.search("relax2", fname)):
                                 files_to_parse[filename] = fname
                                 break
@@ -298,11 +296,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     @property
     def to_dict(self):
-        init_args = {"inc_structure": self._inc_structure}
-        d = {"init_args": init_args, "version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"init_args": {"inc_structure": self._inc_structure},
+                "version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
@@ -344,13 +340,13 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 Defaults to just the typical "log" extension.
         """
         self._inc_structure = inc_structure
-        self._parameters = set(["functional", "basis_set", "charge",
-                                "spin_mult", "route"])
+        self._parameters = {"functional", "basis_set", "charge", "spin_mult",
+                            "route"}
 
         if parameters:
             self._parameters.update(parameters)
 
-        self._data = set(["stationary_type", "properly_terminated"])
+        self._data = {"stationary_type", "properly_terminated"}
         if data:
             self._data.update(data)
 
@@ -388,14 +384,12 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     @property
     def to_dict(self):
-        init_args = {"inc_structure": self._inc_structure,
-                     "parameters": self._parameters,
-                     "data": self._data,
-                     "file_extensions": self._file_extensions}
-        d = {"init_args": init_args, "version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"init_args": {"inc_structure": self._inc_structure,
+                              "parameters": self._parameters,
+                              "data": self._data,
+                              "file_extensions": self._file_extensions},
+                "version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):

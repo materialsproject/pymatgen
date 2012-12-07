@@ -4,15 +4,25 @@ import os
 from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram, CompoundPhaseDiagram
+    GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
 
 
 class PhaseDiagramTest(unittest.TestCase):
 
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        (self.elements, self.entries) = PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
+        (self.elements, self.entries) = \
+            PDEntryIO.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
         self.pd = PhaseDiagram(self.entries)
+
+    def test_init(self):
+        #Ensure that a bad set of entries raises a PD error. Remove all Li
+        #from self.entries.
+        entries = filter(lambda e: (not e.composition.is_element) or
+                                   e.composition.elements[0] != Element("Li"),
+                         self.entries)
+        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries,
+                          self.elements)
 
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula
@@ -53,6 +63,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                                                                         "pdentries_test.csv"))
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"):-5},
                                              self.elements)
+        self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"):-6})
 
     def test_stable_entries(self):
         stable_formulas = [ent.original_entry.composition.reduced_formula
@@ -61,6 +72,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         for formula in expected_stable:
             self.assertTrue(formula in stable_formulas, formula +
                             " not in stable entries!")
+        self.assertEqual(len(self.pd6.stable_entries), 4)
 
     def test_get_formation_energy(self):
         stable_formation_energies = {ent.original_entry.composition.reduced_formula:self.pd.get_form_energy(ent) for ent in self.pd.stable_entries}

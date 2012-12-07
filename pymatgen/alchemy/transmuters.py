@@ -36,7 +36,7 @@ class StandardTransmuter(object):
         List of all transformed structures.
     """
 
-    def __init__(self, transformed_structures, transformations=[],
+    def __init__(self, transformed_structures, transformations=None,
                  extend_collection=0):
         """
         Args:
@@ -50,9 +50,10 @@ class StandardTransmuter(object):
                 determines the maximum branching for each transformation.
         """
         self.transformed_structures = transformed_structures
-        for trans in transformations:
-            self.append_transformation(trans,
-                                       extend_collection=extend_collection)
+        if transformations is not None:
+            for trans in transformations:
+                self.append_transformation(trans,
+                                           extend_collection=extend_collection)
 
     def get_transformed_structures(self):
         """
@@ -137,7 +138,8 @@ class StandardTransmuter(object):
         new_structures = []
 
         for x in self.transformed_structures:
-            new = x.append_transformation(transformation, extend_collection)
+            new = x.append_transformation(transformation, extend_collection,
+                                          clear_redo=clear_redo)
             if new is not None:
                 new_structures.extend(new)
 
@@ -219,8 +221,7 @@ class StandardTransmuter(object):
         self.set_parameter("tags", tags)
 
     def __str__(self):
-        output = ["Current structures"]
-        output.append("------------")
+        output = ["Current structures", "------------"]
         for x in self.transformed_structures:
             output.append(str(x._structures[-1]))
         return "\n".join(output)
@@ -244,8 +245,7 @@ class StandardTransmuter(object):
             self.transformed_structures.extend(tstructs_or_transmuter)
 
     @staticmethod
-    def from_structures(structures, transformations=[],
-                        extend_collection=0):
+    def from_structures(structures, transformations=None, extend_collection=0):
         """
         Alternative constructor from structures rather than
         TransformedStructures.
@@ -268,8 +268,12 @@ class StandardTransmuter(object):
 
 
 class CifTransmuter(StandardTransmuter):
+    """
+    Generates a Transmuter from a cif string, possibly containing multiple
+    structures.
+    """
 
-    def __init__(self, cif_string, transformations=[], primitive=True,
+    def __init__(self, cif_string, transformations=None, primitive=True,
                   extend_collection=False):
         """
         Generates a Transmuter from a cif string, possibly
@@ -304,7 +308,7 @@ class CifTransmuter(StandardTransmuter):
                                     transformations, extend_collection)
 
     @staticmethod
-    def from_filenames(filenames, transformations=[], primitive=True,
+    def from_filenames(filenames, transformations=None, primitive=True,
                   extend_collection=False):
         """
         Generates a TransformedStructureCollection from a cif, possibly
@@ -332,12 +336,12 @@ class CifTransmuter(StandardTransmuter):
 
 
 class PoscarTransmuter(StandardTransmuter):
-
-    def __init__(self, poscar_string, transformations=[],
-                 extend_collection=False):
+    """
+    Generates a transmuter from a sequence of POSCARs.
+    """
+    def __init__(self, poscar_string, transformations=None,
+                     extend_collection=False):
         """
-        Generates a transmuter from a sequence of POSCARs.
-
         Args:
             poscar_string:
                 List of POSCAR strings
@@ -353,7 +357,7 @@ class PoscarTransmuter(StandardTransmuter):
                                     extend_collection=extend_collection)
 
     @staticmethod
-    def from_filenames(poscar_filenames, transformations=[],
+    def from_filenames(poscar_filenames, transformations=None,
                        extend_collection=False):
         """
         Convenient constructor to generates a POSCAR transmuter from a list of
@@ -401,20 +405,18 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             Boolean indication whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
     """
-    #dnames_count = collections.defaultdict(int)
-    count = 0
-    for s in transformed_structures:
+    for i, s in enumerate(transformed_structures):
         formula = re.sub("\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,
-                                   "{}_{}".format(formula, count))
+                                   "{}_{}".format(formula, i))
         else:
             dirname = os.path.join(output_dir,
-                                   "{}_{}".format(formula, count))
-        s.write_vasp_input(vasp_input_set, dirname, create_directory=True)
+                                   "{}_{}".format(formula, i))
+        s.write_vasp_input(vasp_input_set, dirname,
+                           create_directory=create_directory)
         if include_cif:
             from pymatgen.io.cifio import CifWriter
             writer = CifWriter(s.final_structure)
             writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
-        count += 1

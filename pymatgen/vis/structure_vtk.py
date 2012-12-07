@@ -35,7 +35,7 @@ class StructureVis(object):
 
     def __init__(self, element_color_mapping=None, show_unit_cell=True,
                  show_bonds=False, show_polyhedron=True,
-                 poly_radii_tol_factor=0.5, excluded_bonding_elements=[]):
+                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
         """
         Args:
             element_color_mapping:
@@ -105,7 +105,8 @@ class StructureVis(object):
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements
+        self.excluded_bonding_elements = excluded_bonding_elements if \
+            excluded_bonding_elements else []
         self.show_help = True
         self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         self.redraw()
@@ -179,13 +180,13 @@ class StructureVis(object):
         tprops.SetFontFamilyToTimes()
         tprops.SetColor(0, 0, 0)
 
-        if self.structure != None:
+        if self.structure is not None:
             self.set_structure(self.structure, reset_camera)
 
         self.ren_win.Render()
 
     def orthongonalize_structure(self):
-        if self.structure != None:
+        if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
         self.ren_win.Render()
 
@@ -193,20 +194,17 @@ class StructureVis(object):
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = ["h : Toggle help"]
-        helptxt.append("A/a, B/b or C/c : Increase/decrease cell by one a," + \
-                       " b or c unit vector")
-        helptxt.append("# : Toggle showing of polyhedrons")
-        helptxt.append("-: Toggle showing of bonds")
-        helptxt.append("r : Reset camera direction")
-        helptxt.append("[/]: Decrease or increase poly_radii_tol_factor " + \
-                       "by 0.05. Value = " + str(self.poly_radii_tol_factor))
-        helptxt.append("Up/Down: Rotate view along Up direction by 90 " + \
-                       "clockwise/anticlockwise")
-        helptxt.append("Left/right: Rotate view along camera direction by " + \
-                       "90 clockwise/anticlockwise")
-        helptxt.append("s: Save view to image.png")
-        helptxt.append("o: Orthogonalize structure")
+        helptxt = ["h : Toggle help",
+                   "A/a, B/b or C/c : Increase/decrease cell by one a," +\
+                   " b or c unit vector", "# : Toggle showing of polyhedrons",
+                   "-: Toggle showing of bonds", "r : Reset camera direction",
+                   "[/]: Decrease or increase poly_radii_tol_factor " +\
+                   "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+                   "Up/Down: Rotate view along Up direction by 90 " +\
+                   "clockwise/anticlockwise",
+                   "Left/right: Rotate view along camera direction by " +\
+                   "90 clockwise/anticlockwise", "s: Save view to image.png",
+                   "o: Orthogonalize structure"]
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -374,7 +372,7 @@ class StructureVis(object):
 
         for specie, occu in site.species_and_occu.items():
             add_partial_sphere(start_angle, start_angle + 360 * occu, specie)
-            start_angle = start_angle + 360 * occu
+            start_angle += 360 * occu
 
         if total_occu < 1:
             add_partial_sphere(start_angle, start_angle
@@ -562,10 +560,10 @@ class StructureVis(object):
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
                     site = self.mapper_map[mapper]
-                    output = [site.species_string]
-                    output.append("Frac. coords: " +
-                                  " ".join(["{:.4f}".format(c)
-                                            for c in site.frac_coords]))
+                    output = [site.species_string, "Frac. coords: " +
+                                                   " ".join(["{:.4f}".format(c)
+                                                             for c in
+                                                             site.frac_coords])]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()

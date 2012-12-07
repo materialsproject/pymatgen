@@ -23,9 +23,8 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation
 
-import pymatgen
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)),
-                        '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class CifTransmuterTest(unittest.TestCase):
