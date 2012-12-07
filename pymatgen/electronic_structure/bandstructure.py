@@ -610,6 +610,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
     def apply_scissor(self, new_band_gap):
         """
         Apply a scissor operator (shift of the CBM) to fit the given band gap.
+        If it's a metal. We look for the band crossing the fermi level
+        and shift this one up. This will not work all the time for metals!
 
         Args:
             new_band_gap:
@@ -619,19 +621,55 @@ class BandStructureSymmLine(BandStructure, MSONable):
             a BandStructureSymmLine object with the applied scissor shift
         """
         if self.is_metal():
-            raise Exception("Cannot apply a scissor to a metallic band"
-                            " structure.")
-        shift = new_band_gap - self.get_band_gap()['energy']
-        old_dict = self.to_dict
-        for spin in old_dict['bands']:
-            for k in range(len(old_dict['bands'][spin])):
-                for v in range(len(old_dict['bands'][spin][k])):
-                    if old_dict['bands'][spin][k][v] >= \
-                            old_dict['cbm']['energy']:
-                        old_dict['bands'][spin][k][v] = \
-                            old_dict['bands'][spin][k][v] + shift
-        old_dict['efermi'] = old_dict['efermi'] + shift
-        return BandStructureSymmLine.from_dict(old_dict)
+            #moves then the highest index band crossing the fermi level
+            #find this band...
+            max_index = -1000
+            #spin_index = None
+            for i in range(self._nb_bands):
+                below = False
+                above = False
+                for j in range(len(self._kpoints)):
+                    if self._bands[Spin.up][i][j] < self._efermi:
+                        below = True
+                    if self._bands[Spin.up][i][j] > self._efermi:
+                        above = True
+                if above and below:
+                    if i > max_index:
+                        max_index = i
+                        #spin_index = Spin.up
+                if self.is_spin_polarized:
+                    below = False
+                    above = False
+                    for j in range(len(self._kpoints)):
+                        if self._bands[Spin.down][i][j] < self._efermi:
+                            below = True
+                        if self._bands[Spin.down][i][j] > self._efermi:
+                            above = True
+                    if above and below:
+                        if i > max_index:
+                            max_index = i
+                            #spin_index = Spin.down
+            old_dict = self.to_dict
+            shift = new_band_gap
+            for spin in old_dict['bands']:
+                for k in range(len(old_dict['bands'][spin])):
+                    for v in range(len(old_dict['bands'][spin][k])):
+                        if k >= max_index:
+                            old_dict['bands'][spin][k][v] = \
+                                old_dict['bands'][spin][k][v] + shift
+        else:
+
+            shift = new_band_gap - self.get_band_gap()['energy']
+            old_dict = self.to_dict
+            for spin in old_dict['bands']:
+                for k in range(len(old_dict['bands'][spin])):
+                    for v in range(len(old_dict['bands'][spin][k])):
+                        if old_dict['bands'][spin][k][v] >= \
+                                old_dict['cbm']['energy']:
+                            old_dict['bands'][spin][k][v] = \
+                                old_dict['bands'][spin][k][v] + shift
+            old_dict['efermi'] = old_dict['efermi'] + shift
+            return BandStructureSymmLine.from_dict(old_dict)
 
     def get_band_gap(self):
         """
