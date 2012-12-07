@@ -320,11 +320,6 @@ class Vasprun(object):
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS needed to obtain band structure.')
-        if not self.parameters['ICHARG'] == 11:
-            if 'LHFCALC' not in self.incar.keys() or not self.incar['LHFCALC']:
-                raise VaspParserError("Band structure runs have to be "
-                                      "non-self-consistent (ICHARG=11) if not "
-                                      "hybrid")
 
         if efermi == None:
             efermi = self.efermi
@@ -342,7 +337,7 @@ class Vasprun(object):
 
         eigenvals = {}
         p_eigenvals = {}
-        if "up" in dict_eigen["1"] and "down" in dict_eigen["1"]\
+        if "up" in dict_eigen["0"] and "down" in dict_eigen["0"]\
                 and self.incar['ISPIN'] == 2:
             eigenvals = {Spin.up: [], Spin.down: []}
             if len(dict_p_eigen) != 0:
