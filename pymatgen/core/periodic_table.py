@@ -229,7 +229,7 @@ class Element(object):
         Coefficient of linear thermal expansion
 
     .. attribute:: average_ionic_radius
-    
+
         Average ionic radius for element in pm. The average is taken over all
         oxidation states of the element for which data is present.
 
