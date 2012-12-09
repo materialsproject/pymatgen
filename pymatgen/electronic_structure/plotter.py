@@ -21,8 +21,6 @@ import logging
 import math
 import itertools
 
-from pyhull import qvoronoi, qconvex
-
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.io_utils import clean_json
 
@@ -1075,6 +1073,7 @@ def qvertex_target(data, index):
     index is the index of the targeted point
     Returns the vertices of the voronoi construction around this target point.
     """
+    from pyhull import qvoronoi
     output = qvoronoi("p Qv"+str(index), data)
     output.pop(0)
     output.pop(1)
@@ -1082,6 +1081,7 @@ def qvertex_target(data, index):
 
 
 def get_lines_voronoi(data):
+    from pyhull import qconvex
     output = qconvex("o", data)
 
     nb_points = int(output[1].split(" ")[0])
