@@ -22,13 +22,10 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
 
-def _load_pt_data():
-    """Loads element data from json file"""
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir, "periodic_table.json")) as f:
-        return json.load(f)
+#Loads element data from json file
+with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
+    _pt_data = json.load(f)
 
-_pt_data = _load_pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
@@ -582,12 +579,19 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
-    @staticmethod
     def from_dict(d):
+        """
+        Makes Element obey the general json interface used in pymatgen for
+        easier serialization.
+        """
         return Element(d["element"])
 
     @property
     def to_dict(self):
+        """
+        Makes Element obey the general json interface used in pymatgen for
+        easier serialization.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self._symbol}
