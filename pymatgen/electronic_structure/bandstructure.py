@@ -499,7 +499,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
-                    "kpoint": [], "energy": None}
+                    "kpoint": [], "energy": None, "projections": {}}
         max_tmp = -float("inf")
         index = None
         kpointvbm = None
@@ -527,10 +527,11 @@ class BandStructureSymmLine(BandStructure, MSONable):
             for i in range(self._nb_bands):
                 if math.fabs(self._bands[spin][i][index] - max_tmp) < 0.001:
                     list_index_band[spin].append(i)
-
         proj = {}
         if len(self._projections) != 0:
             for spin in list_index_band:
+                if len(list_index_band[spin]) == 0:
+                    continue
                 proj[spin] = self._projections[spin][list_index_band[spin][0]] \
                 [list_index_kpoints[0]]
         return {'band_index': list_index_band,
@@ -567,7 +568,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
-                    "kpoint": [], "energy": None}
+                    "kpoint": [], "energy": None, "projections": {}}
         max_tmp = float("inf")
 
         index = None
@@ -599,6 +600,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
         proj = {}
         if len(self._projections) != 0:
             for spin in list_index_band:
+                if len(list_index_band[spin]) == 0:
+                    continue
                 proj[spin] = self._projections[spin][list_index_band[spin][0]]\
                 [list_index_kpoints[0]]
 
@@ -756,12 +759,20 @@ class BandStructureSymmLine(BandStructure, MSONable):
         d["vbm"] = {"energy": vbm["energy"],
                     "kpoint_index": vbm["kpoint_index"],
                     "band_index": {str(int(spin)): vbm["band_index"][spin]
-                                   for spin in vbm["band_index"]}}
+                                   for spin in vbm["band_index"]},
+                    'projections': {str(spin): {str(orb):
+                                    vbm['projections'][spin][orb]
+                                    for orb in vbm['projections'][spin]}
+                                    for spin in vbm['projections']}}
         cbm = self.get_cbm()
         d['cbm'] = {'energy': cbm['energy'],
                     'kpoint_index': cbm['kpoint_index'],
                     'band_index': {str(int(spin)): cbm['band_index'][spin]
-                                   for spin in cbm['band_index']}}
+                                   for spin in cbm['band_index']},
+                    'projections': {str(spin): {str(orb):
+                                    cbm['projections'][spin][orb]
+                                    for orb in cbm['projections'][spin]}
+                                    for spin in cbm['projections']}}
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
