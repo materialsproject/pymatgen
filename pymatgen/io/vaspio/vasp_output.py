@@ -1940,7 +1940,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 warnings.warn("Skipping {}. Unable to find {}"
                               .format(d=dir_name, f=xml_file))
 
-        return get_reconstructed_band_structure(branches, efermi, structure)
+        return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
