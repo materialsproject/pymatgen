@@ -70,7 +70,8 @@ Stable version
 
 pymatgen is now in the Python Package Index (`PyPI`_). The version on
 PyPI is always the latest stable release that will be hopefully, be relatively
-bug-free. If you have setuptools or pip installed installed,
+bug-free. The easiest way to install pymatgen on any system is to use
+easy_install or pip. If you have setuptools or pip installed,
 you can just type::
 
    easy_install pymatgen
@@ -273,9 +274,9 @@ API/Reference Docs
 
 The API docs are generated using Sphinx auto-doc and outlines the purpose of all
 modules and classes, and the expected argument and returned objects for most
-methods. They are available at this link below
+methods. They are available at the link below.
 
-:doc:`pymatgen API docs </modules>`.
+:doc:`pymatgen API docs </modules>`
 
 How to cite pymatgen
 ====================
@@ -287,7 +288,7 @@ work:
    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
    Open-Source Python Library for Materials Analysis.* Computational
-   Materials Science, 2012, `doi:10.1016/j.commatsci.2012.10.028
+   Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances

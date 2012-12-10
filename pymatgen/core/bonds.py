@@ -21,9 +21,9 @@ import collections
 
 
 def _load_bond_length_data():
-    """Loads element data from json file"""
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir, "bond_lengths.json")) as f:
+    """Loads bond length data from json file"""
+    with open(os.path.join(os.path.dirname(__file__),
+                           "bond_lengths.json")) as f:
         data = collections.defaultdict(dict)
         for row in json.load(f):
             els = sorted(row['elements'])
@@ -34,8 +34,18 @@ bond_lengths = _load_bond_length_data()
 
 
 class CovalentBond(object):
+    """
+    Defines a covalent bond between two sites.
+    """
 
     def __init__(self, site1, site2):
+        """
+        Args:
+            site1:
+                First site.
+            site2:
+                Second site.
+        """
         self.site1 = site1
         self.site2 = site2
 
@@ -82,6 +92,8 @@ class CovalentBond(object):
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
     def __repr__(self):
-        output = ["Covalent bond between {}".format(self.site1),
-                  "and {}".format(self.site2)]
-        return " ".join(output)
+        return "Covalent bond between {} and {}".format(self.site1,
+                                                        self.site2)
+
+    def __str__(self):
+        return self.__repr__()
