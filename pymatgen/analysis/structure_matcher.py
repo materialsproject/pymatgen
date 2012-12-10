@@ -36,17 +36,14 @@ class StructureMatcher(object):
         """
         Args:
             ltol:
-                fractional length tolerance
-                Default: 0.2
+                Fractional length tolerance. Default is 0.2
             stol:
-                site tolerance in Angstrom
-                Default: 0.4 Angstrom
+                Site tolerance in Angstrom. Default is 0.4 Angstrom
             angle_tol:
-                angle tolerance in degrees
-                Default: 5 Degree
+                Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
                 If true: input structures will be reduced to primitive
-                cells prior to matching
+                cells prior to matching.
             scale:
                 Input structures are scaled to equivalent volume if true;
                 For exact matching, set to False.
@@ -96,23 +93,27 @@ class StructureMatcher(object):
     def fit(self, struct1, struct2):
         """
         Algorithm:
-            -Given two structures: s1 and s2:
-            -Optional: Reduce to primitive cells (set in __init__)
-            -If the number of sites do not match:
-                Return False
-            -Reduce to s1 and s2 to Niggli Cells
-            -Optional: Scale s1 and s2 to same volume (set in __init__)
-            -Find all possible lattice vectors for s2 within shell of ltol (set in __init__)
-            -For s1, translate an atom in the smallest set to the origin
-            -For s2: find all valid lattices from permutations of the list of lattice vectors
-                     (invalid if: det(Lattice Matrix) < half volume of original s2 lattice)
-                -For each valid lattice:
-                    -If the lattice angles of are within tolerance of s1:
-                        -Basis change s2 into new lattice
-                        -For each atom in the smallest set of s2:
-                            -translate to origin and compare sites in structure within 
-                             stol (set in __init__)
-                                -If true: break and return true                
+
+        1. Given two structures: s1 and s2
+        2. Optional: Reduce to primitive cells (set in __init__)
+        3. If the number of sites do not match, return False
+        4. Reduce to s1 and s2 to Niggli Cells
+        5. Optional: Scale s1 and s2 to same volume (set in __init__)
+        6. Find all possible lattice vectors for s2 within shell of ltol (
+           set in __init__)
+        7. For s1, translate an atom in the smallest set to the origin
+        8. For s2: find all valid lattices from permutations of the list
+           of lattice vectors (invalid if: det(Lattice Matrix) < half
+           volume of original s2 lattice)
+        9. For each valid lattice:
+
+            a. If the lattice angles of are within tolerance of s1,
+               basis change s2 into new lattice.
+            b. For each atom in the smallest set of s2:
+
+                i. Translate to origin and compare sites in structure within
+                   stol (set in __init__)
+                ii. If true: break and return true
 
         Args:
             struct1:
@@ -155,7 +156,7 @@ class StructureMatcher(object):
             struct2 = se2.modified_structure
         #Volume to determine invalid lattices
         halfs2vol = nl2.volume/2
-        
+
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
 
@@ -226,7 +227,7 @@ class StructureMatcher(object):
                         t_s2.append((coords - coord) % 1)
                     if self._cmp_struct(s1, t_s2, frac_tol):
                         return True
-        return False    
+        return False
     def find_indexes(self, s_list, group_list):
         """
         Given a list of structures, return list of indices where each
