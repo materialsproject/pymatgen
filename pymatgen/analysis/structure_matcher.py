@@ -67,14 +67,14 @@ class StructureMatcher(object):
         self._primitive_cell = primitive_cell
         self._scale = scale
 
-    def basis_change(self, coords, new_lattice):
+    def _basis_change(self, coords, new_lattice):
         #Convert cartesian coordinates to new basis
         frac_coords = []
         for i in range(len(coords)):
             frac_coords.append(new_lattice.get_fractional_coords(coords[i]))
         return frac_coords
 
-    def cmp_struct(self, s1, s2, frac_tol):
+    def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
             #Available vectors
@@ -186,13 +186,13 @@ class StructureMatcher(object):
             if np.allclose(nl.angles, struct1.lattice.angles, rtol=0,
                            atol=angle_tol):
                 #Basis Change into new lattice
-                s2 = self.basis_change(s2_cart, nl)
+                s2 = self._basis_change(s2_cart, nl)
 
                 for coord in s2[0]:
                     t_s2 = []
                     for coords in s2:
                         t_s2.append((coords - coord) % 1)
-                    if self.cmp_struct(s1, t_s2, frac_tol):
+                    if self._cmp_struct(s1, t_s2, frac_tol):
                         return True
         return False
 
@@ -224,9 +224,8 @@ class StructureMatcher(object):
             s_list: List of structures to be grouped
         """
         group_list = [[s_list[0]]]
-        combinations = itertools.combinations(range(len(s_list)), 2)
 
-        for i, j in combinations:
+        for i, j in itertools.combinations(range(len(s_list)), 2):
             s1_ind, s2_ind = self.find_indexes([s_list[i], s_list[j]],
                                                group_list)
 
