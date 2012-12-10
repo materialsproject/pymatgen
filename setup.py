@@ -87,8 +87,8 @@ setup(
     maintainer="Shyue Ping Ong",
     url="https://github.com/materialsproject/pymatgen/",
     license="MIT",
-    description="pymatgen is the Python library powering the "
-    "Materials Project (www.materialsproject.org).",
+    description="pymatgen is the Python materials analysis library powering "
+                "the Materials Project (www.materialsproject.org).",
     long_description=long_description,
     keywords=["vasp", "gaussian", "materials", "project",
               "electronic", "structure"],
