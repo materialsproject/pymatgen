@@ -46,23 +46,21 @@ class StructureMatcher(object):
                 Default: 5 Degree
             primitive_cell:
                 If true: input structures will be reduced to primitive
-                         cells prior to matching
+                cells prior to matching
             scale:
                 Input structures are scaled to equivalent volume if true;
-                For exact matching, set to False
+                For exact matching, set to False.
             comparison_function:
-                function declaring equivalency of sites:
-                Default:None, implies rigid site mapping
+                function declaring equivalency of sites.
+                Default is None, implies rigid species mapping.
         """
 
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
 
-        if comparison_function is None:
-            self._comparison_function = lambda sp1, sp2: sp1 == sp2
-        else:
-            self._comparison_function = comparison_function
+        self._comparison_function = comparison_function if \
+            comparison_function is not None else lambda sp1, sp2: sp1 == sp2
 
         self._primitive_cell = primitive_cell
         self._scale = scale
@@ -115,14 +113,22 @@ class StructureMatcher(object):
                             -translate to origin and compare sites in structure within 
                              stol (set in __init__)
                                 -If true: break and return true                
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            True if the structures are the same, else False.
         """
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
-        primitive_cell = self._primitive_cell
 
         #primitive cell transformation - Needs work
-        if primitive_cell:
+        if self._primitive_cell:
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
@@ -163,7 +169,6 @@ class StructureMatcher(object):
             for site, dist in vs:
                 nvi.append(site.coords)
             nv.append(nvi)
-        
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -221,15 +226,17 @@ class StructureMatcher(object):
                         t_s2.append((coords - coord) % 1)
                     if self._cmp_struct(s1, t_s2, frac_tol):
                         return True
-        return False
-    
+        return False    
     def find_indexes(self, s_list, group_list):
         """
-        Given a list of structures, return list of
-        indicies where each structure appears in group_list
+        Given a list of structures, return list of indices where each
+        structure appears in group_list.
+
         Args:
-            s_list: list of structures to check
-            group_list: list to find structures in
+            s_list:
+                list of structures to check
+            group_list:
+                list to find structures in
         """
         inds = [-1] * len(s_list)
         for j in range(len(s_list)):
@@ -244,11 +251,13 @@ class StructureMatcher(object):
         Given a list of structures, use fit to group
         them by structural equality.
 
-        Returns a list of lists of matched structures
-        Assumption: if s1=s2 and s2=s3, then s1=s3
-        This may not be true for small tolerances
         Args:
             s_list: List of structures to be grouped
+
+        Returns:
+            A list of lists of matched structures
+            Assumption: if s1=s2 and s2=s3, then s1=s3
+            This may not be true for small tolerances.
         """
         group_list = [[s_list[0]]]
 
