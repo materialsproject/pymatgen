@@ -70,7 +70,8 @@ Stable version
 
 pymatgen is now in the Python Package Index (`PyPI`_). The version on
 PyPI is always the latest stable release that will be hopefully, be relatively
-bug-free. If you have setuptools or pip installed installed,
+bug-free. The easiest way to install pymatgen on any system is to use
+easy_install or pip. If you have setuptools or pip installed,
 you can just type::
 
    easy_install pymatgen
@@ -273,9 +274,9 @@ API/Reference Docs
 
 The API docs are generated using Sphinx auto-doc and outlines the purpose of all
 modules and classes, and the expected argument and returned objects for most
-methods. They are available at this link below
+methods. They are available at the link below.
 
-:doc:`pymatgen API docs </modules>`.
+:doc:`pymatgen API docs </modules>`
 
 How to cite pymatgen
 ====================
