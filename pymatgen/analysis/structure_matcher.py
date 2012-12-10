@@ -207,11 +207,14 @@ class StructureMatcher(object):
 
     def find_indexes(self, s_list, group_list):
         """
-        Given a list of structures, return list of
-        indicies where each structure appears in group_list
+        Given a list of structures, return list of indices where each
+        structure appears in group_list.
+
         Args:
-            s_list: list of structures to check
-            group_list: list to find structures in
+            s_list:
+                list of structures to check
+            group_list:
+                list to find structures in
         """
         inds = [-1] * len(s_list)
         for j in range(len(s_list)):
@@ -226,11 +229,13 @@ class StructureMatcher(object):
         Given a list of structures, use fit to group
         them by structural equality.
 
-        Returns a list of lists of matched structures
-        Assumption: if s1=s2 and s2=s3, then s1=s3
-        This may not be true for small tolerances
         Args:
             s_list: List of structures to be grouped
+
+        Returns:
+            A list of lists of matched structures
+            Assumption: if s1=s2 and s2=s3, then s1=s3
+            This may not be true for small tolerances.
         """
         group_list = [[s_list[0]]]
 

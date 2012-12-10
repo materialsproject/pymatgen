@@ -20,6 +20,7 @@ import logging
 import random
 import time
 from collections import OrderedDict
+import warnings
 
 import numpy as np
 
@@ -34,6 +35,11 @@ logger = logging.getLogger(__name__)
 
 class StructureFitter(object):
     """
+    .. deprecated: 2.3.3
+
+        This class has been deprecated form v2.3.3. Use StructureMatcher,
+        which is much faster and accurate instead.
+
     Class to perform fitting of two structures.
 
     Attributes:
@@ -94,6 +100,9 @@ class StructureFitter(object):
                 Whether to reduce structures to the primitive niggli cell.
                 Defaults to True.
         """
+        warnings.warn("StructureFitter has been deprecated from v2.3.3. Use "
+                      "StructureMatcher, which is much faster and accurate "
+                      "instead.")
         self._tolerance_cell_misfit = tolerance_cell_misfit
         self._tolerance_atomic_misfit = tolerance_atomic_misfit
         self._supercells_allowed = supercells_allowed
