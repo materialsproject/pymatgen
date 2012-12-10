@@ -46,23 +46,21 @@ class StructureMatcher(object):
                 Default: 5 Degree
             primitive_cell:
                 If true: input structures will be reduced to primitive
-                         cells prior to matching
+                cells prior to matching
             scale:
                 Input structures are scaled to equivalent volume if true;
-                For exact matching, set to False
+                For exact matching, set to False.
             comparison_function:
-                function declaring equivalency of sites:
-                Default:None, implies rigid site mapping
+                function declaring equivalency of sites.
+                Default is None, implies rigid species mapping.
         """
 
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
 
-        if comparison_function is None:
-            self._comparison_function = lambda sp1, sp2: sp1 == sp2
-        else:
-            self._comparison_function = comparison_function
+        self._comparison_function = comparison_function if \
+            comparison_function is not None else lambda sp1, sp2: sp1 == sp2
 
         self._primitive_cell = primitive_cell
         self._scale = scale
