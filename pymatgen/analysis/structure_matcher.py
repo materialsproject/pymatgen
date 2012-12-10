@@ -28,7 +28,7 @@ import itertools
 
 class StructureMatcher(object):
     """
-    Matches structures by similarity.
+    Class to match structures by similarity.
     """
 
     def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=False,
@@ -96,6 +96,26 @@ class StructureMatcher(object):
         return True
 
     def fit(self, struct1, struct2):
+        """
+        Algorithm:
+            -Given two structures: s1 and s2:
+            -Optional: Reduce to primitive cells (set in __init__)
+            -If the number of sites do not match:
+                Return False
+            -Reduce to s1 and s2 to Niggli Cells
+            -Optional: Scale s1 and s2 to same volume (set in __init__)
+            -Find all possible lattice vectors for s2 within shell of ltol (set in __init__)
+            -For s1, translate an atom in the smallest set to the origin
+            -For s2: find all valid lattices from permutations of the list of lattice vectors
+                     (invalid if: det(Lattice Matrix) < half volume of original s2 lattice)
+                -For each valid lattice:
+                    -If the lattice angles of are within tolerance of s1:
+                        -Basis change s2 into new lattice
+                        -For each atom in the smallest set of s2:
+                            -translate to origin and compare sites in structure within 
+                             stol (set in __init__)
+                                -If true: break and return true                
+        """
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
@@ -119,11 +139,17 @@ class StructureMatcher(object):
 
         #rescale lattice to same volume
         if self._scale:
-            se = StructureEditor(struct2)
-            nl2 = Lattice(nl2.matrix * (nl1.volume / nl2.volume) ** (1.0 / 3))
-            se.modify_lattice(nl2)
-            struct2 = se.modified_structure
-
+            se1 = StructureEditor(struct1)
+            nl1 = Lattice(nl1.matrix * ((nl2.volume / nl1.volume) ** (1.0 / 6)))
+            se1.modify_lattice(nl1)
+            struct1 = se1.modified_structure
+            se2 = StructureEditor(struct2)
+            nl2 = Lattice(nl2.matrix * ((nl1.volume / nl2.volume) ** (1.0 / 6)))
+            se2.modify_lattice(nl2)
+            struct2 = se2.modified_structure
+        #Volume to determine invalid lattices
+        halfs2vol = nl2.volume/2
+        
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
 
@@ -137,7 +163,7 @@ class StructureMatcher(object):
             for site, dist in vs:
                 nvi.append(site.coords)
             nv.append(nvi)
-
+        
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -179,7 +205,8 @@ class StructureMatcher(object):
 
         #do permutations of vectors, check for equality
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
-            if np.linalg.det([a, b, c]) == 0: #invalid lattice
+            #invalid lattice
+            if np.linalg.det([a, b, c]) < halfs2vol:
                 continue
 
             nl = Lattice([a, b, c])
@@ -195,7 +222,7 @@ class StructureMatcher(object):
                     if self._cmp_struct(s1, t_s2, frac_tol):
                         return True
         return False
-
+    
     def find_indexes(self, s_list, group_list):
         """
         Given a list of structures, return list of
