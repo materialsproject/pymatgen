@@ -94,13 +94,24 @@ class StructureMatcher(object):
         return True
 
     def fit(self, struct1, struct2):
+        """
+        Fits two structures.
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            True if the structures are the same, else False.
+        """
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
-        primitive_cell = self._primitive_cell
 
         #primitive cell transformation - Needs work
-        if primitive_cell:
+        if self._primitive_cell:
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
