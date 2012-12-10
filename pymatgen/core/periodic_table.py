@@ -22,13 +22,10 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
 
-def _load_pt_data():
-    """Loads element data from json file"""
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_dir, "periodic_table.json")) as f:
-        return json.load(f)
+#Loads element data from json file
+with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
+    _pt_data = json.load(f)
 
-_pt_data = _load_pt_data()
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
 
@@ -39,107 +36,204 @@ class Element(object):
     Only one instance of Element for each symbol is stored after creation,
     ensuring that a particular element behaves like a singleton.
 
-    ..attribute: name
+    .. attribute:: Z
+
+        Atomic number
+
+    .. attribute:: symbol
+
+        Element symbol
+
+    .. attribute:: X
+
+        Electronegativity
+
+    .. attribute:: number
+
+        Alternative attribute for atomic number
+
+    .. attribute:: max_oxidation_state
+
+        Maximum oxidation state for element
+
+    .. attribute:: min_oxidation_state
+
+        Minimum oxidation state for element
+
+    .. attribute:: oxidation_states
+
+        Tuple of all known oxidation states
+
+    .. attribute:: common_oxidation_states
+
+        Tuple of all common oxidation states
+
+    .. attribute:: full_electronic_structure
+
+        Full electronic structure as tuple.
+        E.g., The electronic structure for Fe is represented as:
+        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+        (3, "d", 6), (4, "s", 2)]
+
+    .. attribute:: row
+
+        Returns the periodic table row of the element.
+
+    ..attribute:: group
+
+        Returns the periodic table group of the element.
+
+    .. attribute:: block
+
+        Return the block character "s,p,d,f"
+
+    .. attribute:: is_noble_gas
+
+        True if element is noble gas.
+
+    .. attribute:: is_transition_metal
+
+        True if element is a transition metal.
+
+    .. attribute:: is_rare_earth_metal
+
+        True if element is a rare earth metal.
+
+    .. attribute:: is_metalloid
+
+        True if element is a metalloid.
+
+    .. attribute:: is_alkali
+
+        True if element is an alkali metal.
+
+    .. attribute:: is_alkaline
+
+        True if element is an alkaline earth metal (group II).
+
+    .. attribute:: is_halogen
+
+        True if element is a halogen.
+
+    .. attribute:: is_lanthanoid
+
+        True if element is a lanthanoid.
+
+    .. attribute:: is_actinoid
+
+        True if element is a actinoid.
+
+    .. attribute:: name
 
        Long name for element. E.g., "Hydrogen".
 
-    ..attribute: atomic_mass
+    .. attribute:: atomic_mass
 
         Atomic mass for the element.
 
-    .. attribute: atomic_radius
+    .. attribute:: atomic_radius
 
         Atomic radius for the element.
 
-    ..attribute: mendeleev_no
+    .. attribute:: mendeleev_no
 
         Mendeleev number
 
-    ..attribute: electrical_resistivity
+    .. attribute:: electrical_resistivity
 
         Electrical resistivity
 
-    .. attribute: velocity_of_sound
+    .. attribute:: velocity_of_sound
 
         Velocity of sound
 
-    ..attribute: reflectivity
+    .. attribute:: reflectivity
 
         Reflectivity
 
-    ..attribute: refractive_index
+    .. attribute:: refractive_index
 
         Refractice index
 
-    ..attribute: poissons_ratio
+    .. attribute:: poissons_ratio
 
         Poisson's ratio
 
-    ..attribute: molar_volume
+    .. attribute:: molar_volume
 
         Molar volume
 
-    .. attribute: electronic_structure
+    .. attribute:: electronic_structure
 
         Electronic structure. Simplified form with HTML formatting.
         E.g., The electronic structure for Fe is represented as
         [Ar].3d<sup>6</sup>.4s<sup>2</sup>
 
-    .. attribute: thermal_conductivity
+    .. attribute:: thermal_conductivity
 
         Thermal conductivity
 
-    .. attribute: boiling_point
+    .. attribute:: boiling_point
 
         Boiling point
 
-    .. attribute: melting_point
+    .. attribute:: melting_point
 
         Melting point
 
-    .. attribute: critical_temperature
+    .. attribute:: critical_temperature
 
         Critical temperature
 
-    .. attribute: superconduction_temperature
+    .. attribute:: superconduction_temperature
 
         Superconduction temperature
 
-    .. attribute: liquid_range
+    .. attribute:: liquid_range
 
         Liquid range
 
-    .. attribute: bulk_modulus
+    .. attribute:: bulk_modulus
 
         Bulk modulus
 
-    .. attribute: youngs_modulus
+    .. attribute:: youngs_modulus
 
         Young's modulus
 
-    .. attribute: brinell_hardness
+    .. attribute:: brinell_hardness
 
         Brinell hardness
 
-    .. attribute: rigidity_modulus
+    .. attribute:: rigidity_modulus
 
         Rigidity modulus
 
-    .. attribute: mineral_hardness
+    .. attribute:: mineral_hardness
 
         Mineral hardness
 
-    .. attribute: vickers_hardness
+    .. attribute:: vickers_hardness
 
         Vicker's hardness
 
-    .. attribute: density_of_solid
+    .. attribute:: density_of_solid
 
         Density of solid phase
 
-    .. attribute: coefficient_of_linear_thermal_expansion
+    .. attribute:: coefficient_of_linear_thermal_expansion
 
         Coefficient of linear thermal expansion
+
+    .. attribute:: average_ionic_radius
+
+        Average ionic radius for element in pm. The average is taken over all
+        oxidation states of the element for which data is present.
+
+    .. attribute:: ionic_radii
+
+        All ionic radii of the element as a dict of
+        {oxidation state: ionic radii}. Radii are given in pm.
     """
 
     def __init__(self, symbol):
@@ -485,12 +579,19 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
-    @staticmethod
     def from_dict(d):
+        """
+        Makes Element obey the general json interface used in pymatgen for
+        easier serialization.
+        """
         return Element(d["element"])
 
     @property
     def to_dict(self):
+        """
+        Makes Element obey the general json interface used in pymatgen for
+        easier serialization.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self._symbol}

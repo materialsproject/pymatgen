@@ -320,11 +320,6 @@ class Vasprun(object):
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename):
             raise VaspParserError('KPOINTS needed to obtain band structure.')
-        if not self.parameters['ICHARG'] == 11:
-            if 'LHFCALC' not in self.incar.keys() or not self.incar['LHFCALC']:
-                raise VaspParserError("Band structure runs have to be "
-                                      "non-self-consistent (ICHARG=11) if not "
-                                      "hybrid")
 
         if efermi is None:
             efermi = self.efermi
@@ -341,7 +336,7 @@ class Vasprun(object):
             dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
 
         p_eigenvals = {}
-        if "1" in dict_eigen["1"] and "-1" in dict_eigen["1"]\
+        if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"]\
                 and self.incar['ISPIN'] == 2:
             eigenvals = {Spin.up: [], Spin.down: []}
             if len(dict_p_eigen) != 0:
@@ -840,7 +835,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                 if state["total"] and str(state["set"]).startswith("spin"):
                     spin = Spin.up if state["set"] == "spin 1" else Spin.down
                     self.tdos[spin] = self.dos_val
-                    self.idos[spin] = self.dos_val
+                    self.idos[spin] = self.idos_val
                     self.dos_energies = self.dos_energies_val
                     self.dos_energies_val = []
                     self.dos_val = []
@@ -1945,7 +1940,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 warnings.warn("Skipping {}. Unable to find {}"
                               .format(d=dir_name, f=xml_file))
 
-        return get_reconstructed_band_structure(branches, efermi, structure)
+        return get_reconstructed_band_structure(branches, efermi)
     else:
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
