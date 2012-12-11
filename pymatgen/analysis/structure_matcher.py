@@ -29,6 +29,28 @@ import itertools
 class StructureMatcher(object):
     """
     Class to match structures by similarity.
+
+    Algorithm:
+
+    1. Given two structures: s1 and s2
+    2. Optional: Reduce to primitive cells.
+    3. If the number of sites do not match, return False
+    4. Reduce to s1 and s2 to Niggli Cells
+    5. Optional: Scale s1 and s2 to same volume.
+    6. Find all possible lattice vectors for s2 within shell of ltol.
+    7. For s1, translate an atom in the smallest set to the origin
+    8. For s2: find all valid lattices from permutations of the list
+       of lattice vectors (invalid if: det(Lattice Matrix) < half
+       volume of original s2 lattice)
+    9. For each valid lattice:
+
+        a. If the lattice angles of are within tolerance of s1,
+           basis change s2 into new lattice.
+        b. For each atom in the smallest set of s2:
+
+            i. Translate to origin and compare sites in structure within
+               stol (set in __init__)
+            ii. If true: break and return true
     """
 
     def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
@@ -36,9 +58,9 @@ class StructureMatcher(object):
         """
         Args:
             ltol:
-                Fractional length tolerance. Default is 0.2
+                Fractional length tolerance. Default is 0.2.
             stol:
-                Site tolerance in Angstrom. Default is 0.4 Angstrom
+                Site tolerance in Angstrom. Default is 0.4 Angstrom.
             angle_tol:
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
@@ -56,8 +78,8 @@ class StructureMatcher(object):
         self.stol = stol
         self.angle_tol = angle_tol
 
-        self._comparison_function = comparison_function if \
-            comparison_function is not None else lambda sp1, sp2: sp1 == sp2
+        self._comparison_function = comparison_function if\
+        comparison_function is not None else lambda sp1, sp2: sp1 == sp2
 
         self._primitive_cell = primitive_cell
         self._scale = scale
@@ -92,28 +114,7 @@ class StructureMatcher(object):
 
     def fit(self, struct1, struct2):
         """
-        Algorithm:
-
-        1. Given two structures: s1 and s2
-        2. Optional: Reduce to primitive cells (set in __init__)
-        3. If the number of sites do not match, return False
-        4. Reduce to s1 and s2 to Niggli Cells
-        5. Optional: Scale s1 and s2 to same volume (set in __init__)
-        6. Find all possible lattice vectors for s2 within shell of ltol (
-           set in __init__)
-        7. For s1, translate an atom in the smallest set to the origin
-        8. For s2: find all valid lattices from permutations of the list
-           of lattice vectors (invalid if: det(Lattice Matrix) < half
-           volume of original s2 lattice)
-        9. For each valid lattice:
-
-            a. If the lattice angles of are within tolerance of s1,
-               basis change s2 into new lattice.
-            b. For each atom in the smallest set of s2:
-
-                i. Translate to origin and compare sites in structure within
-                   stol (set in __init__)
-                ii. If true: break and return true
+        Fit two structures.
 
         Args:
             struct1:
@@ -154,8 +155,8 @@ class StructureMatcher(object):
             nl2 = Lattice(nl2.matrix * ((nl1.volume / nl2.volume) ** (1.0 / 6)))
             se2.modify_lattice(nl2)
             struct2 = se2.modified_structure
-        #Volume to determine invalid lattices
-        halfs2vol = nl2.volume/2
+            #Volume to determine invalid lattices
+        halfs2vol = nl2.volume / 2
 
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
@@ -170,7 +171,7 @@ class StructureMatcher(object):
             for site, dist in vs:
                 nvi.append(site.coords)
             nv.append(nvi)
-        #generate structure coordinate lists
+            #generate structure coordinate lists
         species_list = []
         s1 = []
         for site in struct1:
@@ -197,7 +198,7 @@ class StructureMatcher(object):
                 if self._comparison_function(site.species_and_occu, species):
                     ind = i
                     break
-                #get cartesian coords for s2
+                    #get cartesian coords for s2
             if s2_cart[ind] != []:
                 s2_cart[ind] = np.append(s2_cart[ind], [site.coords], axis=0)
             else:
@@ -228,6 +229,7 @@ class StructureMatcher(object):
                     if self._cmp_struct(s1, t_s2, frac_tol):
                         return True
         return False
+
     def find_indexes(self, s_list, group_list):
         """
         Given a list of structures, return list of indices where each
