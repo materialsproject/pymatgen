@@ -3,6 +3,7 @@ import os
 import json
 import numpy as np
 import random
+from pymatgen.io import smartio as io
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
@@ -19,6 +20,9 @@ class StructureMatcherTest(unittest.TestCase):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self.struct_list = [e.structure for e in entries]
+        
+        self.oxi_structs = [io.read_structure(os.path.join(test_dir,"Li2O.cif")),
+                            io.read_structure(os.path.join(test_dir,"POSCAR.Li2O"))]
     
     def test_fit(self):
         """
@@ -48,6 +52,13 @@ class StructureMatcherTest(unittest.TestCase):
         """Test match under shuffling of sites"""
         random.shuffle(editor._sites)
         self.assertTrue(sm.fit(self.struct_list[0],editor.modified_structure))
+        
+    def test_oxi(self):
+        """Test oxidation state removal matching"""
+        sm = StructureMatcher()
+        self.assertTrue(not sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
+        sm.match_oxi=False
+        self.assertTrue(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
         
     def test_primitive(self):
         """Test primitive cell reduction"""
