@@ -149,15 +149,16 @@ class StructureMatcher(object):
         nl2 = struct2.lattice.get_niggli_reduced_lattice()
         struct1 = BasisChange(struct1, nl1).modified_structure
         struct2 = BasisChange(struct2, nl2).modified_structure
-
+        
         #rescale lattice to same volume
         if self._scale:
+            scale_vol = (nl2.volume / nl1.volume) ** (1.0/6)
             se1 = StructureEditor(struct1)
-            nl1 = Lattice(nl1.matrix * ((nl2.volume / nl1.volume) ** (1.0 / 6)))
+            nl1 = Lattice(nl1.matrix * scale_vol)
             se1.modify_lattice(nl1)
             struct1 = se1.modified_structure
             se2 = StructureEditor(struct2)
-            nl2 = Lattice(nl2.matrix * ((nl1.volume / nl2.volume) ** (1.0 / 6)))
+            nl2 = Lattice(nl2.matrix / scale_vol)
             se2.modify_lattice(nl2)
             struct2 = se2.modified_structure
         #Volume to determine invalid lattices
