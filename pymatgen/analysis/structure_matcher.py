@@ -129,7 +129,7 @@ class StructureMatcher(object):
                 2nd structure
 
         Returns:
-            True if the structures are the same, else False.
+            True if the structures are the equivalent, else False.
         """
         ltol = self.ltol
         stol = self.stol
