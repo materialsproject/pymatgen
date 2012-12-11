@@ -37,12 +37,13 @@ class StructureMatcher(object):
     3. If the number of sites do not match, return False
     4. Reduce to s1 and s2 to Niggli Cells
     5. Optional: Scale s1 and s2 to same volume.
-    6. Find all possible lattice vectors for s2 within shell of ltol.
-    7. For s1, translate an atom in the smallest set to the origin
-    8. For s2: find all valid lattices from permutations of the list
+    6. Optional: Remove oxidation states associated with sites
+    7. Find all possible lattice vectors for s2 within shell of ltol.
+    8. For s1, translate an atom in the smallest set to the origin
+    9. For s2: find all valid lattices from permutations of the list
        of lattice vectors (invalid if: det(Lattice Matrix) < half
        volume of original s2 lattice)
-    9. For each valid lattice:
+    10. For each valid lattice:
 
         a. If the lattice angles of are within tolerance of s1,
            basis change s2 into new lattice.
@@ -54,7 +55,7 @@ class StructureMatcher(object):
     """
 
     def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
-                 scale=True, comparison_function=None):
+                 scale=True, match_oxi=True, comparison_function=None):
         """
         Args:
             ltol:
@@ -69,6 +70,10 @@ class StructureMatcher(object):
             scale:
                 Input structures are scaled to equivalent volume if true;
                 For exact matching, set to False.
+            match_oxi:
+                Match oxidation states (If present in input structures),
+                and elemental site species, Defaults to True. If False,
+                removes oxidation states prior to comparison
             comparison_function:
                 function declaring equivalency of sites.
                 Default is None, implies rigid species mapping.
@@ -77,6 +82,7 @@ class StructureMatcher(object):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
+        self.match_oxi = match_oxi
 
         self._comparison_function = comparison_function if\
         comparison_function is not None else lambda sp1, sp2: sp1 == sp2
@@ -128,7 +134,7 @@ class StructureMatcher(object):
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
-
+        
         #primitive cell transformation - Needs work
         if self._primitive_cell:
             prim = PrimitiveCellTransformation()
@@ -154,8 +160,15 @@ class StructureMatcher(object):
             nl2 = Lattice(nl2.matrix * ((nl1.volume / nl2.volume) ** (1.0 / 6)))
             se2.modify_lattice(nl2)
             struct2 = se2.modified_structure
-            #Volume to determine invalid lattices
+        #Volume to determine invalid lattices
         halfs2vol = nl2.volume / 2
+        
+        #Remove oxidation states is flag is False
+        if not self.match_oxi:
+            se1.remove_oxidation_states()
+            struct1 = se1.modified_structure
+            se2.remove_oxidation_states()
+            struct2 = se2.modified_structure
 
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
