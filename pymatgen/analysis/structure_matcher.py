@@ -31,7 +31,7 @@ class StructureMatcher(object):
     Class to match structures by similarity.
     """
 
-    def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=False,
+    def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
                  scale=True, comparison_function=None):
         """
         Args:
@@ -43,7 +43,7 @@ class StructureMatcher(object):
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
                 If true: input structures will be reduced to primitive
-                cells prior to matching.
+                cells prior to matching. Default to True.
             scale:
                 Input structures are scaled to equivalent volume if true;
                 For exact matching, set to False.
