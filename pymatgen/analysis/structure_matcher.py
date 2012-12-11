@@ -134,7 +134,6 @@ class StructureMatcher(object):
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
-
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return False
@@ -198,7 +197,9 @@ class StructureMatcher(object):
                 if self._comparison_function(site.species_and_occu, species):
                     ind = i
                     break
-                    #get cartesian coords for s2
+            #get cartesian coords for s2, if no site match found return false
+            if ind is None:
+                return False
             if s2_cart[ind] != []:
                 s2_cart[ind] = np.append(s2_cart[ind], [site.coords], axis=0)
             else:
