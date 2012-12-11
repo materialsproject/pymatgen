@@ -136,7 +136,7 @@ class StructureMatcher(object):
         angle_tol = self.angle_tol
         
         #primitive cell transformation - Needs work
-        if self._primitive_cell:
+        if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
