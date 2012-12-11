@@ -18,6 +18,7 @@ import os
 import re
 import logging
 import multiprocessing
+import sys
 
 from collections import OrderedDict
 
@@ -267,6 +268,25 @@ def parse_view(args):
     vis.show()
 
 
+def compare_structures(args):
+    filenames = args.filenames
+    try:
+        structures = map(read_structure, filenames)
+    except Exception as ex:
+        print "Error converting file. Are they in the right format?"
+        print str(ex)
+        sys.exit(-1)
+
+    from pymatgen.analysis.structure_matcher import StructureMatcher
+    m = StructureMatcher()
+    for i, grp in enumerate(m.group_structures(structures)):
+        print "Group {}: ".format(i)
+        for s in grp:
+            print "- {} ({})".format(filenames[structures.index(s)],
+                                     s.formula)
+        print
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
     matgenie is a convenient script that uses pymatgen to perform many
@@ -393,6 +413,11 @@ if __name__ == "__main__":
                              help="List of elements to exclude from bonding "
                              "analysis. E.g., Li,Na")
     parser_view.set_defaults(func=parse_view)
+
+    parser_cmp = subparsers.add_parser("compare", help="Compare structures")
+    parser_cmp.add_argument("filenames", metavar="filenames", type=str,
+                             nargs="*", help="List of filenames to compare.")
+    parser_cmp.set_defaults(func=compare_structures)
 
     args = parser.parse_args()
     args.func(args)
