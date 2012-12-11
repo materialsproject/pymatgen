@@ -49,7 +49,7 @@ class StructureMatcher(object):
         b. For each atom in the smallest set of s2:
 
             i. Translate to origin and compare sites in structure within
-               stol (set in __init__)
+               stol.
             ii. If true: break and return true
     """
 
