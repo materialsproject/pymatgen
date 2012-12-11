@@ -17,9 +17,8 @@ class StructureMatcherTest(unittest.TestCase):
     
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
-            testset = json.load(fp, cls=PMGJSONDecoder)
-            
-        self.struct_list = [testcase.structure for testcase in testset]
+            entries = json.load(fp, cls=PMGJSONDecoder)
+        self.struct_list = [e.structure for e in entries]
     
     def test_fit(self):
         """
