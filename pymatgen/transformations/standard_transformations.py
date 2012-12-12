@@ -738,29 +738,32 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         x = min_site_list[0]
         possible_vectors = []
+        fcoords = x.frac_coords
         for y in min_site_list:
             if not x == y:
-                vector = (x.frac_coords - y.frac_coords) % 1
+                vector = np.mod(fcoords - y.frac_coords, 1)
                 possible_vectors.append(vector)
 
+        all_fcoords = [site.frac_coords for site in sites]
+        all_sp = [site.species_string for site in sites]
+        n = len(sites)
+        tol = np.array([tol_a, tol_b, tol_c])
         #test each vector to make sure its a viable vector for all sites
-        for x in sites:
+        for i in xrange(n):
+            fcoords = all_fcoords[i]
+            x_sp = all_sp[i]
             for j in range(len(possible_vectors)):
                 p_v = possible_vectors[j]
                 fit = False
                 # test that adding vector to a site finds a similar site
                 if p_v is not None:
-                    test_location = x.frac_coords + p_v
-                    possible_locations = [site.frac_coords for site in sites
-                            if site.species_and_occu == x.species_and_occu and
-                            not x == site]
-                    for p_l in possible_locations:
-                        diff = .5 - abs((test_location - p_l) % 1 - .5)
-                        if diff[0] < tol_a and diff[1] < tol_b and \
-                                diff[2] < tol_c:
-                            fit = True
-                            break
-                    if not fit:
+                    test_location = fcoords + p_v
+                    possible_locations = [all_fcoords[k] for k in xrange(n)
+                                          if all_sp[k] == x_sp and i != k]
+                    data = np.tile(test_location, (len(possible_locations), 1))
+                    diffs = 0.5 - np.abs(np.mod(data - possible_locations, 1)
+                                         - 0.5)
+                    if not np.any(np.all(diffs < tol, axis=1)):
                         possible_vectors[j] = None
 
         #vectors that haven"t been removed from possible_vectors are symmetry
@@ -914,3 +917,11 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "init_args": {"amplitude": self._amp},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
+
+if __name__ == "__main__":
+    from pymatgen.io.vaspio import Poscar
+    p = Poscar.from_file("../../test_files/POSCAR.Li2O")
+    s = p.structure
+    print s
+    trans = PrimitiveCellTransformation()
+    print trans.apply_transformation(s)
