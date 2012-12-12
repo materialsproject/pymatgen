@@ -56,7 +56,7 @@ class StructureMatcherTest(unittest.TestCase):
     def test_oxi(self):
         """Test oxidation state removal matching"""
         sm = StructureMatcher()
-        self.assertTrue(not sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
+        self.assertFalse(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
         sm.match_oxi=False
         self.assertTrue(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
         
