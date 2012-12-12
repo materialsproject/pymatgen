@@ -270,6 +270,9 @@ def parse_view(args):
 
 def compare_structures(args):
     filenames = args.filenames
+    if len(filenames) < 2:
+        print "You need more than one structure to compare!"
+        sys.exit(-1)
     try:
         structures = map(read_structure, filenames)
     except Exception as ex:
@@ -278,7 +281,7 @@ def compare_structures(args):
         sys.exit(-1)
 
     from pymatgen.analysis.structure_matcher import StructureMatcher
-    m = StructureMatcher(match_oxi=False)
+    m = StructureMatcher(match_oxi=args.oxi)
     for i, grp in enumerate(m.group_structures(structures)):
         print "Group {}: ".format(i)
         for s in grp:
@@ -416,7 +419,14 @@ if __name__ == "__main__":
 
     parser_cmp = subparsers.add_parser("compare", help="Compare structures")
     parser_cmp.add_argument("filenames", metavar="filenames", type=str,
-                             nargs="*", help="List of filenames to compare.")
+                            nargs="*", help="List of filenames to compare.")
+    parser_cmp.add_argument("-o", "--oxi", dest="oxi",
+                            action="store_true",
+                            help="Oxi mode means that different oxidation "
+                                 "states will not match to each other, i.e.,"
+                                 " Fe2+ amd Fe3+ will be treated as "
+                                 "different species for the purposes of "
+                                 "matching.")
     parser_cmp.set_defaults(func=compare_structures)
 
     args = parser.parse_args()

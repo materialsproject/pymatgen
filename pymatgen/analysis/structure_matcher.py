@@ -134,7 +134,7 @@ class StructureMatcher(object):
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
-        
+
         #primitive cell transformation - Needs work
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             prim = PrimitiveCellTransformation()
@@ -163,7 +163,7 @@ class StructureMatcher(object):
             struct2 = se2.modified_structure
         #Volume to determine invalid lattices
         halfs2vol = nl2.volume / 2
-        
+
         #Remove oxidation states is flag is False
         if not self.match_oxi:
             se1.remove_oxidation_states()
