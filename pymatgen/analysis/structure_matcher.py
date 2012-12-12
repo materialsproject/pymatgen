@@ -54,7 +54,7 @@ class StructureMatcher(object):
             ii. If true: break and return true
     """
 
-    def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.4, angle_tol=5, primitive_cell=True,
                  scale=True, match_oxi=True, comparison_function=None):
         """
         Args:
