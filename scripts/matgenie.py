@@ -278,7 +278,7 @@ def compare_structures(args):
         sys.exit(-1)
 
     from pymatgen.analysis.structure_matcher import StructureMatcher
-    m = StructureMatcher()
+    m = StructureMatcher(match_oxi=False)
     for i, grp in enumerate(m.group_structures(structures)):
         print "Group {}: ".format(i)
         for s in grp:
