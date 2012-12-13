@@ -268,31 +268,22 @@ class EwaldSummation(object):
             gvect_tile = np.tile(gvect, (numsites, 1))
             gvectdot = np.sum(gvect_tile * coords, 1)
             #calculate the structure factor
-            sfactor = np.zeros((numsites, numsites))
-            sreal = 0.0
-            simag = 0.0
-            for i in xrange(numsites):
-                qi = self._oxi_states[i]
-                g_dot_i = gvectdot[i]
-                sfactor[i, i] = qi * qi
-                sreal += qi * cos(g_dot_i)
-                simag += qi * sin(g_dot_i)
-
-                for j in xrange(i + 1, numsites):
-                    qj = self._oxi_states[j]
-                    exparg = g_dot_i - gvectdot[j]
-                    cosa = cos(exparg)
-                    sina = sin(exparg)
-                    sfactor[i, j] = qi * qj * (cosa + sina)
-                    """
-                    Uses the property that when site i and site j are switched,
-                    exparg' == - exparg. This implies
-                    cos (exparg') = cos (exparg) and
-                    sin (exparg') = - sin (exparg)
-
-                    Halves all computations.
-                    """
-                    sfactor[j, i] = qi * qj * (cosa - sina)
+            oxistates = np.array(self._oxi_states)
+            
+            sreal = sum(oxistates * np.cos(gvectdot))
+            simag = sum(oxistates * np.sin(gvectdot))
+            
+            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
+            exparg = np.tile(gvectdot, (numsites, 1))
+            trans_gvect = np.expand_dims(gvectdot, axis = 1)
+            exparg -= np.tile(trans_gvect, (1, numsites))
+            
+            #create array where q_2[i,j] is qi * qj
+            q_2 = np.tile(oxistates, (numsites, 1))
+            trans_q = np.expand_dims(oxistates, axis = 1)
+            q_2 *= np.tile(trans_q, (1, numsites))
+            
+            sfactor = q_2 * (np.cos(exparg) + np.sin(exparg))
 
             erecip += expval / gsquare * sfactor
             pref = 2 * expval / gsquare * np.array(self._oxi_states)
@@ -310,6 +301,7 @@ class EwaldSummation(object):
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
         all_nn = self._s.get_all_neighbors(self._rmax, True)
+        
 
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
@@ -319,11 +311,36 @@ class EwaldSummation(object):
         forces = np.zeros((numsites, 3))
         for i in xrange(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
+            num_neighbors = len(nn)
             qi = self._oxi_states[i]
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             # add jellium term
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
+            
+            rij = np.zeros(num_neighbors)
+            qj = np.zeros(num_neighbors)
+            js = np.zeros(num_neighbors)
+            ncoords = np.zeros((num_neighbors,3))
+            
+            for k, (site, dist, j) in enumerate(nn):
+                rij[k] = dist
+                qj[k] = self._oxi_states[j]
+                js[k] = j
+                ncoords[k] = site.coords
+            
+            erfcval = np.array(map(erfc, self._sqrt_eta * rij))
+            new_ereals = erfcval * qi * qj / rij
+            
+            #insert new_ereals
+            for k, new_e in enumerate(new_ereals):
+                ereal[js[k],i] += new_e
+                
+            fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
+            forces[i] += np.sum(np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - ncoords) * \
+                                qi * EwaldSummation.CONV_FACT, axis = 0)
+            
+            '''
             for j in range(len(nn)):
                 nsite = nn[j][0]
                 rij = nn[j][1]
@@ -334,6 +351,7 @@ class EwaldSummation(object):
                                             exp(-self._eta * pow(rij, 2)))
                 forces[i] += fijpf * (coords[i] - nsite.coords) * \
                     qi * EwaldSummation.CONV_FACT
+            '''
 
         ereal *= 0.5 * EwaldSummation.CONV_FACT
         epoint *= EwaldSummation.CONV_FACT
