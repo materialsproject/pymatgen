@@ -38,8 +38,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     """
     if len(coord_list) == 0:
         return []
-    coords = np.tile(coord, (len(coord_list), 1))
-    diff = coord_list - coords
+    diff = np.array(coord_list) - np.array(coord)[None, :]
     return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
 
 
