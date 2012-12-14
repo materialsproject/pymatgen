@@ -514,9 +514,8 @@ class Vasprun(object):
                     str(spin)][band_index][orbital] = [0.0
                     for s in range(len(self.final_structure.sites))]
 
-                else:
-                    vasp_output['projected_eigenvalues'][kpoint_index][
-                    str(spin)][band_index][orbital][ion_index] = value
+                vasp_output['projected_eigenvalues'][kpoint_index][
+                str(spin)][band_index][orbital][ion_index] = value
 
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
         vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
