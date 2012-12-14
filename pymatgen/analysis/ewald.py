@@ -235,7 +235,7 @@ class EwaldSummation(object):
         site.
         """
         return self._forces
-
+    
     def _calc_recip(self):
         """
         Perform the reciprocal space summation. Calculates the quantity
@@ -265,35 +265,31 @@ class EwaldSummation(object):
 
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
-            gvect_tile = np.tile(gvect, (numsites, 1))
-            gvectdot = np.sum(gvect_tile * coords, 1)
+            gvectdot = np.sum(gvect[None, :] * coords, 1)
             #calculate the structure factor
             oxistates = np.array(self._oxi_states)
             
-            sreal = sum(oxistates * np.cos(gvectdot))
-            simag = sum(oxistates * np.sin(gvectdot))
+            sreal = np.sum(oxistates * np.cos(gvectdot))
+            simag = np.sum(oxistates * np.sin(gvectdot))
             
-            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
-            exparg = np.tile(gvectdot, (numsites, 1))
-            trans_gvect = np.expand_dims(gvectdot, axis = 1)
-            exparg -= np.tile(trans_gvect, (1, numsites))
+            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j] 
+            exparg = gvectdot[None, :] - gvectdot[:, None]
             
             #create array where q_2[i,j] is qi * qj
-            q_2 = np.tile(oxistates, (numsites, 1))
-            trans_q = np.expand_dims(oxistates, axis = 1)
-            q_2 *= np.tile(trans_q, (1, numsites))
-            
-            sfactor = q_2 * (np.cos(exparg) + np.sin(exparg))
+            qiqj = oxistates[None, :] * oxistates[:, None]
+
+            sfactor = qiqj * (np.cos(exparg) + np.sin(exparg))
 
             erecip += expval / gsquare * sfactor
-            pref = 2 * expval / gsquare * np.array(self._oxi_states)
+            pref = 2 * expval / gsquare * oxistates
             factor = prefactor * pref * \
                 (sreal * np.sin(gvectdot)
                  - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
-            forces += np.tile(factor, (3, 1)).transpose() * gvect_tile
+             
+            forces += factor[:, None] * gvect[None, :]
 
         return erecip * prefactor * EwaldSummation.CONV_FACT, forces
-
+    
     def _calc_real_and_point(self):
         """
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
@@ -339,19 +335,6 @@ class EwaldSummation(object):
             fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
             forces[i] += np.sum(np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - ncoords) * \
                                 qi * EwaldSummation.CONV_FACT, axis = 0)
-            
-            '''
-            for j in range(len(nn)):
-                nsite = nn[j][0]
-                rij = nn[j][1]
-                qj = compute_average_oxidation_state(nsite)
-                erfcval = erfc(self._sqrt_eta * rij)
-                ereal[nn[j][2], i] += erfcval * qi * qj / rij
-                fijpf = qj / pow(rij, 3) * (erfcval + forcepf * rij *
-                                            exp(-self._eta * pow(rij, 2)))
-                forces[i] += fijpf * (coords[i] - nsite.coords) * \
-                    qi * EwaldSummation.CONV_FACT
-            '''
 
         ereal *= 0.5 * EwaldSummation.CONV_FACT
         epoint *= EwaldSummation.CONV_FACT
