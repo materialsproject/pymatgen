@@ -193,32 +193,33 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     nmax = sr * recp_len / (2 * math.pi)
     pcoords = lattice.get_fractional_coords(center)
     floor = math.floor
-        
+
     n = len(frac_points)
     fcoords = np.array(frac_points)
     frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
     indices = np.array(range(n))
 
-    arange = np.arange(start = int(floor(pcoords[0] - nmax[0])),
-                       stop = int(floor(pcoords[0] + nmax[0])) + 1)
-    brange = np.arange(start = int(floor(pcoords[1] - nmax[0])),
-                       stop = int(floor(pcoords[1] + nmax[0])) + 1)
-    crange = np.arange(start = int(floor(pcoords[2] - nmax[2])),
-                       stop = int(floor(pcoords[2] + nmax[2])) + 1)
-    
-    arange = arange[:, None] * np.array([1,0,0])[None, :]
-    brange = brange[:, None] * np.array([0,1,0])[None, :]
-    crange = crange[:, None] * np.array([0,0,1])[None, :]
-    
-    images = arange[:,None,None]+brange[None,:,None]+crange[None,None,:]
-    
+    arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
+                       stop=int(floor(pcoords[0] + nmax[0])) + 1)
+    brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
+                       stop=int(floor(pcoords[1] + nmax[1])) + 1)
+    crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
+                       stop=int(floor(pcoords[2] + nmax[2])) + 1)
+
+    arange = arange[:, None] * np.array([1, 0, 0])[None, :]
+    brange = brange[:, None] * np.array([0, 1, 0])[None, :]
+    crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+
+    images = arange[:, None, None] + brange[None, :, None] + \
+        crange[None, None, :]
+
     shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
     coords = frac_2_cart(shifted_coords)
     dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2, axis=4))
     within_r = np.where(dists <= r)
-    
+
     d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
-    
+
     return np.transpose(d)
     
