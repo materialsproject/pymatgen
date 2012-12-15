@@ -132,13 +132,8 @@ class StructureMatcher(object):
             ii. If true: break and return true
     """
 
-<<<<<<< HEAD
     def __init__(self, ltol=0.2, stol=0.4, angle_tol=5, primitive_cell=True,
-                 scale=True, match_oxi=True, comparison_function=None):
-=======
-    def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
->>>>>>> 4add254ca8cbbb3634a85e9ac09f6c480e575437
         """
         Args:
             ltol:
@@ -153,10 +148,6 @@ class StructureMatcher(object):
             scale:
                 Input structures are scaled to equivalent volume if true;
                 For exact matching, set to False.
-            match_oxi:
-                Match oxidation states (If present in input structures),
-                and elemental site species, Defaults to True. If False,
-                removes oxidation states prior to comparison
             comparator:
                 A comparator object implementing an equals method that declares
                 declaring equivalency of sites. Default is
