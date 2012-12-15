@@ -14,6 +14,11 @@ __email__ = "sdacek@mit.edu"
 __status__ = "Beta"
 __date__ = "Dec 3, 2012"
 
+
+import numpy as np
+import itertools
+import abc
+
 from pymatgen.core.structure_modifier import BasisChange
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
@@ -21,16 +26,83 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.transformations.standard_transformations import\
     PrimitiveCellTransformation
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
-
-import numpy as np
-import itertools
+from pymatgen.core.composition import Composition
 
 
-class IdentitySpeciesComp(object):
+class AbstractComparator(object):
+    """
+    Abstract Comparator class. A Comparator defines how sites are compared in
+    a structure.
+    """
+    __metaclass__ = abc.ABCMeta
 
-    def equal(self, sp1, sp2):
+    @abc.abstractmethod
+    def are_equal(self, sp1, sp2):
+        """
+        Defines how the species of two sites are considered equal. For
+        example, one can consider sites to have the same species only when
+        the species are exactly the same, i.e., Fe2+ matches Fe2+ but not
+        Fe3+. Or one can define that only the element matters,
+        and all oxidation state information are ignored.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are considered equal.
+        """
+        return
+
+    @abc.abstractmethod
+    def get_structure_hash(self, structure):
+        """
+        Defines a hash for structures. This allows structures to be grouped
+        efficiently for comparison. For example, in exact matching,
+        you should only try to perform matching if structures have the same
+        reduced formula (structures with different formulas can't possibly
+        match). So the reduced_formula is a good hash.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            A hashable object. Examples can be string formulas, etc.
+        """
+        return
+
+
+class SpeciesComparator(AbstractComparator):
+    """
+    A Comparator that matches species exactly. The default used in
+    StructureMatcher.
+    """
+
+    def are_equal(self, sp1, sp2):
         return sp1 == sp2
 
+    def get_structure_hash(self, structure):
+        return structure.composition.reduced_formula
+
+
+class ElementComparator(AbstractComparator):
+    """
+    A Comparator that matches elements. i.e. oxidation states are
+    ignored.
+    """
+
+    def are_equal(self, sp1, sp2):
+        comp1 = Composition(sp1)
+        comp2 = Composition(sp2)
+        return comp1.get_el_amt_dict() == comp2.get_el_amt_dict()
+
+    def get_structure_hash(self, structure):
+        return structure.composition.reduced_formula
 
 class StructureMatcher(object):
     """
@@ -61,8 +133,7 @@ class StructureMatcher(object):
     """
 
     def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
-                 scale=True, match_oxi=True,
-                 comparator=IdentitySpeciesComp()):
+                 scale=True, comparator=SpeciesComparator()):
         """
         Args:
             ltol:
@@ -84,18 +155,22 @@ class StructureMatcher(object):
             comparator:
                 A comparator object implementing an equals method that declares
                 declaring equivalency of sites. Default is
-                IdentitySpeciesComp, which implies rigid species
-                mapping.
+                SpeciesComparator, which implies rigid species
+                mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
+
+                Other comparators are provided, e.g., ElementComparator which
+                matches only the elements and not the species.
+
                 The reason why a comparator object is used instead of
                 supplying a comparison function is that it is not possible to
                 pickle a function, which makes it otherwise difficult to use
                 StructureMatcher with Python's multiprocessing.
+
         """
 
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-        self.match_oxi = match_oxi
 
         self._comparator = comparator
 
@@ -147,6 +222,11 @@ class StructureMatcher(object):
         stol = self.stol
         angle_tol = self.angle_tol
         comparator = self._comparator
+
+        if comparator.get_structure_hash(struct1) != \
+            comparator.get_structure_hash(struct2):
+            return False
+
         #primitive cell transformation - Needs work
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             prim = PrimitiveCellTransformation()
@@ -176,13 +256,6 @@ class StructureMatcher(object):
         #Volume to determine invalid lattices
         halfs2vol = nl2.volume / 2
 
-        #Remove oxidation states is flag is False
-        if not self.match_oxi:
-            se1.remove_oxidation_states()
-            struct1 = se1.modified_structure
-            se2.remove_oxidation_states()
-            struct2 = se2.modified_structure
-
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
 
@@ -202,7 +275,7 @@ class StructureMatcher(object):
         for site in struct1:
             ind = None
             for i, species in enumerate(species_list):
-                if comparator.equal(site.species_and_occu, species):
+                if comparator.are_equal(site.species_and_occu, species):
                     ind = i
                     break
 
@@ -220,7 +293,7 @@ class StructureMatcher(object):
         for site in struct2:
             ind = None
             for i, species in enumerate(species_list):
-                if comparator.equal(site.species_and_occu, species):
+                if comparator.are_equal(site.species_and_occu, species):
                     ind = i
                     break
             #get cartesian coords for s2, if no site match found return false

@@ -21,7 +21,7 @@ import collections
 
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    IdentitySpeciesComp
+    SpeciesComparator
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 logger = logging.getLogger(__name__)
@@ -57,11 +57,10 @@ def _perform_grouping(args):
                          .format(unmatched[i][0].entry_id, test_host.formula))
             test_formula = test_host.composition.reduced_formula
             logger.info("Test host = {}".format(test_formula))
-            if test_formula == ref_formula:
-                m = StructureMatcher(comparator=comparator)
-                if m.fit(ref_host, test_host):
-                    logger.info("Fit found")
-                    matches.append(unmatched[i])
+            m = StructureMatcher(comparator=comparator)
+            if m.fit(ref_host, test_host):
+                logger.info("Fit found")
+                matches.append(unmatched[i])
         groups.append(json.dumps([m[0] for m in matches], cls=PMGJSONEncoder))
         unmatched = filter(lambda x: x not in matches, unmatched)
         logger.info("{} unmatched remaining".format(len(unmatched)))
@@ -70,7 +69,7 @@ def _perform_grouping(args):
 def group_entries_by_structure(entries, species_to_remove=None,
                                ltol=0.2, stol=.4, angle_tol=5,
                                primitive_cell=True, scale=True,
-                               comparator=IdentitySpeciesComp(),
+                               comparator=SpeciesComparator(),
                                ncpus=None):
     """
     Given a sequence of ComputedStructureEntries, use structure fitter to group
@@ -98,7 +97,7 @@ def group_entries_by_structure(entries, species_to_remove=None,
         comparator:
             A comparator object implementing an equals method that declares
             declaring equivalency of sites.
-            Default is IdentitySpeciesComp, which implies rigid species
+            Default is SpeciesComparator, which implies rigid species
             mapping.
         ncpus:
             Number of cpus to use. Use of multiple cpus can greatly improve
@@ -116,7 +115,8 @@ def group_entries_by_structure(entries, species_to_remove=None,
     if ncpus:
         symm_entries = collections.defaultdict(list)
         for entry, host in entries_host:
-            symm_entries[host.composition.reduced_formula].append((entry, host))
+            symm_entries[comparator.get_structure_hash(host)].append((entry,
+                                                                      host))
         import multiprocessing as mp
         logging.info("Using {} cpus".format(ncpus))
         manager = mp.Manager()

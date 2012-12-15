@@ -4,7 +4,8 @@ import json
 import numpy as np
 import random
 from pymatgen.io import smartio as io
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    ElementComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
@@ -57,7 +58,7 @@ class StructureMatcherTest(unittest.TestCase):
         """Test oxidation state removal matching"""
         sm = StructureMatcher()
         self.assertFalse(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
-        sm.match_oxi=False
+        sm = StructureMatcher(comparator=ElementComparator())
         self.assertTrue(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
         
     def test_primitive(self):
