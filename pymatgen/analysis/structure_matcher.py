@@ -83,9 +83,13 @@ class StructureMatcher(object):
                 removes oxidation states prior to comparison
             comparator:
                 A comparator object implementing an equals method that declares
-                declaring equivalency of sites.
-                Default is IdentitySpeciesComp, which implies rigid species
+                declaring equivalency of sites. Default is
+                IdentitySpeciesComp, which implies rigid species
                 mapping.
+                The reason why a comparator object is used instead of
+                supplying a comparison function is that it is not possible to
+                pickle a function, which makes it otherwise difficult to use
+                StructureMatcher with Python's multiprocessing.
         """
 
         self.ltol = ltol
