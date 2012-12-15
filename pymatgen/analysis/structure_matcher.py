@@ -26,6 +26,12 @@ import numpy as np
 import itertools
 
 
+class IdentitySpeciesComp(object):
+
+    def equal(self, sp1, sp2):
+        return sp1 == sp2
+
+
 class StructureMatcher(object):
     """
     Class to match structures by similarity.
@@ -55,7 +61,8 @@ class StructureMatcher(object):
     """
 
     def __init__(self, ltol=0.2, stol=.4, angle_tol=5, primitive_cell=True,
-                 scale=True, match_oxi=True, comparison_function=None):
+                 scale=True, match_oxi=True,
+                 comparator=IdentitySpeciesComp()):
         """
         Args:
             ltol:
@@ -74,9 +81,11 @@ class StructureMatcher(object):
                 Match oxidation states (If present in input structures),
                 and elemental site species, Defaults to True. If False,
                 removes oxidation states prior to comparison
-            comparison_function:
-                function declaring equivalency of sites.
-                Default is None, implies rigid species mapping.
+            comparator:
+                A comparator object implementing an equals method that declares
+                declaring equivalency of sites.
+                Default is IdentitySpeciesComp, which implies rigid species
+                mapping.
         """
 
         self.ltol = ltol
@@ -84,8 +93,7 @@ class StructureMatcher(object):
         self.angle_tol = angle_tol
         self.match_oxi = match_oxi
 
-        self._comparison_function = comparison_function if\
-        comparison_function is not None else lambda sp1, sp2: sp1 == sp2
+        self._comparator = comparator
 
         self._primitive_cell = primitive_cell
         self._scale = scale
@@ -134,7 +142,7 @@ class StructureMatcher(object):
         ltol = self.ltol
         stol = self.stol
         angle_tol = self.angle_tol
-
+        comparator = self._comparator
         #primitive cell transformation - Needs work
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             prim = PrimitiveCellTransformation()
@@ -190,7 +198,7 @@ class StructureMatcher(object):
         for site in struct1:
             ind = None
             for i, species in enumerate(species_list):
-                if self._comparison_function(site.species_and_occu, species):
+                if comparator.equal(site.species_and_occu, species):
                     ind = i
                     break
 
@@ -208,7 +216,7 @@ class StructureMatcher(object):
         for site in struct2:
             ind = None
             for i, species in enumerate(species_list):
-                if self._comparison_function(site.species_and_occu, species):
+                if comparator.equal(site.species_and_occu, species):
                     ind = i
                     break
             #get cartesian coords for s2, if no site match found return false
@@ -289,3 +297,5 @@ class StructureMatcher(object):
                 group_list.append([s_list[j]])
 
         return group_list
+
+
