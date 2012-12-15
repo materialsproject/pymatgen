@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Defines an abstract base class contract for Transformation object.
-'''
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -24,7 +24,7 @@ class AbstractTransformation(MSONable):
 
     @abc.abstractmethod
     def apply_transformation(self, structure):
-        '''
+        """
         Applies the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
@@ -48,26 +48,26 @@ class AbstractTransformation(MSONable):
             a more specific transformation history. Any other information will
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
-        '''
+        """
         return
 
     @abc.abstractproperty
     def inverse(self):
-        '''
+        """
         Returns the inverse transformation if available.
         Otherwise, should return None.
-        '''
+        """
         return
 
     @abc.abstractproperty
     def is_one_to_many(self):
-        '''
+        """
         Determines if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be
         returned as a ranked list.
-        '''
+        """
         return False
 
     @staticmethod
