@@ -38,8 +38,7 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     """
     if len(coord_list) == 0:
         return []
-    coords = np.tile(coord, (len(coord_list), 1))
-    diff = coord_list - coords
+    diff = np.array(coord_list) - np.array(coord)[None, :]
     return np.where(np.all(np.abs(diff) < atol, axis=1))[0]
 
 
@@ -189,28 +188,38 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
         [(site, dist) ...] since most of the time, subsequent processing
         requires the distance.
     """
-    recp_len = lattice.reciprocal_lattice.abc
+    recp_len = np.array(lattice.reciprocal_lattice.abc)
     sr = r + 0.15
-    nmax = [sr * l / (2 * math.pi) for l in recp_len]
+    nmax = sr * recp_len / (2 * math.pi)
     pcoords = lattice.get_fractional_coords(center)
-    axis_ranges = []
     floor = math.floor
-    for i in range(3):
-        rangemax = int(floor(pcoords[i] + nmax[i]))
-        rangemin = int(floor(pcoords[i] - nmax[i]))
-        axis_ranges.append(range(rangemin, rangemax + 1))
-    neighbors = []
+
     n = len(frac_points)
     fcoords = np.array(frac_points)
     frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
     indices = np.array(range(n))
-    for image in itertools.product(*axis_ranges):
-        shift = np.tile(image, (n, 1))
-        shifted_coords = fcoords + shift
-        coords = frac_2_cart(shifted_coords)
-        dists = np.sqrt(np.sum((coords - pts) ** 2, axis=1))
-        within_r = dists <= r
-        d = [shifted_coords[within_r], dists[within_r], indices[within_r]]
-        neighbors.extend(np.transpose(d))
-    return neighbors
+
+    arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
+                       stop=int(floor(pcoords[0] + nmax[0])) + 1)
+    brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
+                       stop=int(floor(pcoords[1] + nmax[1])) + 1)
+    crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
+                       stop=int(floor(pcoords[2] + nmax[2])) + 1)
+
+    arange = arange[:, None] * np.array([1, 0, 0])[None, :]
+    brange = brange[:, None] * np.array([0, 1, 0])[None, :]
+    crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+
+    images = arange[:, None, None] + brange[None, :, None] + \
+        crange[None, None, :]
+
+    shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+    coords = frac_2_cart(shifted_coords)
+    dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2, axis=4))
+    within_r = np.where(dists <= r)
+
+    d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
+
+    return np.transpose(d)
+    
