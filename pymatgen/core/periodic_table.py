@@ -579,6 +579,7 @@ class Element(object):
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
+    @staticmethod
     def from_dict(d):
         """
         Makes Element obey the general json interface used in pymatgen for
