@@ -763,11 +763,13 @@ class PrimitiveCellTransformation(AbstractTransformation):
                     if not np.any(np.all(diffs < tol, axis=1)):
                         possible_vectors[j] = None
 
+        possible_vectors = filter(lambda x: x is not None, possible_vectors)
         #vectors that haven"t been removed from possible_vectors are symmetry
         #vectors convert these to the shortest representation of the vector
-        symmetry_vectors = [.5 - abs((x - .5) % 1) for x in possible_vectors \
-                            if x is not None]
-        if symmetry_vectors:
+        symmetry_vectors = 0.5 - np.abs(np.mod(np.array(possible_vectors)
+                                               - 0.5, 1))
+
+        if len(symmetry_vectors) > 0:
             reduction_vector = min(symmetry_vectors, key=np.linalg.norm)
 
             #choose a basis to replace (a, b, or c)
