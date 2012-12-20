@@ -26,6 +26,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.transformations.standard_transformations import\
     PrimitiveCellTransformation
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
+from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
@@ -180,7 +181,7 @@ class StructureMatcher(object):
             frac_coords.append(new_lattice.get_fractional_coords(coords[i]))
         return frac_coords
 
-    def _cmp_struct(self, s1, s2, frac_tol):
+    def _cmp_struct(self, s1, s2,nl, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
             #Available vectors
@@ -188,13 +189,20 @@ class StructureMatcher(object):
             for coord in s1_coords:
                 ind = find_in_coord_list_pbc(s2_coords, coord, frac_tol)
                 #if more than one match found, take closest
-                if len(ind) > 1:
-                    fcoords = np.tile(coord, (len(s2_coords[ind]), 1))
-                    fdist = np.mod(s2_coords[ind], 1) - np.mod(fcoords, 1)
-                    fdist -= np.round(fdist)
-                    avail[np.where(
-                        np.all(np.abs(fdist) == np.min(np.abs(fdist)), axis=1))[
-                          0]] = 0
+                if len(ind) > 1 and np.any(avail[ind]):
+                    #only check against available vectors
+                    ind = np.where(avail[ind] == 1)
+                    if len(ind) > 1:
+                        #get cartesian distances from periodic distances
+                        pb_dists = np.array([pbc_diff(s2_coords[i],coord) for i in ind])
+                        carts = nl.get_cartesian_coords(pb_dists)
+                        dists = np.array([np.linalg.norm(carts[i]) for i in ind])
+                        #use smallest distance
+                        ind = np.where(dists == np.min(dists))[0]
+                    if len(ind):
+                        avail[ind] = 0
+                    else:
+                        return False
                 elif len(ind) and avail[ind]:
                     avail[ind] = 0
                 else:
@@ -322,7 +330,7 @@ class StructureMatcher(object):
                     t_s2 = []
                     for coords in s2:
                         t_s2.append((coords - coord) % 1)
-                    if self._cmp_struct(s1, t_s2, frac_tol):
+                    if self._cmp_struct(s1, t_s2,nl.abc, frac_tol):
                         return True
         return False
 
