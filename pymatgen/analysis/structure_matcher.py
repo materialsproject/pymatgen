@@ -199,11 +199,10 @@ class StructureMatcher(object):
                         dists = np.array([np.linalg.norm(carts[i]) for i in ind])
                         #use smallest distance
                         ind = np.where(dists == np.min(dists))[0]
-                    if len(ind):
                         avail[ind] = 0
                     else:
                         return False
-                elif len(ind) and avail[ind]:
+                elif len(ind) == 1 and avail[ind]:
                     avail[ind] = 0
                 else:
                     return False
