@@ -191,17 +191,17 @@ class StructureMatcher(object):
                 #if more than one match found, take closest
                 if len(ind) > 1:
                     #only check against available vectors
-                    ind = np.where(avail[ind] == 1)
+                    ind = [i for i in ind if avail[i]]
                     if len(ind) > 1:
                         #get cartesian distances from periodic distances
                         pb_dists = np.array([pbc_diff(s2_coords[i],coord) for i in ind])
                         carts = nl.get_cartesian_coords(pb_dists)
-                        dists = np.array([np.linalg.norm(carts[i]) for i in ind])
+                        dists = np.array([np.linalg.norm(carts[i]) for i in range(len(ind))])
                         #use smallest distance
                         ind = np.where(dists == np.min(dists))[0]
                         avail[ind] = 0
                     elif len(ind):
-                        avail[ind] = 0
+                        avail[ind[0]] = 0
                     else:
                         return False
                 elif len(ind) and avail[ind]:
