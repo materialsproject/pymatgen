@@ -189,7 +189,7 @@ class StructureMatcher(object):
             for coord in s1_coords:
                 ind = find_in_coord_list_pbc(s2_coords, coord, frac_tol)
                 #if more than one match found, take closest
-                if len(ind) > 1 and np.any(avail[ind]):
+                if len(ind) > 1:
                     #only check against available vectors
                     ind = np.where(avail[ind] == 1)
                     if len(ind) > 1:
@@ -200,9 +200,11 @@ class StructureMatcher(object):
                         #use smallest distance
                         ind = np.where(dists == np.min(dists))[0]
                         avail[ind] = 0
+                    elif len(ind):
+                        avail[ind] = 0
                     else:
                         return False
-                elif len(ind) == 1 and avail[ind]:
+                elif len(ind) and avail[ind]:
                     avail[ind] = 0
                 else:
                     return False
