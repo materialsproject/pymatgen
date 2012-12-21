@@ -199,6 +199,7 @@ class StructureMatcher(object):
                         dists = np.array([np.linalg.norm(carts[i]) for i in range(len(ind))])
                         #use smallest distance
                         ind = np.where(dists == np.min(dists))[0]
+                        print ind
                         avail[ind] = 0
                     elif len(ind):
                         avail[ind[0]] = 0
@@ -331,7 +332,7 @@ class StructureMatcher(object):
                     t_s2 = []
                     for coords in s2:
                         t_s2.append((coords - coord) % 1)
-                    if self._cmp_struct(s1, t_s2,nl.abc, frac_tol):
+                    if self._cmp_struct(s1, t_s2,nl, frac_tol):
                         return True
         return False
 
