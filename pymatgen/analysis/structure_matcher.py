@@ -104,6 +104,7 @@ class ElementComparator(AbstractComparator):
     def get_structure_hash(self, structure):
         return structure.composition.reduced_formula
 
+
 class StructureMatcher(object):
     """
     Class to match structures by similarity.
@@ -237,7 +238,7 @@ class StructureMatcher(object):
         nl2 = struct2.lattice.get_niggli_reduced_lattice()
         struct1 = BasisChange(struct1, nl1).modified_structure
         struct2 = BasisChange(struct2, nl2).modified_structure
-        
+
         #rescale lattice to same volume
         if self._scale:
             scale_vol = (nl2.volume / nl1.volume) ** (1.0/6)
@@ -351,22 +352,31 @@ class StructureMatcher(object):
         them by structural equality.
 
         Args:
-            s_list: List of structures to be grouped
+            s_list:
+                List of structures to be grouped
 
         Returns:
             A list of lists of matched structures
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        group_list = [[s_list[0]]]
+        sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
+        all_groups = []
 
-        for i, j in itertools.combinations(range(len(s_list)), 2):
-            s1_ind, s2_ind = self.find_indexes([s_list[i], s_list[j]],
-                                               group_list)
+        for k, g in itertools.groupby(sorted_s_list,
+                                      key=self._comparator.get_structure_hash):
+            g = list(g)
+            group_list = [[g[0]]]
 
-            if s2_ind == -1 and self.fit(s_list[i], s_list[j]):
-                group_list[s1_ind].append(s_list[j])
-            elif (j - i) == 1 and s2_ind == -1:
-                group_list.append([s_list[j]])
+            for i, j in itertools.combinations(range(len(g)), 2):
+                s1_ind, s2_ind = self.find_indexes([g[i], g[j]],
+                                                   group_list)
 
-        return group_list
+                if s2_ind == -1 and self.fit(g[i], g[j]):
+                    group_list[s1_ind].append(g[j])
+                elif (j - i) == 1 and s2_ind == -1:
+                    group_list.append([g[j]])
+
+            all_groups.extend(group_list)
+
+        return all_groups
