@@ -10,6 +10,7 @@ from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.structure_modifier import SupercellMaker
+from pymatgen.core.sites import PeriodicSite
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
