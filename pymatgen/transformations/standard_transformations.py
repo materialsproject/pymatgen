@@ -773,11 +773,11 @@ class PrimitiveCellTransformation(AbstractTransformation):
             reduction_vector = min(symmetry_vectors, key=np.linalg.norm)
 
             #choose a basis to replace (a, b, or c)
-            proj = abs(structure.lattice.abc * reduction_vector)
+            proj = abs(lattice.abc * reduction_vector)
             basis_to_replace = list(proj).index(max(proj))
 
             #create a new basis
-            new_matrix = structure.lattice.matrix
+            new_matrix = lattice.matrix
             new_basis_vector = np.dot(reduction_vector, new_matrix)
             new_matrix[basis_to_replace] = new_basis_vector
             new_lattice = Lattice(new_matrix)
@@ -814,7 +814,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             new_structure = Structure(new_structure.lattice,
                                       [site.species_and_occu
                                        for site in new_sites],
-                                      [(site.frac_coords + .001) % 1 - .001
+                                      [np.mod(site.frac_coords, 1)
                                        for site in new_sites])
 
             return new_structure
@@ -842,8 +842,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
         new_lattice = Lattice(matrix)
 
         new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords,
-                                      coords_are_cartesian=True)
+                                  structure.cart_coords, to_unit_cell=True,
+                                  coords_are_cartesian=True)
         return new_structure
 
     def apply_transformation(self, structure):
