@@ -199,8 +199,7 @@ class StructureMatcher(object):
                         carts = nl.get_cartesian_coords(pb_dists)
                         dists = np.array([np.linalg.norm(carts[i]) for i in range(len(ind))])
                         #use smallest distance
-                        ind = np.where(dists == np.min(dists))[0]
-                        print ind
+                        ind = np.where(dists == np.min(dists))[0][0]
                         avail[ind] = 0
                     elif len(ind):
                         avail[ind[0]] = 0
