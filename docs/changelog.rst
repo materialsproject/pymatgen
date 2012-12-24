@@ -1,6 +1,16 @@
 Change log
 ==========
 
+Version 2.3.2
+-------------
+1. More utilities for working with Periodic Boundary Conditions.
+2. Improved MPRester that supports more data and a new method of specifying
+   the API key for heavy users via a MAPI_KEY environment variable. Please
+   refer to the :doc:`usage pages </usage>` for more information.
+3. Vastly improved POTCAR setup script in scripts directly that is now
+   installed as part of a default pymatgen installation.
+4. Miscellaneous bug fixes and speedups.
+
 Version 2.3.1
 -------------
 1. Significant improvements to the high-level interface to the Materials API.

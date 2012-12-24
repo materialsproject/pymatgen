@@ -52,13 +52,9 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. More utilities for working with Periodic Boundary Conditions.
-2. Improved MPRester that supports more data and a new method of specifying
-   the API key for heavy users via a MAPI_KEY environment variable. Please
-   refer to the :doc:`usage pages </usage>` for more information.
-3. Vastly improved POTCAR setup script in scripts directly that is now
-   installed as part of a default pymatgen installation.
-4. Miscellaneous bug fixes and speedups.
+1. New StructureMatcher that effectively replaces StructureFitter. Orders of
+   magnitude faster and more robust. StructureFitter is now deprecated.
+2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
