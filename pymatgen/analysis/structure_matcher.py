@@ -66,7 +66,8 @@ class AbstractComparator(object):
         efficiently for comparison. For example, in exact matching,
         you should only try to perform matching if structures have the same
         reduced formula (structures with different formulas can't possibly
-        match). So the reduced_formula is a good hash.
+        match). So the reduced_formula is a good hash. The hash function
+        should be relatively fast to compute relative to the actual matching.
 
         Args:
             structure:
@@ -369,14 +370,15 @@ class StructureMatcher(object):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
+        #Use structure hash to pre-group structures.
         sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
         all_groups = []
 
+        #For each pre-grouped list of structures, perform actual matching.
         for k, g in itertools.groupby(sorted_s_list,
                                       key=self._comparator.get_structure_hash):
             g = list(g)
             group_list = [[g[0]]]
-
             for i, j in itertools.combinations(range(len(g)), 2):
                 s1_ind, s2_ind = self.find_indexes([g[i], g[j]],
                                                    group_list)
