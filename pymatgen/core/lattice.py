@@ -364,6 +364,9 @@ class Lattice(MSONable):
             return False
         return np.allclose(self._matrix, other._matrix)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         return 7
 
