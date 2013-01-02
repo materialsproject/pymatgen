@@ -183,7 +183,7 @@ class StructureMatcher(object):
             frac_coords.append(new_lattice.get_fractional_coords(coords[i]))
         return frac_coords
 
-    def _cmp_struct(self, s1, s2,nl, frac_tol):
+    def _cmp_struct(self, s1, s2, nl, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
             #Available vectors
@@ -196,9 +196,11 @@ class StructureMatcher(object):
                     ind = [i for i in ind if avail[i]]
                     if len(ind) > 1:
                         #get cartesian distances from periodic distances
-                        pb_dists = np.array([pbc_diff(s2_coords[i],coord) for i in ind])
+                        pb_dists = np.array([pbc_diff(s2_coords[i], coord)
+                                             for i in ind])
                         carts = nl.get_cartesian_coords(pb_dists)
-                        dists = np.array([np.linalg.norm(carts[i]) for i in range(len(ind))])
+                        dists = np.array([np.linalg.norm(carts[i])
+                                          for i in range(len(ind))])
                         #use smallest distance
                         ind = np.where(dists == np.min(dists))[0][0]
                         avail[ind] = 0
@@ -251,7 +253,7 @@ class StructureMatcher(object):
 
         #rescale lattice to same volume
         if self._scale:
-            scale_vol = (nl2.volume / nl1.volume) ** (1.0/6)
+            scale_vol = (nl2.volume / nl1.volume) ** (1.0 / 6)
             se1 = StructureEditor(struct1)
             nl1 = Lattice(nl1.matrix * scale_vol)
             se1.modify_lattice(nl1)
@@ -271,10 +273,8 @@ class StructureMatcher(object):
         nv = []
         for i in range(3):
             l = struct1.lattice.abc[i]
-            nvi = []
             vs = ds.get_neighbors_in_shell([0, 0, 0], l, ltol * l)
-            for site, dist in vs:
-                nvi.append(site.coords)
+            nvi = [site.coords for site, dist in vs]
             nv.append(nvi)
             #generate structure coordinate lists
         species_list = []
@@ -333,7 +333,7 @@ class StructureMatcher(object):
                     t_s2 = []
                     for coords in s2:
                         t_s2.append((coords - coord) % 1)
-                    if self._cmp_struct(s1, t_s2,nl, frac_tol):
+                    if self._cmp_struct(s1, t_s2, nl, frac_tol):
                         return True
         return False
 
