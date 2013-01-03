@@ -280,14 +280,14 @@ class StructureMatcher(object):
         species_list = []
         s1 = []
         for site in struct1:
-            ind = None
+            found = False
             for i, species in enumerate(species_list):
                 if comparator.are_equal(site.species_and_occu, species):
-                    ind = i
-                    s1[ind].append(site.frac_coords)
+                    found = True
+                    s1[i].append(site.frac_coords)
                     break
 
-            if ind is None:
+            if not found:
                 s1.append([site.frac_coords])
                 species_list.append(site.species_and_occu)
 
@@ -298,14 +298,14 @@ class StructureMatcher(object):
         s2_cart = [[] for i in s1]
 
         for site in struct2:
-            ind = None
+            found = False
             for i, species in enumerate(species_list):
                 if comparator.are_equal(site.species_and_occu, species):
-                    ind = i
-                    s2_cart[ind].append(site.coords)
+                    found = True
+                    s2_cart[i].append(site.coords)
                     break
             #get cartesian coords for s2, if no site match found return false
-            if ind is None:
+            if not found:
                 return False
 
         #translate s1
