@@ -743,38 +743,39 @@ class PrimitiveCellTransformation(AbstractTransformation):
         org = min_site_list[0].coords
         possible_vectors = [min_site_list[i].coords - org
                             for i in xrange(1, len(min_site_list))]
-        possible_vectors.extend(structure.lattice.matrix)
 
         possible_vectors = sorted(possible_vectors,
             key=lambda x: np.linalg.norm(x))
 
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_string for site in sites]
-        for combi in itertools.combinations(possible_vectors, 3):
-            latt = np.array(combi)
-            if abs(np.linalg.det(latt)) > 1e-8:
-                latt = Lattice(latt)
-                new_frac = latt.get_fractional_coords(all_coords)
-                grouped_sp = []
-                grouped_frac = []
+        for v in possible_vectors:
+            for repl_pos in xrange(3):
+                latt = structure.lattice.matrix
+                latt[repl_pos] = v
+                if abs(np.linalg.det(latt)) > 1e-8:
+                    latt = Lattice(latt)
+                    new_frac = latt.get_fractional_coords(all_coords)
+                    grouped_sp = []
+                    grouped_frac = []
 
-                for i, f in enumerate(new_frac):
-                    found = False
-                    for j, g in enumerate(grouped_frac):
-                        if all_sp[i] == grouped_sp[j] and \
-                            np.allclose(pbc_diff(g[0], f), [0,0,0],
-                                atol=tolerance):
-                            g.append(f)
-                            found = True
-                            break
-                    if not found:
-                        grouped_frac.append([f])
-                        grouped_sp.append(all_sp[i])
+                    for i, f in enumerate(new_frac):
+                        found = False
+                        for j, g in enumerate(grouped_frac):
+                            if all_sp[i] == grouped_sp[j] and \
+                                np.allclose(pbc_diff(g[0], f), [0,0,0],
+                                    atol=tolerance):
+                                g.append(f)
+                                found = True
+                                break
+                        if not found:
+                            grouped_frac.append([f])
+                            grouped_sp.append(all_sp[i])
 
-                num_images = [len(c) for c in grouped_frac]
-                if all([i == num_images[0] for i in num_images]):
-                    new_frac = [f[0] for f in grouped_frac]
-                    return Structure(latt, grouped_sp, new_frac)
+                    num_images = [len(c) for c in grouped_frac]
+                    if all([i == num_images[0] for i in num_images]):
+                        new_frac = [f[0] for f in grouped_frac]
+                        return Structure(latt, grouped_sp, new_frac)
 
         return structure
 
