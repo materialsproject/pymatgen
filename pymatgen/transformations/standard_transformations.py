@@ -707,14 +707,14 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self, tolerance=0.1):
+    def __init__(self, tolerance=0.5):
         """
         Args:
             tolerance:
-                Tolerance to match fractional coordinates. For example,
-                [0.05, 0, 0] will be considered to be on the same fractional
-                coordinates as [0,0,0] for a tolerance of 0.05.
-                Defaults to 0.1.
+                Tolerance for each coordinate of a particular site. For
+                example, [0.5, 0, 0.5] in cartesian will be considered to be
+                on the same coordinates as [0,0,0] for a tolerance of 0.1.
+                Defaults to 0.5.
         """
         self._tolerance = tolerance
 
@@ -756,6 +756,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
                 latt[repl_pos] = v
                 if abs(np.linalg.det(latt)) > 1e-8:
                     latt = Lattice(latt)
+                    #Convert to fractional tol
+                    tol = [tolerance / l for l in latt.abc]
                     new_frac = latt.get_fractional_coords(all_coords)
                     grouped_sp = []
                     grouped_frac = []
@@ -763,9 +765,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
                     for i, f in enumerate(new_frac):
                         found = False
                         for j, g in enumerate(grouped_frac):
-                            if all_sp[i] == grouped_sp[j] and \
-                                np.allclose(pbc_diff(g[0], f), [0,0,0],
-                                    atol=tolerance):
+                            if all_sp[i] != grouped_sp[j]:
+                                continue
+                            fdiff = np.abs(pbc_diff(g[0], f))
+                            if np.all(fdiff < tol):
                                 g.append(f)
                                 found = True
                                 break
