@@ -777,7 +777,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
                             grouped_sp.append(all_sp[i])
 
                     num_images = [len(c) for c in grouped_frac]
-                    if all([i == num_images[0] for i in num_images]):
+                    if all([i == num_images[0] for i in num_images]) and \
+                       num_images[0] > 1:
                         new_frac = [f[0] for f in grouped_frac]
                         return Structure(latt, grouped_sp, new_frac)
 
