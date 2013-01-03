@@ -753,7 +753,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             for repl_pos in xrange(3):
                 latt = structure.lattice.matrix
                 latt[repl_pos] = v
-                if abs(np.linalg.det(latt)) > 1e-8:
+                if abs(np.linalg.det(latt)) > 1e-5:
                     latt = Lattice(latt)
                     #Convert to fractional tol
                     tol = [tolerance / l for l in latt.abc]
