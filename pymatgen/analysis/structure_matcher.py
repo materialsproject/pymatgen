@@ -19,7 +19,6 @@ import numpy as np
 import itertools
 import abc
 
-from pymatgen.core.structure_modifier import BasisChange
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
