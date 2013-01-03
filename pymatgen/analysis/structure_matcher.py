@@ -236,20 +236,21 @@ class StructureMatcher(object):
             comparator.get_structure_hash(struct2):
             return False
 
-        #primitive cell transformation - Needs work
+        #primitive cell transformation
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
+            
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return False
 
         #compute niggli lattices,
-        nl1 = struct1.lattice.get_niggli_reduced_lattice()
-        nl2 = struct2.lattice.get_niggli_reduced_lattice()
-        struct1 = BasisChange(struct1, nl1).modified_structure
-        struct2 = BasisChange(struct2, nl2).modified_structure
+        struct1 = struct1.get_reduced_structure()
+        struct2 = struct2.get_reduced_structure()
+        nl1 = struct1.lattice
+        nl2 = struct2.lattice
 
         #rescale lattice to same volume
         if self._scale:
