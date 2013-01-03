@@ -707,13 +707,14 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self, tolerance=0.05):
+    def __init__(self, tolerance=0.1):
         """
         Args:
             tolerance:
                 Tolerance to match fractional coordinates. For example,
                 [0.05, 0, 0] will be considered to be on the same fractional
                 coordinates as [0,0,0] for a tolerance of 0.05.
+                Defaults to 0.1.
         """
         self._tolerance = tolerance
 
