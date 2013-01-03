@@ -246,8 +246,14 @@ class StructureMatcher(object):
             return False
 
         #compute niggli lattices,
-        struct1 = struct1.get_reduced_structure()
-        struct2 = struct2.get_reduced_structure()
+        try:
+            struct1 = struct1.get_reduced_structure()
+        except ValueError:
+            pass
+        try:
+            struct2 = struct2.get_reduced_structure()
+        except ValueError:
+            pass
         nl1 = struct1.lattice
         nl2 = struct2.lattice
 
