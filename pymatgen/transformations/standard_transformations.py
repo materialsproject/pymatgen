@@ -790,7 +790,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
             structure = structure2
             structure2 = self._get_more_primitive_structure(structure,
                                                             self._tolerance)
-        return structure2.get_reduced_structure()
+        try:
+            return structure2.get_reduced_structure()
+        except ValueError:
+            return structure2
 
     def __str__(self):
         return "Primitive cell transformation"
