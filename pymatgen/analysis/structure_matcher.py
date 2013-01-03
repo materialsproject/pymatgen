@@ -284,15 +284,15 @@ class StructureMatcher(object):
             for i, species in enumerate(species_list):
                 if comparator.are_equal(site.species_and_occu, species):
                     ind = i
+                    s1[ind].append(site.frac_coords)
                     break
 
-            if ind is not None:
-                s1[ind] = np.append(s1[ind], [site.frac_coords], axis=0)
-            else:
-                s1.append(np.array([site.frac_coords]))
+            if ind is None:
+                s1.append([site.frac_coords])
                 species_list.append(site.species_and_occu)
 
         zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
+
         s1 = [x[0] for x in zipped]
         species_list = [x[1] for x in zipped]
         s2_cart = [[] for i in s1]
@@ -302,21 +302,17 @@ class StructureMatcher(object):
             for i, species in enumerate(species_list):
                 if comparator.are_equal(site.species_and_occu, species):
                     ind = i
+                    s2_cart[ind].append(site.coords)
                     break
             #get cartesian coords for s2, if no site match found return false
             if ind is None:
                 return False
-            if s2_cart[ind] != []:
-                s2_cart[ind] = np.append(s2_cart[ind], [site.coords], axis=0)
-            else:
-                s2_cart[ind] = np.array([site.coords])
 
         #translate s1
         s1_translation = s1[0][0]
 
         for i in range(len(species_list)):
             s1[i] = (s1[i] - s1_translation) % 1
-
         #do permutations of vectors, check for equality
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
@@ -328,7 +324,6 @@ class StructureMatcher(object):
                            atol=angle_tol):
                 #Basis Change into new lattice
                 s2 = self._basis_change(s2_cart, nl)
-
                 for coord in s2[0]:
                     t_s2 = []
                     for coords in s2:
