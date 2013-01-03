@@ -21,6 +21,7 @@ import numpy as np
 from operator import itemgetter
 import logging
 
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
@@ -31,7 +32,7 @@ from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
-
+from pymatgen.util.coord_utils import pbc_diff
 
 logger = logging.getLogger(__name__)
 
@@ -706,7 +707,14 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self, tolerance=0.2):
+    def __init__(self, tolerance=0.05):
+        """
+        Args:
+            tolerance:
+                Tolerance to match fractional coordinates. For example,
+                [0.05, 0, 0] will be considered to be on the same fractional
+                coordinates as [0,0,0] for a tolerance of 0.05.
+        """
         self._tolerance = tolerance
 
     def _get_more_primitive_structure(self, structure, tolerance):
@@ -724,102 +732,51 @@ class PrimitiveCellTransformation(AbstractTransformation):
         translate back to the unit cell.
         """
 
-        lattice = structure.lattice
-        #convert tolerance to fractional coordinates
-        tol_a = tolerance / lattice.a
-        tol_b = tolerance / lattice.b
-        tol_c = tolerance / lattice.c
-
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
         grouped_sites = [list(a[1]) for a
                          in itertools.groupby(sites,
-                                              key=lambda s: s.species_string)]
+            key=lambda s: s.species_string)]
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
-        x = min_site_list[0]
-        org = x.frac_coords
-        possible_vectors = [np.mod(org - min_site_list[i].frac_coords, 1)
+        min_site_list = [site.to_unit_cell for site in min_site_list]
+        org = min_site_list[0].coords
+        possible_vectors = [min_site_list[i].coords - org
                             for i in xrange(1, len(min_site_list))]
+        possible_vectors.extend(structure.lattice.matrix)
 
-        all_fcoords = [site.frac_coords for site in sites]
+        possible_vectors = sorted(possible_vectors,
+            key=lambda x: np.linalg.norm(x))
+
+        all_coords = [site.coords for site in sites]
         all_sp = [site.species_string for site in sites]
-        n = len(sites)
-        tol = np.array([tol_a, tol_b, tol_c])
-        #test each vector to make sure its a viable vector for all sites
-        for i in xrange(n):
-            fcoords = all_fcoords[i]
-            x_sp = all_sp[i]
-            for j in range(len(possible_vectors)):
-                p_v = possible_vectors[j]
-                # test that adding vector to a site finds a similar site
-                if p_v is not None:
-                    test_location = fcoords + p_v
-                    possible_locations = [all_fcoords[k] for k in xrange(n)
-                                          if all_sp[k] == x_sp and i != k]
-                    data = np.tile(test_location, (len(possible_locations), 1))
-                    diffs = 0.5 - np.abs(np.mod(data - possible_locations, 1)
-                                         - 0.5)
-                    if not np.any(np.all(diffs < tol, axis=1)):
-                        possible_vectors[j] = None
+        for combi in itertools.combinations(possible_vectors, 3):
+            latt = np.array(combi)
+            if abs(np.linalg.det(latt)) > 1e-8:
+                latt = Lattice(latt)
+                new_frac = latt.get_fractional_coords(all_coords)
+                grouped_sp = []
+                grouped_frac = []
 
-        possible_vectors = filter(lambda x: x is not None, possible_vectors)
-        #vectors that haven"t been removed from possible_vectors are symmetry
-        #vectors convert these to the shortest representation of the vector
-        symmetry_vectors = 0.5 - np.abs(np.mod(np.array(possible_vectors)
-                                               - 0.5, 1))
-
-        if len(symmetry_vectors) > 0:
-            reduction_vector = min(symmetry_vectors, key=np.linalg.norm)
-
-            #choose a basis to replace (a, b, or c)
-            proj = abs(lattice.abc * reduction_vector)
-            basis_to_replace = list(proj).index(max(proj))
-
-            #create a new basis
-            new_matrix = lattice.matrix
-            new_basis_vector = np.dot(reduction_vector, new_matrix)
-            new_matrix[basis_to_replace] = new_basis_vector
-            new_lattice = Lattice(new_matrix)
-
-            #create a structure with the new lattice
-            new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords,
-                                      coords_are_cartesian=True)
-
-            #update sites and tolerances for new structure
-            sites = list(new_structure.sites)
-            new_lattice = new_structure.lattice
-            tol_a = tolerance / new_lattice.a
-            tol_b = tolerance / new_lattice.b
-            tol_c = tolerance / new_lattice.c
-
-            #Make list of unique sites in new structure
-            new_sites = []
-            for site in sites:
-                fit = False
-                for new_site in new_sites:
-                    if site.species_and_occu == new_site.species_and_occu:
-                        diff = 0.5 - np.abs(np.mod(site.frac_coords
-                                                   - new_site.frac_coords, 1)
-                                           - 0.5)
-                        if diff[0] < tol_a and diff[1] < tol_b and \
-                                diff[2] < tol_c:
-                            fit = True
+                for i, f in enumerate(new_frac):
+                    found = False
+                    for j, g in enumerate(grouped_frac):
+                        if all_sp[i] == grouped_sp[j] and \
+                            np.allclose(pbc_diff(g[0], f), [0,0,0],
+                                atol=tolerance):
+                            g.append(f)
+                            found = True
                             break
-                if not fit:
-                    new_sites.append(site)
+                    if not found:
+                        grouped_frac.append([f])
+                        grouped_sp.append(all_sp[i])
 
-            #recreate the structure with just these sites
-            new_structure = Structure(new_structure.lattice,
-                                      [site.species_and_occu
-                                       for site in new_sites],
-                                      [np.mod(site.frac_coords, 1)
-                                       for site in new_sites])
+                num_images = [len(c) for c in grouped_frac]
+                if all([i == num_images[0] for i in num_images]):
+                    new_frac = [f[0] for f in grouped_frac]
+                    return Structure(latt, grouped_sp, new_frac)
 
-            return new_structure
-        else:  # if there were no translational symmetry vectors
-            return structure
+        return structure
 
     def _buergers_cell(self, structure):
         """
@@ -849,7 +806,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         structure2 = self._get_more_primitive_structure(structure,
                                                         self._tolerance)
-        while len(structure2) < len(structure):
+        while len(structure2) != len(structure):
             structure = structure2
             structure2 = self._get_more_primitive_structure(structure,
                                                             self._tolerance)
