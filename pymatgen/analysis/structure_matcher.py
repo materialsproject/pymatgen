@@ -241,7 +241,7 @@ class StructureMatcher(object):
             prim = PrimitiveCellTransformation()
             struct1 = prim.apply_transformation(struct1)
             struct2 = prim.apply_transformation(struct2)
-            
+
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return False

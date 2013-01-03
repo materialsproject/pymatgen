@@ -21,7 +21,6 @@ import numpy as np
 from operator import itemgetter
 import logging
 
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
