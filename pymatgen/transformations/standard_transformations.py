@@ -753,15 +753,21 @@ class PrimitiveCellTransformation(AbstractTransformation):
         possible_vectors = [min_site_list[i].coords - org
                             for i in xrange(1, len(min_site_list))]
 
+        #Let's try to use the shortest vector possible first. Allows for faster
+        #convergence to primitive cell.
         possible_vectors = sorted(possible_vectors,
                                   key=lambda x: np.linalg.norm(x))
 
+        # Pre-create a few varibles for faster lookup.
         all_coords = [site.coords for site in sites]
-        all_sp = [site.species_string for site in sites]
+        all_sp = [site.species_and_occu for site in sites]
         new_structure = None
         for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
+            #Try combinations of new lattice vectors with existing lattice
+            #vectors.
             latt = structure.lattice.matrix
             latt[repl_pos] = v
+            #Exclude coplanar lattices from consideration.
             if abs(np.linalg.det(latt)) > 1e-5:
                 latt = Lattice(latt)
                 #Convert to fractional tol
