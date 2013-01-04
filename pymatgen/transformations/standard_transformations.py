@@ -769,7 +769,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             latt = structure.lattice.matrix
             latt[repl_pos] = v
             #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > original_volume * 0.01:
+            if abs(np.linalg.det(latt)) > original_volume * 0.1:
                 latt = Lattice(latt)
                 #Convert to fractional tol
                 tol = [self._tolerance / l for l in latt.abc]
@@ -795,7 +795,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
                 nimages = num_images[0]
                 if nimages > 1 and all([i == nimages for i in num_images]):
                     new_frac = [f[0] for f in grouped_frac]
-                    new_structure = Structure(latt, grouped_sp, new_frac)
+                    new_structure = Structure(latt, grouped_sp, new_frac,
+                                              to_unit_cell=True)
                     break
 
         if new_structure and len(new_structure) != len(structure):
