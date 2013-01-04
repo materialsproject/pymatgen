@@ -22,8 +22,6 @@ import abc
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
-from pymatgen.transformations.standard_transformations import\
-    PrimitiveCellTransformation
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
@@ -50,7 +48,7 @@ class AbstractComparator(object):
                 First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
             sp2:
-                First species. A dict of {specie/element: amt} as per the
+                Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -85,9 +83,34 @@ class SpeciesComparator(AbstractComparator):
     """
 
     def are_equal(self, sp1, sp2):
+        """
+        True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are equal.
+        """
         return sp1 == sp2
 
     def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            Reduced formula for the structure is used as a hash for the
+            SpeciesComparator.
+        """
         return structure.composition.reduced_formula
 
 
@@ -98,11 +121,38 @@ class ElementComparator(AbstractComparator):
     """
 
     def are_equal(self, sp1, sp2):
+        """
+        True if element:amounts are exactly the same, i.e.,
+        oxidation state is not considered.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are the same based on element
+            and amounts.
+        """
         comp1 = Composition(sp1)
         comp2 = Composition(sp2)
         return comp1.get_el_amt_dict() == comp2.get_el_amt_dict()
 
     def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            Reduced formula for the structure is used as a hash for the
+            SpeciesComparator.
+        """
         return structure.composition.reduced_formula
 
 
@@ -306,7 +356,7 @@ class StructureMatcher(object):
         s1_translation = s1[0][0]
 
         for i in range(len(species_list)):
-            s1[i] = (s1[i] - s1_translation) % 1
+            s1[i] = np.mod(s1[i] - s1_translation, 1)
         #do permutations of vectors, check for equality
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
@@ -321,7 +371,7 @@ class StructureMatcher(object):
                 for coord in s2[0]:
                     t_s2 = []
                     for coords in s2:
-                        t_s2.append((coords - coord) % 1)
+                        t_s2.append(np.mod(coords - coord, 1))
                     if self._cmp_struct(s1, t_s2, nl, frac_tol):
                         return True
         return False

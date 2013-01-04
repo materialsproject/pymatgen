@@ -25,13 +25,14 @@ def vasprun_test():
     v = Vasprun("../test_files/vasprun.xml")
     print v.final_energy
 
-def primcell_test():
+def matcher_test():
     p = Poscar.from_file("../test_files/POSCAR.Li2O")
     s = p.structure
-    print s.get_primitive_structure()
+    from pymatgen.analysis.structure_matcher import StructureMatcher
+    print StructureMatcher().fit(s, s)
 
 
-cProfile.run('primcell_test()', 'testprof')
+cProfile.run('matcher_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")
