@@ -711,8 +711,9 @@ class PrimitiveCellTransformation(AbstractTransformation):
         Args:
             tolerance:
                 Tolerance for each coordinate of a particular site. For
-                example, [0.5, 0, 0.5] in cartesian will be considered to be
-                on the same coordinates as [0,0,0] for a tolerance of 0.1.
+                example, [0.5, 0, 0.5] in cartesian coordinates will be
+                considered to be on the same coordinates as [0, 0, 0] for a
+                tolerance of 0.5.
                 Defaults to 0.5.
         """
         self._tolerance = tolerance
@@ -730,13 +731,21 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         Things are done in fractional coordinates because its easier to
         translate back to the unit cell.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            The most primitive structure found. The returned structure is
+            guanranteed to have len(new structure) <= len(structure).
         """
 
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
         grouped_sites = [list(a[1]) for a
                          in itertools.groupby(sites,
-            key=lambda s: s.species_string)]
+                                              key=lambda s: s.species_string)]
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         min_site_list = [site.to_unit_cell for site in min_site_list]
@@ -745,47 +754,46 @@ class PrimitiveCellTransformation(AbstractTransformation):
                             for i in xrange(1, len(min_site_list))]
 
         possible_vectors = sorted(possible_vectors,
-            key=lambda x: np.linalg.norm(x))
+                                  key=lambda x: np.linalg.norm(x))
 
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_string for site in sites]
         new_structure = None
-        for v in possible_vectors:
-            for repl_pos in xrange(3):
-                latt = structure.lattice.matrix
-                latt[repl_pos] = v
-                if abs(np.linalg.det(latt)) > 1e-5:
-                    latt = Lattice(latt)
-                    #Convert to fractional tol
-                    tol = [self._tolerance / l for l in latt.abc]
-                    new_frac = latt.get_fractional_coords(all_coords)
-                    grouped_sp = []
-                    grouped_frac = []
+        for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
+            latt = structure.lattice.matrix
+            latt[repl_pos] = v
+            if abs(np.linalg.det(latt)) > 1e-5:
+                latt = Lattice(latt)
+                #Convert to fractional tol
+                tol = [self._tolerance / l for l in latt.abc]
+                new_frac = latt.get_fractional_coords(all_coords)
+                grouped_sp = []
+                grouped_frac = []
 
-                    for i, f in enumerate(new_frac):
-                        found = False
-                        for j, g in enumerate(grouped_frac):
-                            if all_sp[i] != grouped_sp[j]:
-                                continue
-                            fdiff = np.abs(pbc_diff(g[0], f))
-                            if np.all(fdiff < tol):
-                                g.append(f)
-                                found = True
-                                break
-                        if not found:
-                            grouped_frac.append([f])
-                            grouped_sp.append(all_sp[i])
+                for i, f in enumerate(new_frac):
+                    found = False
+                    for j, g in enumerate(grouped_frac):
+                        if all_sp[i] != grouped_sp[j]:
+                            continue
+                        fdiff = np.abs(pbc_diff(g[0], f))
+                        if np.all(fdiff < tol):
+                            g.append(f)
+                            found = True
+                            break
+                    if not found:
+                        grouped_frac.append([f])
+                        grouped_sp.append(all_sp[i])
 
-                    num_images = [len(c) for c in grouped_frac]
-                    if all([i == num_images[0] for i in num_images]) and \
-                       num_images[0] > 1:
-                        new_frac = [f[0] for f in grouped_frac]
-                        new_structure = Structure(latt, grouped_sp, new_frac)
-                        break
-            if new_structure:
-                break
+                num_images = [len(c) for c in grouped_frac]
+                nimages = num_images[0]
+                if nimages > 1 and all([i == nimages for i in num_images]):
+                    new_frac = [f[0] for f in grouped_frac]
+                    new_structure = Structure(latt, grouped_sp, new_frac)
+                    break
 
         if new_structure and len(new_structure) != len(structure):
+            # If a more primitive structure has been found, try to find an
+            # even more primitive structure again.
             return self.apply_transformation(new_structure)
         else:
             try:
@@ -810,7 +818,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {}, "@module": self.__class__.__module__,
+                "init_args": {"tolerance": self._tolerance},
+                "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
 
