@@ -738,7 +738,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         Returns:
             The most primitive structure found. The returned structure is
-            guanranteed to have len(new structure) <= len(structure).
+            guaranteed to have len(new structure) <= len(structure).
         """
 
         #get the possible symmetry vectors
