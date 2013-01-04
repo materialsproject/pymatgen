@@ -31,7 +31,6 @@ from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
-from pymatgen.util.coord_utils import pbc_diff
 
 logger = logging.getLogger(__name__)
 
@@ -713,24 +712,13 @@ class PrimitiveCellTransformation(AbstractTransformation):
                 Tolerance for each coordinate of a particular site. For
                 example, [0.5, 0, 0.5] in cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
-                tolerance of 0.5.
-                Defaults to 0.5.
+                tolerance of 0.5. Defaults to 0.5.
         """
         self._tolerance = tolerance
 
     def apply_transformation(self, structure):
         """
-        This finds a smaller unit cell than the input. Sometimes it doesn"t
-        find the smallest possible one, so this method is called until it
-        is unable to find a smaller cell.
-
-        The method works by finding transformational symmetries for all sites
-        and then using that translational symmetry instead of one of the
-        lattice basis vectors if more than one vector is found (usually the
-        case for large cells) the one with the smallest norm is used.
-
-        Things are done in fractional coordinates because its easier to
-        translate back to the unit cell.
+        Returns most primitive cell for structure.
 
         Args:
             structure:
@@ -740,72 +728,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             The most primitive structure found. The returned structure is
             guaranteed to have len(new structure) <= len(structure).
         """
-
-        #get the possible symmetry vectors
-        sites = sorted(structure.sites, key=lambda site: site.species_string)
-        grouped_sites = [list(a[1]) for a
-                         in itertools.groupby(sites,
-                                              key=lambda s: s.species_string)]
-        min_site_list = min(grouped_sites, key=lambda group: len(group))
-
-        min_site_list = [site.to_unit_cell for site in min_site_list]
-        org = min_site_list[0].coords
-        possible_vectors = [min_site_list[i].coords - org
-                            for i in xrange(1, len(min_site_list))]
-
-        #Let's try to use the shortest vector possible first. Allows for faster
-        #convergence to primitive cell.
-        possible_vectors = sorted(possible_vectors,
-                                  key=lambda x: np.linalg.norm(x))
-
-        # Pre-create a few varibles for faster lookup.
-        all_coords = [site.coords for site in sites]
-        all_sp = [site.species_and_occu for site in sites]
-        new_structure = None
-        for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
-            #Try combinations of new lattice vectors with existing lattice
-            #vectors.
-            latt = structure.lattice.matrix
-            latt[repl_pos] = v
-            #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > 1e-5:
-                latt = Lattice(latt)
-                #Convert to fractional tol
-                tol = [self._tolerance / l for l in latt.abc]
-                new_frac = latt.get_fractional_coords(all_coords)
-                grouped_sp = []
-                grouped_frac = []
-
-                for i, f in enumerate(new_frac):
-                    found = False
-                    for j, g in enumerate(grouped_frac):
-                        if all_sp[i] != grouped_sp[j]:
-                            continue
-                        fdiff = np.abs(pbc_diff(g[0], f))
-                        if np.all(fdiff < tol):
-                            g.append(f)
-                            found = True
-                            break
-                    if not found:
-                        grouped_frac.append([f])
-                        grouped_sp.append(all_sp[i])
-
-                num_images = [len(c) for c in grouped_frac]
-                nimages = num_images[0]
-                if nimages > 1 and all([i == nimages for i in num_images]):
-                    new_frac = [f[0] for f in grouped_frac]
-                    new_structure = Structure(latt, grouped_sp, new_frac)
-                    break
-
-        if new_structure and len(new_structure) != len(structure):
-            # If a more primitive structure has been found, try to find an
-            # even more primitive structure again.
-            return self.apply_transformation(new_structure)
-        else:
-            try:
-                return structure.get_reduced_structure()
-            except ValueError:
-                return structure
+        return structure.get_primitive_structure(tolerance=self._tolerance)
 
     def __str__(self):
         return "Primitive cell transformation"
