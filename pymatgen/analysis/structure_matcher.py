@@ -163,15 +163,11 @@ class StructureMatcher(object):
                 supplying a comparison function is that it is not possible to
                 pickle a function, which makes it otherwise difficult to use
                 StructureMatcher with Python's multiprocessing.
-
         """
-
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
-
         self._comparator = comparator
-
         self._primitive_cell = primitive_cell
         self._scale = scale
 
@@ -274,7 +270,8 @@ class StructureMatcher(object):
             vs = ds.get_neighbors_in_shell([0, 0, 0], l, ltol * l)
             nvi = [site.coords for site, dist in vs]
             nv.append(nvi)
-            #generate structure coordinate lists
+
+        #generate structure coordinate lists
         species_list = []
         s1 = []
         for site in struct1:

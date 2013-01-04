@@ -16,6 +16,7 @@ from pymatgen.io.smartio import read_structure
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class StructureMatcherTest(unittest.TestCase):
 
     def setUp(self):
