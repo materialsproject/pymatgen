@@ -680,13 +680,13 @@ class Structure(SiteCollection, MSONable):
         return structs
 
 
-    def get_primitive(self, tolerance=0.5):
+    def get_primitive_structure(self, tolerance=0.5):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
-        find the smallest possible one, so this method is called until it
-        is unable to find a smaller cell.
+        find the smallest possible one, so this method is recursively called
+        until it is unable to find a smaller cell.
 
-        The method works by finding transformational symmetries for all sites
+        The method works by finding possible smaller translations
         and then using that translational symmetry instead of one of the
         lattice basis vectors if more than one vector is found (usually the
         case for large cells) the one with the smallest norm is used.
@@ -699,8 +699,7 @@ class Structure(SiteCollection, MSONable):
                 Tolerance for each coordinate of a particular site. For
                 example, [0.5, 0, 0.5] in cartesian coordinates will be
                 considered to be on the same coordinates as [0, 0, 0] for a
-                tolerance of 0.5.
-                Defaults to 0.5.
+                tolerance of 0.5. Defaults to 0.5.
 
         Returns:
             The most primitive structure found. The returned structure is
@@ -772,7 +771,7 @@ class Structure(SiteCollection, MSONable):
         if new_structure and len(new_structure) != len(self):
             # If a more primitive structure has been found, try to find an
             # even more primitive structure again.
-            return new_structure.get_primitive(tolerance=tolerance)
+            return new_structure.get_primitive_structure(tolerance=tolerance)
         else:
             return self.get_reduced_structure()
 
