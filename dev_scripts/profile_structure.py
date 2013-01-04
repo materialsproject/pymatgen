@@ -25,8 +25,15 @@ def vasprun_test():
     v = Vasprun("../test_files/vasprun.xml")
     print v.final_energy
 
+def primcell_test():
+    p = Poscar.from_file("../test_files/POSCAR.Li2O")
+    s = p.structure
+    from pymatgen.transformations.standard_transformations import PrimitiveCellTransformation
+    trans = PrimitiveCellTransformation()
+    print trans.apply_transformation(s)
 
-cProfile.run('vasprun_test()', 'testprof')
+
+cProfile.run('primcell_test()', 'testprof')
 p = pstats.Stats('testprof')
 p.sort_stats('cumulative').print_stats(20)
 os.remove("testprof")
