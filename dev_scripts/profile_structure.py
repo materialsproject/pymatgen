@@ -28,9 +28,7 @@ def vasprun_test():
 def primcell_test():
     p = Poscar.from_file("../test_files/POSCAR.Li2O")
     s = p.structure
-    from pymatgen.transformations.standard_transformations import PrimitiveCellTransformation
-    trans = PrimitiveCellTransformation()
-    print trans.apply_transformation(s)
+    print s.get_primitive_structure()
 
 
 cProfile.run('primcell_test()', 'testprof')
