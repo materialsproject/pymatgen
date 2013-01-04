@@ -54,7 +54,10 @@ Latest Change Log
 
 1. New StructureMatcher that effectively replaces StructureFitter. Orders of
    magnitude faster and more robust. StructureFitter is now deprecated.
-2. Miscellaneous bug fixes and speedups.
+2. Vastly improved PrimitiveCellTransformation.
+3. A lot of core methods have been rewritten to take advantage of vectorization
+   in numpy, resulting in orders of magnitude improvement in speed.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
