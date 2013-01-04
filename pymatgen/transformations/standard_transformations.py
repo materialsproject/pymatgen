@@ -728,7 +728,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             The most primitive structure found. The returned structure is
             guanranteed to have len(new structure) <= len(structure).
         """
-        return structure.get_primitive(tolerance=self._tolerance)
+        return structure.get_primitive_structure(tolerance=self._tolerance)
 
     def __str__(self):
         return "Primitive cell transformation"
