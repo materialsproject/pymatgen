@@ -741,6 +741,10 @@ class PrimitiveCellTransformation(AbstractTransformation):
             guanranteed to have len(new structure) <= len(structure).
         """
         original_volume = structure.volume
+        (reduced_formula, num_fu) = \
+            structure.composition.get_reduced_composition_and_factor()
+
+        min_vol = original_volume * 0.5 / num_fu
 
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
@@ -769,7 +773,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             latt = structure.lattice.matrix
             latt[repl_pos] = v
             #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > original_volume * 0.1:
+            if abs(np.linalg.det(latt)) > min_vol:
                 latt = Lattice(latt)
                 #Convert to fractional tol
                 tol = [self._tolerance / l for l in latt.abc]
