@@ -740,6 +740,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             The most primitive structure found. The returned structure is
             guanranteed to have len(new structure) <= len(structure).
         """
+        original_volume = structure.volume
 
         #get the possible symmetry vectors
         sites = sorted(structure.sites, key=lambda site: site.species_string)
@@ -768,7 +769,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             latt = structure.lattice.matrix
             latt[repl_pos] = v
             #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > 1e-5:
+            if abs(np.linalg.det(latt)) > original_volume * 0.01:
                 latt = Lattice(latt)
                 #Convert to fractional tol
                 tol = [self._tolerance / l for l in latt.abc]
@@ -802,10 +803,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
             # even more primitive structure again.
             return self.apply_transformation(new_structure)
         else:
-            try:
-                return structure.get_reduced_structure()
-            except ValueError:
-                return structure
+            return structure
 
     def __str__(self):
         return "Primitive cell transformation"
