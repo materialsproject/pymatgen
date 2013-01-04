@@ -717,7 +717,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         """
         self._tolerance = tolerance
 
-    def _get_more_primitive_structure(self, structure, tolerance):
+    def apply_transformation(self, structure):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is called until it
@@ -749,6 +749,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_string for site in sites]
+        new_structure = None
         for v in possible_vectors:
             for repl_pos in xrange(3):
                 latt = structure.lattice.matrix
@@ -756,7 +757,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
                 if abs(np.linalg.det(latt)) > 1e-5:
                     latt = Lattice(latt)
                     #Convert to fractional tol
-                    tol = [tolerance / l for l in latt.abc]
+                    tol = [self._tolerance / l for l in latt.abc]
                     new_frac = latt.get_fractional_coords(all_coords)
                     grouped_sp = []
                     grouped_frac = []
@@ -779,21 +780,18 @@ class PrimitiveCellTransformation(AbstractTransformation):
                     if all([i == num_images[0] for i in num_images]) and \
                        num_images[0] > 1:
                         new_frac = [f[0] for f in grouped_frac]
-                        return Structure(latt, grouped_sp, new_frac)
+                        new_structure = Structure(latt, grouped_sp, new_frac)
+                        break
+            if new_structure:
+                break
 
-        return structure
-
-    def apply_transformation(self, structure):
-        structure2 = self._get_more_primitive_structure(structure,
-                                                        self._tolerance)
-        while len(structure2) != len(structure):
-            structure = structure2
-            structure2 = self._get_more_primitive_structure(structure,
-                                                            self._tolerance)
-        try:
-            return structure2.get_reduced_structure()
-        except ValueError:
-            return structure2
+        if new_structure and len(new_structure) != len(structure):
+            return self.apply_transformation(new_structure)
+        else:
+            try:
+                return structure.get_reduced_structure()
+            except ValueError:
+                return structure
 
     def __str__(self):
         return "Primitive cell transformation"
