@@ -156,6 +156,42 @@ class ElementComparator(AbstractComparator):
         return structure.composition.reduced_formula
 
 
+class FrameworkComparator(AbstractComparator):
+    """
+    A Comparator that matches sites, regardless of species.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if there are atoms on both sites.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            True always
+        """
+        return True
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            Number of atoms is a good hash for simple framework matching.
+        """
+        return len(structure)
+
+
 class StructureMatcher(object):
     """
     Class to match structures by similarity.
