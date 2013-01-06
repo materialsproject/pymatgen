@@ -684,14 +684,14 @@ class Lattice(MSONable):
                 angle = np.around(angle, 9)
                 return angle
 
-            for a, b, c in itertools.product(*candidates):
-                if abs(get_angle(a, b) - gamma) < e and\
-                   abs(get_angle(b, c) - alpha) < e and\
-                   abs(get_angle(a, c) - beta) < e:
+            for m1, m2, m3 in itertools.product(*candidates):
+                if abs(get_angle(m1, m2) - gamma) < e and\
+                   abs(get_angle(m2, m3) - alpha) < e and\
+                   abs(get_angle(m1, m3) - beta) < e:
                     #Make sure coordinate system is right-handed
-                    if dot(np.cross(a[0], b[0]), c[0]) > 0:
-                        return Lattice([a[0], b[0], c[0]])
+                    if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
+                        return Lattice([m1[0], m2[0], m3[0]])
                     else:
-                        return Lattice([-a[0], -b[0], -c[0]])
+                        return Lattice([-m1[0], -m2[0], -m3[0]])
 
         raise ValueError("can't find niggli")
