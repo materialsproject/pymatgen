@@ -176,6 +176,14 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertTrue(np.allclose(latt.get_niggli_reduced_lattice().matrix,
                                     ans))
 
+        latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878,
+                                       75.542191, 81.181757, 156.396627)
+        ans = [[2.578932, 0.826965, 0.000000],
+               [-0.831059, 2.067413, 1.547813],
+               [-0.458407, -2.480895, 1.129126]]
+        self.assertTrue(np.allclose(latt.get_niggli_reduced_lattice().matrix,
+                                    ans, atol=1e-5))
+
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
         t = Lattice.from_dict(d)
