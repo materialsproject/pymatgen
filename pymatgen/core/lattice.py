@@ -50,11 +50,7 @@ class Lattice(MSONable):
                 E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
-
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
-        #Store these matrices for faster access
-        self._inv_matrix = inv(m)
-
         lengths = np.sum(m ** 2, axis=1) ** 0.5
         angles = np.zeros(3, float)
         for i in xrange(3):
@@ -66,11 +62,19 @@ class Lattice(MSONable):
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
         self._matrix = m
+        #Store these matrices for faster access
+        self._inv_matrix = None
 
     @property
     def matrix(self):
         """Copy of matrix representing the Lattice"""
         return np.copy(self._matrix)
+
+    @property
+    def inv_matrix(self):
+        if self._inv_matrix is None:
+            self._inv_matrix = inv(self._matrix)
+        return self._inv_matrix
 
     def get_cartesian_coords(self, fractional_coords):
         """
@@ -96,7 +100,7 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return dot(cart_coords, self._inv_matrix)
+        return dot(cart_coords, self.inv_matrix)
 
     @staticmethod
     def cubic(a):
@@ -661,31 +665,33 @@ class Lattice(MSONable):
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
-        search_range = int(round(max(self._lengths) / min(a, b, c))) + 1
-        search_range = xrange(-search_range, search_range)
-        all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
-        cart = self.get_cartesian_coords(all_frac)
-        latt_params = np.sum(cart ** 2, axis=1) ** 0.5
-        data = zip(cart, latt_params)
-        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
-                      for l in (a, b, c)]
+        for multiple in xrange(1, 10):
+            search_range = (int(round(max(self._lengths) /
+                                      min(a, b, c))) + 1) * multiple
+            search_range = xrange(-search_range, search_range)
+            all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
+            cart = self.get_cartesian_coords(all_frac)
+            latt_params = np.sum(cart ** 2, axis=1) ** 0.5
+            data = zip(cart, latt_params)
+            candidates = [filter(lambda d: abs(d[1] - l) < e, data)
+                          for l in (a, b, c)]
 
-        def get_angle(v1, v2):
-            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
-            x = min(1, x)
-            x = max(-1, x)
-            angle = np.arccos(x) * 180. / pi
-            angle = np.around(angle, 9)
-            return angle
+            def get_angle(v1, v2):
+                x = dot(v1[0], v2[0]) / v1[1] / v2[1]
+                x = min(1, x)
+                x = max(-1, x)
+                angle = np.arccos(x) * 180. / pi
+                angle = np.around(angle, 9)
+                return angle
 
-        for a, b, c in itertools.product(*candidates):
-            if abs(get_angle(a, b) - gamma) < e and\
-               abs(get_angle(b, c) - alpha) < e and\
-               abs(get_angle(a, c) - beta) < e:
-                #Make sure coordinate system is right-handed
-                if dot(np.cross(a[0], b[0]), c[0]) > 0:
-                    return Lattice([a[0], b[0], c[0]])
-                else:
-                    return Lattice([-a[0], -b[0], -c[0]])
+            for a, b, c in itertools.product(*candidates):
+                if abs(get_angle(a, b) - gamma) < e and\
+                   abs(get_angle(b, c) - alpha) < e and\
+                   abs(get_angle(a, c) - beta) < e:
+                    #Make sure coordinate system is right-handed
+                    if dot(np.cross(a[0], b[0]), c[0]) > 0:
+                        return Lattice([a[0], b[0], c[0]])
+                    else:
+                        return Lattice([-a[0], -b[0], -c[0]])
 
         raise ValueError("can't find niggli")

@@ -394,13 +394,14 @@ class StructureMatcher(object):
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
         #do permutations of vectors, check for equality
+        s1_angles = struct1.lattice.angles
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
             if np.linalg.det([a, b, c]) < halfs2vol:
                 continue
 
             nl = Lattice([a, b, c])
-            if np.allclose(nl.angles, struct1.lattice.angles, rtol=0,
+            if np.allclose(nl.angles, s1_angles, rtol=0,
                            atol=angle_tol):
                 #Basis Change into new lattice
                 s2 = self._basis_change(s2_cart, nl)
