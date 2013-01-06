@@ -578,7 +578,9 @@ class Lattice(MSONable):
              [dot(a, c), dot(b, c), dot(c, c)]]
         G = np.array(G)
 
-        while True:
+        #This sets an upper limit on the number of iterations.
+        for count in xrange(100):
+
             #The steps are labelled as Ax as per the labelling scheme in the
             #paper.
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
