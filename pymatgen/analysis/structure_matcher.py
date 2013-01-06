@@ -322,14 +322,16 @@ class StructureMatcher(object):
             struct1 = struct1.get_primitive_structure()
             struct2 = struct2.get_primitive_structure()
 
-        struct1 = struct1.get_reduced_structure()
-        struct2 = struct2.get_reduced_structure()
-
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return False
 
-        #compute niggli lattices,
+        # Get niggli reduced cells. Though technically not necessary, this
+        # minimizes cell lengths and speeds up the matching of skewed
+        # cells considerably.
+        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
+        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
+
         nl1 = struct1.lattice
         nl2 = struct2.lattice
 
