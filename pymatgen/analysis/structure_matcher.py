@@ -322,6 +322,9 @@ class StructureMatcher(object):
             struct1 = struct1.get_primitive_structure()
             struct2 = struct2.get_primitive_structure()
 
+        struct1 = struct1.get_reduced_structure()
+        struct2 = struct2.get_reduced_structure()
+
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return False
