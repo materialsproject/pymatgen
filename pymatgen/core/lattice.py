@@ -22,6 +22,7 @@ from numpy.linalg import det, inv
 from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class Lattice(MSONable):
@@ -62,7 +63,7 @@ class Lattice(MSONable):
         self._angles = tuple(angles)
         self._lengths = tuple(lengths)
         self._matrix = m
-        #Store these matrices for faster access
+        # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
 
     @property
@@ -430,9 +431,7 @@ class Lattice(MSONable):
         c = matrix[2]
         while True:
             anychange = False
-            """
-            take care of c
-            """
+            # take care of c
             if dot(a, b) > 0:
                 diffvector = a - b
             else:
@@ -444,10 +443,8 @@ class Lattice(MSONable):
                     b = diffvector
                 else:
                     a = diffvector
-            anychange = True
-            """
-            take care of b
-            """
+                anychange = True
+            # take care of b
             if dot(a, c) > 0:
                 diffvector = a - c
             else:
@@ -459,10 +456,8 @@ class Lattice(MSONable):
                     c = diffvector
                 else:
                     a = diffvector
-            anychange = True
-            """
-            take care of a
-            """
+                anychange = True
+            # take care of a
             if dot(c, b) > 0:
                 diffvector = c - b
             else:
@@ -474,7 +469,7 @@ class Lattice(MSONable):
                     b = diffvector
                 else:
                     c = diffvector
-            anychange = True
+                anychange = True
             if anychange:
                 break
         return Lattice([a, b, c])
@@ -494,7 +489,7 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = transpose(self._matrix.copy())
+        a = self._matrix.T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -578,7 +573,9 @@ class Lattice(MSONable):
              [dot(a, c), dot(b, c), dot(c, c)]]
         G = np.array(G)
 
-        while True:
+        #This sets an upper limit on the number of iterations.
+        for count in xrange(100):
+
             #The steps are labelled as Ax as per the labelling scheme in the
             #paper.
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
@@ -650,6 +647,7 @@ class Lattice(MSONable):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
+
             break
 
         A = G[0, 0]
@@ -665,33 +663,32 @@ class Lattice(MSONable):
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
-        for multiple in xrange(1, 10):
-            search_range = (int(round(max(self._lengths) /
-                                      min(a, b, c))) + 1) * multiple
-            search_range = xrange(-search_range, search_range)
-            all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
-            cart = self.get_cartesian_coords(all_frac)
-            latt_params = np.sum(cart ** 2, axis=1) ** 0.5
-            data = zip(cart, latt_params)
-            candidates = [filter(lambda d: abs(d[1] - l) < e, data)
-                          for l in (a, b, c)]
+        points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
+                                          max(self._lengths))
 
-            def get_angle(v1, v2):
-                x = dot(v1[0], v2[0]) / v1[1] / v2[1]
-                x = min(1, x)
-                x = max(-1, x)
-                angle = np.arccos(x) * 180. / pi
-                angle = np.around(angle, 9)
-                return angle
+        all_frac = [p[0] for p in points]
+        dist = [p[1] for p in points]
+        cart = self.get_cartesian_coords(all_frac)
+        data = zip(cart, dist)
+        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
+                      for l in (a, b, c)]
 
-            for m1, m2, m3 in itertools.product(*candidates):
-                if abs(get_angle(m1, m2) - gamma) < e and\
-                   abs(get_angle(m2, m3) - alpha) < e and\
-                   abs(get_angle(m1, m3) - beta) < e:
-                    #Make sure coordinate system is right-handed
-                    if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
-                        return Lattice([m1[0], m2[0], m3[0]])
-                    else:
-                        return Lattice([-m1[0], -m2[0], -m3[0]])
+        def get_angle(v1, v2):
+            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = min(1, x)
+            x = max(-1, x)
+            angle = np.arccos(x) * 180. / pi
+            angle = np.around(angle, 9)
+            return angle
+
+        for m1, m2, m3 in itertools.product(*candidates):
+            if abs(get_angle(m1, m2) - gamma) < e and\
+               abs(get_angle(m2, m3) - alpha) < e and\
+               abs(get_angle(m1, m3) - beta) < e:
+                #Make sure coordinate system is right-handed
+                if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
+                    return Lattice([m1[0], m2[0], m3[0]])
+                else:
+                    return Lattice([-m1[0], -m2[0], -m3[0]])
 
         raise ValueError("can't find niggli")
