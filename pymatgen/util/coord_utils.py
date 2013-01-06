@@ -17,7 +17,6 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 import math
-import itertools
 
 
 def find_in_coord_list(coord_list, coord, atol=1e-8):
@@ -185,7 +184,7 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
             radius of sphere.
 
     Returns:
-        [(site, dist) ...] since most of the time, subsequent processing
+        [(fcoord, dist) ...] since most of the time, subsequent processing
         requires the distance.
     """
     recp_len = np.array(lattice.reciprocal_lattice.abc)
