@@ -5,7 +5,7 @@ import numpy as np
 import random
 from pymatgen.io import smartio as io
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    ElementComparator
+    ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
@@ -23,9 +23,8 @@ class StructureMatcherTest(unittest.TestCase):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self.struct_list = [e.structure for e in entries]
-
-        self.oxi_structs = [io.read_structure(os.path.join(test_dir,"Li2O.cif")),
-                            io.read_structure(os.path.join(test_dir,"POSCAR.Li2O"))]
+        self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
+                            for fname in ["Li2O.cif","POSCAR.Li2O"]]
 
     def test_fit(self):
         """
@@ -55,6 +54,13 @@ class StructureMatcherTest(unittest.TestCase):
         """Test match under shuffling of sites"""
         random.shuffle(editor._sites)
         self.assertTrue(sm.fit(self.struct_list[0],editor.modified_structure))
+
+        sm2 = StructureMatcher(comparator=FrameworkComparator())
+        lfp = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
+        nfp = read_structure(os.path.join(test_dir, "NaFePO4.cif"))
+        self.assertTrue(sm2.fit(lfp, nfp))
+        self.assertFalse(sm.fit(lfp, nfp))
+
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
