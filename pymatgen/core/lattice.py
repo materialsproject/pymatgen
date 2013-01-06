@@ -269,7 +269,7 @@ class Lattice(MSONable):
             return Lattice(d["matrix"])
         else:
             return Lattice.from_parameters(d["a"], d["b"], d["c"],
-                                           d["alpha"], d["beta"], d["gamma"])
+                d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
@@ -387,13 +387,13 @@ class Lattice(MSONable):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "matrix": self._matrix.tolist(),
-                 "a": float(self.a),
-                 "b": float(self.b),
-                 "c": float(self.c),
-                 "alpha": float(self.alpha),
-                 "beta": float(self.beta),
-                 "gamma": float(self.gamma),
-                 "volume": float(self.volume)}
+                "a": float(self.a),
+                "b": float(self.b),
+                "c": float(self.c),
+                "alpha": float(self.alpha),
+                "beta": float(self.beta),
+                "gamma": float(self.gamma),
+                "volume": float(self.volume)}
 
     def get_primitive_lattice(self, lattice_type):
         """
@@ -444,7 +444,7 @@ class Lattice(MSONable):
                 else:
                     a = diffvector
                 anychange = True
-            # take care of b
+                # take care of b
             if dot(a, c) > 0:
                 diffvector = a - c
             else:
@@ -457,7 +457,7 @@ class Lattice(MSONable):
                 else:
                     a = diffvector
                 anychange = True
-            # take care of a
+                # take care of a
             if dot(c, b) > 0:
                 diffvector = c - b
             else:
@@ -575,7 +575,6 @@ class Lattice(MSONable):
 
         #This sets an upper limit on the number of iterations.
         for count in xrange(100):
-
             #The steps are labelled as Ax as per the labelling scheme in the
             #paper.
             (A, B, C, E, N, Y) = (G[0, 0], G[1, 1], G[2, 2],
@@ -662,10 +661,8 @@ class Lattice(MSONable):
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
-
         points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
-                                          max(self._lengths))
-
+                                          max(a, b, c) + 0.1)
         all_frac = [p[0] for p in points]
         dist = [p[1] for p in points]
         cart = self.get_cartesian_coords(all_frac)
