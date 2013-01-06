@@ -22,6 +22,7 @@ from numpy.linalg import det, inv
 from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class Lattice(MSONable):
@@ -667,33 +668,32 @@ class Lattice(MSONable):
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
 
-        for multiple in xrange(1, 10):
-            search_range = (int(round(max(self._lengths) /
-                                      min(a, b, c))) + 1) * multiple
-            search_range = xrange(-search_range, search_range)
-            all_frac = list(itertools.product(*itertools.tee(search_range, 3)))
-            cart = self.get_cartesian_coords(all_frac)
-            latt_params = np.sum(cart ** 2, axis=1) ** 0.5
-            data = zip(cart, latt_params)
-            candidates = [filter(lambda d: abs(d[1] - l) < e, data)
-                          for l in (a, b, c)]
+        points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
+                                          max(self._lengths))
 
-            def get_angle(v1, v2):
-                x = dot(v1[0], v2[0]) / v1[1] / v2[1]
-                x = min(1, x)
-                x = max(-1, x)
-                angle = np.arccos(x) * 180. / pi
-                angle = np.around(angle, 9)
-                return angle
+        all_frac = [p[0] for p in points]
+        dist = [p[1] for p in points]
+        cart = self.get_cartesian_coords(all_frac)
+        data = zip(cart, dist)
+        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
+                      for l in (a, b, c)]
 
-            for m1, m2, m3 in itertools.product(*candidates):
-                if abs(get_angle(m1, m2) - gamma) < e and\
-                   abs(get_angle(m2, m3) - alpha) < e and\
-                   abs(get_angle(m1, m3) - beta) < e:
-                    #Make sure coordinate system is right-handed
-                    if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
-                        return Lattice([m1[0], m2[0], m3[0]])
-                    else:
-                        return Lattice([-m1[0], -m2[0], -m3[0]])
+        def get_angle(v1, v2):
+            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = min(1, x)
+            x = max(-1, x)
+            angle = np.arccos(x) * 180. / pi
+            angle = np.around(angle, 9)
+            return angle
+
+        for m1, m2, m3 in itertools.product(*candidates):
+            if abs(get_angle(m1, m2) - gamma) < e and\
+               abs(get_angle(m2, m3) - alpha) < e and\
+               abs(get_angle(m1, m3) - beta) < e:
+                #Make sure coordinate system is right-handed
+                if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
+                    return Lattice([m1[0], m2[0], m3[0]])
+                else:
+                    return Lattice([-m1[0], -m2[0], -m3[0]])
 
         raise ValueError("can't find niggli")
