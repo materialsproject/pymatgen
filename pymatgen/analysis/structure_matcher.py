@@ -337,7 +337,7 @@ class StructureMatcher(object):
 
         #rescale lattice to same volume
         if self._scale:
-            scale_vol = (nl2.volume / nl1.volume) ** (1.0 / 6)
+            scale_vol = (nl2.volume / nl1.volume) ** (1 / 6)
             se1 = StructureEditor(struct1)
             nl1 = Lattice(nl1.matrix * scale_vol)
             se1.modify_lattice(nl1)
@@ -346,6 +346,7 @@ class StructureMatcher(object):
             nl2 = Lattice(nl2.matrix / scale_vol)
             se2.modify_lattice(nl2)
             struct2 = se2.modified_structure
+
         #Volume to determine invalid lattices
         halfs2vol = nl2.volume / 2
 
@@ -371,7 +372,6 @@ class StructureMatcher(object):
                     found = True
                     s1[i].append(site.frac_coords)
                     break
-
             if not found:
                 s1.append([site.frac_coords])
                 species_list.append(site.species_and_occu)
@@ -389,7 +389,7 @@ class StructureMatcher(object):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
-            #get cartesian coords for s2, if no site match found return false
+            #if no site match found return false
             if not found:
                 return False
 
@@ -406,14 +406,11 @@ class StructureMatcher(object):
                 continue
 
             nl = Lattice([a, b, c])
-            if np.allclose(nl.angles, s1_angles, rtol=0,
-                           atol=angle_tol):
+            if np.allclose(nl.angles, s1_angles, rtol=0, atol=angle_tol):
                 #Basis Change into new lattice
                 s2 = self._basis_change(s2_cart, nl)
                 for coord in s2[0]:
-                    t_s2 = []
-                    for coords in s2:
-                        t_s2.append(np.mod(coords - coord, 1))
+                    t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                     if self._cmp_struct(s1, t_s2, nl, frac_tol):
                         return True
         return False
@@ -461,14 +458,11 @@ class StructureMatcher(object):
             g = list(g)
             group_list = [[g[0]]]
             for i, j in itertools.combinations(range(len(g)), 2):
-                s1_ind, s2_ind = self.find_indexes([g[i], g[j]],
-                                                   group_list)
-
+                s1_ind, s2_ind = self.find_indexes([g[i], g[j]], group_list)
                 if s2_ind == -1 and self.fit(g[i], g[j]):
                     group_list[s1_ind].append(g[j])
                 elif (j - i) == 1 and s2_ind == -1:
                     group_list.append([g[j]])
-
             all_groups.extend(group_list)
 
         return all_groups
