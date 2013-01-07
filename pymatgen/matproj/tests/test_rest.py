@@ -38,11 +38,15 @@ class MPResterTest(unittest.TestCase):
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
-                 "elements", "nelements", "e_above_hull", "hubbards", "is_compatible"]
+                 "elements", "nelements", "e_above_hull", "hubbards",
+                 "is_compatible", "task_ids",
+                 "density", "icsd_id", "total_magnetization"
+                 ]
         expected_vals = [-191.33812137, -6.833504334642858, -2.5532843405078913, 28,
                          {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4}, "LiFePO4",
                          True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
-                         {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True]
+                         {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
+                         [540081, 19017], 3.4660546589064176,56291, 16.0002716]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
@@ -64,7 +68,6 @@ class MPResterTest(unittest.TestCase):
             elif prop == "entry":
                 obj = self.adaptor.get_data(540081, prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
-
 
         #Test chemsys search
         data = self.adaptor.get_data('Fe-Li-O', prop='unit_cell_formula')
@@ -95,9 +98,7 @@ class MPResterTest(unittest.TestCase):
     def test_mpquery(self):
         criteria = {'elements':{'$in':['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['formula', 'energy']
-
         data = self.adaptor.mpquery(criteria=criteria, properties=props)
-        print data
         self.assertTrue(len(data) > 6)
 
     def test_get_exp_thermo_data(self):
@@ -113,6 +114,22 @@ class MPResterTest(unittest.TestCase):
     def test_get_bandstructure_by_material_id(self):
         bs = self.adaptor.get_bandstructure_by_material_id(2254)
         self.assertIsInstance(bs, BandStructureSymmLine)
+
+    def test_get_structures(self):
+        structs = self.adaptor.get_structures("Mn3O4")
+        self.assertTrue(len(structs) > 0)
+        for s in structs:
+            self.assertEqual(s.composition.reduced_formula, "Mn3O4")
+
+    def test_get_entries(self):
+        entries = self.adaptor.get_entries("TiO2")
+        self.assertTrue(len(entries) > 1)
+        for e in entries:
+            self.assertEqual(e.composition.reduced_formula, "TiO2")
+
+    def test_get_exp_entry(self):
+        entry = self.adaptor.get_exp_entry("Fe2O3")
+        self.assertEqual(entry.energy, -825.5)
 
 
 if __name__ == "__main__":

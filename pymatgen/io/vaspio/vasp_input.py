@@ -989,7 +989,7 @@ class Kpoints(VaspInput):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile("([0-9\.\-]+)\s+([0-9\.\-]+)\s+([0-9\.\-]+)\s*!"
+            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)\s*!"
                               "\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
