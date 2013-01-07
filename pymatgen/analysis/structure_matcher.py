@@ -257,13 +257,6 @@ class StructureMatcher(object):
         self._primitive_cell = primitive_cell
         self._scale = scale
 
-    def _basis_change(self, coords, new_lattice):
-        #Convert cartesian coordinates to new basis
-        frac_coords = []
-        for i in range(len(coords)):
-            frac_coords.append(new_lattice.get_fractional_coords(coords[i]))
-        return frac_coords
-
     def _cmp_struct(self, s1, s2, nl, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
@@ -408,7 +401,7 @@ class StructureMatcher(object):
             nl = Lattice([a, b, c])
             if np.allclose(nl.angles, s1_angles, rtol=0, atol=angle_tol):
                 #Basis Change into new lattice
-                s2 = self._basis_change(s2_cart, nl)
+                s2 = [nl.get_fractional_coords(c) for c in s2_cart]
                 for coord in s2[0]:
                     t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                     if self._cmp_struct(s1, t_s2, nl, frac_tol):
