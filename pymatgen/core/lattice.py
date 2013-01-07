@@ -395,6 +395,66 @@ class Lattice(MSONable):
                 "gamma": float(self.gamma),
                 "volume": float(self.volume)}
 
+    def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
+        """
+        Finds a mapping between current lattice and another lattice. There
+        are an infinite number of choices of basis vectors for two entirely
+        equivalent lattices. This method returns a mapping that maps
+        other_lattice to this lattice.
+
+        Args:
+            other_lattice:
+                Another lattice that is equivalent to this one.
+            ltol:
+                Tolerance for matching lengths. Defaults to 1e-5.
+            atol:
+                Tolerance for matching angles. Defaults to 1.
+
+        Returns:
+            (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
+            found. aligned_lattice is a rotated version of other_lattice that
+            has the same lattice parameters, but which is aligned in the
+            coordinate system of this lattice so that translational points
+            match up in 3D. rotation_matrix is the rotation that has to be
+            applied to other_lattice to obtain aligned_lattice, i.e.,
+            aligned_matrix = rotation_matrix * other_lattice.
+            Finally, scale_matrix is the integer matrix that expresses
+            aligned_matrix as a linear combination of this
+            lattice, i.e., aligned_matrix = scale_matrix * self
+
+            None is returned if no matches are found.
+        """
+        (lengths, angles) = other_lattice.lengths_and_angles
+        (alpha, beta, gamma) = angles
+
+        points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
+                                          max(lengths) + 0.1)
+        all_frac = [p[0] for p in points]
+        dist = [p[1] for p in points]
+        cart = self.get_cartesian_coords(all_frac)
+        data = zip(cart, dist)
+        candidates = [filter(lambda d: abs(d[1] - l) < ltol, data)
+                      for l in lengths]
+        def get_angle(v1, v2):
+            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
+            x = min(1, x)
+            x = max(-1, x)
+            angle = np.arccos(x) * 180. / pi
+            angle = np.around(angle, 9)
+            return angle
+
+        for m1, m2, m3 in itertools.product(*candidates):
+            if abs(get_angle(m1, m2) - gamma) < atol and\
+               abs(get_angle(m2, m3) - alpha) < atol and\
+               abs(get_angle(m1, m3) - beta) < atol:
+                aligned_m = np.array([m1[0], m2[0], m3[0]])
+                rotation_matrix = np.linalg.solve(other_lattice.matrix.T,
+                                                  aligned_m.T).T
+                scale_matrix = np.linalg.solve(aligned_m.T, self._matrix.T).T
+                return Lattice(aligned_m), rotation_matrix, scale_matrix
+
+        return None
+
     def get_primitive_lattice(self, lattice_type):
         """
         Returns the primitive lattice of the lattice given the type.
@@ -661,31 +721,12 @@ class Lattice(MSONable):
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
-        points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
-                                          max(a, b, c) + 0.1)
-        all_frac = [p[0] for p in points]
-        dist = [p[1] for p in points]
-        cart = self.get_cartesian_coords(all_frac)
-        data = zip(cart, dist)
-        candidates = [filter(lambda d: abs(d[1] - l) < e, data)
-                      for l in (a, b, c)]
 
-        def get_angle(v1, v2):
-            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
-            x = min(1, x)
-            x = max(-1, x)
-            angle = np.arccos(x) * 180. / pi
-            angle = np.around(angle, 9)
-            return angle
+        latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        for m1, m2, m3 in itertools.product(*candidates):
-            if abs(get_angle(m1, m2) - gamma) < e and\
-               abs(get_angle(m2, m3) - alpha) < e and\
-               abs(get_angle(m1, m3) - beta) < e:
-                #Make sure coordinate system is right-handed
-                if dot(np.cross(m1[0], m2[0]), m3[0]) > 0:
-                    return Lattice([m1[0], m2[0], m3[0]])
-                else:
-                    return Lattice([-m1[0], -m2[0], -m3[0]])
-
+        mapped = self.find_mapping(latt, e, e)
+        if mapped is not None:
+            return mapped[0]
         raise ValueError("can't find niggli")
+
+
