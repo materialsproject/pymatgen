@@ -1,6 +1,15 @@
 Change log
 ==========
 
+Version 2.4.0
+-------------
+1. New StructureMatcher that effectively replaces StructureFitter. Orders of
+   magnitude faster and more robust. StructureFitter is now deprecated.
+2. Vastly improved PrimitiveCellTransformation.
+3. A lot of core methods have been rewritten to take advantage of vectorization
+   in numpy, resulting in orders of magnitude improvement in speed.
+4. Miscellaneous bug fixes and speedups.
+
 Version 2.3.2
 -------------
 1. More utilities for working with Periodic Boundary Conditions.
