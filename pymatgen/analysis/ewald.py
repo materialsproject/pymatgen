@@ -235,7 +235,7 @@ class EwaldSummation(object):
         site.
         """
         return self._forces
-
+    
     def _calc_recip(self):
         """
         Perform the reciprocal space summation. Calculates the quantity
@@ -257,6 +257,11 @@ class EwaldSummation(object):
                                             self._gmax)
 
         frac_to_cart = rcp_latt.get_cartesian_coords
+        
+        oxistates = np.array(self._oxi_states)
+        #create array where q_2[i,j] is qi * qj
+        qiqj = oxistates[None, :] * oxistates[:, None]
+        
         for (fcoords, dist, i) in recip_nn:
             if dist == 0:
                 continue
@@ -265,44 +270,28 @@ class EwaldSummation(object):
 
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
-            gvect_tile = np.tile(gvect, (numsites, 1))
-            gvectdot = np.sum(gvect_tile * coords, 1)
+            gvectdot = np.sum(gvect[None, :] * coords, 1)
+            
             #calculate the structure factor
-            sfactor = np.zeros((numsites, numsites))
-            sreal = 0.0
-            simag = 0.0
-            for i in xrange(numsites):
-                qi = self._oxi_states[i]
-                g_dot_i = gvectdot[i]
-                sfactor[i, i] = qi * qi
-                sreal += qi * cos(g_dot_i)
-                simag += qi * sin(g_dot_i)
-
-                for j in xrange(i + 1, numsites):
-                    qj = self._oxi_states[j]
-                    exparg = g_dot_i - gvectdot[j]
-                    cosa = cos(exparg)
-                    sina = sin(exparg)
-                    sfactor[i, j] = qi * qj * (cosa + sina)
-                    """
-                    Uses the property that when site i and site j are switched,
-                    exparg' == - exparg. This implies
-                    cos (exparg') = cos (exparg) and
-                    sin (exparg') = - sin (exparg)
-
-                    Halves all computations.
-                    """
-                    sfactor[j, i] = qi * qj * (cosa - sina)
-
+            sreal = np.sum(oxistates * np.cos(gvectdot))
+            simag = np.sum(oxistates * np.sin(gvectdot))
+            
+            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j] 
+            exparg = gvectdot[None, :] - gvectdot[:, None]
+            
+            #uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
+            sfactor = qiqj * np.sin(exparg + pi/4) * 2 ** 0.5
+            
             erecip += expval / gsquare * sfactor
-            pref = 2 * expval / gsquare * np.array(self._oxi_states)
+            pref = 2 * expval / gsquare * oxistates
             factor = prefactor * pref * \
                 (sreal * np.sin(gvectdot)
                  - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
-            forces += np.tile(factor, (3, 1)).transpose() * gvect_tile
+             
+            forces += factor[:, None] * gvect[None, :]
 
         return erecip * prefactor * EwaldSummation.CONV_FACT, forces
-
+    
     def _calc_real_and_point(self):
         """
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
@@ -310,6 +299,7 @@ class EwaldSummation(object):
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
         all_nn = self._s.get_all_neighbors(self._rmax, True)
+        
 
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
@@ -319,21 +309,34 @@ class EwaldSummation(object):
         forces = np.zeros((numsites, 3))
         for i in xrange(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
+            num_neighbors = len(nn)
             qi = self._oxi_states[i]
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             # add jellium term
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
-            for j in range(len(nn)):
-                nsite = nn[j][0]
-                rij = nn[j][1]
-                qj = compute_average_oxidation_state(nsite)
-                erfcval = erfc(self._sqrt_eta * rij)
-                ereal[nn[j][2], i] += erfcval * qi * qj / rij
-                fijpf = qj / pow(rij, 3) * (erfcval + forcepf * rij *
-                                            exp(-self._eta * pow(rij, 2)))
-                forces[i] += fijpf * (coords[i] - nsite.coords) * \
-                    qi * EwaldSummation.CONV_FACT
+            
+            rij = np.zeros(num_neighbors)
+            qj = np.zeros(num_neighbors)
+            js = np.zeros(num_neighbors)
+            ncoords = np.zeros((num_neighbors,3))
+            
+            for k, (site, dist, j) in enumerate(nn):
+                rij[k] = dist
+                qj[k] = self._oxi_states[j]
+                js[k] = j
+                ncoords[k] = site.coords
+            
+            erfcval = np.array(map(erfc, self._sqrt_eta * rij))
+            new_ereals = erfcval * qi * qj / rij
+            
+            #insert new_ereals
+            for k, new_e in enumerate(new_ereals):
+                ereal[js[k],i] += new_e
+                
+            fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
+            forces[i] += np.sum(np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - ncoords) * \
+                                qi * EwaldSummation.CONV_FACT, axis = 0)
 
         ereal *= 0.5 * EwaldSummation.CONV_FACT
         epoint *= EwaldSummation.CONV_FACT

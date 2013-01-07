@@ -32,7 +32,6 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -706,151 +705,30 @@ class PrimitiveCellTransformation(AbstractTransformation):
     It returns a structure that is not necessarily orthogonalized
     Author: Will Richards
     """
-    def __init__(self, tolerance=0.2):
+    def __init__(self, tolerance=0.5):
+        """
+        Args:
+            tolerance:
+                Tolerance for each coordinate of a particular site. For
+                example, [0.5, 0, 0.5] in cartesian coordinates will be
+                considered to be on the same coordinates as [0, 0, 0] for a
+                tolerance of 0.5. Defaults to 0.5.
+        """
         self._tolerance = tolerance
 
-    def _get_more_primitive_structure(self, structure, tolerance):
-        """
-        This finds a smaller unit cell than the input. Sometimes it doesn"t
-        find the smallest possible one, so this method is called until it
-        is unable to find a smaller cell.
-
-        The method works by finding transformational symmetries for all sites
-        and then using that translational symmetry instead of one of the
-        lattice basis vectors if more than one vector is found (usually the
-        case for large cells) the one with the smallest norm is used.
-
-        Things are done in fractional coordinates because its easier to
-        translate back to the unit cell.
-        """
-
-        #convert tolerance to fractional coordinates
-        tol_a = tolerance / structure.lattice.a
-        tol_b = tolerance / structure.lattice.b
-        tol_c = tolerance / structure.lattice.c
-
-        #get the possible symmetry vectors
-        sites = sorted(structure.sites, key=lambda site: site.species_string)
-        grouped_sites = [list(a[1]) for a
-                         in itertools.groupby(sites,
-                                              key=lambda s: s.species_string)]
-        min_site_list = min(grouped_sites, key=lambda group: len(group))
-
-        x = min_site_list[0]
-        possible_vectors = []
-        for y in min_site_list:
-            if not x == y:
-                vector = (x.frac_coords - y.frac_coords) % 1
-                possible_vectors.append(vector)
-
-        #test each vector to make sure its a viable vector for all sites
-        for x in sites:
-            for j in range(len(possible_vectors)):
-                p_v = possible_vectors[j]
-                fit = False
-                # test that adding vector to a site finds a similar site
-                if p_v is not None:
-                    test_location = x.frac_coords + p_v
-                    possible_locations = [site.frac_coords for site in sites
-                            if site.species_and_occu == x.species_and_occu and
-                            not x == site]
-                    for p_l in possible_locations:
-                        diff = .5 - abs((test_location - p_l) % 1 - .5)
-                        if diff[0] < tol_a and diff[1] < tol_b and \
-                                diff[2] < tol_c:
-                            fit = True
-                            break
-                    if not fit:
-                        possible_vectors[j] = None
-
-        #vectors that haven"t been removed from possible_vectors are symmetry
-        #vectors convert these to the shortest representation of the vector
-        symmetry_vectors = [.5 - abs((x - .5) % 1) for x in possible_vectors \
-                            if x is not None]
-        if symmetry_vectors:
-            reduction_vector = min(symmetry_vectors, key=np.linalg.norm)
-
-            #choose a basis to replace (a, b, or c)
-            proj = abs(structure.lattice.abc * reduction_vector)
-            basis_to_replace = list(proj).index(max(proj))
-
-            #create a new basis
-            new_matrix = structure.lattice.matrix
-            new_basis_vector = np.dot(reduction_vector, new_matrix)
-            new_matrix[basis_to_replace] = new_basis_vector
-            new_lattice = Lattice(new_matrix)
-
-            #create a structure with the new lattice
-            new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords,
-                                      coords_are_cartesian=True)
-
-            #update sites and tolerances for new structure
-            sites = list(new_structure.sites)
-
-            tol_a = tolerance / new_structure.lattice.a
-            tol_b = tolerance / new_structure.lattice.b
-            tol_c = tolerance / new_structure.lattice.c
-
-            #Make list of unique sites in new structure
-            new_sites = []
-            for site in sites:
-                fit = False
-                for new_site in new_sites:
-                    if site.species_and_occu == new_site.species_and_occu:
-                        diff = .5 - abs((site.frac_coords
-                                         - new_site.frac_coords) % 1 - .5)
-                        if diff[0] < tol_a and diff[1] < tol_b and \
-                                diff[2] < tol_c:
-                            fit = True
-                            break
-                if not fit:
-                    new_sites.append(site)
-
-            #recreate the structure with just these sites
-            new_structure = Structure(new_structure.lattice,
-                                      [site.species_and_occu
-                                       for site in new_sites],
-                                      [(site.frac_coords + .001) % 1 - .001
-                                       for site in new_sites])
-
-            return new_structure
-        else:  # if there were no translational symmetry vectors
-            return structure
-
-    def _buergers_cell(self, structure):
-        """
-        Takes a primitive cell and returns the buergers cell
-        """
-        matrix = structure.lattice.matrix
-        finished = False
-        while not finished:
-            finished = True
-            for i, j in itertools.permutations(range(3), 2):
-                oldnorm = np.linalg.norm(matrix[i])
-                newnorm = np.linalg.norm(matrix[i] + matrix[j])
-                if newnorm < oldnorm:
-                    matrix[i] += matrix[j]
-                    finished = False
-                newnorm = np.linalg.norm(matrix[i] - matrix[j])
-                if newnorm < oldnorm:
-                    matrix[i] -= matrix[j]
-                    finished = False
-        new_lattice = Lattice(matrix)
-
-        new_structure = Structure(new_lattice, structure.species_and_occu,
-                                      structure.cart_coords,
-                                      coords_are_cartesian=True)
-        return new_structure
-
     def apply_transformation(self, structure):
-        structure2 = self._get_more_primitive_structure(structure,
-                                                        self._tolerance)
-        while len(structure2) < len(structure):
-            structure = structure2
-            structure2 = self._get_more_primitive_structure(structure,
-                                                            self._tolerance)
-        return self._buergers_cell(structure2)
+        """
+        Returns most primitive cell for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            The most primitive structure found. The returned structure is
+            guanranteed to have len(new structure) <= len(structure).
+        """
+        return structure.get_primitive_structure(tolerance=self._tolerance)
 
     def __str__(self):
         return "Primitive cell transformation"
@@ -869,7 +747,8 @@ class PrimitiveCellTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {}, "@module": self.__class__.__module__,
+                "init_args": {"tolerance": self._tolerance},
+                "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
 

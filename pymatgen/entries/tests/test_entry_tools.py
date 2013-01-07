@@ -29,13 +29,12 @@ class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as f:
             entries = json.load(f, cls=PMGJSONDecoder)
-        groups = group_entries_by_structure(entries, symmetry_tol=0.1)
+        groups = group_entries_by_structure(entries)
         self.assertEqual(sorted([len(g) for g in groups]),
-                         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4])
+                         [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])
         self.assertLess(len(groups), len(entries))
         #Make sure no entries are left behind
         self.assertEqual(sum([len(g) for g in groups]), len(entries))
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

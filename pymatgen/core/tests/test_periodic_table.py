@@ -15,6 +15,11 @@ class  ElementTestCase(unittest.TestCase):
 
         for sym in fictional_symbols:
             self.assertRaises(KeyError, Element, sym)
+            
+    def test_dict(self):
+        fe = Element("Fe")
+        d = fe.to_dict
+        self.assertEqual(fe, Element.from_dict(d))
 
     def test_block(self):
         testsets = {"O": "p", "Fe": "d", "Li": "s", "U": "f"}

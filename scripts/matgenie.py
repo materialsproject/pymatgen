@@ -18,6 +18,7 @@ import os
 import re
 import logging
 import multiprocessing
+import sys
 
 from collections import OrderedDict
 
@@ -267,6 +268,30 @@ def parse_view(args):
     vis.show()
 
 
+def compare_structures(args):
+    filenames = args.filenames
+    if len(filenames) < 2:
+        print "You need more than one structure to compare!"
+        sys.exit(-1)
+    try:
+        structures = map(read_structure, filenames)
+    except Exception as ex:
+        print "Error converting file. Are they in the right format?"
+        print str(ex)
+        sys.exit(-1)
+
+    from pymatgen.analysis.structure_matcher import StructureMatcher, \
+        ElementComparator
+    m = StructureMatcher() if args.oxi \
+            else StructureMatcher(comparator=ElementComparator())
+    for i, grp in enumerate(m.group_structures(structures)):
+        print "Group {}: ".format(i)
+        for s in grp:
+            print "- {} ({})".format(filenames[structures.index(s)],
+                                     s.formula)
+        print
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
     matgenie is a convenient script that uses pymatgen to perform many
@@ -393,6 +418,18 @@ if __name__ == "__main__":
                              help="List of elements to exclude from bonding "
                              "analysis. E.g., Li,Na")
     parser_view.set_defaults(func=parse_view)
+
+    parser_cmp = subparsers.add_parser("compare", help="Compare structures")
+    parser_cmp.add_argument("filenames", metavar="filenames", type=str,
+                            nargs="*", help="List of filenames to compare.")
+    parser_cmp.add_argument("-o", "--oxi", dest="oxi",
+                            action="store_true",
+                            help="Oxi mode means that different oxidation "
+                                 "states will not match to each other, i.e.,"
+                                 " Fe2+ amd Fe3+ will be treated as "
+                                 "different species for the purposes of "
+                                 "matching.")
+    parser_cmp.set_defaults(func=compare_structures)
 
     args = parser.parse_args()
     args.func(args)

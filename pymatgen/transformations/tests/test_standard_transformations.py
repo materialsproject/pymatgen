@@ -18,6 +18,7 @@ import random
 
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.cifio import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -336,6 +337,11 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
                            coords)
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
+
+        parser = CifParser(os.path.join(test_dir, "TiO2_super.cif"))
+        s = parser.get_structures()[0]
+        prim = t.apply_transformation(s)
+        self.assertEqual(prim.formula, "Ti4 O8")
 
 
 class PerturbStructureTransformationTest(unittest.TestCase):
