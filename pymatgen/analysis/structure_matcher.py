@@ -395,7 +395,7 @@ class StructureMatcher(object):
         s1_angles = struct1.lattice.angles
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
-            if np.linalg.det([a, b, c]) < halfs2vol:
+            if np.abs(np.linalg.det([a, b, c])) < halfs2vol:
                 continue
 
             nl = Lattice([a, b, c])
