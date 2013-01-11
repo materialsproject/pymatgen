@@ -15,20 +15,20 @@ Required for proper functioning of the code
 3. pyhull 1.3.6+: For generation of phase diagrams.
 4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
    (CIF) files.
-5. requests 0.14+: For the high-level interface to the Materials API.
+5. requests 1.0+: For the high-level interface to the Materials API.
 
 Optional Python Libraries
 -------------------------
 Optional python libraries that are required if you need certain features
 
-1. scipy 0.10+ (highly recommended) - For use in Gaussian smearing.
-2. matplotlib (highly recommended): For plotting (e.g., Phase Diagrams).
-3. VTK with Python bindings (http://www.vtk.org/): For visualization of crystal
-   structures using the pymatgen.vis package.
-4. Atomistic Simulation Environment or ASE : Required for the usage of the
+1. scipy 0.10+ (highly recommended): For use in Gaussian smearing.
+2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
+3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+   crystal structures using the pymatgen.vis package.
+4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-5. OpenBabel with Python bindings (http://openbabel.org). Required for the
+5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
@@ -40,9 +40,9 @@ Optional non-Python programs
 Optional non-python libraries (because no good pythonic alternative exists at
 the moment) required only for certain features.
 
-1. ffmpeg : Needed for generation of movies (structure_vtk.py).  The executable
+1. ffmpeg: Needed for generation of movies (structure_vtk.py).  The executable
    ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
-2. enum : Needed for the use of EnumerateStructureTransformation and the
+2. enum: Needed for the use of EnumerateStructureTransformation and the
    pymatgen.command_line.enumlib_caller module. This library by Gus Hart
    provides a robust way to enumerate derivative structures. It can be used to
    completely enumerate all symmetrically distinct ordered structures of
@@ -98,8 +98,8 @@ and functionality of the code.
 Please read up on pymatgen's :doc:`coding guidelines </contributing>` before
 you start coding. It will make integration much easier.
 
-Installation tips for optional libaries
-=======================================
+Installation tips for optional libraries
+========================================
 
 This section provides a guide for installing various optional libraries used in
 pymatgen.  Some of the python libraries are rather tricky to build in certain
