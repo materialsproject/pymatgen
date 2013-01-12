@@ -244,8 +244,8 @@ The above illustrates only the most basic capabilities of pymatgen.
 Advanced Usage
 --------------
 
-Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below), and `api docs
+Users are strongly encouraged to explore the detailed `usage pages
+<http://packages.python.org/pymatgen/usage.html>`_ and `api docs
 <http://packages.python.org/pymatgen/modules.html>`_.
 
 Contributing
