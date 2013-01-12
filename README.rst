@@ -86,13 +86,58 @@ POTCARs) do require additional setup. Please see the following sections for
 further details on the dependencies needed, where to get them and how to
 install them.
 
-Detailed installation help
---------------------------
+Requirements
+============
 
-.. toctree::
-   :maxdepth: 1
+All required dependencies should be automatically taken care of if you
+install pymatgen using easy_install or pip. Otherwise, these packages should
+be available on `PyPI <http://pypi.python.org>`_.
 
-   installation
+Required for proper functioning of the code
+-------------------------------------------
+
+1. Python 2.7+ required.  New default modules such as json are used, as well as
+   new unittest features in Python 2.7.
+2. numpy - For array, matrix and other numerical manipulations. Used extensively
+   by all core modules.
+3. pyhull 1.3.6+: For generation of phase diagrams.
+4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
+   (CIF) files.
+5. requests 1.0+: For the high-level interface to the Materials API.
+
+Optional Python Libraries
+-------------------------
+Optional python libraries that are required if you need certain features
+
+1. scipy 0.10+ (highly recommended): For use in Gaussian smearing.
+2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
+3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+   crystal structures using the pymatgen.vis package.
+4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+   adapters in pymatgen.io.aseio between pymatgen's core Structure object and
+   the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+   usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
+   and OpenBabel's OBMol. Opens up input and output support for the very large
+   number of input and output formats supported by OpenBabel.
+6. nose - For complete unittesting. This is **not optional for developers**!
+
+Optional non-Python programs
+----------------------------
+
+Optional non-python libraries (because no good pythonic alternative exists at
+the moment) required only for certain features.
+
+1. ffmpeg: Needed for generation of movies (structure_vtk.py).  The executable
+   ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
+2. enum: Needed for the use of EnumerateStructureTransformation and the
+   pymatgen.command_line.enumlib_caller module. This library by Gus Hart
+   provides a robust way to enumerate derivative structures. It can be used to
+   completely enumerate all symmetrically distinct ordered structures of
+   disordered structures via the EnumerateStructureTransformation. The
+   multienum.x and makestr.x executables must be in the path. Get it at
+   http://enum.sourceforge.org and follow the instructions to compile
+   multienum.x and makestr.x.
 
 Using pymatgen
 ==============
@@ -101,8 +146,6 @@ Using pymatgen
    :width: 100%
    :alt: pymatgen overview
    :align: center
-
-   Overview of a typical workflow for pymatgen.
 
 The figure above provides an overview of the functionality in pymatgen. A
 typical workflow would involve a user converting data (structure, calculations,
