@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/materialsproject/pymatgen.png)](https://travis-ci.org/materialsproject/pymatgen)
+.. image:: https://travis-ci.org/materialsproject/pymatgen.png
 
 Introduction
 ============
@@ -38,15 +38,6 @@ The most up-to-date documention is available at our github page
 (http://materialsproject.github.com/pymatgen/), where you can also report any
 bugs/issues. If you wish to be notified of pymatgen releases, you may
 become a member of `pymatgen's Google Groups page`_.
-
-   *The code is mightier than the pen.*
-
-Latest Change Log
-=================
-
-1. Miscellaneous bug fixes and speedups.
-
-:doc:`Older versions </changelog>`
 
 Getting pymatgen
 ================
@@ -106,7 +97,7 @@ Detailed installation help
 Using pymatgen
 ==============
 
-.. figure:: _static/overview.jpg
+.. figure:: http://packages.python.org/pymatgen/images/overview.jpg
    :width: 100%
    :alt: pymatgen overview
    :align: center
@@ -211,12 +202,8 @@ Advanced Usage
 --------------
 
 Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below), and :doc:`the API docs </modules>`.
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
+</usage>` (toc given below), and `api docs
+<http://packages.python.org/pymatgen/modules.html>`_.
 
 Contributing
 ============
@@ -247,22 +234,8 @@ Developing for pymatgen
 
 Another way to contribute is to submit new code/bugfixes to pymatgen. While
 you can always zip your code and email it to the maintainer of pymatgen,
-the best way for anyone to develop pymatgen is by adopting the collaborative
-Github workflow (see section below).
-
-.. toctree::
-   :maxdepth: 2
-
-   contributing
-
-API/Reference Docs
-==================
-
-The API docs are generated using Sphinx auto-doc and outlines the purpose of all
-modules and classes, and the expected argument and returned objects for most
-methods. They are available at the link below.
-
-:doc:`pymatgen API docs </modules>`
+the best way for anyone to develop pymatgen is by adopting the `collaborative
+Github workflow <http://packages.python.org/pymatgen/contributing.html>`_.
 
 How to cite pymatgen
 ====================
@@ -372,14 +345,6 @@ follows::
    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
