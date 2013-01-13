@@ -220,14 +220,14 @@ class StructureMatcher(object):
             ii. If true: break and return true
     """
 
-    def __init__(self, ltol=0.2, stol=0.4, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
         Args:
             ltol:
                 Fractional length tolerance. Default is 0.2.
             stol:
-                Site tolerance in Angstrom. Default is 0.4 Angstrom.
+                Site tolerance in Angstrom. Default is 0.5 Angstrom.
             angle_tol:
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
