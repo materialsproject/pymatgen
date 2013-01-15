@@ -261,19 +261,18 @@ class StructureMatcher(object):
         s1_angles = s1.lattice.angles
         ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
         nv = []
-        for i in range(3):
-            l = s1.lattice.abc[i]
+        for l in s1.lattice.abc:
             vs = ds.get_neighbors_in_shell([0, 0, 0], l, self.ltol * l)
             nvi = [site.coords for site, dist in vs]
             nv.append(nvi)
             
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
-            if np.abs(np.linalg.det([a, b, c])) < vol_tol:
-                continue 
-            nl = Lattice([a, b, c])
-            if np.allclose(nl.angles,s1_angles, rtol=0, atol=self.angle_tol):
-                yield nl
+            if np.abs(np.linalg.det([a, b, c])) >= vol_tol:
+                nl = Lattice([a, b, c])
+                if np.allclose(nl.angles, s1_angles, rtol=0,
+                               atol=self.angle_tol):
+                    yield nl
 
     def _cmp_struct(self, s1, s2, nl, frac_tol):
         #compares the fractional coordinates
