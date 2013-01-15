@@ -258,14 +258,17 @@ class StructureMatcher(object):
         self._scale = scale
             
     def _get_lattices(self,s1,s2,vol_tol):   
-        s1_angles = s1.lattice.angles
+        s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
+
+        all_nn = ds.get_neighbors(ds[0], (1+self.ltol)*max(s1_lengths))
+
         nv = []
-        for l in s1.lattice.abc:
-            vs = ds.get_neighbors_in_shell([0, 0, 0], l, self.ltol * l)
-            nvi = [site.coords for site, dist in vs]
+        for l in s1_lengths:
+            nvi = [site.coords for site, dist in all_nn
+                   if (1-self.ltol) * l < dist < (1+self.ltol) * l]
             nv.append(nvi)
-            
+
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
             if np.abs(np.linalg.det([a, b, c])) >= vol_tol:
