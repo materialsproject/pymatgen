@@ -256,6 +256,24 @@ class StructureMatcher(object):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
+            
+    def _get_lattices(self,s1,s2,vol_tol):   
+        s1_angles = s1.lattice.angles
+        ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
+        nv = []
+        for i in range(3):
+            l = s1.lattice.abc[i]
+            vs = ds.get_neighbors_in_shell([0, 0, 0], l, self.ltol * l)
+            nvi = [site.coords for site, dist in vs]
+            nv.append(nvi)
+            
+        for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
+            #invalid lattice
+            if np.abs(np.linalg.det([a, b, c])) < vol_tol:
+                continue 
+            nl = Lattice([a, b, c])
+            if np.allclose(nl.angles,s1_angles, rtol=0, atol=self.angle_tol):
+                yield nl
 
     def _cmp_struct(self, s1, s2, nl, frac_tol):
         #compares the fractional coordinates
@@ -301,9 +319,7 @@ class StructureMatcher(object):
         Returns:
             True if the structures are the equivalent, else False.
         """
-        ltol = self.ltol
         stol = self.stol
-        angle_tol = self.angle_tol
         comparator = self._comparator
 
         if comparator.get_structure_hash(struct1) != \
@@ -341,20 +357,11 @@ class StructureMatcher(object):
             struct2 = se2.modified_structure
 
         #Volume to determine invalid lattices
-        halfs2vol = nl2.volume / 2
+        vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
-
-        #get possible new lattice vectors
-        ds = Structure(struct2.lattice, ['X'], [[0, 0, 0]])
-        nv = []
-        for i in range(3):
-            l = struct1.lattice.abc[i]
-            vs = ds.get_neighbors_in_shell([0, 0, 0], l, ltol * l)
-            nvi = [site.coords for site, dist in vs]
-            nv.append(nvi)
-
+        
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -388,24 +395,16 @@ class StructureMatcher(object):
 
         #translate s1
         s1_translation = s1[0][0]
-
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
         #do permutations of vectors, check for equality
-        s1_angles = struct1.lattice.angles
-        for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
-            #invalid lattice
-            if np.abs(np.linalg.det([a, b, c])) < halfs2vol:
-                continue
-
-            nl = Lattice([a, b, c])
-            if np.allclose(nl.angles, s1_angles, rtol=0, atol=angle_tol):
-                #Basis Change into new lattice
-                s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-                for coord in s2[0]:
-                    t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                    if self._cmp_struct(s1, t_s2, nl, frac_tol):
-                        return True
+        
+        for nl in self._get_lattices(struct1, struct2, vol_tol):
+            s2 = [nl.get_fractional_coords(c) for c in s2_cart]
+            for coord in s2[0]:
+                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
+                if self._cmp_struct(s1, t_s2, nl, frac_tol):
+                    return True
         return False
 
     def find_indexes(self, s_list, group_list):
