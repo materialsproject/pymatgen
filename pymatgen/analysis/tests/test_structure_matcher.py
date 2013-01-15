@@ -3,7 +3,6 @@ import os
 import json
 import numpy as np
 import random
-from pymatgen.io import smartio as io
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
