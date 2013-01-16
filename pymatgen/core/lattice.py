@@ -332,7 +332,8 @@ class Lattice(MSONable):
         """
         Volume of the unit cell.
         """
-        return abs(det(self._matrix))
+        m = self._matrix
+        return abs(np.dot(np.cross(m[0], m[1]), m[2]))
 
     @property
     def lengths_and_angles(self):
