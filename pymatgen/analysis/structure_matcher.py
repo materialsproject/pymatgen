@@ -256,7 +256,7 @@ class StructureMatcher(object):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
-            
+    
     def _get_lattices(self,s1,s2,vol_tol):   
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
@@ -271,7 +271,7 @@ class StructureMatcher(object):
 
         for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
             #invalid lattice
-            if np.abs(np.linalg.det([a, b, c])) >= vol_tol:
+            if abs(np.dot(a,np.cross(b,c))) >= vol_tol:
                 nl = Lattice([a, b, c])
                 if np.allclose(nl.angles, s1_angles, rtol=0,
                                atol=self.angle_tol):
