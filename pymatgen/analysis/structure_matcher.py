@@ -219,7 +219,7 @@ class StructureMatcher(object):
                stol.
             ii. If true: break and return true
     """
-
+    
     def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
@@ -267,16 +267,33 @@ class StructureMatcher(object):
         for l in s1_lengths:
             nvi = [site.coords for site, dist in all_nn
                    if (1-self.ltol) * l < dist < (1+self.ltol) * l]
+            if not nvi:
+                return
             nv.append(nvi)
-
-        for a, b, c in itertools.product(nv[0], nv[1], nv[2]):
-            #invalid lattice
-            if abs(np.dot(a,np.cross(b,c))) >= vol_tol:
-                nl = Lattice([a, b, c])
-                if np.allclose(nl.angles, s1_angles, rtol=0,
+        
+        #The vectors are broadcast into a 5-D array containing
+        #all permutations of the entries in nv[0], nv[1], nv[2]
+        #produces the same result as three nested loops over the
+        #same variables and calculating determinants individually
+        bfl = np.array(nv[0])[None, None, :, None, :] * \
+                 np.array([1,0,0])[None, None, None, :, None] + \
+              np.array(nv[1])[None, :, None, None, :] * \
+                 np.array([0,1,0])[None, None, None, :, None] + \
+              np.array(nv[2])[:, None, None, None, :] * \
+                 np.array([0,0,1])[None, None, None, :, None]
+                 
+        #Compute volume of each array
+        vol = np.sum(bfl[:,:,:,0,:]*np.cross(bfl[:,:,:,1,:], bfl[:,:,:,2,:]),3)
+        #Find valid cells
+        valid = np.where(abs(vol) >= vol_tol)
+        
+        #loop over valid lattices
+        for lat in bfl[valid]:
+            nl  = Lattice(lat)
+            if np.allclose(nl.angles, s1_angles, rtol=0,
                                atol=self.angle_tol):
                     yield nl
-
+                    
     def _cmp_struct(self, s1, s2, nl, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
@@ -307,7 +324,7 @@ class StructureMatcher(object):
                 else:
                     return False
         return True
-
+    
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -458,5 +475,4 @@ class StructureMatcher(object):
                 elif (j - i) == 1 and s2_ind == -1:
                     group_list.append([g[j]])
             all_groups.extend(group_list)
-
         return all_groups
