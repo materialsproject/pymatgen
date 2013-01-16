@@ -738,7 +738,7 @@ class Structure(SiteCollection, MSONable):
             latt = self._lattice.matrix
             latt[repl_pos] = v
             #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > min_vol:
+            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) > min_vol:
                 latt = Lattice(latt)
                 #Convert to fractional tol
                 tol = [tolerance / l for l in latt.abc]
