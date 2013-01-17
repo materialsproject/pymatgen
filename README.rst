@@ -235,9 +235,11 @@ examples of the core capabilities and objects::
    'Pm-3m'
    >>>
    >>> #Writing out a POSCAR file for VASP calculations.
-   ... from pymatgen.io.vaspio import Poscar
-   >>> poscar = Poscar(structure)
-   >>> poscar.write_file("POSCAR")
+   ... poscar = Poscar(structure)
+   >>> mg.write_structure(structure, "POSCAR")
+   >>>
+   >>> #Reading a structure from a file. Supported files include CIF, POSCAR, etc.
+   >>> structure = mg.read_structure("POSCAR")
 
 The above illustrates only the most basic capabilities of pymatgen.
 
