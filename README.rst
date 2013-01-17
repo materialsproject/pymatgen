@@ -235,7 +235,7 @@ examples of the core capabilities and objects::
    'Pm-3m'
    >>>
    >>> #Writing out a POSCAR file for VASP calculations.
-   ... poscar = Poscar(structure)
+   >>> poscar = Poscar(structure)
    >>> mg.write_structure(structure, "POSCAR")
    >>>
    >>> #Reading a structure from a file. Supported files include CIF, POSCAR, etc.
