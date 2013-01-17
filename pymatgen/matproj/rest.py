@@ -100,13 +100,17 @@ class MPRester(object):
 
         try:
             response = requests.get(url, headers=headers)
-            data = json.loads(response.text, cls=PMGJSONDecoder)
-            if data["valid_response"]:
-                if data.get("warning"):
-                    warnings.warn(data["warning"])
-                return data["response"]
-            else:
-                raise MPRestError(data["error"])
+            if response.status_code in [200, 400]:
+                data = json.loads(response.text, cls=PMGJSONDecoder)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return data["response"]
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST error with status code {} and error {}"
+                              .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -305,13 +309,19 @@ class MPRester(object):
             response = requests.post(
                 "https://{}/rest/v1/mpquery".format(self.host),
                 headers=headers, data=payload)
-            data = json.loads(response.text, cls=PMGJSONDecoder)
-            if data["valid_response"]:
-                if data.get("warning"):
-                    warnings.warn(data["warning"])
-                return data["response"]["results"]
-            else:
-                raise MPRestError(data["error"])
+
+            if response.status_code in [200, 400]:
+                data = json.loads(response.text, cls=PMGJSONDecoder)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return data["response"]["results"]
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST error with status code {} and error {}"
+                              .format(response.status_code, response.text))
+
         except Exception as ex:
             raise MPRestError(str(ex))
 
