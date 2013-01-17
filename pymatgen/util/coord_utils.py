@@ -138,6 +138,10 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
     
+    #ensure that all points are in the unit cell
+    fcoords1 = np.mod(fcoords1, 1)
+    fcoords2 = np.mod(fcoords2, 1)
+    
     #create images, 2d array of all length 3 combinations of [-1,0,1]
     r = np.arange(-1,2)
     arange = r[:, None] * np.array([1, 0, 0])[None, :]

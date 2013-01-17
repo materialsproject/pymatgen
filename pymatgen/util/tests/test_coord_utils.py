@@ -83,6 +83,11 @@ class CoordUtilsTest(unittest.TestCase):
         #test just one input point
         output2 = pbc_all_distances(lattice, fcoords[0], fcoords)
         self.assertTrue(np.allclose(output2, expected[0], rtol = 0, atol = 0.001))
+        #test distance when initial points are not in unit cell
+        f1 = [0, 0, 17]
+        f2 = [0, 0, 10]
+        self.assertEqual(pbc_all_distances(lattice, f1, f2)[0,0], 0)
+        
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
