@@ -277,4 +277,26 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
 
     return np.transpose(d)
     
+def barycentric_coords(coords, simplex):
+    """
+    Converts a list of coordinates to barycentric coordinates, given a 
+    simplex with d+1 points. Only works for d >= 2
+    Args:
+        coords:
+            list of n coords to transform, shape should be (n,d)
+        simplex:
+            list of coordinates that form the simplex, shape should be
+            (d+1, d)
+    Returns:
+        a LIST of barycentric coordinates (even if the original input was 1d)
+    """
+    coords = np.atleast_2d(coords)
+    
+    T = np.transpose(simplex[:-1, :]) - np.transpose(simplex[-1, :])[:, None]
+    T_inv = np.linalg.inv(T)
+    all_but_one = np.transpose(np.dot(T_inv, np.transpose(coords - simplex[-1])))
+    last_coord = 1 - np.sum(all_but_one, axis = -1)[:, None]
+    return np.append(all_but_one, last_coord, axis = -1)
 
+
+    
