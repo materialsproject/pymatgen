@@ -20,7 +20,8 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc,\
-    find_in_coord_list, find_in_coord_list_pbc, pbc_all_distances
+    find_in_coord_list, find_in_coord_list_pbc, pbc_all_distances,\
+    barycentric_coords
 
 
 class CoordUtilsTest(unittest.TestCase):
@@ -121,6 +122,29 @@ class CoordUtilsTest(unittest.TestCase):
         self.assertEqual(len(get_points_in_sphere_pbc(latt, pts,
                                                       [0.5, 0.5, 0.5],
                                                       0.5)), 515)
-
+        
+    def test_barycentric(self):
+        #2d test
+        simplex1 = np.array([[0.3,0.1], [0.2,-1.2], [1.3,2.3]])
+        pts1 = np.array([[0.6,0.1],[1.3,2.3], [0.5, 0.5], [.7, 1]])
+        output1 = barycentric_coords(pts1, simplex1)
+        #do back conversion to cartesian
+        o_dot_s = np.sum(output1[:,:,None] * simplex1[None, :, :], axis = 1)
+        self.assertTrue(np.allclose(pts1, o_dot_s))
+        
+        #do 3d tests
+        simplex2 = np.array([[0,0,1], [0,1,0], [1,0,0], [0,0,0]])
+        pts2 = np.array([[0,0,1], [0, 0.5, 0.5], [1./3, 1./3, 1./3]])
+        output2 = barycentric_coords(pts2, simplex2)
+        self.assertTrue(np.allclose(output2[1], [0.5, 0.5, 0,0]))
+        #do back conversion to cartesian
+        o_dot_s = np.sum(output2[:,:,None] * simplex2[None, :, :], axis = 1)
+        self.assertTrue(np.allclose(pts2, o_dot_s))
+        #test single point
+        self.assertTrue(np.allclose(output2[2], 
+                                    barycentric_coords(pts2[2], simplex2)))
+        
+        
+        
 if __name__ == "__main__":
     unittest.main()
