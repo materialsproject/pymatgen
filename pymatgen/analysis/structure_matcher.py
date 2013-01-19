@@ -14,7 +14,6 @@ __email__ = "sdacek@mit.edu"
 __status__ = "Beta"
 __date__ = "Dec 3, 2012"
 
-
 import numpy as np
 import itertools
 import abc
@@ -218,7 +217,7 @@ class StructureMatcher(object):
                stol.
             ii. If true: break and return true
     """
-    
+
     def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
@@ -255,44 +254,45 @@ class StructureMatcher(object):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
-    
-    def _get_lattices(self,s1,s2,vol_tol):   
+
+    def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
 
-        all_nn = ds.get_neighbors(ds[0], (1+self.ltol)*max(s1_lengths))
+        all_nn = ds.get_neighbors(ds[0], (1 + self.ltol) * max(s1_lengths))
 
         nv = []
         for l in s1_lengths:
             nvi = [site.coords for site, dist in all_nn
-                   if (1-self.ltol) * l < dist < (1+self.ltol) * l]
+                   if (1 - self.ltol) * l < dist < (1 + self.ltol) * l]
             if not nvi:
                 return
             nv.append(nvi)
-        
+
         #The vectors are broadcast into a 5-D array containing
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
         #same variables and calculating determinants individually
-        bfl = np.array(nv[0])[None, None, :, None, :] * \
-                 np.array([1,0,0])[None, None, None, :, None] + \
-              np.array(nv[1])[None, :, None, None, :] * \
-                 np.array([0,1,0])[None, None, None, :, None] + \
-              np.array(nv[2])[:, None, None, None, :] * \
-                 np.array([0,0,1])[None, None, None, :, None]
-                 
+        bfl = np.array(nv[0])[None, None, :, None, :] *\
+              np.array([1, 0, 0])[None, None, None, :, None] +\
+              np.array(nv[1])[None, :, None, None, :] *\
+              np.array([0, 1, 0])[None, None, None, :, None] +\
+              np.array(nv[2])[:, None, None, None, :] *\
+              np.array([0, 0, 1])[None, None, None, :, None]
+
         #Compute volume of each array
-        vol = np.sum(bfl[:,:,:,0,:]*np.cross(bfl[:,:,:,1,:], bfl[:,:,:,2,:]),3)
+        vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
+                                                   bfl[:, :, :, 2, :]), 3)
         #Find valid cells
         valid = np.where(abs(vol) >= vol_tol)
-        
+
         #loop over valid lattices
         for lat in bfl[valid]:
-            nl  = Lattice(lat)
+            nl = Lattice(lat)
             if np.allclose(nl.angles, s1_angles, rtol=0,
                                atol=self.angle_tol):
                     yield nl
-                              
+
     def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
@@ -309,6 +309,7 @@ class StructureMatcher(object):
                 return False
         return True
     
+
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -325,8 +326,8 @@ class StructureMatcher(object):
         stol = self.stol
         comparator = self._comparator
 
-        if comparator.get_structure_hash(struct1) != \
-            comparator.get_structure_hash(struct2):
+        if comparator.get_structure_hash(struct1) !=\
+           comparator.get_structure_hash(struct2):
             return False
 
         #primitive cell transformation
@@ -364,7 +365,7 @@ class StructureMatcher(object):
 
         #fractional tolerance of atomic positions
         frac_tol = np.array([stol / i for i in struct1.lattice.abc])
-        
+
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -392,6 +393,7 @@ class StructureMatcher(object):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
+
             #if no site match found return false
             if not found:
                 return False
@@ -400,8 +402,8 @@ class StructureMatcher(object):
         s1_translation = s1[0][0]
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
+
         #do permutations of vectors, check for equality
-        
         for nl in self._get_lattices(struct1, struct2, vol_tol):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
