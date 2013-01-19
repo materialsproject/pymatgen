@@ -23,7 +23,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
-from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
@@ -293,36 +292,21 @@ class StructureMatcher(object):
             if np.allclose(nl.angles, s1_angles, rtol=0,
                                atol=self.angle_tol):
                     yield nl
-                    
-    def _cmp_struct(self, s1, s2, nl, frac_tol):
+                              
+    def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
-            #Available vectors
-            avail = [1] * len(s1_coords)
-            for coord in s1_coords:
+            # generate the Bipartite adjacency matrix
+            biadjacency = np.matrix(np.zeros((len(s1_coords),len(s1_coords))))
+            for coord, i in zip(s1_coords,range(len(s1_coords))):
                 ind = find_in_coord_list_pbc(s2_coords, coord, frac_tol)
-                #if more than one match found, take closest
-                if len(ind) > 1:
-                    #only check against available vectors
-                    ind = [i for i in ind if avail[i]]
-                    if len(ind) > 1:
-                        #get cartesian distances from periodic distances
-                        pb_dists = np.array([pbc_diff(s2_coords[i], coord)
-                                             for i in ind])
-                        carts = nl.get_cartesian_coords(pb_dists)
-                        dists = np.array([np.linalg.norm(carts[i])
-                                          for i in range(len(ind))])
-                        #use smallest distance
-                        ind = np.where(dists == np.min(dists))[0][0]
-                        avail[ind] = 0
-                    elif len(ind):
-                        avail[ind[0]] = 0
-                    else:
-                        return False
-                elif len(ind) and avail[ind]:
-                    avail[ind] = 0
+                if len(ind):
+                    biadjacency[ind,i] = 1
                 else:
                     return False
+            #Zero iff the biadjacency matrix does not have a perfect match
+            if not np.linalg.det(np.transpose(biadjacency)*biadjacency):
+                return False
         return True
     
     def fit(self, struct1, struct2):
@@ -422,7 +406,7 @@ class StructureMatcher(object):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                if self._cmp_struct(s1, t_s2, nl, frac_tol):
+                if self._cmp_struct(s1, t_s2, frac_tol):
                     return True
         return False
 
