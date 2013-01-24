@@ -266,6 +266,10 @@ class Element(object):
                          "coefficient_of_linear_thermal_expansion"]:
             return self._data[a.capitalize().replace("_", " ")]
         raise AttributeError(a)
+    
+    def __getnewargs__(self):
+        #function used by pickle to recreate object
+        return (self._symbol,)
 
     @property
     def average_ionic_radius(self):
