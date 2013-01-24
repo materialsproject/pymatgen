@@ -127,7 +127,8 @@ class TransformedStructure(MSONable):
         return self._structures[index], self._changes[0:index]
 
     def __getattr__(self, name):
-        return getattr(self._structures[-1], name)
+        s = object.__getattribute__(self, '_structures')[-1]
+        return getattr(s, name)
 
     def __len__(self):
         return len(self._structures)
