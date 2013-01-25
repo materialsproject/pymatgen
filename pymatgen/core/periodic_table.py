@@ -266,6 +266,10 @@ class Element(object):
                          "coefficient_of_linear_thermal_expansion"]:
             return self._data[a.capitalize().replace("_", " ")]
         raise AttributeError(a)
+    
+    def __getnewargs__(self):
+        #function used by pickle to recreate object
+        return (self._symbol,)
 
     @property
     def average_ionic_radius(self):
@@ -632,8 +636,11 @@ class Specie(MSONable):
                 raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
-        if a in self._properties:
-            return self._properties[a]
+        #overriding getattr doens't play nice with pickle, so we
+        #can't use self._properties
+        p = object.__getattribute__(self, '_properties')
+        if a in p:
+            return p[a]
         try:
             return getattr(self._el, a)
         except:
