@@ -23,8 +23,8 @@ import os
 import re
 import warnings
 
+from multiprocessing import Pool
 from pymatgen.alchemy.materials import TransformedStructure
-
 
 class StandardTransmuter(object):
     """
@@ -37,7 +37,7 @@ class StandardTransmuter(object):
     """
 
     def __init__(self, transformed_structures, transformations=None,
-                 extend_collection=0):
+                 extend_collection=0, ncores = None):
         """
         Args:
             transformed_structures:
@@ -48,8 +48,12 @@ class StandardTransmuter(object):
                 Whether to use more than one output structure from one-to-many
                 transformations. extend_collection can be a number, which
                 determines the maximum branching for each transformation.
+            ncores:
+                Number of cores to use for applying transformations.
+                Uses multiprocessing.Pool
         """
         self.transformed_structures = transformed_structures
+        self.ncores = ncores
         if transformations is not None:
             for trans in transformations:
                 self.append_transformation(trans,
@@ -135,15 +139,23 @@ class StandardTransmuter(object):
             each boolean describes whether the transformation altered the
             structure
         """
-        new_structures = []
-
-        for x in self.transformed_structures:
-            new = x.append_transformation(transformation, extend_collection,
-                                          clear_redo=clear_redo)
-            if new is not None:
-                new_structures.extend(new)
-
-        self.transformed_structures.extend(new_structures)
+        if self.ncores and transformation.use_multiprocessing:
+            p = Pool(self.ncores)
+            #need to condense arguments into single tuple to use map
+            z = map(lambda x: (x, transformation, extend_collection, clear_redo),
+                      self.transformed_structures)
+            new_tstructs = p.map(_apply_transformation, z, 1)
+            self.transformed_structures = []
+            for ts in new_tstructs:
+                self.transformed_structures.extend(ts)
+        else:
+            new_structures = []
+            for x in self.transformed_structures:
+                new = x.append_transformation(transformation, extend_collection,
+                                              clear_redo=clear_redo)
+                if new is not None:
+                    new_structures.extend(new)
+            self.transformed_structures.extend(new_structures)
 
     def extend_transformations(self, transformations):
         """
@@ -420,3 +432,29 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             from pymatgen.io.cifio import CifWriter
             writer = CifWriter(s.final_structure)
             writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
+
+
+def _apply_transformation(inputs):
+    """
+    Helper method for multiprocessing of apply_transformation. Must not be
+    in the class so that it can be pickled.
+    
+    Args:
+        inputs: 
+            a tuple containing the transformed structure, the transformation
+            to be applied, a boolean indicating whether to extend the 
+            collection, and a boolean indicating whether to clear the redo
+        
+    Returns:
+        List of output structures (the modified initial structure, plus
+        any new structures created by a one-to-many transformation)
+        
+    """
+    ts, transformation, extend_collection, clear_redo = inputs
+    new = ts.append_transformation(transformation, extend_collection,
+                                   clear_redo=clear_redo)
+    o = [ts]
+    if new:
+        o.extend(new)
+    return o
+

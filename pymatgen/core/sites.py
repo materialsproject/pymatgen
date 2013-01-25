@@ -79,8 +79,11 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return {k: v for k, v in self._properties.items()}
 
     def __getattr__(self, a):
-        if a in self._properties:
-            return self._properties[a]
+        #overriding getattr doens't play nice with pickle, so we
+        #can't use self._properties
+        p = object.__getattribute__(self, '_properties')
+        if a in p:
+            return p[a]
         raise AttributeError(a)
 
     def distance(self, other):

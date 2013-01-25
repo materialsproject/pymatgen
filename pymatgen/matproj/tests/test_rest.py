@@ -25,7 +25,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from nose.exc import SkipTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+    'test_files')
 
 
 class MPResterTest(unittest.TestCase):
@@ -41,24 +41,24 @@ class MPResterTest(unittest.TestCase):
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
                  "density", "icsd_id", "total_magnetization"
-                 ]
-        expected_vals = [-191.33812137, -6.833504334642858, -2.5532843405078913, 28,
-                         {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4}, "LiFePO4",
-                         True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
+        ]
+        expected_vals = [-191.33812137, -6.833504334642858, -2.5532843405078913,
+                         28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
+                         "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
                          {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
-                         [540081, 19017], 3.4660546589064176,56291, 16.0002716]
+                         [540081, 19017], 3.4662026991351147, 56291, 16.0002716]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
-                val =  self.adaptor.get_data(540081, prop=prop)[0][prop]
+                val = self.adaptor.get_data(540081, prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
-                                 set(self.adaptor.get_data(540081,
-                                                        prop=prop)[0][prop]))
+                    set(self.adaptor.get_data(540081,
+                        prop=prop)[0][prop]))
             else:
                 self.assertEqual(expected_vals[i],
-                                 self.adaptor.get_data(540081, prop=prop)[0][prop])
+                    self.adaptor.get_data(540081, prop=prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
@@ -74,7 +74,9 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(data) > 1)
         elements = set([Element("Li"), Element("Fe"), Element("O")])
         for d in data:
-            self.assertTrue(set(Composition(d['unit_cell_formula']).elements).issubset(elements))
+            self.assertTrue(
+                set(Composition(d['unit_cell_formula']).elements).issubset(
+                    elements))
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
@@ -96,7 +98,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
     def test_mpquery(self):
-        criteria = {'elements':{'$in':['Li', 'Na', 'K'], '$all': ['O']}}
+        criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['formula', 'energy']
         data = self.adaptor.mpquery(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
