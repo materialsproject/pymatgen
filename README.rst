@@ -25,9 +25,9 @@ The pymatgen library is free (as in free beer) to download and to use. However,
 we would also like you to help us improve this library by making your own
 contributions as well.  These contributions can be in the form of additional
 tools or modules you develop, or even simple things such as bug reports. Please
-read the Contributing_ section or contact the maintainer of this library
-(shyue@mit.edu) to find out how to include your contributions via github or for
-bug reports.
+read the Contributing section or contact the maintainer of this library
+(shyuep@gmail.com) to find out how to include your contributions via
+github or for bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward
