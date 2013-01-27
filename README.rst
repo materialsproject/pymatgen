@@ -1,7 +1,7 @@
-.. image:: https://travis-ci.org/materialsproject/pymatgen.png
+Python Materials Genomics
+=========================
 
-Introduction
-============
+.. image:: https://travis-ci.org/materialsproject/pymatgen.png
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. It currently powers the public Materials Project
@@ -25,19 +25,19 @@ The pymatgen library is free (as in free beer) to download and to use. However,
 we would also like you to help us improve this library by making your own
 contributions as well.  These contributions can be in the form of additional
 tools or modules you develop, or even simple things such as bug reports. Please
-read the Contributing_ section or contact the maintainer of this library
-(shyue@mit.edu) to find out how to include your contributions via github or for
-bug reports.
+read the Contributing section or contact the maintainer of this library
+(shyuep@gmail.com) to find out how to include your contributions via
+github or for bug reports.
 
 Note that pymatgen, like all scientific research, will always be a work in
 progress. While the development team will always strive to avoid backward
 incompatible changes, they are sometimes unavoidable, and tough decisions have
 to be made for the long term health of the code.
 
-The most up-to-date documention is available at our github page
+The most up-to-date documentation is available at our github page
 (http://materialsproject.github.com/pymatgen/), where you can also report any
 bugs/issues. If you wish to be notified of pymatgen releases, you may
-become a member of `pymatgen's Google Groups page`_.
+become a member of `pymatgen's Google Groups page <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
 Getting pymatgen
 ================
@@ -45,7 +45,8 @@ Getting pymatgen
 Stable version
 --------------
 
-pymatgen is now in the Python Package Index (`PyPI`_). The version on
+pymatgen is now in the Python Package Index
+(`PyPI <http://pypi.python.org/pypi/pymatgen>`_). The version on
 PyPI is always the latest stable release that will be hopefully, be relatively
 bug-free. The easiest way to install pymatgen on any system is to use
 easy_install or pip. If you have setuptools or pip installed,
@@ -58,10 +59,10 @@ or::
    pip install pymatgen
 
 to install pymatgen with most of the dependencies set up. Otherwise,
-the latest stable source can be downloaded at the `PyPI`_ site as well. Note
-that you may need to *install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib extension used for symmetry
-analysis*.
+the latest stable source can be downloaded at the
+`PyPI <http://pypi.python.org/pypi/pymatgen>`_ site as well. Note that you
+may need to *install numpy before installing pymatgen as numpy's distutils is
+needed to compile the spglib extension used for symmetry analysis*.
 
 Developmental version
 ---------------------
@@ -166,7 +167,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view} additional_arguments
+    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
@@ -197,13 +198,19 @@ Here are a few examples of typical usages::
 
     matgenie.py view filename
 
+    #Compare two structures for similarity
+
+    matgenie.py compare filename1 filename2
+
 Aliases
 -------
 
 From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
 now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects::
+examples of the core capabilities and objects:
+
+.. code-block:: pycon
 
    >>> import pymatgen as mg
    >>>
@@ -229,7 +236,7 @@ examples of the core capabilities and objects::
    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
    >>>
    >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.finder import SymmetryFinder
+   >>> from pymatgen.symmetry.finder import SymmetryFinder
    >>> finder = SymmetryFinder(structure)
    >>> finder.get_spacegroup_symbol()
    'Pm-3m'
@@ -292,7 +299,7 @@ work:
    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
    Open-Source Python Library for Materials Analysis.* Computational
-   Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
+   Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
@@ -350,7 +357,7 @@ from the Materials Project, please cite the following works:
     A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
     K. Persson, G. Ceder. *A high-throughput infrastructure for density
     functional theory calculations.* Computational Materials Science, 2011,
-    50(8), 2295–2310. `doi:10 .1016/j.commatsci.2011.02.023
+    50(8), 2295-2310. `doi:10 .1016/j.commatsci.2011.02.023
     <http://dx.doi.org/10 .1016/j.commatsci.2011.02.023>`_
 
     S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
@@ -391,6 +398,3 @@ follows::
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-
-.. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
-.. _`PyPI` : http://pypi.python.org/pypi/pymatgen

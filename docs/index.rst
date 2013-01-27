@@ -52,7 +52,8 @@ become a member of `pymatgen's Google Groups page`_.
 Latest Change Log
 =================
 
-1. Miscellaneous bug fixes and speedups.
+1. Bug fix for StructureMatcher.
+2. Miscellaneous speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -140,7 +141,7 @@ scripts in `scripts directory of pymatgen's github repo
 Here, we will discuss the most versatile of these scripts,
 known as matgenie.py. The typical usage of matgenie.py is::
 
-    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view} additional_arguments
+    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
 At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
 --help" to bring up a useful help message on how to use these subcommands.
@@ -171,13 +172,19 @@ Here are a few examples of typical usages::
 
     matgenie.py view filename
 
+    #Compare two structures for similarity
+
+    matgenie.py compare filename1 filename2
+
 Aliases
 -------
 
 From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
 now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects::
+examples of the core capabilities and objects:
+
+.. code-block:: pycon
 
    >>> import pymatgen as mg
    >>>
@@ -203,7 +210,7 @@ examples of the core capabilities and objects::
    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
    >>>
    >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.finder import SymmetryFinder
+   >>> from pymatgen.symmetry.finder import SymmetryFinder
    >>> finder = SymmetryFinder(structure)
    >>> finder.get_spacegroup_symbol()
    'Pm-3m'
