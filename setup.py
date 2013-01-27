@@ -7,11 +7,6 @@ use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
 
 long_description = """
-Python Materials Genomics
-=========================
-
-.. image:: https://travis-ci.org/materialsproject/pymatgen.png
-
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. It currently powers the public Materials Project
 (http://www.materialsproject.org), an initiative to make calculated properties

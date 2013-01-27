@@ -182,7 +182,9 @@ Aliases
 From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
 now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects::
+examples of the core capabilities and objects:
+
+.. code-block:: pycon
 
    >>> import pymatgen as mg
    >>>
@@ -208,7 +210,7 @@ examples of the core capabilities and objects::
    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
    >>>
    >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.finder import SymmetryFinder
+   >>> from pymatgen.symmetry.finder import SymmetryFinder
    >>> finder = SymmetryFinder(structure)
    >>> finder.get_spacegroup_symbol()
    'Pm-3m'
