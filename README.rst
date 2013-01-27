@@ -62,7 +62,7 @@ to install pymatgen with most of the dependencies set up. Otherwise,
 the latest stable source can be downloaded at the
 `PyPI <http://pypi.python.org/pypi/pymatgen>`_ site as well. Note that you
 may need to *install numpy before installing pymatgen as numpy's distutils is
- needed to compile the spglib extension used for symmetry analysis*.
+needed to compile the spglib extension used for symmetry analysis*.
 
 Developmental version
 ---------------------
