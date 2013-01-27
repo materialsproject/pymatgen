@@ -3,7 +3,6 @@ import os
 import json
 import numpy as np
 import random
-from pymatgen.io import smartio as io
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -99,7 +98,12 @@ class StructureMatcherTest(unittest.TestCase):
                 self.assertEqual(len(g), 2)
             else:
                 self.assertEqual(len(g), 1)
-
+                
+    def test_left_handed_lattice(self):
+        """Ensure Left handed lattices are accepted"""
+        sm = StructureMatcher()
+        s = read_structure(os.path.join(test_dir, "Li3GaPCO7.cif"))
+        self.assertTrue(sm.fit(s,s))
 
 if __name__ == '__main__':
     unittest.main()

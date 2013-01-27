@@ -591,7 +591,7 @@ class Structure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
             .format(reduction_algo))
 
-        return Structure(reduced_latt, self.species, self.cart_coords,
+        return Structure(reduced_latt, self.species_and_occu, self.cart_coords,
                          coords_are_cartesian=True, to_unit_cell=True)
 
     def copy(self, site_properties=None, sanitize=False):
@@ -738,7 +738,7 @@ class Structure(SiteCollection, MSONable):
             latt = self._lattice.matrix
             latt[repl_pos] = v
             #Exclude coplanar lattices from consideration.
-            if abs(np.linalg.det(latt)) > min_vol:
+            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) > min_vol:
                 latt = Lattice(latt)
                 #Convert to fractional tol
                 tol = [tolerance / l for l in latt.abc]

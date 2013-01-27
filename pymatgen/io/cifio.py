@@ -145,7 +145,7 @@ class CifParser(object):
             z = float_from_str(data["_atom_site_fract_z"][i])
             try:
                 occu = float_from_str(data["_atom_site_occupancy"][i])
-            except ValueError:
+            except (KeyError, ValueError):
                 occu = 1
             if occu > 0:
                 coord = (x, y, z)
