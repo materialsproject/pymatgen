@@ -7,11 +7,16 @@ use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
 
 long_description = """
+Python Materials Genomics
+=========================
+
+.. image:: https://travis-ci.org/materialsproject/pymatgen.png
+
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. It currently powers the public Materials Project
 (http://www.materialsproject.org), an initiative to make calculated properties
-on a large number of materials available to materials researchers and
-designers. These are some of the main features:
+on a large number of materials available to materials researchers and designers.
+These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
@@ -25,13 +30,22 @@ designers. These are some of the main features:
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
-The latest stable version of pymatgen and its accompanying documentation
-(http://packages.python.org/pymatgen) is always on PyPI. The bleeding edge
-developmental version is available at our GitHub repo at
-https://github.com/materialsproject/pymatgen. If you wish to
-be notified via email of pymatgen releases, you may become a member of
-pymatgen's Google Groups page
-(https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
+The pymatgen library is free (as in free beer) to download and to use. However,
+we would also like you to help us improve this library by making your own
+contributions as well.  These contributions can be in the form of additional
+tools or modules you develop, or even simple things such as bug reports. Please
+read the Contributing section or contact the maintainer of this library
+(shyuep@gmail.com) to find out how to include your contributions via
+our `Github page <https://github.com/materialsproject/pymatgen>`_ or for bug
+reports.
+
+Note that pymatgen, like all scientific research, will always be a work in
+progress. While the development team will always strive to avoid backward
+incompatible changes, they are sometimes unavoidable, and tough decisions have
+to be made for the long term health of the code.
+
+If you wish to be notified of pymatgen releases, you may become a member of
+`pymatgen's Google Groups page <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 """
 
 try:
@@ -64,7 +78,7 @@ def get_spglib_ext():
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.4.1b",
+    version="2.4.3",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],

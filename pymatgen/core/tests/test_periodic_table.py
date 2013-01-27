@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import unittest
+import pickle
+
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     PeriodicTable
 from copy import deepcopy
@@ -154,6 +156,11 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+        
+    def test_pickle(self):
+        el1 = Specie("Fe", 3)
+        o = pickle.dumps(el1)
+        self.assertEqual(el1, pickle.loads(o))
 
 
 class  PeriodicTableTestCase(unittest.TestCase):

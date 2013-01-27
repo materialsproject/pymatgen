@@ -15,6 +15,7 @@ __date__ = "Jul 17, 2012"
 
 import unittest
 import numpy as np
+import pickle
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
@@ -63,6 +64,10 @@ class SiteTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm([0.25, 0.35, 0.45]),
                                osite.distance_from_point([0, 0, 0]))
         self.assertAlmostEqual(osite.distance(self.disordered_site), 0)
+        
+    def test_pickle(self):
+        o = pickle.dumps(self.propertied_site)
+        self.assertEqual(pickle.loads(o), self.propertied_site)
 
 
 class PeriodicSiteTest(unittest.TestCase):
