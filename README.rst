@@ -41,11 +41,11 @@ The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
 install pymatgen on any system is to use easy_install or pip, as follows::
 
-   easy_install pymatgen
+    easy_install pymatgen
 
 or::
 
-   pip install pymatgen
+    pip install pymatgen
 
 Note that you may need to *install numpy before installing pymatgen as
 numpy's distutils is needed to compile the spglib extension used for symmetry
@@ -60,11 +60,11 @@ version is likely to be more buggy, but may contain new features. The
 Github version include test files as well for complete unit testing. After
 cloning the source, you can type::
 
-   python setup.py install
+    python setup.py install
 
 or to install the package in developmental mode::
 
-   python setup.py develop
+    python setup.py develop
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see `pymatgen's documentation
@@ -192,41 +192,41 @@ some quick examples of the core capabilities and objects:
 
 .. code-block:: pycon
 
-   >>> import pymatgen as mg
-   >>>
-   >>> si = mg.Element("Si")
-   >>> si.atomic_mass
-   28.0855
-   >>> si.melting_point
-   u'1687 K'
-   >>>
-   >>> comp = mg.Composition("Fe2O3")
-   >>> comp.weight
-   159.6882
-   >>> comp[mg.Element("Fe")]
-   2.0
-   >>> comp.get_atomic_fraction(mg.Element("Fe"))
-   0.4
-   >>> lattice = mg.Lattice.cubic(4.2)
-   >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-   ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
-   >>> structure.volume
-   74.088000000000008
-   >>> structure[0]
-   PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-   >>>
-   >>> #Integrated symmetry tools from spglib.
-   >>> from pymatgen.symmetry.finder import SymmetryFinder
-   >>> finder = SymmetryFinder(structure)
-   >>> finder.get_spacegroup_symbol()
-   'Pm-3m'
-   >>>
-   >>> #Writing out a POSCAR file for VASP calculations.
-   >>> poscar = Poscar(structure)
-   >>> mg.write_structure(structure, "POSCAR")
-   >>>
-   >>> #Reading a structure from a file. Supported files include CIF, POSCAR, etc.
-   >>> structure = mg.read_structure("POSCAR")
+    >>> import pymatgen as mg
+    >>>
+    >>> si = mg.Element("Si")
+    >>> si.atomic_mass
+    28.0855
+    >>> si.melting_point
+    u'1687 K'
+    >>>
+    >>> comp = mg.Composition("Fe2O3")
+    >>> comp.weight
+    159.6882
+    >>> comp[mg.Element("Fe")]
+    2.0
+    >>> comp.get_atomic_fraction(mg.Element("Fe"))
+    0.4
+    >>> lattice = mg.Lattice.cubic(4.2)
+    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+    ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
+    >>> structure.volume
+    74.088000000000008
+    >>> structure[0]
+    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
+    >>>
+    >>> #Integrated symmetry tools from spglib.
+    >>> from pymatgen.symmetry.finder import SymmetryFinder
+    >>> finder = SymmetryFinder(structure)
+    >>> finder.get_spacegroup_symbol()
+    'Pm-3m'
+    >>>
+    >>> #Writing out a POSCAR file for VASP calculations.
+    >>> poscar = Poscar(structure)
+    >>> mg.write_structure(structure, "POSCAR")
+    >>>
+    >>> #Reading a structure from a file. Supported files include CIF, POSCAR, etc.
+    >>> structure = mg.read_structure("POSCAR")
 
 Advanced Usage
 --------------
