@@ -53,7 +53,7 @@ class StructureMatcherTest(unittest.TestCase):
         """Test match under shuffling of sites"""
         random.shuffle(editor._sites)
         self.assertTrue(sm.fit(self.struct_list[0],editor.modified_structure))
-
+        """Test FrameworkComporator"""
         sm2 = StructureMatcher(comparator=FrameworkComparator())
         lfp = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
         nfp = read_structure(os.path.join(test_dir, "NaFePO4.cif"))
@@ -104,6 +104,14 @@ class StructureMatcherTest(unittest.TestCase):
         sm = StructureMatcher()
         s = read_structure(os.path.join(test_dir, "Li3GaPCO7.cif"))
         self.assertTrue(sm.fit(s,s))
+        
+    def test_to_dict_and_from_dict(self):
+        sm = StructureMatcher(ltol=0.1, stol=0.2, angle_tol=2, 
+                              primitive_cell=False, scale=False, 
+                              comparator=FrameworkComparator())
+        d = sm.to_dict
+        sm2 = StructureMatcher.from_dict(d)
+        self.assertEqual(sm2.to_dict,d)
 
 if __name__ == '__main__':
     unittest.main()
