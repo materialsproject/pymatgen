@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 
 """
-Implementation of the LAPJV algorithm described in:
-
-R. Jonker, A. Volgenant. A Shortest Augmenting Path Algorithm for
-Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
-(1987)
-
-Uses numpy where possible
-Minimizes the cost of the assignment
+This module contains an algorithm to solve the Linear Assignment Problem
 """
 
 from __future__ import division
@@ -24,18 +17,44 @@ import numpy as np
 
 
 class LinearAssignment(object):
-
+    """
+    This class finds the solution to the Linear Assignment Problem.
+    It finds a minimum cost matching between two sets, given a cost
+    matrix.
+    
+    This class is an implementation of the LAPJV algorithm described in:
+    R. Jonker, A. Volgenant. A Shortest Augmenting Path Algorithm for 
+    Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
+    (1987)
+    
+    .. attribute: min_cost:
+    
+        The minimum cost of the matching
+        
+    .. attribute: solution:
+    
+        The matching of the rows to columns. i.e solution = [1, 2, 0]
+        would match row 0 to column 1, row 1 to column 2 and row 2 
+        to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
+    """
+    
     def __init__(self, costs):
+        """
+        Args:
+            costs:
+                The cost matrix of the problem. cost[i,j] should be the
+                cost of matching x[i] to y[j].
+        """
         self.c = np.array(costs)
         self.n = len(costs)
-
+        
+        #initialize solution vectors
         self._x = np.zeros(self.n, dtype = np.int)-1
         self._y = np.zeros(self.n, dtype = np.int)-1
 
-        #preprocess
+        #if column reduction doesn't find a solution, augment with shortest
+        #paths until one is found
         if self._column_reduction():
-            #only augment if column reduction doesn't find full soln
-            #dual row and column variables
             self._augmenting_row_reduction()
             #initialize the reduced costs
             self._update_cred()
@@ -48,6 +67,9 @@ class LinearAssignment(object):
 
     @property
     def min_cost(self):
+        """
+        Returns the cost of the best assignment
+        """
         if self._min_cost:
             return self._min_cost
 
@@ -56,18 +78,22 @@ class LinearAssignment(object):
 
 
     def _column_reduction(self):
-        #column_reduction
+        """
+        Column reduction and reduction transfer steps from LAPJV algorithm
+        """
+        #assign each column to its lowest cost row, ensuring that only row
+        #or column is assigned once
         i1, j = np.unique(np.argmin(self.c, axis = 0), return_index = True)
         self._x[i1] = j
-
+        
+        #if problem is solved, return
         if len(i1) == self.n:
-            #problem is solved, return
             return False
 
         self._y[j] = i1
 
         #reduction_transfer
-        #tempc is array with previously assigned entry masked
+        #tempc is array with previously assigned matchings masked
         self._v = np.min(self.c, axis = 0)
         tempc = self.c.copy()
         tempc[i1, j] = np.max(tempc.flatten()) * 10
@@ -77,6 +103,9 @@ class LinearAssignment(object):
 
 
     def _augmenting_row_reduction(self):
+        """
+        Augmenting row reduction step from LAPJV algorithm
+        """
         unassigned = np.where(self._x == -1)[0]
         for i in unassigned:
             while True:
@@ -104,7 +133,8 @@ class LinearAssignment(object):
 
     def _update_cred(self):
         """
-        updates the reduced costs
+        Updates the reduced costs with the values from the
+        dual solution
         """
         ui = np.diag(self.c[:, self._x]) - self._v[self._x]
         self.cred = self.c - ui[:, None] - self._v[None, :]
@@ -112,14 +142,18 @@ class LinearAssignment(object):
 
     def _augment(self):
         """
-        Finds a minimum path and adds it to the matching
+        Finds a minimum cost path and adds it to the matching
         """
+        #build a minimum cost tree
         self._build_tree()
+        
         #update prices
         delta = self._d[self._ready] - self._mu
         self._v[self._ready] += delta
 
-        #augmentation
+        #augment the solution with the minimum cost path from the
+        #tree. Follows an alternating path along matched, unmatched
+        #edges from X to Y
         while True:
             self._i = self._pred[self._j]
             self._y[self._j] = self._i
@@ -133,7 +167,10 @@ class LinearAssignment(object):
 
     def _build_tree(self):
         """
-        builds the tree finding an augmenting path
+        Builds the tree finding an augmenting path. Alternates along
+        matched and unmatched edges between X and Y. The paths are
+        stored in self._pred (new predecessor of nodes in Y), and 
+        self._x and self._y
         """
         #find unassigned i*
         self._istar = np.argmin(self._x)
@@ -141,7 +178,13 @@ class LinearAssignment(object):
         #compute distances
         self._d = self.c[self._istar] - self._v
         self._pred = np.zeros(self.n, dtype = np.int) + self._istar
-
+        
+        #initialize sets
+        #READY: set of nodes visited and in the path (whose price gets 
+        #updated in augment)
+        #SCAN: set of nodes at the bottom of the tree, which we need to
+        #look at
+        #T0DO: unvisited nodes
         self._ready = np.zeros(self.n, dtype = np.bool)
         self._scan = np.zeros(self.n, dtype = np.bool)
         self._todo = np.zeros(self.n, dtype = np.bool) + True
@@ -172,10 +215,11 @@ class LinearAssignment(object):
             #update distances
             self._d[shorter] = newdists[shorter]
 
-            #update pred
+            #update predecessors
             self._pred[shorter] = self._i
 
-            for self._j in np.argwhere((self._d == self._mu) * self._todo).flatten():
+            for self._j in np.argwhere((self._d == self._mu) \
+                                       * self._todo).flatten():
                 if self._y[self._j] == -1:
                     return
                 self._scan[self._j] = 1
