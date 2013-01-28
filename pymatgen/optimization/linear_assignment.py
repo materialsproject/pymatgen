@@ -127,7 +127,7 @@ class LinearAssignment(object):
                     self._x[i] = j1
                     self._y[j1] = i
                     i = k
-                if u1 == u2 or k == -1:
+                if np.allclose(u1, u2) or k == -1:
                     break
 
 
