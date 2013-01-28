@@ -1,5 +1,4 @@
-import numpy as np
-
+#!/usr/bin/env python
 """
 Implementation of the LAPJV algorithm described in:
 
@@ -10,6 +9,17 @@ Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
 Uses numpy where possible
 Minimizes the cost of the assignment
 """
+
+from __future__ import division
+
+__author__ = "Will Richards"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Will Richards"
+__email__ = "wrichards@mit.edu"
+__date__ = "Jan 28, 2013"
+
+import numpy as np
 
 class LinearAssignment():
     
