@@ -2,9 +2,9 @@
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. It currently powers the public Materials Project
-(http://www.materialsproject.org), an initiative to make calculated properties
-on a large number of materials available to materials researchers and designers.
-These are some of the main features:
+(http://www.materialsproject.org), an initiative to make calculated
+properties of all known inorganic materials available to materials
+researchers. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
@@ -18,20 +18,18 @@ These are some of the main features:
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
-The pymatgen library is free (as in free beer) to download and to use. However,
-we would also like you to help us improve this library by making your own
-contributions as well.  These contributions can be in the form of additional
-tools or modules you develop, or even simple things such as bug reports.
+Pymatgen, like all scientific research, will always be a work in progress.
+While the development team will always strive to avoid backward incompatible
+changes, they are sometimes unavoidable, and tough decisions have to be made
+for the long term health of the code.
 
-Note that pymatgen, like all scientific research, will always be a work in
-progress. While the development team will always strive to avoid backward
-incompatible changes, they are sometimes unavoidable, and tough decisions have
-to be made for the long term health of the code.
-
-Please report any bugs and issues at pymatgen's `Github page
+Pymatgen is free to use. However, we also welcome your help to improve this
+library by making your own contributions.  These contributions can be in the
+form of additional tools or modules you develop, or even simple things such
+as bug reports. Please report any bugs and issues at pymatgen's `Github page
 <https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups
-page <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+of pymatgen releases, you may become a member of `pymatgen's Google Groups page
+<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
 Getting pymatgen
 ================
@@ -49,19 +47,18 @@ or::
 
    pip install pymatgen
 
-to install pymatgen with most of the dependencies set up. Note that you
-may need to *install numpy before installing pymatgen as numpy's distutils is
-needed to compile the spglib extension used for symmetry analysis*.
+Note that you may need to *install numpy before installing pymatgen as
+numpy's distutils is needed to compile the spglib extension used for symmetry
+analysis*.
 
 Developmental version
 ---------------------
 
-The bleeding edge developmental version is at the public pymatgen `Github
-repo <https://github.com/materialsproject/pymatgen>`_. The developmental
+The bleeding edge developmental version is at the pymatgen's `Github repo
+<https://github.com/materialsproject/pymatgen>`_. The developmental
 version is likely to be more buggy, but may contain new features. The
-Github version include test files as well for complete unit testing.
-
-After cloning the source, you can type::
+Github version include test files as well for complete unit testing. After
+cloning the source, you can type::
 
    python setup.py install
 
@@ -69,10 +66,9 @@ or to install the package in developmental mode::
 
    python setup.py develop
 
-With these basic steps, you should be able to use most of the basic
-functionality of pymatgen. However, some extra functionality (generation of
-POTCARs) do require additional setup (please see `pymatgen's documentation
-<http://packages.python.org/pymatgen>`_.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup (please see `pymatgen's documentation
+<http://packages.python.org/pymatgen>`_).
 
 Requirements
 ============
@@ -81,10 +77,7 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-Required for proper functioning of the code
--------------------------------------------
-
-1. Python 2.7+ required.  New default modules such as json are used, as well as
+1. Python 2.7+ required. New default modules such as json are used, as well as
    new unittest features in Python 2.7.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
@@ -93,9 +86,10 @@ Required for proper functioning of the code
    (CIF) files.
 5. requests 1.0+: For the high-level interface to the Materials API.
 
-Optional Python Libraries
--------------------------
-Optional python libraries that are required if you need certain features
+Optional dependencies
+---------------------
+
+Optional libraries that are required if you need certain features:
 
 1. scipy 0.10+ (highly recommended): For use in Gaussian smearing.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
@@ -113,12 +107,12 @@ Optional python libraries that are required if you need certain features
 Optional non-Python programs
 ----------------------------
 
-Optional non-python libraries (because no good pythonic alternative exists at
-the moment) required only for certain features.
+Optional non-python libraries (because no good python alternative exists at
+the moment) required only for certain features:
 
-1. ffmpeg: Needed for generation of movies (structure_vtk.py).  The executable
-   ffmpeg must be in the path. Get it at http://www.ffmpeg.org.
-2. enum: Needed for the use of EnumerateStructureTransformation and the
+1. ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
+   must be in the path. Get it at http://www.ffmpeg.org.
+2. enum: For the use of EnumerateStructureTransformation and the
    pymatgen.command_line.enumlib_caller module. This library by Gus Hart
    provides a robust way to enumerate derivative structures. It can be used to
    completely enumerate all symmetrically distinct ordered structures of
@@ -189,13 +183,12 @@ Here are a few examples of typical usages::
 
     matgenie.py compare filename1 filename2
 
-Aliases
--------
+Basic usage
+-----------
 
-From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
-now provided, similar in style to numpy. Supported objects include Element,
-Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects:
+Useful aliases for commonly used objects are provided. Supported objects
+include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
+some quick examples of the core capabilities and objects:
 
 .. code-block:: pycon
 
@@ -235,8 +228,6 @@ examples of the core capabilities and objects:
    >>> #Reading a structure from a file. Supported files include CIF, POSCAR, etc.
    >>> structure = mg.read_structure("POSCAR")
 
-The above illustrates only the most basic capabilities of pymatgen.
-
 Advanced Usage
 --------------
 
@@ -250,13 +241,14 @@ How to cite pymatgen
 If you use pymatgen in your research, please consider citing the following
 work:
 
-Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
-Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
-Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
-Open-Source Python Library for Materials Analysis.* Computational
-Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
-<http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
+    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
+    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
+    Open-Source Python Library for Materials Analysis.* Computational
+    Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
+    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
-Please refer to pymatgen's documentation on how to cite them.
+Please refer to `pymatgen's documentation
+<http://packages.python.org/pymatgen>`_ on how to cite them.
