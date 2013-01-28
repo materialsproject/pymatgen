@@ -159,7 +159,7 @@ Here are a few examples of typical usages::
 
     #Convert between file formats. The script attempts to intelligently
     #determine the file type. Input file types supported include CIF,
-    #vasprun.xml, POSCAR, CSSR.You can force the script to assume certain file
+    #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
     #types by specifying additional arguments. See matgenie.py convert -h.
 
     matgenie.py convert input_filename output_filename.
