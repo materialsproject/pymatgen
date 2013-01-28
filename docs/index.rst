@@ -13,9 +13,9 @@ Introduction
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. It currently powers the public Materials Project
-(http://www.materialsproject.org), an initiative to make calculated properties
-on a large number of materials available to materials researchers and designers.
-These are some of the main features:
+(http://www.materialsproject.org), an initiative to make calculated
+properties of all known inorganic materials available to materials
+researchers. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
@@ -29,23 +29,18 @@ These are some of the main features:
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
-The pymatgen library is free (as in free beer) to download and to use. However,
-we would also like you to help us improve this library by making your own
-contributions as well.  These contributions can be in the form of additional
-tools or modules you develop, or even simple things such as bug reports. Please
-read the Contributing_ section or contact the maintainer of this library
-(shyue@mit.edu) to find out how to include your contributions via github or for
-bug reports.
+Pymatgen, like all scientific research, will always be a work in progress.
+While the development team will always strive to avoid backward incompatible
+changes, they are sometimes unavoidable, and tough decisions have to be made
+for the long term health of the code.
 
-Note that pymatgen, like all scientific research, will always be a work in
-progress. While the development team will always strive to avoid backward
-incompatible changes, they are sometimes unavoidable, and tough decisions have
-to be made for the long term health of the code.
-
-The most up-to-date documention is available at our github page
-(http://materialsproject.github.com/pymatgen/), where you can also report any
-bugs/issues. If you wish to be notified of pymatgen releases, you may
-become a member of `pymatgen's Google Groups page`_.
+Pymatgen is free to use. However, we also welcome your help to improve this
+library by making your own contributions.  These contributions can be in the
+form of additional tools or modules you develop, or even simple things such
+as bug reports. Please report any bugs and issues at pymatgen's `Github page
+<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
+of pymatgen releases, you may become a member of `pymatgen's Google Groups page
+<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
    *The code is mightier than the pen.*
 
@@ -63,11 +58,9 @@ Getting pymatgen
 Stable version
 --------------
 
-pymatgen is now in the Python Package Index (`PyPI`_). The version on
-PyPI is always the latest stable release that will be hopefully, be relatively
-bug-free. The easiest way to install pymatgen on any system is to use
-easy_install or pip. If you have setuptools or pip installed,
-you can just type::
+The version at the Python Package Index (PyPI) is always the latest stable
+release that will be hopefully, be relatively bug-free. The easiest way to
+install pymatgen on any system is to use easy_install or pip, as follows::
 
    easy_install pymatgen
 
@@ -75,22 +68,18 @@ or::
 
    pip install pymatgen
 
-to install pymatgen with most of the dependencies set up. Otherwise,
-the latest stable source can be downloaded at the `PyPI`_ site as well. Note
-that you may need to *install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib extension used for symmetry
+Note that you may need to *install numpy before installing pymatgen as
+numpy's distutils is needed to compile the spglib extension used for symmetry
 analysis*.
 
 Developmental version
 ---------------------
 
-Alternatively, the bleeding edge developmental version is at the public
-pymatgen's `Github repo <https://github.com/materialsproject/pymatgen>`_. The
-developmental version is likely to be more buggy, but may contain new
-features. Note that the GitHub versions include test files as well for
-complete unit testing.
-
-From the source, you can type::
+The bleeding edge developmental version is at the pymatgen's `Github repo
+<https://github.com/materialsproject/pymatgen>`_. The developmental
+version is likely to be more buggy, but may contain new features. The
+Github version include test files as well for complete unit testing. After
+cloning the source, you can type::
 
    python setup.py install
 
@@ -98,11 +87,9 @@ or to install the package in developmental mode::
 
    python setup.py develop
 
-With these basic steps, you should be able to use most of the basic
-functionality of pymatgen. However, some extra functionality (generation of
-POTCARs) do require additional setup. Please see the following sections for
-further details on the dependencies needed, where to get them and how to
-install them.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup.Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 Detailed installation help
 --------------------------
