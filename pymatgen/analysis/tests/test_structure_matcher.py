@@ -98,20 +98,20 @@ class StructureMatcherTest(unittest.TestCase):
                 self.assertEqual(len(g), 2)
             else:
                 self.assertEqual(len(g), 1)
-                
+
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
         s = read_structure(os.path.join(test_dir, "Li3GaPCO7.cif"))
         self.assertTrue(sm.fit(s,s))
-        
+
     def test_to_dict_and_from_dict(self):
-        sm = StructureMatcher(ltol=0.1, stol=0.2, angle_tol=2, 
-                              primitive_cell=False, scale=False, 
+        sm = StructureMatcher(ltol=0.1, stol=0.2, angle_tol=2,
+                              primitive_cell=False, scale=False,
                               comparator=FrameworkComparator())
         d = sm.to_dict
         sm2 = StructureMatcher.from_dict(d)
-        self.assertEqual(sm2.to_dict,d)
+        self.assertEqual(sm2.to_dict, d)
 
 if __name__ == '__main__':
     unittest.main()
