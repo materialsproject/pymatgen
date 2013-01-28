@@ -47,7 +47,7 @@ The most up-to-date documention is available at our github page
 bugs/issues. If you wish to be notified of pymatgen releases, you may
 become a member of `pymatgen's Google Groups page`_.
 
-   *The code is mightier than the pen.*
+    *The code is mightier than the pen.*
 
 Latest Change Log
 =================
@@ -68,11 +68,11 @@ bug-free. The easiest way to install pymatgen on any system is to use
 easy_install or pip. If you have setuptools or pip installed,
 you can just type::
 
-   easy_install pymatgen
+    easy_install pymatgen
 
 or::
 
-   pip install pymatgen
+    pip install pymatgen
 
 to install pymatgen with most of the dependencies set up. Otherwise,
 the latest stable source can be downloaded at the `PyPI`_ site as well. Note
@@ -91,11 +91,11 @@ complete unit testing.
 
 From the source, you can type::
 
-   python setup.py install
+    python setup.py install
 
 or to install the package in developmental mode::
 
-   python setup.py develop
+    python setup.py develop
 
 With these basic steps, you should be able to use most of the basic
 functionality of pymatgen. However, some extra functionality (generation of
@@ -179,41 +179,41 @@ now provided, similar in style to numpy. Supported objects include Element,
 Composition, Structure, Molecule, Spin and Orbital. Here are some quick
 examples of the core capabilities and objects::
 
-   >>> import pymatgen as mg
-   >>>
-   >>> si = mg.Element("Si")
-   >>> si.atomic_mass
-   28.0855
-   >>> si.melting_point
-   u'1687 K'
-   >>>
-   >>> comp = mg.Composition("Fe2O3")
-   >>> comp.weight
-   159.6882
-   >>> comp[mg.Element("Fe")]
-   2.0
-   >>> comp.get_atomic_fraction(mg.Element("Fe"))
-   0.4
-   >>> lattice = mg.Lattice.cubic(4.2)
-   >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-   ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
-   >>> structure.volume
-   74.088000000000008
-   >>> structure[0]
-   PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-   >>>
-   >>> #Integrated symmetry tools from spglib.
-   ... from pymatgen.symmetry.finder import SymmetryFinder
-   >>> finder = SymmetryFinder(structure)
-   >>> finder.get_spacegroup_symbol()
-   'Pm-3m'
-   >>>
-   >>> #Writing out a POSCAR file for VASP calculations.
-   >>> poscar = Poscar(structure)
-   >>> mg.write_structure(structure, "POSCAR")
-   >>>
-   >>> #Reading a structure from a file.
-   >>> structure = mg.read_structure("POSCAR")
+    >>> import pymatgen as mg
+    >>>
+    >>> si = mg.Element("Si")
+    >>> si.atomic_mass
+    28.0855
+    >>> si.melting_point
+    u'1687 K'
+    >>>
+    >>> comp = mg.Composition("Fe2O3")
+    >>> comp.weight
+    159.6882
+    >>> comp[mg.Element("Fe")]
+    2.0
+    >>> comp.get_atomic_fraction(mg.Element("Fe"))
+    0.4
+    >>> lattice = mg.Lattice.cubic(4.2)
+    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+    ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
+    >>> structure.volume
+    74.088000000000008
+    >>> structure[0]
+    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
+    >>>
+    >>> #Integrated symmetry tools from spglib.
+    ... from pymatgen.symmetry.finder import SymmetryFinder
+    >>> finder = SymmetryFinder(structure)
+    >>> finder.get_spacegroup_symbol()
+    'Pm-3m'
+    >>>
+    >>> #Writing out a POSCAR file for VASP calculations.
+    >>> poscar = Poscar(structure)
+    >>> mg.write_structure(structure, "POSCAR")
+    >>>
+    >>> #Reading a structure from a file.
+    >>> structure = mg.read_structure("POSCAR")
 
 The above illustrates only the most basic capabilities of pymatgen.
 
@@ -280,12 +280,12 @@ How to cite pymatgen
 If you use pymatgen in your research, please consider citing the following
 work:
 
-   Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
-   Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
-   Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
-   Open-Source Python Library for Materials Analysis.* Computational
-   Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
-   <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
+    Shyue Ping Ong, William Davidson Richards, Anubhav Jain, Geoffroy Hautier,
+    Michael Kocher, Shreyas Cholia, Dan Gunter, Vincent Chevrier, Kristin A.
+    Persson, Gerbrand Ceder. *Python Materials Genomics (pymatgen) : A Robust,
+    Open-Source Python Library for Materials Analysis.* Computational
+    Materials Science, 2013, 68, 314–319. `doi:10.1016/j.commatsci.2012.10.028
+    <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
@@ -298,11 +298,11 @@ pymatgen.io.vaspio_set
 The MIT parameter sets, which are optimized for high-throughput computing, are
 outlined the following work:
 
-   A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
-   K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
-   functional theory calculations.* Computational Materials Science, 2011,
-   50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
-   <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
+    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
+    K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
+    functional theory calculations.* Computational Materials Science, 2011,
+    50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
+    <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
 
 pymatgen.phasediagram
 ---------------------
@@ -310,15 +310,15 @@ pymatgen.phasediagram
 The phase diagram code, in particular the grand canonical phase diagram
 analysis, is based on the work of Ong et al. and are used in following works:
 
-   S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
-   First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
-   1798-1807. `doi:10.1021/cm702327g <http://dx.doi.org/10.1021/cm702327g>`_
+    S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
+    First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
+    1798-1807. `doi:10.1021/cm702327g <http://dx.doi.org/10.1021/cm702327g>`_
 
-   S. P. Ong, A. Jain, G. Hautier, B. Kang, and G. Ceder. *Thermal stabilities
-   of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-   principles calculations.* Electrochemistry Communications, 2010, 12(3),
-   427-430. `doi:10.1016/j.elecom.2010.01.010
-   <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
+    S. P. Ong, A. Jain, G. Hautier, B. Kang, and G. Ceder. *Thermal stabilities
+    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+    principles calculations.* Electrochemistry Communications, 2010, 12(3),
+    427-430. `doi:10.1016/j.elecom.2010.01.010
+    <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
 
 pymatgen.entries.compatibility
 ------------------------------
@@ -327,10 +327,10 @@ The compatibility processing, which allows mixing of GGA and GGA+U runs that
 have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
 is based on the following work:
 
-   A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
-   G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
-   Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
-   <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
+    A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
+    G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
+    Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
+    <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
 
 pymatgen.matproj
 ----------------
@@ -362,27 +362,26 @@ License
 Pymatgen is released under the MIT License. The terms of the license are as
 follows::
 
-   The MIT License (MIT)
-   Copyright (c) 2011-2012 MIT & LBNL
+    The MIT License (MIT)
+    Copyright (c) 2011-2012 MIT & LBNL
 
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this software and associated documentation files (the "Software"), to deal
-   in the Software without restriction, including without limitation the rights
-   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   copies of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software")
+    , to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
 
 Indices and tables
 ==================
