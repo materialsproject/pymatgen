@@ -37,10 +37,10 @@ for the long term health of the code.
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
-as bug reports. Please report any bugs and issues at pymatgen's `Github page
-<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups page
-<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+as bug reports. Please report any bugs and issues at pymatgen's `Github
+page`_. If you wish to be notified
+of pymatgen releases, you may become a member of `pymatgen's Google Groups
+page`_.
 
    *The code is mightier than the pen.*
 
@@ -243,8 +243,7 @@ Reporting bugs
 
 A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. You can either send an email to the `pymatgen's
-Google Groups page`_ or even better, submit an Issue in our `github page
-<https://github.com/materialsproject/pymatgen/issues>`_.
+Google Groups page`_ or even better, submit an Issue in our `Github page`_.
 
 Developing for pymatgen
 -----------------------
@@ -388,3 +387,4 @@ Indices and tables
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI` : http://pypi.python.org/pypi/pymatgen
+.. _`Github page`: https://github.com/materialsproject/pymatgen/issues
