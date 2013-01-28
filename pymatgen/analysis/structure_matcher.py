@@ -21,9 +21,8 @@ import abc
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
-from pymatgen.util.coord_utils import find_in_coord_list_pbc
 from pymatgen.core.composition import Composition
-
+from pymatgen.optimization.linear_assignment import LinearAssignment
 
 class AbstractComparator(object):
     """
@@ -72,8 +71,17 @@ class AbstractComparator(object):
             A hashable object. Examples can be string formulas, etc.
         """
         return
-
-
+    
+    @staticmethod
+    def from_dict(d):
+        for trans_modules in ['structure_matcher']:
+            mod = __import__('pymatgen.analysis.' + trans_modules,
+                             globals(), locals(), [d['@class']], -1)
+            if hasattr(mod, d['@class']):
+                trans = getattr(mod, d['@class'])
+                return trans()
+        raise ValueError("Invalid Comparator dict")
+    
 class SpeciesComparator(AbstractComparator):
     """
     A Comparator that matches species exactly. The default used in
@@ -110,7 +118,13 @@ class SpeciesComparator(AbstractComparator):
             SpeciesComparator.
         """
         return structure.composition.reduced_formula
-
+    
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
 class ElementComparator(AbstractComparator):
     """
@@ -152,7 +166,13 @@ class ElementComparator(AbstractComparator):
             SpeciesComparator.
         """
         return structure.composition.reduced_formula
-
+    
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
 class FrameworkComparator(AbstractComparator):
     """
@@ -188,7 +208,13 @@ class FrameworkComparator(AbstractComparator):
             Number of atoms is a good hash for simple framework matching.
         """
         return len(structure)
-
+    
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
 class StructureMatcher(object):
     """
@@ -254,7 +280,7 @@ class StructureMatcher(object):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
-
+        
     def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
@@ -296,16 +322,14 @@ class StructureMatcher(object):
     def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
-            # generate the Bipartite adjacency matrix
-            biadjacency = np.matrix(np.zeros((len(s1_coords),len(s1_coords))))
-            for coord, i in zip(s1_coords,range(len(s1_coords))):
-                ind = find_in_coord_list_pbc(s2_coords, coord, frac_tol)
-                if len(ind):
-                    biadjacency[ind,i] = 1
-                else:
-                    return False
-            #Zero iff the biadjacency matrix does not have a perfect match
-            if not np.linalg.det(np.transpose(biadjacency)*biadjacency):
+            dist = s1_coords[:, None] - s2_coords[None, :]
+            dist = abs(dist - np.round(dist))
+            dist[np.where(dist > frac_tol[None,None, :])] = 3 * len(dist)
+            cost = np.sum(dist, axis = -1)
+            if np.max(np.min(cost, axis = 0)) >= 3 * len(dist):
+                return False
+            lin = LinearAssignment(cost)
+            if lin.min_cost >= 3 * len(dist):
                 return False
         return True
     
@@ -462,3 +486,29 @@ class StructureMatcher(object):
                     group_list.append([g[j]])
             all_groups.extend(group_list)
         return all_groups
+    
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d['comparator'] = self._comparator.to_dict
+        d["init_args"] ={"stol": self.stol,
+                         "ltol" :self.ltol,
+                         "angle_tol": self.angle_tol,
+                         "primitive_cell": self._primitive_cell,
+                         "scale": self._scale}
+        return d
+    
+    @staticmethod
+    def from_dict(d):
+        comp = AbstractComparator.from_dict(d['comparator'])
+        for trans_modules in ['structure_matcher']:
+            mod = __import__('pymatgen.analysis.' + trans_modules,
+                             globals(), locals(), [d['@class']], -1)
+            if hasattr(mod, d['@class']):
+                trans = getattr(mod, d['@class'])
+                return trans(comparator=comp,**d['init_args'])
+        raise ValueError("Invalid StructureMatcher dict")
+                          
+        
