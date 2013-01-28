@@ -259,4 +259,4 @@ Materials Science, 2013, 68, 314-319. `doi:10.1016/j.commatsci.2012.10.028
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
- Please refer to pymatgen's documentation on how to cite them.
+Please refer to pymatgen's documentation on how to cite them.
