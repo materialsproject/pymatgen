@@ -1,6 +1,11 @@
 Change log
 ==========
 
+Version 2.4.3
+-------------
+1. Bug fix for StructureMatcher.
+2. Miscellaneous speedups.
+
 Version 2.4.0
 -------------
 1. New StructureMatcher that effectively replaces StructureFitter. Orders of
