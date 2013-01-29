@@ -23,6 +23,7 @@ Subpackages
     pymatgen.entries
     pymatgen.io
     pymatgen.matproj
+    pymatgen.optimization
     pymatgen.phasediagram
     pymatgen.serializers
     pymatgen.structure_prediction
