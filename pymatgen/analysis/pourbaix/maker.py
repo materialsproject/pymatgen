@@ -22,7 +22,7 @@ import math
 import logging
 import numpy as np
 
-MU_H2O = -2.4583
+from pyabinitio.pourbaix.ion_exp.thermo_ions import MU_H2O
 
 logger = logging.getLogger(__name__)
 
