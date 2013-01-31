@@ -69,9 +69,12 @@ or::
 
     pip install pymatgen
 
-Note that you may need to *install numpy before installing pymatgen as
-numpy's distutils is needed to compile the spglib extension used for symmetry
-analysis*.
+**Note**: You may need to install numpy before installing pymatgen as numpy's
+distutils is needed to compile the spglib and pyhull dependencies.
+
+**Note for Windows users**: Given that pymatgen requires several Python C
+extensions, it is generally recommended that you install it in a cygwin or
+equivalent environment with the necessary compilers.
 
 Developmental version
 ---------------------
