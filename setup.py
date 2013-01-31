@@ -33,6 +33,11 @@ def get_spglib_ext():
                      include_dirs=include_dirs + get_numpy_include_dirs(),
                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
 
+with open("README.rst") as f:
+    long_desc = f.read()
+    ind = long_desc.find("\n")
+    long_desc = long_desc[ind+1:]
+
 setup(
     name="pymatgen",
     packages=find_packages(),
@@ -61,7 +66,7 @@ setup(
     license="MIT",
     description="pymatgen is the Python materials analysis library powering "
                 "the Materials Project (www.materialsproject.org).",
-    long_description=open("README.rst").read(),
+    long_description=long_desc,
     keywords=["vasp", "gaussian", "materials", "project",
               "electronic", "structure"],
     classifiers=[
