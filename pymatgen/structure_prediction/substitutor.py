@@ -73,7 +73,7 @@ class Substitutor(MSONable):
 
         """
         result = []
-        if len(list(target_species) & set(self.get_allowed_species())) \
+        if len(list(set(target_species) & set(self.get_allowed_species()))) \
             != len(target_species):
             return ValueError("the species in target_species are not allowed"
                               + "for the probability model you are using")
