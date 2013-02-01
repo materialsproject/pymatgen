@@ -122,7 +122,7 @@ class TransformedStructureTest(unittest.TestCase):
         ts.undo_last_change()
         self.assertEqual("LiFePO4",
                          ts.final_structure.composition.reduced_formula)
-        self.assertRaises(IndexError, ts.undo_last_transformation)
+        self.assertRaises(IndexError, ts.undo_last_change)
         ts.redo_next_change()
         self.assertEqual("NaFePO4",
                          ts.final_structure.composition.reduced_formula)

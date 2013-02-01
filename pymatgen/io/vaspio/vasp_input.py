@@ -119,15 +119,6 @@ class Poscar(VaspInput):
         self.temperature = -1
 
     @property
-    def struct(self):
-        """
-        .. deprecated:: 1.9.1
-
-            For backwards compatibility.
-        """
-        return self.structure
-
-    @property
     def site_symbols(self):
         """
         Sequence of symbols associated with the Poscar. Similar to 6th line in

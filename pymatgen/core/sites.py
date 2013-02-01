@@ -14,10 +14,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Jul 17, 2012"
 
 import collections
-import itertools
 import numpy as np
-
-from math import floor
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
@@ -389,49 +386,6 @@ class PeriodicSite(Site, MSONable):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def distance_and_image_old(self, other, jimage=None):
-        """
-        .. deprecated:: 1.0
-
-            Use :func:`distance_and_image` instead. This code is kept for
-            information reasons. A new version has been written which is more
-            accurate, but at a higher computational cost.
-
-        Gets distance between two sites assuming periodic boundary conditions.
-        If the index jimage of two sites atom j is not specified it selects the
-        j image nearest to the i atom and returns the distance and jimage
-        indices in terms of lattice vector translations. If the index jimage of
-        atom j is specified it returns the distance between the i atom and the
-        specified jimage atom, the given jimage is also returned.
-
-        Args:
-            other:
-                other site to get distance from.
-            jimage:
-                specific periodic image in terms of lattice translations,
-                e.g., [1,0,0] implies to take periodic image that is one
-                a-lattice vector away. If jimage == None, the image that is
-                nearest to the site is found.
-
-        Returns:
-            (distance, jimage):
-                distance and periodic lattice translations of the other site
-                for which the distance applies.
-
-        .. note::
-            Assumes the primitive cell vectors are sufficiently not skewed such
-            that the condition \|a\|cos(ab_angle) < \|b\| for all possible cell
-            vector pairs. ** this method does not check this condition **
-        """
-        if jimage is None:
-            #Old algorithm
-            jimage = -np.array(np.around(other._fcoords - self._fcoords), int)
-        mapped_vec = self.lattice.get_cartesian_coords(jimage
-                                                       + other._fcoords
-                                                       - self._fcoords)
-        dist = np.linalg.norm(mapped_vec)
-        return dist, jimage
 
     def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
         """
