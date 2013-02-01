@@ -707,6 +707,9 @@ class BSPlotterProjected(BSPlotter):
             bs:
                 A BandStructureSymmLine object with projections.
         """
+        if len(bs._projections) == 0:
+            raise ValueError("try to plot projections"
+                              + " on a band structure without any")
         BSPlotter.__init__(self, bs)
 
     def _maketicks(self, plt):
