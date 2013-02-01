@@ -64,7 +64,7 @@ class SiteTest(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm([0.25, 0.35, 0.45]),
                                osite.distance_from_point([0, 0, 0]))
         self.assertAlmostEqual(osite.distance(self.disordered_site), 0)
-        
+
     def test_pickle(self):
         o = pickle.dumps(self.propertied_site)
         self.assertEqual(pickle.loads(o), self.propertied_site)
@@ -125,15 +125,15 @@ class PeriodicSiteTest(unittest.TestCase):
         lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        self.assertAlmostEqual(site1.distance_and_image_old(site2)[0],
+        self.assertAlmostEqual(get_distance_and_image_old(site1, site2)[0],
                                site1.distance_and_image(site2)[0])
         lattice = Lattice.from_parameters(1, 0.01, 1, 10, 10, 10)
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
-        self.assertTrue(site1.distance_and_image_old(site2)[0] >
+        self.assertTrue(get_distance_and_image_old(site1, site2)[0] >
                         site1.distance_and_image(site2)[0])
         site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
-        (dist_old, jimage_old) = site1.distance_and_image_old(site2)
+        (dist_old, jimage_old) = get_distance_and_image_old(site1, site2)
         (dist_new, jimage_new) = site1.distance_and_image(site2)
         self.assertTrue(dist_old - dist_new > -1e-8,
                         "New distance algo should give smaller answers!")
@@ -185,6 +185,45 @@ class PeriodicSiteTest(unittest.TestCase):
         site = site.to_unit_cell
         val = [0.25, 0.35, 0.46]
         self.assertTrue(np.allclose(site.frac_coords, val))
+
+
+def get_distance_and_image_old(site1, site2, jimage=None):
+    """
+    Gets distance between two sites assuming periodic boundary conditions.
+    If the index jimage of two sites atom j is not specified it selects the
+    j image nearest to the i atom and returns the distance and jimage
+    indices in terms of lattice vector translations. If the index jimage of
+    atom j is specified it returns the distance between the i atom and the
+    specified jimage atom, the given jimage is also returned.
+
+    Args:
+        other:
+            other site to get distance from.
+        jimage:
+            specific periodic image in terms of lattice translations,
+            e.g., [1,0,0] implies to take periodic image that is one
+            a-lattice vector away. If jimage == None, the image that is
+            nearest to the site is found.
+
+    Returns:
+        (distance, jimage):
+            distance and periodic lattice translations of the other site
+            for which the distance applies.
+
+    .. note::
+        Assumes the primitive cell vectors are sufficiently not skewed such
+        that the condition \|a\|cos(ab_angle) < \|b\| for all possible cell
+        vector pairs. ** this method does not check this condition **
+    """
+    if jimage is None:
+        #Old algorithm
+        jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords),
+            int)
+    mapped_vec = site1.lattice.get_cartesian_coords(jimage
+                                                   + site2.frac_coords
+                                                   - site1.frac_coords)
+    dist = np.linalg.norm(mapped_vec)
+    return dist, jimage
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -48,8 +48,12 @@ Latest Change Log
 =================
 
 1. Added optimization package with linear assignment class.
-2. Improved robustness of StructureMacher using linear assignment.
-3. Miscellaneous bug fixes and speedups.
+2. Improved robustness of StructureMatcher using linear assignment.
+3. Cleanup of deprecated methods, including
+   pymatgen.alchemy.materials.TransformedMaterial.undo/redo_last_transformation,
+   pymatgen.core.site.Site.distance_and_image_old, Poscar.struct,
+   StructureFitter and tests.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 

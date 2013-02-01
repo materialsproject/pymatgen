@@ -79,20 +79,6 @@ class StandardTransmuter(object):
     def __getattr__(self, name):
         return [getattr(x, name) for x in self.transformed_structures]
 
-    def undo_last_transformation(self):
-        """
-        .. deprecated:: v2.2.2
-        """
-        warnings.warn("Deprecated. Use undo_last_change.", DeprecationWarning)
-        self.undo_last_change()
-
-    def redo_next_transformation(self):
-        """
-        .. deprecated:: v2.2.2
-        """
-        warnings.warn("Deprecated. Use redo_last_change.", DeprecationWarning)
-        self.redo_next_change()
-
     def undo_last_change(self):
         """
         Undo the last transformation in the TransformedStructure.
