@@ -1,6 +1,30 @@
 Change log
 ==========
 
+Version 2.4.3
+-------------
+1. Bug fix for StructureMatcher.
+2. Miscellaneous speedups.
+
+Version 2.4.0
+-------------
+1. New StructureMatcher that effectively replaces StructureFitter. Orders of
+   magnitude faster and more robust. StructureFitter is now deprecated.
+2. Vastly improved PrimitiveCellTransformation.
+3. A lot of core methods have been rewritten to take advantage of vectorization
+   in numpy, resulting in orders of magnitude improvement in speed.
+4. Miscellaneous bug fixes and speedups.
+
+Version 2.3.2
+-------------
+1. More utilities for working with Periodic Boundary Conditions.
+2. Improved MPRester that supports more data and a new method of specifying
+   the API key for heavy users via a MAPI_KEY environment variable. Please
+   refer to the :doc:`usage pages </usage>` for more information.
+3. Vastly improved POTCAR setup script in scripts directly that is now
+   installed as part of a default pymatgen installation.
+4. Miscellaneous bug fixes and speedups.
+
 Version 2.3.1
 -------------
 1. Significant improvements to the high-level interface to the Materials API.

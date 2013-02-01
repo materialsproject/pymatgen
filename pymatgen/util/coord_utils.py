@@ -17,7 +17,6 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 import math
-import itertools
 
 
 def find_in_coord_list(coord_list, coord, atol=1e-8):
@@ -73,6 +72,9 @@ def get_linear_interpolated_value(x_values, y_values, x):
             Corresponding sequence of y values
         x:
             Get value at particular x
+
+    Returns:
+        Value at x.
     """
     val_dict = dict(zip(x_values, y_values))
     if x < min(x_values) or x > max(x_values):
@@ -112,6 +114,61 @@ def pbc_diff(fcoords1, fcoords2):
     """
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
+
+
+def pbc_all_distances(lattice, fcoords1, fcoords2):
+    """
+    Returns the distances between two lists of coordinates taking into
+    account periodic boundary conditions and the lattice. Note that this
+    computes an MxN array of distances (i.e. the distance between each
+    point in fcoords1 and every coordinate in fcoords2). This is
+    different functionality from pbc_diff.
+
+    Args:
+        lattice:
+            lattice to use
+        fcoords1:
+            First set of fractional coordinates. e.g., [0.5, 0.6,
+            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
+            coord or any array of coords.
+        fcoords2:
+            Second set of fractional coordinates.
+
+    Returns:
+        2d array of cartesian distances. E.g the distance between
+        fcoords1[i] and fcoords2[j] is distances[i,j]
+    """
+    #ensure correct shape
+    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
+
+    #ensure that all points are in the unit cell
+    fcoords1 = np.mod(fcoords1, 1)
+    fcoords2 = np.mod(fcoords2, 1)
+
+    #create images, 2d array of all length 3 combinations of [-1,0,1]
+    r = np.arange(-1, 2)
+    arange = r[:, None] * np.array([1, 0, 0])[None, :]
+    brange = r[:, None] * np.array([0, 1, 0])[None, :]
+    crange = r[:, None] * np.array([0, 0, 1])[None, :]
+    images = arange[:, None, None] + brange[None, :, None] +\
+             crange[None, None, :]
+    images = images.reshape((27, 3))
+
+    #create images of f2
+    shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
+
+    cart_f1 = lattice.get_cartesian_coords(fcoords1)
+    cart_f2 = lattice.get_cartesian_coords(shifted_f2)
+
+    #all vectors from f1 to f2
+    vectors = cart_f2[None, :, :, :] -\
+              cart_f1[:, None, None, :]
+
+    d_2 = np.sum(vectors ** 2, axis=3)
+
+    distances = np.min(d_2, axis=2) ** 0.5
+
+    return distances
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
@@ -185,7 +242,7 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
             radius of sphere.
 
     Returns:
-        [(site, dist) ...] since most of the time, subsequent processing
+        [(fcoord, dist) ...] since most of the time, subsequent processing
         requires the distance.
     """
     recp_len = np.array(lattice.reciprocal_lattice.abc)
@@ -201,18 +258,18 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     indices = np.array(range(n))
 
     arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-                       stop=int(floor(pcoords[0] + nmax[0])) + 1)
+        stop=int(floor(pcoords[0] + nmax[0])) + 1)
     brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-                       stop=int(floor(pcoords[1] + nmax[1])) + 1)
+        stop=int(floor(pcoords[1] + nmax[1])) + 1)
     crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-                       stop=int(floor(pcoords[2] + nmax[2])) + 1)
+        stop=int(floor(pcoords[2] + nmax[2])) + 1)
 
     arange = arange[:, None] * np.array([1, 0, 0])[None, :]
     brange = brange[:, None] * np.array([0, 1, 0])[None, :]
     crange = crange[:, None] * np.array([0, 0, 1])[None, :]
 
-    images = arange[:, None, None] + brange[None, :, None] + \
-        crange[None, None, :]
+    images = arange[:, None, None] + brange[None, :, None] +\
+             crange[None, None, :]
 
     shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
     coords = frac_2_cart(shifted_coords)
@@ -222,4 +279,27 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
 
     return np.transpose(d)
-    
+
+
+def barycentric_coords(coords, simplex):
+    """
+    Converts a list of coordinates to barycentric coordinates, given a
+    simplex with d+1 points. Only works for d >= 2.
+
+    Args:
+        coords:
+            list of n coords to transform, shape should be (n,d)
+        simplex:
+            list of coordinates that form the simplex, shape should be
+            (d+1, d)
+
+    Returns:
+        a LIST of barycentric coordinates (even if the original input was 1d)
+    """
+    coords = np.atleast_2d(coords)
+
+    T = np.transpose(simplex[:-1, :]) - np.transpose(simplex[-1, :])[:, None]
+    all_but_one = np.transpose(
+        np.linalg.solve(T, np.transpose(coords - simplex[-1])))
+    last_coord = 1 - np.sum(all_but_one, axis=-1)[:, None]
+    return np.append(all_but_one, last_coord, axis=-1)

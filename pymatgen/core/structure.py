@@ -29,7 +29,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, pbc_diff
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -591,7 +591,7 @@ class Structure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
             .format(reduction_algo))
 
-        return Structure(reduced_latt, self.species, self.cart_coords,
+        return Structure(reduced_latt, self.species_and_occu, self.cart_coords,
                          coords_are_cartesian=True, to_unit_cell=True)
 
     def copy(self, site_properties=None, sanitize=False):
@@ -678,6 +678,102 @@ class Structure(SiteCollection, MSONable):
                              site_properties=self.site_properties)
                    for x in range(0, nimages + 1)]
         return structs
+
+
+    def get_primitive_structure(self, tolerance=0.5):
+        """
+        This finds a smaller unit cell than the input. Sometimes it doesn"t
+        find the smallest possible one, so this method is recursively called
+        until it is unable to find a smaller cell.
+
+        The method works by finding possible smaller translations
+        and then using that translational symmetry instead of one of the
+        lattice basis vectors if more than one vector is found (usually the
+        case for large cells) the one with the smallest norm is used.
+
+        Things are done in fractional coordinates because its easier to
+        translate back to the unit cell.
+
+        Args:
+            tolerance:
+                Tolerance for each coordinate of a particular site. For
+                example, [0.5, 0, 0.5] in cartesian coordinates will be
+                considered to be on the same coordinates as [0, 0, 0] for a
+                tolerance of 0.5. Defaults to 0.5.
+
+        Returns:
+            The most primitive structure found. The returned structure is
+            guanranteed to have len(new structure) <= len(structure).
+        """
+        original_volume = self.volume
+        (reduced_formula, num_fu) =\
+            self.composition.get_reduced_composition_and_factor()
+
+        min_vol = original_volume * 0.5 / num_fu
+
+        #get the possible symmetry vectors
+        sites = sorted(self._sites, key=lambda site: site.species_string)
+        grouped_sites = [list(a[1]) for a
+                         in itertools.groupby(sites,
+            key=lambda s: s.species_string)]
+        min_site_list = min(grouped_sites, key=lambda group: len(group))
+
+        min_site_list = [site.to_unit_cell for site in min_site_list]
+        org = min_site_list[0].coords
+        possible_vectors = [min_site_list[i].coords - org
+                            for i in xrange(1, len(min_site_list))]
+
+        #Let's try to use the shortest vector possible first. Allows for faster
+        #convergence to primitive cell.
+        possible_vectors = sorted(possible_vectors,
+            key=lambda x: np.linalg.norm(x))
+
+        # Pre-create a few varibles for faster lookup.
+        all_coords = [site.coords for site in sites]
+        all_sp = [site.species_and_occu for site in sites]
+        new_structure = None
+        for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
+            #Try combinations of new lattice vectors with existing lattice
+            #vectors.
+            latt = self._lattice.matrix
+            latt[repl_pos] = v
+            #Exclude coplanar lattices from consideration.
+            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) > min_vol:
+                latt = Lattice(latt)
+                #Convert to fractional tol
+                tol = [tolerance / l for l in latt.abc]
+                new_frac = latt.get_fractional_coords(all_coords)
+                grouped_sp = []
+                grouped_frac = []
+
+                for i, f in enumerate(new_frac):
+                    found = False
+                    for j, g in enumerate(grouped_frac):
+                        if all_sp[i] != grouped_sp[j]:
+                            continue
+                        fdiff = np.abs(pbc_diff(g[0], f))
+                        if np.all(fdiff < tol):
+                            g.append(f)
+                            found = True
+                            break
+                    if not found:
+                        grouped_frac.append([f])
+                        grouped_sp.append(all_sp[i])
+
+                num_images = [len(c) for c in grouped_frac]
+                nimages = num_images[0]
+                if nimages > 1 and all([i == nimages for i in num_images]):
+                    new_frac = [f[0] for f in grouped_frac]
+                    new_structure = Structure(latt, grouped_sp, new_frac,
+                        to_unit_cell=True)
+                    break
+
+        if new_structure and len(new_structure) != len(self):
+            # If a more primitive structure has been found, try to find an
+            # even more primitive structure again.
+            return new_structure.get_primitive_structure(tolerance=tolerance)
+        else:
+            return self
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]

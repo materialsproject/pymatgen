@@ -79,8 +79,11 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return {k: v for k, v in self._properties.items()}
 
     def __getattr__(self, a):
-        if a in self._properties:
-            return self._properties[a]
+        #overriding getattr doens't play nice with pickle, so we
+        #can't use self._properties
+        p = object.__getattribute__(self, '_properties')
+        if a in p:
+            return p[a]
         raise AttributeError(a)
 
     def distance(self, other):
@@ -362,6 +365,14 @@ class PeriodicSite(Site, MSONable):
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
         Returns True if sites are periodic images of each other.
+
+        Args:
+            other:
+                Other site
+            tolerance:
+                Tolerance to compare fractional coordinates
+            check_lattice:
+                Whether to check if the two sites have the same lattice.
         """
         if check_lattice and self._lattice != other._lattice:
             return False
@@ -369,7 +380,7 @@ class PeriodicSite(Site, MSONable):
             return False
 
         frac_diff = pbc_diff(self._fcoords, other._fcoords)
-        return  np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
+        return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other):
         return self._species == other._species and \
@@ -421,7 +432,7 @@ class PeriodicSite(Site, MSONable):
                                                        - self._fcoords)
         dist = np.linalg.norm(mapped_vec)
         return dist, jimage
-    
+
     def distance_and_image_from_frac_coords(self, fcoords, jimage=None):
         """
         Gets distance between site and a fractional coordinate assuming
