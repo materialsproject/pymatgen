@@ -255,7 +255,7 @@ class PDPlotter(object):
 
     def plot_chempot_range_map(self, elements):
         """
-        returns a plot of the chemical potential range map. Currently works 
+        returns a plot of the chemical potential range map. Currently works
         only for 3-component PDs.
 
         Args:
