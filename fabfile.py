@@ -47,7 +47,6 @@ def makedoc():
                     fid.write("".join(newoutput))
 
         local("make html")
-        local("cp nature_mp.css ../../docs/pymatgen/html/static/nature.css")
         local("cp favicon.ico ../../docs/pymatgen/html/static/favicon.ico")
 
 def publish():

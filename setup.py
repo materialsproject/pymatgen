@@ -6,34 +6,6 @@ from distribute_setup import use_setuptools
 use_setuptools(version='0.6.10')
 from setuptools import setup, find_packages, Extension
 
-long_description = """
-Pymatgen (Python Materials Genomics) is a robust, open-source Python library
-for materials analysis. It currently powers the public Materials Project
-(http://www.materialsproject.org), an initiative to make calculated properties
-on a large number of materials available to materials researchers and
-designers. These are some of the main features:
-
-1. Highly flexible classes for the representation of Element, Site, Molecule,
-   Structure objects.
-2. Extensive io capabilities to manipulate many VASP input and output files
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
-   file format. This includes generating Structure objects from vasp input and
-   output. There is also support for Gaussian input files and XYZ file for
-   molecules.
-3. Comprehensive tool to generate and view compositional and grand canonical
-   phase diagrams.
-4. Electronic structure analyses (DOS and Bandstructure).
-5. Integration with the Materials Project REST API.
-
-The latest stable version of pymatgen and its accompanying documentation
-(http://packages.python.org/pymatgen) is always on PyPI. The bleeding edge
-developmental version is available at our GitHub repo at
-https://github.com/materialsproject/pymatgen. If you wish to
-be notified via email of pymatgen releases, you may become a member of
-pymatgen's Google Groups page
-(https://groups.google.com/forum/?fromgroups#!forum/pymatgen/).
-"""
-
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
@@ -61,12 +33,17 @@ def get_spglib_ext():
                      include_dirs=include_dirs + get_numpy_include_dirs(),
                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
 
+with open("README.rst") as f:
+    long_desc = f.read()
+    ind = long_desc.find("\n")
+    long_desc = long_desc[ind+1:]
+
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.3.3b",
+    version="2.4.4b",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
-                      "requests>=0.14"],
+                      "requests>=1.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"]},
@@ -89,7 +66,7 @@ setup(
     license="MIT",
     description="pymatgen is the Python materials analysis library powering "
                 "the Materials Project (www.materialsproject.org).",
-    long_description=long_description,
+    long_description=long_desc,
     keywords=["vasp", "gaussian", "materials", "project",
               "electronic", "structure"],
     classifiers=[

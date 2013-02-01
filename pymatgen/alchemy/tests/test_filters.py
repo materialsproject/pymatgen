@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter, \
-    SpecieProximityFilter
+    SpecieProximityFilter, RemoveDuplicatesFilter
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
 from pymatgen.io.cifio import CifParser
+from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 import os
+import json
 import unittest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -81,6 +85,28 @@ class SpecieProximityFilterTest(unittest.TestCase):
         d = sf.to_dict
         self.assertIsInstance(SpecieProximityFilter.from_dict(d),
                               SpecieProximityFilter)
+        
+class RemoveDuplicatesFilterTest(unittest.TestCase):
+    
+    def setUp(self):
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
+            entries = json.load(fp, cls=PMGJSONDecoder)
+        self._struct_list = [e.structure for e in entries]
+        self._sm = StructureMatcher()
+    
+    def test_filter(self):
+        transmuter = StandardTransmuter.from_structures(self._struct_list)
+        fil = RemoveDuplicatesFilter()
+        transmuter.apply_filter(fil)
+        out = self._sm.group_structures(transmuter.transformed_structures)
+        self.assertEqual(self._sm.find_indexes(transmuter.transformed_structures, out),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        
+    def test_to_from_dict(self):
+        fil = RemoveDuplicatesFilter()
+        d = fil.to_dict
+        self.assertIsInstance(RemoveDuplicatesFilter().from_dict(d),
+                              RemoveDuplicatesFilter)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

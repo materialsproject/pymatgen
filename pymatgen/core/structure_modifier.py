@@ -395,10 +395,10 @@ class StructureEditor(StructureModifier):
                 new_sites.append(site)
                 frac_coords = np.array([site.frac_coords])
                 continue
-            if get_points_in_sphere_pbc(self._lattice,
+            if len(get_points_in_sphere_pbc(self._lattice,
                                         frac_coords,
                                         site.coords,
-                                        tolerance):
+                                        tolerance)):
                 continue
             frac_coords = np.append(frac_coords,
                                     [site.frac_coords%1],

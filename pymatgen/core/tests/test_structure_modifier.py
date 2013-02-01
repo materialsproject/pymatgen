@@ -27,6 +27,13 @@ class StructureEditorTest(unittest.TestCase):
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
+        
+    def test_to_unit_cell(self):
+        self.modifier.append_site(self.fe, [1.75, 0.5, 0.75]
+                                  , validate_proximity = False)
+        self.modifier.to_unit_cell()
+        self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1",
+                         "Wrong formula!")
 
     def test_translate_sites(self):
         self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5],

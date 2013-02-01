@@ -1,4 +1,4 @@
-include *.md LICENSE
+include *.rst LICENSE
 include distribute_setup.py
 recursive-include pymatgen *.py *.json *.cfg
 recursive-include scripts *.py

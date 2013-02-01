@@ -181,6 +181,14 @@ class StructureTest(unittest.TestCase):
                             coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
+    def test_get_primitive_structure(self):
+        coords = [[0,0,0], [0.5,0.5,0], [0,0.5,0.5], [0.5,0,0.5]]
+        fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
+        coords = [[0,0,0], [0.5,0.5,0.5]]
+        bcc_li = Structure(Lattice.cubic(4.09), ["Li"] * 2, coords)
+        self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
+
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         r = random.uniform(3, 6)

@@ -257,6 +257,11 @@ class EwaldSummation(object):
                                             self._gmax)
 
         frac_to_cart = rcp_latt.get_cartesian_coords
+        
+        oxistates = np.array(self._oxi_states)
+        #create array where q_2[i,j] is qi * qj
+        qiqj = oxistates[None, :] * oxistates[:, None]
+        
         for (fcoords, dist, i) in recip_nn:
             if dist == 0:
                 continue
@@ -266,20 +271,17 @@ class EwaldSummation(object):
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
             gvectdot = np.sum(gvect[None, :] * coords, 1)
-            #calculate the structure factor
-            oxistates = np.array(self._oxi_states)
             
+            #calculate the structure factor
             sreal = np.sum(oxistates * np.cos(gvectdot))
             simag = np.sum(oxistates * np.sin(gvectdot))
             
             #create array where exparg[i,j] is gvectdot[i] - gvectdot[j] 
             exparg = gvectdot[None, :] - gvectdot[:, None]
             
-            #create array where q_2[i,j] is qi * qj
-            qiqj = oxistates[None, :] * oxistates[:, None]
-
-            sfactor = qiqj * (np.cos(exparg) + np.sin(exparg))
-
+            #uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
+            sfactor = qiqj * np.sin(exparg + pi/4) * 2 ** 0.5
+            
             erecip += expval / gsquare * sfactor
             pref = 2 * expval / gsquare * oxistates
             factor = prefactor * pref * \
