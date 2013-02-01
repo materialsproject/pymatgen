@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+"""
+This module provides classes for predicting new structures from existing ones.
+"""
+
 from __future__ import division
 
 __author__ = "Will Richards, Geoffroy Hautier"
