@@ -255,7 +255,21 @@ class PDPlotter(object):
 
     def plot_chempot_range_map(self, elements):
         """
-        returns a plot of the chemical potential range map. Currently works 
+        Plot the chemical potential range map. Currently works only for
+        3-component PDs.
+
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li-Co-O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        """
+        self.get_chempot_range_map_plot(elements).show()
+
+    def get_chempot_range_map_plot(self, elements):
+        """
+        Returns a plot of the chemical potential range map. Currently works
         only for 3-component PDs.
 
         Args:
