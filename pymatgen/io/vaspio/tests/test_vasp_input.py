@@ -341,6 +341,10 @@ class VaspInputTest(unittest.TestCase):
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
 
+    def test_from_directory(self):
+        vi = VaspInput.from_directory(test_dir)
+        self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

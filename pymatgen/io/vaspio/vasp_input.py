@@ -1394,3 +1394,27 @@ class VaspInput(dict, MSONable):
         for k, v in self.items():
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
+
+    @staticmethod
+    def from_directory(input_dir, optional_files=None):
+        """
+        Read in a set of VASP input from a directory. Note that only the
+        standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
+        optional_filenames is specified.
+
+        Args:
+            input_dir:
+                Directory to read VASP input from.
+            optional_files:
+                Optional files to read in as well as a dict of {filename:
+                Object type}. Object type must have a static method from_file.
+        """
+        sub_d = {}
+        for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
+                             ("POSCAR", Poscar), ("POTCAR", Potcar)]:
+            print
+            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir, fname))
+        if optional_files is not None:
+            for fname, ftype in optional_files.items():
+                sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir, fname))
+        return VaspInput(**sub_d)
