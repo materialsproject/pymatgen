@@ -1325,7 +1325,7 @@ class Potcar(list, VaspInput):
                 self.append(p)
 
 
-class VaspInput(MSONable):
+class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
     """
@@ -1346,19 +1346,16 @@ class VaspInput(MSONable):
                 The object should follow standard pymatgen conventions in
                 implementing a to_dict and from_dict method.
         """
-        self.incar = incar
-        self.kpoints = kpoints
-        self.poscar = poscar
-        self.potcar = potcar
-        self.others = optional_files if optional_files is not None else {}
+        self.update({'incar': incar,
+                     'kpoints': kpoints,
+                     'poscar': poscar,
+                     'potcar': potcar})
+        if optional_files is not None:
+            self.update(optional_files)
 
     def __str__(self):
-        output = ["INCAR", str(self.incar), "",
-                  "KPOINTS", str(self.kpoints), "",
-                  "POSCAR", str(self.poscar), "",
-                  "POTCAR", str(self.potcar), ""]
-
-        for k, v in self.others.items():
+        output = []
+        for k, v in self.items():
             output.append(k)
             output.append(str(v))
             output.append("")
@@ -1366,12 +1363,7 @@ class VaspInput(MSONable):
 
     @property
     def to_dict(self):
-        d = {'incar': self.incar.to_dict,
-             'kpoints': self.kpoints.to_dict,
-             'poscar': self.poscar.to_dict,
-             'potcar': self.potcar.to_dict}
-        for k, v in self.others.items():
-            d[k] = v.to_dict
+        d = {k: v.to_dict for k, v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d

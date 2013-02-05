@@ -338,7 +338,7 @@ class VaspInputTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.vinput.to_dict
         vinput = VaspInput.from_dict(d)
-        comp = vinput.poscar.structure.composition
+        comp = vinput["poscar"].structure.composition
         self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
 
 if __name__ == "__main__":
