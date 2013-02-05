@@ -1346,10 +1346,10 @@ class VaspInput(dict, MSONable):
                 The object should follow standard pymatgen conventions in
                 implementing a to_dict and from_dict method.
         """
-        self.update({'incar': incar,
-                     'kpoints': kpoints,
-                     'poscar': poscar,
-                     'potcar': potcar})
+        self.update({'INCAR': incar,
+                     'KPOINTS': kpoints,
+                     'POSCAR': poscar,
+                     'POTCAR': potcar})
         if optional_files is not None:
             self.update(optional_files)
 
@@ -1371,6 +1371,26 @@ class VaspInput(dict, MSONable):
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        sub_d = {k: dec.process_decoded(v) for k, v in d.items()
-                 if k not in ["@module", "@class"]}
+        sub_d = {}
+        for k, v in d.items():
+            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_d[k.lower()] = dec.process_decoded(v)
+            elif k not in ["@module", "@class"]:
+                sub_d[k] = dec.process_decoded(v)
         return VaspInput(**sub_d)
+
+    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+        """
+        Write VASP input to a directory.
+
+        Args:
+            output_dir:
+                Directory to write to. Defaults to current directory (".").
+            make_dir_if_not_present:
+                Create the directory if not present. Defaults to True.
+        """
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for k, v in self.items():
+            with open(os.path.join(output_dir, k), "w") as f:
+                f.write(str(v))
