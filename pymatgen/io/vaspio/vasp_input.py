@@ -1371,12 +1371,12 @@ class VaspInput(dict, MSONable):
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        sub_d = {}
+        sub_d = {"optional_files":{}}
         for k, v in d.items():
             if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
                 sub_d[k.lower()] = dec.process_decoded(v)
             elif k not in ["@module", "@class"]:
-                sub_d[k] = dec.process_decoded(v)
+                sub_d["optional_files"][k] = dec.process_decoded(v)
         return VaspInput(**sub_d)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
@@ -1414,7 +1414,8 @@ class VaspInput(dict, MSONable):
                              ("POSCAR", Poscar), ("POTCAR", Potcar)]:
             print
             sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir, fname))
+        sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir, fname))
+                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)

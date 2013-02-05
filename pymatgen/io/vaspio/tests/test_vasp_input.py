@@ -342,8 +342,13 @@ class VaspInputTest(unittest.TestCase):
         self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
 
     def test_from_directory(self):
-        vi = VaspInput.from_directory(test_dir)
+        vi = VaspInput.from_directory(test_dir,
+            optional_files={"CONTCAR.Li2O": Poscar})
         self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
+        self.assertIn("CONTCAR.Li2O", vi)
+        d = vi.to_dict
+        vinput = VaspInput.from_dict(d)
+        self.assertIn("CONTCAR.Li2O", vinput)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
