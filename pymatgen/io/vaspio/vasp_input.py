@@ -29,11 +29,12 @@ from numpy.linalg import det
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.io.io_abc import VaspInput
-from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.decorators import cached_class
+from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.io_utils import zopen, clean_lines
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 import pymatgen
 
 
@@ -1236,16 +1237,15 @@ class Potcar(list, VaspInput):
                 Default is None, which uses a pre-determined mapping used in
                 the Materials Project.
         """
+        self.functional = functional
         if symbols is not None:
-            self.functional = functional
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     @property
     def to_dict(self):
-        d = {"functional": self.functional, "symbols": self.symbols}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"functional": self.functional, "symbols": self.symbols,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
@@ -1260,8 +1260,21 @@ class Potcar(list, VaspInput):
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
                                     re.S).findall(fdata)
+        functionals = []
         for p in potcar_strings:
-            potcar.append(PotcarSingle(p))
+            single = PotcarSingle(p)
+            potcar.append(single)
+            functionals.append(single.lexch)
+        if len(set(functionals)) != 1:
+            raise ValueError("File contains incompatible functionals!")
+        else:
+            if functionals[0] == "PE":
+                functional = "PBE"
+            elif functionals[1] == "91":
+                functional = "PW91"
+            else:
+                functional = "LDA"
+            potcar.functional = functional
         return potcar
 
     def __str__(self):
@@ -1310,3 +1323,62 @@ class Potcar(list, VaspInput):
             for el in symbols:
                 p = PotcarSingle.from_symbol_and_functional(el, functional)
                 self.append(p)
+
+
+class VaspInput(MSONable):
+    """
+    Class to contain a set of vasp input objects corresponding to a run.
+    """
+
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None):
+        """
+        Args:
+            incar:
+                Incar object.
+            kpoints:
+                Kpoints object.
+            poscar:
+                Poscar object.
+            potcar:
+                Potcar object.
+            optional_files:
+                Other input files supplied as a dict of {filename: object}.
+                The object should follow standard pymatgen conventions in
+                implementing a to_dict and from_dict method.
+        """
+        self.incar = incar
+        self.kpoints = kpoints
+        self.poscar = poscar
+        self.potcar = potcar
+        self.others = optional_files if optional_files is not None else {}
+
+    def __str__(self):
+        output = ["INCAR", str(self.incar), "",
+                  "KPOINTS", str(self.kpoints), "",
+                  "POSCAR", str(self.poscar), "",
+                  "POTCAR", str(self.potcar), ""]
+
+        for k, v in self.others.items():
+            output.append(k)
+            output.append(str(v))
+            output.append("")
+        return "\n".join(output)
+
+    @property
+    def to_dict(self):
+        d = {'incar': self.incar.to_dict,
+             'kpoints': self.kpoints.to_dict,
+             'poscar': self.poscar.to_dict,
+             'potcar': self.potcar.to_dict}
+        for k, v in self.others.items():
+            d[k] = v.to_dict
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        dec = PMGJSONDecoder()
+        sub_d = {k: dec.process_decoded(v) for k, v in d.items()
+                 if k not in ["@module", "@class"]}
+        return VaspInput(**sub_d)
