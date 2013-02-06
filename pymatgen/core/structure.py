@@ -680,7 +680,7 @@ class Structure(SiteCollection, MSONable):
         return structs
 
 
-    def get_primitive_structure(self, tolerance=0.5):
+    def get_primitive_structure(self, tolerance=0.25):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
