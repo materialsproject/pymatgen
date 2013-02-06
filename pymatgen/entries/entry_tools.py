@@ -39,6 +39,7 @@ def _get_host(structure, species_to_remove):
 def _perform_grouping(args):
     (entries_json, hosts_json, ltol, stol, angle_tol,
      primitive_cell, scale, comparator, groups) = args
+     
     entries = json.loads(entries_json, cls=PMGJSONDecoder)
     hosts = json.loads(hosts_json, cls=PMGJSONDecoder)
     unmatched = zip(entries, hosts)
@@ -57,7 +58,9 @@ def _perform_grouping(args):
                          .format(unmatched[i][0].entry_id, test_host.formula))
             test_formula = test_host.composition.reduced_formula
             logger.info("Test host = {}".format(test_formula))
-            m = StructureMatcher(comparator=comparator)
+            m = StructureMatcher(ltol=ltol, stol=stol, angle_tol=angle_tol,
+                               primitive_cell=primitive_cell, scale=scale,
+                               comparator=comparator)
             if m.fit(ref_host, test_host):
                 logger.info("Fit found")
                 matches.append(unmatched[i])
