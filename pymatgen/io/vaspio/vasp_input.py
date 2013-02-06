@@ -1278,7 +1278,7 @@ class Potcar(list, VaspInput):
         return potcar
 
     def __str__(self):
-        return "".join([str(potcar) for potcar in self])
+        return "\n".join([str(potcar) for potcar in self])
 
     def write_file(self, filename):
         """
