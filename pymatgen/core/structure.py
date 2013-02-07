@@ -773,7 +773,12 @@ class Structure(SiteCollection, MSONable):
             sizes = np.unique(np.sum(groups, axis = 0))
             if len(sizes) > 1:
                 continue
-
+            
+            #check that reduction in number of sites was by the same 
+            #amount as the volume reduction
+            if round(self._lattice.volume / latt.volume) != sizes[0]:
+                continue
+            
             new_sp = []
             new_frac = []
             #this flag is set to ensure that all sites in a group are
