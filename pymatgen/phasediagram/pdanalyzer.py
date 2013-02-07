@@ -269,11 +269,12 @@ class PDAnalyzer(object):
                 stable_entries, {element: c - 0.01}, self._pd.elements
             )
             analyzer = PDAnalyzer(gcpd)
-            decomp = [gcentry.original_entry.composition for gcentry,
-                      amt in analyzer.get_decomposition(gccomp).items()
+            gcdecomp = analyzer.get_decomposition(gccomp)
+            decomp = [gcentry.original_entry.composition
+                      for gcentry, amt in gcdecomp.items()
                       if amt > comp_tol]
-            decomp_entries = [gcentry.original_entry for gcentry,
-                              amt in analyzer.get_decomposition(gccomp).items()
+            decomp_entries = [gcentry.original_entry
+                              for gcentry, amt in gcdecomp.items()
                               if amt > comp_tol]
 
             if not are_same_decomp(prev_decomp, decomp):
