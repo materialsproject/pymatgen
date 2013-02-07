@@ -33,17 +33,15 @@ from pymatgen.util.coord_utils import get_points_in_sphere_pbc, pbc_diff
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
-    __metaclass__ = abc.ABCMeta
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
+    __metaclass__ = abc.ABCMeta
 
-    """
-    Tolerance in Angstrom for determining if sites are too close.
-    """
+    #Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.01
 
     @abc.abstractproperty
@@ -679,7 +677,7 @@ class Structure(SiteCollection, MSONable):
                    for x in range(0, nimages + 1)]
         return structs
 
-    
+
     def get_primitive_structure(self, tolerance=0.25):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
@@ -693,7 +691,7 @@ class Structure(SiteCollection, MSONable):
 
         Things are done in fractional coordinates because its easier to
         translate back to the unit cell.
-        
+
         NOTE: if the tolerance is greater than 1/2 the minimum inter-site
         distance, the algorithm may find 2 non-equivalent sites that are
         within tolerance of each other. The algorithm will reject this
@@ -737,40 +735,40 @@ class Structure(SiteCollection, MSONable):
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_and_occu for site in sites]
         new_structure = None
-        
+
         for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
             latt[repl_pos] = v
-            
+
             #Exclude coplanar lattices from consideration.
             if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) < min_vol:
                 continue
             latt = Lattice(latt)
-            
+
             #Convert to fractional tol
             tol = tolerance / np.array(latt.abc)
             all_frac = latt.get_fractional_coords(np.array(all_coords))
-            
-            #calculate grouping of equivalent sites, represented by 
+
+            #calculate grouping of equivalent sites, represented by
             #adjacency matrix
             fdist = all_frac[None, :, :] - all_frac[:, None, :]
             fdist = np.abs(fdist - np.round(fdist))
             groups = np.all(fdist < tol[None, None, :], axis = 2)
-            
+
             #check that all group sizes are the same
             sizes = np.unique(np.sum(groups, axis = 0))
             if len(sizes) > 1:
                 continue
-            
+
             new_sp = []
             new_frac = []
             #this flag is set to ensure that all sites in a group are
             #the same species, it is set to false if a group is found
             #where this is not the case
             correct = True
-            
+
             added = np.zeros(len(groups), dtype = 'bool')
             for i, g in enumerate(groups):
                 if added[i]:
@@ -784,7 +782,7 @@ class Structure(SiteCollection, MSONable):
                     break
                 new_sp.append(all_sp[i0])
                 new_frac.append(all_frac[i0])
-            
+
             if correct:
                 new_structure = Structure(latt, new_sp, new_frac,
                     to_unit_cell=True)
