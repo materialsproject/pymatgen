@@ -1,6 +1,17 @@
 Change log
 ==========
 
+Version 2.5.0
+-------------
+1. Added optimization package with linear assignment class.
+2. Improved robustness of StructureMatcher using linear assignment.
+3. Improved primitive cell search (faster and more robust).
+4. Cleanup of deprecated methods, including
+   pymatgen.alchemy.materials.TransformedMaterial.undo/redo_last_transformation,
+   pymatgen.core.site.Site.distance_and_image_old, Poscar.struct,
+   StructureFitter and tests.
+5. Miscellaneous bug fixes and speedups.
+
 Version 2.4.3
 -------------
 1. Bug fix for StructureMatcher.
