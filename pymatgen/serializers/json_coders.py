@@ -99,6 +99,20 @@ class PMGJSONEncoder(json.JSONEncoder):
     """
 
     def default(self, o):
+        """
+        Overriding default method for JSON encoding. This method does two
+        things: (a) If an object has a to_dict property, return the to_dict
+        output. (b) If the @module and @class keys are not in the to_dict,
+        add them to the output automatically. If the object has no to_dict
+        property, the default Python json encoder default method is called.
+
+        Args:
+            o:
+                Python object.
+
+        Return:
+            Python dict representation.
+        """
         try:
             d = o.to_dict
             if "@module" not in d:
@@ -142,10 +156,9 @@ class PMGJSONDecoder(json.JSONDecoder):
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls = getattr(mod, classname)
-                    data = {k: v for k, v in d.items() if k not in ["module",
-                                                                    "class",
-                                                                    "@module",
-                                                                    "@class"]}
+                    data = {k: v for k, v in d.items()
+                            if k not in ["module", "class",
+                                         "@module", "@class"]}
                     if hasattr(cls, "from_dict"):
                         return cls.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v) \

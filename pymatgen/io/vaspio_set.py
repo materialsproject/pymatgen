@@ -2,9 +2,10 @@
 
 """
 This module defines the VaspInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
-set is to specify a scheme to generate a consistent set of Vasp inputs from a
-structure without further user intervention. This ensures comparability across
+implementation for the parameters used by the Materials Project and the MIT
+high throughput project.  The basic concept behind an input set is to specify
+a scheme to generate a consistent set of Vasp inputs from a structure
+without further user intervention. This ensures comparability across
 runs.
 """
 
@@ -357,7 +358,7 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             vasp input files from structures
         output_dir:
             Directory to output files
-        create_directory:
+        make_dir_if_not_present:
             Create the directory if not present. Defaults to True.
         subfolder:
             function to create subdirectory name from structure.
