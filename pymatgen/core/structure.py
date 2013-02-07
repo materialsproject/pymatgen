@@ -55,6 +55,15 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def get_distance(self, i, j):
         """
         Returns distance between sites at index i and j.
+
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+
+        Returns:
+            Distance between sites at index i and index j.
         """
         return
 
@@ -174,11 +183,11 @@ class SiteCollection(collections.Sequence, collections.Hashable):
 
         Args:
             i:
-                Index of first site
+                Index of first site.
             j:
-                Index of second site
+                Index of second site.
             k:
-                Index of third site
+                Index of third site.
 
         Returns:
             Angle in degrees.
