@@ -18,15 +18,15 @@ import numpy as np
 import itertools
 import abc
 
+from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
-from pymatgen.util.coord_utils import find_in_coord_list_pbc
-from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
+from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
-class AbstractComparator(object):
+class AbstractComparator(MSONable):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.
@@ -74,6 +74,20 @@ class AbstractComparator(object):
         """
         return
 
+    @staticmethod
+    def from_dict(d):
+        for trans_modules in ['structure_matcher']:
+            mod = __import__('pymatgen.analysis.' + trans_modules,
+                             globals(), locals(), [d['@class']], -1)
+            if hasattr(mod, d['@class']):
+                trans = getattr(mod, d['@class'])
+                return trans()
+        raise ValueError("Invalid Comparator dict")
+
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
 class SpeciesComparator(AbstractComparator):
     """
@@ -191,7 +205,7 @@ class FrameworkComparator(AbstractComparator):
         return len(structure)
 
 
-class StructureMatcher(object):
+class StructureMatcher(MSONable):
     """
     Class to match structures by similarity.
 
@@ -291,39 +305,23 @@ class StructureMatcher(object):
         for lat in bfl[valid]:
             nl = Lattice(lat)
             if np.allclose(nl.angles, s1_angles, rtol=0,
-                           atol=self.angle_tol):
-                yield nl
+                               atol=self.angle_tol):
+                    yield nl
 
-    def _cmp_struct(self, s1, s2, nl, frac_tol):
+    def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
-            #Available vectors
-            avail = [1] * len(s1_coords)
-            for coord in s1_coords:
-                ind = find_in_coord_list_pbc(s2_coords, coord, frac_tol)
-                #if more than one match found, take closest
-                if len(ind) > 1:
-                    #only check against available vectors
-                    ind = [i for i in ind if avail[i]]
-                    if len(ind) > 1:
-                        #get cartesian distances from periodic distances
-                        pb_dists = np.array([pbc_diff(s2_coords[i], coord)
-                                             for i in ind])
-                        carts = nl.get_cartesian_coords(pb_dists)
-                        dists = np.array([np.linalg.norm(carts[i])
-                                          for i in range(len(ind))])
-                        #use smallest distance
-                        ind = np.where(dists == np.min(dists))[0][0]
-                        avail[ind] = 0
-                    elif len(ind):
-                        avail[ind[0]] = 0
-                    else:
-                        return False
-                elif len(ind) and avail[ind]:
-                    avail[ind] = 0
-                else:
-                    return False
+            dist = s1_coords[:, None] - s2_coords[None, :]
+            dist = abs(dist - np.round(dist))
+            dist[np.where(dist > frac_tol[None,None, :])] = 3 * len(dist)
+            cost = np.sum(dist, axis = -1)
+            if np.max(np.min(cost, axis = 0)) >= 3 * len(dist):
+                return False
+            lin = LinearAssignment(cost)
+            if lin.min_cost >= 3 * len(dist):
+                return False
         return True
+
 
     def fit(self, struct1, struct2):
         """
@@ -423,7 +421,7 @@ class StructureMatcher(object):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                if self._cmp_struct(s1, t_s2, nl, frac_tol):
+                if self._cmp_struct(s1, t_s2, frac_tol):
                     return True
         return False
 
@@ -477,3 +475,23 @@ class StructureMatcher(object):
                     group_list.append([g[j]])
             all_groups.extend(group_list)
         return all_groups
+
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "comparator": self._comparator.to_dict,
+                "stol": self.stol,
+                "ltol": self.ltol,
+                "angle_tol": self.angle_tol,
+                "primitive_cell": self._primitive_cell,
+                "scale": self._scale}
+
+    @staticmethod
+    def from_dict(d):
+        return StructureMatcher(ltol=d["ltol"], stol=d["stol"],
+            angle_tol=d["angle_tol"], primitive_cell=d["primitive_cell"],
+            scale=d["scale"],
+            comparator=AbstractComparator.from_dict(d["comparator"]))
+
+

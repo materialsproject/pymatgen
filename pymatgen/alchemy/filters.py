@@ -6,16 +6,17 @@ This module defines filters for Transmuter object.
 
 from __future__ import division
 
-__author__ = "Will Richards, Shyue Ping Ong"
+__author__ = "Will Richards, Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
-
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.analysis.structure_matcher import StructureMatcher,\
+    ElementComparator
 import abc
 
 
@@ -40,7 +41,7 @@ class AbstractStructureFilter(MSONable):
     def from_dict(d):
         for trans_modules in ['filters']:
             mod = __import__('pymatgen.alchemy.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
+                globals(), locals(), [d['@class']], -1)
             if hasattr(mod, d['@class']):
                 trans = getattr(mod, d['@class'])
                 return trans(**d['init_args'])
@@ -80,7 +81,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             atomic_number = lambda x: x.Z
             filter_set = set(map(atomic_number, self._species))
             structure_set = set(map(atomic_number,
-                                    structure.composition.elements))
+                structure.composition.elements))
         else:
             #compare by specie or element object
             filter_set = set(self._species)
@@ -159,6 +160,48 @@ class SpecieProximityFilter(AbstractStructureFilter):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_args"] = {"specie_and_min_dist_dict":
-                          {str(sp): v
-                           for sp, v in self.specie_and_min_dist.items()}}
+                              {str(sp): v
+                               for sp, v in self.specie_and_min_dist.items()}}
+        return d
+
+
+class RemoveDuplicatesFilter(AbstractStructureFilter):
+    """
+    This filter removes exact duplicate structures from the transmuter.
+    """
+
+    def __init__(self, structure_matcher=StructureMatcher(
+        comparator=ElementComparator())):
+        """
+        Args:
+            comparator:
+                The comparator to be used in the matching
+        """
+        self._structure_list = []
+        if isinstance(structure_matcher, dict):
+            self._sm = StructureMatcher.from_dict(structure_matcher)
+        else:
+            self._sm = structure_matcher
+
+    def test(self, structure):
+        if not self._structure_list:
+            self._structure_list.append(structure)
+            return True
+
+        for s in self._structure_list:
+            if self._sm._comparator.get_structure_hash(structure) ==\
+               self._sm._comparator.get_structure_hash(s):
+                if self._sm.fit(s, structure):
+                    return False
+
+        self._structure_list.append(structure)
+        return True
+
+    @property
+    def to_dict(self):
+        d = {"version": __version__}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["init_args"] = {"structure_matcher": self._sm.to_dict}
+
         return d

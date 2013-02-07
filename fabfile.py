@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
-Created on Apr 29, 2012
-'''
+"""
+Deployment file to facilitate releases of pymatgen.
+"""
 
 from __future__ import division
 
@@ -13,11 +13,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Apr 29, 2012"
 
-import os
 import glob
+import os
 
 from fabric.api import local, lcd
-from fabric.state import env
+from pymatgen import __version__ as ver
+
 
 def makedoc():
     with lcd("docs"):
@@ -49,16 +50,19 @@ def makedoc():
         local("make html")
         local("cp favicon.ico ../../docs/pymatgen/html/static/favicon.ico")
 
+
 def publish():
     local("python setup.py release")
+
 
 def test():
     local("nosetests")
 
+
 def setver():
-    from pymatgen import __version__
-    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(__version__))
+    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(ver))
     local("mv newsetup setup.py")
+
 
 def update_dev_doc():
     makedoc()
@@ -67,8 +71,16 @@ def update_dev_doc():
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
 
+
+def log_ver():
+    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public", "pymatgen", ver)
+    with open(filepath, "w") as f:
+        f.write("Release")
+
+
 def release():
     setver()
     test()
     makedoc()
     publish()
+    log_ver()
