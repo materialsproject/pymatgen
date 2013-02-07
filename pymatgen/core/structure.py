@@ -744,7 +744,12 @@ class Structure(SiteCollection, MSONable):
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_and_occu for site in sites]
         new_structure = None
-
+        
+        #all lattice points need to be projected to 0 under new basis
+        l_points = np.array([[0,0,1],[0,1,0],[0,1,1],[1,0,0],
+                             [1,0,1],[1,1,0],[1,1,1]])
+        l_points = self._lattice.get_cartesian_coords(l_points)
+        
         for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
@@ -758,6 +763,13 @@ class Structure(SiteCollection, MSONable):
 
             #Convert to fractional tol
             tol = tolerance / np.array(latt.abc)
+            
+            #check validity of new basis
+            new_l_points = latt.get_fractional_coords(l_points)
+            f_l_dist = np.abs(new_l_points - np.round(new_l_points))
+            if np.any(f_l_dist > tol[None, None, :]):
+                continue
+            
             all_frac = latt.get_fractional_coords(np.array(all_coords))
 
             #calculate grouping of equivalent sites, represented by
@@ -770,7 +782,12 @@ class Structure(SiteCollection, MSONable):
             sizes = np.unique(np.sum(groups, axis = 0))
             if len(sizes) > 1:
                 continue
-
+            
+            #check that reduction in number of sites was by the same 
+            #amount as the volume reduction
+            if round(self._lattice.volume / latt.volume) != sizes[0]:
+                continue
+            
             new_sp = []
             new_frac = []
             #this flag is set to ensure that all sites in a group are
