@@ -229,7 +229,8 @@ class MultipleSubstitutionTransformation(object):
                 "init_args": {"sp_to_replace": self._sp_to_replace,
                               "r_fraction": self._r_fraction,
                               "substitution_dict": self._substitution_dict,
-                              "charge_balance_species": self._charge_balance_species},
+                              "charge_balance_species":
+                              self._charge_balance_species},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -323,7 +324,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         for s in structures:
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
-            transformation = tuple([tuple([int(round(cell)) for cell in row])\
+            transformation = tuple([tuple([int(round(cell)) for cell in row])
                                     for row in transformation])
             if contains_oxidation_state:
                 if transformation not in ewald_matrices:
@@ -373,14 +374,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    
+
 class SubstitutionPredictorTransformation(AbstractTransformation):
     """
     This transformation takes a structure and uses the structure
-    prediction module to find likely site substitutions. 
+    prediction module to find likely site substitutions.
     """
 
-    def __init__(self, threshold = 1e-2, **kwargs):
+    def __init__(self, threshold=1e-2, **kwargs):
         """
         Args:
             kwargs:
@@ -391,14 +392,14 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self._threshold = threshold
         self._substitutor = Substitutor(threshold, **kwargs)
 
-    def apply_transformation(self, structure, return_ranked_list = False):
+    def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
             raise ValueError("SubstitutionPredictorTransformation doesn't"
                              " support returning 1 structure")
-            
+
         preds = self._substitutor.pred_from_comp(structure.composition)
-        preds.sort(key = lambda x: x['probability'], reverse = True)
-        
+        preds.sort(key=lambda x: x['probability'], reverse=True)
+
         outputs = []
         for pred in preds:
             st = SubstitutionTransformation(pred['substitutions'])
