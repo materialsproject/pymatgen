@@ -679,7 +679,7 @@ class Structure(SiteCollection, MSONable):
                    for x in range(0, nimages + 1)]
         return structs
 
-
+    
     def get_primitive_structure(self, tolerance=0.25):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
@@ -693,6 +693,11 @@ class Structure(SiteCollection, MSONable):
 
         Things are done in fractional coordinates because its easier to
         translate back to the unit cell.
+        
+        NOTE: if the tolerance is greater than 1/2 the minimum inter-site
+        distance, the algorithm may find 2 non-equivalent sites that are
+        within tolerance of each other. The algorithm will reject this
+        lattice.
 
         Args:
             tolerance:
@@ -732,41 +737,58 @@ class Structure(SiteCollection, MSONable):
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_and_occu for site in sites]
         new_structure = None
+        
         for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
             latt[repl_pos] = v
+            
             #Exclude coplanar lattices from consideration.
-            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) > min_vol:
-                latt = Lattice(latt)
-                #Convert to fractional tol
-                tol = [tolerance / l for l in latt.abc]
-                new_frac = latt.get_fractional_coords(all_coords)
-                grouped_sp = []
-                grouped_frac = []
-
-                for i, f in enumerate(new_frac):
-                    found = False
-                    for j, g in enumerate(grouped_frac):
-                        if all_sp[i] != grouped_sp[j]:
-                            continue
-                        fdiff = np.abs(pbc_diff(g[0], f))
-                        if np.all(fdiff < tol):
-                            g.append(f)
-                            found = True
-                            break
-                    if not found:
-                        grouped_frac.append([f])
-                        grouped_sp.append(all_sp[i])
-
-                num_images = [len(c) for c in grouped_frac]
-                nimages = num_images[0]
-                if nimages > 1 and all([i == nimages for i in num_images]):
-                    new_frac = [f[0] for f in grouped_frac]
-                    new_structure = Structure(latt, grouped_sp, new_frac,
-                        to_unit_cell=True)
+            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) < min_vol:
+                continue
+            latt = Lattice(latt)
+            
+            #Convert to fractional tol
+            tol = tolerance / np.array(latt.abc)
+            all_frac = latt.get_fractional_coords(np.array(all_coords))
+            
+            #calculate grouping of equivalent sites, represented by 
+            #adjacency matrix
+            fdist = all_frac[None, :, :] - all_frac[:, None, :]
+            fdist = np.abs(fdist - np.round(fdist))
+            groups = np.all(fdist < tol[None, None, :], axis = 2)
+            
+            #check that all group sizes are the same
+            sizes = np.unique(np.sum(groups, axis = 0))
+            if len(sizes) > 1:
+                continue
+            
+            new_sp = []
+            new_frac = []
+            #this flag is set to ensure that all sites in a group are
+            #the same species, it is set to false if a group is found
+            #where this is not the case
+            correct = True
+            
+            added = np.zeros(len(groups), dtype = 'bool')
+            for i, g in enumerate(groups):
+                if added[i]:
+                    continue
+                indices = np.where(g)[0]
+                i0 = indices[0]
+                sp = all_sp[i0]
+                added[indices] = 1
+                if not all([all_sp[i] == sp for i in indices]):
+                    correct = False
                     break
+                new_sp.append(all_sp[i0])
+                new_frac.append(all_frac[i0])
+            
+            if correct:
+                new_structure = Structure(latt, new_sp, new_frac,
+                    to_unit_cell=True)
+                break
 
         if new_structure and len(new_structure) != len(self):
             # If a more primitive structure has been found, try to find an
