@@ -39,9 +39,8 @@ So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
-such,
-   the analysis it produces survives rigourous scrutiny every single day. Bugs
-   tend to be found and corrected quickly.
+   such, the analysis it produces survives rigourous scrutiny every single
+   day. Bugs tend to be found and corrected quickly.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
    efficient research.
