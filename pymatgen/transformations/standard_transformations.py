@@ -447,7 +447,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             transmuted structure class.
         """
         sp = smart_element_or_specie(self._specie)
-        specie_indices = [i for i in xrange(len(structure)) \
+        specie_indices = [i for i in xrange(len(structure))
                           if structure[i].specie == sp]
         trans = PartialRemoveSitesTransformation([specie_indices],
                                                  [self._frac], algo=self._algo)
@@ -602,7 +602,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         for species in sites_to_order.values():
             initial_sp = None
             sorted_keys = sorted(species.keys(),
-                    key=lambda x: x is not None and -abs(x.oxi_state) or 1000)
+                                 key=lambda x: x is not None and
+                                 -abs(x.oxi_state) or 1000)
             for sp in sorted_keys:
                 if initial_sp is None:
                     initial_sp = sp
@@ -637,7 +638,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     #if the # of atoms to remove isn"t within .25 of an integer
                     if abs(manipulation[1] - round(manipulation[1])) > .25:
                         raise ValueError("Occupancy fractions not consistent "
-                                        "with size of unit cell")
+                                         "with size of unit cell")
 
                     manipulation[1] = int(round(manipulation[1]))
                     m_list.append(manipulation)
@@ -664,7 +665,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
             self._all_structures.append({"energy": output[0],
-                "energy_above_minimum": (output[0]
+                                         "energy_above_minimum": (output[0]
                                          - lowest_energy) / num_atoms,
                 "structure": se.modified_structure.get_sorted_structure()})
 
