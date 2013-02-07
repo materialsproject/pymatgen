@@ -599,7 +599,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
                     m_dict[el] += amt * factor
                 else:
                     m_dict[el] = amt * factor
-                return (f.replace(m.group(), "", 1), m_dict, m_points + points)
+                return f.replace(m.group(), "", 1), m_dict, m_points + points
 
             #else return None
             return None, None, None
@@ -691,7 +691,7 @@ def reduce_formula(sym_amt):
                   key=lambda s: smart_element_or_specie(s).X)
 
     syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
-                      syms)
+                  syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           smart_element_or_specie(syms[num_el - 1]).X

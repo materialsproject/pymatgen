@@ -66,14 +66,8 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Added optimization package with linear assignment class.
-2. Improved robustness of StructureMatcher using linear assignment.
-3. Improved primitive cell search (faster and more robust).
-4. Cleanup of deprecated methods, including
-   pymatgen.alchemy.materials.TransformedMaterial.undo/redo_last_transformation,
-   pymatgen.core.site.Site.distance_and_image_old, Poscar.struct,
-   StructureFitter and tests.
-5. Miscellaneous bug fixes and speedups.
+1. Bug fixes for primitive cell finder.
+2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 

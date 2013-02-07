@@ -225,8 +225,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
+
         def avg_electroneg(sps):
             return sum((sp.X * occu for sp, occu in sps.items()))
+
         if avg_electroneg(self._species) < avg_electroneg(other._species):
             return -1
         if avg_electroneg(self._species) > avg_electroneg(other._species):
@@ -247,7 +249,6 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             d["occu"] = occu
             species_list.append(d)
         return {"name": self.species_string, "species": species_list,
-                "occu": occu,
                 "xyz": [float(c) for c in self._coords],
                 "properties": self._properties,
                 "@module": self.__class__.__module__,
@@ -420,9 +421,11 @@ class PeriodicSite(Site, MSONable):
             coord1 = self._fcoords - adj1
             coord2 = fcoords - adj2
             # Generate set of images required for testing.
-            # This is a cheat to create an 8x3 array of all length 3 combinations of 0,1
-            test_set = np.unpackbits(np.array([5, 57, 119], dtype=np.uint8)).reshape(8,3)
-            images = np.copysign(test_set, coord1-coord2)
+            # This is a cheat to create an 8x3 array of all length 3
+            # combinations of 0,1
+            test_set = np.unpackbits(np.array([5, 57, 119],
+                                              dtype=np.uint8)).reshape(8, 3)
+            images = np.copysign(test_set, coord1 - coord2)
             # Create tiled cartesian coords for computing distances.
             vec = np.tile(coord2 - coord1, (8, 1)) + images
             vec = self._lattice.get_cartesian_coords(vec)
@@ -484,11 +487,10 @@ class PeriodicSite(Site, MSONable):
 
     def __repr__(self):
         return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " \
-               "{:.4f}]".format(
-            self.species_string, self._coords[0], self._coords[1],
-            self._coords[2], self._fcoords[0], self._fcoords[1],
-            self._fcoords[2]
-        )
+               "{:.4f}]".format(self.species_string, self._coords[0],
+                                self._coords[1], self._coords[2],
+                                self._fcoords[0], self._fcoords[1],
+                                self._fcoords[2])
 
     @property
     def to_dict(self):
@@ -501,7 +503,7 @@ class PeriodicSite(Site, MSONable):
             d["occu"] = occu
             species_list.append(d)
         return {"label": self.species_string, "species": species_list,
-                "occu": occu, "xyz": [float(c) for c in self._coords],
+                "xyz": [float(c) for c in self._coords],
                 "abc": [float(c) for c in self._fcoords],
                 "lattice": self._lattice.to_dict,
                 "properties": self._properties,
