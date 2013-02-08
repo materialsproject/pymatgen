@@ -73,7 +73,7 @@ class ConversionElectrode(AbstractElectrode):
             if e.composition.reduced_formula == comp.reduced_formula:
                 entry = e
             elif e.is_element and \
-                e.composition.reduced_formula == working_ion_symbol:
+                    e.composition.reduced_formula == working_ion_symbol:
                 working_ion_entry = e
 
         if not entry:
@@ -300,7 +300,7 @@ class ConversionElectrode(AbstractElectrode):
                 if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
                 if abs(rxn.coeffs[i]) > 1e-5 and \
-                    rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                        rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.to_dict
                     d["reactant_compositions"].append(comp_dict)
