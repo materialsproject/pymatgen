@@ -67,7 +67,8 @@ Latest Change Log
 =================
 
 1. Bug fixes for primitive cell finder.
-2. Miscellaneous bug fixes and speedups.
+2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
+3. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
