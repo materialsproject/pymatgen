@@ -195,14 +195,14 @@ class StructureVis(object):
         Display the help for various keyboard shortcuts.
         """
         helptxt = ["h : Toggle help",
-                   "A/a, B/b or C/c : Increase/decrease cell by one a," +\
+                   "A/a, B/b or C/c : Increase/decrease cell by one a,"
                    " b or c unit vector", "# : Toggle showing of polyhedrons",
                    "-: Toggle showing of bonds", "r : Reset camera direction",
-                   "[/]: Decrease or increase poly_radii_tol_factor " +\
+                   "[/]: Decrease or increase poly_radii_tol_factor "
                    "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-                   "Up/Down: Rotate view along Up direction by 90 " +\
+                   "Up/Down: Rotate view along Up direction by 90 "
                    "clockwise/anticlockwise",
-                   "Left/right: Rotate view along camera direction by " +\
+                   "Left/right: Rotate view along camera direction by "
                    "90 clockwise/anticlockwise", "s: Save view to image.png",
                    "o: Orthogonalize structure"]
         self.helptxt_mapper.SetInput("\n".join(helptxt))
@@ -519,14 +519,12 @@ class StructureVis(object):
                 if mapper in self.mapper_map:
                     output = []
                     for site in self.mapper_map[mapper]:
-                        row = ["{} - ".format(site.species_string)]
-                        row.append(", "
-                                   .join(["{:.3f}".format(c)
-                                          for c in site.frac_coords]))
-                        row.append("[" +
-                                   ", ".join(["{:.3f}".format(c)
-                                              for c in site.coords]) +
-                                   "]")
+                        row = ["{} - ".format(site.species_string),
+                               ", ".join(["{:.3f}".format(c)
+                                          for c in site.frac_coords]),
+                               "[" + ", ".join(["{:.3f}".format(c)
+                                                for c in site.coords]) +
+                               "]"]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
                     self.helptxt_actor.SetPosition(10, 10)
