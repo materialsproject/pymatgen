@@ -24,6 +24,7 @@ from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
+from pymatgen.util.coord_utils  import get_points_in_sphere_pbc
 
 
 class AbstractComparator(MSONable):
@@ -270,21 +271,21 @@ class StructureMatcher(MSONable):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
-
+        
     def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
-        ds = Structure(s2.lattice, ['X'], [[0, 0, 0]])
-
-        all_nn = ds.get_neighbors(ds[0], (1 + self.ltol) * max(s1_lengths))
-
+        all_nn = get_points_in_sphere_pbc(s2.lattice,[[0,0,0]],[0,0,0],
+                                    (1 + self.ltol) * max(s1_lengths))[:,[0,1]]
         nv = []
         for l in s1_lengths:
-            nvi = [site.coords for site, dist in all_nn
-                   if (1 - self.ltol) * l < dist < (1 + self.ltol) * l]
-            if not nvi:
+            nvi = all_nn[np.where((all_nn[:,1] < (1 + self.ltol) * l)
+                                   & (all_nn[:,1] > (1 - self.ltol) * l))][:,0]
+            if not len(nvi):
                 return
+            nvi = [np.array(site) for site in nvi]
+            nvi = np.dot(nvi,s2.lattice.matrix)
             nv.append(nvi)
-
+        
         #The vectors are broadcast into a 5-D array containing
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
@@ -295,18 +296,32 @@ class StructureMatcher(MSONable):
             np.array([0, 1, 0])[None, None, None, :, None] +\
             np.array(nv[2])[:, None, None, None, :] *\
             np.array([0, 0, 1])[None, None, None, :, None]
-
+        
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
                                                    bfl[:, :, :, 2, :]), 3)
         #Find valid cells
         valid = np.where(abs(vol) >= vol_tol)
-
-        #loop over valid lattices
-        for lat in bfl[valid]:
+        if not len(valid[0]):
+            return
+        #loop over valid lattices to compute the angles for each lattice
+        lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
+        angles = np.zeros((len(bfl[valid]),3), float)
+        for i in xrange(3):
+            j = (i + 1) % 3
+            k = (i + 2) % 3
+            angles[:,i] = np.sum(bfl[valid][:,j,:]*bfl[valid][:,k,:],1) \
+                                                / (lengths[:,j] * lengths[:,k])
+        angles = np.arccos(angles) * 180. / np.pi
+        #Check for valid angles for each lattice
+        valid_angles = np.where(np.all(np.abs(angles - s1_angles) < 
+                                                    self.angle_tol,axis = 1))
+        if not len(valid_angles[0]):
+            return
+        #loop over all valid lattices.
+        for lat in bfl[valid][valid_angles]:
             nl = Lattice(lat)
-            if np.allclose(nl.angles, s1_angles, rtol=0, atol=self.angle_tol):
-                yield nl
+            yield nl
 
     def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
@@ -321,7 +336,7 @@ class StructureMatcher(MSONable):
             if lin.min_cost >= 3 * len(dist):
                 return False
         return True
-
+    
     def fit(self, struct1, struct2):
         """
         Fit two structures.
