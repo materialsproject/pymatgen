@@ -78,6 +78,7 @@ EPS=12
 
 
 class GaussianOutputTest(unittest.TestCase):
+    # todo: Add unittest for PCM type output.
 
     def setUp(self):
         self.gauout = GaussianOutput(os.path.join(test_dir, "methane.log"))

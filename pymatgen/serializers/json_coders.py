@@ -152,6 +152,7 @@ class PMGJSONDecoder(json.JSONDecoder):
                 classname = d["class"]
             else:
                 modname = None
+                classname = None
             if modname:
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
@@ -161,7 +162,7 @@ class PMGJSONDecoder(json.JSONDecoder):
                                          "@module", "@class"]}
                     if hasattr(cls, "from_dict"):
                         return cls.from_dict(data)
-            return {self.process_decoded(k): self.process_decoded(v) \
+            return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
