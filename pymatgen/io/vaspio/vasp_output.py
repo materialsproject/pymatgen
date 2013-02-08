@@ -1536,7 +1536,7 @@ class VolumetricData(object):
                             x = data_count % dim[0]
                             y = int(math.floor(data_count / dim[0])) % dim[1]
                             z = int(math.floor(data_count / dim[0] / dim[1]))
-                            dataset[x,y,z] = float(tok)
+                            dataset[x, y, z] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False
@@ -1657,7 +1657,8 @@ class VolumetricData(object):
                                    weights=vals)
         data = np.zeros((nbins, 2))
         data[:, 0] = edges[1:]
-        data[:, 1] = [sum(hist[0:i+1]) / self.ngridpts for i in xrange(nbins)]
+        data[:, 1] = [sum(hist[0:i + 1]) / self.ngridpts
+                      for i in xrange(nbins)]
         return data
 
     def get_average_along_axis(self, ind):
@@ -1892,7 +1893,7 @@ class VaspParserError(Exception):
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
-                                            structure=None, projections=False):
+                                                   projections=False):
     """
     this method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
@@ -1927,13 +1928,11 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
 
         # populate branches with Bandstructure instances
         branches = []
-        structure = None
         for dir_name in sorted_branch_dir_names:
             xml_file = os.path.join(dir_name, "vasprun.xml")
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
-                structure = run.final_structure
             else:
                 # It might be better to throw an exception
                 warnings.warn("Skipping {}. Unable to find {}"

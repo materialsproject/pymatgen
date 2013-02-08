@@ -29,7 +29,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, pbc_diff
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -55,6 +55,15 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     def get_distance(self, i, j):
         """
         Returns distance between sites at index i and j.
+
+        Args:
+            i:
+                Index of first site
+            j:
+                Index of second site
+
+        Returns:
+            Distance between sites at index i and index j.
         """
         return
 
@@ -174,11 +183,11 @@ class SiteCollection(collections.Sequence, collections.Hashable):
 
         Args:
             i:
-                Index of first site
+                Index of first site.
             j:
-                Index of second site
+                Index of second site.
             k:
-                Index of third site
+                Index of third site.
 
         Returns:
             Angle in degrees.
@@ -587,7 +596,7 @@ class Structure(SiteCollection, MSONable):
             reduced_latt = self._lattice.get_lll_reduced_lattice()
         else:
             raise ValueError("Invalid reduction algo : {}"
-            .format(reduction_algo))
+                             .format(reduction_algo))
 
         return Structure(reduced_latt, self.species_and_occu, self.cart_coords,
                          coords_are_cartesian=True, to_unit_cell=True)
@@ -677,7 +686,6 @@ class Structure(SiteCollection, MSONable):
                    for x in range(0, nimages + 1)]
         return structs
 
-
     def get_primitive_structure(self, tolerance=0.25):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
@@ -718,7 +726,7 @@ class Structure(SiteCollection, MSONable):
         sites = sorted(self._sites, key=lambda site: site.species_string)
         grouped_sites = [list(a[1]) for a
                          in itertools.groupby(sites,
-            key=lambda s: s.species_string)]
+                                              key=lambda s: s.species_string)]
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         min_site_list = [site.to_unit_cell for site in min_site_list]
@@ -729,12 +737,17 @@ class Structure(SiteCollection, MSONable):
         #Let's try to use the shortest vector possible first. Allows for faster
         #convergence to primitive cell.
         possible_vectors = sorted(possible_vectors,
-            key=lambda x: np.linalg.norm(x))
+                                  key=lambda x: np.linalg.norm(x))
 
         # Pre-create a few varibles for faster lookup.
         all_coords = [site.coords for site in sites]
         all_sp = [site.species_and_occu for site in sites]
         new_structure = None
+
+        #all lattice points need to be projected to 0 under new basis
+        l_points = np.array([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0],
+                             [1, 0, 1], [1, 1, 0], [1, 1, 1]])
+        l_points = self._lattice.get_cartesian_coords(l_points)
 
         for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
             #Try combinations of new lattice vectors with existing lattice
@@ -749,17 +762,29 @@ class Structure(SiteCollection, MSONable):
 
             #Convert to fractional tol
             tol = tolerance / np.array(latt.abc)
+
+            #check validity of new basis
+            new_l_points = latt.get_fractional_coords(l_points)
+            f_l_dist = np.abs(new_l_points - np.round(new_l_points))
+            if np.any(f_l_dist > tol[None, None, :]):
+                continue
+
             all_frac = latt.get_fractional_coords(np.array(all_coords))
 
             #calculate grouping of equivalent sites, represented by
             #adjacency matrix
             fdist = all_frac[None, :, :] - all_frac[:, None, :]
             fdist = np.abs(fdist - np.round(fdist))
-            groups = np.all(fdist < tol[None, None, :], axis = 2)
+            groups = np.all(fdist < tol[None, None, :], axis=2)
 
             #check that all group sizes are the same
             sizes = np.unique(np.sum(groups, axis = 0))
             if len(sizes) > 1:
+                continue
+
+            #check that reduction in number of sites was by the same
+            #amount as the volume reduction
+            if round(self._lattice.volume / latt.volume) != sizes[0]:
                 continue
 
             new_sp = []
@@ -769,7 +794,7 @@ class Structure(SiteCollection, MSONable):
             #where this is not the case
             correct = True
 
-            added = np.zeros(len(groups), dtype = 'bool')
+            added = np.zeros(len(groups), dtype='bool')
             for i, g in enumerate(groups):
                 if added[i]:
                     continue
@@ -785,7 +810,7 @@ class Structure(SiteCollection, MSONable):
 
             if correct:
                 new_structure = Structure(latt, new_sp, new_frac,
-                    to_unit_cell=True)
+                                          to_unit_cell=True)
                 break
 
         if new_structure and len(new_structure) != len(self):

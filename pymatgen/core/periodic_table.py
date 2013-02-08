@@ -266,10 +266,10 @@ class Element(object):
                          "coefficient_of_linear_thermal_expansion"]:
             return self._data[a.capitalize().replace("_", " ")]
         raise AttributeError(a)
-    
+
     def __getnewargs__(self):
         #function used by pickle to recreate object
-        return (self._symbol,)
+        return self._symbol,
 
     @property
     def average_ionic_radius(self):
@@ -653,8 +653,8 @@ class Specie(MSONable):
         """
         if not isinstance(other, Specie):
             return False
-        return self.symbol == other.symbol\
-        and self._oxi_state == other._oxi_state
+        return self.symbol == other.symbol \
+            and self._oxi_state == other._oxi_state
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -737,7 +737,7 @@ class Specie(MSONable):
     @staticmethod
     def from_dict(d):
         return Specie(d["element"], d["oxidation_state"],
-            d.get("properties", None))
+                      d.get("properties", None))
 
 
 class DummySpecie(Specie, MSONable):
@@ -841,7 +841,7 @@ class DummySpecie(Specie, MSONable):
     @staticmethod
     def from_dict(d):
         return DummySpecie(d["element"], d["oxidation_state"],
-            d.get("properties", None))
+                           d.get("properties", None))
 
 
 @singleton

@@ -19,7 +19,6 @@ import os
 import re
 import json
 import datetime
-import warnings
 from copy import deepcopy
 
 from pymatgen.core.structure import Structure
@@ -144,8 +143,8 @@ class TransformedStructure(MSONable):
 
         if return_alternatives and transformation.is_one_to_many:
             starting_struct = self._structures[-1]
-            ranked_list = transformation.apply_transformation(starting_struct,
-                                        return_ranked_list=return_alternatives)
+            ranked_list = transformation.apply_transformation(
+                starting_struct, return_ranked_list=return_alternatives)
             #generate the alternative structures
             alts = []
             for x in ranked_list[1:]:
