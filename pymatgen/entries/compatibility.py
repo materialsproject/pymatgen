@@ -89,7 +89,7 @@ class Compatibility(EntryPostProcessor):
         """
         comp = Composition(comp)
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                              key=lambda el: el.X)
+                          key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
 
         usettings = self.u_settings.get(most_electroneg, {})
