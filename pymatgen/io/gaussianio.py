@@ -410,7 +410,7 @@ class GaussianOutput(object):
     def _parse(self, filename):
 
         start_patt = re.compile(" \(Enter \S+l101\.exe\)")
-        route_patt = re.compile(" \#[pPnNtT]*.*")
+        route_patt = re.compile(" #[pPnNtT]*.*")
         charge_mul_patt = re.compile("Charge\s+=\s*([-\\d]+)\s+"
                                      "Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile("([0-9]+)\s+basis functions")
@@ -537,4 +537,5 @@ class GaussianOutput(object):
             m = total_patt.search(line)
             self.pcm['Total energy'] = float(m.group(1))
         elif parameter_patt.search(line):
+            m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
