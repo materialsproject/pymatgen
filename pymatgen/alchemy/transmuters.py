@@ -58,7 +58,7 @@ class StandardTransmuter(object):
         if transformations is not None:
             for trans in transformations:
                 self.append_transformation(trans,
-                    extend_collection=extend_collection)
+                                           extend_collection=extend_collection)
 
     def get_transformed_structures(self):
         """
@@ -70,7 +70,7 @@ class StandardTransmuter(object):
             next version.
         """
         warnings.warn("Use transformed_structures attribute instead.",
-            DeprecationWarning)
+                      DeprecationWarning)
         return self.transformed_structures
 
     def __getitem__(self, index):
@@ -140,7 +140,7 @@ class StandardTransmuter(object):
             new_structures = []
             for x in self.transformed_structures:
                 new = x.append_transformation(transformation, extend_collection,
-                    clear_redo=clear_redo)
+                                              clear_redo=clear_redo)
                 if new is not None:
                     new_structures.extend(new)
             self.transformed_structures.extend(new_structures)
@@ -166,7 +166,7 @@ class StandardTransmuter(object):
             return structure_filter.test(ts.final_structure)
 
         self.transformed_structures = filter(test_transformed_structure,
-            self.transformed_structures)
+                                             self.transformed_structures)
         for ts in self.transformed_structures:
             ts.append_filter(structure_filter)
 
@@ -194,8 +194,8 @@ class StandardTransmuter(object):
                 are generally better supported in visualization programs.
         """
         batch_write_vasp_input(self.transformed_structures, vasp_input_set,
-            output_dir, create_directory, subfolder,
-            include_cif)
+                               output_dir, create_directory, subfolder,
+                               include_cif)
 
     def set_parameter(self, key, value):
         """
@@ -240,7 +240,7 @@ class StandardTransmuter(object):
         """
         if isinstance(tstructs_or_transmuter, self.__class__):
             self.transformed_structures.extend(tstructs_or_transmuter
-            .transformed_structures)
+                                               .transformed_structures)
         else:
             for ts in tstructs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
@@ -304,10 +304,10 @@ class CifTransmuter(StandardTransmuter):
                 structure_data[-1].append(line)
         for data in structure_data:
             tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
-                primitive)
+                                                           primitive)
             transformed_structures.append(tstruct)
         StandardTransmuter.__init__(self, transformed_structures,
-            transformations, extend_collection)
+                                    transformations, extend_collection)
 
     @staticmethod
     def from_filenames(filenames, transformations=None, primitive=True,
@@ -333,8 +333,8 @@ class CifTransmuter(StandardTransmuter):
             with open(fname, "r") as f:
                 allcifs.append(f.read())
         return CifTransmuter("\n".join(allcifs), transformations,
-            primitive=primitive,
-            extend_collection=extend_collection)
+                             primitive=primitive,
+                             extend_collection=extend_collection)
 
 
 class PoscarTransmuter(StandardTransmuter):
@@ -355,9 +355,8 @@ class PoscarTransmuter(StandardTransmuter):
                 transformations.
         """
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        StandardTransmuter.__init__(self, [tstruct],
-            transformations,
-            extend_collection=extend_collection)
+        StandardTransmuter.__init__(self, [tstruct], transformations,
+                                    extend_collection=extend_collection)
 
     @staticmethod
     def from_filenames(poscar_filenames, transformations=None,
@@ -379,9 +378,9 @@ class PoscarTransmuter(StandardTransmuter):
         for filename in poscar_filenames:
             with open(filename, "r") as f:
                 tstructs.append(TransformedStructure
-                .from_poscar_string(f.read(), []))
+                                .from_poscar_string(f.read(), []))
         return StandardTransmuter(tstructs, transformations,
-            extend_collection=extend_collection)
+                                  extend_collection=extend_collection)
 
 
 def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
@@ -413,12 +412,11 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
         if subfolder is not None:
             subdir = subfolder(s)
             dirname = os.path.join(output_dir, subdir,
-                "{}_{}".format(formula, i))
+                                   "{}_{}".format(formula, i))
         else:
-            dirname = os.path.join(output_dir,
-                "{}_{}".format(formula, i))
+            dirname = os.path.join(output_dir, "{}_{}".format(formula, i))
         s.write_vasp_input(vasp_input_set, dirname,
-            create_directory=create_directory)
+                           create_directory=create_directory)
         if include_cif:
             from pymatgen.io.cifio import CifWriter
 
@@ -444,9 +442,8 @@ def _apply_transformation(inputs):
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection,
-        clear_redo=clear_redo)
+                                   clear_redo=clear_redo)
     o = [ts]
     if new:
         o.extend(new)
     return o
-

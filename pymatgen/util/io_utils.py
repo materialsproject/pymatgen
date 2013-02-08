@@ -253,7 +253,7 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
             pos = m_file.tell()
             if newline_pos != -1:
                 # Found a newline
-                line = buf[newline_pos+1:]
+                line = buf[newline_pos + 1:]
                 buf = buf[:newline_pos]
                 if pos or newline_pos or trailing_newline:
                     line += "\n"
@@ -261,9 +261,9 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
             elif pos:
                 # Need to fill buffer
                 toread = min(blk_size, pos)
-                m_file.seek(pos-toread, 0)
+                m_file.seek(pos - toread, 0)
                 buf = m_file.read(toread) + buf
-                m_file.seek(pos-toread, 0)
+                m_file.seek(pos - toread, 0)
                 if pos == toread:
                     buf = "\n" + buf
             else:

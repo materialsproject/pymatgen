@@ -84,7 +84,7 @@ class PhaseDiagram (object):
     # Tolerance for determining if formation energy is positive.
     formation_energy_tol = 1e-11
 
-    def __init__(self, entries, elements=None, use_external_qhull=False):
+    def __init__(self, entries, elements=None):
         """
         Standard constructor for phase diagram.
 
@@ -95,11 +95,6 @@ class PhaseDiagram (object):
             elements:
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the the entries themselves.
-            use_external_qhull:
-                .. deprecated:: 2.3.0
-                    Since v2.3.0, pymatgen uses the pyhull package to generate
-                    convex hulls. This parameter is no longer used and is
-                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
@@ -129,7 +124,7 @@ class PhaseDiagram (object):
                     if len(self.qhull_entries[vertex].composition) > 1:
                         is_element_facet = False
                 if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
-                   (not is_element_facet):
+                        (not is_element_facet):
                     finalfacets.append(facet)
                 else:
                     logger.debug("Removing vertical facet : {}".format(facet))
@@ -222,7 +217,7 @@ class PhaseDiagram (object):
         el_refs = {}
         for el in self.elements:
             el_entries = filter(lambda e: e.composition.is_element and
-                                          e.composition.elements[0] == el,
+                                e.composition.elements[0] == el,
                                 self.all_entries)
             if len(el_entries) == 0:
                 raise PhaseDiagramError("There are no entries associated with"
@@ -291,8 +286,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
        doi:10.1016/j.elecom.2010.01.010
     """
 
-    def __init__(self, entries, chempots, elements=None,
-                 use_external_qhull=False):
+    def __init__(self, entries, chempots, elements=None):
         """
         Standard constructor for grand potential phase diagram.
 
@@ -306,11 +300,6 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements:
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the entries themselves.
-            use_external_qhull:
-                .. deprecated:: 2.3.0
-                    Since v2.3.0, pymatgen uses the pyhull package to generate
-                    convex hulls. This parameter is no longer used and is
-                    retained purely for backwards compatibility.
         """
         if elements is None:
             elements = set()
@@ -318,9 +307,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                   for entry in entries])
 
         elements = set(elements).difference(chempots.keys())
-        all_entries = [GrandPotPDEntry(e, chempots) for e in entries
-                      if (not e.is_element) or
-                         e.composition.elements[0] in elements]
+        all_entries = [GrandPotPDEntry(e, chempots)
+                       for e in entries
+                       if (not e.is_element) or
+                       e.composition.elements[0] in elements]
         self.chempots = chempots
 
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
@@ -347,7 +337,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions,
-                 use_external_qhull=False,
                  normalize_terminal_compositions=True):
         """
         Args:
@@ -357,11 +346,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
             terminal_compositions:
                 Terminal compositions of phase space. In the Li2O-P2O5 example,
                 these will be the Li2O and P2O5 compositions.
-            use_external_qhull:
-                .. deprecated:: 2.3.0
-                    Since v2.3.0, pymatgen uses the pyhull package to generate
-                    convex hulls. This parameter is no longer used and is
-                    retained purely for backwards compatibility.
             normalize_terminal_compositions:
                 Whether to normalize the terminal compositions to a per atom
                 basis. If normalized, the energy above hulls will be consistent
@@ -414,7 +398,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #reactants.
                 if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
                         for comp in fractional_comp]):
-                    newcomp = {sp_mapping[comp]:-rxn.get_coeff(comp)
+                    newcomp = {sp_mapping[comp]: -rxn.get_coeff(comp)
                                for comp in fractional_comp}
                     newcomp = {k: v for k, v in newcomp.items()
                                if v > CompoundPhaseDiagram.amount_tol}

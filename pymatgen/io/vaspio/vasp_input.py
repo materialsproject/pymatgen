@@ -28,7 +28,6 @@ from numpy.linalg import det
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
-from pymatgen.io.io_abc import VaspInput
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.decorators import cached_class
@@ -41,7 +40,7 @@ import pymatgen
 logger = logging.getLogger(__name__)
 
 
-class Poscar(VaspInput):
+class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -184,7 +183,6 @@ class Poscar(VaspInput):
         Returns:
             Poscar object.
         """
-
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
@@ -282,6 +280,7 @@ class Poscar(VaspInput):
                 vasp5_symbols = True
             except IndexError:
                 pass
+
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try:
@@ -448,7 +447,7 @@ class Poscar(VaspInput):
 
         #scale velocities due to atomic masses
         #mean 0 std proportional to sqrt(1/m)
-        velocities = velocities / atomic_masses[:, np.newaxis] ** (1 / 2)
+        velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
         #remove linear drift (net momentum)
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities,
@@ -469,7 +468,7 @@ class Poscar(VaspInput):
         self.velocities = velocities.tolist()
 
 
-"""**Non-exhaustive** list of valid INCAR tags"""
+#**Non-exhaustive** list of valid INCAR tags
 VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS",
                     "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG", "PREC",
                     "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM",
@@ -518,7 +517,7 @@ VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS",
                     "IBSE", "NBANDSO", "NBANDSV", "OPTEMAX", "LIP")
 
 
-class Incar(dict, VaspInput):
+class Incar(dict):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -736,7 +735,7 @@ class Incar(dict, VaspInput):
         return Incar(params)
 
 
-class Kpoints(VaspInput):
+class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
@@ -981,8 +980,8 @@ class Kpoints(VaspInput):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)\s*!"
-                              "\s*(.*)")
+            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
+                              "\s*!\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1214,7 +1213,7 @@ class PotcarSingle(object):
         raise AttributeError(a)
 
 
-class Potcar(list, VaspInput):
+class Potcar(list):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -1237,6 +1236,7 @@ class Potcar(list, VaspInput):
                 Default is None, which uses a pre-determined mapping used in
                 the Materials Project.
         """
+        super(Potcar, self).__init__()
         self.functional = functional
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
@@ -1330,7 +1330,8 @@ class VaspInput(dict, MSONable):
     Class to contain a set of vasp input objects corresponding to a run.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None):
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
+                 **kwargs):
         """
         Args:
             incar:
@@ -1346,6 +1347,7 @@ class VaspInput(dict, MSONable):
                 The object should follow standard pymatgen conventions in
                 implementing a to_dict and from_dict method.
         """
+        super(VaspInput, self).__init__(**kwargs)
         self.update({'INCAR': incar,
                      'KPOINTS': kpoints,
                      'POSCAR': poscar,
@@ -1371,7 +1373,7 @@ class VaspInput(dict, MSONable):
     @staticmethod
     def from_dict(d):
         dec = PMGJSONDecoder()
-        sub_d = {"optional_files":{}}
+        sub_d = {"optional_files": {}}
         for k, v in d.items():
             if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
                 sub_d[k.lower()] = dec.process_decoded(v)
@@ -1412,9 +1414,11 @@ class VaspInput(dict, MSONable):
         sub_d = {}
         for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
                              ("POSCAR", Poscar), ("POTCAR", Potcar)]:
-            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir, fname))
+            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir,
+                                                                fname))
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
+                sub_d["optional_files"][fname] = \
+                    ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-from __future__ import division
-
-'''
+"""
 This module implements abstract base classes for post-processing entries.
 Any class which modifies entries should inherit these classes.
-'''
+"""
+
+from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

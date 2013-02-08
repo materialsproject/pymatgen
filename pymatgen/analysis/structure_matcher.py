@@ -89,6 +89,7 @@ class AbstractComparator(MSONable):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+
 class SpeciesComparator(AbstractComparator):
     """
     A Comparator that matches species exactly. The default used in
@@ -289,11 +290,11 @@ class StructureMatcher(MSONable):
         #produces the same result as three nested loops over the
         #same variables and calculating determinants individually
         bfl = np.array(nv[0])[None, None, :, None, :] *\
-              np.array([1, 0, 0])[None, None, None, :, None] +\
-              np.array(nv[1])[None, :, None, None, :] *\
-              np.array([0, 1, 0])[None, None, None, :, None] +\
-              np.array(nv[2])[:, None, None, None, :] *\
-              np.array([0, 0, 1])[None, None, None, :, None]
+            np.array([1, 0, 0])[None, None, None, :, None] +\
+            np.array(nv[1])[None, :, None, None, :] *\
+            np.array([0, 1, 0])[None, None, None, :, None] +\
+            np.array(nv[2])[:, None, None, None, :] *\
+            np.array([0, 0, 1])[None, None, None, :, None]
 
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
@@ -304,24 +305,22 @@ class StructureMatcher(MSONable):
         #loop over valid lattices
         for lat in bfl[valid]:
             nl = Lattice(lat)
-            if np.allclose(nl.angles, s1_angles, rtol=0,
-                               atol=self.angle_tol):
-                    yield nl
+            if np.allclose(nl.angles, s1_angles, rtol=0, atol=self.angle_tol):
+                yield nl
 
     def _cmp_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
             dist = s1_coords[:, None] - s2_coords[None, :]
             dist = abs(dist - np.round(dist))
-            dist[np.where(dist > frac_tol[None,None, :])] = 3 * len(dist)
-            cost = np.sum(dist, axis = -1)
-            if np.max(np.min(cost, axis = 0)) >= 3 * len(dist):
+            dist[np.where(dist > frac_tol[None, None, :])] = 3 * len(dist)
+            cost = np.sum(dist, axis=-1)
+            if np.max(np.min(cost, axis=0)) >= 3 * len(dist):
                 return False
             lin = LinearAssignment(cost)
             if lin.min_cost >= 3 * len(dist):
                 return False
         return True
-
 
     def fit(self, struct1, struct2):
         """
@@ -340,7 +339,7 @@ class StructureMatcher(MSONable):
         comparator = self._comparator
 
         if comparator.get_structure_hash(struct1) !=\
-           comparator.get_structure_hash(struct2):
+                comparator.get_structure_hash(struct2):
             return False
 
         #primitive cell transformation
@@ -489,9 +488,9 @@ class StructureMatcher(MSONable):
 
     @staticmethod
     def from_dict(d):
-        return StructureMatcher(ltol=d["ltol"], stol=d["stol"],
-            angle_tol=d["angle_tol"], primitive_cell=d["primitive_cell"],
-            scale=d["scale"],
+        return StructureMatcher(
+            ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
+            primitive_cell=d["primitive_cell"], scale=d["scale"],
             comparator=AbstractComparator.from_dict(d["comparator"]))
 
 
