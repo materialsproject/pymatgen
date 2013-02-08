@@ -300,11 +300,11 @@ class StructureMatcher(MSONable):
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
                                                    bfl[:, :, :, 2, :]), 3)
-        #Find valid cells
+        #Find valid lattices
         valid = np.where(abs(vol) >= vol_tol)
         if not len(valid[0]):
             return
-        #loop over valid lattices to compute the angles for each lattice
+        #loop over valid lattices to compute the angles for each
         lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
         angles = np.zeros((len(bfl[valid]),3), float)
         for i in xrange(3):
@@ -313,12 +313,12 @@ class StructureMatcher(MSONable):
             angles[:,i] = np.sum(bfl[valid][:,j,:]*bfl[valid][:,k,:],1) \
                                                 / (lengths[:,j] * lengths[:,k])
         angles = np.arccos(angles) * 180. / np.pi
-        #Check for valid angles for each lattice
+        #Check angles are within tolerance
         valid_angles = np.where(np.all(np.abs(angles - s1_angles) < 
                                                     self.angle_tol,axis = 1))
         if not len(valid_angles[0]):
             return
-        #loop over all valid lattices.
+        #yield valid lattices
         for lat in bfl[valid][valid_angles]:
             nl = Lattice(lat)
             yield nl
