@@ -186,6 +186,10 @@ Here are a few examples of typical usages::
 
     matgenie.py compare filename1 filename2
 
+    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+
+    matgenie.py generate --potcar Li_sv O --functional PBE
+
 Aliases
 -------
 
