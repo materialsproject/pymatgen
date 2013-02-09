@@ -66,9 +66,8 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Bug fixes for primitive cell finder.
-2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
-3. Miscellaneous bug fixes and speedups.
+1. Support for LDA US potential. matgenie.py script option to generate POTCARs.
+2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 

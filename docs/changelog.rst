@@ -1,6 +1,12 @@
 Change log
 ==========
 
+Version 2.5.1
+-------------
+1. Bug fixes for primitive cell finder.
+2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
+3. Miscellaneous bug fixes and speedups.
+
 Version 2.5.0
 -------------
 1. Added optimization package with linear assignment class.
