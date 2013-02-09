@@ -19,12 +19,11 @@ import itertools
 import abc
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils  import get_points_in_sphere_pbc
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class AbstractComparator(MSONable):
@@ -274,16 +273,17 @@ class StructureMatcher(MSONable):
         
     def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
-        all_nn = get_points_in_sphere_pbc(s2.lattice,[[0,0,0]],[0,0,0],
-                                    (1 + self.ltol) * max(s1_lengths))[:,[0,1]]
+        all_nn = get_points_in_sphere_pbc(
+            s2.lattice, [[0, 0, 0]], [0, 0, 0],
+            (1 + self.ltol) * max(s1_lengths))[:, [0, 1]]
         nv = []
         for l in s1_lengths:
-            nvi = all_nn[np.where((all_nn[:,1] < (1 + self.ltol) * l)
-                                   & (all_nn[:,1] > (1 - self.ltol) * l))][:,0]
+            nvi = all_nn[np.where((all_nn[:, 1] < (1 + self.ltol) * l)
+                                  & (all_nn[:, 1] > (1 - self.ltol) * l))][:, 0]
             if not len(nvi):
                 return
             nvi = [np.array(site) for site in nvi]
-            nvi = np.dot(nvi,s2.lattice.matrix)
+            nvi = np.dot(nvi, s2.lattice.matrix)
             nv.append(nvi)
         
         #The vectors are broadcast into a 5-D array containing
@@ -306,16 +306,17 @@ class StructureMatcher(MSONable):
             return
         #loop over valid lattices to compute the angles for each
         lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
-        angles = np.zeros((len(bfl[valid]),3), float)
+        angles = np.zeros((len(bfl[valid]), 3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[:,i] = np.sum(bfl[valid][:,j,:]*bfl[valid][:,k,:],1) \
-                                                / (lengths[:,j] * lengths[:,k])
+            angles[:, i] = np.sum(bfl[valid][:, j, :] *
+                                  bfl[valid][:, k, :], 1) \
+                / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
-        valid_angles = np.where(np.all(np.abs(angles - s1_angles) < 
-                                                    self.angle_tol,axis = 1))
+        valid_angles = np.where(np.all(np.abs(angles - s1_angles) <
+                                       self.angle_tol, axis=1))
         if not len(valid_angles[0]):
             return
         #yield valid lattices
