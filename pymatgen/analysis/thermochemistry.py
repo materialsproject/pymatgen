@@ -75,19 +75,12 @@ class ThermoData(object):
 
     @property
     def to_dict(self):
-        d = dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["type"] = self.type
-        d["formula"] = self.formula
-        d["compound_name"] = self.compound_name
-        d["phaseinfo"] = self.phaseinfo
-        d["value"] = self.value
-        d["temp_range"] = self.temp_range
-        d["method"] = self.method
-        d["ref"] = self.ref
-        d["uncertainty"] = self.uncertainty
-        return d
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__, "type": self.type,
+                "formula": self.formula, "compound_name": self.compound_name,
+                "phaseinfo": self.phaseinfo, "value": self.value,
+                "temp_range": self.temp_range, "method": self.method,
+                "ref": self.ref, "uncertainty": self.uncertainty}
 
     def __repr__(self):
         props = ["formula", "compound_name", "phaseinfo", "type", "temp_range",
