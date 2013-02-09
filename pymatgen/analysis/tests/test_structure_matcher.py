@@ -10,7 +10,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.smartio import read_structure
-
+from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -60,6 +60,17 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
+        #Test partial occupancies.
+        s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+                       [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
+                       [[0,0,0],[0.25, 0.25, 0.25],
+                        [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
+        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+                       [{"Fe": 0.25}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.75}],
+                       [[0,0,0],[0.25, 0.25, 0.25],
+                        [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
+        self.assertFalse(sm.fit(s1, s2))
+        self.assertFalse(sm.fit(s2, s1))
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
