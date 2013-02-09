@@ -420,10 +420,12 @@ class StructureMatcher(MSONable):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
-
             #if no site match found return false
             if not found:
                 return False
+
+        if any([len(c) == 0 for c in s2_cart]):
+            return False
 
         #translate s1
         s1_translation = s1[0][0]
