@@ -424,9 +424,11 @@ class StructureMatcher(MSONable):
             #if no site match found return false
             if not found:
                 return False
-
-        if any([len(c) == 0 for c in s2_cart]):
-            return False
+        
+        #check that sizes of the site groups are identical
+        for f1, c2 in zip(s1, s2_cart):
+            if len(f1) != len(c2):
+                return False
 
         #translate s1
         s1_translation = s1[0][0]
