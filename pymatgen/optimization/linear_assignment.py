@@ -43,11 +43,16 @@ class LinearAssignment(object):
         Args:
             costs:
                 The cost matrix of the problem. cost[i,j] should be the
-                cost of matching x[i] to y[j].
+                cost of matching x[i] to y[j]. The cost matrix must be
+                square
         """
         self.c = np.array(costs)
         self.n = len(costs)
-
+        
+        #check that cost matrix is square
+        if self.c.shape != (self.n, self.n):
+            raise ValueError("cost matrix is not square")
+        
         #initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
         self._y = np.zeros(self.n, dtype=np.int) - 1
