@@ -25,7 +25,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from nose.exc import SkipTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-    'test_files')
+                        'test_files')
 
 
 class MPResterTest(unittest.TestCase):
@@ -40,8 +40,7 @@ class MPResterTest(unittest.TestCase):
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
-                 "density", "icsd_id", "total_magnetization"
-        ]
+                 "density", "icsd_id", "total_magnetization"]
         expected_vals = [-191.33812137, -6.833504334642858, -2.5532843405078913,
                          28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
                          "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
@@ -54,11 +53,12 @@ class MPResterTest(unittest.TestCase):
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
-                    set(self.adaptor.get_data(540081,
-                        prop=prop)[0][prop]))
+                                 set(self.adaptor.get_data(540081,
+                                                           prop=prop)[0][prop]))
             else:
                 self.assertEqual(expected_vals[i],
-                    self.adaptor.get_data(540081, prop=prop)[0][prop])
+                                 self.adaptor.get_data(540081,
+                                                       prop=prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
@@ -72,7 +72,7 @@ class MPResterTest(unittest.TestCase):
         #Test chemsys search
         data = self.adaptor.get_data('Fe-Li-O', prop='unit_cell_formula')
         self.assertTrue(len(data) > 1)
-        elements = set([Element("Li"), Element("Fe"), Element("O")])
+        elements = {Element("Li"), Element("Fe"), Element("O")}
         for d in data:
             self.assertTrue(
                 set(Composition(d['unit_cell_formula']).elements).issubset(
