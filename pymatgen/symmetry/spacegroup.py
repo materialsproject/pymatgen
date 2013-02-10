@@ -77,4 +77,4 @@ class Spacegroup(object):
         return False
 
     def __str__(self):
-        return "{} ({}) spacegroup".format(self._symbol, self._number)
+        return "{} ({}) spacegroup".format(self.int_symbol, self.int_number)
