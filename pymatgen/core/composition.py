@@ -179,6 +179,27 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def __iter__(self):
         return self._elmap.__iter__()
+    
+    def almost_equals(self, other, rtol = 0.1, atol = 1e-8):
+        """
+        Returns true if compositions are equal within a tolerance.
+        
+        Args:
+            other:
+                other composition to check
+            rtol:
+                relative tolerance
+            atol:
+                absolute tolerance
+        """
+        if len(self) != len(other):
+            return False
+        for sp, a in self._elmap.iteritems():
+            b = other[sp]
+            tol = atol + rtol * (abs(a) + abs(b)) / 2
+            if abs(b-a) > tol:
+                return False
+        return True
 
     @property
     def is_element(self):
