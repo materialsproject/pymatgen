@@ -110,7 +110,7 @@ class SymmetryFinder(object):
         Returns:
             International spacegroup number for structure.
         """
-        sgnum = self._spacegroup_data.split()[1]
+        sgnum = self._spacegroup_data.split()[-1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
