@@ -102,7 +102,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         """
         Get the amount for element.
         """
-        return self._elmap.get(el, 0)
+        return self._elmap.get(smart_element_or_specie(el), 0)
 
     def __eq__(self, other):
         for el in self.elements:
@@ -192,9 +192,9 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             atol:
                 absolute tolerance
         """
-        if len(self) != len(other):
-            return False
-        for sp, a in self._elmap.iteritems():
+        sps = set(self.elements + other.elements)
+        for sp in sps:
+            a = self[sp]
             b = other[sp]
             tol = atol + rtol * (abs(a) + abs(b)) / 2
             if abs(b-a) > tol:
