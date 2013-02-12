@@ -153,7 +153,7 @@ class PDPlotter(object):
             plt.ylabel("Formation energy (eV/fu)", fontsize=28,
                        fontweight='bold')
 
-        for coords in sorted(labels.keys(), key=lambda x:-x[1]):
+        for coords in sorted(labels.keys(), key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
 
@@ -162,7 +162,7 @@ class PDPlotter(object):
             # most part.
             vec = (np.array(coords) - center)
             vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 \
-                    else vec
+                else vec
             valign = "bottom" if vec[1] > 0 else "top"
             if vec[0] < -0.01:
                 halign = "right"

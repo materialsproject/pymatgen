@@ -276,7 +276,7 @@ class InsertionElectrode(AbstractElectrode):
                 return chg_frac <= frac <= dischg_frac
 
             if include_myself or entry_charge != self.fully_charged_entry \
-                or entry_discharge != self.fully_discharged_entry:
+                    or entry_discharge != self.fully_discharged_entry:
                 unstable_entries = filter(in_range,
                                           self.get_unstable_entries())
                 stable_entries = filter(in_range, self.get_stable_entries())
@@ -376,7 +376,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         entry_charge = entry1
         entry_discharge = entry2
         if entry_charge.composition.get_atomic_fraction(working_element) \
-            > entry2.composition.get_atomic_fraction(working_element):
+                > entry2.composition.get_atomic_fraction(working_element):
             (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
 
         comp_charge = entry_charge.composition
@@ -400,20 +400,20 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         #check that at least one of the entries contains the working element
         if not comp_charge.get_atomic_fraction(working_element) > 0 and \
-           not comp_discharge.get_atomic_fraction(working_element) > 0:
+                not comp_discharge.get_atomic_fraction(working_element) > 0:
             raise ValueError("VoltagePair: The working ion must be present in "
                              "one of the entries")
 
         #check that the entries do not contain the same amount of the workin
         #element
         if comp_charge.get_atomic_fraction(working_element) == \
-           comp_discharge.get_atomic_fraction(working_element):
+                comp_discharge.get_atomic_fraction(working_element):
             raise ValueError("VoltagePair: The working ion atomic percentage "
                              "cannot be the same in both the entries")
 
         #check that the frameworks of the entries are equivalent
         if not frame_charge_comp.reduced_formula == \
-            frame_discharge_comp.reduced_formula:
+                frame_discharge_comp.reduced_formula:
             raise ValueError("VoltagePair: the specified entries must have the"
                              " same compositional framework")
 
@@ -436,15 +436,14 @@ class InsertionVoltagePair(AbstractVoltagePair):
         self._mass_charge = comp_charge.weight / norm_charge
         self._mass_discharge = comp_discharge.weight / norm_discharge
 
-        self._num_ions_transferred = (comp_discharge[working_element]
-                                      / norm_discharge) \
-                                      - (comp_charge[working_element]
-                                         / norm_charge)
+        self._num_ions_transferred = \
+            (comp_discharge[working_element] / norm_discharge) \
+            - (comp_charge[working_element] / norm_charge)
 
-        self._voltage = ((entry_charge.energy / norm_charge) -
-                         (entry_discharge.energy / norm_discharge)) / \
-                         self._num_ions_transferred \
-                         + working_ion_entry.energy_per_atom
+        self._voltage = \
+            ((entry_charge.energy / norm_charge) -
+             (entry_discharge.energy / norm_discharge)) / \
+            self._num_ions_transferred + working_ion_entry.energy_per_atom
         self._mAh = self._num_ions_transferred * ELECTRON_TO_AMPERE_HOURS * 1e3
 
         #Step 4: add (optional) hull and muO2 data

@@ -115,20 +115,21 @@ class EnumlibAdaptor(object):
             num_structs = self._run_multienum(temp_dir)
             #Read in the enumeration output as structures.
             if num_structs > 0:
-                self.structures = self._get_structures(temp_dir, num_structs)
+                self.structures = self._get_structures(num_structs)
             else:
                 raise ValueError("Unable to enumerate structure.")
         except Exception:
             import sys
             import traceback
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_exception(exc_type, exc_value, exc_traceback,
-                              limit=2, file=sys.stdout)
+                                      limit=2, file=sys.stdout)
         finally:
             try:
                 shutil.rmtree(temp_dir)
             except:
-                warnings.warn("Unable to delete temp dir " + \
+                warnings.warn("Unable to delete temp dir "
                               "{}. Please delete manually".format(temp_dir))
             os.chdir(curr_dir)
 
@@ -142,10 +143,11 @@ class EnumlibAdaptor(object):
         # Using symmetry finder, get the symmetrically distinct sites.
         fitter = SymmetryFinder(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
-        logger.debug("Spacegroup {} ({}) with {} distinct sites"
-                     .format(fitter.get_spacegroup_symbol(),
-                             fitter.get_spacegroup_number(),
-                             len(symmetrized_structure.equivalent_sites)))
+        logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
+            fitter.get_spacegroup_symbol(),
+            fitter.get_spacegroup_number(),
+            len(symmetrized_structure.equivalent_sites))
+        )
 
         """
         Enumlib doesn"t work when the number of species get too large. To
@@ -186,7 +188,7 @@ class EnumlibAdaptor(object):
                 species = sites[0].species_and_occu
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     #Let us first make add a dummy element for every single
-                    #site whose total occupancies don"t sum to 1.
+                    #site whose total occupancies don't sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
@@ -200,8 +202,8 @@ class EnumlibAdaptor(object):
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
                     coord_str.append("{} {}".format(
-                                        coord_format.format(*site.coords),
-                                        sp_label))
+                        coord_format.format(*site.coords),
+                        sp_label))
                 disordered_sites.append(sites)
 
         #It could be that some of the ordered sites has a lower symmetry than
@@ -217,8 +219,8 @@ class EnumlibAdaptor(object):
                          .format(sites[0].specie))
             for site in sites:
                 coord_str.append("{} {}".format(
-                                        coord_format.format(*site.coords),
-                                        sp_label))
+                    coord_format.format(*site.coords),
+                    sp_label))
             disordered_sites.append(sites)
 
         self.ordered_sites = []
@@ -271,7 +273,7 @@ class EnumlibAdaptor(object):
         logger.debug("Enumeration resulted in {} structures".format(count))
         return count
 
-    def _get_structures(self, working_dir, num_structs):
+    def _get_structures(self, num_structs):
         structs = []
         rs = subprocess.Popen(["makestr.x",
                                "struct_enum.out", str(0),
@@ -300,11 +302,11 @@ class EnumlibAdaptor(object):
 
                 if len(self.ordered_sites) > 0:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [[int(round(cell)) for cell in row] \
+                    transformation = [[int(round(cell)) for cell in row]
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     maker = SupercellMaker(ordered_structure, transformation)
-                    sites.extend([site.to_unit_cell \
+                    sites.extend([site.to_unit_cell
                                   for site in maker.modified_structure])
                     super_latt = sites[-1].lattice
                 else:

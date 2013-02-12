@@ -151,7 +151,7 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
     brange = r[:, None] * np.array([0, 1, 0])[None, :]
     crange = r[:, None] * np.array([0, 0, 1])[None, :]
     images = arange[:, None, None] + brange[None, :, None] +\
-             crange[None, None, :]
+        crange[None, None, :]
     images = images.reshape((27, 3))
 
     #create images of f2
@@ -161,8 +161,7 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
     cart_f2 = lattice.get_cartesian_coords(shifted_f2)
 
     #all vectors from f1 to f2
-    vectors = cart_f2[None, :, :, :] -\
-              cart_f1[:, None, None, :]
+    vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
 
     d_2 = np.sum(vectors ** 2, axis=3)
 
@@ -258,18 +257,18 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     indices = np.array(range(n))
 
     arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
-        stop=int(floor(pcoords[0] + nmax[0])) + 1)
+                       stop=int(floor(pcoords[0] + nmax[0])) + 1)
     brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
-        stop=int(floor(pcoords[1] + nmax[1])) + 1)
+                       stop=int(floor(pcoords[1] + nmax[1])) + 1)
     crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
-        stop=int(floor(pcoords[2] + nmax[2])) + 1)
+                       stop=int(floor(pcoords[2] + nmax[2])) + 1)
 
     arange = arange[:, None] * np.array([1, 0, 0])[None, :]
     brange = brange[:, None] * np.array([0, 1, 0])[None, :]
     crange = crange[:, None] * np.array([0, 0, 1])[None, :]
 
     images = arange[:, None, None] + brange[None, :, None] +\
-             crange[None, None, :]
+        crange[None, None, :]
 
     shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
     coords = frac_2_cart(shifted_coords)
