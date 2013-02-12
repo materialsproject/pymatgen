@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module provides plotting capabilities for battery related applications.
-'''
+"""
 
 from __future__ import division
 
@@ -68,7 +68,7 @@ class VoltageProfilePlotter(object):
 
         x.append(x[-1])
         y.append(0)
-        return (x, y)
+        return x, y
 
     def get_plot(self, width, height):
         """

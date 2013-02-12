@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Module implementing an XYZ file object class.
-'''
+"""
 
 from __future__ import division
 

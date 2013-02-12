@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+"""
+This module provides classes for representing species substitution
+probabilities.
+"""
+
 from __future__ import division
 
 __author__ = "Will Richards, Geoffroy Hautier"

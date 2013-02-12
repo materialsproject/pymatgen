@@ -247,8 +247,8 @@ class Dos(MSONable):
                                                           "DensityUp",
                                                           "DensityDown")]
             for i, energy in enumerate(self.energies):
-                stringarray.append("{:.5f} {:.5f} {:.5f}".
-                                    format(energy, self.densities[Spin.up][i],
+                stringarray.append("{:.5f} {:.5f} {:.5f}"
+                                   .format(energy, self.densities[Spin.up][i],
                                            self.densities[Spin.down][i]))
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
@@ -293,7 +293,6 @@ class CompleteDos(Dos):
 
         Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
-
     def __init__(self, structure, total_dos, pdoss):
         """
             Args:

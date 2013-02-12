@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+"""
+This module provides classes for predicting new structures from existing ones.
+"""
+
 from __future__ import division
 
 __author__ = "Will Richards, Geoffroy Hautier"
@@ -78,7 +84,7 @@ class Substitutor(MSONable):
         result = []
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
-            != len(target_species):
+                != len(target_species):
             return ValueError("the species in target_species are not allowed"
                               + "for the probability model you are using")
 
@@ -159,10 +165,10 @@ class Substitutor(MSONable):
             best_case_prob[:len(output_prob)] = output_prob
             if reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
-                    odict = {}
-                    odict['substitutions'] = \
-                        dict(zip(species_list, output_species))
-                    odict['probability'] = reduce(mul, best_case_prob)
+                    odict = {
+                        'substitutions':
+                        dict(zip(species_list, output_species)),
+                        'probability': reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
                 for sp in self._sp.species_list:

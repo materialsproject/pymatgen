@@ -111,7 +111,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + \
-            ", ".join(["{}->{}".format(k,v) + v for k, v in
+            ", ".join(["{}->{}".format(k, v) + v for k, v in
                        self._indices_species_map.items()])
 
     def __repr__(self):
@@ -202,7 +202,8 @@ class TranslateSitesTransformation(AbstractTransformation):
     def __str__(self):
         return "TranslateSitesTransformation for indices " + \
             "{}, vect {} and vect_in_frac_coords = {}".format(self._indices,
-                                        self._vector, self._frac)
+                                                              self._vector,
+                                                              self._frac)
 
     def __repr__(self):
         return self.__str__()
@@ -366,8 +367,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]["energy"]
                 if abs((energy - tenergy) / len(s_new)) < 1e-5 and \
-                   sg.are_symmetrically_equivalent(sites_to_remove, tsites,
-                                                   symm_prec=symprec):
+                        sg.are_symmetrically_equivalent(sites_to_remove, tsites,
+                                                        symm_prec=symprec):
                     already_tested = True
 
             if not already_tested:
@@ -516,6 +517,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                                                       num_remove_dict)
         elif self._algo == PartialRemoveSitesTransformation.ALGO_ENUMERATE:
             all_structures = self.enumerate_ordering(structure)
+        else:
+            raise ValueError("Invalid algo.")
 
         opt_s = all_structures[0]["structure"]
         return opt_s if not return_ranked_list \
@@ -523,9 +526,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     def __str__(self):
         return "PartialRemoveSitesTransformation : Indices and fraction" + \
-               " to remove = {}, ALGO = {}".format(self._specie,
-                                                   self._indices,
-                                                   self._algo)
+               " to remove = {}, ALGO = {}".format(self._indices, self._algo)
 
     def __repr__(self):
         return self.__str__()
