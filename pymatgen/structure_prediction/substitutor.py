@@ -12,7 +12,9 @@ from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
     import SubstitutionTransformation
+from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.alchemy.filters import RemoveDuplicatesFilter
 import itertools
 import logging
 from operator import mul
@@ -50,7 +52,8 @@ class Substitutor(MSONable):
         """
         return self._sp.species_list
 
-    def pred_from_structures(self, target_species, structures_list):
+    def pred_from_structures(self, target_species, structures_list,
+                                remove_duplicates=True):
         """
         performs a structure prediction targeting compounds containing the
         target_species and based on a list of structure (those structures
@@ -73,6 +76,7 @@ class Substitutor(MSONable):
 
         """
         result = []
+        transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
             != len(target_species):
             return ValueError("the species in target_species are not allowed"
@@ -101,7 +105,10 @@ class Substitutor(MSONable):
                             'proba': self._sp.cond_prob_list(permut,
                             s['structure'].composition.elements)})
                             result.append(ts)
-        return result
+                            transmuter.append_transformed_structures([ts])
+        if remove_duplicates:
+            transmuter.apply_filter(RemoveDuplicatesFilter())
+        return transmuter.get_transformed_structures()
 
     @staticmethod
     def _is_charge_balanced(struct):
