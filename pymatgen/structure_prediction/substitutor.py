@@ -93,8 +93,7 @@ class Substitutor(MSONable):
                 #and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
                 if len(list(set(els) & set(self.get_allowed_species()))) == \
-                        len(s['structure'].composition.elements) \
-                        and self._sp.cond_prob_list(permut, els) > \
+                        len(els) and self._sp.cond_prob_list(permut, els) > \
                         self._threshold:
                     transf = SubstitutionTransformation(
                         {els[i]: permut[i]
