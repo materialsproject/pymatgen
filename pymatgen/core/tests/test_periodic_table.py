@@ -135,6 +135,30 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy.")
 
+    def test_get_crystal_field_spin(self):
+        self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
+        self.assertEqual(Specie("Fe", 3).get_crystal_field_spin(), 5)
+        self.assertEqual(Specie("Fe", 4).get_crystal_field_spin(), 4)
+        self.assertEqual(Specie("Co", 3).get_crystal_field_spin(
+            spin_config="low"), 0)
+        self.assertEqual(Specie("Co", 4).get_crystal_field_spin(
+            spin_config="low"), 1)
+        self.assertEqual(Specie("Ni", 3).get_crystal_field_spin(
+            spin_config="low"), 1)
+        self.assertEqual(Specie("Ni", 4).get_crystal_field_spin(
+            spin_config="low"), 0)
+
+        self.assertRaises(AttributeError,
+                          Specie("Li", 1).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("Ge", 4).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("H", 1).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("Fe", 10).get_crystal_field_spin)
+        self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
+                          "hex")
+
 
 class  DummySpecieTestCase(unittest.TestCase):
 
