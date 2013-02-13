@@ -59,7 +59,7 @@ class Substitutor(MSONable):
         return self._sp.species_list
 
     def pred_from_structures(self, target_species, structures_list,
-                                remove_duplicates=True):
+                             remove_duplicates=True):
         """
         performs a structure prediction targeting compounds containing the
         target_species and based on a list of structure (those structures
@@ -79,7 +79,6 @@ class Substitutor(MSONable):
 
         Returns:
             a list of TransformedStructure objects.
-
         """
         result = []
         transmuter = StandardTransmuter([])
@@ -92,29 +91,29 @@ class Substitutor(MSONable):
             for s in structures_list:
                 #check if: species are in the domain,
                 #and the probability of subst. is above the threshold
-                if len(list(set(s['structure'].composition.elements) \
-                            & set(self.get_allowed_species()))) \
-                            == len(s['structure'].composition.elements) \
-                            and self._sp.cond_prob_list(permut, s['structure']
-                            .composition.elements) > self._threshold:
+                els = s['structure'].composition.elements
+                if len(list(set(els) & set(self.get_allowed_species()))) == \
+                        len(s['structure'].composition.elements) \
+                        and self._sp.cond_prob_list(permut, els) > \
+                        self._threshold:
+                    transf = SubstitutionTransformation(
+                        {els[i]: permut[i]
+                         for i in xrange(0, len(els))
+                         if els[i] != permut[i]})
 
-                    transf = SubstitutionTransformation({s['structure']\
-                    .composition.elements[i]: permut[i]
-                    for i in range(0, len(s['structure'].composition.elements))
-                    if s['structure'].composition.elements[i] != permut[i]})
-
-                    if Substitutor._is_charge_balanced(\
-                        transf.apply_transformation(s['structure'])):
-                            ts = TransformedStructure(s['structure'],
-                            [transf], history=[s['id']],
-                            other_parameters={'type': 'structure_prediction',
-                            'proba': self._sp.cond_prob_list(permut,
-                            s['structure'].composition.elements)})
-                            result.append(ts)
-                            transmuter.append_transformed_structures([ts])
+                    if Substitutor._is_charge_balanced(
+                            transf.apply_transformation(s['structure'])):
+                        ts = TransformedStructure(
+                            s['structure'], [transf], history=[s['id']],
+                            other_parameters={
+                                'type': 'structure_prediction',
+                                'proba': self._sp.cond_prob_list(permut, els)}
+                        )
+                        result.append(ts)
+                        transmuter.append_transformed_structures([ts])
         if remove_duplicates:
             transmuter.apply_filter(RemoveDuplicatesFilter())
-        return transmuter.get_transformed_structures()
+        return transmuter.transformed_structures
 
     @staticmethod
     def _is_charge_balanced(struct):
