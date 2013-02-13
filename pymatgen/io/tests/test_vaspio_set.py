@@ -138,26 +138,5 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.style, 'Monkhorst')
 
 
-class HelperTest(unittest.TestCase):
-
-    def test_get_crystal_field_spin(self):
-        self.assertEqual(get_crystal_field_spin(Specie("Fe", 2)), 4)
-        self.assertEqual(get_crystal_field_spin(Specie("Fe", 3)), 5)
-        self.assertEqual(get_crystal_field_spin(Specie("Fe", 4)), 4)
-        self.assertEqual(get_crystal_field_spin(Specie("Co", 3),
-                                                spin_config="low"), 0)
-        self.assertEqual(get_crystal_field_spin(Specie("Co", 4),
-                                                spin_config="low"), 1)
-        self.assertEqual(get_crystal_field_spin(Specie("Ni", 3),
-                                                spin_config="low"), 1)
-        self.assertEqual(get_crystal_field_spin(Specie("Ni", 4),
-                                                spin_config="low"), 0)
-
-        self.assertRaises(ValueError, get_crystal_field_spin, Specie("Li", 1))
-        self.assertRaises(ValueError, get_crystal_field_spin, Specie("Ge", 4))
-        self.assertRaises(ValueError, get_crystal_field_spin, Specie("H", 1))
-        self.assertRaises(ValueError, get_crystal_field_spin, Specie("H", 1),
-                          "hex")
-
 if __name__ == '__main__':
     unittest.main()
