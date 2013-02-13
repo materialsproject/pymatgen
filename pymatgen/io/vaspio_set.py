@@ -413,11 +413,11 @@ def get_crystal_field_spin(specie, coordination="oct", spin_config="high"):
     elec = specie.full_electronic_structure
     if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
         raise ValueError("Invalid element {}".format(specie.symbol))
-    nelectrons = elec[-1][2] + elec[-2][2]
-    nelectrons -= specie.oxi_state
+    nelectrons = elec[-1][2] + elec[-2][2] - specie.oxi_state
     if nelectrons < 0:
-        raise ValueError("Invalid oxidation state {} for element {}".format(
-            specie.oxi_state, specie.symbol))
+        raise ValueError(
+            "Invalid oxidation state {} for element {}"
+            .format(specie.oxi_state, specie.symbol))
     if spin_config == "high":
         return nelectrons if nelectrons <= 5 else 10 - nelectrons
     elif spin_config == "low":
