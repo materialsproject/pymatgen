@@ -3,7 +3,7 @@ import unittest
 import os
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
-    MaterialsProjectVaspInputSet, MITGGAVaspInputSet, get_crystal_field_spin
+    MaterialsProjectVaspInputSet, MITGGAVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
 from numpy import array
