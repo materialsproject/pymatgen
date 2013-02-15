@@ -14,8 +14,11 @@ except ImportError:
     print "Please install numpy first before retrying setup."
     sys.exit(-1)
 
+
 def get_spglib_ext():
-    # Get spglib
+    """
+    Set up spglib extension.
+    """
     spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
     if len(spglibs) == 0:
         raise ValueError("No spglib found in dependencies/")
@@ -26,8 +29,8 @@ def get_spglib_ext():
     include_dirs = [spgsrcdir]
     sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
                "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
-               "sitesym_database.c", "site_symmetry.c", "spacegroup.c", "spin.c",
-               "spg_database.c", "spglib.c", "symmetry.c"]
+               "sitesym_database.c", "site_symmetry.c", "spacegroup.c",
+               "spin.c", "spg_database.c", "spglib.c", "symmetry.c"]
     sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
     return Extension("pymatgen._spglib",
                      include_dirs=include_dirs + get_numpy_include_dirs(),
@@ -36,7 +39,7 @@ def get_spglib_ext():
 with open("README.rst") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
-    long_desc = long_desc[ind+1:]
+    long_desc = long_desc[ind + 1:]
 
 setup(
     name="pymatgen",
@@ -46,7 +49,8 @@ setup(
                       "requests>=1.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
-                    "ase_adaptor": ["ase>=3.3"]},
+                    "ase_adaptor": ["ase>=3.3"],
+                    "StructureNL": ["pybtex>=0.16"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
