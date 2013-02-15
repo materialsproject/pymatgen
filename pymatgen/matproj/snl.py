@@ -157,7 +157,7 @@ class StructureNL(Structure):
     Structure object with some additional fields for enhanced provenance. It
     is meant to be imported/exported in a JSON file format with the following
     structure:
-    
+
     - about
         - created_at
         - authors
