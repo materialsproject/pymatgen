@@ -53,11 +53,20 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
     Transformation was applied).
 
     A HistoryNode contains three fields:
-    - name: the name of a code or resource that this Structure encountered in
-            its history (String)
-    - url: the URL of that code/resource (String)
-    - description: a free-form description of how the code/resource is
-                   related to the Structure (dict)
+
+    .. attribute:: name
+
+        The name of a code or resource that this Structure encountered in
+        its history (String)
+
+    .. attribute:: url
+
+        The URL of that code/resource (String)
+
+    .. attribute:: description
+
+        A free-form description of how the code/resource is related to the
+        Structure (dict).
     """
 
     @property
@@ -91,8 +100,13 @@ class Author(namedtuple('Author', ['name', 'email'])):
     """
     An Author contains two fields:
 
-    - name: (String)
-    - email: (String)
+    .. attribute:: name
+
+        Name of author (String)
+
+    .. attribute:: email
+
+        Email of author (String)
     """
 
     def __str__(self):
@@ -143,6 +157,7 @@ class StructureNL(Structure):
     Structure object with some additional fields for enhanced provenance. It
     is meant to be imported/exported in a JSON file format with the following
     structure:
+    
     - about
         - created_at
         - authors
