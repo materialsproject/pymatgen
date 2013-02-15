@@ -38,14 +38,9 @@ def is_valid_bibtex(reference):
     """
 
     sio = cStringIO.StringIO(reference)
-    try:
-        parser = bibtex.Parser()
-        bib_data = parser.parse_stream(sio)
-        if len(bib_data.entries) > 0:
-            return True
-    except:
-        pass
-    return False
+    parser = bibtex.Parser()
+    bib_data = parser.parse_stream(sio)
+    return len(bib_data.entries) > 0
 
 
 class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
