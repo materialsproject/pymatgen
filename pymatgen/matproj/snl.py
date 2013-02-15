@@ -1,0 +1,258 @@
+#!/usr/bin/env python
+
+"""
+Classes and methods related to the Structure Notation Language (SNL)
+"""
+
+from pymatgen.core.structure import Structure
+from collections import namedtuple
+import re
+import datetime
+from pybtex.database.input import bibtex
+import tempfile
+import sys
+
+__author__ = 'Anubhav Jain, Shyue Ping Ong'
+__credits__ = 'Dan Gunter'
+__copyright__ = 'Copyright 2013, The Materials Project'
+__version__ = '0.1'
+__maintainer__ = 'Anubhav Jain'
+__email__ = 'ajain@lbl.gov'
+__date__ = 'Feb 11, 2013'
+
+MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
+MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
+MAX_HNODES = 100  # maximum number of HistoryNodes in SNL file
+MAX_BIBTEX_CHARS = 20000  # maximum number of characters for BibTeX reference
+
+
+def is_valid_bibtex(reference):
+    """
+    Use pybtex to validate that a reference is in proper BibTeX format
+
+    :param reference: a String reference in BibTeX format
+    """
+    parser = bibtex.Parser()
+    temp = tempfile.NamedTemporaryFile(delete=True)
+    temp.write(reference)
+    temp.seek(0)
+    bib_data = None
+    try:
+        bib_data = parser.parse_file(temp.name)
+        if len(bib_data.entries) > 0:
+            return True
+    except:
+        pass
+    finally:
+        temp.close()
+    return False
+
+
+class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
+    """
+    A HistoryNode represents a step in the chain of events that lead to a
+    Structure. HistoryNodes leave 'breadcrumbs' so that you can trace back how
+    a Structure was created. For example, a HistoryNode might represent pulling
+    a Structure from an external database such as the ICSD or CSD. Or, it might
+    represent the application of a code (e.g. pymatgen) to the Structure, with
+    a custom description of how that code was applied (e.g. a site removal
+    Transformation was applied).
+
+    A HistoryNode contains three fields:
+    - name: the name of a code or resource that this Structure encountered in
+            its history (String)
+    - url: the URL of that code/resource (String)
+    - description: a free-form description of how the code/resource is
+                   related to the Structure (dict)
+    """
+
+    @property
+    def to_dict(self):
+        return dict(self._asdict())
+
+    @staticmethod
+    def from_dict(h_node):
+        return HistoryNode(h_node['name'], h_node['url'], h_node['description'])
+
+    @staticmethod
+    def parse_historynode(h_node):
+        """
+        Parses a History Node object from either a dict or a tuple.
+
+        :param h_node: a dict with name/url/description fields or a 3-element
+                      tuple
+        """
+        if isinstance(h_node, dict):
+            return HistoryNode.from_dict(h_node)
+
+        else:
+            if len(h_node) != 3:
+                raise ValueError("Invalid History node, "
+                                 "should be dict or (name, version, "
+                                 "description) tuple: {}".format(h_node))
+            return HistoryNode(h_node[0], h_node[1], h_node[2])
+
+
+class Author(namedtuple('Author', ['name', 'email'])):
+    """
+    An Author contains two fields:
+
+    - name: (String)
+    - email: (String)
+    """
+
+    def __str__(self):
+        """
+        String representation of an Author
+        """
+        return '{} <{}>'.format(self.name, self.email)
+
+    @property
+    def to_dict(self):
+        return dict(self._asdict())
+
+    @staticmethod
+    def from_dict(d):
+        return Author(d['name'], d['email'])
+
+    @staticmethod
+    def parse_author(author):
+        """
+        Parses an Author object from either a String, dict, or tuple
+
+        :param author: A String formatted as "NAME <email@domain.com>",
+                       (name, email) tuple, or a dict with name and email keys
+        """
+        if isinstance(author, basestring):
+            # Regex looks for whitespace, (any name), whitespace, <, (email),
+            # >, whitespace
+            m = re.match('\s*(.*?)\s*<(.*?@.*?)>\s*', author)
+            if not m or m.start() != 0 or m.end() != len(author):
+                raise ValueError("Invalid author format! {}".format(author))
+            return Author(m.groups()[0], m.groups()[1])
+
+        elif isinstance(author, dict):
+            return Author.from_dict(author)
+
+        else:
+            if len(author) != 2:
+                raise ValueError("Invalid author, should be String or (name, "
+                                 "email) tuple: {}".format(author))
+            return Author(author[0], author[1])
+
+
+class StructureNL(Structure):
+    """
+    The Structure Notation Language (SNL, pronounced 'snail') is a pymatgen
+    Structure object with some additional fields for enhanced provenance. It
+    is meant to be imported/exported in a JSON file format with the following
+    structure:
+    - about
+        - created_at
+        - authors
+        - projects
+        - references
+        - remarks
+        - data
+        - history
+    - lattice
+    - sites
+    """
+
+    def __init__(self, structure, authors, projects=None, references='',
+                 remarks=None, data=None, history=None, created_at=None):
+        """
+        :param structure: a pymatgen.core.structure Structure object
+        :param authors: *list* of {"name":'', "email":''} dicts,
+                        *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                        or a single String with commas separating authors
+        :param projects: list of Strings ['Project A', 'Project B']
+        :param references: a String in BibTeX format
+        :param remarks: list of Strings ['Remark A', 'Remark B']
+        :param data: a free form dict. Namespaced at the root level with an
+                     underscore, e.g. {"_materialsproject":<custom data>}
+        :param history: list of dicts - [{'name':'', 'url':'',
+                                          'description':{}}]
+        :param created_at: a datetime object
+        """
+
+        # initialize root-level structure keys
+        Structure.__init__(self, structure.lattice,
+                           [site.species_and_occu for site in structure],
+                           structure.frac_coords)
+
+        # turn authors into list of Author objects
+        authors = authors.split(',')\
+            if isinstance(authors, basestring) else authors
+        self.authors = [Author.parse_author(a) for a in authors]
+
+        # turn projects into list of Strings
+        projects = projects if projects else []
+        self.projects = [projects] \
+            if isinstance(projects, basestring) else projects
+
+        # check that references are valid BibTeX
+        if references and not is_valid_bibtex(references):
+            raise ValueError("Invalid format for SNL reference! Should be "
+                             "BibTeX string.")
+        if len(references) > MAX_BIBTEX_CHARS:
+            raise ValueError("The BibTeX string must be fewer than {} chars "
+                             ", you have {}"
+                             .format(MAX_BIBTEX_CHARS, len(references)))
+
+        self.references = references
+
+        # turn remarks into list of Strings
+        remarks = remarks if remarks else []
+        self.remarks = [remarks] if isinstance(remarks, basestring) else remarks
+
+        # check data limit
+        self.data = data if data else {}
+        if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
+            raise ValueError("The data dict exceeds the maximum size limit of"
+                             " {} bytes (you have {})"
+                             .format(MAX_DATA_SIZE, sys.getsizeof(data)))
+
+        # check for valid history nodes
+        history = history if history else []  # initialize null fields
+        if len(history) > MAX_HNODES:
+            raise ValueError("A maximum of {} History nodes are supported, "
+                             "you have {}!".format(MAX_HNODES, len(history)))
+        self.history = [HistoryNode.parse_historynode(h) for h in history]
+        if not all([sys.getsizeof(h) < MAX_HNODE_SIZE for h in history]):
+            raise ValueError("One or more history nodes exceeds the maximum "
+                             "size limit of {} bytes".format(MAX_HNODE_SIZE))
+
+        self.created_at = created_at if created_at \
+            else datetime.datetime.utcnow()
+        
+        try:
+            self.to_json
+        except:
+            raise ValueError("SNL must be JSON-exportable; check in particular "
+                             "your data field and history nodes")
+    
+    @property
+    def to_dict(self):
+        d = super(StructureNL, self).to_dict
+        d["about"] = {'authors': [a.to_dict for a in self.authors],
+                      'projects': self.projects,
+                      'references': self.references,
+                      'remarks': self.remarks,
+                      'data': self.data,
+                      'history': [h.to_dict for h in self.history],
+                      'created_at': self.created_at.isoformat()}
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        a = d['about']
+        created_at = datetime.datetime.strptime(a['created_at'],
+                                                "%Y-%m-%dT%H:%M:%S.%f")
+        structure = Structure.from_dict(d)
+        return StructureNL(structure, a['authors'], a['projects'],
+                           a['references'], a['remarks'], a['data'],
+                           a['history'], created_at)
+
+    def __eq__(self, other):
+        return self.to_dict == other.to_dict
