@@ -36,7 +36,6 @@ def is_valid_bibtex(reference):
         reference:
             A String reference in BibTeX format
     """
-
     sio = cStringIO.StringIO(reference)
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
@@ -115,8 +114,10 @@ class Author(namedtuple('Author', ['name', 'email'])):
         """
         Parses an Author object from either a String, dict, or tuple
 
-        :param author: A String formatted as "NAME <email@domain.com>",
-                       (name, email) tuple, or a dict with name and email keys
+        Args:
+            author:
+                A String formatted as "NAME <email@domain.com>",
+                (name, email) tuple, or a dict with name and email keys
         """
         if isinstance(author, basestring):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
