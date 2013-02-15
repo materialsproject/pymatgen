@@ -255,4 +255,8 @@ class StructureNL(Structure):
                            a['history'], created_at)
 
     def __eq__(self, other):
-        return self.to_dict == other.to_dict
+        if not Structure.__eq__(self, other):
+            return False
+        return all(map(lambda n: getattr(self, n) == getattr(other, n),
+                       ('authors', 'projects', 'references', 'remarks',
+                        'data', 'history', 'created_at')))

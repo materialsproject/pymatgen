@@ -165,6 +165,5 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a, b,
                          'to/from dict is broken when object embedding is used! Apparently PMGJSONEncoding is broken...')
 
-
 if __name__ == '__main__':
     unittest.main()
