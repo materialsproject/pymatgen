@@ -35,6 +35,9 @@ def is_valid_bibtex(reference):
     Args:
         reference:
             A String reference in BibTeX format
+
+    Returns:
+        Boolean indicating if reference is valid bibtex.
     """
     sio = cStringIO.StringIO(reference)
     parser = bibtex.Parser()
@@ -78,12 +81,16 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         return HistoryNode(h_node['name'], h_node['url'], h_node['description'])
 
     @staticmethod
-    def parse_historynode(h_node):
+    def parse_history_node(h_node):
         """
         Parses a History Node object from either a dict or a tuple.
 
-        :param h_node: a dict with name/url/description fields or a 3-element
-                      tuple
+        Args:
+            h_node:
+                A dict with name/url/description fields or a 3-element tuple.
+
+        Returns:
+            History node.
         """
         if isinstance(h_node, dict):
             return HistoryNode.from_dict(h_node)
@@ -132,6 +139,9 @@ class Author(namedtuple('Author', ['name', 'email'])):
             author:
                 A String formatted as "NAME <email@domain.com>",
                 (name, email) tuple, or a dict with name and email keys
+
+        Returns:
+            An Author object.
         """
         if isinstance(author, basestring):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
@@ -236,7 +246,7 @@ class StructureNL(Structure):
         if len(history) > MAX_HNODES:
             raise ValueError("A maximum of {} History nodes are supported, "
                              "you have {}!".format(MAX_HNODES, len(history)))
-        self.history = [HistoryNode.parse_historynode(h) for h in history]
+        self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all([sys.getsizeof(h) < MAX_HNODE_SIZE for h in history]):
             raise ValueError("One or more history nodes exceeds the maximum "
                              "size limit of {} bytes".format(MAX_HNODE_SIZE))
