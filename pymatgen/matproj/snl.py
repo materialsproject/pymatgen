@@ -4,14 +4,6 @@
 Classes and methods related to the Structure Notation Language (SNL)
 """
 
-from pymatgen.core.structure import Structure
-from collections import namedtuple
-import re
-import datetime
-from pybtex.database.input import bibtex
-import tempfile
-import sys
-
 __author__ = 'Anubhav Jain, Shyue Ping Ong'
 __credits__ = 'Dan Gunter'
 __copyright__ = 'Copyright 2013, The Materials Project'
@@ -19,6 +11,16 @@ __version__ = '0.1'
 __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Feb 11, 2013'
+
+import sys
+import cStringIO
+import re
+import datetime
+from collections import namedtuple
+
+from pybtex.database.input import bibtex
+
+from pymatgen.core.structure import Structure
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -30,21 +32,19 @@ def is_valid_bibtex(reference):
     """
     Use pybtex to validate that a reference is in proper BibTeX format
 
-    :param reference: a String reference in BibTeX format
+    Args:
+        reference:
+            A String reference in BibTeX format
     """
-    parser = bibtex.Parser()
-    temp = tempfile.NamedTemporaryFile(delete=True)
-    temp.write(reference)
-    temp.seek(0)
-    bib_data = None
+
+    sio = cStringIO.StringIO(reference)
     try:
-        bib_data = parser.parse_file(temp.name)
+        parser = bibtex.Parser()
+        bib_data = parser.parse_stream(sio)
         if len(bib_data.entries) > 0:
             return True
     except:
         pass
-    finally:
-        temp.close()
     return False
 
 
@@ -162,20 +162,27 @@ class StructureNL(Structure):
     def __init__(self, structure, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
         """
-        :param structure: a pymatgen.core.structure Structure object
-        :param authors: *list* of {"name":'', "email":''} dicts,
-                        *list* of Strings as 'John Doe <johndoe@gmail.com>',
-                        or a single String with commas separating authors
-        :param projects: list of Strings ['Project A', 'Project B']
-        :param references: a String in BibTeX format
-        :param remarks: list of Strings ['Remark A', 'Remark B']
-        :param data: a free form dict. Namespaced at the root level with an
-                     underscore, e.g. {"_materialsproject":<custom data>}
-        :param history: list of dicts - [{'name':'', 'url':'',
-                                          'description':{}}]
-        :param created_at: a datetime object
+        Args:
+            structure:
+                A pymatgen.core.structure Structure object
+            authors:
+                *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects:
+                List of Strings ['Project A', 'Project B']
+            references:
+                A String in BibTeX format
+            remarks:
+                List of Strings ['Remark A', 'Remark B']
+            data:
+                A free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject":<custom data>}
+            history:
+                List of dicts - [{'name':'', 'url':'', 'description':{}}]
+            created_at:
+                A datetime object
         """
-
         # initialize root-level structure keys
         Structure.__init__(self, structure.lattice,
                            [site.species_and_occu for site in structure],
