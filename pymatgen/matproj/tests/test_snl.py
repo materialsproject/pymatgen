@@ -153,7 +153,6 @@ class StructureNLCase(unittest.TestCase):
         b = StructureNL.from_dict(a.to_dict)
         self.assertEqual(a, b,
                          'to/from dict is broken in the simple case (no object embedding)!')
-
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {"name": "complicated node",
                             "url": "www.complicatednodegoeshere.com",

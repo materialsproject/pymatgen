@@ -243,13 +243,13 @@ class StructureNL(Structure):
 
         self.created_at = created_at if created_at \
             else datetime.datetime.utcnow()
-        
+
         try:
             self.to_json
         except:
             raise ValueError("SNL must be JSON-exportable; check in particular "
                              "your data field and history nodes")
-    
+
     @property
     def to_dict(self):
         d = super(StructureNL, self).to_dict
@@ -265,12 +265,14 @@ class StructureNL(Structure):
     @staticmethod
     def from_dict(d):
         a = d['about']
-        created_at = datetime.datetime.strptime(a['created_at'],
-                                                "%Y-%m-%dT%H:%M:%S.%f")
+        created_at = datetime.datetime.strptime(
+            a['created_at'], "%Y-%m-%dT%H:%M:%S.%f") if 'created_at' in a \
+            else None
         structure = Structure.from_dict(d)
-        return StructureNL(structure, a['authors'], a['projects'],
-                           a['references'], a['remarks'], a['data'],
-                           a['history'], created_at)
+        return StructureNL(structure, a['authors'], a.get('projects', None),
+                           a.get('references', ''), a.get('remarks', None),
+                           a.get('data', None), a.get('history', None),
+                           created_at=created_at)
 
     def __eq__(self, other):
         if not Structure.__eq__(self, other):
