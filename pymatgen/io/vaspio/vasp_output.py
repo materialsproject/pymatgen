@@ -482,55 +482,51 @@ class Vasprun(object):
 
         d["run_type"] = self.run_type
 
-        vasp_input = {}
-        vasp_input["incar"] = {k: v for k, v in self.incar.items()}
-        vasp_input["crystal"] = self.initial_structure.to_dict
-        vasp_input["kpoints"] = self.kpoints.to_dict
+        vin = {"incar": {k: v for k, v in self.incar.items()},
+               "crystal": self.initial_structure.to_dict,
+               "kpoints": self.kpoints.to_dict}
         actual_kpts = [{"abc":list(self.actual_kpoints[i]),
                         "weight":self.actual_kpoints_weights[i]}
                        for i in xrange(len(self.actual_kpoints))]
-        vasp_input["kpoints"]["actual_points"] = actual_kpts
-        vasp_input["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
-        vasp_input["parameters"] = {k: v for k, v in self.parameters.items()}
-        vasp_input["lattice_rec"] = self.lattice_rec.to_dict
-        d["input"] = vasp_input
+        vin["kpoints"]["actual_points"] = actual_kpts
+        vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["lattice_rec"] = self.lattice_rec.to_dict
+        d["input"] = vin
 
-        vasp_output = {"ionic_steps": self.ionic_steps,
-                       "final_energy": self.final_energy,
-                       "final_energy_per_atom": self.final_energy /\
-                                                len(self.final_structure),
-                       "crystal": self.final_structure.to_dict,
-                       "efermi": self.efermi, 'eigenvalues': {}}
+        nsites = len(self.final_structure)
+
+        vout = {"ionic_steps": self.ionic_steps,
+                "final_energy": self.final_energy,
+                "final_energy_per_atom": self.final_energy / nsites,
+                "crystal": self.final_structure.to_dict,
+                "efermi": self.efermi}
+
+        eigen = defaultdict(dict)
         for (spin, index), values in self.eigenvalues.items():
-            if index not in vasp_output['eigenvalues']:
-                vasp_output['eigenvalues'][index] = {str(spin): values}
-            else:
-                vasp_output['eigenvalues'][index][str(spin)] = values
-        vasp_output['dielectric'] = self.dielectric
-        vasp_output['projected_eigenvalues'] = []
+            eigen[index][str(spin)] = values
+        vout["eigenvalues"] = eigen
+        vout['dielectric'] = self.dielectric
+
+        peigen = []
         if len(self.projected_eigenvalues) != 0:
-            for i in range(len(vasp_output['eigenvalues'])):
-                vasp_output['projected_eigenvalues'].append({})
-                for spin in vasp_output['eigenvalues'][i]:
-                    vasp_output['projected_eigenvalues'][i][spin] = []
-                    for j in range(len(vasp_output['eigenvalues'][i][spin])):
-                        vasp_output['projected_eigenvalues'][i][spin].append(
-                                                                        {})
+            for i in range(len(eigen)):
+                peigen.append({})
+                for spin in eigen[i]:
+                    peigen[i][spin] = []
+                    for j in range(len(eigen[i][spin])):
+                        peigen[i][spin].append({})
             for (spin, kpoint_index, band_index, ion_index, orbital), value \
-                in self.projected_eigenvalues.items():
-                if orbital not in vasp_output['projected_eigenvalues'][
-                            kpoint_index][str(spin)][band_index]:
-                    vasp_output['projected_eigenvalues'][kpoint_index][
-                    str(spin)][band_index][orbital] = [0.0
-                    for s in range(len(self.final_structure.sites))]
-
-                vasp_output['projected_eigenvalues'][kpoint_index][
-                str(spin)][band_index][orbital][ion_index] = value
-
+                    in self.projected_eigenvalues.items():
+                beigen = peigen[kpoint_index][str(spin)][band_index]
+                if orbital not in beigen:
+                    beigen[orbital] = [0.0] * nsites
+                beigen[orbital][ion_index] = value
+        vout['projected_eigenvalues'] = peigen
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
+        vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                          is_gap_direct=is_direct))
-        d['output'] = vasp_output
+        d['output'] = vout
 
         return clean_json(d, strict=True)
 
