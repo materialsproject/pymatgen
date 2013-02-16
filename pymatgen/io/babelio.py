@@ -28,7 +28,7 @@ except ImportError:
 
 class BabelMolAdaptor(object):
     """
-    Adaptor serves as a bridge between OpenBabel"s Molecule and pymatgen"s
+    Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
     Molecule.
     """
 
