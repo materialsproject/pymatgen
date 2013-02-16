@@ -16,7 +16,7 @@ __date__ = "Jun 9, 2012"
 import unittest
 import os
 
-from pymatgen.matproj.rest import MPRester
+from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -77,6 +77,9 @@ class MPResterTest(unittest.TestCase):
             self.assertTrue(
                 set(Composition(d['unit_cell_formula']).elements).issubset(
                     elements))
+
+        self.assertRaises(MPRestError, self.adaptor.get_data, "Fe2O3",
+                          "badmethod")
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
