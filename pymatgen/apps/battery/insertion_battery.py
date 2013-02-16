@@ -55,7 +55,7 @@ class InsertionElectrode(AbstractElectrode):
         elements = set()
         map(elements.update, [entry.composition.elements for entry in entries])
 
-        #Set an artifical energy for each element for convex hull generation
+        #Set an artificial energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
 
         pdentries = []
