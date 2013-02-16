@@ -111,13 +111,6 @@ class StructureNLCase(unittest.TestCase):
                           history=[self.valid_node] * 1000)
 
     def test_data(self):
-        class UnExportable():
-            pass
-
-        #Unexportable data is not allowed
-        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
-                          data=UnExportable())
-
         # Structure data is OK due to PMGEncoder/Decoder
         a = StructureNL(self.s, self.hulk, data=self.s2)
         self.assertEqual(a.data, self.s2, 'Data storage is broken')
