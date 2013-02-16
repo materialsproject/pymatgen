@@ -150,10 +150,8 @@ class Author(namedtuple('Author', ['name', 'email'])):
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError("Invalid author format! {}".format(author))
             return Author(m.groups()[0], m.groups()[1])
-
         elif isinstance(author, dict):
             return Author.from_dict(author)
-
         else:
             if len(author) != 2:
                 raise ValueError("Invalid author, should be String or (name, "
@@ -253,12 +251,6 @@ class StructureNL(Structure):
 
         self.created_at = created_at if created_at \
             else datetime.datetime.utcnow()
-
-        try:
-            self.to_json
-        except:
-            raise ValueError("SNL must be JSON-exportable; check in particular "
-                             "your data field and history nodes")
 
     @property
     def to_dict(self):
