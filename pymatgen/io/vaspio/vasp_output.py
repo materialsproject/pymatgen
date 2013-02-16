@@ -99,6 +99,16 @@ class Vasprun(object):
         kpoint, band and atom indices are 0-based (unlike the 1-based indexing
         in VASP).
 
+    .. attribute:: dielectric
+        The real and imaginary part of the dielectric constant (e.g., computed
+        by RPA) in function of the energy (frequency). Optical properties (e.g.
+        absorption coefficient) can be obtained through this.
+        The date is given as a tuple of 3 values containing each of them
+        the energy, the real part tensor, and the imaginary part tensor
+        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
+        imag_partxy, imag_partyz, imag_partxz]])
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -142,7 +152,7 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues"]
+                            "projected_eigenvalues", "dielectric"]
 
     def __init__(self, filename, ionic_step_skip=None, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False):
@@ -496,7 +506,7 @@ class Vasprun(object):
                 vasp_output['eigenvalues'][index] = {str(spin): values}
             else:
                 vasp_output['eigenvalues'][index][str(spin)] = values
-
+        vasp_output['dielectric'] = self.dielectric
         vasp_output['projected_eigenvalues'] = []
         if len(self.projected_eigenvalues) != 0:
             for i in range(len(vasp_output['eigenvalues'])):
@@ -564,6 +574,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.structures = []
         self.lattice_rec = []
         self.stress = []
+        self.dielectric = ([], [], [])
 
         self.input_read = False
         self.read_structure = False
@@ -571,6 +582,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_calculation = False
         self.read_eigen = False
         self.read_projected_eigen = False
+        self.read_diel = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -583,6 +595,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.dos_val = []
         self.idos_val = []
         self.raw_data = []
+        self.diel_energies_val = []
+        self.diel_val = []
 
         #will be set to true if there is an error parsing the Dos.
         self.dos_has_errors = False
@@ -639,6 +653,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (state["varray"] == "forces" or
                                   state["varray"] == "stress"):
                 self.read_positions = True
+            elif name == "dielectricfunction":
+                logger.debug("Reading dielectric function...")
+                self.read_diel = True
             elif name == "dos" and self.parse_dos:
                 logger.debug("Reading dos...")
                 self.dos_energies = None
@@ -677,6 +694,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                         self.eigen_band = int(comment.split(" ")[1])
                         logger.debug("Reading band {}"
                                      .format(self.eigen_band))
+            elif self.read_diel:
+                if name == "r" and (state["imag"] or state["real"]):
+                    self.read_val = True
             elif self.read_dos:
                 if (name == "i" and state["i"] == "efermi") or \
                    (name == "r" and state["set"]):
@@ -815,6 +835,26 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_lattice = False
             self.read_rec_lattice = False
 
+    def _read_diel(self, name):
+        state = self.state
+        if name == "r" and (state["imag"] or state["real"]):
+            tok = self.val.getvalue().split()
+            self.diel_energies_val.append(float(tok[0]))
+            self.diel_val.append([float(tok[i])
+                                  for i in range(1, 7)])
+        elif name == "set":
+            if state["imag"]:
+                self.dielectric[0].extend(self.diel_energies_val)
+                self.dielectric[2].extend(self.diel_val)
+                self.diel_energies_val = []
+                self.diel_val = []
+            if state["real"]:
+                self.dielectric[1].extend(self.diel_val)
+                self.diel_energies_val = []
+                self.diel_val = []
+        elif name == "dielectricfunction":
+            self.read_diel = False
+
     def _read_dos(self, name):
         state = self.state
         try:
@@ -913,6 +953,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         else:
             if self.read_structure:
                 self._read_structure(name)
+            elif self.read_diel:
+                self._read_diel(name)
             elif self.read_dos:
                 self._read_dos(name)
             elif self.read_eigen:
