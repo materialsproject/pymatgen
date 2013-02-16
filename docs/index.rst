@@ -68,8 +68,10 @@ Latest Change Log
 
 1. Support for LDA US potential. matgenie.py script option to generate POTCARs.
 2. Beta version of StructureNotationLanguage, a markup format for Structure
-   data with metadata such as authors and references.
-3. Miscellaneous bug fixes and speedups.
+   data with metadata such as authors and references. (Anubhav Jain)
+3. Vasprun parsing now parses dielectric constant where available. (Geoffroy
+   Hautier)
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
