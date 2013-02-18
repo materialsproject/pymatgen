@@ -71,7 +71,8 @@ Latest Change Log
    data with metadata such as authors and references. (Anubhav Jain)
 3. Vasprun parsing now parses dielectric constant where available. (Geoffroy
    Hautier)
-4. Miscellaneous bug fixes and speedups.
+4. New custom ipython shell script for pymatgen.
+5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -192,6 +193,15 @@ Here are a few examples of typical usages::
     #Generate a POTCAR with symbols Li_sv O and the PBE functional
 
     matgenie.py generate --potcar Li_sv O --functional PBE
+
+ipmg - Custom ipython shell
+---------------------------
+
+From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
+Upon installing pymatgen in the usual manner, the "ipmg" script will be
+installed. Running ipmg will bring users into a custom ipython environment
+where the most commonly used pymatgen objects (see Aliases below) are
+automatically loaded into the environment.
 
 Aliases
 -------
