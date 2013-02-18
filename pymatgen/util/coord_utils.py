@@ -53,6 +53,7 @@ def in_coord_list(coord_list, coord, atol=1e-8):
         atol:
             Absolute tolerance. Defaults to 1e-8.
             Accepts both scalar and array
+
     Returns:
         True if coord is in the coord list.
     """
@@ -172,7 +173,7 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     """
-    Get the indices of all points in a fracitonal coord list that are
+    Get the indices of all points in a fractional coord list that are
     equal to a fractional coord (with a tolerance), taking into account
     periodic boundary conditions.
 
