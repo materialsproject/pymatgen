@@ -29,13 +29,22 @@ class StructureNLCase(unittest.TestCase):
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
 
         # set up BibTeX strings
-        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials Project}},\nurl = {http://www.materialsproject.org}\n}"
-        self.pmg = "@article{Ong2013,\n author = {Ong, Shyue Ping and Richards, William Davidson and Jain, Anubhav and Hautier, \
-        Geoffroy and Kocher, Michael and Cholia, Shreyas and Gunter, Dan and Chevrier, Vincent L. and Persson, Kristin A. and \
-        Ceder, Gerbrand},\n doi = {10.1016/j.commatsci.2012.10.028},\n issn = {09270256},\n journal = {Computational Materials \
-        Science},\n month = feb,\n pages = {314--319},\n publisher = {Elsevier B.V.},\n title = {{Python Materials Genomics \
-        (pymatgen): A robust, open-source python library for materials analysis}},\n url = \
-        {http://linkinghub.elsevier.com/retrieve/pii/S0927025612006295},\n volume = {68},\n year = {2013}\n}"
+        self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials " \
+                       "Project}},\nurl = {http://www.materialsproject.org}\n}"
+        self.pmg = "@article{Ong2013,\n author = {Ong, " \
+                   "Shyue Ping and Richards, William Davidson and Jain, " \
+                   "Anubhav and Hautier, Geoffroy and Kocher, " \
+                   "Michael and Cholia, Shreyas and Gunter, Dan and Chevrier," \
+                   " Vincent L. and Persson, Kristin A. and Ceder, Gerbrand}," \
+                   "\n doi = {10.1016/j.commatsci.2012.10.028}," \
+                   "\n issn = {09270256},\n journal = {Computational " \
+                   "Materials Science},\n month = feb,\n pages = {314--319}," \
+                   "\n publisher = {Elsevier B.V.}," \
+                   "\n title = {{Python Materials Genomics (pymatgen): A " \
+                   "robust, open-source python library for materials " \
+                   "analysis}},\n url = {http://linkinghub.elsevier" \
+                   ".com/retrieve/pii/S0927025612006295},\n volume = {68}," \
+                   "\n year = {2013}\n}"
         repeat = "REPEAT" * 10000
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
         self.junk = "This is junk text, not a BibTeX reference"
@@ -44,7 +53,8 @@ class StructureNLCase(unittest.TestCase):
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
         self.america = "Captain America <captainamerica@avengers.com>"
         self.thor = [("Thor", "thor@avengers.com")]
-        self.duo = "Iron Man <ironman@avengers.com>, Black Widow <blackwidow@avengers.com>"
+        self.duo = "Iron Man <ironman@avengers.com>, " \
+                   "Black Widow <blackwidow@avengers.com>"
 
         # set up HistoryNodes
         self.valid_node = HistoryNode("DB 1", "www.db1URLgoeshere.com",
@@ -112,29 +122,32 @@ class StructureNLCase(unittest.TestCase):
 
     def test_data(self):
         # Structure data is OK due to PMGEncoder/Decoder
-        a = StructureNL(self.s, self.hulk, data=self.s2)
-        self.assertEqual(a.data, self.s2, 'Data storage is broken')
+        a = StructureNL(self.s, self.hulk, data={"_structure": self.s2})
+        self.assertEqual(a.data["_structure"], self.s2,
+                         'Data storage is broken')
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          data={"bad_key": 1})
 
     def test_eq(self):
         # test basic equals()
         created_at = datetime.datetime.now()
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": self.s2},
+                        ['remark1'], {"_my_data": self.s2},
                         [self.valid_node, self.valid_node2], created_at)
         b = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": self.s2},
+                        ['remark1'], {"_my_data": self.s2},
                         [self.valid_node, self.valid_node2], created_at)
         self.assertEqual(a, b, "__eq__() method is broken! false negative")
 
         # change the created at date, now they are no longer equal
         c = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": self.s2},
+                        ['remark1'], {"_my_data": self.s2},
                         [self.valid_node, self.valid_node2])
         self.assertNotEqual(a, c, "__eq__() method is broken! false positive")
 
         # or try a different structure, those should not be equal
         d = StructureNL(self.s2, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": self.s2},
+                        ['remark1'], {"_my_data": self.s2},
                         [self.valid_node, self.valid_node2], created_at)
         self.assertNotEqual(a, d, "__eq__() method is broken! false positive")
 

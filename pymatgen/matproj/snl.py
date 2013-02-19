@@ -239,6 +239,13 @@ class StructureNL(Structure):
                              " {} bytes (you have {})"
                              .format(MAX_DATA_SIZE, sys.getsizeof(data)))
 
+        for k, v in self.data.items():
+            if not k.startswith("_"):
+                raise ValueError("data must contain properly namespaced data "
+                                 "with keys starting with an underscore. The "
+                                 "key {} does not start with an underscore.",
+                                 format(k))
+
         # check for valid history nodes
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
