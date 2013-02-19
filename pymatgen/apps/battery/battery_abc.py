@@ -214,7 +214,7 @@ class AbstractElectrode(Sequence, MSONable):
         return total_edens_in_range / total_cap_in_range
 
     def get_capacity_grav(self, min_voltage=None, max_voltage=None,
-                      use_overall_normalization=True):
+                          use_overall_normalization=True):
         """
         Get the gravimetric capacity of the electrode.
 
@@ -288,8 +288,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         return self.get_capacity_grav(min_voltage, max_voltage,
                                       use_overall_normalization) \
-                                      * self.get_average_voltage(min_voltage,
-                                                                 max_voltage)
+            * self.get_average_voltage(min_voltage, max_voltage)
 
     def get_energy_density(self, min_voltage=None, max_voltage=None,
                            use_overall_normalization=True):
@@ -310,8 +309,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         return self.get_capacity_vol(min_voltage, max_voltage,
                                      use_overall_normalization) \
-                                     * self.get_average_voltage(min_voltage,
-                                                                max_voltage)
+            * self.get_average_voltage(min_voltage, max_voltage)
 
     def _select_in_voltage_range(self, min_voltage=None, max_voltage=None):
         """

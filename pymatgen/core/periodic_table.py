@@ -511,8 +511,7 @@ class Element(object):
         """
         True if element is noble gas.
         """
-        ns = [2, 10, 18, 36, 54, 86, 118]
-        return self._z in ns
+        return self._z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self):
@@ -539,32 +538,35 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
-        return self._symbol in ns
+        return self._symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self):
         """
         True if element is an alkali metal.
         """
-        ns = [3, 11, 19, 37, 55, 87]
-        return self._z in ns
+        return self._z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self):
         """
         True if element is an alkaline earth metal (group II).
         """
-        ns = [4, 12, 20, 38, 56, 88]
-        return self._z in ns
+        return self._z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self):
         """
         True if element is a halogen.
         """
-        ns = [9, 17, 35, 53, 85]
-        return self._z in ns
+        return self._z in (9, 17, 35, 53, 85)
+
+    @property
+    def is_chalcogen(self):
+        """
+        True if element is a chalcogen.
+        """
+        return self._z in (8, 18, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):
@@ -722,6 +724,60 @@ class Specie(MSONable):
         else:
             output += formula_double_format(-self._oxi_state) + "-"
         return output
+
+    def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
+        """
+        Calculate the crystal field spin based on coordination and spin
+        configuration. Only works for transition metal species.
+
+        Args:
+            coordination:
+                Only oct and tet are supported at the moment.
+            spin_config:
+                Supported keywords are "high" or "low".
+
+        Returns:
+            Crystal field spin in Bohr magneton.
+
+        Raises:
+            AttributeError if species is not a valid transition metal or has
+            an invalid oxidation state.
+            ValueError if invalid coordination or spin_config.
+        """
+        if coordination not in ("oct", "tet") or \
+                spin_config not in ("high", "low"):
+            raise ValueError("Invalid coordination or spin config.")
+        elec = self.full_electronic_structure
+        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
+            raise AttributeError(
+                "Invalid element {} for crystal field calculation.".format(
+                    self.symbol))
+        nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
+        if nelectrons < 0:
+            raise AttributeError(
+                "Invalid oxidation state {} for element {}"
+                .format(self.oxi_state, self.symbol))
+        if spin_config == "high":
+            return nelectrons if nelectrons <= 5 else 10 - nelectrons
+        elif spin_config == "low":
+            if coordination == "oct":
+                if nelectrons <= 3:
+                    return nelectrons
+                elif nelectrons <= 6:
+                    return 6 - nelectrons
+                elif nelectrons <= 8:
+                    return nelectrons - 6
+                else:
+                    return 10 - nelectrons
+            elif coordination == "tet":
+                if nelectrons <= 2:
+                    return nelectrons
+                elif nelectrons <= 4:
+                    return 4 - nelectrons
+                elif nelectrons <= 7:
+                    return nelectrons - 4
+                else:
+                    return 10 - nelectrons
 
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)

@@ -388,3 +388,4 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             writer = CifWriter(s)
             writer.write_file(os.path.join(dirname, "{}_{}.cif"
                                            .format(formula, i)))
+

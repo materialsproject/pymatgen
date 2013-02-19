@@ -53,10 +53,10 @@ class MPRester(object):
                 one.
 
                 If this is None, the code will check if there is a "MAPI_KEY"
-                 environment variable set. If so, it will use that environment
-                 variable. This makes easier for heavy users to simply add
-                 this environment variable to their setups and MPRester can
-                 then be called without any arguments.
+                environment variable set. If so, it will use that environment
+                variable. This makes easier for heavy users to simply add
+                this environment variable to their setups and MPRester can
+                then be called without any arguments.
             host:
                 Url of host to access the MaterialsProject REST interface.
                 Defaults to the standard Materials Project REST address, but
@@ -109,8 +109,9 @@ class MPRester(object):
                 else:
                     raise MPRestError(data["error"])
 
-            raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -319,8 +320,8 @@ class MPRester(object):
                 else:
                     raise MPRestError(data["error"])
 
-            raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))

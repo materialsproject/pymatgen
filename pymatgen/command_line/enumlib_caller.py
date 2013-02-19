@@ -188,7 +188,7 @@ class EnumlibAdaptor(object):
                 species = sites[0].species_and_occu
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     #Let us first make add a dummy element for every single
-                    #site whose total occupancies don"t sum to 1.
+                    #site whose total occupancies don't sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
@@ -302,7 +302,7 @@ class EnumlibAdaptor(object):
 
                 if len(self.ordered_sites) > 0:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [[int(round(cell)) for cell in row] \
+                    transformation = [[int(round(cell)) for cell in row]
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     maker = SupercellMaker(ordered_structure, transformation)

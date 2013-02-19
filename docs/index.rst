@@ -66,9 +66,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Bug fixes for primitive cell finder.
-2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
-3. Miscellaneous bug fixes and speedups.
+1. Support for LDA US potential. matgenie.py script option to generate POTCARs.
+2. Beta version of StructureNotationLanguage, a markup format for Structure
+   data with metadata such as authors and references. (Anubhav Jain)
+3. Vasprun parsing now parses dielectric constant where available. (Geoffroy
+   Hautier)
+4. New custom ipython shell script for pymatgen.
+5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -185,6 +189,19 @@ Here are a few examples of typical usages::
     #Compare two structures for similarity
 
     matgenie.py compare filename1 filename2
+
+    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+
+    matgenie.py generate --potcar Li_sv O --functional PBE
+
+ipmg - Custom ipython shell
+---------------------------
+
+From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
+Upon installing pymatgen in the usual manner, the "ipmg" script will be
+installed. Running ipmg will bring users into a custom ipython environment
+where the most commonly used pymatgen objects (see Aliases below) are
+automatically loaded into the environment.
 
 Aliases
 -------

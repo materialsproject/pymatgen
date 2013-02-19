@@ -16,15 +16,13 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
-import itertools
-import numpy as np
+
 from operator import itemgetter
 import logging
 
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -88,8 +86,8 @@ class RotationTransformation(AbstractTransformation):
         self._axis = axis
         self._angle = angle
         self._angle_in_radians = angle_in_radians
-        self._symmop = SymmOp.from_axis_angle_and_translation(self._axis,
-                                        self._angle, self._angle_in_radians)
+        self._symmop = SymmOp.from_axis_angle_and_translation(
+            self._axis, self._angle, self._angle_in_radians)
 
     def apply_transformation(self, structure):
         editor = StructureEditor(structure)
@@ -98,8 +96,9 @@ class RotationTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Rotation Transformation about axis " + \
-               "{} with angle = {:.4f} {}".format(self._axis, self._angle,
-                            "radians" if self._angle_in_radians else "degrees")
+               "{} with angle = {:.4f} {}".format(
+                   self._axis, self._angle,
+                   "radians" if self._angle_in_radians else "degrees")
 
     def __repr__(self):
         return self.__str__()
@@ -202,7 +201,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
                               "max_permutations": self.analyzer
                               .max_permutations,
                               "distance_scale_factor":
-                                  self.analyzer.dist_scale_factor},
+                              self.analyzer.dist_scale_factor},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -591,11 +590,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                         sites_to_order[species][None].append([1 - total_occu,
                                                               i])
 
-        """
-        Create a list of [multiplication fraction, number of replacements,
-        [indices], replacement species]
-        """
-
+        # Create a list of [multiplication fraction, number of replacements,
+        # [indices], replacement species]
         m_list = []
         se = StructureEditor(structure)
 
@@ -622,12 +618,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                     prev_fraction = site_list[0][0]
                     for site in site_list:
                         if site[0] - prev_fraction > .1:
-                            """
-                            tolerance for creating a new group of sites.
-                            if site occupancies are similar, they will be put
-                            in a group where the fraction has to be consistent
-                            over the whole.
-                            """
+                            # Ttolerance for creating a new group of sites.
+                            # if site occupancies are similar, they will be put
+                            # in a group where the fraction has to be
+                            # consistent over the whole.
                             manipulation[1] = int(round(manipulation[1]))
                             m_list.append(manipulation)
                             manipulation = [oxi / initial_sp.oxi_state, 0, [],
@@ -664,10 +658,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     se.replace_site(manipulation[0], manipulation[1])
             se.delete_sites(del_indices)
-            self._all_structures.append({"energy": output[0],
-                                         "energy_above_minimum": (output[0]
-                                         - lowest_energy) / num_atoms,
-                "structure": se.modified_structure.get_sorted_structure()})
+            self._all_structures.append(
+                {"energy": output[0],
+                 "energy_above_minimum":
+                 (output[0] - lowest_energy) / num_atoms,
+                 "structure": se.modified_structure.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures

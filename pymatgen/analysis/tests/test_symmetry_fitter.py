@@ -13,6 +13,7 @@ from pymatgen.symmetry.finder import SymmetryFinder
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class SymmetryFitterTest(unittest.TestCase):
 
     def test_init(self):
