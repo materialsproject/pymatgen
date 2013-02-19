@@ -511,8 +511,7 @@ class Element(object):
         """
         True if element is noble gas.
         """
-        ns = [2, 10, 18, 36, 54, 86, 118]
-        return self._z in ns
+        return self._z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self):
@@ -539,32 +538,35 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
-        return self._symbol in ns
+        return self._symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self):
         """
         True if element is an alkali metal.
         """
-        ns = [3, 11, 19, 37, 55, 87]
-        return self._z in ns
+        return self._z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self):
         """
         True if element is an alkaline earth metal (group II).
         """
-        ns = [4, 12, 20, 38, 56, 88]
-        return self._z in ns
+        return self._z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self):
         """
         True if element is a halogen.
         """
-        ns = [9, 17, 35, 53, 85]
-        return self._z in ns
+        return self._z in (9, 17, 35, 53, 85)
+
+    @property
+    def is_chalcogen(self):
+        """
+        True if element is a chalcogen.
+        """
+        return self._z in (8, 18, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):

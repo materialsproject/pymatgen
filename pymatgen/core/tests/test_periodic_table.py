@@ -49,8 +49,8 @@ class  ElementTestCase(unittest.TestCase):
                    ("F", "Br", "I"): "is_halogen",
                    ("La",): "is_lanthanoid",
                    ("U", "Pu"): "is_actinoid",
-                   ("Si", "Ge"): "is_metalloid"
-                   }
+                   ("Si", "Ge"): "is_metalloid",
+                   ("O", "Te"): "is_chalcogen"}
 
         for k, v in is_true.items():
             for sym in k:
