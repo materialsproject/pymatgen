@@ -17,7 +17,9 @@ import cStringIO
 import re
 import datetime
 from collections import namedtuple
+import json
 
+from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
 
 from pymatgen.core.structure import Structure
@@ -262,13 +264,16 @@ class StructureNL(Structure):
     @property
     def to_dict(self):
         d = super(StructureNL, self).to_dict
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         d["about"] = {'authors': [a.to_dict for a in self.authors],
                       'projects': self.projects,
                       'references': self.references,
                       'remarks': self.remarks,
                       'history': [h.to_dict for h in self.history],
                       'created_at': self.created_at.isoformat()}
-        d["about"].update(self.data)
+        d["about"].update(json.loads(json.dumps(self.data,
+                                                cls=PMGJSONEncoder)))
         return d
 
     @staticmethod
@@ -279,6 +284,8 @@ class StructureNL(Structure):
             else None
         data = {k: v for k, v in d["about"].items()
                 if k.startswith("_")}
+        dec = PMGJSONDecoder()
+        data = dec.process_decoded(data)
         structure = Structure.from_dict(d)
         return StructureNL(structure, a['authors'],
                            projects=a.get('projects', None),
