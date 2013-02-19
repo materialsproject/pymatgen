@@ -268,8 +268,7 @@ class StructureNL(Structure):
                       'remarks': self.remarks,
                       'history': [h.to_dict for h in self.history],
                       'created_at': self.created_at.isoformat()}
-        d["about"].update({k: v for k, v in self.data.items() if
-                           k.startswith("_")})
+        d["about"].update(self.data)
         return d
 
     @staticmethod
