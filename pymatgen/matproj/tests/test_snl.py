@@ -141,21 +141,21 @@ class StructureNLCase(unittest.TestCase):
     def test_to_from_dict(self):
         # no complicated objects in the 'data' or 'nodes' field
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": "string"},
+                        ['remark1'], {"_my_data": "string"},
                         [self.valid_node, self.valid_node2])
         b = StructureNL.from_dict(a.to_dict)
-        self.assertEqual(a, b,
-                         'to/from dict is broken in the simple case (no object embedding)!')
+        self.assertEqual(a, b)
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {"name": "complicated node",
                             "url": "www.complicatednodegoeshere.com",
                             "description": {"structure": self.s2}}
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
-                        ['remark1'], {"my_data": {"structure": self.s2}},
+                        ['remark1'], {"_my_data": {"structure": self.s2}},
                         [complicated_node, self.valid_node])
         b = StructureNL.from_dict(a.to_dict)
         self.assertEqual(a, b,
-                         'to/from dict is broken when object embedding is used! Apparently PMGJSONEncoding is broken...')
+                         'to/from dict is broken when object embedding is '
+                         'used! Apparently PMGJSONEncoding is broken...')
 
 if __name__ == '__main__':
     unittest.main()
