@@ -196,7 +196,7 @@ class StructureNL(Structure):
                 List of Strings ['Remark A', 'Remark B']
             data:
                 A free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject":<custom data>}
+                underscore, e.g. {"_materialsproject": <custom data>}
             history:
                 List of dicts - [{'name':'', 'url':'', 'description':{}}]
             created_at:
@@ -259,9 +259,10 @@ class StructureNL(Structure):
                       'projects': self.projects,
                       'references': self.references,
                       'remarks': self.remarks,
-                      'data': self.data,
                       'history': [h.to_dict for h in self.history],
                       'created_at': self.created_at.isoformat()}
+        d["about"].update({k: v for k, v in self.data.items() if
+                           k.startswith("_")})
         return d
 
     @staticmethod
@@ -270,10 +271,14 @@ class StructureNL(Structure):
         created_at = datetime.datetime.strptime(
             a['created_at'], "%Y-%m-%dT%H:%M:%S.%f") if 'created_at' in a \
             else None
+        data = {k: v for k, v in d["about"].items()
+                if k.startswith("_")}
         structure = Structure.from_dict(d)
-        return StructureNL(structure, a['authors'], a.get('projects', None),
-                           a.get('references', ''), a.get('remarks', None),
-                           a.get('data', None), a.get('history', None),
+        return StructureNL(structure, a['authors'],
+                           projects=a.get('projects', None),
+                           references=a.get('references', ''),
+                           remarks=a.get('remarks', None), data=data,
+                           history=a.get('history', None),
                            created_at=created_at)
 
     def __eq__(self, other):
