@@ -99,6 +99,16 @@ class Vasprun(object):
         kpoint, band and atom indices are 0-based (unlike the 1-based indexing
         in VASP).
 
+    .. attribute:: dielectric
+        The real and imaginary part of the dielectric constant (e.g., computed
+        by RPA) in function of the energy (frequency). Optical properties (e.g.
+        absorption coefficient) can be obtained through this.
+        The date is given as a tuple of 3 values containing each of them
+        the energy, the real part tensor, and the imaginary part tensor
+        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
+        imag_partxy, imag_partyz, imag_partxz]])
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -142,7 +152,7 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues"]
+                            "projected_eigenvalues", "dielectric"]
 
     def __init__(self, filename, ionic_step_skip=None, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False):
@@ -472,55 +482,51 @@ class Vasprun(object):
 
         d["run_type"] = self.run_type
 
-        vasp_input = {}
-        vasp_input["incar"] = {k: v for k, v in self.incar.items()}
-        vasp_input["crystal"] = self.initial_structure.to_dict
-        vasp_input["kpoints"] = self.kpoints.to_dict
+        vin = {"incar": {k: v for k, v in self.incar.items()},
+               "crystal": self.initial_structure.to_dict,
+               "kpoints": self.kpoints.to_dict}
         actual_kpts = [{"abc":list(self.actual_kpoints[i]),
                         "weight":self.actual_kpoints_weights[i]}
                        for i in xrange(len(self.actual_kpoints))]
-        vasp_input["kpoints"]["actual_points"] = actual_kpts
-        vasp_input["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
-        vasp_input["parameters"] = {k: v for k, v in self.parameters.items()}
-        vasp_input["lattice_rec"] = self.lattice_rec.to_dict
-        d["input"] = vasp_input
+        vin["kpoints"]["actual_points"] = actual_kpts
+        vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["lattice_rec"] = self.lattice_rec.to_dict
+        d["input"] = vin
 
-        vasp_output = {"ionic_steps": self.ionic_steps,
-                       "final_energy": self.final_energy,
-                       "final_energy_per_atom": self.final_energy /\
-                                                len(self.final_structure),
-                       "crystal": self.final_structure.to_dict,
-                       "efermi": self.efermi, 'eigenvalues': {}}
+        nsites = len(self.final_structure)
+
+        vout = {"ionic_steps": self.ionic_steps,
+                "final_energy": self.final_energy,
+                "final_energy_per_atom": self.final_energy / nsites,
+                "crystal": self.final_structure.to_dict,
+                "efermi": self.efermi}
+
+        eigen = defaultdict(dict)
         for (spin, index), values in self.eigenvalues.items():
-            if index not in vasp_output['eigenvalues']:
-                vasp_output['eigenvalues'][index] = {str(spin): values}
-            else:
-                vasp_output['eigenvalues'][index][str(spin)] = values
+            eigen[index][str(spin)] = values
+        vout["eigenvalues"] = eigen
+        vout['dielectric'] = self.dielectric
 
-        vasp_output['projected_eigenvalues'] = []
+        peigen = []
         if len(self.projected_eigenvalues) != 0:
-            for i in range(len(vasp_output['eigenvalues'])):
-                vasp_output['projected_eigenvalues'].append({})
-                for spin in vasp_output['eigenvalues'][i]:
-                    vasp_output['projected_eigenvalues'][i][spin] = []
-                    for j in range(len(vasp_output['eigenvalues'][i][spin])):
-                        vasp_output['projected_eigenvalues'][i][spin].append(
-                                                                        {})
+            for i in range(len(eigen)):
+                peigen.append({})
+                for spin in eigen[i]:
+                    peigen[i][spin] = []
+                    for j in range(len(eigen[i][spin])):
+                        peigen[i][spin].append({})
             for (spin, kpoint_index, band_index, ion_index, orbital), value \
-                in self.projected_eigenvalues.items():
-                if orbital not in vasp_output['projected_eigenvalues'][
-                            kpoint_index][str(spin)][band_index]:
-                    vasp_output['projected_eigenvalues'][kpoint_index][
-                    str(spin)][band_index][orbital] = [0.0
-                    for s in range(len(self.final_structure.sites))]
-
-                vasp_output['projected_eigenvalues'][kpoint_index][
-                str(spin)][band_index][orbital][ion_index] = value
-
+                    in self.projected_eigenvalues.items():
+                beigen = peigen[kpoint_index][str(spin)][band_index]
+                if orbital not in beigen:
+                    beigen[orbital] = [0.0] * nsites
+                beigen[orbital][ion_index] = value
+        vout['projected_eigenvalues'] = peigen
         (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        vasp_output.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
+        vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                          is_gap_direct=is_direct))
-        d['output'] = vasp_output
+        d['output'] = vout
 
         return clean_json(d, strict=True)
 
@@ -564,6 +570,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.structures = []
         self.lattice_rec = []
         self.stress = []
+        self.dielectric = ([], [], [])
 
         self.input_read = False
         self.read_structure = False
@@ -571,6 +578,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_calculation = False
         self.read_eigen = False
         self.read_projected_eigen = False
+        self.read_diel = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -583,6 +591,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.dos_val = []
         self.idos_val = []
         self.raw_data = []
+        self.diel_energies_val = []
+        self.diel_val = []
 
         #will be set to true if there is an error parsing the Dos.
         self.dos_has_errors = False
@@ -639,6 +649,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (state["varray"] == "forces" or
                                   state["varray"] == "stress"):
                 self.read_positions = True
+            elif name == "dielectricfunction":
+                logger.debug("Reading dielectric function...")
+                self.read_diel = True
             elif name == "dos" and self.parse_dos:
                 logger.debug("Reading dos...")
                 self.dos_energies = None
@@ -677,6 +690,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                         self.eigen_band = int(comment.split(" ")[1])
                         logger.debug("Reading band {}"
                                      .format(self.eigen_band))
+            elif self.read_diel:
+                if name == "r" and (state["imag"] or state["real"]):
+                    self.read_val = True
             elif self.read_dos:
                 if (name == "i" and state["i"] == "efermi") or \
                    (name == "r" and state["set"]):
@@ -815,6 +831,26 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_lattice = False
             self.read_rec_lattice = False
 
+    def _read_diel(self, name):
+        state = self.state
+        if name == "r" and (state["imag"] or state["real"]):
+            tok = self.val.getvalue().split()
+            self.diel_energies_val.append(float(tok[0]))
+            self.diel_val.append([float(tok[i])
+                                  for i in range(1, 7)])
+        elif name == "set":
+            if state["imag"]:
+                self.dielectric[0].extend(self.diel_energies_val)
+                self.dielectric[2].extend(self.diel_val)
+                self.diel_energies_val = []
+                self.diel_val = []
+            if state["real"]:
+                self.dielectric[1].extend(self.diel_val)
+                self.diel_energies_val = []
+                self.diel_val = []
+        elif name == "dielectricfunction":
+            self.read_diel = False
+
     def _read_dos(self, name):
         state = self.state
         try:
@@ -913,6 +949,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         else:
             if self.read_structure:
                 self._read_structure(name)
+            elif self.read_diel:
+                self._read_diel(name)
             elif self.read_dos:
                 self._read_dos(name)
             elif self.read_eigen:

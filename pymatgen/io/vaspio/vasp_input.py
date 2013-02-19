@@ -1123,7 +1123,7 @@ class PotcarSingle(object):
         potcar.encut, etc.
     """
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
-                      "PW91": "POT_GGA_PAW_PW91"}
+                      "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
 
     def __init__(self, data):
         """

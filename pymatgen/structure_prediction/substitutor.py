@@ -18,7 +18,9 @@ from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
     import SubstitutionTransformation
+from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.alchemy.filters import RemoveDuplicatesFilter
 import itertools
 import logging
 from operator import mul
@@ -56,7 +58,8 @@ class Substitutor(MSONable):
         """
         return self._sp.species_list
 
-    def pred_from_structures(self, target_species, structures_list):
+    def pred_from_structures(self, target_species, structures_list,
+                             remove_duplicates=True):
         """
         performs a structure prediction targeting compounds containing the
         target_species and based on a list of structure (those structures
@@ -76,11 +79,11 @@ class Substitutor(MSONable):
 
         Returns:
             a list of TransformedStructure objects.
-
         """
         result = []
+        transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
-            != len(target_species):
+                != len(target_species):
             return ValueError("the species in target_species are not allowed"
                               + "for the probability model you are using")
 
@@ -88,26 +91,28 @@ class Substitutor(MSONable):
             for s in structures_list:
                 #check if: species are in the domain,
                 #and the probability of subst. is above the threshold
-                if len(list(set(s['structure'].composition.elements) \
-                            & set(self.get_allowed_species()))) \
-                            == len(s['structure'].composition.elements) \
-                            and self._sp.cond_prob_list(permut, s['structure']
-                            .composition.elements) > self._threshold:
+                els = s['structure'].composition.elements
+                if len(list(set(els) & set(self.get_allowed_species()))) == \
+                        len(els) and self._sp.cond_prob_list(permut, els) > \
+                        self._threshold:
+                    transf = SubstitutionTransformation(
+                        {els[i]: permut[i]
+                         for i in xrange(0, len(els))
+                         if els[i] != permut[i]})
 
-                    transf = SubstitutionTransformation({s['structure']\
-                    .composition.elements[i]: permut[i]
-                    for i in range(0, len(s['structure'].composition.elements))
-                    if s['structure'].composition.elements[i] != permut[i]})
-
-                    if Substitutor._is_charge_balanced(\
-                        transf.apply_transformation(s['structure'])):
-                            ts = TransformedStructure(s['structure'],
-                            [transf], history=[s['id']],
-                            other_parameters={'type': 'structure_prediction',
-                            'proba': self._sp.cond_prob_list(permut,
-                            s['structure'].composition.elements)})
-                            result.append(ts)
-        return result
+                    if Substitutor._is_charge_balanced(
+                            transf.apply_transformation(s['structure'])):
+                        ts = TransformedStructure(
+                            s['structure'], [transf], history=[s['id']],
+                            other_parameters={
+                                'type': 'structure_prediction',
+                                'proba': self._sp.cond_prob_list(permut, els)}
+                        )
+                        result.append(ts)
+                        transmuter.append_transformed_structures([ts])
+        if remove_duplicates:
+            transmuter.apply_filter(RemoveDuplicatesFilter())
+        return transmuter.transformed_structures
 
     @staticmethod
     def _is_charge_balanced(struct):
@@ -158,10 +163,10 @@ class Substitutor(MSONable):
             best_case_prob[:len(output_prob)] = output_prob
             if reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
-                    odict = {}
-                    odict['substitutions'] = \
-                        dict(zip(species_list, output_species))
-                    odict['probability'] = reduce(mul, best_case_prob)
+                    odict = {
+                        'substitutions':
+                        dict(zip(species_list, output_species)),
+                        'probability': reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
                 for sp in self._sp.species_list:

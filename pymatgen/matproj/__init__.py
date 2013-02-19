@@ -1,3 +1,3 @@
 """
-This package provides modules that interface with the public Materials Project.
+This module implements high-level interfaces to the public Materials Project.
 """

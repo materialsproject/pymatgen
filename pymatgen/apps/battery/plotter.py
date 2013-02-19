@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module provides plotting capabilities for battery related applications.
-'''
+"""
 
 from __future__ import division
 

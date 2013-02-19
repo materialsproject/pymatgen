@@ -26,9 +26,6 @@ class AbstractStructureFilter(MSONable):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self):
-        pass
-
     @abc.abstractmethod
     def test(self, structure):
         """
@@ -165,8 +162,9 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(self, structure_matcher=StructureMatcher(
-        comparator=ElementComparator())):
+    def __init__(self,
+                 structure_matcher=StructureMatcher(
+                     comparator=ElementComparator())):
         """
         Args:
             comparator:

@@ -137,5 +137,6 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
+
 if __name__ == '__main__':
     unittest.main()

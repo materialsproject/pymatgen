@@ -110,7 +110,7 @@ class SymmetryFinder(object):
         Returns:
             International spacegroup number for structure.
         """
-        sgnum = self._spacegroup_data.split()[1]
+        sgnum = self._spacegroup_data.split()[-1]
         sgnum = int(re.sub("\D", "", sgnum))
         return sgnum
 
@@ -194,7 +194,6 @@ class SymmetryFinder(object):
                                                self._symprec,
                                                self._angle_tol)):
             dataset[key] = data
-
         dataset["international"] = dataset["international"].strip()
         dataset["hall"] = dataset["hall"].strip()
         dataset["transformation_matrix"] = \
@@ -202,7 +201,7 @@ class SymmetryFinder(object):
         dataset["origin_shift"] = np.array(dataset["origin_shift"])
         dataset["rotations"] = np.array(dataset["rotations"])
         dataset["translations"] = np.array(dataset["translations"])
-        letters = "abcdefghijklmnopqrstuvwxyz"
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         dataset["wyckoffs"] = [letters[x] for x in dataset["wyckoffs"]]
         dataset["equivalent_atoms"] = np.array(dataset["equivalent_atoms"])
 
