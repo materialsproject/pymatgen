@@ -17,9 +17,11 @@ __date__ = "2/14/13"
 import datetime
 import unittest
 import numpy as np
+import json
 
 from pymatgen import Structure
 from pymatgen.matproj.snl import StructureNL, HistoryNode
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 
 class StructureNLCase(unittest.TestCase):
@@ -169,6 +171,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a, b,
                          'to/from dict is broken when object embedding is '
                          'used! Apparently PMGJSONEncoding is broken...')
+
 
 if __name__ == '__main__':
     unittest.main()
