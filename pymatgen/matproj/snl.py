@@ -43,7 +43,8 @@ def is_valid_bibtex(reference):
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO.StringIO(reference.decode('ascii', 'ignore').encode('ascii'))
+    sio = cStringIO.StringIO(reference.decode('ascii', 'ignore')
+                             .encode('ascii'))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
