@@ -75,6 +75,15 @@ EPS=12
         self.assertEqual(gau.route_parameters["geom"], "connectivity")
         self.assertEqual(gau.functional, "b3lyp")
         self.assertEqual(gau.basis_set, "6-311+g(d,p)")
+        filepath = os.path.join(test_dir, "g305_hb.txt")
+        with open(filepath) as f:
+            txt = f.read()
+        toks = txt.split("--link1--")
+        for t in toks:
+            lines = t.strip().split("\n")
+            lines = [l.strip() for l in lines]
+            gau = GaussianInput.from_string("\n".join(lines))
+            self.assertIsNotNone(gau.molecule)
 
 
 class GaussianOutputTest(unittest.TestCase):
