@@ -90,11 +90,11 @@ class BabelMolAdaptor(object):
     @staticmethod
     def from_file(filename, file_format="xyz"):
         """
-        Uses OpenBabel to read a molecule from all supported formats.
+        Uses OpenBabel to read a molecule from a file in all supported formats.
 
         Args:
             filename:
-                Filename of file to output
+                Filename of input file
             file_format:
                 String specifying any OpenBabel supported formats.
 
@@ -102,4 +102,22 @@ class BabelMolAdaptor(object):
             BabelMolAdaptor object
         """
         mols = list(pb.readfile(file_format, filename))
+        return BabelMolAdaptor(mols[0].OBMol)
+
+    @staticmethod
+    def from_string(string_data, file_format="xyz"):
+        """
+        Uses OpenBabel to read a molecule from a string in all supported
+        formats.
+
+        Args:
+            string_data:
+                String containing molecule data.
+            file_format:
+                String specifying any OpenBabel supported formats.
+
+        Returns:
+            BabelMolAdaptor object
+        """
+        mols = list(pb.readstring(file_format, string_data))
         return BabelMolAdaptor(mols[0].OBMol)
