@@ -41,8 +41,10 @@ def is_valid_bibtex(reference):
     Returns:
         Boolean indicating if reference is valid bibtex.
     """
-    #str is necessary since pybtex seems to have an issue with unicode.
-    sio = cStringIO.StringIO(str(reference))
+    # str is necessary since pybtex seems to have an issue with unicode. The
+    # filter expression removes all non-ASCII characters.
+    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x)<128,
+                                                reference))))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
