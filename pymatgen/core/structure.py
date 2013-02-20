@@ -778,7 +778,7 @@ class Structure(SiteCollection, MSONable):
             groups = np.all(fdist < tol[None, None, :], axis=2)
 
             #check that all group sizes are the same
-            sizes = np.unique(np.sum(groups, axis = 0))
+            sizes = np.unique(np.sum(groups, axis=0))
             if len(sizes) > 1:
                 continue
 
@@ -908,6 +908,7 @@ class Molecule(SiteCollection, MSONable):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
+        #TODO: support charged molecules.
         if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   " same length as the list of fractional ",
