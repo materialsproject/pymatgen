@@ -66,13 +66,14 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Support for LDA US potential. matgenie.py script option to generate POTCARs.
-2. Beta version of StructureNotationLanguage, a markup format for Structure
+1. Bug fix for StructureNotationalLanguage.
+2. Support for LDA US potential. matgenie.py script option to generate POTCARs.
+3. Beta version of StructureNotationLanguage, a markup format for Structure
    data with metadata such as authors and references. (Anubhav Jain)
-3. Vasprun parsing now parses dielectric constant where available. (Geoffroy
+4. Vasprun parsing now parses dielectric constant where available. (Geoffroy
    Hautier)
-4. New custom ipython shell script for pymatgen.
-5. Miscellaneous bug fixes and speedups.
+5. New custom ipython shell script for pymatgen.
+6. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
