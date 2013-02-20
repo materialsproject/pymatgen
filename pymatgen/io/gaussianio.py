@@ -221,18 +221,21 @@ class GaussianInput(object):
                     d = tok.split("=")
                     v = None if len(d) == 1 else d[1]
                     route_paras[d[0]] = v
-        title = lines[route_index + 2]
-        shift = 4
-        if lines[route_index + 3].strip():
-            shift = 5
-        toks = re.split("[\s,]", lines[route_index + shift])
+        ind = 2
+        title = []
+        while lines[route_index + ind].strip():
+            title.append(lines[route_index + ind].strip())
+            ind += 1
+        title = ' '.join(title)
+        ind += 1
+        toks = re.split("[\s,]", lines[route_index + ind])
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
         input_paras = {}
-        shift += 1
-        for i in xrange(route_index + shift, len(lines)):
+        ind += 1
+        for i in xrange(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:
