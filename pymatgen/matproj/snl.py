@@ -43,7 +43,7 @@ def is_valid_bibtex(reference):
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x)<128,
+    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x) < 128,
                                                 reference))))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
@@ -306,3 +306,6 @@ class StructureNL(object):
         return all(map(lambda n: getattr(self, n) == getattr(other, n),
                        ("structure", "authors", "projects", "references",
                         "remarks", "data", "history", "created_at")))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
