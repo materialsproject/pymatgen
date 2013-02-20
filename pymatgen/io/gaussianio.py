@@ -85,8 +85,8 @@ class GaussianInput(object):
         zmat_patt = re.compile("^\s*([A-Za-z]+)[\w\d\-\_]*"
                                "([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
         mixed_species_patt = re.compile("([A-Za-z]+)[\d\-_]+")
-        xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)\s+"
-                              "([\d\.eE\-]+)\s+([\d\.eE\-]+)\s+"
+        xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)[\s,]+"
+                              "([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                               "([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
         parsed_species = []
@@ -116,23 +116,30 @@ class GaussianInput(object):
                 m = mixed_species_patt.match(toks[0])
                 if m:
                     parsed_species.append(toks[0])
-                    species.append(m.group(1))
+                    sp = re.sub("\d", "", m.group(1))
+                    species.append(sp.capitalize())
                 else:
-                    species.append(toks[0])
+                    species.append(toks[0].capitalize())
                 toks.pop(0)
                 if len(toks) == 0:
                     coords.append(np.array([0, 0, 0]))
                 else:
                     nn = []
                     parameters = []
-                    while len(toks) > 0:
+                    while len(toks) > 1:
                         ind = toks.pop(0)
                         data = toks.pop(0)
                         try:
                             nn.append(int(ind))
                         except ValueError:
                             nn.append(parsed_species.index(ind))
-                        parameters.append(paras[data])
+                        try:
+                            parameters.append(float(data))
+                        except ValueError:
+                            if data.startswith("-"):
+                                parameters.append(-paras[data[1:]])
+                            else:
+                                parameters.append(paras[data])
                     if len(nn) == 1:
                         coords.append(np.array([0, 0, parameters[0]]))
                     elif len(nn) == 2:
@@ -195,7 +202,6 @@ class GaussianInput(object):
         """
         lines = contents.split("\n")
         route_patt = re.compile("^#[sSpPnN]*.*")
-
         route = None
         for i, l in enumerate(lines):
             if route_patt.match(l):
@@ -207,7 +213,7 @@ class GaussianInput(object):
             for tok in route.split():
                 if tok.strip().startswith("#"):
                     continue
-                if re.match("\w+/.*", tok):
+                if re.match("[\S]+/.*", tok):
                     d = tok.split("/")
                     functional = d[0]
                     basis_set = d[1]
@@ -216,13 +222,17 @@ class GaussianInput(object):
                     v = None if len(d) == 1 else d[1]
                     route_paras[d[0]] = v
         title = lines[route_index + 2]
-        toks = lines[route_index + 4].split()
+        shift = 4
+        if lines[route_index + 3].strip():
+            shift = 5
+        toks = re.split("[\s,]", lines[route_index + shift])
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
         input_paras = {}
-        for i in xrange(route_index + 5, len(lines)):
+        shift += 1
+        for i in xrange(route_index + shift, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:
