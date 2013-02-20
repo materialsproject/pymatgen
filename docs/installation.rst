@@ -208,25 +208,19 @@ Here are the steps that I took to make it work:
    https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/.
 3. Download Eigen version 3.1.2 from
    http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz.
-4. Extract your Eigen and openbabel source distributions:
+4. Extract your Eigen and openbabel source distributions::
 
-::
-
-   tar -zxvf openbabel-2.3.2.tar.gz
-   tar -zxvf eigen3.tar.gz
+    tar -zxvf openbabel-2.3.2.tar.gz
+    tar -zxvf eigen3.tar.gz
 
 5. Now you should have two directories. Assuming that your openbabel src is in
    a directory called "openbabel-2.3.2" and your eigen source is in a directory
-   called "eigen3", do the following steps.
+   called "eigen3", do the following steps::
 
-::
-
-   mv openbabel-2.3.2 ob-src
-   mkdir ob-build
-   cd ob-build
-   cmake -DPYTHON_BINDINGS=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 |
-    tee cmake.out
-
+    mv openbabel-2.3.2 ob-src
+    mkdir ob-build
+    cd ob-build
+    cmake -DPYTHON_BINDINGS=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 | tee cmake.out
 
 6. Before proceeding further, similar to the VTK installation process in the
    previous section, you may also need to modify the CMakeCache.txt
@@ -237,19 +231,19 @@ Here are the steps that I took to make it work:
    configuration for Python 2.7 is given below (only variables that need to
    be modified are shown)::
 
-   //Path to a program.
-   PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
+    //Path to a program.
+    PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
 
-   //Path to a file.
-   PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
+    //Path to a file.
+    PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
 
-   //Path to a library.
-   PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
+    //Path to a library.
+    PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
 7. Run make and install as follows::
 
-   make -j2
-   sudo make install
+    make -j2
+    sudo make install
 
 8. With any luck, you should have openbabel with python bindings installed. You
    can test your installation by trying to import openbabel from the python
@@ -258,7 +252,7 @@ Here are the steps that I took to make it work:
    the standard Mac version. In that case, you may need to add the following
    into your .bash_profile::
 
-   export PYTHONPATH=/usr/local/lib:$PYTHONPATH
+    export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
 Enumlib (tested as of version of Jul 2012)
 ------------------------------------------
