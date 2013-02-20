@@ -49,6 +49,7 @@ class StructureNLCase(unittest.TestCase):
                    "\n year = {2013}\n}"
         repeat = "REPEAT" * 10000
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
+        self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}".encode('utf_8')
         self.junk = "This is junk text, not a BibTeX reference"
 
         # set up some authors
@@ -93,6 +94,9 @@ class StructureNLCase(unittest.TestCase):
 
         # good references should be ok
         StructureNL(self.s, self.hulk, references=self.pmg)
+
+        # unicode references should work
+        StructureNL(self.s, self.hulk, references=self.unicode_title)
 
         # multi-line references should be OK
         StructureNL(self.s, self.hulk,
