@@ -20,24 +20,27 @@ from nose.exc import SkipTest
 
 from pymatgen.core.structure import Molecule
 import pymatgen.io.babelio as babelio
+from pymatgen.io.xyzio import XYZ
 from pymatgen.io.babelio import BabelMolAdaptor
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
-
 class BabelMolAdaptorTest(unittest.TestCase):
 
-    def test_init(self):
-        if not babelio.babel_loaded:
-            raise SkipTest("OpenBabel not present. Skipping...")
+    def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-        mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        adaptor = BabelMolAdaptor(mol)
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_init(self):
+        if not babelio.babel_loaded:
+            raise SkipTest("OpenBabel not present. Skipping...")
+
+        adaptor = BabelMolAdaptor(self.mol)
         obmol = adaptor.openbabel_mol
         self.assertEqual(obmol.NumAtoms(), 5)
 
@@ -52,6 +55,14 @@ class BabelMolAdaptorTest(unittest.TestCase):
                                             "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
+
+    def test_from_string(self):
+        if not babelio.babel_loaded:
+            raise SkipTest("OpenBabel not present. Skipping...")
+        xyz = XYZ(self.mol)
+        adaptor = BabelMolAdaptor.from_string(str(xyz), "xyz")
+        mol = adaptor.pymatgen_mol
+        self.assertEqual(mol.formula, "H4 C1")
 
 if __name__ == "__main__":
     if babelio.babel_loaded:
