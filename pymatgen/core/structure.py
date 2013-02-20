@@ -1016,6 +1016,23 @@ class Molecule(SiteCollection, MSONable):
                 bonds.append(CovalentBond(site1, site2))
         return bonds
 
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if len(self) != len(other):
+            return False
+        for site in self:
+            if site not in other:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        # For now, just use the composition hash code.
+        return self.composition.__hash__()
+
     def __repr__(self):
         outs = ["Molecule Summary"]
         for s in self:

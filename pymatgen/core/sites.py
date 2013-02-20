@@ -50,7 +50,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 Cartesian coordinates of site.
             properties:
                 Properties associated with the site as a dict, e.g.
-                {"magmom":5}. Defaults to None.
+                {"magmom": 5}. Defaults to None.
         """
         if isinstance(atoms_n_occu, dict):
             self._species = {smart_element_or_specie(k): v
@@ -191,7 +191,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if other is None:
             return False
         return self._species == other._species and \
-            np.allclose(self._coords, other._coords)
+            np.allclose(self._coords, other._coords) and \
+            self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -383,7 +384,8 @@ class PeriodicSite(Site, MSONable):
     def __eq__(self, other):
         return self._species == other._species and \
             self._lattice == other._lattice and \
-            np.allclose(self._coords, other._coords)
+            np.allclose(self._coords, other._coords) and \
+            self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
