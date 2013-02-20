@@ -200,7 +200,7 @@ OpenBabel (tested on v2.3.2)
 Mac OS X 10.7 - 10.8
 ~~~~~~~~~~~~~~~~~~~~
 
-openbabel must be compiled with python bindings for integration with pymatgen.
+Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
 
 1. Install cmake from http://cmake.org/cmake/resources/software.html.
