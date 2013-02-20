@@ -19,17 +19,17 @@ import unittest
 import numpy as np
 import json
 
-from pymatgen import Structure
+from pymatgen import Structure, Molecule
 from pymatgen.matproj.snl import StructureNL, HistoryNode
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 
 class StructureNLCase(unittest.TestCase):
+
     def setUp(self):
         # set up a Structure
         self.s = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])
         self.s2 = Structure(np.eye(3, 3) * 3, ["Al"], [[0, 0, 0]])
-
+        self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
         self.matproj = "@misc{MaterialsProject,\ntitle = {{Materials " \
                        "Project}},\nurl = {http://www.materialsproject.org}\n}"
@@ -175,6 +175,11 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a, b,
                          'to/from dict is broken when object embedding is '
                          'used! Apparently PMGJSONEncoding is broken...')
+
+        #Test molecule
+        molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
+        b = StructureNL.from_dict(molnl.to_dict)
+        self.assertEqual(molnl, b)
 
 
 if __name__ == '__main__':
