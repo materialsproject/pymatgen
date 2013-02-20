@@ -119,5 +119,5 @@ class BabelMolAdaptor(object):
         Returns:
             BabelMolAdaptor object
         """
-        mols = list(pb.readstring(file_format, string_data))
-        return BabelMolAdaptor(mols[0].OBMol)
+        mols = pb.readstring(file_format, string_data)
+        return BabelMolAdaptor(mols.OBMol)
