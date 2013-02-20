@@ -276,6 +276,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         d = propertied_mol.to_dict
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
+        self.assertEqual(propertied_mol, mol)
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
 
