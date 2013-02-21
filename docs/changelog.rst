@@ -1,6 +1,17 @@
 Change log
 ==========
 
+Version 2.5.3
+-------------
+1. Bug fix for StructureNotationalLanguage.
+2. Support for LDA US potential. matgenie.py script option to generate POTCARs.
+3. Beta version of StructureNotationLanguage, a markup format for Structure
+   data with metadata such as authors and references. (Anubhav Jain)
+4. Vasprun parsing now parses dielectric constant where available. (Geoffroy
+   Hautier)
+5. New custom ipython shell script for pymatgen.
+6. Miscellaneous bug fixes and speedups.
+
 Version 2.5.1
 -------------
 1. Bug fixes for primitive cell finder.
