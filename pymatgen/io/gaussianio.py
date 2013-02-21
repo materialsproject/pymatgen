@@ -23,16 +23,17 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
 from pymatgen.util.io_utils import zopen
 
-zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-
-xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
-                      "([\d\.eE\-]+)[\-\.\s,\w.]*$")
-
 
 class GaussianInput(object):
     """
     An object representing a Gaussian input file.
     """
+
+    #Commonly used regex patterns
+    zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                          "([\d\.eE\-]+)[\-\.\s,\w.]*$")
+
     def __init__(self, mol, charge=0, spin_multiplicity=1, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None):
@@ -95,7 +96,7 @@ class GaussianInput(object):
             l = l.strip()
             if not l:
                 break
-            m = xyz_patt.match(l)
+            m = GaussianInput.xyz_patt.match(l)
             if m:
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
@@ -103,7 +104,7 @@ class GaussianInput(object):
                     coords.append(map(float, toks[2:5]))
                 else:
                     coords.append(map(float, toks[1:4]))
-            elif zmat_patt.match(l):
+            elif GaussianInput.zmat_patt.match(l):
                 toks = re.split("[,\s]+", l.strip())
                 species.append(toks[0])
                 toks.pop(0)
