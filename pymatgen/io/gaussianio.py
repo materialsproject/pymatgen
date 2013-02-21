@@ -23,6 +23,11 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
 from pymatgen.util.io_utils import zopen
 
+zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+
+xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                      "([\d\.eE\-]+)[\-\.\s,\w.]*$")
+
 
 class GaussianInput(object):
     """
@@ -77,34 +82,22 @@ class GaussianInput(object):
         Helper method to parse coordinates.
         """
         paras = {}
-        var_pattern = re.compile("^\s*([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)\s*$")
+        var_pattern = re.compile("^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
                 paras[m.group(1)] = float(m.group(2))
-        zmat_patt = re.compile("^\s*(\w+)*"
-                               "([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-        xyz_patt = re.compile("^\s*(\w+)[\s,]+"
-                              "([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
-                              "([\d\.eE\-]+)[\-\.\s,\w.]*$")
-        parsed_species = []
+
         species = []
         coords = []
 
         for l in coord_lines:
             l = l.strip()
-            if l == "":
+            if not l:
                 break
-            if xyz_patt.match(l):
-                m = xyz_patt.match(l)
-                parsed_species.append(m.group(1))
-
-                if re.match("\d+", m.group(1)):
-                    species.append(int(m.group(1)))
-                else:
-                    sp = re.sub("\d", "", m.group(1))
-                    species.append(sp.capitalize())
-
+            m = xyz_patt.match(l)
+            if m:
+                species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
                     coords.append(map(float, toks[2:5]))
@@ -112,12 +105,7 @@ class GaussianInput(object):
                     coords.append(map(float, toks[1:4]))
             elif zmat_patt.match(l):
                 toks = re.split("[,\s]+", l.strip())
-                parsed_species.append(toks[0])
-                if re.match("\d+", toks[0]):
-                    species.append(int(toks[0]))
-                else:
-                    sp = re.sub("\d", "", toks[0])
-                    species.append(sp.capitalize())
+                species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:
                     coords.append(np.array([0, 0, 0]))
@@ -130,7 +118,7 @@ class GaussianInput(object):
                         try:
                             nn.append(int(ind))
                         except ValueError:
-                            nn.append(parsed_species.index(ind) + 1)
+                            nn.append(species.index(ind) + 1)
                         try:
                             val = float(data)
                             parameters.append(val)
@@ -163,9 +151,8 @@ class GaussianInput(object):
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
-                        op = SymmOp.from_origin_axis_angle(coords1, axis,
-                                                           angle,
-                                                           False)
+                        op = SymmOp.from_origin_axis_angle(
+                            coords1, axis, angle, False)
                         coord = op.operate(coords2)
                         v1 = coord - coords1
                         v2 = coords1 - coords2
@@ -178,12 +165,28 @@ class GaussianInput(object):
                             d = -1
                         adj = math.acos(d) * 180 / math.pi
                         axis = coords1 - coords2
-                        op = SymmOp.from_origin_axis_angle(coords1, axis,
-                                                           dih - adj, False)
+                        op = SymmOp.from_origin_axis_angle(
+                            coords1, axis, dih - adj, False)
                         coord = op.operate(coord)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
                         coords.append(coord)
+
+        def parse_species(sp_str):
+            """
+            The species specification can take many forms. E.g.,
+            simple integers representing atomic numbers ("8"),
+            actual species string ("C") or a labelled species ("C1").
+            Sometimes, the species string is also not properly capitalized,
+            e.g, ("c1"). This method should take care of these known formats.
+            """
+            try:
+                return int(sp_str)
+            except ValueError:
+                sp = re.sub("\d", "", sp_str)
+                return sp.capitalize()
+
+        species = map(parse_species, species)
 
         return Molecule(species, coords)
 
