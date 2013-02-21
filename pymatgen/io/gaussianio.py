@@ -91,13 +91,15 @@ class GaussianInput(object):
 
         species = []
         coords = []
-
+        # Stores whether a Zmatrix format is detected. Once a zmatrix format
+        # is detected, it is assumed for the remaining of the parsing.
+        zmode = False
         for l in coord_lines:
             l = l.strip()
             if not l:
                 break
-            m = GaussianInput.xyz_patt.match(l)
-            if m:
+            if (not zmode) and GaussianInput.xyz_patt.match(l):
+                m = GaussianInput.xyz_patt.match(l)
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
@@ -105,6 +107,7 @@ class GaussianInput(object):
                 else:
                     coords.append(map(float, toks[1:4]))
             elif GaussianInput.zmat_patt.match(l):
+                zmode = True
                 toks = re.split("[,\s]+", l.strip())
                 species.append(toks[0])
                 toks.pop(0)
@@ -203,7 +206,7 @@ class GaussianInput(object):
         Returns:
             GaussianInput object
         """
-        lines = contents.split("\n")
+        lines = [l.strip() for l in contents.split("\n")]
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
