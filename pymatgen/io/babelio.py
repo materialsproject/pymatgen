@@ -23,6 +23,8 @@ try:
     import pybel as pb
     babel_loaded = True
 except ImportError:
+    pb = None
+    ob = None
     babel_loaded = False
 
 
@@ -38,7 +40,7 @@ class BabelMolAdaptor(object):
 
         Args:
             mol:
-                pymatgen"s Molecule or OpenBabel Molecule
+                pymatgen"s Molecule or OpenBabel OBMol
         """
         if isinstance(mol, Molecule):
             if not mol.is_ordered:
