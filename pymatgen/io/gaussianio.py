@@ -14,7 +14,6 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 17, 2012"
 
 import re
-import math
 
 import numpy as np
 
@@ -22,6 +21,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
 from pymatgen.util.io_utils import zopen
+from pymatgen.util.coord_utils import get_angle
 
 
 class GaussianInput(object):
@@ -161,13 +161,7 @@ class GaussianInput(object):
                         v1 = coord - coords1
                         v2 = coords1 - coords2
                         v3 = np.cross(v1, v2)
-                        d = np.dot(v3, axis) / np.linalg.norm(v3) / \
-                            np.linalg.norm(axis)
-                        if d > 1:
-                            d = 1
-                        elif d < -1:
-                            d = -1
-                        adj = math.acos(d) * 180 / math.pi
+                        adj = get_angle(v3, axis)
                         axis = coords1 - coords2
                         op = SymmOp.from_origin_axis_angle(
                             coords1, axis, dih - adj, False)
