@@ -88,7 +88,6 @@ class GaussianInput(object):
         xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)[\s,]+"
                               "([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                               "([\d\.eE\-]+)[\-\.\s,\w.]*$")
-
         parsed_species = []
         species = []
         coords = []
@@ -132,7 +131,7 @@ class GaussianInput(object):
                         try:
                             nn.append(int(ind))
                         except ValueError:
-                            nn.append(parsed_species.index(ind))
+                            nn.append(parsed_species.index(ind) + 1)
                         try:
                             parameters.append(float(data))
                         except ValueError:

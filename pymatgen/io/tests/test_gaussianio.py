@@ -79,11 +79,23 @@ EPS=12
         with open(filepath) as f:
             txt = f.read()
         toks = txt.split("--link1--")
-        for t in toks:
+        for i, t in enumerate(toks):
             lines = t.strip().split("\n")
             lines = [l.strip() for l in lines]
             gau = GaussianInput.from_string("\n".join(lines))
             self.assertIsNotNone(gau.molecule)
+            if i == 0:
+                mol = gau.molecule
+        ans = """Molecule Summary (H4 O2)
+Reduced Formula: H2O
+Sites (6)
+1 O     0.000000     0.000000     0.000000
+2 O     0.000000     0.000000     2.912902
+3 H     0.892596     0.000000    -0.373266
+4 H     0.143970     0.000219     0.964351
+5 H    -0.582554     0.765401     3.042783
+6 H    -0.580711    -0.766761     3.043012"""
+        self.assertEqual(str(mol), ans)
 
 
 class GaussianOutputTest(unittest.TestCase):
