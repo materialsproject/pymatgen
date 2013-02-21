@@ -82,10 +82,9 @@ class GaussianInput(object):
             m = var_pattern.match(l.strip())
             if m:
                 paras[m.group(1)] = float(m.group(2))
-        zmat_patt = re.compile("^\s*([A-Za-z]+)[\w\d\-\_]*"
+        zmat_patt = re.compile("^\s*(\w+)*"
                                "([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-        mixed_species_patt = re.compile("([A-Za-z]+)[\d\-_]+")
-        xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)[\s,]+"
+        xyz_patt = re.compile("^\s*(\w+)[\s,]+"
                               "([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                               "([\d\.eE\-]+)[\-\.\s,\w.]*$")
         parsed_species = []
@@ -98,12 +97,13 @@ class GaussianInput(object):
                 break
             if xyz_patt.match(l):
                 m = xyz_patt.match(l)
-                m2 = mixed_species_patt.match(m.group(1))
-                if m2:
-                    parsed_species.append(m.group(1))
-                    species.append(m2.group(1))
+                parsed_species.append(m.group(1))
+
+                if re.match("\d+", m.group(1)):
+                    species.append(int(m.group(1)))
                 else:
-                    species.append(m.group(1))
+                    sp = re.sub("\d", "", m.group(1))
+                    species.append(sp.capitalize())
 
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
@@ -112,13 +112,12 @@ class GaussianInput(object):
                     coords.append(map(float, toks[1:4]))
             elif zmat_patt.match(l):
                 toks = re.split("[,\s]+", l.strip())
-                m = mixed_species_patt.match(toks[0])
-                if m:
-                    parsed_species.append(toks[0])
-                    sp = re.sub("\d", "", m.group(1))
-                    species.append(sp.capitalize())
+                parsed_species.append(toks[0])
+                if re.match("\d+", toks[0]):
+                    species.append(int(toks[0]))
                 else:
-                    species.append(toks[0].capitalize())
+                    sp = re.sub("\d", "", toks[0])
+                    species.append(sp.capitalize())
                 toks.pop(0)
                 if len(toks) == 0:
                     coords.append(np.array([0, 0, 0]))
@@ -133,7 +132,8 @@ class GaussianInput(object):
                         except ValueError:
                             nn.append(parsed_species.index(ind) + 1)
                         try:
-                            parameters.append(float(data))
+                            val = float(data)
+                            parameters.append(val)
                         except ValueError:
                             if data.startswith("-"):
                                 parameters.append(-paras[data[1:]])
