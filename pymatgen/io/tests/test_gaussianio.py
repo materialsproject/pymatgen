@@ -97,6 +97,33 @@ Sites (6)
 6 H    -0.580711    -0.766761     3.043012"""
         self.assertEqual(str(mol), ans)
 
+    def test_from_string(self):
+        gau_str = """%mem=5000000
+        %chk=filename
+        # mp2/6-31g* scf=direct
+
+        SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
+
+        1,2
+        Si
+        X,1,1.
+        H,1,R1,2,HALF1
+        H,1,R1,2,HALF1,3,180.,0
+        X,1,1.,2,90.,3,90.,0
+        X,1,1.,5,THETA,2,180.,0
+        H,1,R3,6,HALF3,5,0.,0
+        H,1,R4,6,HALF3,7,180.,0
+
+        R1=1.47014
+        R3=1.890457
+        R4=1.83514
+        HALF1=60.633314
+        THETA=10.35464
+        HALF3=11.861807"""
+
+        gau = GaussianInput.from_string(gau_str)
+        self.assertEqual("X3SiH4", gau.molecule.composition.reduced_formula)
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.
