@@ -62,11 +62,11 @@ class MPRester(object):
                 Defaults to the standard Materials Project REST address, but
                 can be changed to other urls implementing a similar interface.
         """
-        self.host = host
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
+        self.preamble = "https://{}/rest/v1".format(host)
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -92,11 +92,11 @@ class MPRester(object):
         """
         headers = {"x-api-key": self.api_key}
         if prop:
-            url = "https://{}/rest/v1/materials/{}/{}/{}".format(
-                self.host, chemsys_formula_id, data_type, prop)
+            url = "{}/materials/{}/{}/{}".format(
+                self.preamble, chemsys_formula_id, data_type, prop)
         else:
-            url = "https://{}/rest/v1/materials/{}/{}".format(
-                self.host, chemsys_formula_id, data_type)
+            url = "{}/materials/{}/{}".format(
+                self.preamble, chemsys_formula_id, data_type)
 
         try:
             response = requests.get(url, headers=headers)
@@ -310,7 +310,7 @@ class MPRester(object):
                        "properties": json.dumps(properties)}
             headers = {"x-api-key": self.api_key}
             response = requests.post(
-                "https://{}/rest/v1/mpquery".format(self.host),
+                "{}/mpquery".format(self.preamble),
                 headers=headers, data=payload)
 
             if response.status_code in [200, 400]:
