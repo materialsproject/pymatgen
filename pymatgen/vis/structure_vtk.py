@@ -274,7 +274,7 @@ class StructureVis(object):
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * \
-                        (max_radius + anion_radius) / 100
+                        (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, max_radius)
                     nn_sites = []
                     for nnsite, dist in nn:
