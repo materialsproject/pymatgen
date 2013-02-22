@@ -15,10 +15,10 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
-__date__ = "Jun 8, 2012"
+__date__ = "Feb 22, 2013"
 
 import os
 import requests
@@ -42,7 +42,7 @@ class MPRester(object):
                             "elements", "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "spacegroup", "task_ids",
                             "band_gap", "density", "icsd_id", "cif",
-                            "total_magnetization")
+                            "total_magnetization", "material_id")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
@@ -278,9 +278,11 @@ class MPRester(object):
         """
         Performs an advanced mpquery, which is a Mongo-like syntax for directly
         querying the Materials Project database via the mpquery rest interface.
-        Please refer to the Moogle advanced help on the mpquery language and
-        supported criteria and properties. Essentially, any supported
-        properties within MPRestAdaptor should be supported in mpquery.
+        Please refer to the Materials Project REST wiki
+        https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
+        on the mpquery language and supported criteria and properties.
+        Essentially, any supported properties within MPRestAdaptor should be
+        supported in mpquery.
 
         Mpquery allows an advanced developer to perform queries which are
         otherwise too cumbersome to perform using the standard convenience
