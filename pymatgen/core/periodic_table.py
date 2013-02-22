@@ -34,7 +34,9 @@ class Element(object):
     """
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
-    ensuring that a particular element behaves like a singleton.
+    ensuring that a particular element behaves like a singleton. For all
+    attributes, missing data (i.e., data for which is not available) is
+    represented by a None unless otherwise stated.
 
     .. attribute:: Z
 
@@ -46,7 +48,8 @@ class Element(object):
 
     .. attribute:: X
 
-        Electronegativity
+        Pauling electronegativity. Elements without an electronegativity
+        number are assigned a value of zero by default.
 
     .. attribute:: number
 
@@ -133,7 +136,21 @@ class Element(object):
 
     .. attribute:: atomic_radius
 
-        Atomic radius for the element.
+        Atomic radius for the element. This is the empirical value. Data is
+        obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+    .. attribute:: atomic_radius_calculated
+
+        Calculated atomic radius for the element. This is the empirical value.
+        Data is obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+    .. attribute:: van_der_waals_radius
+
+        Van der Waals radius for the element. This is the empirical
+        value. Data is obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
 
     .. attribute:: mendeleev_no
 
@@ -265,7 +282,14 @@ class Element(object):
                          "density_of_solid", "atomic_radius_calculated",
                          "van_der_waals_radius", "ionic_radii",
                          "coefficient_of_linear_thermal_expansion"]:
-            return self._data[a.capitalize().replace("_", " ")]
+            kstr = a.capitalize().replace("_", " ")
+            if kstr not in self._data:
+                return None
+            val = self._data[kstr]
+            if str(val).startswith("no data"):
+                return None
+            else:
+                return val
         raise AttributeError(a)
 
     def __getnewargs__(self):
@@ -278,8 +302,8 @@ class Element(object):
         Average ionic radius for element in pm. The average is taken over all
         oxidation states of the element for which data is present.
         """
-        if "Ionic_radii" in self._data:
-            radii = self._data["Ionic_radii"]
+        if "Ionic radii" in self._data:
+            radii = self._data["Ionic radii"]
             return sum(radii.values()) / len(radii)
         else:
             return 0
