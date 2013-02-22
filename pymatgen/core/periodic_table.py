@@ -297,6 +297,13 @@ class Element(object):
         return self._symbol,
 
     @property
+    def data(self):
+        """
+        Returns dict of data for element.
+        """
+        return self._data.copy()
+
+    @property
     def average_ionic_radius(self):
         """
         Average ionic radius for element in pm. The average is taken over all

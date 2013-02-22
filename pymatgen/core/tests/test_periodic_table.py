@@ -75,7 +75,7 @@ class  ElementTestCase(unittest.TestCase):
         #Test all elements up to Uranium
         for i in range(1, 93):
             el = Element.from_Z(i)
-            d = _pt_data[el.symbol]
+            d = el.data
             for k in keys:
                 k_str = k.capitalize().replace("_", " ")
                 if k_str in d and (not str(d[k_str]).startswith("no data")):
@@ -104,6 +104,10 @@ class  ElementTestCase(unittest.TestCase):
         self.assertEqual(el.atomic_radius, 1.40)
         self.assertEqual(el.atomic_radius_calculated, 1.69)
         self.assertEqual(el.van_der_waals_radius, 1.63)
+
+    def test_data(self):
+        self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
+        
 
 class  SpecieTestCase(unittest.TestCase):
 
