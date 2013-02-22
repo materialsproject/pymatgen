@@ -263,7 +263,7 @@ class Element(object):
                          "brinell_hardness", "rigidity_modulus",
                          "mineral_hardness", "vickers_hardness",
                          "density_of_solid", "atomic_radius_calculated",
-                         "van_der_waals_radius",
+                         "van_der_waals_radius", "ionic_radii",
                          "coefficient_of_linear_thermal_expansion"]:
             return self._data[a.capitalize().replace("_", " ")]
         raise AttributeError(a)
@@ -290,8 +290,8 @@ class Element(object):
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in pm.
         """
-        if "Ionic_radii" in self._data:
-            return {int(k): v for k, v in self._data["Ionic_radii"].items()}
+        if "Ionic radii" in self._data:
+            return {int(k): v for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
 
