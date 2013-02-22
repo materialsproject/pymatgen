@@ -94,6 +94,12 @@ class  ElementTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy")
 
+    def test_radii(self):
+        el = Element("Pd")
+        self.assertEqual(el.atomic_radius, 1.40)
+        self.assertEqual(el.atomic_radius_calculated, 1.69)
+        self.assertEqual(el.van_der_waals_radius, 1.63)
+
 
 class  SpecieTestCase(unittest.TestCase):
 

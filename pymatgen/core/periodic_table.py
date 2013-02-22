@@ -262,7 +262,8 @@ class Element(object):
                          "liquid_range", "bulk_modulus", "youngs_modulus",
                          "brinell_hardness", "rigidity_modulus",
                          "mineral_hardness", "vickers_hardness",
-                         "density_of_solid",
+                         "density_of_solid", "atomic_radius_calculated",
+                         "van_der_waals_radius",
                          "coefficient_of_linear_thermal_expansion"]:
             return self._data[a.capitalize().replace("_", " ")]
         raise AttributeError(a)
