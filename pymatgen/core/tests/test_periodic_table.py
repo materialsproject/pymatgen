@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import division
 import unittest
 import pickle
 
@@ -100,7 +101,6 @@ class  ElementTestCase(unittest.TestCase):
         self.assertEqual(el.atomic_radius_calculated, 1.69)
         self.assertEqual(el.van_der_waals_radius, 1.63)
 
-
 class  SpecieTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -113,8 +113,9 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
-        self.assertEqual(self.specie2.ionic_radius, 78.5)
-        self.assertEqual(self.specie3.ionic_radius, 92)
+        print self.specie2.ionic_radii
+        self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
+        self.assertEqual(self.specie3.ionic_radius, 92 / 100)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,

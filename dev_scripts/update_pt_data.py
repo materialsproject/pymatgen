@@ -143,5 +143,28 @@ def parse_radii():
         json.dump(data, f)
 
 
+def update_ionic_radii():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+
+    for el, d in data.items():
+        if "Ionic_radii" in d:
+            d["Ionic radii"] = {k: v / 100
+                                for k, v in d["Ionic_radii"].items()}
+            del d["Ionic_radii"]
+        if "Ionic_radii_hs" in d:
+            d["Ionic radii hs"] = {k: v / 100
+                                   for k, v in d["Ionic_radii_hs"].items()}
+            del d["Ionic_radii_hs"]
+        if "Ionic_radii_ls" in d:
+            d["Ionic radii ls"] = {k: v / 100
+                                   for k, v in d["Ionic_radii_ls"].items()}
+            del d["Ionic_radii_ls"]
+    with open('periodic_table2.yaml', 'w') as f:
+        yaml.dump(data, f)
+    with open('periodic_table.json', 'w') as f:
+        json.dump(data, f)
+
+
 if __name__ == "__main__":
-    parse_radii()
+    update_ionic_radii()
