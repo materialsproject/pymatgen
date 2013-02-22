@@ -272,7 +272,7 @@ class StructureNL(object):
                       "references": self.references,
                       "remarks": self.remarks,
                       "history": [h.to_dict for h in self.history],
-                      "created_at": self.created_at.isoformat()}
+                      "created_at": self.created_at}
         d["about"].update(json.loads(json.dumps(self.data,
                                                 cls=PMGJSONEncoder)))
         return d
@@ -280,13 +280,14 @@ class StructureNL(object):
     @staticmethod
     def from_dict(d):
         a = d["about"]
-        created_at = datetime.datetime.strptime(
-            a["created_at"], "%Y-%m-%dT%H:%M:%S.%f") if "created_at" in a \
+        dec = PMGJSONDecoder()
+
+        created_at = dec.process_decoded(a["created_at"]) if "created_at" in a \
             else None
         data = {k: v for k, v in d["about"].items()
                 if k.startswith("_")}
-        dec = PMGJSONDecoder()
         data = dec.process_decoded(data)
+
         structure = Structure.from_dict(d) if "lattice" in d \
             else Molecule.from_dict(d)
         return StructureNL(structure, a["authors"],
