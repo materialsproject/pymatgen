@@ -7,7 +7,7 @@ state) and PeriodicTable.
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
