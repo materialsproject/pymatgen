@@ -5,7 +5,7 @@ import unittest
 import pickle
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable
+    PeriodicTable, _pt_data
 from copy import deepcopy
 
 
@@ -18,7 +18,7 @@ class  ElementTestCase(unittest.TestCase):
 
         for sym in fictional_symbols:
             self.assertRaises(KeyError, Element, sym)
-            
+
     def test_dict(self):
         fe = Element("Fe")
         d = fe.to_dict
@@ -57,7 +57,7 @@ class  ElementTestCase(unittest.TestCase):
             for sym in k:
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
-        keys = ["name", "Z", "mendeleev_no", "atomic_mass",
+        keys = ["name", "mendeleev_no", "atomic_mass",
                 "electronic_structure", "X", "atomic_radius",
                 "min_oxidation_state", "max_oxidation_state",
                 "electrical_resistivity", "velocity_of_sound", "reflectivity",
@@ -74,8 +74,12 @@ class  ElementTestCase(unittest.TestCase):
 
         #Test all elements up to Uranium
         for i in range(1, 93):
+            el = Element.from_Z(i)
+            d = _pt_data[el.symbol]
             for k in keys:
-                self.assertIsNotNone(getattr(Element.from_Z(i), k))
+                k_str = k.capitalize().replace("_", " ")
+                if k_str in d and (not str(d[k_str]).startswith("no data")):
+                    self.assertIsNotNone(getattr(el, k))
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),
@@ -113,7 +117,6 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
-        print self.specie2.ionic_radii
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
         self.assertEqual(self.specie3.ionic_radius, 92 / 100)
 
@@ -187,7 +190,7 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
-        
+
     def test_pickle(self):
         el1 = Specie("Fe", 3)
         o = pickle.dumps(el1)
