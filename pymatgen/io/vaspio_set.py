@@ -167,7 +167,7 @@ class VaspInputSet(AbstractVaspInputSet):
             config_file:
                 The config file to use. If None (the default), a default config
                 file containing Materials Project and MIT parameters is used.
-            user_incar:
+            user_incar_settings:
                 User INCAR settings. This allows a user to override INCAR
                 settings, e.g., setting a different MAGMOM for various elements
                 or species.
@@ -275,6 +275,9 @@ class VaspInputSet(AbstractVaspInputSet):
         return Kpoints.automatic_density(structure, dens)
 
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         output = [self.name, ""]
         section_names = ['INCAR settings', 'KPOINTS settings',
                          'POTCAR settings']
@@ -388,4 +391,3 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             writer = CifWriter(s)
             writer.write_file(os.path.join(dirname, "{}_{}.cif"
                                            .format(formula, i)))
-
