@@ -248,7 +248,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         potcar_symbols = []
         for el in elements:
             potcar_symbols.append(self.potcar_settings[el]
-            if el in self.potcar_settings else el)
+                                  if el in self.potcar_settings else el)
         return potcar_symbols
 
     def get_kpoints(self, structure):
@@ -368,6 +368,7 @@ class MITGGAVaspInputSet(VaspInputSet):
                 constrain_total_magmom=constrain_total_magmom)
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
 
 class MITHSEVaspInputSet(VaspInputSet):
     """
