@@ -48,8 +48,12 @@ class Compatibility(EntryPostProcessor):
         """
         self.compat_type = compat_type
         self.input_set_name = input_set_name
-        self.input_set = MaterialsProjectVaspInputSet() if \
-            input_set_name == "MaterialsProject" else MITVaspInputSet()
+        if input_set_name == "MaterialsProject":
+            self.input_set = MaterialsProjectVaspInputSet()
+        elif input_set_name == "MITMatgen":
+            self.input_set = MITVaspInputSet()
+        else:
+            raise ValueError("Invalid input set name {}".format(input_set_name))
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
