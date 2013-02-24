@@ -53,7 +53,7 @@ setup(
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
-                  "pymatgen.io": ["*.cfg"],
+                  "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
