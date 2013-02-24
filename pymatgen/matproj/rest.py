@@ -28,6 +28,7 @@ import warnings
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.io.vaspio_set import DictVaspInputSet
 
 
 class MPRester(object):
@@ -273,6 +274,38 @@ class MPRester(object):
 
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
+
+    def get_vasp_input_set(self, date_string=None):
+        """
+        Returns the VaspInputSet used by the Materials Project at a
+        particular date.
+
+        Args:
+            date_string:
+                A date string in the format of "YYYY-MM-DD". Defaults to
+                None, which means the VaspInputSet today.
+
+        Returns:
+            DictVaspInputSet
+        """
+        url = "{}/parameters/vasp".format(self.preamble)
+        payload = {"date": date_string} if date_string else {}
+        try:
+            response = requests.get(url, data=payload)
+            if response.status_code in [200, 400]:
+                data = json.loads(response.text, cls=PMGJSONDecoder)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return DictVaspInputSet("MaterialsProjectVaspInputSet",
+                                            data["response"])
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+        except Exception as ex:
+            raise MPRestError(str(ex))
 
     def mpquery(self, criteria, properties):
         """
