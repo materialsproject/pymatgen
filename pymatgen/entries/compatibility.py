@@ -21,7 +21,7 @@ from collections import defaultdict
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
-from pymatgen.io.vaspio_set import VaspInputSet
+from pymatgen.io.vaspio_set import MITVaspInputSet, MaterialsProjectVaspInputSet
 
 
 class Compatibility(EntryPostProcessor):
@@ -48,7 +48,8 @@ class Compatibility(EntryPostProcessor):
         """
         self.compat_type = compat_type
         self.input_set_name = input_set_name
-        self.input_set = VaspInputSet(input_set_name)
+        self.input_set = MaterialsProjectVaspInputSet() if \
+            input_set_name == "MaterialsProject" else MITVaspInputSet()
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
