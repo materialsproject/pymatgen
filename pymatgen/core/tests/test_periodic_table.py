@@ -107,7 +107,7 @@ class  ElementTestCase(unittest.TestCase):
 
     def test_data(self):
         self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
-        
+
 
 class  SpecieTestCase(unittest.TestCase):
 
