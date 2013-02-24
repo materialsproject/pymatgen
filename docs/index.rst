@@ -38,9 +38,8 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
 as bug reports. Please report any bugs and issues at pymatgen's `Github
-page`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups
-page`_.
+page`_. If you wish to be notified of pymatgen releases, you may become a
+member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
