@@ -67,9 +67,8 @@ class Compatibility(EntryPostProcessor):
                 corr = dict(self._config.items(name))
                 u_corrections[el] = {k: float(v) for k, v in corr.items()}
 
-        cpd_energies = dict(self._config.items("{}{}CompoundEnergies"
-                                               .format(input_set_name,
-                                                       compat_type)))
+        cpd_energies = dict(self._config.items(
+            "{}{}CompoundEnergies".format(input_set_name, compat_type)))
 
         self.u_corrections = u_corrections
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
