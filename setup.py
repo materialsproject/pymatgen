@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.5.3",
+    version="2.5.4",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
@@ -53,7 +53,7 @@ setup(
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
-                  "pymatgen.io": ["*.cfg"],
+                  "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},

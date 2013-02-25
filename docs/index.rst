@@ -38,9 +38,8 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
 as bug reports. Please report any bugs and issues at pymatgen's `Github
-page`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups
-page`_.
+page`_. If you wish to be notified of pymatgen releases, you may become a
+member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
@@ -66,14 +65,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Bug fix for StructureNotationalLanguage.
-2. Support for LDA US potential. matgenie.py script option to generate POTCARs.
-3. Beta version of StructureNotationLanguage, a markup format for Structure
-   data with metadata such as authors and references. (Anubhav Jain)
-4. Vasprun parsing now parses dielectric constant where available. (Geoffroy
-   Hautier)
-5. New custom ipython shell script for pymatgen.
-6. Miscellaneous bug fixes and speedups.
+1. Vastly improved Gaussian input file parsing that supports more varieties
+   of input specifications.
+2. StructureNL now supports molecules as well as structures.
+3. Updated atomic and vdw radius for Elements.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 

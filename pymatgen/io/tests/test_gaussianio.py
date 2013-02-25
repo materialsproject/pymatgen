@@ -75,6 +75,54 @@ EPS=12
         self.assertEqual(gau.route_parameters["geom"], "connectivity")
         self.assertEqual(gau.functional, "b3lyp")
         self.assertEqual(gau.basis_set, "6-311+g(d,p)")
+        filepath = os.path.join(test_dir, "g305_hb.txt")
+        with open(filepath) as f:
+            txt = f.read()
+        toks = txt.split("--link1--")
+        for i, t in enumerate(toks):
+            lines = t.strip().split("\n")
+            lines = [l.strip() for l in lines]
+            gau = GaussianInput.from_string("\n".join(lines))
+            self.assertIsNotNone(gau.molecule)
+            if i == 0:
+                mol = gau.molecule
+        ans = """Molecule Summary (H4 O2)
+Reduced Formula: H2O
+Sites (6)
+1 O     0.000000     0.000000     0.000000
+2 O     0.000000     0.000000     2.912902
+3 H     0.892596     0.000000    -0.373266
+4 H     0.143970     0.000219     0.964351
+5 H    -0.582554     0.765401     3.042783
+6 H    -0.580711    -0.766761     3.043012"""
+        self.assertEqual(str(mol), ans)
+
+    def test_from_string(self):
+        gau_str = """%mem=5000000
+        %chk=filename
+        # mp2/6-31g* scf=direct
+
+        SIH4+ H2---SIH2+ CS //MP2(full)/6-31G* MP2=-290.9225259
+
+        1,2
+        Si
+        X,1,1.
+        H,1,R1,2,HALF1
+        H,1,R1,2,HALF1,3,180.,0
+        X,1,1.,2,90.,3,90.,0
+        X,1,1.,5,THETA,2,180.,0
+        H,1,R3,6,HALF3,5,0.,0
+        H,1,R4,6,HALF3,7,180.,0
+
+        R1=1.47014
+        R3=1.890457
+        R4=1.83514
+        HALF1=60.633314
+        THETA=10.35464
+        HALF3=11.861807"""
+
+        gau = GaussianInput.from_string(gau_str)
+        self.assertEqual("X3SiH4", gau.molecule.composition.reduced_formula)
 
 
 class GaussianOutputTest(unittest.TestCase):

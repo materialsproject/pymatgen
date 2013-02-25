@@ -40,6 +40,7 @@ __date__ = "Apr 30, 2012"
 
 import json
 import abc
+import datetime
 
 from pymatgen.util.io_utils import zopen
 
@@ -114,6 +115,10 @@ class PMGJSONEncoder(json.JSONEncoder):
             Python dict representation.
         """
         try:
+            if isinstance(o, datetime.datetime):
+                return {"@module": "datetime",
+                        "@class": "datetime",
+                        "string": str(o)}
             d = o.to_dict
             if "@module" not in d:
                 d["@module"] = o.__class__.__module__
@@ -154,6 +159,9 @@ class PMGJSONDecoder(json.JSONDecoder):
                 modname = None
                 classname = None
             if modname:
+                if modname == "datetime" and classname == "datetime":
+                    return datetime.datetime.strptime(d["string"],
+                                                      "%Y-%m-%d %H:%M:%S.%f")
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls = getattr(mod, classname)
