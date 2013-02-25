@@ -13,11 +13,10 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
-
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
-                                                ElementComparator
+    ElementComparator
 import abc
 
 
@@ -27,15 +26,12 @@ class AbstractStructureFilter(MSONable):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self):
-        pass
-
     @abc.abstractmethod
     def test(self, structure):
-        '''
+        """
         Returns a boolean for any structure. Structures that return true are
         kept in the Transmuter object during filtering.
-        '''
+        """
         return
 
     @staticmethod
@@ -82,7 +78,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             atomic_number = lambda x: x.Z
             filter_set = set(map(atomic_number, self._species))
             structure_set = set(map(atomic_number,
-                                    structure.composition.elements))
+                                structure.composition.elements))
         else:
             #compare by specie or element object
             filter_set = set(self._species)
@@ -99,23 +95,20 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             return self._exclude
 
     def __repr__(self):
-        output = ["ContainsSpecieFilter with parameters:"]
-        output.append("species = {}".format(self._species))
-        output.append("strict_compare = {}".format(self._strict))
-        output.append("AND = {}".format(self._AND))
-        output.append("exclude = {}".format(self._exclude))
-        return  "\n".join(output)
+        return "\n".join(["ContainsSpecieFilter with parameters:",
+                          "species = {}".format(self._species),
+                          "strict_compare = {}".format(self._strict),
+                          "AND = {}".format(self._AND),
+                          "exclude = {}".format(self._exclude)])
 
     @property
     def to_dict(self):
-        d = {"version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["init_args"] = {"species": [str(sp) for sp in self._species],
-                          "strict_compare": self._strict,
-                          "AND": self._AND,
-                          "exclude": self._exclude}
-        return d
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"species": [str(sp) for sp in self._species],
+                              "strict_compare": self._strict,
+                              "AND": self._AND,
+                              "exclude": self._exclude}}
 
 
 class SpecieProximityFilter(AbstractStructureFilter):
@@ -157,51 +150,68 @@ class SpecieProximityFilter(AbstractStructureFilter):
 
     @property
     def to_dict(self):
-        d = {"version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["init_args"] = {"specie_and_min_dist_dict":
-                          {str(sp): v
-                           for sp, v in self.specie_and_min_dist.items()}}
-        return d
-    
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"specie_and_min_dist_dict":
+                              {str(sp): v
+                              for sp, v in self.specie_and_min_dist.items()}}}
+
+
 class RemoveDuplicatesFilter(AbstractStructureFilter):
     """
-    This filter removes exact duplicate structures from the transmuter
+    This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(self, structure_matcher=StructureMatcher(
-                                            comparator=ElementComparator())):
+    def __init__(self,
+                 structure_matcher=StructureMatcher(
+                     comparator=ElementComparator())):
         """
         Args:
             comparator:
                 The comparator to be used in the matching
         """
         self._structure_list = []
-        if isinstance(structure_matcher,dict):
+        if isinstance(structure_matcher, dict):
             self._sm = StructureMatcher.from_dict(structure_matcher)
-        else: 
+        else:
             self._sm = structure_matcher
-        
-    def test(self,structure):
+
+    def test(self, structure):
         if not self._structure_list:
             self._structure_list.append(structure)
             return True
-        
+
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
-               self._sm._comparator.get_structure_hash(s):
-                if self._sm.fit(s,structure):
+                    self._sm._comparator.get_structure_hash(s):
+                if self._sm.fit(s, structure):
                     return False
-        
+
         self._structure_list.append(structure)
         return True
-    
+
     @property
     def to_dict(self):
-        d = {"version": __version__}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["init_args"] = {"structure_matcher":self._sm.to_dict}
-                          
-        return d
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"structure_matcher": self._sm.to_dict}}
+        
+class ChargeBalanceFilter(AbstractStructureFilter):
+    """
+     This filter removes structures that are not 
+     charge balanced from the transmuter. 
+     This only works if the structure is 
+     oxidation state decorated, as structures
+     with only elemental sites are automatically
+     assumed to have net charge of 0
+    """
+    def test(self, structure):
+        if structure.charge == 0.0:
+            return True
+        else:
+            return False
+        
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}

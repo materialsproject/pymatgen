@@ -58,7 +58,7 @@ def get_minkowski_red(structure):
             started = True
         if line.find("KPOINTS TO RUN") != -1:
             started = False
-    return Poscar.from_string(poscar_string).struct
+    return Poscar.from_string(poscar_string).structure
 
 
 def get_vasp_kpoint_file_sym(structure):

@@ -21,8 +21,8 @@ before_script:
   - sudo apt-get update -qq
   - sudo apt-get install -qq python-openbabel python-scipy
   - export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages/
-  - mv pymatgen pmg
   - export PATH=$PATH:$HOME/builds/materialsproject/pymatgen/cmd_line/enum/Linux_32bit
+  - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
 script: nosetests
 branches:

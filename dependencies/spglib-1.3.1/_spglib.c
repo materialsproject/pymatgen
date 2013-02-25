@@ -562,17 +562,15 @@ static PyObject * get_stabilized_reciprocal_mesh(PyObject *self, PyObject *args)
   PyArrayObject* mesh;
   PyArrayObject* is_shift;
   int is_time_reversal;
-  PyArrayObject* lattice;
   PyArrayObject* rotations;
   PyArrayObject* qpoints;
   double symprec;
-  if (!PyArg_ParseTuple(args, "OOOOiOOOd",
+  if (!PyArg_ParseTuple(args, "OOOOiOOd",
 			&grid_point,
 			&map,
 			&mesh,
 			&is_shift,
 			&is_time_reversal,
-			&lattice,
 			&rotations,
 			&qpoints,
 			&symprec))
@@ -594,7 +592,6 @@ static PyObject * get_stabilized_reciprocal_mesh(PyObject *self, PyObject *args)
     is_shift_int[i] = (int) is_shift_long[i];
   }  
 
-  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
   const long* rot_long = (long*)rotations->data;
   const int num_rot = rotations->dimensions[0];
   int rot[num_rot][3][3];
@@ -619,7 +616,6 @@ static PyObject * get_stabilized_reciprocal_mesh(PyObject *self, PyObject *args)
 							mesh_int,
 							is_shift_int,
 							is_time_reversal,
-							lat,
 							num_rot,
 							rot,
 							num_q,
@@ -640,13 +636,11 @@ static PyObject * get_triplets_reciprocal_mesh(PyObject *self, PyObject *args)
 {
   PyArrayObject* mesh;
   int is_time_reversal;
-  PyArrayObject* lattice;
   PyArrayObject* rotations;
   double symprec;
-  if (!PyArg_ParseTuple(args, "OiOOd",
+  if (!PyArg_ParseTuple(args, "OiOd",
 			&mesh,
 			&is_time_reversal,
-			&lattice,
 			&rotations,
 			&symprec))
     return NULL;
@@ -659,7 +653,6 @@ static PyObject * get_triplets_reciprocal_mesh(PyObject *self, PyObject *args)
   for (i = 0; i < 3; i++) {
     mesh_int[i] = (int) mesh_long[i];
   }  
-  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
   const long* rot_long = (long*)rotations->data;
   const int num_rot = rotations->dimensions[0];
   int rot[num_rot][3][3];
@@ -674,7 +667,6 @@ static PyObject * get_triplets_reciprocal_mesh(PyObject *self, PyObject *args)
   SpglibTriplets * spg_triplets = \
     spg_get_triplets_reciprocal_mesh(mesh_int,
 				     is_time_reversal,
-				     lat,
 				     num_rot,
 				     rot,
 				     symprec);
@@ -721,17 +713,15 @@ static PyObject * get_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject *ar
   int fixed_grid_number;
   PyArrayObject* mesh;
   int is_time_reversal;
-  PyArrayObject* lattice;
   PyArrayObject* rotations;
   double symprec;
-  if (!PyArg_ParseTuple(args, "OOOiOiOOd",
+  if (!PyArg_ParseTuple(args, "OOOiOiOd",
 			&weights,
 			&grid_points,
 			&third_q,
 			&fixed_grid_number,
 			&mesh,
 			&is_time_reversal,
-			&lattice,
 			&rotations,
 			&symprec))
     return NULL;
@@ -752,7 +742,6 @@ static PyObject * get_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject *ar
     mesh_int[i] = (int) mesh_long[i];
   }  
 
-  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
   const long* rot_long = (long*)rotations->data;
   const int num_rot = rotations->dimensions[0];
   int rot[num_rot][3][3];
@@ -771,7 +760,6 @@ static PyObject * get_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject *ar
 					  fixed_grid_number,
 					  mesh_int,
 					  is_time_reversal,
-					  lat,
 					  num_rot,
 					  rot,
 					  symprec);
@@ -796,20 +784,17 @@ static PyObject * extract_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject
   PyArrayObject* triplets;
   PyArrayObject* mesh;
   int is_time_reversal;
-  PyArrayObject* lattice;
   PyArrayObject* rotations;
-  double symprec;
-  if (!PyArg_ParseTuple(args, "OOiOOiOOd",
+  if (!PyArg_ParseTuple(args, "OOiOOiO",
 			&triplets_at_q,
 			&weight_triplets_at_q,
 			&fixed_grid_number,
 			&triplets,
 			&mesh,
 			&is_time_reversal,
-			&lattice,
-			&rotations,
-			&symprec))
+			&rotations)) {
     return NULL;
+  }
 
   const long *triplets_long = (long*)triplets->data;
   const int num_triplets = triplets->dimensions[0];
@@ -833,7 +818,6 @@ static PyObject * extract_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject
     mesh_int[i] = (int) mesh_long[i];
   }  
 
-  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
   const long* rot_long = (long*)rotations->data;
   const int num_rot = rotations->dimensions[0];
   int rot[num_rot][3][3];
@@ -853,10 +837,8 @@ static PyObject * extract_triplets_reciprocal_mesh_at_q(PyObject *self, PyObject
 					      triplets_int,
 					      mesh_int,
 					      is_time_reversal,
-					      lat,
 					      num_rot,
-					      rot,
-					      symprec);
+					      rot);
 
   for (i = 0; i < num_triplets_at_q; i++) {
     weight_triplets_at_q_long[i] = (long) weight_triplets_at_q_int[i];

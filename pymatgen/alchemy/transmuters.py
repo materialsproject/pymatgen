@@ -26,6 +26,7 @@ import warnings
 from multiprocessing import Pool
 from pymatgen.alchemy.materials import TransformedStructure
 
+
 class StandardTransmuter(object):
     """
     An example of a Transmuter object, which performs a sequence of
@@ -37,7 +38,7 @@ class StandardTransmuter(object):
     """
 
     def __init__(self, transformed_structures, transformations=None,
-                 extend_collection=0, ncores = None):
+                 extend_collection=0, ncores=None):
         """
         Args:
             transformed_structures:
@@ -77,20 +78,6 @@ class StandardTransmuter(object):
 
     def __getattr__(self, name):
         return [getattr(x, name) for x in self.transformed_structures]
-
-    def undo_last_transformation(self):
-        """
-        .. deprecated:: v2.2.2
-        """
-        warnings.warn("Deprecated. Use undo_last_change.", DeprecationWarning)
-        self.undo_last_change()
-
-    def redo_next_transformation(self):
-        """
-        .. deprecated:: v2.2.2
-        """
-        warnings.warn("Deprecated. Use redo_last_change.", DeprecationWarning)
-        self.redo_next_change()
 
     def undo_last_change(self):
         """
@@ -142,8 +129,9 @@ class StandardTransmuter(object):
         if self.ncores and transformation.use_multiprocessing:
             p = Pool(self.ncores)
             #need to condense arguments into single tuple to use map
-            z = map(lambda x: (x, transformation, extend_collection, clear_redo),
-                      self.transformed_structures)
+            z = map(
+                lambda x: (x, transformation, extend_collection, clear_redo),
+                self.transformed_structures)
             new_tstructs = p.map(_apply_transformation, z, 1)
             self.transformed_structures = []
             for ts in new_tstructs:
@@ -173,8 +161,10 @@ class StandardTransmuter(object):
         Applies a structure_filter to the list of TransformedStructures
         in the transmuter
         """
+
         def test_transformed_structure(ts):
             return structure_filter.test(ts.final_structure)
+
         self.transformed_structures = filter(test_transformed_structure,
                                              self.transformed_structures)
         for ts in self.transformed_structures:
@@ -286,7 +276,7 @@ class CifTransmuter(StandardTransmuter):
     """
 
     def __init__(self, cif_string, transformations=None, primitive=True,
-                  extend_collection=False):
+                 extend_collection=False):
         """
         Generates a Transmuter from a cif string, possibly
         containing multiple structures.
@@ -321,7 +311,7 @@ class CifTransmuter(StandardTransmuter):
 
     @staticmethod
     def from_filenames(filenames, transformations=None, primitive=True,
-                  extend_collection=False):
+                       extend_collection=False):
         """
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
@@ -351,8 +341,9 @@ class PoscarTransmuter(StandardTransmuter):
     """
     Generates a transmuter from a sequence of POSCARs.
     """
+
     def __init__(self, poscar_string, transformations=None,
-                     extend_collection=False):
+                 extend_collection=False):
         """
         Args:
             poscar_string:
@@ -364,8 +355,7 @@ class PoscarTransmuter(StandardTransmuter):
                 transformations.
         """
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        StandardTransmuter.__init__(self, [tstruct],
-                                    transformations,
+        StandardTransmuter.__init__(self, [tstruct], transformations,
                                     extend_collection=extend_collection)
 
     @staticmethod
@@ -424,12 +414,12 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
             dirname = os.path.join(output_dir, subdir,
                                    "{}_{}".format(formula, i))
         else:
-            dirname = os.path.join(output_dir,
-                                   "{}_{}".format(formula, i))
+            dirname = os.path.join(output_dir, "{}_{}".format(formula, i))
         s.write_vasp_input(vasp_input_set, dirname,
                            create_directory=create_directory)
         if include_cif:
             from pymatgen.io.cifio import CifWriter
+
             writer = CifWriter(s.final_structure)
             writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))
 
@@ -438,17 +428,17 @@ def _apply_transformation(inputs):
     """
     Helper method for multiprocessing of apply_transformation. Must not be
     in the class so that it can be pickled.
-    
+
     Args:
-        inputs: 
+        inputs:
             a tuple containing the transformed structure, the transformation
-            to be applied, a boolean indicating whether to extend the 
+            to be applied, a boolean indicating whether to extend the
             collection, and a boolean indicating whether to clear the redo
-        
+
     Returns:
         List of output structures (the modified initial structure, plus
         any new structures created by a one-to-many transformation)
-        
+
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection,
@@ -457,4 +447,3 @@ def _apply_transformation(inputs):
     if new:
         o.extend(new)
     return o
-

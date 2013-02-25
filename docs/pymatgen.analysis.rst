@@ -41,14 +41,6 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure_fitter` Module
-------------------------------
-
-.. automodule:: pymatgen.analysis.structure_fitter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`structure_matcher` Module
 -------------------------------
 

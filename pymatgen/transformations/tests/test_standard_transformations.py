@@ -16,6 +16,7 @@ import os
 import unittest
 import random
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.io.cifio import CifParser

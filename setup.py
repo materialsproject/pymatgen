@@ -14,8 +14,11 @@ except ImportError:
     print "Please install numpy first before retrying setup."
     sys.exit(-1)
 
+
 def get_spglib_ext():
-    # Get spglib
+    """
+    Set up spglib extension.
+    """
     spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
     if len(spglibs) == 0:
         raise ValueError("No spglib found in dependencies/")
@@ -26,26 +29,31 @@ def get_spglib_ext():
     include_dirs = [spgsrcdir]
     sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
                "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
-               "sitesym_database.c", "site_symmetry.c", "spacegroup.c", "spin.c",
-               "spg_database.c", "spglib.c", "symmetry.c"]
+               "sitesym_database.c", "site_symmetry.c", "spacegroup.c",
+               "spin.c", "spg_database.c", "spglib.c", "symmetry.c"]
     sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
     return Extension("pymatgen._spglib",
                      include_dirs=include_dirs + get_numpy_include_dirs(),
                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
 
+with open("README.rst") as f:
+    long_desc = f.read()
+    ind = long_desc.find("\n")
+    long_desc = long_desc[ind + 1:]
+
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.4.4b",
+    version="2.6.0dev",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
-                      "requests>=1.0"],
+                      "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"]},
     package_data={"pymatgen.core": ["bond_lengths.json",
                                     "periodic_table.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
-                  "pymatgen.io": ["*.cfg"],
+                  "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
@@ -61,7 +69,7 @@ setup(
     license="MIT",
     description="pymatgen is the Python materials analysis library powering "
                 "the Materials Project (www.materialsproject.org).",
-    long_description=open("README.rst").read(),
+    long_description=long_desc,
     keywords=["vasp", "gaussian", "materials", "project",
               "electronic", "structure"],
     classifiers=[

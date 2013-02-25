@@ -77,8 +77,8 @@ class BorgQueen(object):
         status['total'] = len(valid_paths)
         logger.info('{} valid paths found.'.format(len(valid_paths)))
         p = Pool(self._num_drones)
-        p.map(order_assimilation, ((path, self._drone, data, status) \
-                                    for path in valid_paths))
+        p.map(order_assimilation, ((path, self._drone, data, status)
+                                   for path in valid_paths))
         for d in data:
             self._data.append(json.loads(d, cls=PMGJSONDecoder))
 

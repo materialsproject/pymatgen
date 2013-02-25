@@ -28,19 +28,19 @@ from numpy.linalg import det
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
-from pymatgen.io.io_abc import VaspInput
-from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import zopen, clean_lines
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.decorators import cached_class
+from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.io_utils import zopen, clean_lines
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 import pymatgen
 
 
 logger = logging.getLogger(__name__)
 
 
-class Poscar(VaspInput):
+class Poscar(MSONable):
     """
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
@@ -119,15 +119,6 @@ class Poscar(VaspInput):
         self.temperature = -1
 
     @property
-    def struct(self):
-        """
-        .. deprecated:: 1.9.1
-
-            For backwards compatibility.
-        """
-        return self.structure
-
-    @property
     def site_symbols(self):
         """
         Sequence of symbols associated with the Poscar. Similar to 6th line in
@@ -192,7 +183,6 @@ class Poscar(VaspInput):
         Returns:
             Poscar object.
         """
-
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
@@ -290,6 +280,7 @@ class Poscar(VaspInput):
                 vasp5_symbols = True
             except IndexError:
                 pass
+
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try:
@@ -456,7 +447,7 @@ class Poscar(VaspInput):
 
         #scale velocities due to atomic masses
         #mean 0 std proportional to sqrt(1/m)
-        velocities = velocities / atomic_masses[:, np.newaxis] ** (1 / 2)
+        velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
         #remove linear drift (net momentum)
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities,
@@ -477,7 +468,7 @@ class Poscar(VaspInput):
         self.velocities = velocities.tolist()
 
 
-"""**Non-exhaustive** list of valid INCAR tags"""
+#**Non-exhaustive** list of valid INCAR tags
 VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS",
                     "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG", "PREC",
                     "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM",
@@ -526,7 +517,7 @@ VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS",
                     "IBSE", "NBANDSO", "NBANDSV", "OPTEMAX", "LIP")
 
 
-class Incar(dict, VaspInput):
+class Incar(dict):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -744,7 +735,7 @@ class Incar(dict, VaspInput):
         return Incar(params)
 
 
-class Kpoints(VaspInput):
+class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
@@ -989,8 +980,8 @@ class Kpoints(VaspInput):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)\s*!"
-                              "\s*(.*)")
+            patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
+                              "\s*!\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1132,7 +1123,7 @@ class PotcarSingle(object):
         potcar.encut, etc.
     """
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
-                      "PW91": "POT_GGA_PAW_PW91"}
+                      "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
 
     def __init__(self, data):
         """
@@ -1222,7 +1213,7 @@ class PotcarSingle(object):
         raise AttributeError(a)
 
 
-class Potcar(list, VaspInput):
+class Potcar(list):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
@@ -1245,16 +1236,16 @@ class Potcar(list, VaspInput):
                 Default is None, which uses a pre-determined mapping used in
                 the Materials Project.
         """
+        super(Potcar, self).__init__()
+        self.functional = functional
         if symbols is not None:
-            self.functional = functional
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     @property
     def to_dict(self):
-        d = {"functional": self.functional, "symbols": self.symbols}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"functional": self.functional, "symbols": self.symbols,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
@@ -1269,8 +1260,21 @@ class Potcar(list, VaspInput):
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
                                     re.S).findall(fdata)
+        functionals = []
         for p in potcar_strings:
-            potcar.append(PotcarSingle(p))
+            single = PotcarSingle(p)
+            potcar.append(single)
+            functionals.append(single.lexch)
+        if len(set(functionals)) != 1:
+            raise ValueError("File contains incompatible functionals!")
+        else:
+            if functionals[0] == "PE":
+                functional = "PBE"
+            elif functionals[1] == "91":
+                functional = "PW91"
+            else:
+                functional = "LDA"
+            potcar.functional = functional
         return potcar
 
     def __str__(self):
@@ -1319,3 +1323,102 @@ class Potcar(list, VaspInput):
             for el in symbols:
                 p = PotcarSingle.from_symbol_and_functional(el, functional)
                 self.append(p)
+
+
+class VaspInput(dict, MSONable):
+    """
+    Class to contain a set of vasp input objects corresponding to a run.
+    """
+
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
+                 **kwargs):
+        """
+        Args:
+            incar:
+                Incar object.
+            kpoints:
+                Kpoints object.
+            poscar:
+                Poscar object.
+            potcar:
+                Potcar object.
+            optional_files:
+                Other input files supplied as a dict of {filename: object}.
+                The object should follow standard pymatgen conventions in
+                implementing a to_dict and from_dict method.
+        """
+        super(VaspInput, self).__init__(**kwargs)
+        self.update({'INCAR': incar,
+                     'KPOINTS': kpoints,
+                     'POSCAR': poscar,
+                     'POTCAR': potcar})
+        if optional_files is not None:
+            self.update(optional_files)
+
+    def __str__(self):
+        output = []
+        for k, v in self.items():
+            output.append(k)
+            output.append(str(v))
+            output.append("")
+        return "\n".join(output)
+
+    @property
+    def to_dict(self):
+        d = {k: v.to_dict for k, v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        dec = PMGJSONDecoder()
+        sub_d = {"optional_files": {}}
+        for k, v in d.items():
+            if k in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+                sub_d[k.lower()] = dec.process_decoded(v)
+            elif k not in ["@module", "@class"]:
+                sub_d["optional_files"][k] = dec.process_decoded(v)
+        return VaspInput(**sub_d)
+
+    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+        """
+        Write VASP input to a directory.
+
+        Args:
+            output_dir:
+                Directory to write to. Defaults to current directory (".").
+            make_dir_if_not_present:
+                Create the directory if not present. Defaults to True.
+        """
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for k, v in self.items():
+            with open(os.path.join(output_dir, k), "w") as f:
+                f.write(str(v))
+
+    @staticmethod
+    def from_directory(input_dir, optional_files=None):
+        """
+        Read in a set of VASP input from a directory. Note that only the
+        standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
+        optional_filenames is specified.
+
+        Args:
+            input_dir:
+                Directory to read VASP input from.
+            optional_files:
+                Optional files to read in as well as a dict of {filename:
+                Object type}. Object type must have a static method from_file.
+        """
+        sub_d = {}
+        for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
+                             ("POSCAR", Poscar), ("POTCAR", Potcar)]:
+            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir,
+                                                                fname))
+        sub_d["optional_files"] = {}
+        if optional_files is not None:
+            for fname, ftype in optional_files.items():
+                sub_d["optional_files"][fname] = \
+                    ftype.from_file(os.path.join(input_dir, fname))
+        return VaspInput(**sub_d)

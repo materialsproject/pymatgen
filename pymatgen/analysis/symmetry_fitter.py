@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module implements an experimental symmetry fitter class.
-'''
+"""
 
 from __future__ import division
 
@@ -57,7 +57,8 @@ class SymmetryFitter(object):
             logger.debug("Structure {} has spacegroup {}"
                          .format(i, structure_symm[s]))
 
-        sorted_structures = sorted(structures, key=lambda s:-structure_symm[s])
+        sorted_structures = sorted(structures,
+                                   key=lambda s: -structure_symm[s])
         unique_groups = []
         for i, group in itertools.groupby(sorted_structures,
                                           key=lambda s: structure_symm[s]):
@@ -81,8 +82,8 @@ class SymmetryFitter(object):
             fixed = all_structures[0]
             subgroup = [fixed]
             for to_fit in all_structures[1:]:
-                if self.spacegroup.are_symmetrically_equivalent(fixed, to_fit,
-                                                    symm_prec=self.symm_prec):
+                if self.spacegroup.are_symmetrically_equivalent(
+                        fixed, to_fit, symm_prec=self.symm_prec):
                     subgroup.append(to_fit)
             all_structures = [s for s in all_structures if s not in subgroup]
             subgroups.append(subgroup)
