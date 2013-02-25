@@ -19,14 +19,6 @@ import yaml
 import re
 
 
-def generate_json_from_yaml():
-    with open('periodic_table2.yaml', 'r') as f:
-        data = yaml.load(f)
-
-    with open('periodic_table.json', 'w') as f:
-        json.dump(data, f)
-
-
 def test_yaml():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
@@ -37,14 +29,6 @@ def test_json():
     with open('periodic_table.json', 'r') as f:
         data = json.load(f)
         print data
-
-
-def test_yaml_json():
-    from timeit import Timer
-    t = Timer("test_yaml()", "from __main__ import test_yaml")
-    print t.timeit(1)
-    t = Timer("test_json()", "from __main__ import test_json")
-    print t.timeit(1)
 
 
 def parse_oxi_state():
@@ -119,7 +103,68 @@ def parse_ionic_radii():
     with open('periodic_table2.yaml', 'w') as f:
         yaml.dump(data, f)
 
+
+def parse_radii():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+    f = open('radii.csv', 'r')
+    radiidata = f.read()
+    f.close()
+    radiidata = radiidata.split("\r")
+    header = radiidata[0].split(",")
+    for i in xrange(1, len(radiidata)):
+        line = radiidata[i]
+        toks = line.strip().split(",")
+        el = toks[1]
+        try:
+            atomic_radii = float(toks[3])/ 100
+        except:
+            atomic_radii = toks[3]
+
+        try:
+            atomic_radii_calc = float(toks[4])/ 100
+        except:
+            atomic_radii_calc = toks[4]
+
+        try:
+            vdw_radii = float(toks[5])/ 100
+        except:
+            vdw_radii = toks[5]
+
+        if el in data:
+            data[el]['Atomic radius'] = atomic_radii
+            data[el]['Atomic radius calculated'] = atomic_radii_calc
+            data[el]['Van der waals radius'] = vdw_radii
+        else:
+            print el
+    with open('periodic_table2.yaml', 'w') as f:
+        yaml.dump(data, f)
+    with open('periodic_table.json', 'w') as f:
+        json.dump(data, f)
+
+
+def update_ionic_radii():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+
+    for el, d in data.items():
+        if "Ionic_radii" in d:
+            d["Ionic radii"] = {k: v / 100
+                                for k, v in d["Ionic_radii"].items()}
+            del d["Ionic_radii"]
+        if "Ionic_radii_hs" in d:
+            d["Ionic radii hs"] = {k: v / 100
+                                   for k, v in d["Ionic_radii_hs"].items()}
+            del d["Ionic_radii_hs"]
+        if "Ionic_radii_ls" in d:
+            d["Ionic radii ls"] = {k: v / 100
+                                   for k, v in d["Ionic_radii_ls"].items()}
+            del d["Ionic_radii_ls"]
+    with open('periodic_table2.yaml', 'w') as f:
+        yaml.dump(data, f)
+    with open('periodic_table.json', 'w') as f:
+        json.dump(data, f)
+
+
 if __name__ == "__main__":
-    parse_ionic_radii()
-    #parse_oxi_state()
-    generate_json_from_yaml()
+    update_ionic_radii()

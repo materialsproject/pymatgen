@@ -303,3 +303,25 @@ def barycentric_coords(coords, simplex):
         np.linalg.solve(T, np.transpose(coords - simplex[-1])))
     last_coord = 1 - np.sum(all_but_one, axis=-1)[:, None]
     return np.append(all_but_one, last_coord, axis=-1)
+
+
+def get_angle(v1, v2, units="degrees"):
+    """
+    Calculates the angle between two vectors.
+
+    Args:
+        v1:
+            Vector 1
+        v2:
+            Vector 2
+        units:
+            "degrees" or "radians". Defaults to "degrees".
+
+    Returns:
+        Angle between them in degrees.
+    """
+    d = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
+    d = min(d, 1)
+    d = max(d, -1)
+    angle = math.acos(d)
+    return angle * 180 / math.pi if units == "degrees" else angle
