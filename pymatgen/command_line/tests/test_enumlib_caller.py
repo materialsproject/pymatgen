@@ -86,5 +86,12 @@ class EnumlibAdaptorTest(unittest.TestCase):
         structures = adaptor.structures
         self.assertEqual(len(structures), 4)
 
+        struct = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+                           [{"Si": 0.5}] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]])
+        adaptor = EnumlibAdaptor(struct, 1, 3, enum_precision_parameter=0.01)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 10)
+
 if __name__ == '__main__':
     unittest.main()

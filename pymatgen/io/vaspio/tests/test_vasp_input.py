@@ -19,7 +19,7 @@ import numpy as np
 
 from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle
+    PotcarSingle, VaspInput
 from pymatgen import Composition, Structure, zopen
 
 
@@ -284,7 +284,7 @@ class PotcarSingleTest(unittest.TestCase):
 
 class PotcarTest(unittest.TestCase):
 
-    def test_init(self):
+    def setUp(self):
         if "VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                            "..", "..", "..",
@@ -292,8 +292,11 @@ class PotcarTest(unittest.TestCase):
                                                            "test_files"))
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
-        potcar = Potcar.from_file(filepath)
-        self.assertEqual(potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
+        self.potcar = Potcar.from_file(filepath)
+
+    def test_init(self):
+        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"],
+                         "Wrong symbols read in for POTCAR")
         potcar = Potcar(["Fe_pv", "O"])
         self.assertEqual(potcar[0].enmax, 293.238)
 
@@ -307,6 +310,45 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in "
                                                     "for POTCAR")
 
+    def test_to_from_dict(self):
+        d = self.potcar.to_dict
+        potcar = Potcar.from_dict(d)
+        self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
+
+
+class VaspInputTest(unittest.TestCase):
+
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'INCAR')
+        incar = Incar.from_file(filepath)
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        if "VASP_PSP_DIR" not in os.environ:
+            test_potcar_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                           "..", "..", "..",
+                                                           "..",
+                                                           "test_files"))
+            os.environ["VASP_PSP_DIR"] = test_potcar_dir
+        filepath = os.path.join(test_dir, 'POTCAR')
+        potcar = Potcar.from_file(filepath)
+        filepath = os.path.join(test_dir, 'KPOINTS.auto')
+        kpoints = Kpoints.from_file(filepath)
+        self.vinput = VaspInput(incar, kpoints, poscar, potcar)
+
+    def test_to_from_dict(self):
+        d = self.vinput.to_dict
+        vinput = VaspInput.from_dict(d)
+        comp = vinput["POSCAR"].structure.composition
+        self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
+
+    def test_from_directory(self):
+        vi = VaspInput.from_directory(test_dir,
+            optional_files={"CONTCAR.Li2O": Poscar})
+        self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
+        self.assertIn("CONTCAR.Li2O", vi)
+        d = vi.to_dict
+        vinput = VaspInput.from_dict(d)
+        self.assertIn("CONTCAR.Li2O", vinput)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

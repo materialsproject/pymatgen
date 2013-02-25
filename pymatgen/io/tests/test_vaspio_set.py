@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import unittest
 import os
 
@@ -23,7 +24,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MaterialsProjectVaspInputSet()
         self.userparamset = MaterialsProjectVaspInputSet(
-            {'MAGMOM': {"Fe": 10, "S":-5, "Mn3+": 100}}
+            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
         self.mitggaparam = MITGGAVaspInputSet()
 
@@ -54,7 +55,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
                               [1.9200989668, 3.3257101909, 0.00],
                               [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords)
-        incar = incar = self.paramset.get_incar(struct)
+        incar = self.paramset.get_incar(struct)
         self.assertNotIn("LDAU", incar)
 
         incar = self.mithseparamset.get_incar(self.struct)
@@ -136,6 +137,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         kpoints = self.mitparamset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -382,7 +382,7 @@ class StructureEditor(StructureModifier):
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
-    
+
     def to_unit_cell(self, tolerance=0.1):
         """
         Returns all the sites to their position inside the unit cell.
@@ -395,14 +395,11 @@ class StructureEditor(StructureModifier):
                 new_sites.append(site)
                 frac_coords = np.array([site.frac_coords])
                 continue
-            if len(get_points_in_sphere_pbc(self._lattice,
-                                        frac_coords,
-                                        site.coords,
-                                        tolerance)):
+            if len(get_points_in_sphere_pbc(self._lattice, frac_coords,
+                                            site.coords, tolerance)):
                 continue
-            frac_coords = np.append(frac_coords,
-                                    [site.frac_coords%1],
-                                    axis = 0)
+            frac_coords = np.append(frac_coords, [site.frac_coords % 1],
+                                    axis=0)
             new_sites.append(site.to_unit_cell)
         self._sites = new_sites
 
@@ -771,14 +768,14 @@ class MoleculeEditor(StructureModifier):
             self._sites[i] = new_site
 
     def perturb_structure(self, distance=0.1):
-        '''
+        """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
 
         Args:
             distance:
                 distance in angstroms by which to perturb each site.
-        '''
+        """
         for i in range(len(self._sites)):
             vector = np.random.rand(3)
             vector /= np.linalg.norm(vector) / distance

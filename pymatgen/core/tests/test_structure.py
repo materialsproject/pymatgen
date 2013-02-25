@@ -188,6 +188,15 @@ class StructureTest(unittest.TestCase):
         coords = [[0,0,0], [0.5,0.5,0.5]]
         bcc_li = Structure(Lattice.cubic(4.09), ["Li"] * 2, coords)
         self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
+        
+    def test_primitive_structure_volume_check(self):
+        l = Lattice.tetragonal(10, 30)
+        coords = [[0.5,0.8,0],[0.5,0.2,0],
+                  [0.5,0.8,0.333],[0.5,0.5,0.333],
+                  [0.5,0.5,0.666],[0.5,0.2,0.666]]
+        s = Structure(l, ["Ag"] * 6, coords)
+        sprim = s.get_primitive_structure(tolerance = 0.1)
+        self.assertEqual(len(sprim), 6)
 
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
@@ -267,6 +276,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         d = propertied_mol.to_dict
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
+        self.assertEqual(propertied_mol, mol)
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
 

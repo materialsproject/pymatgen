@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
+from __future__ import division
 import unittest
 import pickle
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable
+    PeriodicTable, _pt_data
 from copy import deepcopy
 
 
@@ -17,7 +18,7 @@ class  ElementTestCase(unittest.TestCase):
 
         for sym in fictional_symbols:
             self.assertRaises(KeyError, Element, sym)
-            
+
     def test_dict(self):
         fe = Element("Fe")
         d = fe.to_dict
@@ -49,14 +50,14 @@ class  ElementTestCase(unittest.TestCase):
                    ("F", "Br", "I"): "is_halogen",
                    ("La",): "is_lanthanoid",
                    ("U", "Pu"): "is_actinoid",
-                   ("Si", "Ge"): "is_metalloid"
-                   }
+                   ("Si", "Ge"): "is_metalloid",
+                   ("O", "Te"): "is_chalcogen"}
 
         for k, v in is_true.items():
             for sym in k:
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
-        keys = ["name", "Z", "mendeleev_no", "atomic_mass",
+        keys = ["name", "mendeleev_no", "atomic_mass",
                 "electronic_structure", "X", "atomic_radius",
                 "min_oxidation_state", "max_oxidation_state",
                 "electrical_resistivity", "velocity_of_sound", "reflectivity",
@@ -73,8 +74,12 @@ class  ElementTestCase(unittest.TestCase):
 
         #Test all elements up to Uranium
         for i in range(1, 93):
+            el = Element.from_Z(i)
+            d = el.data
             for k in keys:
-                self.assertIsNotNone(getattr(Element.from_Z(i), k))
+                k_str = k.capitalize().replace("_", " ")
+                if k_str in d and (not str(d[k_str]).startswith("no data")):
+                    self.assertIsNotNone(getattr(el, k))
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),
@@ -94,6 +99,15 @@ class  ElementTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy")
 
+    def test_radii(self):
+        el = Element("Pd")
+        self.assertEqual(el.atomic_radius, 1.40)
+        self.assertEqual(el.atomic_radius_calculated, 1.69)
+        self.assertEqual(el.van_der_waals_radius, 1.63)
+
+    def test_data(self):
+        self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
+
 
 class  SpecieTestCase(unittest.TestCase):
 
@@ -107,8 +121,8 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
-        self.assertEqual(self.specie2.ionic_radius, 78.5)
-        self.assertEqual(self.specie3.ionic_radius, 92)
+        self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
+        self.assertEqual(self.specie3.ionic_radius, 92 / 100)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,
@@ -135,6 +149,30 @@ class  SpecieTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy.")
 
+    def test_get_crystal_field_spin(self):
+        self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
+        self.assertEqual(Specie("Fe", 3).get_crystal_field_spin(), 5)
+        self.assertEqual(Specie("Fe", 4).get_crystal_field_spin(), 4)
+        self.assertEqual(Specie("Co", 3).get_crystal_field_spin(
+            spin_config="low"), 0)
+        self.assertEqual(Specie("Co", 4).get_crystal_field_spin(
+            spin_config="low"), 1)
+        self.assertEqual(Specie("Ni", 3).get_crystal_field_spin(
+            spin_config="low"), 1)
+        self.assertEqual(Specie("Ni", 4).get_crystal_field_spin(
+            spin_config="low"), 0)
+
+        self.assertRaises(AttributeError,
+                          Specie("Li", 1).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("Ge", 4).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("H", 1).get_crystal_field_spin)
+        self.assertRaises(AttributeError,
+                          Specie("Fe", 10).get_crystal_field_spin)
+        self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
+                          "hex")
+
 
 class  DummySpecieTestCase(unittest.TestCase):
 
@@ -156,7 +194,7 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
-        
+
     def test_pickle(self):
         el1 = Specie("Fe", 3)
         o = pickle.dumps(el1)

@@ -187,7 +187,7 @@ int sym_get_multiplicity(SPGCONST Cell *cell,
 VecDBL * sym_get_pure_translation(SPGCONST Cell *cell,
 				  const double symprec)
 {
-  int attempt, multi;
+  int multi;
   VecDBL * pure_trans;
 
   pure_trans = get_translation(identity, cell, symprec, 1);
@@ -261,7 +261,6 @@ static int get_operation(int rot[][3][3],
   int num_sym;
   PointSymmetry lattice_sym;
   Primitive primitive;
-  VecDBL *pure_trans;
 
   debug_print("get_operation:\n");
 
@@ -354,10 +353,16 @@ static VecDBL * get_translation(SPGCONST int rot[3][3],
 				const double symprec,
 				const int is_identity)
 {
-  int i, j, min_atom_index, num_min_type_atoms, atom_i, num_trans = 0;
-  int *is_found, *min_type_atoms;
-  double origin[3], vec[3];
+  int i, j, min_atom_index, num_trans = 0;
+  int *is_found;
+  double origin[3];
   VecDBL *trans;
+
+#ifdef _OPENMP
+  int num_min_type_atoms;
+  int *min_type_atoms;
+  double vec[3];
+#endif
 
   is_found = (int*) malloc(sizeof(int)*cell->size);
   for (i = 0; i < cell->size; i++) {

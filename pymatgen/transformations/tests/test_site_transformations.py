@@ -241,6 +241,9 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
 
+    def test_str(self):
+        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict
+        self.assertIsNotNone(str(d))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
