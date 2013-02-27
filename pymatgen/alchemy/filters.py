@@ -164,7 +164,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     """
 
     def __init__(self, structure_matcher=StructureMatcher(
-        comparator=ElementComparator()), symprec=None):
+                 comparator=ElementComparator()), symprec=None):
         """
         remove duplicate structures based on the structure matcher
         and symmetry (if symprec is given)
@@ -191,9 +191,9 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
-                if self._symprec == None or SymmetryFinder(s).\
-                get_spacegroup_number() ==\
-                SymmetryFinder(structure).get_spacegroup_number():
+                if self._symprec is None or \
+                    SymmetryFinder(s).get_spacegroup_number() ==\
+                        SymmetryFinder(structure).get_spacegroup_number():
                     if self._sm.fit(s, structure):
                         return False
 
