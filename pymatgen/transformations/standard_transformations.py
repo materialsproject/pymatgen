@@ -324,7 +324,7 @@ class SubstitutionTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Substitution Transformation :" + \
-            ", ".join([k + "->" + str(v)
+            ", ".join([str(k) + "->" + str(v)
                        for k, v in self._species_map.items()])
 
     def __repr__(self):
