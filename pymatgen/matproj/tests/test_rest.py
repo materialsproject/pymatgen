@@ -136,6 +136,18 @@ class MPResterTest(unittest.TestCase):
         entry = self.adaptor.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
 
+    def test_submit_query_delete_snl(self):
+        s = Structure([[5, 0, 0], [0, 5, 0], [0,0,5]], ["Fe"], [[0,0,0]])
+        d = self.adaptor.submit_snl(
+            [s, s], remarks=["unittest"],
+            authors="Test User <test@materialsproject.com>")
+        self.assertEqual(len(d["inserted_ids"]), 2)
+        data = self.adaptor.query_snl({"about.remarks": "unittest"})
+        self.assertEqual(len(data), 2)
+        snlids = [d["_id"] for d in data]
+        self.adaptor.delete_snl(snlids)
+        data = self.adaptor.query_snl({"about.remarks": "unittest"})
+        self.assertEqual(len(data), 0)
 
 if __name__ == "__main__":
     unittest.main()
