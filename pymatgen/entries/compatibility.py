@@ -21,7 +21,7 @@ from collections import defaultdict
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
-from pymatgen.io.vaspio_set import VaspInputSet
+from pymatgen.io.vaspio_set import MITVaspInputSet, MaterialsProjectVaspInputSet
 
 
 class Compatibility(EntryPostProcessor):
@@ -48,7 +48,12 @@ class Compatibility(EntryPostProcessor):
         """
         self.compat_type = compat_type
         self.input_set_name = input_set_name
-        self.input_set = VaspInputSet(input_set_name)
+        if input_set_name == "MaterialsProject":
+            self.input_set = MaterialsProjectVaspInputSet()
+        elif input_set_name == "MITMatgen":
+            self.input_set = MITVaspInputSet()
+        else:
+            raise ValueError("Invalid input set name {}".format(input_set_name))
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -62,9 +67,8 @@ class Compatibility(EntryPostProcessor):
                 corr = dict(self._config.items(name))
                 u_corrections[el] = {k: float(v) for k, v in corr.items()}
 
-        cpd_energies = dict(self._config.items("{}{}CompoundEnergies"
-                                               .format(input_set_name,
-                                                       compat_type)))
+        cpd_energies = dict(self._config.items(
+            "{}{}CompoundEnergies".format(input_set_name, compat_type)))
 
         self.u_corrections = u_corrections
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}

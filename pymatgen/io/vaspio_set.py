@@ -141,10 +141,13 @@ class AbstractVaspInputSet(object):
             v.write_file(os.path.join(output_dir, k))
 
 
-class VaspInputSet(AbstractVaspInputSet):
+class DictVaspInputSet(AbstractVaspInputSet):
     """
-    Standard implementation of VaspInputSet, which can be extended by specific
-    implementations.
+    Concrete implementation of VaspInputSet that is initialized from a dict
+    settings. This allows arbitrary settings to be input. In general,
+    this is rarely used directly unless there is a source of settings in JSON
+    format (e.g., from a REST interface). It is typically used by other
+    VaspInputSets for initialization.
 
     Special consideration should be paid to the way the MAGMOM initialization
     for the INCAR is done. The initialization differs depending on the type of
@@ -157,17 +160,17 @@ class VaspInputSet(AbstractVaspInputSet):
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
+
+
     """
-    def __init__(self, name, config_file=None, user_incar_settings=None,
-                 constrain_total_magmom=False):
+    def __init__(self, name, config_dict, constrain_total_magmom=False):
         """
         Args:
             name:
                 The name in the config file.
-            config_file:
-                The config file to use. If None (the default), a default config
-                file containing Materials Project and MIT parameters is used.
-            user_incar:
+            config_dict:
+                The config dictionary to use.
+            user_incar_settings:
                 User INCAR settings. This allows a user to override INCAR
                 settings, e.g., setting a different MAGMOM for various elements
                 or species.
@@ -177,23 +180,9 @@ class VaspInputSet(AbstractVaspInputSet):
                 False.
         """
         self.name = name
-        if config_file is None:
-            module_dir = os.path.dirname(os.path.abspath(__file__))
-            config_file = os.path.join(module_dir, "VaspInputSets.cfg")
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        with open(config_file, "r") as f:
-            self._config.readfp(f)
-
-        self.potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
-        self.kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
-        self.incar_settings = dict(self._config.items(self.name + 'INCAR'))
-        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            if key in self.incar_settings:
-                self.incar_settings[key] = json.loads(self.incar_settings[key])
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
+        self.potcar_settings = config_dict["POTCAR"]
+        self.kpoints_settings = config_dict['KPOINTS']
+        self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
 
     def get_incar(self, structure):
@@ -275,6 +264,9 @@ class VaspInputSet(AbstractVaspInputSet):
         return Kpoints.automatic_density(structure, dens)
 
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         output = [self.name, ""]
         section_names = ['INCAR settings', 'KPOINTS settings',
                          'POTCAR settings']
@@ -287,6 +279,58 @@ class VaspInputSet(AbstractVaspInputSet):
             output.append("")
             count += 1
         return "\n".join(output)
+
+    @property
+    def to_dict(self):
+        return {
+            "INCAR": self.incar_settings,
+            "KPOINTS": self.kpoints_settings,
+            "POTCAR": self.potcar_settings
+        }
+
+
+class VaspInputSet(DictVaspInputSet):
+    """
+    Standard implementation of VaspInputSet that uses a config file to
+    initialize settings. See DictVaspInputSet for specific details regarding
+    how MAGMOM, LDAU settings are set.
+    """
+    def __init__(self, name, config_file, user_incar_settings=None,
+                 constrain_total_magmom=False):
+        """
+        Args:
+            name:
+                The name in the config file.
+            config_file:
+                The config file to use. If None (the default), a default config
+                file containing Materials Project and MIT parameters is used.
+            user_incar_settings:
+                User INCAR settings. This allows a user to override INCAR
+                settings, e.g., setting a different MAGMOM for various elements
+                or species.
+            constrain_total_magmom:
+                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+                the sum of the expected MAGMOM for all species. Defaults to
+                False.
+        """
+        self.name = name
+        self._config = ConfigParser.SafeConfigParser()
+        self._config.optionxform = str
+        with open(config_file, "r") as f:
+            self._config.readfp(f)
+
+        potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
+        kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
+        incar_settings = dict(self._config.items(self.name + 'INCAR'))
+        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
+            if key in incar_settings:
+                incar_settings[key] = json.loads(incar_settings[key])
+        if user_incar_settings:
+            incar_settings.update(user_incar_settings)
+        DictVaspInputSet.__init__(
+            self, name, {"INCAR": incar_settings, "KPOINTS": kpoints_settings,
+                         "POTCAR": potcar_settings},
+            constrain_total_magmom=constrain_total_magmom)
 
 
 class MITVaspInputSet(VaspInputSet):
@@ -303,9 +347,13 @@ class MITVaspInputSet(VaspInputSet):
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        VaspInputSet.__init__(self, "MITMatgen",
-                              user_incar_settings=user_incar_settings,
-                              constrain_total_magmom=constrain_total_magmom)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
 
 class MITGGAVaspInputSet(VaspInputSet):
@@ -313,9 +361,13 @@ class MITGGAVaspInputSet(VaspInputSet):
     Typical implementation of input set for a GGA run based on MIT parameters.
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        VaspInputSet.__init__(self, "MITGGA",
-                              user_incar_settings=user_incar_settings,
-                              constrain_total_magmom=constrain_total_magmom)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITGGAVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT GGA", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
 
 class MITHSEVaspInputSet(VaspInputSet):
@@ -323,12 +375,16 @@ class MITHSEVaspInputSet(VaspInputSet):
     Typical implementation of input set for a HSE run.
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        VaspInputSet.__init__(self, "MITHSE",
-                              user_incar_settings=user_incar_settings,
-                              constrain_total_magmom=constrain_total_magmom)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITHSEVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT HSE", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
 
-class MaterialsProjectVaspInputSet(VaspInputSet):
+class MaterialsProjectVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the psuedopotentials chosen contain more
@@ -338,9 +394,13 @@ class MaterialsProjectVaspInputSet(VaspInputSet):
     fitting is exactly the same as the MIT scheme).
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        VaspInputSet.__init__(self, "MaterialsProject",
-                              user_incar_settings=user_incar_settings,
-                              constrain_total_magmom=constrain_total_magmom)
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
@@ -388,4 +448,3 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             writer = CifWriter(s)
             writer.write_file(os.path.join(dirname, "{}_{}.cif"
                                            .format(formula, i)))
-

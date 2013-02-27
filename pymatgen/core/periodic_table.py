@@ -7,7 +7,7 @@ state) and PeriodicTable.
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
@@ -34,7 +34,9 @@ class Element(object):
     """
     Basic immutable element object with all relevant properties.
     Only one instance of Element for each symbol is stored after creation,
-    ensuring that a particular element behaves like a singleton.
+    ensuring that a particular element behaves like a singleton. For all
+    attributes, missing data (i.e., data for which is not available) is
+    represented by a None unless otherwise stated.
 
     .. attribute:: Z
 
@@ -46,7 +48,8 @@ class Element(object):
 
     .. attribute:: X
 
-        Electronegativity
+        Pauling electronegativity. Elements without an electronegativity
+        number are assigned a value of zero by default.
 
     .. attribute:: number
 
@@ -133,7 +136,21 @@ class Element(object):
 
     .. attribute:: atomic_radius
 
-        Atomic radius for the element.
+        Atomic radius for the element. This is the empirical value. Data is
+        obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+    .. attribute:: atomic_radius_calculated
+
+        Calculated atomic radius for the element. This is the empirical value.
+        Data is obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+
+    .. attribute:: van_der_waals_radius
+
+        Van der Waals radius for the element. This is the empirical
+        value. Data is obtained from
+        http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
 
     .. attribute:: mendeleev_no
 
@@ -262,9 +279,17 @@ class Element(object):
                          "liquid_range", "bulk_modulus", "youngs_modulus",
                          "brinell_hardness", "rigidity_modulus",
                          "mineral_hardness", "vickers_hardness",
-                         "density_of_solid",
+                         "density_of_solid", "atomic_radius_calculated",
+                         "van_der_waals_radius", "ionic_radii",
                          "coefficient_of_linear_thermal_expansion"]:
-            return self._data[a.capitalize().replace("_", " ")]
+            kstr = a.capitalize().replace("_", " ")
+            if kstr not in self._data:
+                return None
+            val = self._data[kstr]
+            if str(val).startswith("no data"):
+                return None
+            else:
+                return val
         raise AttributeError(a)
 
     def __getnewargs__(self):
@@ -272,13 +297,20 @@ class Element(object):
         return self._symbol,
 
     @property
+    def data(self):
+        """
+        Returns dict of data for element.
+        """
+        return self._data.copy()
+
+    @property
     def average_ionic_radius(self):
         """
         Average ionic radius for element in pm. The average is taken over all
         oxidation states of the element for which data is present.
         """
-        if "Ionic_radii" in self._data:
-            radii = self._data["Ionic_radii"]
+        if "Ionic radii" in self._data:
+            radii = self._data["Ionic radii"]
             return sum(radii.values()) / len(radii)
         else:
             return 0
@@ -289,8 +321,8 @@ class Element(object):
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in pm.
         """
-        if "Ionic_radii" in self._data:
-            return {int(k): v for k, v in self._data["Ionic_radii"].items()}
+        if "Ionic radii" in self._data:
+            return {int(k): v for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
 
@@ -511,8 +543,7 @@ class Element(object):
         """
         True if element is noble gas.
         """
-        ns = [2, 10, 18, 36, 54, 86, 118]
-        return self._z in ns
+        return self._z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
     def is_transition_metal(self):
@@ -539,32 +570,35 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        ns = ["B", "Si", "Ge", "As", "Sb", "Te", "Po"]
-        return self._symbol in ns
+        return self._symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self):
         """
         True if element is an alkali metal.
         """
-        ns = [3, 11, 19, 37, 55, 87]
-        return self._z in ns
+        return self._z in (3, 11, 19, 37, 55, 87)
 
     @property
     def is_alkaline(self):
         """
         True if element is an alkaline earth metal (group II).
         """
-        ns = [4, 12, 20, 38, 56, 88]
-        return self._z in ns
+        return self._z in (4, 12, 20, 38, 56, 88)
 
     @property
     def is_halogen(self):
         """
         True if element is a halogen.
         """
-        ns = [9, 17, 35, 53, 85]
-        return self._z in ns
+        return self._z in (9, 17, 35, 53, 85)
+
+    @property
+    def is_chalcogen(self):
+        """
+        True if element is a chalcogen.
+        """
+        return self._z in (8, 18, 34, 52, 84)
 
     @property
     def is_lanthanoid(self):

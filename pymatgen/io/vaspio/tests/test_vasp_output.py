@@ -99,7 +99,7 @@ class VasprunTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
         #Test that to_dict is json-serializable
-        json.dumps(vasprun.to_dict)
+        self.assertIsNotNone(json.dumps(vasprun.to_dict))
 
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')

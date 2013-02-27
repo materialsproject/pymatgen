@@ -38,9 +38,8 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
 as bug reports. Please report any bugs and issues at pymatgen's `Github
-page`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups
-page`_.
+page`_. If you wish to be notified of pymatgen releases, you may become a
+member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
 
@@ -66,10 +65,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Support for LDA US potential. matgenie.py script option to generate POTCARs.
-2. Beta version of StructureNotationLanguage, a markup format for Structure
-   data with metadata such as authors and references.
-3. Miscellaneous bug fixes and speedups.
+1. Vastly improved Gaussian input file parsing that supports more varieties
+   of input specifications.
+2. StructureNL now supports molecules as well as structures.
+3. Updated atomic and vdw radius for Elements.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -190,6 +190,15 @@ Here are a few examples of typical usages::
     #Generate a POTCAR with symbols Li_sv O and the PBE functional
 
     matgenie.py generate --potcar Li_sv O --functional PBE
+
+ipmg - Custom ipython shell
+---------------------------
+
+From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
+Upon installing pymatgen in the usual manner, the "ipmg" script will be
+installed. Running ipmg will bring users into a custom ipython environment
+where the most commonly used pymatgen objects (see Aliases below) are
+automatically loaded into the environment.
 
 Aliases
 -------
