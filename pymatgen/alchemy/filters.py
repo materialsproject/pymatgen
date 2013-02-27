@@ -17,6 +17,7 @@ from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
+from pymatgen.symmetry.finder import SymmetryFinder
 import abc
 
 
@@ -166,12 +167,19 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     """
 
     def __init__(self, structure_matcher=StructureMatcher(
-        comparator=ElementComparator())):
+        comparator=ElementComparator()), symprec=None):
         """
+        remove duplicate structures based on the structure matcher
+        and symmetry (if symprec is given)
         Args:
             comparator:
                 The comparator to be used in the matching
+            symprec:
+                The precision in the symmetry finder algorithm
+                if None (default value), no symmetry check is performed and
+                only the structure matcher is used. A recommended value is 1e-5
         """
+        self._symprec = symprec
         self._structure_list = []
         if isinstance(structure_matcher, dict):
             self._sm = StructureMatcher.from_dict(structure_matcher)
@@ -186,8 +194,11 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
-                if self._sm.fit(s, structure):
-                    return False
+                if self._symprec == None or SymmetryFinder(s).\
+                get_spacegroup_number() ==\
+                SymmetryFinder(structure).get_spacegroup_number():
+                    if self._sm.fit(s, structure):
+                        return False
 
         self._structure_list.append(structure)
         return True
