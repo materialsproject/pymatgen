@@ -29,6 +29,10 @@ from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.io.vaspio_set import DictVaspInputSet
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.matproj.snl import StructureNL
+from pymatgen.serializers.json_coders import PMGJSONEncoder
 
 
 class MPRester(object):
@@ -360,6 +364,224 @@ class MPRester(object):
 
         except Exception as ex:
             raise MPRestError(str(ex))
+
+    def submit_snl(self, structures, authors, projects=None, references='',
+                   remarks=None, data=None, histories=None, created_at=None):
+        """
+        Submits a list of structures to the Materials Project as SNL files.
+        The argument list mirrors the arguments for the StructureNL object,
+        except that a list of structures with the same metadata is used as an
+        input.
+
+        .. note::
+
+            As of now, this MP REST feature is open only to a select group of
+            users. Opening up submissions to all users is being planned for
+            the future.
+
+        Args:
+            structures:
+                A list of Structure objects
+            authors:
+                *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects:
+                List of Strings ['Project A', 'Project B']. This applies to
+                all structures.
+            references:
+                A String in BibTeX format. Again, this applies to all
+                structures.
+            remarks:
+                List of Strings ['Remark A', 'Remark B']
+            data:
+                A list of free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject":<custom data>}. The
+                length of data should be the same as the list of structures
+                if not None.
+            histories:
+                List of list of dicts - [[{'name':'', 'url':'',
+                'description':{}}], ...] The length of histories should be the
+                same as the list of structures if not None.
+            created_at:
+                A datetime object
+        """
+        try:
+            data = [{}] * len(structures) if data is None else data
+            histories = [[]] * len(structures) if histories is None else \
+                histories
+
+            jsondata = []
+            for i, struct in enumerate(structures):
+                snl = StructureNL(struct, authors, projects=projects,
+                                  references=references,
+                                  remarks=remarks, data=data[i],
+                                  history=histories[i],
+                                  created_at=created_at)
+                jsondata.append(snl.to_dict)
+
+            payload = {"snl": json.dumps(jsondata, cls=PMGJSONEncoder)}
+            headers = {"x-api-key": self.api_key}
+            response = requests.post("{}/snl/submit".format(self.preamble),
+                                     headers=headers, data=payload)
+            print response.text
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                if resp["valid_response"]:
+                    if resp.get("warning"):
+                        warnings.warn(resp["warning"])
+                    return resp
+                else:
+                    raise MPRestError(resp["error"])
+
+            raise MPRestError("REST error with status code {} and error {}"
+            .format(response.status_code, response.text))
+
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
+    def delete_snl(self, snl_ids):
+        """
+        Delete earlier submitted SNLs.
+
+        .. note::
+
+            As of now, this MP REST feature is open only to a select group of
+            users. Opening up submissions to all users is being planned for
+            the future.
+
+        Args:
+            snl_ids:
+                List of SNL ids.
+        """
+        try:
+            payload = {"ids": json.dumps(snl_ids)}
+            headers = {"x-api-key": self.api_key}
+            response = requests.post(
+                "{}/snl/delete".format(self.preamble),
+                headers=headers, data=payload)
+
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                if resp["valid_response"]:
+                    if resp.get("warning"):
+                        warnings.warn(resp["warning"])
+                    return resp
+                else:
+                    raise MPRestError(resp["error"])
+
+            raise MPRestError("REST error with status code {} and error {}"
+            .format(response.status_code, response.text))
+
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
+    def query_snl(self, criteria):
+        """
+        Query for submitted SNLs.
+
+        .. note::
+
+            As of now, this MP REST feature is open only to a select group of
+            users. Opening up submissions to all users is being planned for
+            the future.
+
+        Args:
+            criteria:
+                Query criteria.
+
+        Returns:
+            A dict, with a list of submitted SNLs in the "response" key.
+        """
+        try:
+            payload = {"criteria": json.dumps(criteria)}
+            headers = {"x-api-key": self.api_key}
+            response = requests.post("{}/snl/query".format(self.preamble),
+                                     headers=headers, data=payload)
+
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text)
+                if resp["valid_response"]:
+                    if resp.get("warning"):
+                        warnings.warn(resp["warning"])
+                    return resp["response"]
+                else:
+                    raise MPRestError(resp["error"])
+
+            raise MPRestError("REST error with status code {} and error {}"
+            .format(response.status_code, response.text))
+
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
+    def submit_vasp_directory(self, rootdir, authors, projects=None,
+                              references='', remarks=None, master_data=None,
+                              master_history=None, created_at=None,
+                              ncpus=None):
+        """
+        Assimilates all vasp run directories beneath a particular
+        directory using BorgQueen to obtain structures, and then submits thhem
+        to the Materials Project as SNL files. VASP related meta data like
+        initial structure and final energies are automatically incorporated.
+
+        .. note::
+
+            As of now, this MP REST feature is open only to a select group of
+            users. Opening up submissions to all users is being planned for
+            the future.
+
+        Args:
+            rootdir:
+                Rootdir to start assimilating VASP runs from.
+            authors:
+                *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors. The same
+                list of authors should apply to all runs.
+            projects:
+                List of Strings ['Project A', 'Project B']. This applies to
+                all structures.
+            references:
+                A String in BibTeX format. Again, this applies to all
+                structures.
+            remarks:
+                List of Strings ['Remark A', 'Remark B']
+            masterdata:
+                A free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject":<custom data>}. This
+                data is added to all structures detected in the directory,
+                in addition to other vasp data on a per structure basis.
+            created_at:
+                A datetime object
+            ncpus:
+                Number of cpus to use in using BorgQueen to assimilate
+       """
+        drone = VaspToComputedEntryDrone(inc_structure=True,
+                                         data=["filename",
+                                               "initial_structure"])
+        queen = BorgQueen(drone, number_of_drones=ncpus)
+        queen.parallel_assimilate(rootdir)
+
+        structures = []
+        metadata = []
+        #TODO: Get histories from the data.
+        for e in queen.get_data():
+            structures.append(e.structure)
+            m = {"_vasp": {"parameters": e.parameters,
+                           "final_energy": e.energy,
+                           "final_energy_per_atom": e.energy_per_atom,
+                           "initial_structure": e.data["initial_structure"]
+                           .to_dict}}
+            if master_data is not None:
+                m.update(master_data)
+            metadata.append(m)
+        histories = None
+        if master_history is not None:
+            histories = master_history * len(structures)
+        return self.submit_snl(
+            structures, authors, projects=projects, references=references,
+            remarks=remarks, data=metadata, histories=histories,
+            created_at=created_at)
 
 
 class MPRestError(Exception):
