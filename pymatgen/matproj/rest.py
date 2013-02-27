@@ -15,10 +15,10 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
-__date__ = "Jun 8, 2012"
+__date__ = "Feb 22, 2013"
 
 import os
 import requests
@@ -28,6 +28,7 @@ import warnings
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.io.vaspio_set import DictVaspInputSet
 
 
 class MPRester(object):
@@ -42,7 +43,7 @@ class MPRester(object):
                             "elements", "nelements", "e_above_hull", "hubbards",
                             "is_compatible", "spacegroup", "task_ids",
                             "band_gap", "density", "icsd_id", "cif",
-                            "total_magnetization")
+                            "total_magnetization", "material_id")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
@@ -53,20 +54,20 @@ class MPRester(object):
                 one.
 
                 If this is None, the code will check if there is a "MAPI_KEY"
-                 environment variable set. If so, it will use that environment
-                 variable. This makes easier for heavy users to simply add
-                 this environment variable to their setups and MPRester can
-                 then be called without any arguments.
+                environment variable set. If so, it will use that environment
+                variable. This makes easier for heavy users to simply add
+                this environment variable to their setups and MPRester can
+                then be called without any arguments.
             host:
                 Url of host to access the MaterialsProject REST interface.
                 Defaults to the standard Materials Project REST address, but
                 can be changed to other urls implementing a similar interface.
         """
-        self.host = host
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
+        self.preamble = "https://{}/rest/v1".format(host)
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -92,11 +93,11 @@ class MPRester(object):
         """
         headers = {"x-api-key": self.api_key}
         if prop:
-            url = "https://{}/rest/v1/materials/{}/{}/{}".format(
-                self.host, chemsys_formula_id, data_type, prop)
+            url = "{}/materials/{}/{}/{}".format(
+                self.preamble, chemsys_formula_id, data_type, prop)
         else:
-            url = "https://{}/rest/v1/materials/{}/{}".format(
-                self.host, chemsys_formula_id, data_type)
+            url = "{}/materials/{}/{}".format(
+                self.preamble, chemsys_formula_id, data_type)
 
         try:
             response = requests.get(url, headers=headers)
@@ -109,8 +110,9 @@ class MPRester(object):
                 else:
                     raise MPRestError(data["error"])
 
-            raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -273,13 +275,47 @@ class MPRester(object):
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
 
+    def get_vasp_input_set(self, date_string=None):
+        """
+        Returns the VaspInputSet used by the Materials Project at a
+        particular date.
+
+        Args:
+            date_string:
+                A date string in the format of "YYYY-MM-DD". Defaults to
+                None, which means the VaspInputSet today.
+
+        Returns:
+            DictVaspInputSet
+        """
+        url = "{}/parameters/vasp".format(self.preamble)
+        payload = {"date": date_string} if date_string else {}
+        try:
+            response = requests.get(url, data=payload)
+            if response.status_code in [200, 400]:
+                data = json.loads(response.text, cls=PMGJSONDecoder)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return DictVaspInputSet("MaterialsProjectVaspInputSet",
+                                            data["response"])
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
     def mpquery(self, criteria, properties):
         """
         Performs an advanced mpquery, which is a Mongo-like syntax for directly
         querying the Materials Project database via the mpquery rest interface.
-        Please refer to the Moogle advanced help on the mpquery language and
-        supported criteria and properties. Essentially, any supported
-        properties within MPRestAdaptor should be supported in mpquery.
+        Please refer to the Materials Project REST wiki
+        https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
+        on the mpquery language and supported criteria and properties.
+        Essentially, any supported properties within MPRestAdaptor should be
+        supported in mpquery.
 
         Mpquery allows an advanced developer to perform queries which are
         otherwise too cumbersome to perform using the standard convenience
@@ -307,7 +343,7 @@ class MPRester(object):
                        "properties": json.dumps(properties)}
             headers = {"x-api-key": self.api_key}
             response = requests.post(
-                "https://{}/rest/v1/mpquery".format(self.host),
+                "{}/mpquery".format(self.preamble),
                 headers=headers, data=payload)
 
             if response.status_code in [200, 400]:
@@ -319,8 +355,8 @@ class MPRester(object):
                 else:
                     raise MPRestError(data["error"])
 
-            raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))

@@ -18,6 +18,7 @@ import os
 import re
 import glob
 import logging
+import fnmatch
 
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
@@ -180,7 +181,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def to_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
-                              "data": self._data}, "version": __version__,
+                              "data": self._data},
+                "version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -240,9 +242,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         randomly chosen file is chosen.
                         """
                         for fname in files:
-                            if os.path.basename(fname) in [filename,
-                                                           filename + ".gz",
-                                                           filename + ".bz2"]:
+                            if fnmatch.fnmatch(os.path.basename(fname),
+                                               "{}(\.gz|\.bz2)*"
+                                               .format(filename)):
                                 files_to_parse[filename] = fname
                                 break
                             if fname == "POSCAR" and \

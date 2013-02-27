@@ -14,7 +14,6 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 17, 2012"
 
 import re
-import math
 
 import numpy as np
 
@@ -22,12 +21,19 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Molecule
 from pymatgen.util.io_utils import zopen
+from pymatgen.util.coord_utils import get_angle
 
 
 class GaussianInput(object):
     """
     An object representing a Gaussian input file.
     """
+
+    #Commonly used regex patterns
+    zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
+    xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
+                          "([\d\.eE\-]+)[\-\.\s,\w.]*$")
+
     def __init__(self, mol, charge=0, spin_multiplicity=1, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None):
@@ -77,62 +83,54 @@ class GaussianInput(object):
         Helper method to parse coordinates.
         """
         paras = {}
-        var_pattern = re.compile("^\s*([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)\s*$")
+        var_pattern = re.compile("^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for l in coord_lines:
             m = var_pattern.match(l.strip())
             if m:
                 paras[m.group(1)] = float(m.group(2))
-        zmat_patt = re.compile("^\s*([A-Za-z]+)[\w\d\-\_]*"
-                               "([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
-        mixed_species_patt = re.compile("([A-Za-z]+)[\d\-_]+")
-        xyz_patt = re.compile("^\s*([A-Za-z]+[\w\d\-\_]*)\s+"
-                              "([\d\.eE\-]+)\s+([\d\.eE\-]+)\s+"
-                              "([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
-        parsed_species = []
         species = []
         coords = []
-
+        # Stores whether a Zmatrix format is detected. Once a zmatrix format
+        # is detected, it is assumed for the remaining of the parsing.
+        zmode = False
         for l in coord_lines:
             l = l.strip()
-            if l == "":
+            if not l:
                 break
-            if xyz_patt.match(l):
-                m = xyz_patt.match(l)
-                m2 = mixed_species_patt.match(m.group(1))
-                if m2:
-                    parsed_species.append(m.group(1))
-                    species.append(m2.group(1))
-                else:
-                    species.append(m.group(1))
-
+            if (not zmode) and GaussianInput.xyz_patt.match(l):
+                m = GaussianInput.xyz_patt.match(l)
+                species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
                     coords.append(map(float, toks[2:5]))
                 else:
                     coords.append(map(float, toks[1:4]))
-            elif zmat_patt.match(l):
+            elif GaussianInput.zmat_patt.match(l):
+                zmode = True
                 toks = re.split("[,\s]+", l.strip())
-                m = mixed_species_patt.match(toks[0])
-                if m:
-                    parsed_species.append(toks[0])
-                    species.append(m.group(1))
-                else:
-                    species.append(toks[0])
+                species.append(toks[0])
                 toks.pop(0)
                 if len(toks) == 0:
                     coords.append(np.array([0, 0, 0]))
                 else:
                     nn = []
                     parameters = []
-                    while len(toks) > 0:
+                    while len(toks) > 1:
                         ind = toks.pop(0)
                         data = toks.pop(0)
                         try:
                             nn.append(int(ind))
                         except ValueError:
-                            nn.append(parsed_species.index(ind))
-                        parameters.append(paras[data])
+                            nn.append(species.index(ind) + 1)
+                        try:
+                            val = float(data)
+                            parameters.append(val)
+                        except ValueError:
+                            if data.startswith("-"):
+                                parameters.append(-paras[data[1:]])
+                            else:
+                                parameters.append(paras[data])
                     if len(nn) == 1:
                         coords.append(np.array([0, 0, parameters[0]]))
                     elif len(nn) == 2:
@@ -157,27 +155,36 @@ class GaussianInput(object):
                         v1 = coords3 - coords2
                         v2 = coords1 - coords2
                         axis = np.cross(v1, v2)
-                        op = SymmOp.from_origin_axis_angle(coords1, axis,
-                                                           angle,
-                                                           False)
+                        op = SymmOp.from_origin_axis_angle(
+                            coords1, axis, angle, False)
                         coord = op.operate(coords2)
                         v1 = coord - coords1
                         v2 = coords1 - coords2
                         v3 = np.cross(v1, v2)
-                        d = np.dot(v3, axis) / np.linalg.norm(v3) / \
-                            np.linalg.norm(axis)
-                        if d > 1:
-                            d = 1
-                        elif d < -1:
-                            d = -1
-                        adj = math.acos(d) * 180 / math.pi
+                        adj = get_angle(v3, axis)
                         axis = coords1 - coords2
-                        op = SymmOp.from_origin_axis_angle(coords1, axis,
-                                                           dih - adj, False)
+                        op = SymmOp.from_origin_axis_angle(
+                            coords1, axis, dih - adj, False)
                         coord = op.operate(coord)
                         vec = coord - coords1
                         coord = vec * bl / np.linalg.norm(vec) + coords1
                         coords.append(coord)
+
+        def parse_species(sp_str):
+            """
+            The species specification can take many forms. E.g.,
+            simple integers representing atomic numbers ("8"),
+            actual species string ("C") or a labelled species ("C1").
+            Sometimes, the species string is also not properly capitalized,
+            e.g, ("c1"). This method should take care of these known formats.
+            """
+            try:
+                return int(sp_str)
+            except ValueError:
+                sp = re.sub("\d", "", sp_str)
+                return sp.capitalize()
+
+        species = map(parse_species, species)
 
         return Molecule(species, coords)
 
@@ -193,9 +200,8 @@ class GaussianInput(object):
         Returns:
             GaussianInput object
         """
-        lines = contents.split("\n")
+        lines = [l.strip() for l in contents.split("\n")]
         route_patt = re.compile("^#[sSpPnN]*.*")
-
         route = None
         for i, l in enumerate(lines):
             if route_patt.match(l):
@@ -207,7 +213,7 @@ class GaussianInput(object):
             for tok in route.split():
                 if tok.strip().startswith("#"):
                     continue
-                if re.match("\w+/.*", tok):
+                if re.match("[\S]+/.*", tok):
                     d = tok.split("/")
                     functional = d[0]
                     basis_set = d[1]
@@ -215,14 +221,21 @@ class GaussianInput(object):
                     d = tok.split("=")
                     v = None if len(d) == 1 else d[1]
                     route_paras[d[0]] = v
-        title = lines[route_index + 2]
-        toks = lines[route_index + 4].split()
+        ind = 2
+        title = []
+        while lines[route_index + ind].strip():
+            title.append(lines[route_index + ind].strip())
+            ind += 1
+        title = ' '.join(title)
+        ind += 1
+        toks = re.split("[\s,]", lines[route_index + ind])
         charge = int(toks[0])
         spin_mult = int(toks[1])
         coord_lines = []
         spaces = 0
         input_paras = {}
-        for i in xrange(route_index + 5, len(lines)):
+        ind += 1
+        for i in xrange(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:

@@ -17,10 +17,12 @@ import cStringIO
 import re
 import datetime
 from collections import namedtuple
+import json
 
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
 
-from pymatgen.core.structure import Structure
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -39,7 +41,10 @@ def is_valid_bibtex(reference):
     Returns:
         Boolean indicating if reference is valid bibtex.
     """
-    sio = cStringIO.StringIO(reference)
+    # str is necessary since pybtex seems to have an issue with unicode. The
+    # filter expression removes all non-ASCII characters.
+    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x) < 128,
+                                                reference))))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
@@ -150,10 +155,8 @@ class Author(namedtuple('Author', ['name', 'email'])):
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError("Invalid author format! {}".format(author))
             return Author(m.groups()[0], m.groups()[1])
-
         elif isinstance(author, dict):
             return Author.from_dict(author)
-
         else:
             if len(author) != 2:
                 raise ValueError("Invalid author, should be String or (name, "
@@ -161,12 +164,12 @@ class Author(namedtuple('Author', ['name', 'email'])):
             return Author(author[0], author[1])
 
 
-class StructureNL(Structure):
+class StructureNL(object):
     """
-    The Structure Notation Language (SNL, pronounced 'snail') is a pymatgen
-    Structure object with some additional fields for enhanced provenance. It
-    is meant to be imported/exported in a JSON file format with the following
-    structure:
+    The Structure Notation Language (SNL, pronounced 'snail') is container
+    for a pymatgen Structure/Molecule object with some additional fields for
+    enhanced provenance. It is meant to be imported/exported in a JSON file
+    format with the following structure:
 
     - about
         - created_at
@@ -176,16 +179,16 @@ class StructureNL(Structure):
         - remarks
         - data
         - history
-    - lattice
+    - lattice (optional)
     - sites
     """
 
-    def __init__(self, structure, authors, projects=None, references='',
+    def __init__(self, struct_or_mol, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
         """
         Args:
-            structure:
-                A pymatgen.core.structure Structure object
+            struct_or_mol:
+                A pymatgen.core.structure Structure/Molecule object
             authors:
                 *List* of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
@@ -198,16 +201,14 @@ class StructureNL(Structure):
                 List of Strings ['Remark A', 'Remark B']
             data:
                 A free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject":<custom data>}
+                underscore, e.g. {"_materialsproject": <custom data>}
             history:
                 List of dicts - [{'name':'', 'url':'', 'description':{}}]
             created_at:
                 A datetime object
         """
         # initialize root-level structure keys
-        Structure.__init__(self, structure.lattice,
-                           [site.species_and_occu for site in structure],
-                           structure.frac_coords)
+        self.structure = struct_or_mol
 
         # turn authors into list of Author objects
         authors = authors.split(',')\
@@ -241,6 +242,13 @@ class StructureNL(Structure):
                              " {} bytes (you have {})"
                              .format(MAX_DATA_SIZE, sys.getsizeof(data)))
 
+        for k, v in self.data.items():
+            if not k.startswith("_"):
+                raise ValueError("data must contain properly namespaced data "
+                                 "with keys starting with an underscore. The "
+                                 "key {} does not start with an underscore.",
+                                 format(k))
+
         # check for valid history nodes
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
@@ -254,39 +262,51 @@ class StructureNL(Structure):
         self.created_at = created_at if created_at \
             else datetime.datetime.utcnow()
 
-        try:
-            self.to_json
-        except:
-            raise ValueError("SNL must be JSON-exportable; check in particular "
-                             "your data field and history nodes")
-
     @property
     def to_dict(self):
-        d = super(StructureNL, self).to_dict
-        d["about"] = {'authors': [a.to_dict for a in self.authors],
-                      'projects': self.projects,
-                      'references': self.references,
-                      'remarks': self.remarks,
-                      'data': self.data,
-                      'history': [h.to_dict for h in self.history],
-                      'created_at': self.created_at.isoformat()}
+        d = self.structure.to_dict
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["about"] = {"authors": [a.to_dict for a in self.authors],
+                      "projects": self.projects,
+                      "references": self.references,
+                      "remarks": self.remarks,
+                      "history": [h.to_dict for h in self.history],
+                      "created_at": self.created_at}
+        d["about"].update(json.loads(json.dumps(self.data,
+                                                cls=PMGJSONEncoder)))
         return d
 
     @staticmethod
     def from_dict(d):
-        a = d['about']
-        created_at = datetime.datetime.strptime(
-            a['created_at'], "%Y-%m-%dT%H:%M:%S.%f") if 'created_at' in a \
+        a = d["about"]
+        dec = PMGJSONDecoder()
+
+        created_at = dec.process_decoded(a["created_at"]) if "created_at" in a \
             else None
-        structure = Structure.from_dict(d)
-        return StructureNL(structure, a['authors'], a.get('projects', None),
-                           a.get('references', ''), a.get('remarks', None),
-                           a.get('data', None), a.get('history', None),
+        data = {k: v for k, v in d["about"].items()
+                if k.startswith("_")}
+        data = dec.process_decoded(data)
+
+        structure = Structure.from_dict(d) if "lattice" in d \
+            else Molecule.from_dict(d)
+        return StructureNL(structure, a["authors"],
+                           projects=a.get("projects", None),
+                           references=a.get("references", ""),
+                           remarks=a.get("remarks", None), data=data,
+                           history=a.get("history", None),
                            created_at=created_at)
 
+    def __str__(self):
+        return "\n".join(["{}\n{}".format(k, getattr(self, k))
+                          for k in ("structure", "authors", "projects",
+                                    "references", "remarks", "data", "history",
+                                    "created_at")])
+
     def __eq__(self, other):
-        if not Structure.__eq__(self, other):
-            return False
         return all(map(lambda n: getattr(self, n) == getattr(other, n),
-                       ('authors', 'projects', 'references', 'remarks',
-                        'data', 'history', 'created_at')))
+                       ("structure", "authors", "projects", "references",
+                        "remarks", "data", "history", "created_at")))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

@@ -20,6 +20,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.transformations.standard_transformations import IdentityTransformation
 import json
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, MSONable
+import datetime
 
 
 class MSONableTest(unittest.TestCase):
@@ -122,6 +123,19 @@ class PMGJSONTest(unittest.TestCase):
         jsonstr = json.dumps(trans, cls=PMGJSONEncoder)
         d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d), IdentityTransformation)
+
+    def test_datetime(self):
+        dt = datetime.datetime.now()
+        jsonstr = json.dumps(dt, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        self.assertEqual(type(d), datetime.datetime)
+        self.assertEqual(dt, d)
+        #Test a nested datetime.
+        a = {'dt': dt, "a": 1}
+        jsonstr = json.dumps(a, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        self.assertEqual(type(d["dt"]), datetime.datetime)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
