@@ -188,12 +188,15 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self._structure_list.append(structure)
             return True
 
+        def get_sg(s):
+            finder = SymmetryFinder(s, symprec=self._symprec)
+            return finder.get_spacegroup_number()
+
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
                 if self._symprec is None or \
-                    SymmetryFinder(s).get_spacegroup_number() ==\
-                        SymmetryFinder(structure).get_spacegroup_number():
+                        get_sg(s) == get_sg(structure):
                     if self._sm.fit(s, structure):
                         return False
 
