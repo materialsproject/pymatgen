@@ -424,7 +424,6 @@ class MPRester(object):
             headers = {"x-api-key": self.api_key}
             response = requests.post("{}/snl/submit".format(self.preamble),
                                      headers=headers, data=payload)
-            print response.text
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=PMGJSONDecoder)
                 if resp["valid_response"]:
