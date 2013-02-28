@@ -3,7 +3,7 @@
 import unittest
 import os
 
-from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
+from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry, MultiEntry
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.ion import Ion
@@ -49,6 +49,53 @@ class TestPourbaixEntry(unittest.TestCase):
         d = self.PxIon.to_dict
         ion_entry = self.PxIon.from_dict(d)
         self.assertEquals(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
+
+class MultiEntryTest(unittest.TestCase):
+    """
+    Test MultiEntry using fictitious entries
+    """
+
+    def setUp(self):
+        entrylist = list()
+        weights = list()
+        comp = Composition("Mn2O3")
+        entry = PDEntry(comp, 49)
+        entrylist.append(PourbaixEntry(entry))
+        weights.append(1.0)
+        comp = Ion.from_formula("MnO4[-]")
+        entry = IonEntry(comp, 25)
+        entrylist.append(PourbaixEntry(entry))
+        weights.append(0.25)
+        comp = Composition("Fe2O3")
+        entry = PDEntry(comp, 50)
+        entrylist.append(PourbaixEntry(entry))
+        weights.append(0.5)
+        comp = Ion.from_formula("Fe[2+]")
+        entry = IonEntry(comp, 15)
+        entrylist.append(PourbaixEntry(entry))
+        weights.append(2.5)
+        comp = Ion.from_formula("Fe[3+]")
+        entry = IonEntry(comp, 20)
+        entrylist.append(PourbaixEntry(entry))
+        weights.append(1.5)
+        self.weights = weights
+        self.entrylist = entrylist
+        self.multientry = MultiEntry(entrylist, weights)
+
+    def test_multi_entry(self):
+        sum_g0 = 0.0
+        sum_npH = 0.0
+        sum_nPhi = 0.0
+        sum_nH2O = 0.0
+        for i in xrange(len(self.weights)):
+            sum_g0 += self.weights[i] * self.entrylist[i].g0
+            sum_npH += self.weights[i] * self.entrylist[i].npH
+            sum_nPhi += self.weights[i] * self.entrylist[i].nPhi
+            sum_nH2O += self.weights[i] * self.entrylist[i].nH2O
+        self.assertAlmostEqual(sum_g0, self.multientry.g0, "g0 doesn't match")
+        self.assertAlmostEqual(sum_npH, self.multientry.npH, "npH doesn't match")
+        self.assertAlmostEqual(sum_nPhi, self.multientry.nPhi, "nPhi doesn't match")
+        self.assertAlmostEqual(sum_nH2O, self.multientry.nH2O, "nH2O doesn't match")
 
 
 class IonEntryTest(unittest.TestCase):
@@ -117,3 +164,4 @@ class TestPourbaixEntryIO(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    

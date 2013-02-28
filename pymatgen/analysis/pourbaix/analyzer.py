@@ -2,7 +2,6 @@
 
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
-TODO: Not yet unit-tested completely!
 """
 
 __author__ = "Sai Jayaraman"
@@ -19,7 +18,6 @@ import collections
 
 
 from pyhull.simplex import Simplex
-from pymatgen.analysis.pourbaix.convex_hull import ConvexHull
 
 
 class PourbaixAnalyzer(object):
@@ -91,29 +89,33 @@ class PourbaixAnalyzer(object):
             chempots["1"] = chempots["1"]
             all_chempots.append([chempots[el] for el in self._keys])
 
-        inds = [i for i, el in enumerate(self._keys) if el in elements]
+        chempots_np = np.array(all_chempots)
         chempot_ranges = collections.defaultdict(list)
-
-        if len(all_chempots) <= len(self._keys):
-            mufacets = [range(len(all_chempots))]
-        else:
-            # multiplying chempots by tol reduces chances of getting very narrow triangles
-            mufacets_pyhull = ConvexHull(np.array(all_chempots)).vertices
-            mufacets = np.array(mufacets_pyhull)
-
-        for ufacet in mufacets:
-            for combi in itertools.combinations(ufacet, 2):
-                data1 = facets[combi[0]]
-                data2 = facets[combi[1]]
-                common_ent_ind = set(data1).intersection(set(data2))
-                if len(common_ent_ind) == len(elements):
-                    common_entries = [entries[i]
-                                      for i in common_ent_ind]
-                    data = np.array([[all_chempots[i][j]
-                                      for j in inds] for i in combi])
-                    sim = Simplex(data)
-                    for entry in common_entries:
-                        chempot_ranges[entry].append(sim)
+        edges_are = []
+        for vertex in sorted(self._pd.vertices):
+            entry0 = entries[vertex]
+            where_vertex = np.where(facets == vertex)
+            facets_thisvertex = [facets[where_vertex[0][i]] for i in xrange(len(where_vertex[0]))]
+            vertices_other = set()
+            for facet in facets_thisvertex:
+                for vert in facet:
+                    if (vert > vertex) & (vert != vertex):
+                        vertices_other.add(vert)
+            for vert in sorted(vertices_other):
+                entry1 = entries[vert]
+                facets_of_edge = [facet for facet in facets_thisvertex if ((vert in facet) & (vertex in facet))]
+                data  = []
+                if len(facets_of_edge) < 2:
+                    edges_are.append(facets_of_edge[0])
+                    continue
+                for facet in facets_of_edge:
+                    which_facet = facets.tolist().index(facet.tolist())
+#                    print "WHich facet", which_facet
+                    chempot = chempots_np[which_facet]
+                    data.append([chempot[0], chempot[1]])
+                sim1 = Simplex(data)
+                chempot_ranges[entry0].append(sim1)
+                chempot_ranges[entry1].append(sim1)
         edges = []
         combos = []
         points_on_border = collections.defaultdict(list)
@@ -209,7 +211,7 @@ class PourbaixAnalyzer(object):
                         else:
                             t = np.cross(q - p, s) / np.cross(r, s)
                             u = np.cross(q - p, r) / np.cross(r, s)
-                            if ((t > 0) & (t < 1)) & ((u > 0) & (u < 1)):
+                            if ((t > tol) & (t-1 < tol)) & ((u > tol) & (u-1 < tol)):
                                 dist[i] = 100000000
             bound_coords = np.array(bound_coords)
             dist_edge[edge] = dist
@@ -342,7 +344,7 @@ class PourbaixAnalyzer(object):
         for facet in self._pd.facets:
             if self._in_facet(facet, entry):
                 return facet
-        raise RuntimeError("No facet found for comp = {}".format(entry._entry.composition))
+        raise RuntimeError("No facet found for comp = {}".format(entry.name))
 
     def _get_facet_entries(self, facet):
         """
