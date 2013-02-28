@@ -63,8 +63,8 @@ class VoronoiCoordFinder(object):
 
         localtarget = self._target
         center = self._structure[n]
-        neighbors = self._structure.get_sites_in_sphere(center.coords,
-                                            VoronoiCoordFinder.default_cutoff)
+        neighbors = self._structure.get_sites_in_sphere(
+            center.coords, VoronoiCoordFinder.default_cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
         qvoronoi_input = [s.coords for s in neighbors]
         voro = VoronoiTess(qvoronoi_input)
@@ -119,7 +119,7 @@ class VoronoiCoordFinder(object):
         """
         coordinated_sites = []
         for site, weight in self.get_voronoi_polyhedra(n).items():
-            if weight > tol and (target == None or site.specie == target):
+            if weight > tol and (target is None or site.specie == target):
                 coordinated_sites.append(site)
         return coordinated_sites
 

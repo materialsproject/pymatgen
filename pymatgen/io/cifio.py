@@ -16,7 +16,7 @@ __date__ = "Sep 23, 2011"
 
 
 import re
-import StringIO
+import cStringIO
 import math
 import warnings
 from collections import OrderedDict
@@ -70,9 +70,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        output = StringIO.StringIO()
-        output.write(cif_string)
-        output.seek(0)
+        output = cStringIO.StringIO(cif_string)
         return CifParser(output, occupancy_tolerance)
 
     def _unique_coords(self, coord_in, primitive, lattice, primlattice):

@@ -1,3 +1,13 @@
+2013-01-28  Atsushi Togo  <atz.togo@gmail.com>
+
+	* spglib.c, spglib_f.c:
+
+	Pointerd out by Michael Rutter that the length of charasters of
+	space-group type symbol (International table) was wrong in
+	spglib_f.c. That of Schoenflies symbol was also found wrong. The
+	former and latter were fixed as from 21 to 11 and from 10 to 7,
+	respectively.
+
 2012-10-10  Atsushi Togo  <atz.togo@gmail.com>
 
 	* Version 1.3

@@ -292,6 +292,19 @@ def compare_structures(args):
         print
 
 
+def generate_files(args):
+    from pymatgen.io.vaspio.vasp_input import Potcar
+    if args.symbols:
+        try:
+            p = Potcar(args.symbols, functional=args.functional)
+            p.write_file("POTCAR")
+        except Exception as ex:
+            print "An error has occurred: {}".format(str(ex))
+
+    else:
+        print "No valid options selected."
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""
     matgenie is a convenient script that uses pymatgen to perform many
@@ -430,6 +443,22 @@ if __name__ == "__main__":
                                  "different species for the purposes of "
                                  "matching.")
     parser_cmp.set_defaults(func=compare_structures)
+
+    parser_generate = subparsers.add_parser("generate",
+                                            help="Generate input files")
+    parser_generate.add_argument("-f", "--functional", dest="functional",
+                                 type=str,
+                                 choices=["LDA", "PBE", "PW91", "LDA_US"],
+                                 default="PBE",
+                                 help="Functional to use. Unless otherwise "
+                                      "stated (e.g., US), "
+                                      "refers to PAW psuedopotential.")
+    parser_generate.add_argument("-p", "--potcar", dest="symbols",
+                                 type=str, nargs="+",
+                                 help="List of POTCAR symbols. Use -f to set "
+                                      "functional. Defaults to PBE.")
+    parser_generate.set_defaults(func=generate_files)
+
 
     args = parser.parse_args()
     args.func(args)

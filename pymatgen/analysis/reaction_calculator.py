@@ -31,9 +31,7 @@ class Reaction(MSONable):
     A class representing a Reaction.
     """
 
-    """
-    Tolerance for determining if a particular component fraction is > 0.
-    """
+    # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6
 
     def __init__(self, reactants, products):
@@ -119,8 +117,8 @@ class Reaction(MSONable):
                             if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
                                 logger.debug("Possible sol")
                                 ansmatrix = [perm_matrix[i][m]
-                                                for i in xrange(nconstraints)
-                                                if i != m]
+                                             for i in xrange(nconstraints)
+                                             if i != m]
                                 coeffs = -np.linalg.solve(submatrix, ansmatrix)
                                 coeffs = [c for c in coeffs]
                                 coeffs.insert(m, 1)
@@ -473,9 +471,11 @@ class BalancedReaction(Reaction):
             BalancedReaction
         """
         rct_str, prod_str = rxn_string.split("->")
+
         def get_comp_amt(comp_str):
             return {Composition(m.group(2)): float(m.group(1) or 1)
-                    for m in re.finditer("([\d\.]*)\s*([A-Z][\w\.]*)", comp_str)}
+                    for m in re.finditer("([\d\.]*)\s*([A-Z][\w\.]*)",
+                                         comp_str)}
         return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 

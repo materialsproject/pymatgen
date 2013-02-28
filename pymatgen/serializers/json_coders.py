@@ -40,6 +40,7 @@ __date__ = "Apr 30, 2012"
 
 import json
 import abc
+import datetime
 
 from pymatgen.util.io_utils import zopen
 
@@ -99,7 +100,25 @@ class PMGJSONEncoder(json.JSONEncoder):
     """
 
     def default(self, o):
+        """
+        Overriding default method for JSON encoding. This method does two
+        things: (a) If an object has a to_dict property, return the to_dict
+        output. (b) If the @module and @class keys are not in the to_dict,
+        add them to the output automatically. If the object has no to_dict
+        property, the default Python json encoder default method is called.
+
+        Args:
+            o:
+                Python object.
+
+        Return:
+            Python dict representation.
+        """
         try:
+            if isinstance(o, datetime.datetime):
+                return {"@module": "datetime",
+                        "@class": "datetime",
+                        "string": str(o)}
             d = o.to_dict
             if "@module" not in d:
                 d["@module"] = o.__class__.__module__
@@ -138,17 +157,20 @@ class PMGJSONDecoder(json.JSONDecoder):
                 classname = d["class"]
             else:
                 modname = None
+                classname = None
             if modname:
+                if modname == "datetime" and classname == "datetime":
+                    return datetime.datetime.strptime(d["string"],
+                                                      "%Y-%m-%d %H:%M:%S.%f")
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls = getattr(mod, classname)
-                    data = {k: v for k, v in d.items() if k not in ["module",
-                                                                    "class",
-                                                                    "@module",
-                                                                    "@class"]}
+                    data = {k: v for k, v in d.items()
+                            if k not in ["module", "class",
+                                         "@module", "@class"]}
                     if hasattr(cls, "from_dict"):
                         return cls.from_dict(data)
-            return {self.process_decoded(k): self.process_decoded(v) \
+            return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]

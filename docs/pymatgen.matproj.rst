@@ -17,3 +17,11 @@ matproj Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`snl` Module
+-----------------
+
+.. automodule:: pymatgen.matproj.snl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

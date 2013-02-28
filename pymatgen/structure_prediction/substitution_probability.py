@@ -1,6 +1,13 @@
+#!/usr/bin/env python
+
+"""
+This module provides classes for representing species substitution
+probabilities.
+"""
+
 from __future__ import division
 
-__author__ = "Will Richards"
+__author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.2"
 __maintainer__ = "Will Richards"
@@ -23,14 +30,19 @@ class SubstitutionProbability(object):
     to substitute. The inputs make more sense if you look through the
     from_defaults static method.
 
+    The substitution prediction algorithm is presented in:
+    Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011)
+    Data Mined Ionic Substitutions for the Discovery of New Compounds.
+    Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
+
     Args:
         lambda_table:
-            json table of the weight functions lambda (theta in BURP) if None,
+            json table of the weight functions lambda if None,
             will use the default lambda.json table
         alpha:
             weight function for never observed substitutions
     """
-    def __init__(self, lambda_table=None, alpha= -5):
+    def __init__(self, lambda_table=None, alpha=-5):
         #store the input table for the to_dict method
         self._lambda_table = lambda_table
 

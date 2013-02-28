@@ -153,7 +153,7 @@ class PDPlotter(object):
             plt.ylabel("Formation energy (eV/fu)", fontsize=28,
                        fontweight='bold')
 
-        for coords in sorted(labels.keys(), key=lambda x:-x[1]):
+        for coords in sorted(labels.keys(), key=lambda x: -x[1]):
             entry = labels[coords]
             label = entry.name
 
@@ -162,7 +162,7 @@ class PDPlotter(object):
             # most part.
             vec = (np.array(coords) - center)
             vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 \
-                    else vec
+                else vec
             valign = "bottom" if vec[1] > 0 else "top"
             if vec[0] < -0.01:
                 halign = "right"
@@ -255,8 +255,8 @@ class PDPlotter(object):
 
     def plot_chempot_range_map(self, elements):
         """
-        Plot chemical potential range map. Currently works only for 3-component
-        PDs.
+        Plot the chemical potential range map. Currently works only for
+        3-component PDs.
 
         Args:
             elements:
@@ -264,6 +264,22 @@ class PDPlotter(object):
                 E.g., if you want to show the stability ranges of all Li-Co-O
                 phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+        """
+        self.get_chempot_range_map_plot(elements).show()
+
+    def get_chempot_range_map_plot(self, elements):
+        """
+        Returns a plot of the chemical potential range map. Currently works
+        only for 3-component PDs.
+
+        Args:
+            elements:
+                Sequence of elements to be considered as independent variables.
+                E.g., if you want to show the stability ranges of all Li-Co-O
+                phases wrt to uLi and uO, you will supply
+                [Element("Li"), Element("O")]
+        Returns:
+            A matplotlib plot object.
         """
 
         plt = get_publication_quality_plot(12, 8)
@@ -351,8 +367,7 @@ class PDPlotter(object):
         plt.ylabel("$\mu_{{{0}}} - \mu_{{{0}}}^0$ (eV)"
                    .format(el1.symbol))
         plt.tight_layout()
-        plt.savefig("chempot.eps")
-        plt.show()
+        return plt
 
     def get_contour_pd_plot(self):
         """

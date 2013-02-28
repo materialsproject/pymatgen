@@ -1,6 +1,34 @@
 Change log
 ==========
 
+Version 2.5.3
+-------------
+1. Bug fix for StructureNotationalLanguage.
+2. Support for LDA US potential. matgenie.py script option to generate POTCARs.
+3. Beta version of StructureNotationLanguage, a markup format for Structure
+   data with metadata such as authors and references. (Anubhav Jain)
+4. Vasprun parsing now parses dielectric constant where available. (Geoffroy
+   Hautier)
+5. New custom ipython shell script for pymatgen.
+6. Miscellaneous bug fixes and speedups.
+
+Version 2.5.1
+-------------
+1. Bug fixes for primitive cell finder.
+2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
+3. Miscellaneous bug fixes and speedups.
+
+Version 2.5.0
+-------------
+1. Added optimization package with linear assignment class.
+2. Improved robustness of StructureMatcher using linear assignment.
+3. Improved primitive cell search (faster and more robust).
+4. Cleanup of deprecated methods, including
+   pymatgen.alchemy.materials.TransformedMaterial.undo/redo_last_transformation,
+   pymatgen.core.site.Site.distance_and_image_old, Poscar.struct,
+   StructureFitter and tests.
+5. Miscellaneous bug fixes and speedups.
+
 Version 2.4.3
 -------------
 1. Bug fix for StructureMatcher.

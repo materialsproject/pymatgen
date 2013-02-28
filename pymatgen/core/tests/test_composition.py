@@ -220,6 +220,16 @@ class CompositionTest(unittest.TestCase):
                                                        comp2.formula))
         self.assertEqual(comp1.__hash__(), comp2.__hash__(),
                          "Hashcode equality test failed!")
+        
+    def test_almost_equals(self):
+        c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
+        c2 = Composition({'O': 3.2, 'Fe': 1.9, 'Zn': 0})
+        c3 = Composition({'Ag': 2.0, 'O': 3.0})
+        c4 = Composition({'Fe': 2.0, 'O': 3.0, 'Ag': 2.0})
+        self.assertTrue(c1.almost_equals(c2, rtol = 0.1))
+        self.assertFalse(c1.almost_equals(c2, rtol = 0.01))
+        self.assertFalse(c1.almost_equals(c3, rtol = 0.1))
+        self.assertFalse(c1.almost_equals(c4, rtol = 0.1))
 
     def test_equality(self):
         self.assertTrue(self.comp[0].__eq__(self.comp[0]))
