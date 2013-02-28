@@ -16,12 +16,15 @@ __status__ = "Production"
 __date__ = "December 10, 2012"
 
 import re
+import math
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
+
+PREFAC = 0.0591
 
 
 class PourbaixEntry(MSONable):
@@ -108,6 +111,13 @@ class PourbaixEntry(MSONable):
         Return concentration of the entry. Returns 1 if solid.
         """
         return self._concn
+    
+    @property
+    def conc_term(self):
+        """
+        Returns the concentration contribution to the free energy
+        """
+        return PREFAC * math.log10(self._concn)
 
     @property
     def phase_type(self):
@@ -175,13 +185,15 @@ class PourbaixEntry(MSONable):
         """
         nH = 0
         nO = 0
+        nM = 0
         for elt in self._entry.composition.elements:
             if elt == (Element("H")):
                 nH = self.entry.composition[elt]
             elif elt == (Element("O")):
                 nO = self.entry.composition[elt]
             else:
-                self._nM = self.entry.composition[elt]
+                nM += self.entry.composition[elt]
+        self._nM = nM
         self._npH = (nH - 2 * nO)
         self._nH2O = nO
         self._nPhi = (nH - 2 * nO - self._charge)
@@ -205,6 +217,10 @@ class PourbaixEntry(MSONable):
         self._nPhi *= factor
         self._nH2O *= factor
         self._g0 *= factor
+        
+    def scale(self, factor):
+        
+        self.normalize(factor)
 
     @property
     def charge(self):
@@ -213,6 +229,13 @@ class PourbaixEntry(MSONable):
         """
         return self._charge
 
+    @property
+    def composition(self):
+        """
+        Returns composition
+        """
+        return self.entry.composition
+        
     @property
     def entry(self):
         """
@@ -257,6 +280,85 @@ class PourbaixEntry(MSONable):
 
     def __str__(self):
         return self.__repr__()
+
+
+class MultiEntry(PourbaixEntry):
+    """
+    PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams
+    """
+    def __init__(self, entry_list, weights = None):
+        """
+        Args:
+            entry_list:
+                List of component PourbaixEntries
+            weights:
+                Weights associated with each entry. Default is None
+        """
+        if weights is None:
+            self._weights = [1.0 for i in xrange(len(entry_list))]
+        else:
+            self._weights = weights
+        self._entrylist = entry_list
+        self._g0 = 0.0
+        self._npH = 0.0
+        self._nPhi = 0.0
+        self._nH2O = 0.0
+        self._nM = 0.0
+        self._name = ""
+        for i in xrange(len(entry_list)):
+            entry = entry_list[i]
+            self._g0 += self._weights[i] * entry.g0
+            self._npH += self._weights[i] * entry.npH
+            self._nPhi += self._weights[i] * entry.nPhi
+            self._nH2O += self._weights[i] * entry.nH2O
+            self._nM += self._weights[i] * entry._nM
+            self._name += entry.name + " + "
+        self._name = self._name[:-3]
+
+    @property
+    def normalization_factor(self):
+        """
+        Normalize each entry by nM
+        """
+        norm_fac = 0.0
+        for i in xrange(len(self._entrylist)):
+            entry = self._entrylist[i]
+            for el in entry.composition.elements:
+                if (el == Element("O")) | (el == Element("H")):
+                    continue
+                red_fac = entry.composition.get_reduced_composition_and_factor()[1]
+                norm_fac += self._weights[i] * entry.composition[el] / red_fac
+        fact = 1.0 / norm_fac
+        return fact
+
+    def __repr__(self):
+        str =  "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, nPhi = {},\
+             nH2O = {}".format(self.g0, self.npH,\
+                                self.nPhi, self.nH2O)
+        str += ", species: "
+        for entry in self._entrylist:
+            str += entry.name + " + "
+        return str[:-3]
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def conc_term(self):
+        sum_conc = 0.0
+        for i in xrange(len(self._entrylist)):
+            entry = self._entrylist[i]
+            sum_nelt = 0.0
+            for el in entry.composition.elements:
+                if (el == Element("O")) | (el == Element("H")):
+                    continue
+                sum_nelt += entry.composition[el]
+            sum_conc += self._weights[i] * PREFAC * math.log10(entry._concn)
+        return sum_conc * self.normalization_factor
+    
+    @property
+    def entrylist(self):
+        return self._entrylist
 
 
 class IonEntry(PDEntry):

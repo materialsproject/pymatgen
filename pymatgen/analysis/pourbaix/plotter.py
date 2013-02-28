@@ -19,11 +19,13 @@ import re
 
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 from pymatgen.analysis.pourbaix.maker import PREFAC
+from pymatgen.analysis.pourbaix.entry import MultiEntry
 
 from pymatgen.phasediagram.plotter import uniquelines
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
+
 
 
 class PourbaixPlotter(object):
@@ -42,7 +44,7 @@ class PourbaixPlotter(object):
         """
         self._pd = pourbaixdiagram
         self.lines = uniquelines(self._pd.facets)
-        self.show_unstable = show_unstable
+        self.show_unstable = show_unstable 
 
     @property
     def pd_plot_data(self):
@@ -94,14 +96,14 @@ class PourbaixPlotter(object):
 
         return (lines, stable_entries, unstable_entries)
 
-    def show(self, label_stable=True, label_unstable=True):
+    def show(self, label_stable=True, label_unstable=False):
         """
         Draws the convex diagram using Matplotlib and show it.
         """
         plt = self._get_plot(label_stable, label_unstable)
         plt.show()
 
-    def _get_plot(self, label_stable=True, label_unstable=True):
+    def _get_plot(self, label_stable=True, label_unstable=False):
         """
         Plot convex hull of Pourbaix Diagram entries
         """
@@ -121,15 +123,15 @@ class PourbaixPlotter(object):
                     markerfacecolor="r", markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
-            label = entry.name
+            label = self.print_name(entry)
             if label_stable:
                 ax.text(coords[0], coords[1], coords[2], str(count))
                 newlabels.append("{} : {}".format(count, latexify_ion(latexify(label))))
                 count += 1
 
         if self.show_unstable:
-            for entry in unstable.keys(): 
-                label = entry.name
+            for entry in unstable.keys():
+                label = self.print_name(entry)
                 coords = unstable[entry]
                 ax.plot([coords[0], coords[0]], [coords[1], coords[1]],\
                          [coords[2], coords[2]], "bo", markerfacecolor="g",\
@@ -142,7 +144,6 @@ class PourbaixPlotter(object):
         plt.xlabel("npH")
         plt.ylabel("nel")
         return plt
-
 
     def plot_planes(self):
         """
@@ -204,7 +205,6 @@ class PourbaixPlotter(object):
         plt.plot(V0_line[0], V0_line[1], "k-.")
         for entry, lines in chempot_ranges.items():
             region = []
-            comp = {"H+": entry.npH, "V": entry.nPhi}
             center_x = 0.0
             center_y = 0.0
             coords = []
@@ -237,12 +237,55 @@ class PourbaixPlotter(object):
                  ((center_y == ylim[0]) | (center_y == ylim[1]))):
                 continue
             xy = (center_x, center_y)
-            plt.annotate(latexify_ion(latexify(entry.name)), xy, fontsize=22)
+            plt.annotate(self.print_name(entry), xy, fontsize=22)
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
         plt.tight_layout()
         plt.show()
+
+    def print_name(self, entry):
+        """
+        Print entry name if single, else print multientry
+        """
+        str_name = ""
+        if isinstance(entry, MultiEntry):
+            for e in entry.entrylist:
+                indx = self._pd.unprocessed_entries.index(e)
+                str_name += str(indx) + " + "
+            str_name = str_name[:-3]
+            return str_name
+        else:
+            return latexify_ion(latexify(entry.name))
+
+    def legend(self, label_unstable = False):
+        import matplotlib.pyplot as plt
+        if self._pd._multielement:
+            fig = plt.figure(facecolor='white')
+            fig.suptitle('Legend', fontsize=14, fontweight='bold')
+            ax1 = plt.axes(frameon=False)
+            ax1.get_xaxis().set_visible(False)
+            ax1.axes.get_yaxis().set_visible(False)
+            unprocessed_entries = self._pd.unprocessed_entries
+            set_of_entries = set()
+            for entry in self._pd.qhull_entries:
+                for e in entry.entrylist:
+                    for ent in unprocessed_entries: 
+                        if ent.name == e.name:
+                            indx = unprocessed_entries.index(ent)
+                            set_of_entries.add(indx)
+                            continue
+            if not(label_unstable):
+                for entry in [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]:
+                    for e in entry.entrylist:
+                        indx = unprocessed_entries.index(e)
+                        set_of_entries.add(indx)
+            str_labels = " Species: \n"
+            for i in set_of_entries:
+                str_labels += str(i) + " : " + str(unprocessed_entries[i].name) + "\n"
+            print "Labels: ", str_labels
+            plt.text(0, 0, str_labels, fontsize=15)
+            plt.show()
 
 
 def latexify_ion(formula):
