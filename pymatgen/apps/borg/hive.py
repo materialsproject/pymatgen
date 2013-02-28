@@ -18,6 +18,7 @@ import os
 import re
 import glob
 import logging
+import fnmatch
 
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
@@ -155,12 +156,12 @@ class VaspToComputedEntryDrone(AbstractDrone):
             data[d] = getattr(vasprun, d)
         if self._inc_structure:
             entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy, parameters=param,
-                                   data=data)
+                                           vasprun.final_energy,
+                                           parameters=param, data=data)
         else:
             entry = ComputedEntry(vasprun.final_structure.composition,
-                                   vasprun.final_energy, parameters=param,
-                                   data=data)
+                                  vasprun.final_energy, parameters=param,
+                                  data=data)
         return entry
 
     def get_valid_paths(self, path):
@@ -168,8 +169,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (not parent.endswith("/relax1")) and \
-           (not parent.endswith("/relax2")) and \
-           len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
+                (not parent.endswith("/relax2")) and \
+                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
             return [parent]
         return []
 
@@ -180,7 +181,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def to_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
-                              "data": self._data}, "version": __version__,
+                              "data": self._data},
+                "version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -223,8 +225,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 files_to_parse["INCAR"] = glob.glob(os.path.join(path,
                                                                  "INCAR*"))[0]
-                files_to_parse["POTCAR"] = glob.glob(os.path.join(path,
-                                                                "POTCAR*"))[-1]
+                files_to_parse["POTCAR"] = glob.glob(
+                    os.path.join(path, "POTCAR*"))[-1]
 
                 for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
                     files = glob.glob(os.path.join(path, filename + "*"))
@@ -240,17 +242,17 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         randomly chosen file is chosen.
                         """
                         for fname in files:
-                            if os.path.basename(fname) in [filename,
-                                                           filename + ".gz",
-                                                           filename + ".bz2"]:
+                            if fnmatch.fnmatch(os.path.basename(fname),
+                                               "{}(\.gz|\.bz2)*"
+                                               .format(filename)):
                                 files_to_parse[filename] = fname
                                 break
                             if fname == "POSCAR" and \
-                                re.search("relax1", fname):
+                                    re.search("relax1", fname):
                                 files_to_parse[filename] = fname
                                 break
                             if (fname in ("CONTCAR", "OSZICAR") and
-                                re.search("relax2", fname)):
+                                    re.search("relax2", fname)):
                                 files_to_parse[filename] = fname
                                 break
                             files_to_parse[filename] = fname
@@ -266,8 +268,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                              incar["LDAUU"]))
             else:
                 param["hubbards"] = {}
-            param["is_hubbard"] = incar.get("LDAU", False) and \
-                                  sum(param["hubbards"].values()) > 0
+            param["is_hubbard"] = \
+                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
             param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             potcar = Potcar.from_file(files_to_parse["POTCAR"])
             param["potcar_symbols"] = potcar.symbols
@@ -366,17 +368,18 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             data[d] = getattr(gaurun, d)
         if self._inc_structure:
             entry = ComputedStructureEntry(gaurun.final_structure,
-                                   gaurun.final_energy, parameters=param,
-                                   data=data)
+                                           gaurun.final_energy,
+                                           parameters=param,
+                                           data=data)
         else:
             entry = ComputedEntry(gaurun.final_structure.composition,
-                                   gaurun.final_energy, parameters=param,
-                                   data=data)
+                                  gaurun.final_energy, parameters=param,
+                                  data=data)
         return entry
 
     def get_valid_paths(self, path):
         (parent, subdirs, files) = path
-        return [os.path.join(parent, f) for f in files \
+        return [os.path.join(parent, f) for f in files
                 if os.path.splitext(f)[1] in self._file_extensions]
 
     def __str__(self):

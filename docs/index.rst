@@ -38,18 +38,38 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
 as bug reports. Please report any bugs and issues at pymatgen's `Github
-page`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups
-page`_.
+page`_. If you wish to be notified of pymatgen releases, you may become a
+member of `pymatgen's Google Groups page`_.
 
     *The code is mightier than the pen.*
+
+Why use pymatgen?
+=================
+
+There are many materials analysis codes out there, both commerical and free.
+So you might ask - why should I use pymatgen over others? Pymatgen offer
+several advantages over other codes out there:
+
+1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
+   such, the analysis it produces survives rigourous scrutiny every single
+   day. Bugs tend to be found and corrected quickly.
+2. **It is well documented.** A fairly comprehensive documentation has been
+   written to help you get to grips with it quickly. That means more
+   efficient research.
+3. **It is open.** That means you are free to use it, and you can also
+   contribute to it. It also means that pymatgen is continuously being
+   improved. We have a policy of attributing any code you contribute to any
+   publication you choose. Contributing to pymatgen means your research
+   becomes more visible, which translates to greater impact.
 
 Latest Change Log
 =================
 
-1. Added optimization package with linear assignment class.
-2. Improved robustness of StructureMacher using linear assignment.
-3. Miscellaneous bug fixes and speedups.
+1. Vastly improved Gaussian input file parsing that supports more varieties
+   of input specifications.
+2. StructureNL now supports molecules as well as structures.
+3. Updated atomic and vdw radius for Elements.
+4. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -166,6 +186,19 @@ Here are a few examples of typical usages::
     #Compare two structures for similarity
 
     matgenie.py compare filename1 filename2
+
+    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+
+    matgenie.py generate --potcar Li_sv O --functional PBE
+
+ipmg - Custom ipython shell
+---------------------------
+
+From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
+Upon installing pymatgen in the usual manner, the "ipmg" script will be
+installed. Running ipmg will bring users into a custom ipython environment
+where the most commonly used pymatgen objects (see Aliases below) are
+automatically loaded into the environment.
 
 Aliases
 -------

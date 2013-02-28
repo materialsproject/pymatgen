@@ -135,9 +135,9 @@ class BVAnalyzer(object):
                 sigma = data["std"]
                 #Calculate posterior probability. Note that constant
                 #factors are ignored. They have no effect on the results.
-                prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 /
-                                         2 / (sigma ** 2)) \
-                                         / sigma * PRIOR_PROB[sp]
+                prob[sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 /
+                                         (sigma ** 2)) \
+                    / sigma * PRIOR_PROB[sp]
         #Normalize the probabilities
         prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         return prob
@@ -174,7 +174,7 @@ class BVAnalyzer(object):
             equi_sites = [[site] for site in structure]
 
         #Sort the equivalent sites by decreasing electronegativity.
-        equi_sites = sorted(equi_sites, key=lambda sites:-sites[0].specie.X)
+        equi_sites = sorted(equi_sites, key=lambda sites: -sites[0].specie.X)
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.
@@ -187,7 +187,7 @@ class BVAnalyzer(object):
             all_prob.append(prob)
             val = list(prob.keys())
             #Sort valences in order of decreasing probability.
-            val = sorted(val, key=lambda v:-prob[v])
+            val = sorted(val, key=lambda v: -prob[v])
             #Retain probabilities that are at least 1/100 of highest prob.
             valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                    val))

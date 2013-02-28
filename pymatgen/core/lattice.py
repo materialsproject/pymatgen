@@ -18,7 +18,7 @@ import math
 import itertools
 
 import numpy as np
-from numpy.linalg import det, inv
+from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
@@ -219,7 +219,7 @@ class Lattice(MSONable):
             A Lattice with the specified lattice parameters.
         """
         return Lattice.from_parameters(abc[0], abc[1], abc[2],
-            ang[0], ang[1], ang[2])
+                                       ang[0], ang[1], ang[2])
 
     @staticmethod
     def from_parameters(a, b, c, alpha, beta, gamma):
@@ -248,7 +248,7 @@ class Lattice(MSONable):
         beta_r = radians(beta)
         gamma_r = radians(gamma)
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
-              / (np.sin(alpha_r) * np.sin(beta_r))
+            / (np.sin(alpha_r) * np.sin(beta_r))
         #Sometimes rounding errors result in values slightly > 1.
         val = val if abs(val) <= 1 else val / abs(val)
         gamma_star = np.arccos(val)
@@ -269,7 +269,7 @@ class Lattice(MSONable):
             return Lattice(d["matrix"])
         else:
             return Lattice.from_parameters(d["a"], d["b"], d["c"],
-                d["alpha"], d["beta"], d["gamma"])
+                                           d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
@@ -436,6 +436,7 @@ class Lattice(MSONable):
         data = zip(cart, dist)
         candidates = [filter(lambda d: abs(d[1] - l) < ltol, data)
                       for l in lengths]
+
         def get_angle(v1, v2):
             x = dot(v1[0], v2[0]) / v1[1] / v2[1]
             x = min(1, x)
@@ -446,8 +447,8 @@ class Lattice(MSONable):
 
         for m1, m2, m3 in itertools.product(*candidates):
             if abs(get_angle(m1, m2) - gamma) < atol and\
-               abs(get_angle(m2, m3) - alpha) < atol and\
-               abs(get_angle(m1, m3) - beta) < atol:
+                    abs(get_angle(m2, m3) - alpha) < atol and\
+                    abs(get_angle(m1, m3) - beta) < atol:
                 aligned_m = np.array([m1[0], m2[0], m3[0]])
                 rotation_matrix = np.linalg.solve(other_lattice.matrix.T,
                                                   aligned_m.T).T
@@ -499,7 +500,7 @@ class Lattice(MSONable):
                 diffvector = a + b
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(a) or\
-               diffnorm < np.linalg.norm(b):
+                    diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(a) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -512,7 +513,7 @@ class Lattice(MSONable):
                 diffvector = a + c
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(a) or\
-               diffnorm < np.linalg.norm(c):
+                    diffnorm < np.linalg.norm(c):
                 if np.linalg.norm(a) < np.linalg.norm(c):
                     c = diffvector
                 else:
@@ -525,7 +526,7 @@ class Lattice(MSONable):
                 diffvector = c + b
             diffnorm = np.linalg.norm(diffvector)
             if diffnorm < np.linalg.norm(c) or\
-               diffnorm < np.linalg.norm(b):
+                    diffnorm < np.linalg.norm(b):
                 if np.linalg.norm(c) < np.linalg.norm(b):
                     b = diffvector
                 else:
@@ -579,8 +580,8 @@ class Lattice(MSONable):
 
             # Check the Lovasz condition.
             if dot(b[:, k - 1], b[:, k - 1]) >=\
-               (delta - abs(u[k - 1, k - 2]) ** 2) *\
-               dot(b[:, (k - 2)], b[:, (k - 2)]):
+                    (delta - abs(u[k - 1, k - 2]) ** 2) *\
+                    dot(b[:, (k - 2)], b[:, (k - 2)]):
                 # Increment k if the Lovasz condition holds.
                 k += 1
             else:
@@ -592,9 +593,9 @@ class Lattice(MSONable):
                 #Update the Gram-Schmidt coefficients
                 for s in xrange(k - 1, k + 1):
                     u[s - 1, 0:(s - 1)] = dot(a[:, s - 1].T,
-                        b[:, 0:(s - 1)]) / m[0:(s - 1)]
+                                              b[:, 0:(s - 1)]) / m[0:(s - 1)]
                     b[:, s - 1] = a[:, s - 1] - dot(b[:, 0:(s - 1)],
-                        u[s - 1, 0:(s - 1)].T)
+                                                    u[s - 1, 0:(s - 1)].T)
                     m[s - 1] = dot(b[:, s - 1], b[:, s - 1])
 
                 if k > 2:
@@ -682,28 +683,28 @@ class Lattice(MSONable):
 
             #A5
             if abs(E) > B + e or (abs(E - B) < e and 2 * N < Y - e) or\
-               (abs(E + B) < e and Y < -e):
+                    (abs(E + B) < e and Y < -e):
                 M = [[1, 0, 0], [0, 1, -E / abs(E)], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A6
             if abs(N) > A + e or (abs(A - N) < e and 2 * E < Y - e) or\
-               (abs(A + N) < e and Y < -e):
+                    (abs(A + N) < e and Y < -e):
                 M = [[1, 0, -N / abs(N)], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A7
             if abs(Y) > A + e or (abs(A - Y) < e and 2 * E < N - e) or\
-               (abs(A + Y) < e and N < -e):
+                    (abs(A + Y) < e and N < -e):
                 M = [[1, -Y / abs(Y), 0], [0, 1, 0], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
 
             #A8
             if E + N + Y + A + B < -e or\
-               (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
+                    (abs(E + N + Y + A + B) < e < Y + (A + N) * 2):
                 M = [[1, 0, 1], [0, 1, 1], [0, 0, 1]]
                 G = dot(transpose(M), dot(G, M))
                 continue
@@ -729,5 +730,3 @@ class Lattice(MSONable):
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
-
-

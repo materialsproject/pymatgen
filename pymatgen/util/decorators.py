@@ -16,6 +16,7 @@ __date__ = "Dec 31, 2011"
 import logging
 import datetime
 from functools import wraps
+import warnings
 
 
 def singleton(cls):
@@ -118,4 +119,22 @@ def logged(level=logging.DEBUG):
             return data
 
         return wrapped_f
+    return wrap
+
+
+def deprecated(replacement=None):
+    """
+    Decorator to mark classes or functions as deprecated,
+    with a possible replacement.
+    """
+    def wrap(old):
+        def wrapped(*args, **kwargs):
+            msg = "{} is deprecated".format(old.__name__)
+            if replacement is not None:
+                msg += "; use {} in {} instead.".format(
+                    replacement.__name__, replacement.__module__)
+            warnings.simplefilter('default')
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            return old(*args, **kwargs)
+        return wrapped
     return wrap

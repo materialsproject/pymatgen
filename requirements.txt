@@ -3,3 +3,4 @@ pyhull>=1.3.6
 PyCifRW>=3.3
 requests>=1.0
 matplotlib>=1.1
+pybtex>=0.16
