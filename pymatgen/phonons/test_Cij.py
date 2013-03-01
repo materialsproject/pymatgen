@@ -121,14 +121,16 @@ if __name__ == "__main__":
                 count+=1
 
 
+print D
+
 #for c in D:
 
 #    print c
 #    print stress_dict[c].stress_matrix
 
 
-    Cij = CijTensor(stress_dict).fitCij()
-    print Cij
+#    Cij = CijTensor(stress_dict).fitCij()
+#    print Cij
 
 
 
