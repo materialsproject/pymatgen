@@ -22,6 +22,12 @@ __status__ = "Development"
 __date__ ="March 22, 2012"
 
 
+
+
+
+
+
+
 class SQTensor(object):
     """
     Class for doing useful general operation on *square* matrices, without 
