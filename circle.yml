@@ -1,7 +1,7 @@
 dependencies:
   override:
-    - python setup.py install
     - pip install -r requirements.txt
+    - python setup.py install
 test:
   override:
     - mv pymatgen pmg
