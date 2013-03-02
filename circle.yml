@@ -1,6 +1,13 @@
 dependencies:
   override:
-    - pip install numpy
+    - pip install -q numpy
+    - pip install -q scipy
+    - wget https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz
+    - tar -zxf python-ase-3.6.0.2515.tar.gz
+    - cd python-ase-3.6.0.2515
+    - python setup.py --quiet install
+    - cd ..
+    - rm -rf python-ase-3.6.0.2515
     - pip install -q -r requirements.txt
     - python setup.py install
 test:
