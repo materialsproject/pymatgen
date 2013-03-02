@@ -1,0 +1,8 @@
+dependencies:
+  override:
+    - python setup.py install
+    - pip install -r requirements.txt
+test:
+  override:
+    - mv pymatgen pmg
+    - nosetests
