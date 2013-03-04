@@ -234,7 +234,7 @@ class StructureMatcher(MSONable):
             ii. If true: break and return true
     """
 
-    def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.6, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
         Args:
@@ -270,7 +270,7 @@ class StructureMatcher(MSONable):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
-        
+
     def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         all_nn = get_points_in_sphere_pbc(
@@ -285,7 +285,7 @@ class StructureMatcher(MSONable):
             nvi = [np.array(site) for site in nvi]
             nvi = np.dot(nvi, s2.lattice.matrix)
             nv.append(nvi)
-        
+
         #The vectors are broadcast into a 5-D array containing
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
@@ -296,7 +296,7 @@ class StructureMatcher(MSONable):
             np.array([0, 1, 0])[None, None, None, :, None] +\
             np.array(nv[2])[:, None, None, None, :] *\
             np.array([0, 0, 1])[None, None, None, :, None]
-        
+
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
                                                    bfl[:, :, :, 2, :]), 3)
@@ -337,7 +337,7 @@ class StructureMatcher(MSONable):
             if lin.min_cost >= 3 * len(dist):
                 return False
         return True
-    
+
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -424,7 +424,7 @@ class StructureMatcher(MSONable):
             #if no site match found return false
             if not found:
                 return False
-        
+
         #check that sizes of the site groups are identical
         for f1, c2 in zip(s1, s2_cart):
             if len(f1) != len(c2):
