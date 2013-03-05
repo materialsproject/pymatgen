@@ -266,7 +266,9 @@ class SymmetryFinder(object):
 
     def get_refined_structure(self):
         """
-        Get the refined structure based on detected symmetry.
+        Get the refined structure based on detected symmetry. The refined
+        structure is a *conventional* cell setting with atoms moved to the
+        expected symmetry positions.
 
         Returns:
             Refined structure.
@@ -287,7 +289,8 @@ class SymmetryFinder(object):
                                            self._angle_tol)
         zs = numbers[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
-        return Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
+        s = Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
+        return s.get_sorted_structure()
 
     def find_primitive(self):
         """
