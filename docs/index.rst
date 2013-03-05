@@ -65,11 +65,8 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Vastly improved Gaussian input file parsing that supports more varieties
-   of input specifications.
-2. StructureNL now supports molecules as well as structures.
-3. Updated atomic and vdw radius for Elements.
-4. Miscellaneous bug fixes and speedups.
+1. Bug fix release for cifio for rhombohedral structures.
+2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
