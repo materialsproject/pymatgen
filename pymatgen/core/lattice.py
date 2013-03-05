@@ -457,28 +457,6 @@ class Lattice(MSONable):
 
         return None
 
-    def get_primitive_lattice(self, lattice_type):
-        """
-        Returns the primitive lattice of the lattice given the type.
-
-        Args:
-            lattice_type:
-                An alphabet indicating whether the lattice type, P - primitive,
-                R - rhombohedral, A - A-centered, B - B-centered,
-                C - C-centered, I - body-centered, F - F-centered.
-        """
-        if lattice_type == "P":
-            return Lattice(self._matrix)
-        conv_to_prim = {
-            "R": np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
-            "A": np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
-            "B": np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
-            "C": np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
-            "I": np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
-            "F": np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
-        }
-        return Lattice(dot(conv_to_prim[lattice_type], self._matrix))
-
     def get_most_compact_basis_on_lattice(self):
         """
         This method returns the alternative basis corresponding to the shortest
