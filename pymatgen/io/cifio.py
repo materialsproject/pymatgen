@@ -89,12 +89,6 @@ class CifParser(object):
         """
         Generate structure from part of the cif.
         """
-        spacegroup = data.get("_symmetry_space_group_name_H-M", "P1")
-
-        if len(spacegroup) == 0:
-            latt_type = "P"
-        else:
-            latt_type = spacegroup[0]
         lengths = [float_from_str(data["_cell_length_" + i])
                    for i in ["a", "b", "c"]]
         angles = [float_from_str(data["_cell_angle_" + i])
@@ -117,7 +111,6 @@ class CifParser(object):
                 return m.group(1)
             return ""
 
-        #oxi_states = None
         try:
             oxi_states = {data["_atom_type_symbol"][i]:
                           float_from_str(data["_atom_type_oxidation_number"][i])
