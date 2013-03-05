@@ -44,7 +44,7 @@ class PourbaixPlotter(object):
         """
         self._pd = pourbaixdiagram
         self.lines = uniquelines(self._pd.facets)
-        self.show_unstable = show_unstable 
+        self.show_unstable = show_unstable
 
     @property
     def pd_plot_data(self):
@@ -275,15 +275,17 @@ class PourbaixPlotter(object):
                             indx = unprocessed_entries.index(ent)
                             set_of_entries.add(indx)
                             continue
-            if not(label_unstable):
+            if (label_unstable):
                 for entry in [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]:
                     for e in entry.entrylist:
                         indx = unprocessed_entries.index(e)
                         set_of_entries.add(indx)
             str_labels = " Species: \n"
+            f = open("Legends_file", 'w')
             for i in set_of_entries:
                 str_labels += str(i) + " : " + str(unprocessed_entries[i].name) + "\n"
-            print "Labels: ", str_labels
+            f.write(str_labels)
+            f.close()
             plt.text(0, 0, str_labels, fontsize=15)
             plt.show()
 
