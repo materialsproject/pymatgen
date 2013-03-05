@@ -73,16 +73,13 @@ class CifParser(object):
         output = cStringIO.StringIO(cif_string)
         return CifParser(output, occupancy_tolerance)
 
-    def _unique_coords(self, coord_in, primitive, lattice, primlattice):
+    def _unique_coords(self, coord_in):
         """
         Generate unique coordinates using coord and symmetry positions.
         """
         coords = []
         for op in self.symmetry_operations:
             coord = op.operate(coord_in)
-            if primitive:
-                cart = lattice.get_cartesian_coords(np.array(coord))
-                coord = primlattice.get_fractional_coords(cart)
             coord = np.array([i - math.floor(i) for i in coord])
             if not in_coord_list_pbc(coords, coord, atol=1e-3):
                 coords.append(coord)
@@ -103,7 +100,6 @@ class CifParser(object):
         angles = [float_from_str(data["_cell_angle_" + i])
                   for i in ["alpha", "beta", "gamma"]]
         lattice = Lattice.from_lengths_and_angles(lengths, angles)
-        primlattice = lattice.get_primitive_lattice(latt_type)
         try:
             sympos = data["_symmetry_equiv_pos_as_xyz"]
         except KeyError:
@@ -156,8 +152,7 @@ class CifParser(object):
         allcoords = []
 
         for coord, species in coord_to_species.items():
-            coords = self._unique_coords(coord, primitive, lattice,
-                                         primlattice)
+            coords = self._unique_coords(coord)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
 
@@ -168,10 +163,9 @@ class CifParser(object):
                 for key, value in species.iteritems():
                     species[key] = value / totaloccu
 
+        struct = Structure(lattice, allspecies, allcoords)
         if primitive:
-            struct = Structure(primlattice, allspecies, allcoords)
-        else:
-            struct = Structure(lattice, allspecies, allcoords)
+            struct = struct.get_primitive_structure()
         return struct.get_sorted_structure()
 
     def get_structures(self, primitive=True):

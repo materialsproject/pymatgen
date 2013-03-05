@@ -20,6 +20,11 @@ class  CifIOTest(unittest.TestCase):
             self.assertEqual(s.formula, "Li4 Fe4 P4 O16",
                              "Incorrectly parsed cif.")
 
+
+        parser = CifParser(os.path.join(test_dir, 'V2O3.cif'))
+        for s in parser.get_structures(True):
+            self.assertEqual(s.formula, "V4 O6")
+
         #test for disordered structures
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
         for s in parser.get_structures(True):
