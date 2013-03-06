@@ -68,6 +68,7 @@ class MPRester(object):
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
         self.preamble = "https://{}/rest/v1".format(host)
+        self.session = requests.Session()
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -100,7 +101,7 @@ class MPRester(object):
                 self.preamble, chemsys_formula_id, data_type)
 
         try:
-            response = requests.get(url, headers=headers)
+            response = self.session.get(url, headers=headers)
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)
                 if data["valid_response"]:
@@ -291,7 +292,7 @@ class MPRester(object):
         url = "{}/parameters/vasp".format(self.preamble)
         payload = {"date": date_string} if date_string else {}
         try:
-            response = requests.get(url, data=payload)
+            response = self.session.get(url, data=payload)
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)
                 if data["valid_response"]:
@@ -342,7 +343,7 @@ class MPRester(object):
             payload = {"criteria": json.dumps(criteria),
                        "properties": json.dumps(properties)}
             headers = {"x-api-key": self.api_key}
-            response = requests.post(
+            response = self.session.post(
                 "{}/mpquery".format(self.preamble),
                 headers=headers, data=payload)
 
