@@ -66,7 +66,8 @@ Latest Change Log
 =================
 
 1. Use requests.Session in MPRester for connection pooling and code simplicity.
-2. Miscellaneous bug fixes and speedups.
+2. Support for "with" context manager in MPRester.
+3. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 

@@ -97,9 +97,7 @@ property::
    d["@class"] = self.__class__.__name__
         
 To use the PMGJSONDecoder, simply specify it as the *cls* kwarg when using json
-load, e.g.,
-
-::
+load, e.g.::
 
    json.loads(json_string, cls=PMGJSONDecoder)
 
@@ -144,17 +142,13 @@ files.
 Pymatgen provides convenient packages to parse such files to obtain a Structure 
 as well as other information associated with these files.
 
-For example, to create a Structure from a cif,
-
-::
+For example, to create a Structure from a cif::
 
    from pymatgen.io.cifio import CifParser
    parser = CifParser("mycif.cif")
    structure = parser.get_structures()[0]
 
-Another example, creating a Structure from a VASP POSCAR/CONTCAR file.
-
-::
+Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
 
    from pymatgen.io.vaspio import Poscar
    poscar = Poscar.from_file("POSCAR")
@@ -208,20 +202,19 @@ Compatibility - Mixing GGA and GGA+U runs
 
 The Ceder group has developed a scheme where by GGA and GGA+U calculations can
 be "mixed" such that analyses may be performed using the type of calculation
-most appropriate for each entry. For instance, to generate a Fe-P-O phase diagram,
-metallic phases such as Fe and FexPy are most appropriately modelled using 
-standard GGA, while a hubbard U should be applied for the oxides such as FexOy 
-and FexPyOz.
+most appropriate for each entry. For instance, to generate a Fe-P-O phase
+diagram, metallic phases such as Fe and FexPy are most appropriately modelled
+using standard GGA, while a hubbard U should be applied for the oxides such
+as FexOy and FexPyOz.
 
 In the pymatgen.io.vaspio_set module, pre-defined parameter sets have been coded
 to allow users to generate VASP input files that are consistent with input 
-parameters that are compatible with the Materials Project data. Users who wish to 
-perform analysis using runs calculated using these parameters should post-process 
-entries generated from these runs using the appropriate compatibility. For 
-example, if a user wants to generate a phase diagram from a list of entries 
-generated from Fe-P-O vasp runs, he should use the following procedure:
-
-::
+parameters that are compatible with the Materials Project data. Users who wish
+to perform analysis using runs calculated using these parameters should
+post-process entries generated from these runs using the appropriate
+compatibility. For example, if a user wants to generate a phase diagram from
+a list of entries generated from Fe-P-O vasp runs, he should use the following
+procedure::
 
    from pymatgen.entries.compatibility import MaterialsProjectCompatibility
    from pymatgen.phasediagram.pdmaker import PhaseDiagram
@@ -260,11 +253,9 @@ Simple example - Making a phase diagram
 ---------------------------------------
 
 Let's say you want to make the Li-O phase diagram. You have calculated all
-Li, O, and Li-O compounds you are interested in and the runs are in the directory
-"Li-O_runs". You can then generate the phase diagram using the following few lines
-of code:
-
-::
+Li, O, and Li-O compounds you are interested in and the runs are in the
+directory "Li-O_runs". You can then generate the phase diagram using the
+following few lines of code::
    
    from pymatgen.borg.hive import VaspToComputedEntryDrone
    from pymatgen.borg.queen import BorgQueen
@@ -277,9 +268,9 @@ of code:
    entries = queen.get_data()
    
    # It's a good idea to perform a save_data, especially if you just assimilated
-   # a large quantity of data which took some time. This allows you to reload the
-   # data using a BorgQueen initialized with only the drone argument and calling
-   # queen.load_data("Li-O_entries.json")
+   # a large quantity of data which took some time. This allows you to reload
+   # the data using a BorgQueen initialized with only the drone argument and
+   # calling queen.load_data("Li-O_entries.json")
    queen.save_data("Li-O_entries.json")
    
    # These few lines generates the phase diagram using the ComputedEntries. 
@@ -287,19 +278,18 @@ of code:
    plotter = PDPlotter(pd)
    plotter.show()
 
-In this example, neither Li nor O requires a Hubbard U. However, if you are making
-a phase diagram from a mix of GGA and GGA+U entries, you may need to post-process
-the assimilated entries with a Compatibility object before running the phase
-diagram code. See earlier section on entries_ and compatibility_.
+In this example, neither Li nor O requires a Hubbard U. However, if you are
+making a phase diagram from a mix of GGA and GGA+U entries, you may need to
+post-process the assimilated entries with a Compatibility object before
+running the phase diagram code. See earlier section on entries_ and
+compatibility_.
 
 Another example - Calculating reaction energies
 -----------------------------------------------
 
-Another example of a cool thing you can do with the loaded entries is to calculate
-reaction energies. For example, reusing the Li-O data we have saved in the above
-step,
-
-::
+Another example of a cool thing you can do with the loaded entries is to
+calculate reaction energies. For example, reusing the Li-O data we have saved
+in the above step::
    
    from pymatgen.borg.hive import VaspToComputedEntryDrone
    from pymatgen.borg.queen import BorgQueen
@@ -318,7 +308,6 @@ step,
    print rxn
    print rxn.calculated_reaction_energy
 
-
 pymatgen.transformations
 ========================
 
@@ -328,9 +317,7 @@ from simple transformations such as adding and removing sites, and replacing
 species in a structure to more advanced one-to-many transformations such as
 partially removing a fraction of a certain species from a structure using an
 electrostatic energy criterion. The Transformation classes follow a strict API.
-A typical usage is as follows:
-
-::
+A typical usage is as follows::
 
    from pymatgen.io.cifio import CifParser
    from pymatgen.transformations.standard_transformations import RemoveSpecieTransformations
@@ -358,9 +345,7 @@ changes performed on structures, with infinite undo. The main classes are:
    a Transmuter class, which takes a list of structures, and apply a sequence
    of transformations on all of them.
    
-Usage example - replace Fe with Mn and remove all Li in all structures:
-
-::
+Usage example - replace Fe with Mn and remove all Li in all structures::
 
    from pymatgen.alchemy.transmuters import TransformedStructureTransmuter
    from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
@@ -395,24 +380,24 @@ a few key methods here.
 To obtain information on a material with Materials Project Id 1234, one can use
 the following::
 
-   adaptor = MPRester("USER_API_KEY")
-   
-   #Structure for material id
-   structure = adaptor.get_structure_by_material_id(1234) 
+    with MPRester("USER_API_KEY") as m:
 
-   #Dos for material id
-   dos = adaptor.get_dos_by_material_id(1234) 
+        #Structure for material id
+        structure = m.get_structure_by_material_id(1234)
 
-   #Bandstructure for material id
-   bandstructure = adaptor.get_bandstructure_by_material_id(1234) 
+        #Dos for material id
+        dos = m.get_dos_by_material_id(1234)
+
+        #Bandstructure for material id
+        bandstructure = m.get_bandstructure_by_material_id(1234)
 
 The Materials API also allows for query of data by formulas::
 
-   #To get a list of data for all entries having formula Fe2O3   
-   data = adaptor.get_data("Fe2O3")
+    #To get a list of data for all entries having formula Fe2O3
+    data = m.get_data("Fe2O3")
    
-   #To get the energies of all entries having formula Fe2O3   
-   energies = adaptor.get_data("Fe2O3", "energy")
+    #To get the energies of all entries having formula Fe2O3
+    energies = m.get_data("Fe2O3", "energy")
 
 Finally, the MPRester provides methods to obtain all entries in a
 chemical system. Combined with the borg framework, this provides a
@@ -435,8 +420,8 @@ a new calculated material can be determined::
    entries = queen.get_data()
    
    # Obtain all existing Li-Fe-O phases using the Materials Project REST API
-   adaptor = MPRester("USER_API_KEY")
-   mp_entries = adaptor.get_entries_in_chemsys(["Li", "Fe", "O"])
+   with MPRester("USER_API_KEY") as m:
+       mp_entries = m.get_entries_in_chemsys(["Li", "Fe", "O"])
    
    # Combined entry from calculated run with Materials Project entries
    entries.extend(mp_entries)

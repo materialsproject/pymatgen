@@ -166,11 +166,13 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     def __init__(self, structure_matcher=StructureMatcher(
                  comparator=ElementComparator()), symprec=None):
         """
-        remove duplicate structures based on the structure matcher
-        and symmetry (if symprec is given)
+        Remove duplicate structures based on the structure matcher
+        and symmetry (if symprec is given).
+
         Args:
-            comparator:
-                The comparator to be used in the matching
+            structure_matcher:
+                Provides a structure matcher to be used for structure
+                comparison.
             symprec:
                 The precision in the symmetry finder algorithm
                 if None (default value), no symmetry check is performed and
