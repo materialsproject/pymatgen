@@ -65,7 +65,7 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Bug fix release for cifio for rhombohedral structures.
+1. Use requests.Session in MPRester for connection pooling and code simplicity.
 2. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
