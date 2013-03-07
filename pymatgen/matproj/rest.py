@@ -34,7 +34,14 @@ from pymatgen.io.vaspio_set import DictVaspInputSet
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST
-    interface.
+    interface. The recommended way to use MPRester is with the "with" context
+    manager to ensure that sessions are properly closed after usage::
+
+        with MPRester("API_KEY") as m:
+            do_something
+
+    MPRester uses the "requests" package, which provides for HTTP connection
+    pooling. All connections are made via https for security.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -70,6 +77,18 @@ class MPRester(object):
         self.preamble = "https://{}/rest/v1".format(host)
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
+
+    def __enter__(self):
+        """
+        Support for "with" context.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Support for "with" context.
+        """
+        self.session.close()
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
