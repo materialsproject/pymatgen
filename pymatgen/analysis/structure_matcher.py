@@ -24,6 +24,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.core.periodic_table import Element
 
 
 class AbstractComparator(MSONable):
@@ -513,4 +514,33 @@ class StructureMatcher(MSONable):
             primitive_cell=d["primitive_cell"], scale=d["scale"],
             comparator=AbstractComparator.from_dict(d["comparator"]))
 
+    def fit_anonymous(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar.
 
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            A minimal species mapping that would map struct1 to struct2 in
+            terms of structure similarity, or None if no fit is found. For
+            example, to map the cubic Li2O to cubic Na2O,
+            we need a Li->Na mapping. This method will return {Element("Li"):
+            Element("Na")}. Since O is the same in both structures,
+            there is no O to O mapping required.
+        """
+        els1 = list(struct1.composition.keys())
+        els2 = list(struct2.composition.keys())
+
+        for perm in itertools.permutations(els2):
+            mapping = {els1[i]: perm[i] for i in xrange(len(perm))}
+            editor = StructureEditor(struct1)
+            editor.replace_species(mapping)
+            if self.fit(editor.modified_structure, struct2):
+                return {k: v for k, v in mapping.items() if k!= v}
+        return None

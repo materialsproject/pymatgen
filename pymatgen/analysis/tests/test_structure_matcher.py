@@ -3,6 +3,8 @@ import os
 import json
 import numpy as np
 import random
+
+from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -59,6 +61,11 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
+        #Test anonymous fit.
+        print sm.fit_anonymous(lfp, nfp)
+        self.assertEqual(sm.fit_anonymous(lfp, nfp),
+                         {Element("Li"): Element("Na")})
+
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
                        [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
@@ -70,6 +77,8 @@ class StructureMatcherTest(unittest.TestCase):
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertFalse(sm.fit(s1, s2))
         self.assertFalse(sm.fit(s2, s1))
+
+
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
