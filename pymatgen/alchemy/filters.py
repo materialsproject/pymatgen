@@ -214,12 +214,10 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
 class ChargeBalanceFilter(AbstractStructureFilter):
     """
-     This filter removes structures that are not
-     charge balanced from the transmuter.
-     This only works if the structure is
-     oxidation state decorated, as structures
-     with only elemental sites are automatically
-     assumed to have net charge of 0
+    This filter removes structures that are not charge balanced from the
+    transmuter. This only works if the structure is oxidation state
+    decorated, as structures with only elemental sites are automatically
+    assumed to have net charge of 0.
     """
     def test(self, structure):
         if structure.charge == 0.0:
