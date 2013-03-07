@@ -1,6 +1,12 @@
 Change log
 ==========
 
+Version 2.5.5
+-------------
+
+1. Bug fix release for cifio for rhombohedral structures.
+2. Miscellaneous bug fixes and speedups.
+
 Version 2.5.4
 -------------
 1. Vastly improved Gaussian input file parsing that supports more varieties
