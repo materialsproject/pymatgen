@@ -1,5 +1,5 @@
 """
-Classes for defining Abinit calculations and workflows
+Classes defining Abinit calculations and workflows
 """
 from __future__ import division, print_function
 
