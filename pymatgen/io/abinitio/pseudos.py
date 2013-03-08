@@ -123,6 +123,10 @@ class Pseudo(object):
             pseudos.append(parser.parse(filename))
         return pseudos
 
+    def __repr__(self):
+        return "<%s at %s, task_workdir = %s>" % (
+            self.__class__.__name__, id(self), self.basename)
+
     def __str__(self): 
         "String representation"
         lines = []
