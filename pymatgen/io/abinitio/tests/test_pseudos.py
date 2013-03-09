@@ -53,7 +53,7 @@ class PseudoTestCase(unittest.TestCase):
                 self.assertTrue(pseudo.isnc)
                 self.assertFalse(pseudo.ispaw)
                 self.assertEqual(pseudo.Z, 14)
-                #self.assertEqual(pseudo.symbol, symbol)
+                self.assertEqual(pseudo.symbol, symbol)
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
 
