@@ -9,7 +9,6 @@ import os.path
 import sys
 import abc
 import collections
-#import periodictable 
 import cPickle as pickle
 import xml.etree.ElementTree as ET
 import cStringIO as StringIO
@@ -32,12 +31,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
-
-# TODO Change PeriodicTable
-#class MyPeriodicTable(PeriodicTable):
-#    def __getitem__(self, z):
-#        symbol = symbol_from_z(z)
-#        return self[symbol]
 
 ##########################################################################################
 # Tools and helper functions.
@@ -98,6 +91,7 @@ def l2str(l):
     return _l2str[l]
 
 ##########################################################################################
+_periodic_table = PeriodicTable()
 
 class Pseudo(object):
     """
@@ -164,7 +158,7 @@ class Pseudo(object):
     @property
     def symbol(self):                                                                                               
         "Element symbol."
-        return str(periodictable.elements[self.Z])
+        return _periodic_table[self.Z].symbol
 
     @abc.abstractproperty
     def l_max(self):
@@ -763,6 +757,13 @@ class AbinitHeader(dict):
     #    "extra_info object"
 
 ##########################################################################################
+def _int_from_str(string):
+    float_num = float(string)
+    int_num = int(float_num)
+    if float_num == int_num:
+        return int_num
+    else:
+        raise TypeError("Cannot convert string %s to int" % string)
 
 class NcAbinitHeader(AbinitHeader):
     """
@@ -772,7 +773,7 @@ class NcAbinitHeader(AbinitHeader):
 
     _vars = {
         # Mandatory
-        "zatom"        : _attr_desc(None, float), 
+        "zatom"        : _attr_desc(None, _int_from_str), 
         "zion"         : _attr_desc(None, float),
         "pspdat"       : _attr_desc(None, float),
         "pspcod"       : _attr_desc(None, int),
@@ -1250,7 +1251,10 @@ class PseudoTable(object):
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
-            symbol = str(periodictable.elements[z])
+            symbols = [p.symbol for p in pseudo_list]
+            symbol = symbols[0]
+            if any(symbols != symbol):
+                raise ValueError("All symbols must be equal while they are: %s" % str(symbols))
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):

@@ -3,6 +3,7 @@
 from __future__ import division
 import unittest
 import pickle
+import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     PeriodicTable, _pt_data
@@ -237,6 +238,17 @@ class  PeriodicTableTestCase(unittest.TestCase):
     def test_print_periodic_table(self):
         PeriodicTable().print_periodic_table()
 
+    def test_iterable(self):
+        "Test whether PeriodicTable supports the iteration protocol"
+        table = PeriodicTable()
+
+        self.assertTrue(isinstance(table, collections.Iterable))
+
+        self.assertEqual(table[14].Z, 14)
+        self.assertEqual([e.Z for e in table[1:4:2]], [1,3])
+
+        for (idx, element) in enumerate(table):
+            self.assertEqual(idx+1, element.Z)
 
 if __name__ == "__main__":
     unittest.main()
