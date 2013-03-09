@@ -23,8 +23,8 @@ from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo
 from .abinit_input import Input, Electrons, System, Control, Kpoints
 from .utils import parse_ewc, abinit_output_iscomplete
 from .eos import EOS
+from .jobfile import JobFile
 
-#from abipy.htc.jobfile import JobFile
 #import logging
 #logger = logging.getLogger(__name__)
 

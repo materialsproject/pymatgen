@@ -302,7 +302,7 @@ class System(AbinitCard):
         if isinstance(pptable_or_pseudos, PseudoTable):
             pseudos = []
             table = pptable_or_pseudos
-            for typ in structure.specie_types:
+            for typ in structure.types_of_specie:
                                                                                      
                 # Get list of pseudopotentials in table from atom symbol.
                 pseudos_for_type = table.pseudos_with_symbol(typ)
@@ -324,18 +324,18 @@ class System(AbinitCard):
         # TODO
         #self.num_valence_electrons 
                                                                               
-        specie_types = structure.specie_types
+        types_of_specie = structure.types_of_specie
                                                                      
         natom = structure.num_sites, 
-        ntypat = len(specie_types)
+        ntypat = len(types_of_specie)
                                                                      
-        znucl_type = [specie.number for specie in specie_types]
+        znucl_type = [specie.number for specie in types_of_specie]
                                                                      
         znucl_atoms = structure.atomic_numbers
 
         typat = np.zeros(natom, np.int)
         for (atm_idx, site) in enumerate(structure):
-            typat[atm_idx] = specie_types.index(site.specie) + 1
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
         significant_figures = 6
         format_str = "{{:.{0}f}}".format(significant_figures)
