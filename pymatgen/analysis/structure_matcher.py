@@ -24,7 +24,6 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc
-from pymatgen.core.periodic_table import Element
 
 
 class AbstractComparator(MSONable):
