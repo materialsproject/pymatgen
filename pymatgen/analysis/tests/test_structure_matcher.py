@@ -100,7 +100,7 @@ class StructureMatcherTest(unittest.TestCase):
     def test_class(self):
         """Tests entire class as single working unit"""
         sm = StructureMatcher()
-        """ Test group_structures and find_indicies"""
+        """ Test group_structures and find_indices"""
         out = sm.group_structures(self.struct_list)
 
         self.assertEqual(sm.find_indexes(self.struct_list, out),
