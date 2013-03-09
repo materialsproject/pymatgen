@@ -12,6 +12,7 @@ import collections
 import cPickle as pickle
 import xml.etree.ElementTree as ET
 import cStringIO as StringIO
+import numpy as np
 
 from os.path import join as pj
 from warnings import warn
@@ -631,7 +632,6 @@ class PseudoExtraInfo(object):
         Plot the value of varname as function of ecut.
         """
         import matplotlib.pyplot as plt
-        import numpy as np
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -1623,7 +1623,4 @@ if __name__ == "__main__":
     si_lda_pseudos = database.nc_pseudos("Si", "LDA")
 
     #for pp in si_lda_pseudos: print pp
-
     #si_pseudo = si_lda_pseudos[0]
-    #for z in range(0,10):
-    #    print z, periodictable.elements[z]

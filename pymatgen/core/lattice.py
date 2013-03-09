@@ -708,3 +708,18 @@ class Lattice(MSONable):
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
+
+    def scale(self, new_volume):
+        """
+        Return a new Lattice with volume new_volume by performing a 
+        scaling of the lattice vectors so that length proportions and angles are preserved.
+        """
+        versors = self.matrix / self.abc
+
+        geo_factor = abs(np.dot(np.cross(versors[0], versors[1]), versors[2]))
+
+        ratios = self.abc / self.c
+
+        new_c = (new_volume / ( geo_factor * np.prod(ratios))) ** (1/3.)
+
+        return Lattice(versors * (new_c * ratios))

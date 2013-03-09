@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-"""
-Created on Fri Mar  8 23:14:02 CET 2013
-"""
 from __future__ import division, print_function
 
 import unittest
@@ -12,7 +9,6 @@ from pymatgen.io.abinitio.eos import EOS
 def have_scipy():
     try:
         import scipy
-        from scipy.optimize import leastsq
         return True
     except ImportError:
         return False

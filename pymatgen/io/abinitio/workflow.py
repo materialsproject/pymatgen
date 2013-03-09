@@ -7,6 +7,7 @@ import sys
 import os
 import os.path
 import collections
+import subprocess
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -21,9 +22,9 @@ from .netcdf import GSR_Reader
 from .pseudos import PseudoDatabase, PseudoTable, PseudoExtraInfo
 from .abinit_input import Input, Electrons, System, Control, Kpoints
 from .utils import parse_ewc, abinit_output_iscomplete
+from .eos import EOS
 
 #from abipy.htc.jobfile import JobFile
-#from ..eos import EOS
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -303,7 +304,6 @@ class AbinitTask(object):
 
         self.setup(*args, **kwargs)
 
-        import subprocess
         returncode = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
 
         self.teardown(*args, **kwargs)
@@ -905,25 +905,6 @@ class RelaxWorkflow(Workflow):
 
 ##########################################################################################
 
-def scale_lattice(lattice, new_volume):
-    """
-    Return a new lattice with volume new_volume by performing a 
-    scaling of the lattice vectors so that length proportions and angles are preserved.
-    """
-    versors = lattice.matrix / lattice.abc
-
-    geo_factor = abs(np.dot(np.cross(versors[0], versors[1]), versors[2]))
-
-    ratios = lattice.abc / lattice.c
-
-    new_c = (new_volume / ( geo_factor * np.prod(ratios))) ** (1/3.)
-
-    new_lattice = Lattice(versors * (new_c * ratios))
-    #assert abs(new_lattice.volume - new_volume) < 1.0e-12
-    return new_lattice
-
-##########################################################################################
-
 class DeltaTest(Workflow):
 
     def __init__(self, structure_or_cif, pptable_or_pseudos, ngkpt,
@@ -937,7 +918,6 @@ class DeltaTest(Workflow):
             structure = structure_or_cif
         else:
             # Assume CIF file
-
             structure = read_structure(structure_or_cif)
 
         self._input_structure = structure
@@ -954,7 +934,7 @@ class DeltaTest(Workflow):
 
         for vol in self.volumes:
 
-            new_lattice = scale_lattice(structure.lattice, vol)
+            new_lattice = structure.lattice.scale(vol)
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
 
