@@ -4,12 +4,6 @@ Created on Fri Mar  8 23:14:02 CET 2013
 """
 from __future__ import division, print_function
 
-__author__ = "Matteo Giantomassi"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Matteo Giantomassi"
-__email__ = "gmatteo@gmail.com"
-
 import unittest
 import os.path
 import collections

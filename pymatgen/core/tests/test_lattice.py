@@ -11,7 +11,19 @@ class  LatticeTestCase(unittest.TestCase):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
+
+        self.cubic      = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)
+        self.orthorhombic = Lattice.orthorhombic(10, 20, 30)
+        self.monoclinic  = Lattice.monoclinic(10, 20 ,30, 66)
+        self.hexagonal = Lattice.hexagonal(10, 20)
+        self.rhombohedral = Lattice.rhombohedral(10, 77)
+
+        family_names = ["cubic", "tetragonal", "orthorhombic", "monoclinic", "hexagonal", "rhombohedral"]
+
+        self.families = {}
+        for name in family_names:
+            self.families[name] = getattr(self, name)
 
     def test_init(self):
         a = 9.026
@@ -197,6 +209,15 @@ class  LatticeTestCase(unittest.TestCase):
         for i in range(3):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
+
+    def test_scale(self):
+        new_volume = 10
+        lattices = [self.lattice, self.tetragonal]
+
+        for (family_name, lattice) in self.families.items():
+            new_lattice = lattice.scale(new_volume)
+            self.assertAlmostEqual(new_lattice.volume, new_volume)
+            self.assertEqual(new_lattice.angles, lattice.angles)
 
 if __name__ == '__main__':
     unittest.main()
