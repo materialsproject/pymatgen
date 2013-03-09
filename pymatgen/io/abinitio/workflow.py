@@ -19,13 +19,12 @@ from pymatgen.io.smartio import read_structure
 from pymatgen.util.string_utils import stream_has_colours
 
 from .netcdf import GSR_Reader
-from .pseudos import PseudoDatabase, PseudoTable, PseudoExtraInfo
+from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo
 from .abinit_input import Input, Electrons, System, Control, Kpoints
 from .utils import parse_ewc, abinit_output_iscomplete
 from .eos import EOS
 
 #from abipy.htc.jobfile import JobFile
-
 #import logging
 #logger = logging.getLogger(__name__)
 
@@ -38,7 +37,8 @@ __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
 __all__ = [
-    "Workflow",
+"Workflow",
+"PseudoEcutTest_Workflow",
 ]
 
 ##########################################################################################
@@ -721,18 +721,25 @@ class PseudoEcutTest_Workflow(Workflow):
                  workdir       = None,
                  spin_mode     = "unpolarized", 
                  smearing      = None,
-                 acell         = 8, 
+                 acell         = 3*(10,), 
                 ):
-        
+        """
+        Args:
+            pseudo:
+                string or Pseudo instance
+        """
         user_options = {}
 
         self.pseudo = pseudo
-        workdir = workdir if workdir else pseudo.basename
+        if not isinstance(pseudo, Pseudo):
+            self.pseudo = Pseudo.from_filename(pseudo)
+
+        workdir = workdir if workdir else self.pseudo.basename
 
         Workflow.__init__(self, workdir, user_options=user_options)
         
         # Define System: one atom in a box of lenghts acell. 
-        box = System.atom_in_periodic_box(pseudo, acell=acell)
+        box = System.boxed_atom(self.pseudo, acell=acell)
 
         # Gamma-only sampling.
         gamma_only = Kpoints.gamma_only()
@@ -1095,14 +1102,6 @@ def get_abinit_psp_dir(code="ABINIT"):
     return None
 
 def test_abinitio(structure):
-    v = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
-    e = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
-
-    #eos = EOS.Murnaghan()
-    #fit = eos.fit(v, e)
-    #print fit
-    #sys.exit(1)
-
     psp_dir = get_abinit_psp_dir()
 
     pp_database = PseudoDatabase(dirpath=psp_dir, force_reload=False)
@@ -1114,10 +1113,10 @@ def test_abinitio(structure):
 
     user_options = {}
 
-    pptest = PseudoEcutTest_Workflow(pseudo, range(10,40,2))
+    pptest_wf = PseudoEcutTest_Workflow(pseudo, range(10,40,2))
 
     #pptest.show_inputs()
-    pptest.start()
+    pptest_wf.start()
     sys.exit(1)
 
     scf_ngkpt = [4,4,4]

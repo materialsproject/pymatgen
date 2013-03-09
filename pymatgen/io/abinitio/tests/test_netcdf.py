@@ -89,4 +89,8 @@ class GSR_Reader_TestCase(PymatgenTestCase):
                 print("group: " + str(group))
 
             # Init structure from GSR.
-            #structure = data.get_structure()
+            # TODO change name in the ETSF file since site does not accept cartesian_forces
+            #site_properties = ["forces",]
+            site_properties = []
+
+            structure = data.get_structure(site_properties=site_properties)

@@ -6,6 +6,7 @@ import os.path
 import collections 
 
 from pymatgen.core.structure import Structure
+from pymatgen.core.physical_constants import Bohr2Ang
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -18,6 +19,7 @@ __date__ = "$Feb 21, 2013M$"
 __all__ = [
 "NetcdfReader",
 "GSR_Reader",
+"structure_from_etsf_file",
 ]
 
 ##########################################################################################
@@ -123,12 +125,54 @@ class NetcdfReader(object):
 
 class GSR_Reader(NetcdfReader):
 
-    def get_structure(self):
+    def get_structure(self, site_properties=None):
         if self.ngroups != 1:
             raise NotImplementedError("ngroups != 1")
 
-        return Structure.from_etsf_file(self.rootgrp)
+        return structure_from_etsf_file(self, site_properties=site_properties)
 
     #def isconverged(self):
+    #    "True if calculation is converged"
 
 ##########################################################################################
+
+def structure_from_etsf_file(ncdata, site_properties=None):
+    """
+    Return a new instance from a NetCDF file containing crystallographic data in the ETSF-IO format.
+
+    Args:
+        ncdata: filename or NetcdfReader instance.
+    """
+
+    open_and_close = isinstance(ncdata, str)
+    if open_and_close:
+        ncdata = NetcdfReader(ncdata)
+
+    # TODO check whether atomic units are used
+
+    lattice = Bohr2Ang(ncdata.get_value("primitive_vectors"))
+
+    red_coords = ncdata.get_value("reduced_atom_positions")
+    natom = len(red_coords)
+
+    znucl_type = ncdata.get_value("atomic_numbers")
+
+    typat = ncdata.get_value("atom_species")
+
+    species = np.zeros(natom, np.int)
+    for atom in range(natom):
+        # Fortran to C index and float --> int conversion.
+        type_idx = typat[atom] - 1
+        species[atom] = znucl_type[type_idx-1]
+
+    d = {}
+    if site_properties is not None:
+        for property in site_properties:
+                d[property] = ncdata.get_value(property)
+    
+    new_structure = Structure(lattice, species, red_coords, site_properties=d)
+
+    if open_and_close:
+        ncdata.close()
+
+    return new_structure
