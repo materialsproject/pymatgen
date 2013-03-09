@@ -11,7 +11,7 @@ import collections
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -384,10 +384,19 @@ class System(AbinitCard):
     #        specie.pseudo
     #    return sum(p.num_valence_electrons for p in self.pseudos)
 
-    @staticmethod
-    def atom_in_periodic_box(pseudo, frac_coords=3*(0,), acell=3*(10,)):
+    #@staticmethod
+    #def boxed_molecule(pseudos, cart_coords=3*(0,), acell=3*(10,)):
 
-        structure = Structure.atom_in_periodic_box(pseudo.symbol, frac_coords=frac_coords, lengths=Bohr2Ang(acell)) 
+    @staticmethod
+    def boxed_atom(pseudo, cart_coords=3*(0,), acell=3*(10,)):
+
+        cart_coords = np.atleast_2d(cart_coords)
+
+        molecule = Molecule([pseudo.symbol], cart_coords)
+
+        l = Bohr2Ang(acell)
+
+        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
 
         comment = structure.formula + " in a box of size %s [Bohr]" % str(acell)
 
