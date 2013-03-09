@@ -211,7 +211,7 @@ class AbinitTask(object):
         "Create the absolute path of filename in the workind directory."
         return os.path.join(self.workdir, filename)
 
-    def make_dirs_and_files(self, *args, **kwargs):
+    def build(self, *args, **kwargs):
         """
         Write Abinit input files and directory.
         """
@@ -572,7 +572,7 @@ class Workflow(MSONable):
         Method called before running the calculations. 
         The default implementation creates the workspace directory and the input files.
         """
-        self.make_dirs_and_files(*args, **kwargs)
+        self.build(*args, **kwargs)
 
     def teardown(self, *args, **kwargs):
         """
@@ -631,7 +631,7 @@ class Workflow(MSONable):
 
         return TaskDependencies(new_task, newtask_id)
 
-    def make_dirs_and_files(self, *args, **kwargs):
+    def build(self, *args, **kwargs):
         self._tasks = tuple(self._tasks)
 
         # Create top level directory.
@@ -640,7 +640,7 @@ class Workflow(MSONable):
 
         # Create task workdirs and files.
         for task in self:
-            task.make_dirs_and_files(*args, **kwargs)
+            task.build(*args, **kwargs)
 
     def get_status(self, only_highest_rank=True):
         "Get the status of the tasks in self."

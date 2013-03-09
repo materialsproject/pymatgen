@@ -5,24 +5,10 @@ import unittest
 import collections
 import numpy as np
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import GSR_Reader 
 
 import numpy.testing.utils as nptu
-
-# TODO: Move this class declaration above (tests_files or new dir testing?)
-class PymatgenTestCase(unittest.TestCase):
-    """
-    Extends unittest.TestCase with functions (taken from numpy.testing.utils) 
-    that support the comparison of ndarrays.
-    """
-
-    @staticmethod
-    def assert_almost_equal(actual, desired, decimal=7, err_msg='', verbose=True):
-        return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
-
-    @staticmethod
-    def assert_equal(actual, desired, err_msg='', verbose=True):
-      return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
 
 test_dir = os.path.join(os.path.dirname(__file__))
 
@@ -44,7 +30,7 @@ def netcdf_version():
 def filepath(basename):
     return os.path.join(test_dir, basename)
 
-class GSR_Reader_TestCase(PymatgenTestCase):
+class GSR_Reader_TestCase(PymatgenTest):
 
     def setUp(self):
         formulas = ["Si2"]

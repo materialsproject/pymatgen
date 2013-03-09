@@ -29,3 +29,5 @@ class WorkflowTestCase(unittest.TestCase):
         self.assertTrue(isinstance(pptest_wf, collections.Iterable))
         self.assertTrue(pptest_wf.isnc)
 
+        #pptest_wf.make_dirs_and_files()
+        #pptest_wf.destroy()
