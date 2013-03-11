@@ -198,5 +198,12 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
 
+    def test_get_wigner_seitz_cell(self):
+        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
+                                        .get_wigner_seitz_cell()
+        self.assertEqual(6, len(ws_cell))
+        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
+                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+
 if __name__ == '__main__':
     unittest.main()
