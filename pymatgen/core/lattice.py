@@ -711,13 +711,13 @@ class Lattice(MSONable):
 
     def get_wigner_seitz_cell(self):
         """
-            returns the Wigner-Seitz cell for the given lattice
-            Returns:
-                a list of list of coordinates.
-                Each element in the list is a "facet" of the
-                boundary of the Wigner Seitz cell. For instance,
-                a list of four coordinates will represent a
-                square facet.
+        Returns the Wigner-Seitz cell for the given lattice.
+
+        Returns:
+            A list of list of coordinates.
+            Each element in the list is a "facet" of the boundary of the
+            Wigner Seitz cell. For instance, a list of four coordinates will
+            represent a square facet.
         """
         from pyhull.voronoi import VoronoiTess
         vec1 = self.matrix[0]
@@ -759,13 +759,13 @@ class Lattice(MSONable):
 
     def get_brillouin_zone(self):
         """
-            returns the Wigner-Seitz cell for the reciprocal lattice,
-            a. k. a. the Brillouin Zone
-            Returns:
-                a list of list of coordinates.
-                Each element in the list is a "facet" of the
-                boundary of the Brillouin Zone. For instance,
-                a list of four coordinates will represent a
-                square facet.
+        Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
+        Brillouin Zone.
+
+        Returns:
+            A list of list of coordinates.
+            Each element in the list is a "facet" of the boundary of the
+            Brillouin Zone. For instance, a list of four coordinates will
+            represent a square facet.
         """
         return self.reciprocal_lattice.get_wigner_seitz_cell()
