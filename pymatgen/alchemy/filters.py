@@ -164,13 +164,15 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     """
 
     def __init__(self, structure_matcher=StructureMatcher(
-        comparator=ElementComparator()), symprec=None):
+                 comparator=ElementComparator()), symprec=None):
         """
-        remove duplicate structures based on the structure matcher
-        and symmetry (if symprec is given)
+        Remove duplicate structures based on the structure matcher
+        and symmetry (if symprec is given).
+
         Args:
-            comparator:
-                The comparator to be used in the matching
+            structure_matcher:
+                Provides a structure matcher to be used for structure
+                comparison.
             symprec:
                 The precision in the symmetry finder algorithm
                 if None (default value), no symmetry check is performed and
@@ -188,12 +190,15 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self._structure_list.append(structure)
             return True
 
+        def get_sg(s):
+            finder = SymmetryFinder(s, symprec=self._symprec)
+            return finder.get_spacegroup_number()
+
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
-                if self._symprec == None or SymmetryFinder(s).\
-                get_spacegroup_number() ==\
-                SymmetryFinder(structure).get_spacegroup_number():
+                if self._symprec is None or \
+                        get_sg(s) == get_sg(structure):
                     if self._sm.fit(s, structure):
                         return False
 
@@ -209,12 +214,10 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 
 class ChargeBalanceFilter(AbstractStructureFilter):
     """
-     This filter removes structures that are not
-     charge balanced from the transmuter.
-     This only works if the structure is
-     oxidation state decorated, as structures
-     with only elemental sites are automatically
-     assumed to have net charge of 0
+    This filter removes structures that are not charge balanced from the
+    transmuter. This only works if the structure is oxidation state
+    decorated, as structures with only elemental sites are automatically
+    assumed to have net charge of 0.
     """
     def test(self, structure):
         if structure.charge == 0.0:

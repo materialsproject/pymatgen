@@ -33,13 +33,13 @@ class SymmetryFinderTest(unittest.TestCase):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
-        self.structure = p.struct
+        self.structure = p.structure
         self.sg = SymmetryFinder(self.structure, 0.001)
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
         self.disordered_structure = parser.get_structures()[0]
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
-        s = p.struct
-        editor = StructureEditor(p.struct)
+        s = p.structure
+        editor = StructureEditor(s)
         site = s[0]
         editor.delete_site(0)
         editor.append_site(site.species_and_occu, site.frac_coords)
@@ -104,6 +104,10 @@ class SymmetryFinderTest(unittest.TestCase):
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
+        parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
+        s = parser.get_structures()[0]
+        sg = SymmetryFinder(s, 0.001)
+        self.assertEqual(sg.get_refined_structure().num_sites, 4*s.num_sites)
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
