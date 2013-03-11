@@ -8,6 +8,21 @@ from pymatgen.util.string_utils import list_strings, StringColorizer
 
 class _ewc_tuple(collections.namedtuple("ewc_tuple", "errors, warnings, comments")):
 
+    @property
+    def num_errors(self):
+        "Number of error messages"
+        return len(self.errors)
+
+    @property
+    def num_warnings(self):
+        "Number of warning messages"
+        return len(self.warnings)
+
+    @property
+    def num_comments(self):
+        "Number of comments"
+        return len(self.comments)
+
     def tostream(self, stream):
         "Return a string that can be visualized on stream (with colors if stream support them)."
         str_colorizer = StringColorizer(stream)

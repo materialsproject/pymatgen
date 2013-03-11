@@ -33,12 +33,12 @@ def filepath(basename):
 class GSR_Reader_TestCase(PymatgenTest):
 
     def setUp(self):
-        formulas = ["Si2"]
+        formulas = ["Si2",]
         self.GSR_paths = d = {}
         for formula in formulas:
             d[formula] = filepath(formula + "_GSR.nc")
 
-    @unittest.skipIf(netcdf_version == 0, "test_fit requires scipy")
+    @unittest.skipIf(netcdf_version == 0, "Requires Netcdf IO-library")
     def test_read_Si2(self):
         path = self.GSR_paths["Si2"]
 
