@@ -724,31 +724,9 @@ class Lattice(MSONable):
         vec2 = self.matrix[1]
         vec3 = self.matrix[2]
 
-        #make the grid
-        max_x = -1000
-        max_y = -1000
-        max_z = -1000
-        min_x = 1000
-        min_y = 1000
-        min_z = 1000
         list_k_points = []
-        for i in [-1, 0, 1]:
-            for j in [-1, 0, 1]:
-                for k in [-1, 0, 1]:
-                    list_k_points.append(i * vec1 + j * vec2 + k * vec3)
-                    if list_k_points[-1][0] > max_x:
-                        max_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] > max_y:
-                        max_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] > max_z:
-                        max_z = list_k_points[-1][0]
-
-                    if list_k_points[-1][0] < min_x:
-                        min_x = list_k_points[-1][0]
-                    if list_k_points[-1][1] < min_y:
-                        min_y = list_k_points[-1][1]
-                    if list_k_points[-1][2] < min_z:
-                        min_z = list_k_points[-1][0]
+        for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
+            list_k_points.append(i * vec1 + j * vec2 + k * vec3)
         tess = VoronoiTess(list_k_points)
         to_return = []
         for r in tess.ridges:
