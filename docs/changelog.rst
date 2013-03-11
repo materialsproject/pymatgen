@@ -1,6 +1,20 @@
 Change log
 ==========
 
+Version 2.5.5
+-------------
+
+1. Bug fix release for cifio for rhombohedral structures.
+2. Miscellaneous bug fixes and speedups.
+
+Version 2.5.4
+-------------
+1. Vastly improved Gaussian input file parsing that supports more varieties
+   of input specifications.
+2. StructureNL now supports molecules as well as structures.
+3. Updated atomic and vdw radius for Elements.
+4. Miscellaneous bug fixes and speedups.
+
 Version 2.5.3
 -------------
 1. Bug fix for StructureNotationalLanguage.

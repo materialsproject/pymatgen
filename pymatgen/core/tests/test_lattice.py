@@ -23,19 +23,6 @@ class  LatticeTestCase(unittest.TestCase):
                 self.assertAlmostEqual(lattice.matrix[i][j],
                                        lattice2.matrix[i][j], 5,
                                        "Inconsistent matrix from two inits!")
-        primlatt = lattice.get_primitive_lattice('I')
-        (lengths, angles) = primlatt.lengths_and_angles
-        for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], 7.81674529, 5,
-                                   "Wrong primitive lattice obtained!")
-            self.assertAlmostEqual(angles[i], 109.47122063, 5,
-                                   "Wrong primitive lattice obtained!")
-        coord = lattice.get_cartesian_coords(np.array([0.5, 0.5, 0.5]))
-        prim_frac = primlatt.get_fractional_coords(coord)
-        for i in range(0, 3):
-            self.assertAlmostEqual(coord[i], 4.513, 5, "Wrong coord!")
-            self.assertAlmostEqual(prim_frac[i], 1, 5,
-                                   "Wrong primitive frac coord!")
 
     def test_get_cartesian_or_frac_coord(self):
         coord = self.lattice.get_cartesian_coords(np.array([0.15, 0.3, 0.4]))
