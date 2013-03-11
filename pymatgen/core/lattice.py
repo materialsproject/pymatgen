@@ -470,7 +470,7 @@ class Lattice(MSONable):
         if lattice_type == "P":
             return Lattice(self._matrix)
         conv_to_prim = {
-            "R": np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
+	    "R": np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
             "A": np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
             "B": np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
             "C": np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
@@ -730,3 +730,64 @@ class Lattice(MSONable):
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
+
+    def get_wigner_seitz_cell(self):
+        """
+            returns the Wigner-Seitz cell for the given lattice
+            Returns:
+                a list of list of coordinates.
+                Each element in the list is a "facet" of the
+                boundary of the Wigner Seitz cell. For instance,
+                a list of four coordinates will represent a
+                square facet.
+        """
+        from pyhull.voronoi import VoronoiTess
+        vec1 = self.matrix[0]
+        vec2 = self.matrix[1]
+        vec3 = self.matrix[2]
+
+        #make the grid
+        max_x = -1000
+        max_y = -1000
+        max_z = -1000
+        min_x = 1000
+        min_y = 1000
+        min_z = 1000
+        list_k_points = []
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                for k in [-1, 0, 1]:
+                    list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+                    if list_k_points[-1][0] > max_x:
+                        max_x = list_k_points[-1][0]
+                    if list_k_points[-1][1] > max_y:
+                        max_y = list_k_points[-1][1]
+                    if list_k_points[-1][2] > max_z:
+                        max_z = list_k_points[-1][0]
+
+                    if list_k_points[-1][0] < min_x:
+                        min_x = list_k_points[-1][0]
+                    if list_k_points[-1][1] < min_y:
+                        min_y = list_k_points[-1][1]
+                    if list_k_points[-1][2] < min_z:
+                        min_z = list_k_points[-1][0]
+        tess = VoronoiTess(list_k_points)
+        to_return = []
+        for r in tess.ridges:
+            if r[0] == 13 or r[1] == 13:
+                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+
+        return to_return
+
+    def get_brillouin_zone(self):
+        """
+            returns the Wigner-Seitz cell for the reciprocal lattice,
+            a. k. a. the Brillouin Zone
+            Returns:
+                a list of list of coordinates.
+                Each element in the list is a "facet" of the
+                boundary of the Brillouin Zone. For instance,
+                a list of four coordinates will represent a
+                square facet.
+        """
+        return self.reciprocal_lattice.get_wigner_seitz_cell()
