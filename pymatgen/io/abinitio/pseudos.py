@@ -157,9 +157,13 @@ class Pseudo(object):
         "Valence charge"
 
     @property
+    def element(self):
+        return _periodic_table[self.Z]
+
+    @property
     def symbol(self):                                                                                               
         "Element symbol."
-        return _periodic_table[self.Z].symbol
+        return self.element.symbol
 
     @abc.abstractproperty
     def l_max(self):

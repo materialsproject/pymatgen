@@ -17,6 +17,7 @@ from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.string_utils import stream_has_colours
+from pymatgen.util.filelock import FileLock
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo
@@ -213,7 +214,7 @@ class AbinitTask(object):
 
     def build(self, *args, **kwargs):
         """
-        Write Abinit input files and directory.
+        Writes Abinit input files and directory.
         """
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
@@ -302,11 +303,20 @@ class AbinitTask(object):
         if kwargs.get('verbose'):
             print('Running ' + self.input_path)
 
+        lock = FileLock(self.path_in_workdir("__lock__"))
+
+        try:
+            lock.acquire()
+        except FileLock.Exception:
+            raise
+
         self.setup(*args, **kwargs)
 
         returncode = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
 
         self.teardown(*args, **kwargs)
+
+        lock.release()
 
         return returncode
 
@@ -347,7 +357,6 @@ class TaskStatus(object):
                                                                 
             #main_info = main.tostream(stream)
             #log_info  = log.tostream(stream)
-
 
         # TODO err file!
         elif task.output_file.exists and task.log_file.exists:
@@ -431,7 +440,7 @@ class TaskStatus(object):
         if stream_has_colours(stream):
             color = lambda stat : _status2txtcolor[stat](stat)
 
-        stream.write( self._task.name + ': ' + color(self._level_str) + "\n")
+        stream.write(self._task.name + ': ' + color(self._level_str) + "\n")
 
     def print_ewc_messages(self, stream=sys.stdout, **kwargs):
 
@@ -497,11 +506,15 @@ class TaskDependencies(object):
         return vars
 
 ##########################################################################################
+class WorkflowError(Exception):
+    pass
 
 class Workflow(MSONable):
     """
     A workflow is a list of (possibly connected) tasks.
     """
+    Error = WorkflowError
+
     def __init__(self, workdir, user_options=None):
         """
         Args:
@@ -510,9 +523,8 @@ class Workflow(MSONable):
         """
         self.workdir = os.path.abspath(workdir)
 
-        # TODO Use default configuration.
         #if os.path.exists(self.workdir):
-        #    raise ValueError("Workir %s already exists!")
+        #    raise self.Error("Workdir %s already exists!" % self.workdir)
 
         if user_options is not None:
             self.user_options = user_options
@@ -620,10 +632,6 @@ class Workflow(MSONable):
         #if new_task in self._deps:
         #    raise ValueError("task is already registered!")
 
-        #if new_task in self:
-            #print "task is already in self!"
-            #raise ValueError("task is already in self!")
-
         self._tasks.append(new_task)
 
         newtask_id = len(self)
@@ -632,7 +640,6 @@ class Workflow(MSONable):
         return TaskDependencies(new_task, newtask_id)
 
     def build(self, *args, **kwargs):
-        self._tasks = tuple(self._tasks)
 
         # Create top level directory.
         if not os.path.exists(self.workdir):
@@ -679,6 +686,13 @@ class Workflow(MSONable):
 
         num_pythreads = int(kwargs.pop("num_pythreads", 1))
 
+        lock = FileLock(self.path_in_workdir("__lock__"))
+
+        try:
+            lock.acquire()
+        except FileLock.Exception:
+            raise
+
         self.setup(*args, **kwargs)
 
         # TODO Run only the calculations that are not done 
@@ -713,15 +727,16 @@ class Workflow(MSONable):
 
         self.teardown(*args, **kwargs)
 
+        lock.release()
+
 ##########################################################################################
 
 class PseudoEcutTest_Workflow(Workflow):
 
-    def __init__(self, pseudo, ecut_list, 
-                 workdir       = None,
+    def __init__(self, workdir, pseudo, ecut_list, 
                  spin_mode     = "unpolarized", 
                  smearing      = None,
-                 acell         = 3*(10,), 
+                 acell         = 3*(8,), 
                 ):
         """
         Args:
@@ -733,8 +748,6 @@ class PseudoEcutTest_Workflow(Workflow):
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
-
-        workdir = workdir if workdir else self.pseudo.basename
 
         Workflow.__init__(self, workdir, user_options=user_options)
         
@@ -799,6 +812,11 @@ class PseudoEcutTest_Workflow(Workflow):
         #if pp_info.strange_data is not None:
         #    path = self.pseudo.path + ".strange"
 
+        #main, log =  self.read_mainlog_ewc()
+        #main.num_warnings
+        #main.num_errors
+        #main.num_comments
+
         with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
             fh.write(xml_string)
         #new = pp_info.from_string(xml_string)
@@ -846,8 +864,7 @@ class PseudoEcutTest_Workflow(Workflow):
 
 class BandStructure_Workflow(Workflow):
 
-    def __init__(self, structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds, 
-                 workdir   = None, 
+    def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds, 
                  spin_mode = "polarized",
                  smearing  = None,
                  ndivsm    = 20, 
@@ -855,8 +872,6 @@ class BandStructure_Workflow(Workflow):
                 ):
 
         user_options = {}
-
-        workdir = workdir if workdir else structure.formula + "_Band_Structure"
 
         Workflow.__init__(self, workdir, user_options=user_options)
 
@@ -882,15 +897,12 @@ class BandStructure_Workflow(Workflow):
 
 class RelaxWorkflow(Workflow):
 
-    def __init__(self, structure, pptable_or_pseudos, ngkpt,
-                 workdir   = None, 
+    def __init__(self, workdir, structure, pptable_or_pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
                                                                                                    
         user_options = {}
-                                                                                                   
-        workdir = workdir if workdir else structure.formula + "_Relax"
                                                                                                    
         Workflow.__init__(self, workdir, user_options=user_options)
 
@@ -914,8 +926,7 @@ class RelaxWorkflow(Workflow):
 
 class DeltaTest(Workflow):
 
-    def __init__(self, structure_or_cif, pptable_or_pseudos, ngkpt,
-                 workdir   = None, 
+    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                  ecutsm    = 0.05,
@@ -930,8 +941,6 @@ class DeltaTest(Workflow):
         self._input_structure = structure
 
         user_options = {}
-                                                                                                   
-        workdir = workdir if workdir else structure.formula + "_EOS"
                                                                                                    
         Workflow.__init__(self, workdir, user_options=user_options)
 
@@ -973,8 +982,7 @@ class DeltaTest(Workflow):
 class PversusV(Workflow):
     "Calculates P(V)."
 
-    def __init__(self, structure_or_cif, pptable_or_pseudos, ngkpt,
-                 workdir   = None, 
+    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                  ecutsm    = 0.05,  # 1.0
@@ -984,8 +992,6 @@ class PversusV(Workflow):
         raise NotImplementedError()
 
         user_options = {}
-                                                                                                   
-        workdir = workdir if workdir else structure.formula + "_PvsV"
                                                                                                    
         Workflow.__init__(self, workdir, user_options=user_options)
 
@@ -1040,15 +1046,13 @@ class PversusV(Workflow):
 
 class G0W0_Workflow(Workflow):
 
-    def __init__(self, structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
+    def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
                  ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma,
-                 workdir   = None, 
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
 
         user_options = {}
-        workdir = workdir if workdir else "G0W0_" + structure.formula
 
         Workflow.__init__(self, workdir, user_options=user_options)
 
@@ -1113,7 +1117,21 @@ def test_abinitio(structure):
 
     user_options = {}
 
-    pptest_wf = PseudoEcutTest_Workflow(pseudo, range(10,40,2))
+    pptest_wf = PseudoEcutTest_Workflow("Test_pseudo", pseudo, range(10,40,2))
+
+    #workflows = []
+    #ecut_list = range(10,40,2),
+    #for pseudo in table:
+    #    element = pseudo.element
+    #    pp_wf = PseudoEcutTest_Workflow("Test_pseudo", pseudo, ecut_list,
+    #                spin_mode  = "unpolarized", 
+    #                smearing   = None,
+    #                acell      = 3*(10,), 
+    #               )
+    #    workflows.append(pp_wf)
+
+    #for wf in workflows:
+    #    wf.start()
 
     #pptest.show_inputs()
     pptest_wf.start()
@@ -1123,7 +1141,7 @@ def test_abinitio(structure):
     kpath_bounds = [0,0,0, 0.5,0.5,0.5]
     nscf_nband = 333
 
-    bands_wf = BandStructure_Workflow(structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds)
+    bands_wf = BandStructure_Workflow("Test_bands",structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds)
     #bands_wf.start()
 
     #bands_wf.show_inputs()
@@ -1146,7 +1164,7 @@ def test_abinitio(structure):
     ppmodel_or_freqmesh = PPModel.Godby()
     #ppmodel_or_freqmesh = ScreeningFrequencyMesh(nomega_real=None, maxomega_real=None, nomega_imag=None)
 
-    g0w0_wf = G0W0_Workflow(structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
+    g0w0_wf = G0W0_Workflow("Test_G0W0", structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
                             ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma)
 
     g0w0_wf.show_inputs()

@@ -4,8 +4,10 @@ from __future__ import division, print_function
 import unittest
 import os.path
 import collections
+from tempfile import mkdtemp
 
 from pymatgen.io.abinitio import *
+from pymatgen.io.abinitio.workflow import Workflow
 
 test_dir = os.path.join(os.path.dirname(__file__))
 
@@ -19,7 +21,13 @@ class WorkflowTestCase(unittest.TestCase):
 
     def test_pseudoecuttest(self):
 
-        pptest_wf = PseudoEcutTest_Workflow(filepath("14si.pspnc"), range(10,40,2))
+        workdir = "test_pseudoecuttest"
+        #workdir = mkdtemp()
+
+        pptest_wf = PseudoEcutTest_Workflow(workdir, filepath("14si.pspnc"), range(10,40,2))
+
+        #with self.assertRaises(Workflow.Error):
+        #    cannot_have_another_wf_in_same_workdir = PseudoEcutTest_Workflow(workdir, filepath("14si.pspnc"), range(10,40,2))
 
         print(repr(pptest_wf))
         print(pptest_wf)
@@ -29,5 +37,6 @@ class WorkflowTestCase(unittest.TestCase):
         self.assertTrue(isinstance(pptest_wf, collections.Iterable))
         self.assertTrue(pptest_wf.isnc)
 
-        #pptest_wf.make_dirs_and_files()
-        #pptest_wf.destroy()
+        pptest_wf.build()
+
+        pptest_wf.destroy()
