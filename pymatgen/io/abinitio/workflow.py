@@ -1095,8 +1095,10 @@ class G0W0_Workflow(Workflow):
 def get_abinit_psp_dir(code="ABINIT"):
     import ConfigParser
     import pymatgen
+
     if code + "_PSP_DIR" in os.environ:
         return os.environ[code + "_PSP_DIR"]
+
     elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__), "pymatgen.cfg")):
         module_dir = os.path.dirname(pymatgen.__file__)
         config = ConfigParser.SafeConfigParser()
@@ -1123,6 +1125,9 @@ def test_abinitio(structure):
     #ecut_list = range(10,40,2),
     #for pseudo in table:
     #    element = pseudo.element
+    #    ecut_list = range(10,41,1),
+    #    if element.block not in ["s", "p"]:
+    #        ecut_list = range(30,61,1),
     #    pp_wf = PseudoEcutTest_Workflow("Test_pseudo", pseudo, ecut_list,
     #                spin_mode  = "unpolarized", 
     #                smearing   = None,
@@ -1132,6 +1137,31 @@ def test_abinitio(structure):
 
     #for wf in workflows:
     #    wf.start()
+
+    # Threaded version.
+    #from threading import Thread
+    #from Queue import Queue
+    #num_pythreads = 1
+    #print("Threaded version with num_pythreads %s" % num_pythreads)
+
+    #def worker():
+    #    while True:
+    #        func, args, kwargs = q.get()
+    #        func(*args, **kwargs)
+    #        q.task_done()
+    #                                             
+    #q = Queue()
+    #for i in range(num_pythreads):
+    #    t = Thread(target=worker)
+    #    t.setDaemon(True)
+    #    t.start()
+
+    #args, kwargs = [], {}
+    #for wf in workflows:
+    #    q.put((wf.start, args, kwargs))
+                                                            
+    # Block until all tasks are done. 
+    #q.join()  
 
     #pptest.show_inputs()
     pptest_wf.start()

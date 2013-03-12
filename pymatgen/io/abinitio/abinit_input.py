@@ -16,6 +16,7 @@ from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
+from pymatgen.symmetry.finder import SymmetryFinder
 
 from .pseudos import PseudoTable
 from .utils import parse_ewc, abinit_output_iscomplete
@@ -43,7 +44,7 @@ class AbinitCard(dict, MSONable):
 
     def __init__(self, attributes=None, **kwargs):
         """
-        Creates a AbinitCard object.
+        Creates an AbinitCard object.
 
         Args:
             attributes:
@@ -120,18 +121,11 @@ class AbinitCard(dict, MSONable):
 
     @property
     def to_dict(self):
-        d = {k: v for k, v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        raise NotImplementedError("Subclasses should provide the to_dict method")
 
     @classmethod
     def from_dict(cls, d):
-        i = cls()
-        for (k, v) in d.items():
-            if k not in ("@module", "@class"):
-                i[k] = v
-        return i
+        raise NotImplementedError("Subclasses should provide the from_dict method")
 
     def get_string(self, sort_keys=False, pretty=False):
         """
@@ -290,12 +284,7 @@ class System(AbinitCard):
         super(System, self).__init__()
 
         self.structure = structure
-
-        #d = structure.to_dict
-        #for site_dict in d["sites"]: 
-        #    site_dict[pseudo] = 
-        #    print "site", site, type(site), dir(site)
-        #self.structure = Structure.from_dict(d)
+        self.nsym = nsym
 
         self._comment = structure.formula if comment is None else comment
 
@@ -362,7 +351,7 @@ class System(AbinitCard):
             "xred"   : xred,
             "nsym"   : nsym,
             #"pseudo_dir"  : pseudo_dir,
-            #"#pseudo_list" : pseudo_list,
+            #"pseudo_list" : pseudo_list,
         })
 
 
@@ -384,39 +373,62 @@ class System(AbinitCard):
     #        specie.pseudo
     #    return sum(p.num_valence_electrons for p in self.pseudos)
 
-    #@staticmethod
-    #def boxed_molecule(pseudos, cart_coords=3*(0,), acell=3*(10,)):
+    @staticmethod
+    def boxed_molecule(pseudos, cart_coords, acell=3*(10,)):
+        """
+        Creates a molecule in a periodic box of lengths acell [Bohr]
+
+        Args:
+            pseudos:
+                List of pseudopotentials
+            cart_coords: 
+                Cartesian coordinates
+            acell:
+                Lengths of the box in *Bohr*
+        """
+        cart_coords = np.atleast_2d(cart_coords)
+                                                                                 
+        molecule = Molecule([p.symbol for p in pseudos], cart_coords)
+                                                                                 
+        l = Bohr2Ang(acell)
+                                                                                 
+        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
+                                                                                 
+        comment = structure.formula + " in a box of size %s [Bohr]" % str(acell)
+                                                                                 
+        return System(structure, pseudos, comment=comment)
 
     @staticmethod
     def boxed_atom(pseudo, cart_coords=3*(0,), acell=3*(10,)):
-
-        cart_coords = np.atleast_2d(cart_coords)
-
-        molecule = Molecule([pseudo.symbol], cart_coords)
-
-        l = Bohr2Ang(acell)
-
-        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
-
-        comment = structure.formula + " in a box of size %s [Bohr]" % str(acell)
-
-        return System(structure, pseudo, comment=comment)
+        """
+        Creates an atom in a periodic box of lengths acell [Bohr]
+                                                                     
+        Args:
+            pseudo:
+                Pseudopotential object.
+            cart_coords: 
+                Cartesian coordinates
+            acell:
+                Lengths of the box in *Bohr*
+        """
+        return System.boxed_molecule([pseudo], cart_coords, acell=acell)
 
     @property
     def to_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "structure": self.structure.to_dict,
-                "pseudos": self.pseudos.to_dict,
-                "comment": self._comment,
+        return {"@module"   : self.__class__.__module__,
+                "@class"    : self.__class__.__name__,
+                "structure" : self.structure,
+                "pseudos"   : self.pseudos,
+                "nsym"      : self.nsym,
+                "comment"   : self._comment,
         }
 
     @staticmethod
     def from_dict(d):
         return System(
-            Structure.from_dict,
             d["structure"],
             d["pseudos"],
+            d["nsym"],
             comment=d["comment"],
         )
 
@@ -475,7 +487,7 @@ class Kpoints(AbinitCard):
                 Mode for generating k-poits. Use one of the Kpoints.modes enum types.
             num_kpts:
                 Number of kpoints if mode is "automatic"
-                Number of division for the sampling of the smalles segment if mode is "path"
+                Number of division for the sampling of the smallest segment if mode is "path"
                 Not used for the other modes
             kpts:
                 Number of divisions. Even when only a single specification is
@@ -484,12 +496,15 @@ class Kpoints(AbinitCard):
             kpts_shift:
                 Shift for Kpoints.
             use_symmetries:
+                False if spatial symmetries should not be used to reduced the number of independent k-points.
             use_time_reversal:
+                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
             kpts_weights:
                 Optional weights for kpoints. For explicit kpoints.
             labels:
                 In path-mode, this should provide a list of labels for each kpt.
-            chksymbreack:
+            chksymbreak:
+                Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
             comment:
                 String comment for Kpoints
 
@@ -554,6 +569,7 @@ class Kpoints(AbinitCard):
 
     @staticmethod
     def gamma_only():
+        "Gamma-only sampling"
         return Kpoints(comment="Gamma-only sampling")
 
     @staticmethod
@@ -564,8 +580,10 @@ class Kpoints(AbinitCard):
         Args:
             kpts:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            use_symmetries:
-            use_time_reversal:
+        use_symmetries:
+            False if spatial symmetries should not be used to reduced the number of independent k-points.
+        use_time_reversal:
+            False if time-reversal symmetry should not be used to reduced the number of independent k-points.
 
         Returns:
             Kpoints object
@@ -615,13 +633,13 @@ class Kpoints(AbinitCard):
                        )
 
     @staticmethod
-    def monkhorst_automatic(lattice, ngkpt, use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst_automatic(structure, ngkpt, use_symmetries=True, use_time_reversal=True, comment=None):
         """
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
                                                                                    
         Args:
-            lattice:
-                paymatgen lattice object.
+            structure:
+                paymatgen structure object.
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries:
@@ -632,6 +650,9 @@ class Kpoints(AbinitCard):
         Returns:
             Kpoints object
         """
+        sg = SymmetryFinder(structure)
+        #sg.get_crystal_system()
+        #sg.get_point_group()
         # TODO
         nshiftk = 1
         #shiftk = 3*(0.5,) # this is the default
@@ -656,7 +677,7 @@ class Kpoints(AbinitCard):
         Args:
             kpath_bounds:
                 List with the reduced coordinates of the k-points defining the path.
-            ndivs:
+            ndivsm:
                 Number of division for the smallest segment.
             comment: 
                 Comment string.
@@ -747,12 +768,22 @@ class Kpoints(AbinitCard):
         #kpts_shift = d.get("usershift", [0, 0, 0])
         #num_kpts = d.get("nkpoints", 0)
         ##coord_type = d.get("coord_type", None)
-        #return Kpoints(comment=comment, kpts=kpts, style=generation_style,
-        #               kpts_shift=kpts_shift, num_kpts=num_kpts)
+        #return Kpoints(
+        #         mode              = modes.monkhorst,
+        #         num_kpts          = 0, 
+        #         kpts              = ((1, 1, 1),), 
+        #         kpts_shift        = (0, 0, 0), 
+        #         use_symmetries    = True,
+        #         use_time_reversal = True,
+        #         kpts_weights      = None, 
+        #         labels            = None, 
+        #         chksymbreak       = None,
+        #         comment           = None,
+        #         ):
 
 ##########################################################################################
 
-class Smearing(object):
+class Smearing(MSONable):
     "Container with the abinit variables defining the smearing technique."
 
     #: Mapping string_mode --> occopt
@@ -803,6 +834,21 @@ class Smearing(object):
     @staticmethod
     def Gaussian(tsmear):
         return Smearing("gaussian", tsmear)
+
+    @property
+    def to_dict(self):
+        """json friendly dict representation of Kpoints"""
+        raise NotImplementedError("")
+        d = {"occopt": self.occopt, 
+             "tsmear": self.tsmear,
+            }
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+                                                                     
+    @staticmethod
+    def from_dict(d):
+        return Smearing(d["occopt"], d["tsmear"])
 
 ##########################################################################################
 
@@ -897,6 +943,17 @@ class Electrons(AbinitCard):
     @staticmethod
     def from_dict(d):
         raise NotImplementedError("")
+        return Electrons(
+            spin_mode = modes.polarized, 
+            nband     = None,
+            fband     = None,
+            smearing  = None,
+            iscf      = None,
+            diemac    = None,
+            #occupancies = None,
+            comment   = None,
+            )
+
 
 ##########################################################################################
 class Constraint(object):
@@ -935,24 +992,40 @@ class Relax(AbinitCard):
             #"toldff"   : 1.0D-7 (or tolvrs 1.0D-12 if all ions are on special positions)
         })
 
-    #@staticmethod
-    #def IonsOnly
+    @property
+    def to_dict(self):
+        """json friendly dict representation of Kpoints"""
+        raise NotImplementedError("")
+
+    @staticmethod
+    def from_dict(d):
+        return Relax(
+                iomov      = 3, 
+                optcell    = 2, 
+                dilatmx    = 1.1, 
+                ecutsm     = 0.5, 
+                ntime      = 80, 
+                tolmxf     = None,
+                strtarget  = None,
+                strfact    = 100,
+                constraint = None,
+                )
 
 ##########################################################################################
-class Phonons(AbinitCard):
-    "Card containing the parameters for the computation of phonons."
-
-    _optdriver = 1
-
-    def __init__(self,  qpoint):
-        raise NotImplementedError("")
-        super(Screening, self).__init__()
+#class Phonons(AbinitCard):
+#    "Card containing the parameters for the computation of phonons."
+#
+#    _optdriver = 1
+#
+#    def __init__(self,  qpoint):
+#        raise NotImplementedError("")
+#        super(Screening, self).__init__()
 
 #class DDK(AbinitCard):
 
 ##########################################################################################
 
-class PPModel(object):
+class PPModel(MSONable):
     "Pameters defining the plasmon-pole technique."
 
     _mode2ppmodel = {  
@@ -1001,9 +1074,21 @@ class PPModel(object):
     def Engel():
         return PPModel(mode="engel")
 
+    @property
+    def to_dict(self):
+        d = {"mode" : self.mode,
+             "plasmon_freq" : plasmon_freq}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return PPmodel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
+
 ##########################################################################################
 
-class ScreeningFrequencyMesh(object):
+class ScreeningFrequencyMesh(MSONable):
 
     #"freqremax"
     #"freqremin"
@@ -1019,6 +1104,24 @@ class ScreeningFrequencyMesh(object):
         raise NotImplementedError()
         return {"nomega" : self._mode2ppmodel[self.mode],
                 "ppfreq"  : self.plasmon_freq}
+
+    @property
+    def to_dict(self):
+        d = {"nomega_real"   : self.nomega_real,
+             "maxomega_real" : self.maxomega_real,
+             "nomega_imag"   : self.nomega_imag,
+             }
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return ScreeningFrequencyMesh(
+            nomega_real   = d["nomega_real"],
+            maxomega_real = d["maxomega_real"],
+            nomega_imag   = d["nomega_imag"], 
+            )
 
 ##########################################################################################
 
@@ -1081,6 +1184,26 @@ class Screening(AbinitCard):
     @staticmethod
     def for_contour_deformation(frequency_mesh):
         raise NotImplementedError("")
+
+    @property
+    def to_dict(self):
+        d = {"ecuteps"   : self.ecuteps,
+             }
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return Screening(ecuteps, ppmodel_or_freqmesh, 
+                 mode    = "automatic",
+                 symchi  = 1,
+                 inclvkb = 2,
+                 ecutwfn = None,
+                 gwmem   = None,
+                 fftgw   = None,
+                 comment = None,
+                )
 
 ##########################################################################################
 
@@ -1393,6 +1516,19 @@ class Control(AbinitCard):
             if card_name not in self_card_names: return False
         return True
 
+    @property
+    def to_dict(self):
+        raise NotimplementedError("")
+        #d = {k: v.to_dict for k, v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        raise NotimplementedError("")
+        return Control(*cards, **kwargs)
+
 ##########################################################################################
 
 class Input(dict, MSONable):
@@ -1407,12 +1543,8 @@ class Input(dict, MSONable):
     def __init__(self, *cards):
         """
         Args:
-            system:
-                System object.
-            kpoints:
-                Kpoints object.
-            electrons:
-                Electrons object.
+            cards:
+                List of AbinitCards. Mandatory cards: system, kpoints, electrons
         """
         super(Input, self).__init__()
 
@@ -1488,22 +1620,14 @@ class Input(dict, MSONable):
 
     @property
     def to_dict(self):
-        raise NotimplementedError("")
-        d = {k: v.to_dict for k, v in self.items()}
+        d = {"cards" : self.cards}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        raise NotimplementedError("")
-        #dec = PMGJSONDecoder()
-        #for (k, v) in d.items():
-        #    if k in self._basecards:
-        #        sub_d[k] = dec.process_decoded(v)
-        #    elif k not in ["@module", "@class"]:
-        #        sub_d["optional_cards"][k] = dec.process_decoded(v)
-        return Input(**sub_d)
+        return Input(*d["cards"])
 
     @property
     def card_names(self):
@@ -1652,6 +1776,26 @@ class Input(dict, MSONable):
                           smearing  = None,
                           **kwargs
                          ):
+        """
+        Constructor for self-consistent ground-state calculations.
+
+        Args:
+            structure:
+                pymatgen structure
+            pptable_or_pseudos:
+                PseudoTable or list of pseudopotentials.
+            ngkpt:
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            spin_mode: 
+                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
+            smearing: 
+                Smearing instance. None if smearing technique is not used. 
+            **kwargs:
+                Extra variables added directly to the input file
+
+        Returns:
+            AbinitInput instance.
+        """
 
         # Initialize system section from structure.
         system = System(structure, pptable_or_pseudos)
@@ -1660,7 +1804,7 @@ class Input(dict, MSONable):
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
 
         # K-point sampling.
-        kmesh = Kpoints.monkhorst_automatic(structure.lattice, ngkpt)
+        kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
 
         scf_control = Control(system, electrons, kmesh, **kwargs)
 
@@ -1668,7 +1812,24 @@ class Input(dict, MSONable):
 
     @staticmethod
     def NSCF_kpath_from_SCF(scf_input, nband, kpath_bounds, ndivsm=20, **kwargs):
-
+        """
+        Constructor for non-self-consistent ground-state calculations (band structure calculations)
+                                                                                                       
+        Args:
+            scf_input:
+                Input for self-consistent calculations.
+            nband:
+                Number of bands to compute
+            kpath_bound:
+                Extrema of the k-path.
+            ndivsm:
+                Number of division for the smallest segment
+            **kwargs:
+                Extra variables added directly to the input file
+                                                                                                       
+        Returns:
+            AbinitInput instance.
+        """
         # Change Kpoints and Electrons.
         nscf_cards = scf_input.copy_cards(exclude=["Kpoints", "Electrons",])
 
@@ -1684,11 +1845,28 @@ class Input(dict, MSONable):
 
     @staticmethod
     def NSCF_kmesh_from_SCF(scf_input, nband, ngkpt, **kwargs):
-
+        """
+        Constructor for non-self-consistent ground-state calculations (DOS calculations).
+                                                                                                       
+        Args:
+            scf_input:
+                Input for self-consistent calculations.
+            nband:
+                Number of bands to compute
+            kpath_bound:
+                Extrema of the k-path.
+            ngkpt:
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            **kwargs:
+                Extra variables added directly to the input file
+                                                                                                       
+        Returns:
+            AbinitInput instance.
+        """
         # Change Kpoints and Electrons.
         nscf_cards = scf_input.copy_cards(exclude=["Kpoints", "Electrons",])
 
-        nscf_cards.append(Kpoints.monkhorst_automatic(scf_input.structure.lattice, ngkpt))
+        nscf_cards.append(Kpoints.monkhorst_automatic(scf_input.structure, ngkpt))
 
         spin_mode = scf_input.Electrons.spin_mode
 
@@ -1703,7 +1881,26 @@ class Input(dict, MSONable):
               smearing  = None,
               **kwargs
              ):
+        """
+        Constructor for structure relaxation calculations.
+                                                                                                       
+        Args:
+            structure:
+                pymatgen structure
+            pptable_or_pseudos:
+                PseudoTable or list of pseudopotentials.
+            ngkpt:
+                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            spin_mode: 
+                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
+            smearing: 
+                Smearing instance. None if smearing technique is not used. 
+            **kwargs:
+                Extra variables added directly to the input file
 
+        Returns:
+            AbinitInput instance.
+        """
         # Initialize geometry section from structure.
         system = System(structure, pptable_or_pseudos)
 
@@ -1711,7 +1908,7 @@ class Input(dict, MSONable):
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
 
         # K-point sampling.
-        kmesh = Kpoints.monkhorst_automatic(structure.lattice, ngkpt)
+        kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
 
         relax = Relax()
 
@@ -1721,7 +1918,27 @@ class Input(dict, MSONable):
 
     @staticmethod
     def SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, smearing=None, **kwargs):
+        """
+        Constructor for screening calculations.
+                                                                                                       
+        Args:
+            nscf_input:
+                Input used for the non-self consistent calculation
+            ecuteps:
+                Cutoff energy [Ha] for the dielectric matrix
+            ppmodel_or_freqmesh:
+                object describing the frequency dependende of the screening function.
+                Either PPmodel instance or ScreeningFrequencyMesh instance.
+            nband_screening:
+                Number of bands for the computation of the screening. 
+            smearing: 
+                Smearing instance. None if smearing technique is not used. 
+            **kwargs:
+                Extra variables added directly to the input file
 
+        Returns:
+            AbinitInput instance.
+        """
         scr_cards = nscf_input.copy_cards(exclude=["Electrons",])
 
         spin_mode = nscf_input.Electrons.spin_mode
@@ -1741,6 +1958,28 @@ class Input(dict, MSONable):
                        smearing = None,
                        **kwargs
                        ):
+        """
+        Constructor for sigma calculations.
+                                                                                                       
+        Args:
+            scr_input:
+                Input used for the screening calculation
+            nband_sigma:
+                Number of bands for the self-energy
+            ecuteps:
+                Cutoff energy [Ha] for the dielectric matrix
+            ecutsigx:
+                Cutoff energy [Ha] for the exchange part of the self-energy
+            type:
+            scmode:
+            smearing: 
+                Smearing instance. None if smearing technique is not used. 
+            **kwargs:
+                Extra variables added directly to the input file
+
+        Returns:
+            AbinitInput instance.
+        """
 
         ppmodel_or_freqmesh = scr_input.Screening.ppmodel_or_freqmesh
 
