@@ -176,9 +176,9 @@ class SymmetryFinder(object):
         n = self.get_spacegroup_number()
         system = self.get_crystal_system()
         if n in [146, 148, 155, 160, 161, 166, 167]:
-            return "hexagonal"
-        elif system == "trigonal":
             return "rhombohedral"
+        elif system == "trigonal":
+            return "hexagonal"
         else:
             return system
 
@@ -409,39 +409,45 @@ class SymmetryFinder(object):
             The structure in a primitive standardized cell
         """
         conv = self.get_conventional_standard_structure()
-        if "P" in self.get_spacegroup_symbol()\
-                or "H" in self.get_spacegroup_symbol():
-            return conv
-        if "R" in self.get_spacegroup_symbol():
-                conv = self.get_refined_structure()
-                latt = Lattice(conv.lattice.matrix)
-                lengths, angles = latt.lengths_and_angles
-                a = lengths[0]
-                alpha = math.pi * angles[0] / 180
-                new_matrix = [
-                    [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
-                    [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                    [a * cos(alpha) / cos(alpha / 2), 0,
-                     a * math.sqrt(1 - (cos(alpha) ** 2 /
-                                        (cos(alpha / 2) ** 2)))]]
-                new_sites = []
-                for s in conv.sites:
-                    new_s = PeriodicSite(
-                        s.specie, s.frac_coords, Lattice(new_matrix),
-                        to_unit_cell=True, properties=s.properties)
-                    unique = True
-                    for t in new_sites:
-                        if new_s.is_periodic_image(t):
-                            unique = False
-                    if unique:
-                        new_sites.append(new_s)
-                return Structure.from_sites(new_sites)
+        lattice = self.get_lattice_type()
+        if lattice == "rhombohedral":
+            latt = Lattice(conv.lattice.matrix)
+            ah = latt.a
+            ch = latt.c
+            lengths, angles = Lattice([[0, ah * math.sqrt(3)/6, ch / 3],
+                                       [ah/6, -ah * math.sqrt(3)/6, ch / 3],
+                                       [-ah/6, -ah * math.sqrt(3) / 6, ch / 3]]
+                                      ).lengths_and_angles
+            a = lengths[0]
+            alpha = math.pi * angles[0] / 180
+            new_matrix = [
+                [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
+                [a * cos(alpha / 2), a * sin(alpha / 2), 0],
+                [a * cos(alpha) / cos(alpha / 2), 0,
+                 a * math.sqrt(1 - (cos(alpha) ** 2 /
+                                    (cos(alpha / 2) ** 2)))]]
+            new_sites = []
+            for s in conv.sites:
+                new_s = PeriodicSite(
+                    s.specie, s.frac_coords, Lattice(new_matrix),
+                    to_unit_cell=True, properties=s.properties)
+                unique = True
+                for t in new_sites:
+                    if new_s.is_periodic_image(t):
+                        unique = False
+                if unique:
+                    new_sites.append(new_s)
+            return Structure.from_sites(new_sites)
 
-        if "I" in self.get_spacegroup_symbol():
+        elif "P" in self.get_spacegroup_symbol()\
+                or lattice == "hexagonal":
+            return conv
+
+        elif "I" in self.get_spacegroup_symbol():
             transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2
-        if "F" in self.get_spacegroup_symbol():
+        elif "F" in self.get_spacegroup_symbol():
             transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]]) / 2.0
-        if "C" in self.get_spacegroup_symbol():
+        elif "C" in self.get_spacegroup_symbol():
             if self.get_crystal_system() == "monoclinic":
                 transf = np.array([[1.0, 1.0, 0], [-1.0, 1.0, 0],
                                    [0, 0, 2.0]]) / 2.0
