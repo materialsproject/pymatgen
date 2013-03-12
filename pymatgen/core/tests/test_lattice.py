@@ -219,5 +219,12 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertAlmostEqual(new_lattice.volume, new_volume)
             self.assertEqual(new_lattice.angles, lattice.angles)
 
+    def test_get_wigner_seitz_cell(self):
+        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
+                                        .get_wigner_seitz_cell()
+        self.assertEqual(6, len(ws_cell))
+        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
+                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+
 if __name__ == '__main__':
     unittest.main()

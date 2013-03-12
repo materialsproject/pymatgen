@@ -107,7 +107,7 @@ class SymmetryFinderTest(unittest.TestCase):
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         s = parser.get_structures()[0]
         sg = SymmetryFinder(s, 0.001)
-        self.assertEqual(sg.get_refined_structure().num_sites, 4*s.num_sites)
+        self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
     def test_get_symmetrized_structure(self):
         symm_struct = self.sg.get_symmetrized_structure()
@@ -142,6 +142,74 @@ class SymmetryFinderTest(unittest.TestCase):
         irr_kpts = finder.get_ir_kpoints(actual_kpts)
         self.assertLess(len(irr_kpts), len(actual_kpts))
         self.assertEqual(len(irr_kpts), len(set(mapping)))
+
+    def test_get_conventional_standard_structure(self):
+        parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 9.1980270633769461)
+        self.assertAlmostEqual(conv.lattice.b, 9.1980270633769461)
+        self.assertAlmostEqual(conv.lattice.c, 9.1980270633769461)
+
+        parser = CifParser(os.path.join(test_dir, 'btet_1915.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 5.0615106678044235)
+        self.assertAlmostEqual(conv.lattice.b, 5.0615106678044235)
+        self.assertAlmostEqual(conv.lattice.c, 4.2327080177761687)
+
+        parser = CifParser(os.path.join(test_dir, 'orci_1010.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 2.9542233922299999)
+        self.assertAlmostEqual(conv.lattice.b, 4.6330325651443296)
+        self.assertAlmostEqual(conv.lattice.c, 5.373703587040775)
+
+        parser = CifParser(os.path.join(test_dir, 'orcc_1003.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 4.1430033493799998)
+        self.assertAlmostEqual(conv.lattice.b, 31.437979757624728)
+        self.assertAlmostEqual(conv.lattice.c, 3.99648651)
+
+        parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 62.461675798000002)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 90)
+        self.assertAlmostEqual(conv.lattice.a, 3.9605285073099998)
+        self.assertAlmostEqual(conv.lattice.b, 14.033435583000625)
+        self.assertAlmostEqual(conv.lattice.c, 6.8743926325200002)
+
+        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.gamma, 120)
+        self.assertAlmostEqual(conv.lattice.a, 3.699919902005897)
+        self.assertAlmostEqual(conv.lattice.b, 3.699919902005897)
+        self.assertAlmostEqual(conv.lattice.c, 6.9779585500000003)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
