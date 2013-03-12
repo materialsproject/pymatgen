@@ -158,6 +158,7 @@ class Pseudo(object):
 
     @property
     def element(self):
+        "Element instance"
         return _periodic_table[self.Z]
 
     @property
@@ -374,7 +375,7 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
 
     @classmethod
     def from_csv(cls, string):
-        "Return new instance from string in csv format"
+        "Return new instance from a string in csv format"
         tokens = string.split(",")
         d = {}
         for tok in tokens:
