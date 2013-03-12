@@ -14,8 +14,6 @@ __email__ = "shyue@mit.edu"
 __date__ = "Mar 13, 2012"
 
 import math
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 
 
 def get_publication_quality_plot(width=8, height=None):
@@ -27,8 +25,12 @@ def get_publication_quality_plot(width=8, height=None):
             Width of plot in inches. Defaults to 8in.
         height.
             Height of plot in inches. Defaults to width * golden ratio.
-    """
 
+    Returns:
+        Matplotlib plot object with properly sized fonts.
+    """
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
     mpl.rcParams["font.serif"] = "Times New Roman"
     mpl.rcParams["font.sans-serif"] = "Arial"
     golden_ratio = (math.sqrt(5) - 1.0) / 2.0
