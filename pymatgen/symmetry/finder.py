@@ -42,7 +42,7 @@ except ImportError:
         import pyspglib._spglib as spg
     except ImportError:
         msg = "Spglib required. Please either run python setup.py install" + \
-            " for pymatgen, or install pyspglib from spglib."
+              " for pymatgen, or install pyspglib from spglib."
         raise ImportError(msg)
 
 tol = 1e-5
@@ -175,7 +175,7 @@ class SymmetryFinder(object):
         """
         n = self.get_spacegroup_number()
         system = self.get_crystal_system()
-        if  n in [146, 148, 155, 160, 161, 166, 167]:
+        if n in [146, 148, 155, 160, 161, 166, 167]:
             return "hexagonal"
         elif system == "trigonal":
             return "rhombohedral"
@@ -409,33 +409,33 @@ class SymmetryFinder(object):
             The structure in a primitive standardized cell
         """
         conv = self.get_conventional_standard_structure()
-        if "P" in self.get_spacegroup_symbol()\
+        if "P" in self.get_spacegroup_symbol() \
                 or "H" in self.get_spacegroup_symbol():
             return conv
         if "R" in self.get_spacegroup_symbol():
-                conv = self.get_refined_structure()
-                latt = Lattice(conv.lattice.matrix)
-                lengths, angles = latt.lengths_and_angles
-                a = lengths[0]
-                alpha = math.pi * angles[0] / 180
-                new_matrix = [
-                    [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
-                    [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                    [a * cos(alpha) / cos(alpha / 2), 0,
-                     a * math.sqrt(1 - (cos(alpha) ** 2 /
-                                        (cos(alpha / 2) ** 2)))]]
-                new_sites = []
-                for s in conv.sites:
-                    new_s = PeriodicSite(
-                        s.specie, s.frac_coords, Lattice(new_matrix),
-                        to_unit_cell=True, properties=s.properties)
-                    unique = True
-                    for t in new_sites:
-                        if new_s.is_periodic_image(t):
-                            unique = False
-                    if unique:
-                        new_sites.append(new_s)
-                return Structure.from_sites(new_sites)
+            conv = self.get_refined_structure()
+            latt = Lattice(conv.lattice.matrix)
+            lengths, angles = latt.lengths_and_angles
+            a = lengths[0]
+            alpha = math.pi * angles[0] / 180
+            new_matrix = [
+                [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
+                [a * cos(alpha / 2), a * sin(alpha / 2), 0],
+                [a * cos(alpha) / cos(alpha / 2), 0,
+                 a * math.sqrt(1 - (cos(alpha) ** 2 /
+                                    (cos(alpha / 2) ** 2)))]]
+            new_sites = []
+            for s in conv.sites:
+                new_s = PeriodicSite(
+                    s.specie, s.frac_coords, Lattice(new_matrix),
+                    to_unit_cell=True, properties=s.properties)
+                unique = True
+                for t in new_sites:
+                    if new_s.is_periodic_image(t):
+                        unique = False
+                if unique:
+                    new_sites.append(new_s)
+            return Structure.from_sites(new_sites)
 
         if "I" in self.get_spacegroup_symbol():
             transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2
@@ -460,7 +460,7 @@ class SymmetryFinder(object):
                 if new_s.is_periodic_image(t):
                     unique = False
             if unique:
-                    new_sites.append(new_s)
+                new_sites.append(new_s)
         return Structure.from_sites(new_sites)
 
     def get_conventional_standard_structure(self):
@@ -480,9 +480,9 @@ class SymmetryFinder(object):
         struct = self.get_refined_structure()
         lattice = self.get_lattice_type()
         sorted_lengths = sorted(struct.lattice.abc)
-        sorted_dic = sorted([{'vec':struct.lattice.matrix[i],
-                              'length':struct.lattice.abc[i],
-                              'orig_index':i} for i in [0, 1, 2]],
+        sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
+                              'length': struct.lattice.abc[i],
+                              'orig_index': i} for i in [0, 1, 2]],
                             key=lambda k: k['length'])
         results = None
         if lattice == "orthorhombic" or lattice == "cubic":
@@ -492,9 +492,9 @@ class SymmetryFinder(object):
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_lengths = sorted(struct.lattice.abc[:2])
-                sorted_dic = sorted([{'vec':struct.lattice.matrix[i],
-                                      'length':struct.lattice.abc[i],
-                                      'orig_index':i} for i in [0, 1]],
+                sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
+                                      'length': struct.lattice.abc[i],
+                                      'orig_index': i} for i in [0, 1]],
                                     key=lambda k: k['length'])
                 for c in range(2):
                     transf[c][sorted_dic[c]['orig_index']] = 1
@@ -549,10 +549,13 @@ class SymmetryFinder(object):
             #cell
             #if so, make a supercell
             if abs(struct.lattice.abc[0] - struct.lattice.abc[1]) < 0.001 and \
-                abs(struct.lattice.abc[2] - struct.lattice.abc[1]) < 0.001 \
+                            abs(struct.lattice.abc[2] - struct.lattice.abc[
+                                1]) < 0.001 \
                 and abs(struct.lattice.abc[0] - struct.lattice.abc[2]) < 0.001:
                 struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1), \
-                            (1, 1, 1))).modified_structure.copy(sanitize=True)
+                                                 (1, 1,
+                                                  1))).modified_structure.copy(
+                    sanitize=True)
 
                 sorted_lengths = sorted(struct.lattice.abc)
 
@@ -579,67 +582,67 @@ class SymmetryFinder(object):
             #to keep the C- settings
 
             if self.get_spacegroup().int_symbol.startswith("C"):
-                    trans = np.zeros(shape=(3, 3))
-                    trans[2] = [0, 0, 1]
-                    sorted_dic = sorted([{'vec':struct.lattice.matrix[i],
-                                          'length':struct.lattice.abc[i],
-                                          'orig_index':i} for i in [0, 1]],
-                                        key=lambda k: k['length'])
-                    a = sorted_dic[0]['length']
-                    b = sorted_dic[1]['length']
-                    c = struct.lattice.abc[2]
-                    new_matrix = None
-                    for t in itertools.permutations(range(2), 2):
-                        landang = Lattice([struct.lattice.matrix[t[0]],
-                                           struct.lattice.matrix[t[1]],
-                                           struct.lattice.matrix[2]])\
-                            .lengths_and_angles
+                trans = np.zeros(shape=(3, 3))
+                trans[2] = [0, 0, 1]
+                sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
+                                      'length': struct.lattice.abc[i],
+                                      'orig_index': i} for i in [0, 1]],
+                                    key=lambda k: k['length'])
+                a = sorted_dic[0]['length']
+                b = sorted_dic[1]['length']
+                c = struct.lattice.abc[2]
+                new_matrix = None
+                for t in itertools.permutations(range(2), 2):
+                    landang = Lattice([struct.lattice.matrix[t[0]],
+                                       struct.lattice.matrix[t[1]],
+                                       struct.lattice.matrix[2]]) \
+                        .lengths_and_angles
 
-                        if landang[1][0] > 90:
-                            #if the angle is > 90 we invert a and b to get
-                            #an angle < 90
-                            landang = Lattice(
-                                [np.multiply(struct.lattice.matrix[t[0]], -1.0),
-                                 np.multiply(struct.lattice.matrix[t[1]], -1.0),
-                                 struct.lattice.matrix[2]]).lengths_and_angles
-                            trans = np.zeros(shape=(3, 3))
-                            trans[0][t[0]] = -1
-                            trans[1][t[1]] = -1
-                            trans[2][2] = 1
-                            a = landang[0][0]
-                            b = landang[0][1]
-                            c = landang[0][2]
-                            alpha = math.pi * landang[1][0] / 180
-                            new_matrix = [[a, 0, 0],
-                                          [0, b, 0],
-                                          [0, c * cos(alpha), c * sin(alpha)]]
-                            continue
-
-                        elif landang[1][0] < 90:
-                            landang = Lattice([struct.lattice.matrix[t[0]],
-                                               struct.lattice.matrix[t[1]],
-                                               struct.lattice.matrix[2]])\
-                                .lengths_and_angles
-                            trans = np.zeros(shape=(3, 3))
-                            trans[0][t[0]] = 1
-                            trans[1][t[1]] = 1
-                            trans[2][2] = 1
-                            a = landang[0][0]
-                            b = landang[0][1]
-                            c = landang[0][2]
-                            alpha = math.pi * landang[1][0] / 180
-                            new_matrix = [[a, 0, 0],
-                                          [0, b, 0],
-                                          [0, c * cos(alpha), c * sin(alpha)]]
-                    if new_matrix is None:
-                        #this if is to treat the case
-                        #where alpha==90 (but we still have a monoclinic sg
+                    if landang[1][0] > 90:
+                        #if the angle is > 90 we invert a and b to get
+                        #an angle < 90
+                        landang = Lattice(
+                            [np.multiply(struct.lattice.matrix[t[0]], -1.0),
+                             np.multiply(struct.lattice.matrix[t[1]], -1.0),
+                             struct.lattice.matrix[2]]).lengths_and_angles
+                        trans = np.zeros(shape=(3, 3))
+                        trans[0][t[0]] = -1
+                        trans[1][t[1]] = -1
+                        trans[2][2] = 1
+                        a = landang[0][0]
+                        b = landang[0][1]
+                        c = landang[0][2]
+                        alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
-                                      [0, 0, c]]
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        continue
+
+                    elif landang[1][0] < 90:
+                        landang = Lattice([struct.lattice.matrix[t[0]],
+                                           struct.lattice.matrix[t[1]],
+                                           struct.lattice.matrix[2]]) \
+                            .lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
-                        for c in range(len(sorted_dic)):
-                            trans[c][sorted_dic[c]['orig_index']] = 1
+                        trans[0][t[0]] = 1
+                        trans[1][t[1]] = 1
+                        trans[2][2] = 1
+                        a = landang[0][0]
+                        b = landang[0][1]
+                        c = landang[0][2]
+                        alpha = math.pi * landang[1][0] / 180
+                        new_matrix = [[a, 0, 0],
+                                      [0, b, 0],
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                if new_matrix is None:
+                    #this if is to treat the case
+                    #where alpha==90 (but we still have a monoclinic sg
+                    new_matrix = [[a, 0, 0],
+                                  [0, b, 0],
+                                  [0, 0, c]]
+                    trans = np.zeros(shape=(3, 3))
+                    for c in range(len(sorted_dic)):
+                        trans[c][sorted_dic[c]['orig_index']] = 1
             #if not C-setting
             else:
                 #try all permutations of the axis
@@ -649,7 +652,7 @@ class SymmetryFinder(object):
                 for t in itertools.permutations(range(3), 3):
                     landang = Lattice([struct.lattice.matrix[t[0]],
                                        struct.lattice.matrix[t[1]],
-                                       struct.lattice.matrix[t[2]]])\
+                                       struct.lattice.matrix[t[2]]]) \
                         .lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
@@ -671,7 +674,7 @@ class SymmetryFinder(object):
                     elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice([struct.lattice.matrix[t[0]],
                                            struct.lattice.matrix[t[1]],
-                                           struct.lattice.matrix[t[2]]])\
+                                           struct.lattice.matrix[t[2]]]) \
                             .lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = 1
@@ -691,9 +694,11 @@ class SymmetryFinder(object):
 
             new_sites = []
             for s in struct._sites:
-                    new_sites.append(PeriodicSite(s.specie,
-                    np.dot(trans, s.frac_coords), Lattice(new_matrix),
-                     to_unit_cell=True, properties=s.properties))
+                new_sites.append(PeriodicSite(s.specie,
+                                              np.dot(trans, s.frac_coords),
+                                              Lattice(new_matrix),
+                                              to_unit_cell=True,
+                                              properties=s.properties))
             results = Structure.from_sites(new_sites)
 
         elif lattice == "triclinic":
@@ -764,5 +769,5 @@ def get_point_group(rotations):
     """
     if rotations.dtype == "float64":
         rotations = np.int_(rotations)
-    # (symbol, pointgroup_number, transformation_matrix)
+        # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)
