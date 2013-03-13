@@ -411,13 +411,8 @@ class SymmetryFinder(object):
         conv = self.get_conventional_standard_structure()
         lattice = self.get_lattice_type()
         if lattice == "rhombohedral":
-            latt = Lattice(conv.lattice.matrix)
-            ah = latt.a
-            ch = latt.c
-            lengths, angles = Lattice([[0, ah * math.sqrt(3)/6, ch / 3],
-                                       [ah/6, -ah * math.sqrt(3)/6, ch / 3],
-                                       [-ah/6, -ah * math.sqrt(3) / 6, ch / 3]]
-                                      ).lengths_and_angles
+            conv = self.get_refined_structure()
+            lengths, angles = conv.lattice.lengths_and_angles
             a = lengths[0]
             alpha = math.pi * angles[0] / 180
             new_matrix = [
