@@ -410,6 +410,10 @@ class SymmetryFinder(object):
         """
         conv = self.get_conventional_standard_structure()
         lattice = self.get_lattice_type()
+
+        if "P" in self.get_spacegroup_symbol() or lattice == "hexagonal":
+            return conv
+
         if lattice == "rhombohedral":
             conv = self.get_refined_structure()
             lengths, angles = conv.lattice.lengths_and_angles
@@ -419,8 +423,7 @@ class SymmetryFinder(object):
                 [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
                 [a * cos(alpha / 2), a * sin(alpha / 2), 0],
                 [a * cos(alpha) / cos(alpha / 2), 0,
-                 a * math.sqrt(1 - (cos(alpha) ** 2 /
-                                    (cos(alpha / 2) ** 2)))]]
+                 a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
             new_sites = []
             for s in conv.sites:
                 new_s = PeriodicSite(
@@ -434,21 +437,20 @@ class SymmetryFinder(object):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
 
-        elif "P" in self.get_spacegroup_symbol()\
-                or lattice == "hexagonal":
-            return conv
-
-        elif "I" in self.get_spacegroup_symbol():
-            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2
+        transf = np.eye(3)
+        if "I" in self.get_spacegroup_symbol():
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
+                              dtype=np.float) / 2
         elif "F" in self.get_spacegroup_symbol():
-            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]]) / 2.0
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
+                              dtype=np.float) / 2
         elif "C" in self.get_spacegroup_symbol():
             if self.get_crystal_system() == "monoclinic":
-                transf = np.array([[1.0, 1.0, 0], [-1.0, 1.0, 0],
-                                   [0, 0, 2.0]]) / 2.0
+                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
+                                  dtype=np.float) / 2
             else:
-                transf = np.array([[1.0, -1.0, 0], [1, 1.0, 0],
-                                   [0, 0, 2.0]]) / 2.0
+                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]],
+                                  dtype=np.float) / 2
         new_sites = []
         for s in conv.sites:
             new_s = PeriodicSite(
@@ -499,16 +501,16 @@ class SymmetryFinder(object):
                                     key=lambda k: k['length'])
                 for c in range(2):
                     transf[c][sorted_dic[c]['orig_index']] = 1
-                    new_matrix = [[sorted_lengths[0], 0.0, 0.0],
-                                  [0.0, sorted_lengths[1], 0.0],
-                                  [0.0, 0.0, struct.lattice.abc[2]]]
+                    new_matrix = [[sorted_lengths[0], 0, 0],
+                                  [0, sorted_lengths[1], 0],
+                                  [0, 0, struct.lattice.abc[2]]]
             else:
                 transf = np.zeros(shape=(3, 3))
                 for c in range(len(sorted_dic)):
                     transf[c][sorted_dic[c]['orig_index']] = 1
-                new_matrix = [[sorted_lengths[0], 0.0, 0.0],
-                              [0.0, sorted_lengths[1], 0.0],
-                              [0.0, 0.0, sorted_lengths[2]]]
+                new_matrix = [[sorted_lengths[0], 0, 0],
+                              [0, sorted_lengths[1], 0],
+                              [0, 0, sorted_lengths[2]]]
             new_sites = []
             for s in struct._sites:
                 new_sites.append(
@@ -531,9 +533,9 @@ class SymmetryFinder(object):
                 c = sorted_lengths[0]
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
 
-            new_matrix = [[a, 0.0, 0.0],
-                          [0.0, a, 0.0],
-                          [0.0, 0.0, c]]
+            new_matrix = [[a, 0, 0],
+                          [0, a, 0],
+                          [0, 0, c]]
             new_sites = []
             for s in struct._sites:
                 new_sites.append(
@@ -564,9 +566,9 @@ class SymmetryFinder(object):
             if abs(sorted_lengths[1] - sorted_lengths[2]) < 0.001:
                 a = sorted_lengths[2]
                 c = sorted_lengths[0]
-            new_matrix = [[a / 2.0, -a * math.sqrt(3) / 2.0, 0.0],
-                          [a / 2.0, a * math.sqrt(3) / 2.0, 0.0],
-                          [0.0, 0.0, c]]
+            new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
+                          [a / 2, a * math.sqrt(3) / 2, 0],
+                          [0, 0, c]]
 
             new_sites = []
             for s in struct._sites:
@@ -600,10 +602,8 @@ class SymmetryFinder(object):
                         #if the angle is > 90 we invert a and b to get
                         #an angle < 90
                         landang = Lattice(
-                            [np.multiply(struct.lattice.matrix[t[0]],
-                                         -1.0),
-                             np.multiply(struct.lattice.matrix[t[1]],
-                                         -1.0),
+                            [np.multiply(struct.lattice.matrix[t[0]], -1),
+                             np.multiply(struct.lattice.matrix[t[1]], -1),
                              struct.lattice.matrix[2]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = -1
