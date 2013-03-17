@@ -7,7 +7,7 @@ import collections
 from tempfile import mkdtemp
 
 from pymatgen.io.abinitio import *
-from pymatgen.io.abinitio.workflow import Workflow
+from pymatgen.io.abinitio.workflow import Work
 
 test_dir = os.path.join(os.path.dirname(__file__))
 
@@ -24,7 +24,7 @@ class WorkflowTestCase(unittest.TestCase):
         workdir = "test_pseudoecuttest"
         #workdir = mkdtemp()
 
-        pptest_wf = PseudoEcutTest_Workflow(workdir, filepath("14si.pspnc"), range(10,40,2))
+        pptest_wf = PseudoEcutTest(workdir, filepath("14si.pspnc"), range(10,40,2))
 
         #with self.assertRaises(Workflow.Error):
         #    cannot_have_another_wf_in_same_workdir = PseudoEcutTest_Workflow(workdir, filepath("14si.pspnc"), range(10,40,2))
