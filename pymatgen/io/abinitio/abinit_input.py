@@ -326,7 +326,7 @@ class System(AbinitCard):
         for (atm_idx, site) in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        significant_figures = 6
+        significant_figures = 12
         format_str = "{{:.{0}f}}".format(significant_figures)
         fmt = format_str.format
 
@@ -434,6 +434,31 @@ class System(AbinitCard):
 
 ##########################################################################################
 
+#class KPathDescriptor(object):
+#    # TODO
+#    def __init__(self, kptbounds, ndivsm=20, labels=None, structure=None):
+#        self.kptbounds = np.reshape(kptbounds, (-1,3))
+#
+#        if labels is not None:
+#            assert len(labels) == len(kptbounds)
+#            self._labels = labels
+#        else:
+#            if structure is None:
+#                raise ValueError("lattice must be specified")
+#
+#    def get_labels(self):
+#        raise NotImplementedError("")
+#
+#    def toabivars(self):
+#        d = {"kptbounds" : kptbounds,
+#             "ndivsm"    : num_kpts,
+#             "kptopt"    : -len(kptbounds)+1,
+#             #"labels"   : labels,  # TODO
+#            }
+#        return d
+
+##########################################################################################
+
 class Kpoints(AbinitCard):
     """
     Input variables defining the K-point sampling.
@@ -459,7 +484,7 @@ class Kpoints(AbinitCard):
                  mode              = modes.monkhorst,
                  num_kpts          = 0, 
                  kpts              = ((1, 1, 1),), 
-                 kpts_shift        = (0, 0, 0), 
+                 kpt_shifts        = (0, 0, 0), 
                  use_symmetries    = True,
                  use_time_reversal = True,
                  kpts_weights      = None, 
@@ -493,8 +518,8 @@ class Kpoints(AbinitCard):
                 Number of divisions. Even when only a single specification is
                 required, e.g. in the automatic scheme, the kpts should still
                 be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
-            kpts_shift:
-                Shift for Kpoints.
+            kpt_shifts:
+                Shifts for Kpoints.
             use_symmetries:
                 False if spatial symmetries should not be used to reduced the number of independent k-points.
             use_time_reversal:
@@ -520,7 +545,7 @@ class Kpoints(AbinitCard):
         if mode in ("monkhorst",):
             assert num_kpts == 0
             ngkpt  = np.reshape(kpts, (3,)),
-            shiftk = np.reshape(kpts_shift, (-1,3,))
+            shiftk = np.reshape(kpt_shifts, (-1,3,))
 
             if use_symmetries and use_time_reversal: kptopt = 1
             if not use_symmetries and use_time_reversal: kptopt = 2
@@ -599,7 +624,7 @@ class Kpoints(AbinitCard):
     #def symetry_breaking(kpts, shift, use_symmetries=True, use_time_reversal=True):
     #    return Kpoints(
     #                   kpts=[kpts],
-    #                   kpts_shift=shift, 
+    #                   kpt_shifts=shift, 
     #                   use_symmetries = use_symmetries,
     #                   use_time_reversal = use_time_reversal,
     #                   chksymbreak = 0,
@@ -626,7 +651,7 @@ class Kpoints(AbinitCard):
         """
         return Kpoints(
                        kpts              = [ngkpt],
-                       kpts_shift        = shiftk,
+                       kpt_shifts        = shiftk,
                        use_symmetries    = use_symmetries,
                        use_time_reversal = use_time_reversal,
                        comment           = comment if comment else "Monkhorst-Pack scheme with user-specified shiftk", 
@@ -696,8 +721,7 @@ class Kpoints(AbinitCard):
     def automatic_density(structure, kppa):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
-        density. Uses Gamma centered meshes for hexagonal cells and
-        Monkhorst-Pack grids otherwise.
+        density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
 
         Algorithm:
             Uses a simple approach scaling the number of divisions along each
@@ -709,21 +733,43 @@ class Kpoints(AbinitCard):
             kppa:
                 Grid density
         """
+        raise NotImplementedError()
+        rec_lattice = structure.lattice.reciprocal_lattice
+
+        #min_idx, min_abc = minloc(rec_lattice.abc)
+        # See np.argmax
+        ratios = rec_lattice.abc / min_abc
+
+        kpt_shifts = [0.5, 0.5, 0.5]
+        kpt_shifts = np.atleast_2d(kpt_shifts)
+
+        num_shifts = len(kpt_shifts)
+
+        ndiv, num_points = 0, 0
+
+        while num_points < min_npoints:
+            ndiv += 1
+            trial_divs = [int(round(n)) for n in ratios * ndiv]
+            # ensure that trial_divs  > 0
+            trial_divs = [i if i > 0 else 1 for i in trial_divs]
+            num_points = num_shifts * np.product(trial_divs)
+
         lattice = structure.lattice
         lengths = lattice.abc
         ngrid = kppa / structure.num_sites
 
-        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.)
 
-        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
-        #ensure that numDiv[i] > 0
+        num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
+        # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
         angles = lattice.angles
-        hex_angle_tol = 5  # in degrees
+        hex_angle_tol = 5      # in degrees
         hex_length_tol = 0.01  # in angstroms
-        right_angles = [i for i in xrange(3)
-                        if abs(angles[i] - 90) < hex_angle_tol]
+
+        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+
         hex_angles = [i for i in xrange(3)
                       if abs(angles[i] - 60) < hex_angle_tol or
                       abs(angles[i] - 120) < hex_angle_tol]
@@ -739,7 +785,12 @@ class Kpoints(AbinitCard):
         comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
         num_kpts = 0
 
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(
+                       num_kpts    = num_kpts, 
+                       kpts        = [num_div], 
+                       kpt_shifts  = [0, 0, 0],
+                       comment     = comment, 
+                      )
 
     @property
     def to_dict(self):
@@ -749,7 +800,7 @@ class Kpoints(AbinitCard):
         #     "nkpoints": self.num_kpts,
         #     "generation_style": self.style, 
         #     "kpoints": self.kpts,
-        #     "usershift": self.kpts_shift
+        #     "usershift": self.kpt_shift
         #    }
         #optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         #for para in optional_paras:
@@ -765,14 +816,14 @@ class Kpoints(AbinitCard):
         #comment = d.get("comment", "")
         #generation_style = d.get("generation_style")
         #kpts = d.get("kpoints", [[1, 1, 1]])
-        #kpts_shift = d.get("usershift", [0, 0, 0])
+        #kpt_shifts = d.get("usershift", [0, 0, 0])
         #num_kpts = d.get("nkpoints", 0)
         ##coord_type = d.get("coord_type", None)
         #return Kpoints(
         #         mode              = modes.monkhorst,
         #         num_kpts          = 0, 
         #         kpts              = ((1, 1, 1),), 
-        #         kpts_shift        = (0, 0, 0), 
+        #         kpt_shifts        = (0, 0, 0), 
         #         use_symmetries    = True,
         #         use_time_reversal = True,
         #         kpts_weights      = None, 
@@ -861,7 +912,7 @@ class Electrons(AbinitCard):
 
     _mode2vars = {
         "unpolarized"       : SM(1, 1, 1),
-        "polarized"         : SM(2, 1, 1),
+        "polarized"         : SM(2, 1, 2),
         "afm"               : SM(1, 1, 2),
         "spinor"            : SM(1, 2, 4),
         "spinor_nomagnetic" : SM(1, 2, 1),
@@ -1483,7 +1534,7 @@ class Control(AbinitCard):
             "optdriver" : self.optdriver,
             "ecut"      : ecut,
             "nbdbuf"    : nbdbuf,
-            "nstep"     : 100 if high else 70,
+            "nstep"     : 150 if high else 100,
             tol_varname : tol.high if high else tol.normal,
             "prtwf"     : prtwf,
             "prtgkk"    : prtgkk,

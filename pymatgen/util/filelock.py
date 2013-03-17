@@ -28,8 +28,7 @@ class FileLock(object):
         if ( self.delay > self.timeout or
              self.delay   <= 0 or
              self.timeout <= 0 ):
-            err_msg = "delay and timeout must be positive with delay <= timeout"
-            raise ValueError(err_msg)
+            raise ValueError("delay and timeout must be positive with delay <= timeout")
 
     def acquire(self):
         """ Acquire the lock, if possible. If the lock is in use, it check again
@@ -46,7 +45,7 @@ class FileLock(object):
                 if e.errno != errno.EEXIST:
                     raise
                 if (time.time() - start_time) >= self.timeout:
-                    raise FileLockException("Timeout occured.")
+                    raise FileLockException("%s: Timeout occured." % self.lockfile)
                 time.sleep(self.delay)
 
         self.is_locked = True
@@ -62,7 +61,6 @@ class FileLock(object):
             os.unlink(self.lockfile)
             self.is_locked = False
 
-
     def __enter__(self):
         """ Activated when used in the with statement.
             Should automatically acquire a lock to be used in the with block.
@@ -70,13 +68,11 @@ class FileLock(object):
         if not self.is_locked: self.acquire()
         return self
 
-
     def __exit__(self, type, value, traceback):
         """ Activated at the end of the with statement.
             It automatically releases the lock if it isn't locked.
         """
         if self.is_locked: self.release()
-
 
     def __del__(self):
         """ Make sure that the FileLock instance doesn't leave a lockfile
@@ -84,3 +80,22 @@ class FileLock(object):
         """
         self.release()
 
+    #def writelines(self, lines):
+    #    if not self.is_locked: 
+    #        raise self.Exception("%s is not locked. Cannot write" % self.lockfile)
+    #    self.fd.writelines(lines)
+
+    #def write(self, string):
+    #    if not self.is_locked: 
+    #        raise self.Exception("%s is not locked. Cannot write" % self.lockfile)
+    #    self.fd.write(string)
+
+    #def readlines(self):
+    #    if not self.is_locked: 
+    #        raise self.Exception("%s is not locked. Cannot read" % self.lockfile)
+    #    return self.fd.readlines()
+    #                                                                                    
+    #def read(self):
+    #    if not self.is_locked: 
+    #        raise self.Exception("%s is not locked. Cannot read" % self.lockfile)
+    #    return self.fd.read()

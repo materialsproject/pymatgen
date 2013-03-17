@@ -13,17 +13,18 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
-from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
+from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.string_utils import stream_has_colours
 from pymatgen.util.filelock import FileLock
 
 from .netcdf import GSR_Reader
-from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo
+from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints
+#from .task import AbinitTask
 from .utils import parse_ewc, abinit_output_iscomplete
-from .eos import EOS
+
 from .jobfile import JobFile
 
 #import logging
@@ -38,8 +39,7 @@ __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
 __all__ = [
-"Workflow",
-"PseudoEcutTest_Workflow",
+"PseudoEcutTest",
 ]
 
 ##########################################################################################
@@ -54,15 +54,23 @@ class AbinitTask(object):
     del Prefix, pj
 
     # Basenames for Abinit input and output files.
-    Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile")
-    basename = Basename("run.input", "run.output", "run.files", "log", "stderr", "job.sh")
+    Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
+    basename = Basename("run.input", "run.output", "run.files", "log", "stderr", "job.sh", "__lock__")
     del Basename
 
     def __init__(self, input, workdir, 
                  varpaths    = None, 
                  user_options= None,
                 ):
-
+        """
+        Args:
+            input: 
+                AbinitInput instance.
+            workdir:
+                Name of the working directory.
+            varpaths:
+            user_options:
+        """
         self.workdir = os.path.abspath(workdir)
 
         self.input = input.copy()
@@ -73,13 +81,14 @@ class AbinitTask(object):
             self.input = self.input.add_vars_to_control(varpaths)
 
         # Files required for the execution.
-        self.input_file  = File(self.basename.input      , dirname = self.workdir)
-        self.output_file = File(self.basename.output     , dirname = self.workdir)
-        self.files_file  = File(self.basename.files_file , dirname = self.workdir)
-        self.log_file    = File(self.basename.log_file   , dirname = self.workdir)
-        self.stderr_file = File(self.basename.stderr_file, dirname = self.workdir)
+        self.input_file  = File(self.basename.input      , dirname=self.workdir)
+        self.output_file = File(self.basename.output     , dirname=self.workdir)
+        self.files_file  = File(self.basename.files_file , dirname=self.workdir)
+        self.log_file    = File(self.basename.log_file   , dirname=self.workdir)
+        self.stderr_file = File(self.basename.stderr_file, dirname=self.workdir)
 
         # Find number of processors ....
+        #self.paral_hint = self.get_runhints(max_numproc)
 
         # Set jobfile variables.
         # TODO Rename JobFile to ShellScript(File)
@@ -111,6 +120,13 @@ class AbinitTask(object):
     @property
     def name(self):
         return self.input_file.basename
+
+    @property
+    def return_code(self):
+        try:
+            return self._return_code
+        except AttributeError:
+            return 666
 
     @property
     def jobfile_path(self):
@@ -170,7 +186,6 @@ class AbinitTask(object):
     def from_dict(d):
         raise NotimplementedError("")
         return AbinitTask(**d)
-        #return AbinitTask(d["input"], d["workdir"],)
 
     def iscomplete(self):
         "True if the output file is complete."
@@ -215,6 +230,7 @@ class AbinitTask(object):
     def build(self, *args, **kwargs):
         """
         Writes Abinit input files and directory.
+        Do not overwrite files if they already exist.
         """
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
@@ -225,11 +241,15 @@ class AbinitTask(object):
         if not os.path.exists(self.tmpfiles_dir):
             os.makedirs(self.tmpfiles_dir)
 
-        self.input_file.write(str(self.input))
-        self.files_file.write(self.filesfile_string)
+        if not self.input_file.exists:
+            self.input_file.write(str(self.input))
 
-        with open(self.jobfile_path, "w") as f:
-                f.write(str(self.jobfile))
+        if not self.files_file.exists:
+            self.files_file.write(self.filesfile_string)
+
+        if not os.path.exists(self.jobfile_path):
+            with open(self.jobfile_path, "w") as f:
+                    f.write(str(self.jobfile))
 
     def destroy(self, *args, **kwargs):
         """
@@ -259,10 +279,10 @@ class AbinitTask(object):
        return main, log
 
     def get_status(self):
-        return TaskStatus(self)
+        return Status(self)
 
     def show_status(self, stream=sys.stdout, *args, **kwargs):
-        self.status().show(stream=stream, *args, **kwargs)
+        self.get_status().show(stream=stream, *args, **kwargs)
 
     def setup(self, *args, **kwargs):
         """
@@ -276,7 +296,7 @@ class AbinitTask(object):
         The default implementation does nothing.
         """
 
-    def get_parallel_hints(self, max_numproc):
+    def get_runhints(self, max_numproc):
         """
         Run abinit in sequential to obtain a set of possible
         configuration for the number of processors
@@ -284,9 +304,9 @@ class AbinitTask(object):
         raise NotImplementedError("")
 
         # number of MPI processors, number of OpenMP processors, memory estimate in Gb.
-        ParaHint = collections.namedtuple('BaseParallelHint', "mpi_nproc omp_nproc memory_gb")
+        RunHints = collections.namedtuple('RunHints', "mpi_nproc omp_nproc memory_gb")
 
-        return hint
+        return hints
 
     def run(self, *args, **kwargs):
         """
@@ -303,7 +323,7 @@ class AbinitTask(object):
         if kwargs.get('verbose'):
             print('Running ' + self.input_path)
 
-        lock = FileLock(self.path_in_workdir("__lock__"))
+        lock = FileLock(self.path_in_workdir(AbinitTask.basename.lockfile))
 
         try:
             lock.acquire()
@@ -312,32 +332,33 @@ class AbinitTask(object):
 
         self.setup(*args, **kwargs)
 
-        returncode = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
+        self._return_code = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
 
-        self.teardown(*args, **kwargs)
+        if self._return_code == 0:
+            self.teardown(*args, **kwargs)
 
         lock.release()
 
-        return returncode
+        return self._return_code
 
 ##########################################################################################
 
-class TaskStatus(object):
+class Status(object):
     """
     Object used to inquire the status of the task and to have access 
     to the error and warning messages
     """
-    OK   = 1 
-    WAIT = 2 
-    RUN  = 4
-    ERR  = 8
+    S_OK   = 1 
+    S_WAIT = 2 
+    S_RUN  = 4
+    S_ERR  = 8
 
     #: Rank associated to the different status (in order of increasing priority)
     _level2rank = {
-      "completed" : OK, 
-      "unstarted" : WAIT, 
-      "running"   : RUN, 
-      "error"     : ERR,
+      "completed" : S_OK, 
+      "unstarted" : S_WAIT, 
+      "running"   : S_RUN, 
+      "error"     : S_ERR,
     }
 
     levels = Enum(s for s in _level2rank)
@@ -375,7 +396,7 @@ class TaskStatus(object):
 
         self._level_str = level_str
 
-        assert self._level_str in TaskStatus.levels
+        assert self._level_str in Status.levels
 
     @property
     def rank(self):
@@ -475,8 +496,7 @@ class TaskStatus(object):
 
 class TaskDependencies(object):
     """
-    This object describes the depencies among the AbinitTask instances 
-    belonging to a Workflow.
+    This object describes the dependencies among Task instances.
     """
 
     _ext2getvars = {
@@ -487,6 +507,15 @@ class TaskDependencies(object):
     }
 
     def __init__(self, task, task_id, *odata_required):
+        """
+        Args:
+            task: 
+                AbinitTask instance
+            task_id: 
+                Task identifier 
+            odata_required:
+                Output data required for running the task.
+        """
         self.task    = task
         self.task_id = task_id
 
@@ -506,14 +535,14 @@ class TaskDependencies(object):
         return vars
 
 ##########################################################################################
-class WorkflowError(Exception):
+class WorkError(Exception):
     pass
 
-class Workflow(MSONable):
+class Work(MSONable):
     """
-    A workflow is a list of (possibly connected) tasks.
+    A work is a list of (possibly connected) tasks.
     """
-    Error = WorkflowError
+    Error = WorkError
 
     def __init__(self, workdir, user_options=None):
         """
@@ -522,9 +551,6 @@ class Workflow(MSONable):
             user_options:
         """
         self.workdir = os.path.abspath(workdir)
-
-        #if os.path.exists(self.workdir):
-        #    raise self.Error("Workdir %s already exists!" % self.workdir)
 
         if user_options is not None:
             self.user_options = user_options
@@ -582,9 +608,8 @@ class Workflow(MSONable):
     def setup(self, *args, **kwargs):
         """
         Method called before running the calculations. 
-        The default implementation creates the workspace directory and the input files.
+        The default implementation does nothing.
         """
-        self.build(*args, **kwargs)
 
     def teardown(self, *args, **kwargs):
         """
@@ -649,7 +674,7 @@ class Workflow(MSONable):
         for task in self:
             task.build(*args, **kwargs)
 
-    def get_status(self, only_highest_rank=True):
+    def get_status(self, only_highest_rank=False):
         "Get the status of the tasks in self."
 
         status_list = [task.get_status() for task in self]
@@ -674,26 +699,9 @@ class Workflow(MSONable):
                                                                                     
         _remove_tree(self.workdir, **kwargs)
 
-    def start(self, *args, **kwargs):
-        """
-        Start the workflow. Call setup first, then the 
-        the tasks are executed. Finally, the teardown method
-        is called.
-
-            Args:
-                num_pythreads = Number of python threads to use (defaults to 1)
-        """
+    def run(self, *args, **kwargs):
 
         num_pythreads = int(kwargs.pop("num_pythreads", 1))
-
-        lock = FileLock(self.path_in_workdir("__lock__"))
-
-        try:
-            lock.acquire()
-        except FileLock.Exception:
-            raise
-
-        self.setup(*args, **kwargs)
 
         # TODO Run only the calculations that are not done 
         # and whose dependencies are satisfied.
@@ -725,16 +733,55 @@ class Workflow(MSONable):
             # Block until all tasks are done. 
             q.join()  
 
+    def start(self, *args, **kwargs):
+        """
+        Start the work. Call setup first, then the 
+        the tasks are executed. Finally, the teardown method is called.
+
+            Args:
+                num_pythreads = Number of python threads to use (defaults to 1)
+        """
+
+        lock = FileLock(self.path_in_workdir("__lock__"))
+
+        try:
+            lock.acquire()
+        except FileLock.Exception:
+            raise
+
+        self.setup(*args, **kwargs)
+
+        self.run(*args, **kwargs)
+
         self.teardown(*args, **kwargs)
 
         lock.release()
 
+    def get_etotal(self):
+        """
+        Reads the total energy from the GSR file produced by the task.
+
+        Return a numpy array with the total energies in Hartree 
+        The array element is set to np.inf if an exception is raised while reading the GSR file.
+        """
+        etotal = []
+        for task in self:
+            # Open the GSR file and read etotal (Hartree)
+            gsr_path = task.odata_path_from_ext("GSR") 
+            try:
+                with GSR_Reader(gsr_path) as ncdata:
+                    etotal.append(ncdata.get_value("etotal"))
+            except:
+                etotal.append(np.inf)
+                                                            
+        return np.array(etotal)
+
 ##########################################################################################
 
-class PseudoEcutTest_Workflow(Workflow):
+class PseudoEcutTest(Work):
 
     def __init__(self, workdir, pseudo, ecut_list, 
-                 spin_mode     = "unpolarized", 
+                 spin_mode     = "polarized", 
                  smearing      = None,
                  acell         = 3*(8,), 
                 ):
@@ -749,7 +796,7 @@ class PseudoEcutTest_Workflow(Workflow):
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(PseudoEcutTest, self).__init__(workdir, user_options=user_options)
         
         # Define System: one atom in a box of lenghts acell. 
         box = System.boxed_atom(self.pseudo, acell=acell)
@@ -778,27 +825,50 @@ class PseudoEcutTest_Workflow(Workflow):
         self.setup(*args, **kwargs)
 
         for task in self:
-            pass
-            #task.run(*args, **kwargs)
+            task.run(*args, **kwargs)
 
         self.teardown(*args, **kwargs)
 
     def teardown(self, *args, **kwargs):
 
-        etotal = self.get_etotal()
-
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
 
+        etotal = self.get_etotal()
+
         etotal_dict = {1.0 : etotal}
 
-        status = self.get_status()
-        print(repr(status))
+        status_list = self.get_status()
 
+        status = max(status_list)
+
+        #num_warnings = max(s.nwarnings for s in status_list) 
+        #num_errors = max(s.nerrors for s in status_list) 
+        #num_comments = max(s.comments for s in status_list) 
+
+        num_errors, num_warnings, num_comments = 0, 0, 0 
+        for task in self:
+            main, log =  task.read_mainlog_ewc()
+
+            num_errors  =  max(num_errors, main.num_errors)
+            num_warnings = max(num_warnings, main.num_warnings)
+            num_comments = max(num_comments, main.num_comments)
+
+        with open(self.path_in_workdir("data.txt"), "w") as fh:
+            info = "max_errors = %d, max_warnings %d, max_comments = %d\n" % (num_errors, num_warnings, num_comments)
+            print(info)
+            fh.write(info)
+            for (ecut, ene) in zip(self.ecut_list, etotal):
+                fh.write(str(ecut) + " " + str(ene) + "\n")
+
+        #print(repr(status))
         #input = ["I really\n", "dislike\n", "XML\n"]
 
         # TODO handle possible problems with the SCF cycle
-        pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict)
+        strange_data = 0
+        if num_errors != 0 or num_warnings != 0: strange_data = 999
+
+        pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict, strange_data)
 
         #pp_info.show_etotal()
 
@@ -812,57 +882,24 @@ class PseudoEcutTest_Workflow(Workflow):
         #if pp_info.strange_data is not None:
         #    path = self.pseudo.path + ".strange"
 
-        #main, log =  self.read_mainlog_ewc()
-        #main.num_warnings
-        #main.num_errors
-        #main.num_comments
-
         with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
             fh.write(xml_string)
         #new = pp_info.from_string(xml_string)
         #print new
         #print new.toxml()
 
-    def get_etotal(self):
-
-        etotal = []
-        for task in self:
-            # Open the GSR file and read etotal (Hartree)
-            gsr_path = task.odata_path_from_ext("GSR") 
-
-            with GSR_Reader(gsr_path) as gsr_data:
-                etotal.append(gsr_data.get_value("etotal"))
-
-        return np.array(etotal)
+    #def get_etotal(self):
+    #    etotal = []
+    #    for task in self:
+    #        # Open the GSR file and read etotal (Hartree)
+    #        gsr_path = task.odata_path_from_ext("GSR") 
+    #        with GSR_Reader(gsr_path) as gsr_data:
+    #            etotal.append(gsr_data.get_value("etotal"))
+    #    return np.array(etotal)
 
 ##########################################################################################
 
-#class KPathDescriptor(object):
-#    # TODO
-#    def __init__(self, kptbounds, ndivsm=20, labels=None, structure=None):
-#        self.kptbounds = np.reshape(kptbounds, (-1,3))
-#
-#        if labels is not None:
-#            assert len(labels) == len(kptbounds)
-#            self._labels = labels
-#        else:
-#            if structure is None:
-#                raise ValueError("lattice must be specified")
-#
-#    def get_labels(self):
-#        raise NotImplementedError("")
-#
-#    def toabivars(self):
-#        d = {"kptbounds" : kptbounds,
-#             "ndivsm"    : num_kpts,
-#             "kptopt"    : -len(kptbounds)+1,
-#             #"labels"   : labels,  # TODO
-#            }
-#        return d
-
-##########################################################################################
-
-class BandStructure_Workflow(Workflow):
+class BandStructure(Work):
 
     def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds, 
                  spin_mode = "polarized",
@@ -873,7 +910,7 @@ class BandStructure_Workflow(Workflow):
 
         user_options = {}
 
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(BandStructure, self).__init__(workdir, user_options=user_options)
 
         scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
                                           spin_mode = spin_mode,
@@ -895,7 +932,7 @@ class BandStructure_Workflow(Workflow):
 
 ##########################################################################################
 
-class RelaxWorkflow(Workflow):
+class Relaxation(Work):
 
     def __init__(self, workdir, structure, pptable_or_pseudos, ngkpt,
                  spin_mode = "polarized",
@@ -904,7 +941,7 @@ class RelaxWorkflow(Workflow):
                                                                                                    
         user_options = {}
                                                                                                    
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(Relaxation, self).__init__(workdir, user_options=user_options)
 
         ions_relax = Relax(
                     iomov     = 3, 
@@ -924,12 +961,14 @@ class RelaxWorkflow(Workflow):
 
 ##########################################################################################
 
-class DeltaTest(Workflow):
+class DeltaTest(Work):
 
     def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
+                 accuracy  = "normal",
                  ecutsm    = 0.05,
+                 ecut      = None
                 ):
 
         if isinstance(structure_or_cif, Structure):
@@ -942,7 +981,7 @@ class DeltaTest(Workflow):
 
         user_options = {}
                                                                                                    
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(DeltaTest, self).__init__(workdir, user_options=user_options)
 
         v0 = structure.volume
 
@@ -958,28 +997,35 @@ class DeltaTest(Workflow):
                                               spin_mode = spin_mode,
                                               smearing  = smearing,
                                               # **kwargs
-                                              ecutsm = ecutsm,
+                                              accuracy  = accuracy,
+                                              ecutsm    = ecutsm,
+                                              ecut      = ecut,
                                              )
             self.register_input(scf_input)
 
-    def teardown(self):
-        eos_fit = self.compute_eos_fit()
-        #eos_fit.dump(self.path_in_workdir("eos_fit.json"))
+    def run(self, *args, **kwargs):
+        pass
 
-    def compute_eos_fit(self):
-        etotal = []
-        for task in self:
-            # Open the GSR file and read etotal (Hartree)
-            gsr_path = task.odata_path_from_ext("GSR") 
-                                                            
-            with GSR_Reader(gsr_path) as gsr_data:
-                etotal.append(gsr_data.get_value("etotal"))
-                                                            
-        return EOS.Murnaghan.fit(self.volumes, Ha2eV(etotal))
+    def teardown(self, *args, **kwargs):
+        num_sites = self._input_structure.num_sites
+
+        etotal = Ha2eV(self.get_etotal())
+
+        with open(self.path_in_workdir("data.txt"), "w") as fh:
+            fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
+
+            for (v, e) in zip(self.volumes, etotal):
+                line = "%s %s\n" % (v/num_sites, e/num_sites)
+                fh.write(line)
+
+        from .eos import EOS
+        eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
+        print(eos_fit)
+        eos_fit.plot()
 
 ##########################################################################################
 
-class PversusV(Workflow):
+class PvsV(Work):
     "Calculates P(V)."
 
     def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
@@ -993,7 +1039,7 @@ class PversusV(Workflow):
 
         user_options = {}
                                                                                                    
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(PvsV, self).__init__(workdir, user_options=user_options)
 
         if isinstance(structure_or_cif, Structure):
             structure = cif_or_stucture
@@ -1044,7 +1090,7 @@ class PversusV(Workflow):
 
 ##########################################################################################
 
-class G0W0_Workflow(Workflow):
+class G0W0(Work):
 
     def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
                  ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma,
@@ -1054,7 +1100,7 @@ class G0W0_Workflow(Workflow):
 
         user_options = {}
 
-        Workflow.__init__(self, workdir, user_options=user_options)
+        super(G0W0, self).__init__(workdir, user_options=user_options)
 
         scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
                                           spin_mode = spin_mode, 
@@ -1090,22 +1136,6 @@ class G0W0_Workflow(Workflow):
      #def with_contour_deformation()
 
 ##########################################################################################
-# TODO 
-# Should become an API common for the different codes that requires pseudos
-def get_abinit_psp_dir(code="ABINIT"):
-    import ConfigParser
-    import pymatgen
-
-    if code + "_PSP_DIR" in os.environ:
-        return os.environ[code + "_PSP_DIR"]
-
-    elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__), "pymatgen.cfg")):
-        module_dir = os.path.dirname(pymatgen.__file__)
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-        return config.get(code, "pspdir")
-
-    return None
 
 def test_abinitio(structure):
     psp_dir = get_abinit_psp_dir()
@@ -1119,49 +1149,7 @@ def test_abinitio(structure):
 
     user_options = {}
 
-    pptest_wf = PseudoEcutTest_Workflow("Test_pseudo", pseudo, range(10,40,2))
-
-    #workflows = []
-    #ecut_list = range(10,40,2),
-    #for pseudo in table:
-    #    element = pseudo.element
-    #    ecut_list = range(10,41,1),
-    #    if element.block not in ["s", "p"]:
-    #        ecut_list = range(30,61,1),
-    #    pp_wf = PseudoEcutTest_Workflow("Test_pseudo", pseudo, ecut_list,
-    #                spin_mode  = "unpolarized", 
-    #                smearing   = None,
-    #                acell      = 3*(10,), 
-    #               )
-    #    workflows.append(pp_wf)
-
-    #for wf in workflows:
-    #    wf.start()
-
-    # Threaded version.
-    #from threading import Thread
-    #from Queue import Queue
-    #num_pythreads = 1
-    #print("Threaded version with num_pythreads %s" % num_pythreads)
-
-    #def worker():
-    #    while True:
-    #        func, args, kwargs = q.get()
-    #        func(*args, **kwargs)
-    #        q.task_done()
-    #                                             
-    #q = Queue()
-    #for i in range(num_pythreads):
-    #    t = Thread(target=worker)
-    #    t.setDaemon(True)
-    #    t.start()
-
-    #args, kwargs = [], {}
-    #for wf in workflows:
-    #    q.put((wf.start, args, kwargs))
-                                                            
-    # Block until all tasks are done. 
-    #q.join()  
+    pptest_wf = PseudoEcutTest("Test_pseudo", pseudo, list(range(10,40,2)))
 
     #pptest.show_inputs()
     pptest_wf.start()
@@ -1171,7 +1159,7 @@ def test_abinitio(structure):
     kpath_bounds = [0,0,0, 0.5,0.5,0.5]
     nscf_nband = 333
 
-    bands_wf = BandStructure_Workflow("Test_bands",structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds)
+    bands_wf = BandStructure("Test_bands",structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds)
     #bands_wf.start()
 
     #bands_wf.show_inputs()
@@ -1194,13 +1182,79 @@ def test_abinitio(structure):
     ppmodel_or_freqmesh = PPModel.Godby()
     #ppmodel_or_freqmesh = ScreeningFrequencyMesh(nomega_real=None, maxomega_real=None, nomega_imag=None)
 
-    g0w0_wf = G0W0_Workflow("Test_G0W0", structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
+    g0w0_wf = G0W0("Test_G0W0", structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
                             ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma)
 
     g0w0_wf.show_inputs()
 
     delta_wf = DeltaTest(structure, pseudo, [2,2,2])
     delta_wf.show_inputs()
+
+##########################################################################################
+
+class EcutTest(object):
+
+    def __init__(self, table, spin_mode):
+        works = []
+
+        table_name = table.name
+
+        table = [p for p in table if p.Z < 5]
+        for pseudo in table:
+            #ecut_list = list(range(10,21,4))
+            ecut_list = list(range(50,451,50))
+
+            #element = pseudo.element
+            #print(element.Z, element)
+            #if element.block not in ["s", "p"]:
+            #    ecut_list = range(30,121,1),
+
+            workdir = "PPTEST_" + table_name + "_" + pseudo.basename
+
+            pp_wf = PseudoEcutTest(workdir, pseudo, ecut_list,
+                        spin_mode  = spin_mode,
+                        smearing   = None,
+                        acell      = 3*(8,), 
+                       )
+            #print(pp_wf.show_inputs())
+            works.append(pp_wf)
+
+        self.works = works
+
+    def build(self, *args, **kwargs):
+        for work in self.works:
+            work.build(*args, **kwargs)
+
+    def start(self, num_pythreads=1):
+
+        if num_pythreads == 1:
+            for work in self.works:
+                work.start()
+            return
+
+        # Threaded version.
+        from threading import Thread
+        from Queue import Queue
+        print("Threaded version with num_pythreads %s" % num_pythreads)
+
+        def worker():
+            while True:
+                func, args, kwargs = q.get()
+                func(*args, **kwargs)
+                q.task_done()
+                                                     
+        q = Queue()
+        for i in range(num_pythreads):
+            t = Thread(target=worker)
+            t.setDaemon(True)
+            t.start()
+
+        args, kwargs = [], {}
+        for work in self.works:
+            q.put((work.start, args, kwargs))
+
+        #Block until all tasks are done. 
+        q.join()  
 
 ##########################################################################################
 # Helper functions.
