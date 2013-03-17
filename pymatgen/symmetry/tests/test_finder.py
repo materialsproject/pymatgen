@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 9, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -209,6 +209,73 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(conv.lattice.a, 3.699919902005897)
         self.assertAlmostEqual(conv.lattice.b, 3.699919902005897)
         self.assertAlmostEqual(conv.lattice.c, 6.9779585500000003)
+
+    def test_get_primitive_standard_structure(self):
+        parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 109.47122063400001)
+        self.assertAlmostEqual(prim.lattice.beta, 109.47122063400001)
+        self.assertAlmostEqual(prim.lattice.gamma, 109.47122063400001)
+        self.assertAlmostEqual(prim.lattice.a, 7.9657251015812145)
+        self.assertAlmostEqual(prim.lattice.b, 7.9657251015812145)
+        self.assertAlmostEqual(prim.lattice.c, 7.9657251015812145)
+
+        parser = CifParser(os.path.join(test_dir, 'btet_1915.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 105.015053349)
+        self.assertAlmostEqual(prim.lattice.beta, 105.015053349)
+        self.assertAlmostEqual(prim.lattice.gamma, 118.80658411899999)
+        self.assertAlmostEqual(prim.lattice.a, 4.1579321075608791)
+        self.assertAlmostEqual(prim.lattice.b, 4.1579321075608791)
+        self.assertAlmostEqual(prim.lattice.c, 4.1579321075608791)
+
+        parser = CifParser(os.path.join(test_dir, 'orci_1010.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 134.78923546600001)
+        self.assertAlmostEqual(prim.lattice.beta, 105.856239333)
+        self.assertAlmostEqual(prim.lattice.gamma, 91.276341676000001)
+        self.assertAlmostEqual(prim.lattice.a, 3.8428217771014852)
+        self.assertAlmostEqual(prim.lattice.b, 3.8428217771014852)
+        self.assertAlmostEqual(prim.lattice.c, 3.8428217771014852)
+
+        parser = CifParser(os.path.join(test_dir, 'orcc_1003.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 90)
+        self.assertAlmostEqual(prim.lattice.beta, 90)
+        self.assertAlmostEqual(prim.lattice.gamma, 164.985257335)
+        self.assertAlmostEqual(prim.lattice.a, 15.854897098324196)
+        self.assertAlmostEqual(prim.lattice.b, 15.854897098324196)
+        self.assertAlmostEqual(prim.lattice.c, 3.99648651)
+
+        parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 63.579155761999999)
+        self.assertAlmostEqual(prim.lattice.beta, 63.579155761999999)
+        self.assertAlmostEqual(prim.lattice.gamma, 31.520348638000002)
+        self.assertAlmostEqual(prim.lattice.a, 7.2908007159612325)
+        self.assertAlmostEqual(prim.lattice.b, 7.2908007159612325)
+        self.assertAlmostEqual(prim.lattice.c, 6.8743926325200002)
+
+        parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
+        structure = parser.get_structures(False)[0]
+        s = SymmetryFinder(structure, symprec=1e-2)
+        prim = s.get_primitive_standard_structure()
+        self.assertAlmostEqual(prim.lattice.alpha, 90)
+        self.assertAlmostEqual(prim.lattice.beta, 90)
+        self.assertAlmostEqual(prim.lattice.gamma, 120)
+        self.assertAlmostEqual(prim.lattice.a, 3.699919902005897)
+        self.assertAlmostEqual(prim.lattice.b, 3.699919902005897)
+        self.assertAlmostEqual(prim.lattice.c, 6.9779585500000003)
 
 
 if __name__ == "__main__":
