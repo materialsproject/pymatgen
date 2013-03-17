@@ -1,6 +1,6 @@
 """
-This module provides objects describing the basic parameters of the pseudopotentials used in Abinit. 
-A parser to instanciate pseudopotential objects from file and a simple database to access the official pseudopotential tables.
+This module provides objects describing the basic parameters of the pseudopotentials used in Abinit,
+a parser to instanciate pseudopotential objects from file and a simple database to access the official pseudopotential tables.
 """
 from __future__ import division, print_function
 
@@ -19,6 +19,12 @@ from warnings import warn
 
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.core.physical_constants import Ha_eV, Ha2meV
+
+try:
+    import periodictable 
+    have_periodictable = True
+except ImportError:
+    have_periodictable = False
 
 __all__ = [
 'Pseudo',
@@ -91,13 +97,29 @@ def l2str(l):
     "Convert the angular momentum l (int) to string."
     return _l2str[l]
 
+# TODO 
+# Should become an API common for the different codes that requires pseudos
+def get_abinit_psp_dir(code="ABINIT"):
+    import ConfigParser
+    import pymatgen
+
+    if code + "_PSP_DIR" in os.environ:
+        return os.environ[code + "_PSP_DIR"]
+
+    elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__), "pymatgen.cfg")):
+        module_dir = os.path.dirname(pymatgen.__file__)
+        config = ConfigParser.SafeConfigParser()
+        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
+        return config.get(code, "pspdir")
+
+    return None
+
 ##########################################################################################
 _periodic_table = PeriodicTable()
 
 class Pseudo(object):
     """
-    Abstract class that defines the various methods 
-    that must be implemented by the concrete pseudopotential classes.
+    Abstract class defining the methods that must be implemented by the concrete pseudopotential classes.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -164,7 +186,10 @@ class Pseudo(object):
     @property
     def symbol(self):                                                                                               
         "Element symbol."
-        return self.element.symbol
+        if have_periodictable:
+            return str(periodictable.elements[self.Z])
+        else:
+            return self.element.symbol
 
     @abc.abstractproperty
     def l_max(self):
@@ -189,10 +214,12 @@ class Pseudo(object):
 
     @property
     def isnc(self):
+        "True if norm-conserving pseudopotential"
         return isinstance(self, NcPseudo)
 
     @property
     def ispaw(self):
+        "True if PAW pseudopotential"
         return isinstance(self, PawPseudo)
 
     #@abc.abstractproperty
@@ -218,7 +245,7 @@ class Pseudo(object):
         return hasattr(self, "extra_info") and self.extra_info is not None
 
     def hint_for_accuracy(accuracy):
-        "Return hint on the cutoff energy for given accuracy."
+        "Returns hint on the cutoff energy for given accuracy."
         if self.has_extra_info:
             return self.extra_info.hint_for_accuracy(accuracy)
         else:
@@ -243,7 +270,7 @@ class Pseudo(object):
 
 class NcPseudo(object):
     """
-    Abstract class that defines the methods that must be implemented 
+    Abstract class defining the methods that must be implemented 
     by the concrete classes representing norm-conserving pseudopotentials.
     """
     __metaclass__ = abc.ABCMeta
@@ -252,7 +279,7 @@ class NcPseudo(object):
     def nlcc_radius(self):
         """
         Radius at which the core charge vanish (i.e. cut-off in a.u.). 
-        Return 0.0 if nlcc is not used
+        Returns 0.0 if nlcc is not used.
         """
                                                                            
     @property
@@ -309,10 +336,12 @@ class AbinitPseudo(Pseudo):
         return self._zion
 
     @property
-    def l_max(self): return self._lmax
+    def l_max(self): 
+        return self._lmax
 
     @property
-    def l_local(self): return self._lloc
+    def l_local(self): 
+        return self._lloc
 
     @property
     def has_input(self):
@@ -367,10 +396,10 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     #def orbitals(self):
 
 ##########################################################################################
+
 class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
-    Suggested value for the cutoff energy [Hartree units] and 
-    the augmentation ratio (PAW pseudo)
+    Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
 
     @classmethod
@@ -387,6 +416,8 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     def to_csv(self):
         "String representation in csv format"
         return "ecut = %s, aug_ratio = %s" % (self.ecut, self.aug_ratio)
+
+##########################################################################################
 
 class PseudoExtraInfo(object):
 
@@ -419,10 +450,8 @@ class PseudoExtraInfo(object):
 # </PP_ETOTAL_VS_ECUT>
 #</PP_INFO>
 
-    #Hint = collections.namedtuple("Hint", "ecut aug_ratio")
-
-    #:Energy diffenrences for the differen accuracy levels.
-    DE_HIGH, DE_NORMAL, DE_LOW = 1.e-3/Ha_eV,  1.e-2/Ha_eV, 5.e-2/Ha_eV
+    #:Energy differences for the different accuracy levels.
+    DE_HIGH, DE_NORMAL, DE_LOW = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 1e-3/Ha_eV
 
     _xml_version = "1.0"
 
@@ -500,7 +529,7 @@ class PseudoExtraInfo(object):
         return new
 
     @classmethod
-    def from_data(cls, ecut_list, etotal_dict):
+    def from_data(cls, ecut_list, etotal_dict, strange_data=0):
         """
         Return a new instance from data.
             Args:
@@ -523,7 +552,6 @@ class PseudoExtraInfo(object):
 
         from scipy import interpolate
 
-        strange_data = 0
         for (aug_ratio, etotal) in etotal_dict.items():
 
             num_ene = len(etotal)
@@ -600,7 +628,6 @@ class PseudoExtraInfo(object):
         for accuracy in ["low", "normal", "high"]:
             csv_string = self._hints_dict[accuracy].to_csv()
             ET.SubElement(hints_sube, accuracy).text = csv_string
-            #ET.SubElement(hints_sube, accuracy, {"delta" : }).text = csv_string
 
         convtest_sube = ET.SubElement(root, 'PP_CONVERGENCE_TEST') 
 
@@ -1184,9 +1211,7 @@ class PseudoParser(object):
 class PseudoTable(object):
     """
     Define the pseudopotentials from the element table.
-    Defines the periodic table of the elements with isotopes.
     Individidual elements are accessed by name, symbol or atomic number.
-    Individual isotopes are addressable by ``element[mass_number]`` or
 
     For example, the following all retrieve iron:
 
@@ -1217,9 +1242,6 @@ class PseudoTable(object):
         56-Fe
 
 
-    Deuterium and tritium are defined as 'D' and 'T'.  Some
-    neutron properties are available in ``elements[0]``.
-
     To show all the elements in the table, use the iterator:
 
     .. doctest::
@@ -1238,6 +1260,17 @@ class PseudoTable(object):
            Properties 
     """
     def __init__(self, psp_type, xc_type, table_type, pseudos):
+        """
+        Args:
+            psp_type:
+                Pseudopotential type, e.g. ("NC", "PAW")
+            xc_type:
+                exchange-correlation type, e.g. LDA, GGA  
+            table_type:
+                Table type
+            pseudos:
+                List of pseudopotentials
+        """
 
         self.psp_type = psp_type
         self.xc_type  = xc_type
@@ -1250,15 +1283,13 @@ class PseudoTable(object):
         self._pseudos_with_z = collections.defaultdict(list)
 
         for pseudo in pseudos:
-            z = pseudo.Z
-
-            self._pseudos_with_z[z].append(pseudo)
+            self._pseudos_with_z[pseudo.Z].append(pseudo)
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
-            if any(symbols != symbol):
+            if any(symb != symbol for symb in symbols):
                 raise ValueError("All symbols must be equal while they are: %s" % str(symbols))
             setattr(self, symbol, pseudo_list)
 
@@ -1290,7 +1321,7 @@ class PseudoTable(object):
 
     @property
     def zlist(self):
-        "Ordered list with the atomic numbers avaialble in the table."
+        "Ordered list with the atomic numbers available in the table."
         zlist = list(self._pseudos_with_z.keys())
         zlist.sort()
         return zlist
@@ -1306,21 +1337,19 @@ class PseudoTable(object):
 
     def pseudos_with_symbol(self, symbol):
         """
-        Lookup an element in the table using its symbol.  
-
-        .. doctest::
-
-            >>> import periodictable
-            >>> print periodictable.elements.symbol('Fe')
-            Fe
+        Return the list of pseudopotentials in the table the with given symbol.  
+        Empty list if no pseudo is avaiable
         """
-        return getattr(self, str(symbol))
+        try:
+            return getattr(self, str(symbol))
+        except AttributeError:
+            return []
 
     def list(self, *props, **kw):
         """
         Print a list of elements with the given set of properties.
 
-        :Parameters:
+        Args:
             *prop1*, *prop2*, ... : string
                 Name of the properties to print
             *format*: string
@@ -1334,8 +1363,7 @@ class PseudoTable(object):
         .. doctest::
 
             >>> from periodictable import elements
-            >>> elements.list('symbol','mass','density',
-            ...     format="%-2s: %6.2f u %5.2f g/cm^3") # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+            >>> elements.list('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3") 
             H :   1.01 u   0.07 g/cm^3
             He:   4.00 u   0.12 g/cm^3
             Li:   6.94 u   0.53 g/cm^3
@@ -1353,27 +1381,26 @@ class PseudoTable(object):
                 continue
 
             # Skip elements with a value of None
-            if any(v is None for v in L): continue
+            if any(v is None for v in L): 
+                continue
 
             if format is None:
                 print(" ".join(str(p) for p in L))
             else:
                 #try:
-                print(format%L)
+                print(format % L)
                 #except:
                 #    print "format",format,"args",L
                 #    raise
 
     def print_table(self, stream=sys.stdout, filter_function=None):
         """
-        A pretty ASCII printer for the periodic table, based on some
-        filter_function.
+        A pretty ASCII printer for the periodic table, based on some filter_function.
                                                                                       
         Args:
             filter_function:
-                A filtering function taking a Pseudoo as input and returning
-                a boolean. For example, setting
-                filter_function = lambda el: el.X > 2 will print
+                A filtering function taking a Pseudo as input and returns a boolean. 
+                For example, setting filter_function = lambda el: el.X > 2 will print
                 a periodic table containing only elements with electronegativity > 2.
         """
         for row in range(1, 10):
@@ -1449,7 +1476,7 @@ class PseudoDatabase(dict):
         for (dirpath, dirnames, filenames) in os.walk(top):
             for dirname in dirnames:
                 try:
-                    psp_type, xc_type, table_type = basename(dirname).split("_")
+                    psp_type, xc_type, table_type = os.path.basename(dirname).split("_")
                 except:
                     err_msg = "Malformatted name for directory %s" % dirname
                     raise RuntimeError(err_msg)
@@ -1495,6 +1522,12 @@ class PseudoDatabase(dict):
     def LDA_HGH_PPTABLE(self):
         for table in self.nc_tables('LDA'):
             if table.name == "HGH": return table
+        return None
+
+    @property
+    def GGA_FHI_PPTABLE(self):
+        for table in self.nc_tables('GGA'):
+            if table.name == "FHI": return table
         return None
 
     @property
@@ -1621,11 +1654,8 @@ if __name__ == "__main__":
         dirpath = "."
 
     database = PseudoDatabase(dirpath=dirpath, force_reload=True)
-
     #for table in database.nc_tables("LDA"):
     #    print table.name, table
-
     si_lda_pseudos = database.nc_pseudos("Si", "LDA")
-
     #for pp in si_lda_pseudos: print pp
     #si_pseudo = si_lda_pseudos[0]

@@ -969,6 +969,7 @@ class PeriodicTable(object):
                 yield self._all_elements[sym]
 
     def __getitem__(self, Z_or_slice):
+        #print Z_or_slice, symbol_from_Z(Z_or_slice)
         try:
             if isinstance(Z_or_slice, slice):
                 return [self._all_elements[sym] for sym in symbol_from_Z(Z_or_slice)]
