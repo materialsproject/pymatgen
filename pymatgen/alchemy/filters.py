@@ -17,6 +17,7 @@ from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
+from pymatgen.symmetry.finder import SymmetryFinder
 import abc
 
 
@@ -162,14 +163,22 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     This filter removes exact duplicate structures from the transmuter.
     """
 
-    def __init__(self,
-                 structure_matcher=StructureMatcher(
-                     comparator=ElementComparator())):
+    def __init__(self, structure_matcher=StructureMatcher(
+                 comparator=ElementComparator()), symprec=None):
         """
+        Remove duplicate structures based on the structure matcher
+        and symmetry (if symprec is given).
+
         Args:
-            comparator:
-                The comparator to be used in the matching
+            structure_matcher:
+                Provides a structure matcher to be used for structure
+                comparison.
+            symprec:
+                The precision in the symmetry finder algorithm
+                if None (default value), no symmetry check is performed and
+                only the structure matcher is used. A recommended value is 1e-5
         """
+        self._symprec = symprec
         self._structure_list = []
         if isinstance(structure_matcher, dict):
             self._sm = StructureMatcher.from_dict(structure_matcher)
@@ -181,11 +190,17 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             self._structure_list.append(structure)
             return True
 
+        def get_sg(s):
+            finder = SymmetryFinder(s, symprec=self._symprec)
+            return finder.get_spacegroup_number()
+
         for s in self._structure_list:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
-                if self._sm.fit(s, structure):
-                    return False
+                if self._symprec is None or \
+                        get_sg(s) == get_sg(structure):
+                    if self._sm.fit(s, structure):
+                        return False
 
         self._structure_list.append(structure)
         return True
@@ -195,22 +210,21 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"structure_matcher": self._sm.to_dict}}
-        
+
+
 class ChargeBalanceFilter(AbstractStructureFilter):
     """
-     This filter removes structures that are not 
-     charge balanced from the transmuter. 
-     This only works if the structure is 
-     oxidation state decorated, as structures
-     with only elemental sites are automatically
-     assumed to have net charge of 0
+    This filter removes structures that are not charge balanced from the
+    transmuter. This only works if the structure is oxidation state
+    decorated, as structures with only elemental sites are automatically
+    assumed to have net charge of 0.
     """
     def test(self, structure):
         if structure.charge == 0.0:
             return True
         else:
             return False
-        
+
     @property
     def to_dict(self):
         return {"@module": self.__class__.__module__,

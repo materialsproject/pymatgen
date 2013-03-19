@@ -35,7 +35,7 @@ class Substitutor(MSONable):
     Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
     """
 
-    def __init__(self, threshold=1e-3, **kwargs):
+    def __init__(self, threshold=1e-3, symprec=0.1, **kwargs):
         """
         This substitutor uses the substitution probability class to
         find good substitutions for a given chemistry or structure.
@@ -43,6 +43,9 @@ class Substitutor(MSONable):
         Args:
             threshold:
                 probability threshold for predictions
+            symprec:
+                symmetry precision to determine if two structures
+                are duplicates
             kwargs:
                 kwargs for the SubstitutionProbability object
                 lambda_table, alpha
@@ -50,6 +53,7 @@ class Substitutor(MSONable):
         self._kwargs = kwargs
         self._sp = SubstitutionProbability(**kwargs)
         self._threshold = threshold
+        self._symprec = symprec
 
     def get_allowed_species(self):
         """
@@ -92,13 +96,19 @@ class Substitutor(MSONable):
                 #check if: species are in the domain,
                 #and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
-                if len(list(set(els) & set(self.get_allowed_species()))) == \
+                if len(els) == len(permut) and \
+                   len(list(set(els) & set(self.get_allowed_species()))) == \
                         len(els) and self._sp.cond_prob_list(permut, els) > \
                         self._threshold:
-                    transf = SubstitutionTransformation(
-                        {els[i]: permut[i]
+
+                    clean_subst = {els[i]: permut[i]
                          for i in xrange(0, len(els))
-                         if els[i] != permut[i]})
+                         if els[i] != permut[i]}
+
+                    if len(clean_subst) == 0:
+                        continue
+
+                    transf = SubstitutionTransformation(clean_subst)
 
                     if Substitutor._is_charge_balanced(
                             transf.apply_transformation(s['structure'])):
@@ -111,7 +121,8 @@ class Substitutor(MSONable):
                         result.append(ts)
                         transmuter.append_transformed_structures([ts])
         if remove_duplicates:
-            transmuter.apply_filter(RemoveDuplicatesFilter())
+            transmuter.apply_filter(RemoveDuplicatesFilter(symprec=\
+                                                           self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod

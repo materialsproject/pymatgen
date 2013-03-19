@@ -468,55 +468,6 @@ class Poscar(MSONable):
         self.velocities = velocities.tolist()
 
 
-#**Non-exhaustive** list of valid INCAR tags
-VALID_INCAR_TAGS = ("NGX", "NGY", "NGZ", "NGXF", "NGYF", "NGZF", "NBANDS",
-                    "NBLK", "SYSTEM", "NWRITE", "ENCUT", "ENAUG", "PREC",
-                    "ISPIN", "MAGMOM", "ISTART", "ICHARG", "INIWAV", "NELM",
-                    "NELMIN", "NELMDL", "EDIFF", "EDIFFG", "NSW", "NBLOCK",
-                    "KBLOCK", "IBRION", "NFREE", "POTIM", "ISIF", "PSTRESS",
-                    "IWAVPR", "ISYM", "SYMPREC", "LCORR", "TEBEG", "TEEND",
-                    "SMASS", "NPACO", "APACO", "POMASS", "ZVAL", "RWIGS",
-                    "LORBIT", "NELECT", "NUPDOWN", "EMIN", "EMAX", "NEDOS",
-                    "ISMEAR", "SIGMA", "FERWE", "FERDO", "SMEARINGS", "LREAL",
-                    "ROPT", "GGA", "VOSKOWN", "LASPH", "ALGO", "IALGO",
-                    "LDIAG", "NSIM", "IMIX", "INIMIX", "MAXMIX", "AMIX",
-                    "BMIX", "AMIX_MAG", "BMIX_MAG", "AMIN", "MIXPRE", "WC",
-                    "WEIMIN", "EBREAK", "DEPER", "TIME", "LWAVE", "LCHARG",
-                    "LVTOT", "LELF", "NPAR", "LPLANE", "LASYNC", "LSCALAPACK",
-                    "LSCALU", "ISPIND", "HFSCREEN", "LHFCALC", "ENCUTFOCK",
-                    "NKRED", "LMAXMIX", "PRECFOCK", "AEXX", "AGGAX", "AGGAC",
-                    "ALDAC", "LMAXFOCK", "LMAXFOCKAE", "LTHOMAS", "NKREDX",
-                    "NKREDY", "NKREDZ", "EVENONLY", "ODDONLY", "LDAU", "LDAUJ",
-                    "LDAUL", "LDAUPRINT", "LDAUTYPE", "LDAUU", "LPEAD",
-                    "LCALCPOL", "LCALCEPS", "LEFG", "EFIELD_PEAD",
-                    "LNONCOLLINEAR", "LSORBIT", "IDIPOL", "DIPOL", "LMONO",
-                    "LDIPOL", "EPSILON", "EFIELD", "LBERRY", "IGPAR", "NPPSTR",
-                    "IPEAD", "I_CONSTRAINED_M", "LAMBDA", "M_CONSTR", "IMAGES",
-                    "SPRING", "LOPTICS", "CSHIFT", "LNABLA", "LEPSILON",
-                    "LRPA", "NOMEGA", "NOMEGAR", "LSPECTRAL", "OMEGAMAX",
-                    "OMEGATL", "ENCUTGW", "ENCUTGWSOFT", "ODDONLYGW",
-                    "EVENONLYGW",
-                    "LSELFENERGY", "LRHFATM", "METAGGA", "LMAXTAU", "LCOMPAT",
-                    "ENMAX", "LMAXPAW", "LSPIRAL", "LZEROZ", "LMETAGGA",
-                    "ENINI", "NRMM", "MREMOVE", "ADDGRID", "EFERMI", "LPARD",
-                    "LSCAAWARE", "IDIOT", "LMUSIC", "LREAL_COMPAT",
-                    "GGA_COMPAT", "ICORELEVEL", "LHFONE", "LRHFCALC",
-                    "LMODELHF", "ENCUT4O", "EXXOEP", "FOURORBIT", "HFALPHA",
-                    "ALDAX", "SHIFTRED", "NMAXFOCKAE", "HFSCREENC", "MODEL_GW",
-                    "MODEL_EPS0", "MODEL_ALPHA", "LVEL", "SAXIS", "QSPIRAL",
-                    "STM", "KINTER", "ORBITALMAG", "LMAGBLOCH", "LCHIMAG",
-                    "LGAUGE", "MAGATOM", "MAGDIPOL", "AVECCONST", "LTCTE",
-                    "LTETE", "L2ORDER", "LGWLF", "ENCUTLF", "LMAXMP2",
-                    "SCISSOR", "NBANDSGW", "NBANDSLF", "DIM", "ANTIRES",
-                    "LUSEW", "OMEGAGRID", "SELFENERGY", "NKREDLFX", "NKREDLFY",
-                    "NKREDLFZ", "MAXMEM", "TELESCOPE", "LCRITICAL_MEM", "GGA2",
-                    "TURBO", "QUAD_EFG", "IRESTART", "NREBOOT", "NMIN", "EREF",
-                    "KSPACING", "KGAMMA", "LSUBROT", "SCALEE", "LVHAR",
-                    "LORBITALREAL", "DARWINR", "DARWINV", "LFOCKAEDFT",
-                    "NUCIND", "MAGPOS", "LNICSALL", "LADDER", "LHARTREE",
-                    "IBSE", "NBANDSO", "NBANDSV", "OPTEMAX", "LIP")
-
-
 class Incar(dict):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -541,8 +492,6 @@ class Incar(dict):
         valid INCAR tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces.
         """
-        if key.strip().upper() not in VALID_INCAR_TAGS:
-            warnings.warn(key.strip() + " not in VALID_INCAR_TAGS")
         super(Incar, self).__setitem__(key.strip(),
                                        Incar.proc_val(key.strip(), val.strip())
                                        if isinstance(val, basestring) else val)

@@ -457,28 +457,6 @@ class Lattice(MSONable):
 
         return None
 
-    def get_primitive_lattice(self, lattice_type):
-        """
-        Returns the primitive lattice of the lattice given the type.
-
-        Args:
-            lattice_type:
-                An alphabet indicating whether the lattice type, P - primitive,
-                R - rhombohedral, A - A-centered, B - B-centered,
-                C - C-centered, I - body-centered, F - F-centered.
-        """
-        if lattice_type == "P":
-            return Lattice(self._matrix)
-        conv_to_prim = {
-            "R": np.array([[2, 1, 1], [-1, 1, 1], [-1, -2, 1]]) / 3,
-            "A": np.array([[2, 0, 0], [0, 1, 1], [0, -1, 1]]) / 2,
-            "B": np.array([[1, 0, 1], [0, 2, 0], [-1, 0, 1]]) / 2,
-            "C": np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]]) / 2,
-            "I": np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]]) / 2,
-            "F": np.array([[1, 1, 0], [0, 1, 1], [1, 0, 1]]) / 2
-        }
-        return Lattice(dot(conv_to_prim[lattice_type], self._matrix))
-
     def get_most_compact_basis_on_lattice(self):
         """
         This method returns the alternative basis corresponding to the shortest
@@ -730,3 +708,42 @@ class Lattice(MSONable):
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
+
+    def get_wigner_seitz_cell(self):
+        """
+        Returns the Wigner-Seitz cell for the given lattice.
+
+        Returns:
+            A list of list of coordinates.
+            Each element in the list is a "facet" of the boundary of the
+            Wigner Seitz cell. For instance, a list of four coordinates will
+            represent a square facet.
+        """
+        from pyhull.voronoi import VoronoiTess
+        vec1 = self.matrix[0]
+        vec2 = self.matrix[1]
+        vec3 = self.matrix[2]
+
+        list_k_points = []
+        for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
+            list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        tess = VoronoiTess(list_k_points)
+        to_return = []
+        for r in tess.ridges:
+            if r[0] == 13 or r[1] == 13:
+                to_return.append([tess.vertices[i] for i in tess.ridges[r]])
+
+        return to_return
+
+    def get_brillouin_zone(self):
+        """
+        Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
+        Brillouin Zone.
+
+        Returns:
+            A list of list of coordinates.
+            Each element in the list is a "facet" of the boundary of the
+            Brillouin Zone. For instance, a list of four coordinates will
+            represent a square facet.
+        """
+        return self.reciprocal_lattice.get_wigner_seitz_cell()

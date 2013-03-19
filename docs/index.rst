@@ -65,11 +65,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Vastly improved Gaussian input file parsing that supports more varieties
-   of input specifications.
-2. StructureNL now supports molecules as well as structures.
-3. Updated atomic and vdw radius for Elements.
-4. Miscellaneous bug fixes and speedups.
+1. Use requests.Session in MPRester for connection pooling and code simplicity.
+2. Support for "with" context manager in MPRester.
+3. Updated periodic table data to correct errors in Ru, Tc and other elements.
+4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
+5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -258,6 +258,17 @@ Users are strongly encouraged to explore the detailed :doc:`usage pages
    :maxdepth: 2
 
    usage
+
+Add-ons
+-------
+
+Some add-ons are available for pymatgen today:
+
+1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+   provides tools to create databases of calculated run data using pymatgen.
+2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
+   a JIT job management and error correction for calculations, particularly
+   VASP calculations.
 
 Contributing
 ============
