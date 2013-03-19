@@ -3,6 +3,8 @@ import os
 import json
 import numpy as np
 import random
+
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -59,6 +61,10 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
+        #Test anonymous fit.
+        self.assertEqual(sm.fit_anonymous(lfp, nfp),
+                         {Element("Li"): Element("Na")})
+
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
                        [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
@@ -75,8 +81,13 @@ class StructureMatcherTest(unittest.TestCase):
         """Test oxidation state removal matching"""
         sm = StructureMatcher()
         self.assertFalse(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
+        self.assertEqual(sm.fit_anonymous(self.oxi_structs[0],
+                                          self.oxi_structs[1]),
+                         {Specie("Li", 1): Element("Li"),
+                          Specie("O", -2): Element("O")})
         sm = StructureMatcher(comparator=ElementComparator())
         self.assertTrue(sm.fit(self.oxi_structs[0], self.oxi_structs[1]))
+
 
     def test_primitive(self):
         """Test primitive cell reduction"""
@@ -89,7 +100,7 @@ class StructureMatcherTest(unittest.TestCase):
     def test_class(self):
         """Tests entire class as single working unit"""
         sm = StructureMatcher()
-        """ Test group_structures and find_indicies"""
+        """ Test group_structures and find_indices"""
         out = sm.group_structures(self.struct_list)
 
         self.assertEqual(sm.find_indexes(self.struct_list, out),

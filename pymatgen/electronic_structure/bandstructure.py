@@ -707,6 +707,27 @@ class BandStructureSymmLine(BandStructure, MSONable):
 
         return result
 
+    def get_direct_band_gap(self):
+        """
+        Returns the direct band gap.
+
+        Returns:
+             the value of the direct band gap
+        """
+        if self.is_metal():
+            return 0.0
+        lowest_conduction_band = []
+        highest_valence_band = []
+        for j in range(len(self._bands[Spin.up])):
+            for i in range(len(self.kpoints)):
+                if self._bands[Spin.up][j][i] > self._efermi:
+                    lowest_conduction_band.append(self._bands[Spin.up][j][i])
+                    highest_valence_band.append(self._bands[Spin.up][j-1][i])
+        diff = []
+        for i in range(len(self.kpoints)):
+            diff.append(lowest_conduction_band[i] - highest_valence_band[i])
+        return min(diff)
+
     def is_metal(self):
         """
         Check if the band structure indicates a metal by looking if the fermi
