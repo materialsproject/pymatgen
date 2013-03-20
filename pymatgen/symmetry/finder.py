@@ -45,8 +45,6 @@ except ImportError:
               " for pymatgen, or install pyspglib from spglib."
         raise ImportError(msg)
 
-tol = 1e-5
-
 
 class SymmetryFinder(object):
     """
@@ -479,7 +477,7 @@ class SymmetryFinder(object):
         Returns:
             The structure in a conventional standardized cell
         """
-
+        tol = 1e-5
         struct = self.get_refined_structure()
         latt = struct.lattice
         latt_type = self.get_lattice_type()
@@ -524,14 +522,12 @@ class SymmetryFinder(object):
             #find the "a" vectors
             #it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
-            a = sorted_lengths[0]
-            c = sorted_lengths[2]
+            a, b, c = sorted_lengths
             for d in range(len(sorted_dic)):
                 transf[d][sorted_dic[d]['orig_index']] = 1
 
-            if abs(sorted_lengths[1] - sorted_lengths[2]) < tol:
-                a = sorted_lengths[2]
-                c = sorted_lengths[0]
+            if abs(b - c) < tol:
+                a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
 
             new_matrix = [[a, 0, 0],
@@ -558,10 +554,9 @@ class SymmetryFinder(object):
                                                  (1, 1, 1))).modified_structure
                 sorted_lengths = sorted(struct.lattice.abc)
 
-            a = sorted_lengths[0]
-            c = sorted_lengths[2]
+            a, b, c = sorted_lengths
 
-            if abs(a - c) < 0.001:
+            if abs(b - c) < 0.001:
                 a, c = c, a
             new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
                           [a / 2, a * math.sqrt(3) / 2, 0],
@@ -621,9 +616,7 @@ class SymmetryFinder(object):
                         trans[0][t[0]] = 1
                         trans[1][t[1]] = 1
                         trans[2][2] = 1
-                        a = landang[0][0]
-                        b = landang[0][1]
-                        c = landang[0][2]
+                        a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
