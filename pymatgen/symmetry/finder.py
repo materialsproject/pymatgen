@@ -481,29 +481,30 @@ class SymmetryFinder(object):
         """
 
         struct = self.get_refined_structure()
-        lattice = self.get_lattice_type()
-        sorted_lengths = sorted(struct.lattice.abc)
-        sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
-                              'length': struct.lattice.abc[i],
+        latt = struct.lattice
+        latt_type = self.get_lattice_type()
+        sorted_lengths = sorted(latt.abc)
+        sorted_dic = sorted([{'vec': latt.matrix[i],
+                              'length': latt.abc[i],
                               'orig_index': i} for i in [0, 1, 2]],
                             key=lambda k: k['length'])
         results = None
-        if lattice == "orthorhombic" or lattice == "cubic":
+        if latt_type in ("orthorhombic", "cubic"):
             #you want to keep the c axis where it is
             #to keep the C- settings
             if self.get_spacegroup_symbol().startswith("C"):
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
-                sorted_lengths = sorted(struct.lattice.abc[:2])
-                sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
-                                      'length': struct.lattice.abc[i],
+                sorted_lengths = sorted(latt.abc[:2])
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
                                       'orig_index': i} for i in [0, 1]],
                                     key=lambda k: k['length'])
                 for c in range(2):
                     transf[c][sorted_dic[c]['orig_index']] = 1
                     new_matrix = [[sorted_lengths[0], 0, 0],
                                   [0, sorted_lengths[1], 0],
-                                  [0, 0, struct.lattice.abc[2]]]
+                                  [0, 0, latt.abc[2]]]
             else:
                 transf = np.zeros(shape=(3, 3))
                 for c in range(len(sorted_dic)):
@@ -519,7 +520,7 @@ class SymmetryFinder(object):
                                  properties=s.properties))
             results = Structure.from_sites(new_sites)
 
-        elif lattice == "tetragonal":
+        elif latt_type == "tetragonal":
             #find the "a" vectors
             #it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
@@ -544,18 +545,15 @@ class SymmetryFinder(object):
                                  properties=s.properties))
             results = Structure.from_sites(new_sites)
 
-        elif lattice == "hexagonal" or lattice == "rhombohedral":
+        elif latt_type in ("hexagonal", "rhombohedral"):
             #for the conventional cell representation,
             #we allways show the rhombohedral lattices as hexagonal
 
             #check first if we have the refined structure shows a rhombohedral
             #cell
             #if so, make a supercell
-            if abs(struct.lattice.abc[0] - struct.lattice.abc[1]) < 0.001 and \
-                    abs(struct.lattice.abc[2]
-                        - struct.lattice.abc[1]) < 0.001 \
-                    and abs(struct.lattice.abc[0]
-                            - struct.lattice.abc[2]) < 0.001:
+            a, b, c = latt.abc
+            if abs(a - b) < 0.001 and abs(c - b) < 0.001 and abs(a - c) < 0.001:
                 struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
                                                  (1, 1, 1))).modified_structure
                 sorted_lengths = sorted(struct.lattice.abc)
@@ -563,9 +561,8 @@ class SymmetryFinder(object):
             a = sorted_lengths[0]
             c = sorted_lengths[2]
 
-            if abs(sorted_lengths[1] - sorted_lengths[2]) < 0.001:
-                a = sorted_lengths[2]
-                c = sorted_lengths[0]
+            if abs(a - c) < 0.001:
+                a, c = c, a
             new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
                           [a / 2, a * math.sqrt(3) / 2, 0],
                           [0, 0, c]]
@@ -578,40 +575,38 @@ class SymmetryFinder(object):
                                  properties=s.properties))
             results = Structure.from_sites(new_sites)
 
-        elif lattice == "monoclinic":
+        elif latt_type == "monoclinic":
             #you want to keep the c axis where it is
             #to keep the C- settings
 
             if self.get_spacegroup().int_symbol.startswith("C"):
                 trans = np.zeros(shape=(3, 3))
                 trans[2] = [0, 0, 1]
-                sorted_dic = sorted([{'vec': struct.lattice.matrix[i],
-                                      'length': struct.lattice.abc[i],
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
                                       'orig_index': i} for i in [0, 1]],
                                     key=lambda k: k['length'])
                 a = sorted_dic[0]['length']
                 b = sorted_dic[1]['length']
-                c = struct.lattice.abc[2]
+                c = latt.abc[2]
                 new_matrix = None
                 for t in itertools.permutations(range(2), 2):
-                    landang = Lattice([struct.lattice.matrix[t[0]],
-                                       struct.lattice.matrix[t[1]],
-                                       struct.lattice.matrix[2]]) \
+                    landang = Lattice([latt.matrix[t[0]],
+                                       latt.matrix[t[1]],
+                                       latt.matrix[2]]) \
                         .lengths_and_angles
                     if landang[1][0] > 90:
                         #if the angle is > 90 we invert a and b to get
                         #an angle < 90
                         landang = Lattice(
-                            [np.multiply(struct.lattice.matrix[t[0]], -1),
-                             np.multiply(struct.lattice.matrix[t[1]], -1),
-                             struct.lattice.matrix[2]]).lengths_and_angles
+                            [np.multiply(latt.matrix[t[0]], -1),
+                             np.multiply(latt.matrix[t[1]], -1),
+                             latt.matrix[2]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = -1
                         trans[1][t[1]] = -1
                         trans[2][2] = 1
-                        a = landang[0][0]
-                        b = landang[0][1]
-                        c = landang[0][2]
+                        a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
@@ -619,10 +614,9 @@ class SymmetryFinder(object):
                         continue
 
                     elif landang[1][0] < 90:
-                        landang = Lattice([struct.lattice.matrix[t[0]],
-                                           struct.lattice.matrix[t[1]],
-                                           struct.lattice.matrix[2]]) \
-                            .lengths_and_angles
+                        landang = Lattice([latt.matrix[t[0]],
+                                           latt.matrix[t[1]],
+                                           latt.matrix[2]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = 1
                         trans[1][t[1]] = 1
@@ -656,39 +650,34 @@ class SymmetryFinder(object):
                 #and b<c
                 new_matrix = None
                 for t in itertools.permutations(range(3), 3):
-                    landang = Lattice([struct.lattice.matrix[t[0]],
-                                       struct.lattice.matrix[t[1]],
-                                       struct.lattice.matrix[t[2]]]) \
+                    landang = Lattice([latt.matrix[t[0]],
+                                       latt.matrix[t[1]],
+                                       latt.matrix[t[2]]]) \
                         .lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
-                            [np.multiply(struct.lattice.matrix[t[0]], -1.0),
-                             np.multiply(struct.lattice.matrix[t[1]], -1.0),
-                             struct.lattice.matrix[t[2]]]).lengths_and_angles
+                            [np.multiply(latt.matrix[t[0]], -1.0),
+                             np.multiply(latt.matrix[t[1]], -1.0),
+                             latt.matrix[t[2]]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = -1
                         trans[1][t[1]] = -1
                         trans[2][t[2]] = 1
-                        a = landang[0][0]
-                        b = landang[0][1]
-                        c = landang[0][2]
+                        a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
                     elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
-                        landang = Lattice([struct.lattice.matrix[t[0]],
-                                           struct.lattice.matrix[t[1]],
-                                           struct.lattice.matrix[t[2]]]) \
-                            .lengths_and_angles
+                        m = latt.matrix
+                        landang = Lattice(
+                            [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = 1
                         trans[1][t[1]] = 1
                         trans[2][t[2]] = 1
-                        a = landang[0][0]
-                        b = landang[0][1]
-                        c = landang[0][2]
+                        a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
@@ -706,16 +695,13 @@ class SymmetryFinder(object):
                                  properties=s.properties))
             results = Structure.from_sites(new_sites)
 
-        elif lattice == "triclinic":
+        elif latt_type == "triclinic":
             #we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
 
-            a = struct.lattice.lengths_and_angles[0][0]
-            b = struct.lattice.lengths_and_angles[0][1]
-            c = struct.lattice.lengths_and_angles[0][2]
-            alpha = math.pi * struct.lattice.lengths_and_angles[1][0] / 180
-            beta = math.pi * struct.lattice.lengths_and_angles[1][1] / 180
-            gamma = math.pi * struct.lattice.lengths_and_angles[1][2] / 180
+            a, b, c = latt.lengths_and_angles[0]
+            alpha, beta, gamma = [math.pi * i / 180
+                                  for i in latt.lengths_and_angles[1]]
             new_matrix = [[a, 0, 0],
                           [b * cos(gamma), b * sin(gamma), 0.0],
                           [c * cos(beta),
