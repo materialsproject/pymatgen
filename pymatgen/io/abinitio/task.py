@@ -14,7 +14,7 @@ from pymatgen.core.design_patterns import Enum
 from pymatgen.util.string_utils import stream_has_colours
 from pymatgen.util.filelock import FileLock
 
-from .utils import parse_ewc, abinit_output_iscomplete
+from .utils import parse_ewc, abinit_output_iscomplete, remove_tree, File
 from .jobfile import JobFile
 
 #import logging
@@ -33,63 +33,11 @@ __all__ = [
 ]
 
 ##########################################################################################
-# Helper functions.
-
-def _remove_tree(*paths, **kwargs):
-    import shutil
-    ignore_errors = kwargs.pop("ignore_errors", True)
-    onerror       = kwargs.pop("onerror", None)
-                                                                           
-    for path in paths:
-        shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
-
-class File(object):
-    """
-    Very simple class used to store file basenames, absolute paths and directory names.
-
-    Provides wrappers for the most commonly used os.path functions.
-    """
-    def __init__(self, basename, dirname="."):
-        self.basename = basename
-        self.dirname = os.path.abspath(dirname)
-        self.path = os.path.join(self.dirname, self.basename)
-
-    def __str__(self):
-       return self.read()
-
-    def __repr__(self):
-        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
-
-    @property
-    def exists(self):
-        "True if file exists."
-        return os.path.exists(self.path)
-
-    @property
-    def isncfile(self):
-        "True if self is a NetCDF file"
-        return self.basename.endswith(".nc")
-
-    def read(self):
-        with open(self.path, "r") as f: 
-            return f.read()
-
-    def readlines(self):
-        with open(self.path, "r") as f: 
-            return f.readlines()
-
-    def write(self, string):
-        with open(self.path, "w") as f: 
-            return f.write(string)
-                                        
-    def writelines(self, lines):
-        with open(self.path, "w") as f: 
-            return f.writelines()
-
-##########################################################################################
 
 class AbinitTask(object):
-
+    """
+    Base class defining a generic abinit calculation
+    """
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
     pj = os.path.join
@@ -103,17 +51,16 @@ class AbinitTask(object):
     del Basename
 
     def __init__(self, input, workdir, 
-                 varpaths    = None, 
-                 user_options= None,
+                 varpaths = None, 
+                 **kwargs
                 ):
         """
         Args:
             input: 
                 AbinitInput instance.
             workdir:
-                Name of the working directory.
+                Path to the working directory.
             varpaths:
-            user_options:
         """
         self.workdir = os.path.abspath(workdir)
 
@@ -167,10 +114,11 @@ class AbinitTask(object):
 
     @property
     def return_code(self):
+        "Return code of the subprocess."
         try:
             return self._return_code
         except AttributeError:
-            return 666
+            return None
 
     @property
     def jobfile_path(self):
@@ -237,10 +185,12 @@ class AbinitTask(object):
 
     @property
     def isnc(self):
+        "True if norm-conserving calculation"
         return all(p.isnc for p in self.pseudos)
 
     @property
     def ispaw(self):
+        "True if PAW calculation"
         return all(p.ispaw for p in self.pseudos)
 
     #def in_files(self):
@@ -297,7 +247,7 @@ class AbinitTask(object):
 
     def destroy(self, *args, **kwargs):
         """
-        Remove all calculation files and directories.
+        Remove all files and directories.
                                                                                    
         Keyword arguments:
             force: (False)
@@ -308,7 +258,7 @@ class AbinitTask(object):
         if kwargs.pop('verbose', 0):
             print('Removing directory tree: %s' % self.workdir)
 
-        _remove_tree(self.workdir, **kwargs)
+        remove_tree(self.workdir, **kwargs)
 
     def read_mainlog_ewc(self, nafter=5):
        """
@@ -364,7 +314,7 @@ class AbinitTask(object):
              This method must be thread safe since we may want to run several indipendent
              calculations with different python threads. 
         """
-        if kwargs.get('verbose'):
+        if kwargs.pop('verbose', 0):
             print('Running ' + self.input_path)
 
         lock = FileLock(self.path_in_workdir(AbinitTask.basename.lockfile))

@@ -4,6 +4,59 @@ import collections
 
 from pymatgen.util.string_utils import list_strings, StringColorizer
 
+
+##########################################################################################
+# Helper functions.
+
+def remove_tree(*paths, **kwargs):
+    import shutil
+    ignore_errors = kwargs.pop("ignore_errors", True)
+    onerror       = kwargs.pop("onerror", None)
+                                                                           
+    for path in paths:
+        shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
+
+##########################################################################################
+
+class File(object):
+    """
+    Very simple class used to store file basenames, absolute paths and directory names.
+
+    Provides wrappers for the most commonly used os.path functions.
+    """
+    def __init__(self, basename, dirname="."):
+        self.basename = basename
+        self.dirname = os.path.abspath(dirname)
+        self.path = os.path.join(self.dirname, self.basename)
+
+    def __str__(self):
+       return self.read()
+
+    def __repr__(self):
+        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
+
+    @property
+    def exists(self):
+        "True if file exists."
+        return os.path.exists(self.path)
+
+    @property
+    def isncfile(self):
+        "True if self is a NetCDF file"
+        return self.basename.endswith(".nc")
+
+    def read(self):
+        with open(self.path, "r") as f: return f.read()
+
+    def readlines(self):
+        with open(self.path, "r") as f: return f.readlines()
+
+    def write(self, string):
+        with open(self.path, "w") as f: return f.write(string)
+                                        
+    def writelines(self, lines):
+        with open(self.path, "w") as f: return f.writelines()
+
 ##########################################################################################
 
 class _ewc_tuple(collections.namedtuple("ewc_tuple", "errors, warnings, comments")):

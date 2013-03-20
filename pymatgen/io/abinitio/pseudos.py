@@ -550,8 +550,6 @@ class PseudoExtraInfo(object):
 
         hints_dict = collections.OrderedDict()
 
-        from scipy import interpolate
-
         for (aug_ratio, etotal) in etotal_dict.items():
 
             num_ene = len(etotal)
@@ -564,6 +562,7 @@ class PseudoExtraInfo(object):
             ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
 
             # Spline
+            #from scipy import interpolate
             #spline = interpolate.InterpolatedUnivariateSpline(ecut_list, Ha2meV(etotal-etotal_inf))
             #derivatives = spline.derivatives(ecut_list[-1])
             #print derivatives
@@ -574,8 +573,7 @@ class PseudoExtraInfo(object):
                 etot  = etotal[i] 
                 ediff = etot - etotal_inf
                 if ediff < 0.0: strange_data += 1
-                #print i,"/",num_ene, "diff", ediff * Ha_eV 
-                                                                                      
+
                 if ecut_high is None and ediff > cls.DE_HIGH:
                     conv_idx =  i+1
                     ecut_high = ecut_list[i+1]
