@@ -265,6 +265,17 @@ Users are strongly encouraged to explore the detailed `usage pages
 <http://pythonhosted.org/pymatgen/usage.html>`_ and `api docs
 <http://pythonhosted.org/pymatgen/modules.html>`_.
 
+Add-ons
+-------
+
+Some add-ons are available for pymatgen today:
+
+1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+   provides tools to create databases of calculated run data using pymatgen.
+2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
+   a JIT job management and error correction for calculations, particularly
+   VASP calculations.
+
 How to cite pymatgen
 ====================
 
