@@ -7,6 +7,7 @@ import sys
 import os
 import os.path
 import abc
+import json
 import collections
 import numpy as np
 
@@ -17,6 +18,7 @@ from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, H
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.filelock import FileLock
+from pymatgen.util.num_utils import iterator_from_slice 
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
@@ -109,13 +111,13 @@ class Work(MSONable):
     def setup(self, *args, **kwargs):
         """
         Method called before running the calculations. 
-        The default implementation does nothing.
+        The default implementation is empty.
         """
 
     def teardown(self, *args, **kwargs):
         """
         Method called once the calculations completed.
-        The default implementation does nothing.
+        The default implementation is empty.
         """
 
     def show_inputs(self, stream=sys.stdout):
@@ -176,14 +178,9 @@ class Work(MSONable):
         return TaskDependencies(new_task, newtask_id)
 
     def build(self, *args, **kwargs):
-
-        # Create top level directory.
+        "Creates the top level directory"
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
-
-        # Create task workdirs and files.
-        for task in self:
-            task.build(*args, **kwargs)
 
     def get_status(self, only_highest_rank=False):
         "Get the status of the tasks in self."
@@ -210,7 +207,7 @@ class Work(MSONable):
                                                                                     
         remove_tree(self.workdir, **kwargs)
 
-    def run(self, *args, **kwargs):
+    def start_tasks(self, *args, **kwargs):
 
         num_pythreads = int(kwargs.pop("num_pythreads", 1))
 
@@ -218,7 +215,7 @@ class Work(MSONable):
         # and whose dependencies are satisfied.
         if num_pythreads == 1:
             for task in self:
-                task.run(*args, **kwargs)
+                task.start(*args, **kwargs)
 
         else:
             # Threaded version.
@@ -239,7 +236,7 @@ class Work(MSONable):
                 t.start()
 
             for task in self:
-                q.put((task.run, args, kwargs))
+                q.put((task.start, args, kwargs))
                                                                     
             # Block until all tasks are done. 
             q.join()  
@@ -252,25 +249,19 @@ class Work(MSONable):
             Args:
                 num_pythreads = Number of python threads to use (defaults to 1)
         """
+        self.build(*args, **kwargs)
+
         # Acquire the lock
-        lock = FileLock(self.path_in_workdir("__lock__"))
+        with FileLock(self.path_in_workdir("__lock__")) as lock:
 
-        try:
-            lock.acquire()
-        except FileLock.Exception:
-            raise
+            # Initial setup
+            self.setup(*args, **kwargs)
 
-        # Initial setup
-        self.setup(*args, **kwargs)
+            # Execute 
+            results = self.start_tasks(*args, **kwargs)
 
-        # Execute 
-        results = self.run(*args, **kwargs)
-
-        # Finalize
-        self.teardown(*args, results=results)
-
-        # Release the lock
-        lock.release()
+            # Finalize
+            self.teardown(*args, results=results)
 
     def read_etotal(self):
         """
@@ -330,12 +321,20 @@ class IterativeWork(Work):
 
         return self[-1]
 
-    def run(self, *args, **kwargs):
+    def start_tasks(self, *args, **kwargs):
+        """
+        Run the tasks till self.exit_iteration says to exit or the number of iterations exceeds self.max_niter
 
+        Return dictionary with the final results
+        """
         self.niter = 1
         results = {"converged": False}
 
+        #if kwargs.pop("num_pythreads", 1) != 1
+        #
+
         while True:
+
             if self.max_niter > 0 and self.niter > self.max_niter: 
                 raise StopIteration("niter %d > max_niter %d" % (self.niter, self.max_niter))
 
@@ -344,9 +343,7 @@ class IterativeWork(Work):
             except StopIteration:
                 break
 
-            task.build()
-
-            task.run(*args,**kwargs)
+            task.start(*args,**kwargs)
 
             results = self.exit_iteration(*args, **kwargs)
 
@@ -359,22 +356,13 @@ class IterativeWork(Work):
 
     @abc.abstractmethod
     def exit_iteration(self, *args, **kwargs):
-        "return exit, data"
+        """
+        Return a dictionary with the results produced at the given iteration.
+        The dictionary must contains an entry "converged" that evaluates to 
+        True if the iteration should be stopped.
+        """
 
 ##########################################################################################
-def iterator_from_slice(s):
-    "Constructs an iterator given a slice object"
-
-    start = s.start if s.start is not None else 0
-    step  = s.step  if s.step is not None else 1
-
-    if s.stop is None: 
-        # Infinite iterators.
-        import itertools
-        return itertools.count(start=start, step=step)
-    else:
-        # xrange-like iterator.
-        return iter(range(start, s.stop, step))
 
 class PseudoEcutConvergence(IterativeWork):
 
@@ -387,6 +375,8 @@ class PseudoEcutConvergence(IterativeWork):
         Args:
             pseudo:
                 string or Pseudo instance
+            ecut_list_or_slice:
+                List of cutoff energies or slice object (mainly used for infinite iterations). 
         """
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
@@ -401,6 +391,7 @@ class PseudoEcutConvergence(IterativeWork):
         else:
             self.ecut_iterator = iter(ecut_list_or_slice)
 
+        # Construct a generator that returns AbinitInput objects.
         def input_generator():
             for ecut in self.ecut_iterator:
                 yield self.input_with_ecut(ecut)
@@ -411,6 +402,7 @@ class PseudoEcutConvergence(IterativeWork):
             raise NotImplementedError("PAW convergence tests are not supported yet")
 
     def input_with_ecut(self, ecut):
+        "Return an Input instance with given cutoff energy ecut"
 
         # Define System: one atom in a box of lenghts acell. 
         boxed_atom = System.boxed_atom(self.pseudo, acell=self._acell)
@@ -433,6 +425,7 @@ class PseudoEcutConvergence(IterativeWork):
 
     @property
     def ecut_list(self):
+        "The list of cutoff energies computed so far"
         return [float(task.input.get_variable("ecut")) for task in self]
 
     def exit_iteration(self, *args, **kwargs):
@@ -486,14 +479,7 @@ class PseudoEcutConvergence(IterativeWork):
         return results
 
     def teardown(self, *args, **kwargs):
-        import json
-
         results = kwargs.pop("results", {})
-        print(results)
-
-        if results:
-            with open(self.path_in_workdir("results.json"), "w") as fh:
-                json.dump(results, fh)
 
         etotal = self.read_etotal()
 
@@ -503,10 +489,6 @@ class PseudoEcutConvergence(IterativeWork):
 
         status = max(status_list)
 
-        #num_warnings = max(s.nwarnings for s in status_list) 
-        #num_errors = max(s.nerrors for s in status_list) 
-        #num_comments = max(s.comments for s in status_list) 
-
         num_errors, num_warnings, num_comments = 0, 0, 0 
         for task in self:
             main, log =  task.read_mainlog_ewc()
@@ -515,15 +497,14 @@ class PseudoEcutConvergence(IterativeWork):
             num_warnings = max(num_warnings, main.num_warnings)
             num_comments = max(num_comments, main.num_comments)
 
-        with open(self.path_in_workdir("data.txt"), "w") as fh:
-            info = "max_errors = %d, max_warnings %d, max_comments = %d\n" % (num_errors, num_warnings, num_comments)
-            print(info)
-            fh.write(info)
-            for (ecut, ene) in zip(self.ecut_list, etotal):
-                fh.write(str(ecut) + " " + str(ene) + "\n")
+        results.update({
+            "num_errors":   num_errors,
+            "num_warnings": num_warnings,
+            "num_comments": num_comments,
+        })
 
-        #print(repr(status))
-        #input = ["I really\n", "dislike\n", "XML\n"]
+        with open(self.path_in_workdir("results.json"), "w") as fh:
+            json.dump(results, fh)
 
         # TODO handle possible problems with the SCF cycle
         strange_data = 0
@@ -541,8 +522,6 @@ class PseudoEcutConvergence(IterativeWork):
         with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
             fh.write(xml_string)
         #new = pp_info.from_string(xml_string)
-        #print new
-        #print new.toxml()
 
 ##########################################################################################
 
@@ -644,25 +623,28 @@ class DeltaTest(Work):
                                              )
             self.register_input(scf_input)
 
-    def run(self, *args, **kwargs):
-        pass
+    #def start(self, *args, **kwargs):
+    #    pass
 
     def teardown(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
 
-        etotal = Ha2eV(self.read_etotal())
+        etotal_pat = Ha2eV(self.read_etotal())
+        volumes_pat = self.volumes / num_sites
 
-        with open(self.path_in_workdir("data.txt"), "w") as fh:
-            fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
+        results = {
+            etotal_pat: list(etotal_pat),
+            volumes_pat: list(volumes_pat),
+        }
 
-            for (v, e) in zip(self.volumes, etotal):
-                line = "%s %s\n" % (v/num_sites, e/num_sites)
-                fh.write(line)
+        #fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
+        with open(self.path_in_workdir("results.json"), "w") as fh:
+            json.dump(results, fh)
 
         from .eos import EOS
-        eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
+        eos_fit = EOS.Murnaghan().fit(volumes_pat, etotal_pat)
         print(eos_fit)
-        eos_fit.plot()
+        #eos_fit.plot()
 
 ##########################################################################################
 
@@ -716,7 +698,6 @@ class PvsV(Work):
             self.register_input(scf_input)
 
     def teardown(self):
-
         pressures, volumes = [], []
         for task in self:
             # Open GSR file and read etotal (Hartree)
@@ -771,7 +752,87 @@ class G0W0(Work):
 
 ##########################################################################################
 
-def test_abinitio(structure):
+class EcutTest(object):
+
+    def __init__(self, table, zslice=None, spin_mode="polarized"):
+        works = []
+
+        table_name = table.name
+        #table = [p for p in table if p.Z < 5]
+        #table = [p for p in table if p.Z==11]
+
+        if zslice is not None:
+            table = table[zslice]
+
+        for pseudo in table:
+            ecut_list = list(range(10,31,5))
+            #ecut_list = list(range(50,451,50))
+            #ecut_list = slice(20, None, 40)
+
+            workdir = "PPTEST_" + table_name + "_" + pseudo.basename
+
+            if os.path.exists(workdir): 
+                continue
+
+            pp_wf = PseudoEcutConvergence(workdir, pseudo, ecut_list,
+                        spin_mode  = spin_mode,
+                        smearing   = None,
+                        acell      = 3*(8,), 
+                       )
+
+            works.append(pp_wf)
+
+        self.works = works
+
+    def start(self, *args, **kwargs):
+        num_pythreads = kwargs.pop("num_pythreads", 1)
+
+        if num_pythreads == 1:
+            for work in self.works:
+                work.start(*args, **kwargs)
+
+        else:
+            # Threaded version.
+            from threading import Thread
+            from Queue import Queue
+            print("Threaded version with num_pythreads %s" % num_pythreads)
+
+            def worker():
+                while True:
+                    func, args, kwargs = q.get()
+                    func(*args, **kwargs)
+                    q.task_done()
+                                                         
+            q = Queue()
+            for i in range(num_pythreads):
+                t = Thread(target=worker)
+                t.setDaemon(True)
+                t.start()
+
+            args, kwargs = [], {}
+            for work in self.works:
+                q.put((work.start, args, kwargs))
+
+            #Block until all tasks are done. 
+            q.join()  
+
+        results = {}
+        for work in self.works:
+            with open(work.path_in_workdir("results.json"), "r") as fh:
+                results[work.pseudo.basename] = json.load(fh)
+
+        database = "database.json"
+        if os.path.exists(database): 
+            with open(database, "r") as fh:
+                old_results = json.load(database)
+                results.update(old_results)
+
+        with open(database, "w") as fh:
+            json.dump(results, fh)
+
+##########################################################################################
+
+def remove_me(structure):
     psp_dir = get_abinit_psp_dir()
 
     pp_database = PseudoDatabase(dirpath=psp_dir, force_reload=False)
@@ -781,7 +842,7 @@ def test_abinitio(structure):
     pptable_or_pseudos = GGA_HGHK_PPTABLE
     pseudo = GGA_HGHK_PPTABLE[14][0]
 
-    pptest_wf = PseudoEcutTest("Test_pseudo", pseudo, list(range(10,40,2)))
+    #pptest_wf = PseudoEcutTest("Test_pseudo", pseudo, list(range(10,40,2)))
 
     #pptest.show_inputs()
     pptest_wf.start()
@@ -795,13 +856,6 @@ def test_abinitio(structure):
     #bands_wf.start()
 
     #bands_wf.show_inputs()
-    #sys.exit(1)
-
-    #for task in bands_wf:
-    #    print task.input
-    #    status = task.get_status()
-    #    status.show()
-    #    status.print_ewc_messages()
     #sys.exit(1)
 
     ecuteps   = 10
@@ -818,85 +872,3 @@ def test_abinitio(structure):
                             ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma)
 
     g0w0_wf.show_inputs()
-
-    delta_wf = DeltaTest(structure, pseudo, [2,2,2])
-    delta_wf.show_inputs()
-
-##########################################################################################
-
-class EcutTest(object):
-
-    def __init__(self, table, spin_mode):
-        works = []
-
-        table_name = table.name
-
-        #table = [p for p in table if p.Z < 5]
-        table = [p for p in table if p.Z < 2]
-
-        for pseudo in table:
-            ecut_list = list(range(10,31,5))
-            #ecut_list = list(range(50,451,50))
-            #ecut_list = slice(20, None, 40)
-
-            #element = pseudo.element
-            #print(element.Z, element)
-            #if element.block not in ["s", "p"]:
-            #    ecut_list = range(30,121,1),
-
-            workdir = "PPTEST_" + table_name + "_" + pseudo.basename
-
-            pp_wf = PseudoEcutConvergence(workdir, pseudo, ecut_list,
-                        spin_mode  = spin_mode,
-                        smearing   = None,
-                        acell      = 3*(8,), 
-                       )
-
-            #print(pp_wf.show_inputs())
-            #sys.exit(1)
-
-            works.append(pp_wf)
-
-        self.works = works
-
-    def build(self, *args, **kwargs):
-        for work in self.works:
-            work.build(*args, **kwargs)
-
-    def start(self, *args, **kwargs):
-
-        num_pythreads = kwargs.pop("num_pythreads", 1)
-
-        if num_pythreads == 1:
-            for work in self.works:
-                work.start(*args, **kwargs)
-            return
-
-        # Threaded version.
-        from threading import Thread
-        from Queue import Queue
-        print("Threaded version with num_pythreads %s" % num_pythreads)
-
-        def worker():
-            while True:
-                func, args, kwargs = q.get()
-                func(*args, **kwargs)
-                q.task_done()
-                                                     
-        q = Queue()
-        for i in range(num_pythreads):
-            t = Thread(target=worker)
-            t.setDaemon(True)
-            t.start()
-
-        args, kwargs = [], {}
-        for work in self.works:
-            q.put((work.start, args, kwargs))
-
-        #Block until all tasks are done. 
-        q.join()  
-
-##########################################################################################
-
-if __name__ == "__main__":
-    test_abinitio()
