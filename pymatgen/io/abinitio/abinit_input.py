@@ -394,7 +394,7 @@ class System(AbinitCard):
                                                                                  
         structure = molecule.get_boxed_structure(l[0], l[1], l[2])
                                                                                  
-        comment = structure.formula + " in a box of size %s [Bohr]" % str(acell)
+        comment = structure.formula + " in a periodic box of size %s [Bohr]" % str(acell)
                                                                                  
         return System(structure, pseudos, comment=comment)
 
@@ -1823,10 +1823,10 @@ class Input(dict, MSONable):
 
     @staticmethod
     def SCF_groundstate(structure, pptable_or_pseudos, ngkpt, 
-                          spin_mode = "polarized", 
-                          smearing  = None,
-                          **kwargs
-                         ):
+                        spin_mode = "polarized", 
+                        smearing  = None,
+                        **kwargs
+                        ):
         """
         Constructor for self-consistent ground-state calculations.
 
@@ -1862,7 +1862,10 @@ class Input(dict, MSONable):
         return Input(system, electrons, kmesh, scf_control)
 
     @staticmethod
-    def NSCF_kpath_from_SCF(scf_input, nband, kpath_bounds, ndivsm=20, **kwargs):
+    def NSCF_kpath_from_SCF(scf_input, nband, kpath_bounds, 
+                            ndivsm=20, 
+                            **kwargs
+                           ):
         """
         Constructor for non-self-consistent ground-state calculations (band structure calculations)
                                                                                                        
@@ -1933,7 +1936,7 @@ class Input(dict, MSONable):
               **kwargs
              ):
         """
-        Constructor for structure relaxation calculations.
+        Constructor for structure relaxation..
                                                                                                        
         Args:
             structure:
@@ -1968,7 +1971,10 @@ class Input(dict, MSONable):
         return Input(system, electrons, kmesh, relax, control)
 
     @staticmethod
-    def SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, smearing=None, **kwargs):
+    def SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
+                      smearing=None, 
+                      **kwargs
+                     ):
         """
         Constructor for screening calculations.
                                                                                                        
@@ -2033,8 +2039,6 @@ class Input(dict, MSONable):
         """
 
         ppmodel_or_freqmesh = scr_input.Screening.ppmodel_or_freqmesh
-
-        nband_screening = scr_input.Electrons.nband
 
         se_card = SelfEnergy(nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
                              type                = type,

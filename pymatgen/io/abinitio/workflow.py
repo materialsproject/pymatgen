@@ -6,24 +6,23 @@ from __future__ import division, print_function
 import sys
 import os
 import os.path
+import abc
 import collections
-import subprocess
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
-from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV
+from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
-from pymatgen.util.string_utils import stream_has_colours
 from pymatgen.util.filelock import FileLock
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints
-#from .task import AbinitTask
-from .utils import parse_ewc, abinit_output_iscomplete
+from .task import AbinitTask, TaskDependencies
+from .utils import parse_ewc, abinit_output_iscomplete, remove_tree
 
 from .jobfile import JobFile
 
@@ -38,501 +37,8 @@ __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
-__all__ = [
-"PseudoEcutTest",
-]
-
-##########################################################################################
-
-class AbinitTask(object):
-
-    # Prefixes for Abinit (input, output, temporary) files.
-    Prefix = collections.namedtuple("Prefix", "idata odata tdata")
-    pj = os.path.join
-
-    prefix = Prefix("in", pj("output","out"), pj("temporary","tmp"))
-    del Prefix, pj
-
-    # Basenames for Abinit input and output files.
-    Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.input", "run.output", "run.files", "log", "stderr", "job.sh", "__lock__")
-    del Basename
-
-    def __init__(self, input, workdir, 
-                 varpaths    = None, 
-                 user_options= None,
-                ):
-        """
-        Args:
-            input: 
-                AbinitInput instance.
-            workdir:
-                Name of the working directory.
-            varpaths:
-            user_options:
-        """
-        self.workdir = os.path.abspath(workdir)
-
-        self.input = input.copy()
-
-        self.need_files = []
-        if varpaths is not None: 
-            self.need_files.extend(varpaths.values())
-            self.input = self.input.add_vars_to_control(varpaths)
-
-        # Files required for the execution.
-        self.input_file  = File(self.basename.input      , dirname=self.workdir)
-        self.output_file = File(self.basename.output     , dirname=self.workdir)
-        self.files_file  = File(self.basename.files_file , dirname=self.workdir)
-        self.log_file    = File(self.basename.log_file   , dirname=self.workdir)
-        self.stderr_file = File(self.basename.stderr_file, dirname=self.workdir)
-
-        # Find number of processors ....
-        #self.paral_hint = self.get_runhints(max_numproc)
-
-        # Set jobfile variables.
-        # TODO Rename JobFile to ShellScript(File)
-        #self.jobfile = File(self.workdir, self.basename.jobfile)
-        #excecutable = "abinit"
-        self.jobfile = JobFile(name   = self.jobfile_path, 
-                               input  = self.files_file.path, 
-                               log    = self.log_file.path,
-                               stderr = self.stderr_file.path,
-                              )
-    def __str__(self):
-        lines = []
-        app = lines.append
-
-        #basenames = ["input", "files_file", "jobfile"]
-        #for s in basenames:
-        #    apath = getattr(self, s + "_path") 
-        #    app(s + ": " + apath)
-
-        app("outfiles_dir: " + self.outfiles_dir)
-        app("tmpfiles_dir: " + self.tmpfiles_dir)
-
-        return "\n".join(lines)
-
-    def __repr__(self):
-        return "<%s at %s, task_workdir = %s>" % (
-            self.__class__.__name__, id(self), os.path.basename(self.workdir))
-
-    @property
-    def name(self):
-        return self.input_file.basename
-
-    @property
-    def return_code(self):
-        try:
-            return self._return_code
-        except AttributeError:
-            return 666
-
-    @property
-    def jobfile_path(self):
-        "Absolute path of the job file (shell script)."
-        return os.path.join(self.workdir, self.basename.jobfile)    
-
-    @property
-    def outfiles_dir(self):
-        head, tail = os.path.split(self.prefix.odata)
-        return os.path.join(self.workdir, head)
-
-    @property
-    def tmpfiles_dir(self):
-        head, tail = os.path.split(self.prefix.tdata)
-        return os.path.join(self.workdir, head)
-
-    def odata_path_from_ext(self, ext):
-        "Return the path of the output file with extension ext"
-        if ext[0] != "_": ext = "_" + ext
-        return os.path.join(self.workdir, (self.prefix.odata + ext))
-
-    @property
-    def pseudos(self):
-        "List of pseudos used in the calculation."
-        return self.input.pseudos
-
-    @property
-    def filesfile_string(self):
-        "String with the list of files and prefixes needed to execute abinit."
-        lines = []
-        app = lines.append
-        pj = os.path.join
-
-        app(self.input_file.path)                 # Path to the input file
-        app(self.output_file.path)                # Path to the output file
-        app(pj(self.workdir, self.prefix.idata))  # Prefix for in data
-        app(pj(self.workdir, self.prefix.odata))  # Prefix for out data
-        app(pj(self.workdir, self.prefix.tdata))  # Prefix for tmp data
-
-        # Paths to the pseudopotential files.
-        for pseudo in self.pseudos:
-            app(pseudo.path)
-
-        return "\n".join(lines)
-
-    @property
-    def to_dict(self):
-        raise NotimplementedError("")
-        d = {k: v.to_dict for k, v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["input"] = self.input 
-        d["workdir"] = workdir 
-        return d
-                                                                    
-    @staticmethod
-    def from_dict(d):
-        raise NotimplementedError("")
-        return AbinitTask(**d)
-
-    def iscomplete(self):
-        "True if the output file is complete."
-        return abinit_output_iscomplete(self.output_file.path)
-
-    @property
-    def isnc(self):
-        return all(p.isnc for p in self.pseudos)
-
-    @property
-    def ispaw(self):
-        return all(p.ispaw for p in self.pseudos)
-
-    #def in_files(self):
-    #    "Return all the input data files."
-    #    files = list()
-    #    for file in os.listdir(dirname(self.idat_root)):
-    #        if file.startswith(basename(self.idat_root)):
-    #            files.append(join(dirname(self.idat_root), file))
-    #    return files
-                                                                  
-    def outfiles(self):
-        "Return all the output data files produced."
-        files = list()
-        for file in os.listdir(self.outfiles_dir):
-            if file.startswith(os.path.basename(self.prefix.odata)):
-                files.append(os.path.join(self.outfiles_dir, file))
-        return files
-                                                                  
-    def tmpfiles(self):
-        "Return all the input data files produced."
-        files = list()
-        for file in os.listdir(self.tmpfiles_dir):
-            if file.startswith(os.path.basename(self.prefix.tdata)):
-                files.append(os.path.join(self.tmpfiles_dir, file))
-        return files
-
-    def path_in_workdir(self, filename):
-        "Create the absolute path of filename in the workind directory."
-        return os.path.join(self.workdir, filename)
-
-    def build(self, *args, **kwargs):
-        """
-        Writes Abinit input files and directory.
-        Do not overwrite files if they already exist.
-        """
-        if not os.path.exists(self.workdir):
-            os.makedirs(self.workdir)
-
-        if not os.path.exists(self.outfiles_dir):
-            os.makedirs(self.outfiles_dir)
-
-        if not os.path.exists(self.tmpfiles_dir):
-            os.makedirs(self.tmpfiles_dir)
-
-        if not self.input_file.exists:
-            self.input_file.write(str(self.input))
-
-        if not self.files_file.exists:
-            self.files_file.write(self.filesfile_string)
-
-        if not os.path.exists(self.jobfile_path):
-            with open(self.jobfile_path, "w") as f:
-                    f.write(str(self.jobfile))
-
-    def destroy(self, *args, **kwargs):
-        """
-        Remove all calculation files and directories.
-                                                                                   
-        Keyword arguments:
-            force: (False)
-                Do not ask confirmation.
-            verbose: (0)
-                Print message if verbose is not zero.
-        """
-        if kwargs.pop('verbose', 0):
-            print('Removing directory tree: %s' % self.workdir)
-
-        _remove_tree(self.workdir, **kwargs)
-
-    def read_mainlog_ewc(self, nafter=5):
-       """
-       Read errors, warnings and comments from the main output and the log file.
-                                                                                        
-       :return: Two namedtuple instances: main, log. 
-                The lists of strings with the corresponding messages are
-                available in main.errors, main.warnings, main.comments, log.errors etc.
-       """
-       main = parse_ewc(self.output_file.path, nafter=nafter)
-       log  = parse_ewc(self.log_file.path, nafter=nafter)
-       return main, log
-
-    def get_status(self):
-        return Status(self)
-
-    def show_status(self, stream=sys.stdout, *args, **kwargs):
-        self.get_status().show(stream=stream, *args, **kwargs)
-
-    def setup(self, *args, **kwargs):
-        """
-        Method called before running the calculations. 
-        The default implementation creates the workspace directory and the input files.
-        """
-
-    def teardown(self, *args, **kwargs):
-        """
-        Method called once the calculations completed.
-        The default implementation does nothing.
-        """
-
-    def get_runhints(self, max_numproc):
-        """
-        Run abinit in sequential to obtain a set of possible
-        configuration for the number of processors
-        """
-        raise NotImplementedError("")
-
-        # number of MPI processors, number of OpenMP processors, memory estimate in Gb.
-        RunHints = collections.namedtuple('RunHints', "mpi_nproc omp_nproc memory_gb")
-
-        return hints
-
-    def run(self, *args, **kwargs):
-        """
-        Run the calculation by executing the job file from the shell.
-
-        Keyword arguments:
-            verbose: (0)
-                Print message if verbose is not zero.
-
-        .. warning::
-             This method must be thread safe since we may want to run several indipendent
-             calculations with different python threads. 
-        """
-        if kwargs.get('verbose'):
-            print('Running ' + self.input_path)
-
-        lock = FileLock(self.path_in_workdir(AbinitTask.basename.lockfile))
-
-        try:
-            lock.acquire()
-        except FileLock.Exception:
-            raise
-
-        self.setup(*args, **kwargs)
-
-        self._return_code = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
-
-        if self._return_code == 0:
-            self.teardown(*args, **kwargs)
-
-        lock.release()
-
-        return self._return_code
-
-##########################################################################################
-
-class Status(object):
-    """
-    Object used to inquire the status of the task and to have access 
-    to the error and warning messages
-    """
-    S_OK   = 1 
-    S_WAIT = 2 
-    S_RUN  = 4
-    S_ERR  = 8
-
-    #: Rank associated to the different status (in order of increasing priority)
-    _level2rank = {
-      "completed" : S_OK, 
-      "unstarted" : S_WAIT, 
-      "running"   : S_RUN, 
-      "error"     : S_ERR,
-    }
-
-    levels = Enum(s for s in _level2rank)
-
-    def __init__(self, task):
-
-        self._task = task
-
-        if task.iscomplete():
-            # The main output file seems completed.
-            level_str = 'completed'
-
-            #TODO
-            # Read the number of errors, warnings and comments 
-            # for the (last) main output and the log file.
-            #main, log =  task.read_mainlog_ewc()
-                                                                
-            #main_info = main.tostream(stream)
-            #log_info  = log.tostream(stream)
-
-        # TODO err file!
-        elif task.output_file.exists and task.log_file.exists:
-            # Inspect the main output and the log file for ERROR messages.
-            main, log = task.read_mainlog_ewc()
-
-            level_str = 'running'
-            if main.errors or log.errors:
-                level_str = 'error'
-
-            with open(task.stderr_file.path, "r") as f:
-                lines = f.readlines()
-                if lines: level_str = 'error'
-        else:
-            level_str = 'unstarted'
-
-        self._level_str = level_str
-
-        assert self._level_str in Status.levels
-
-    @property
-    def rank(self):
-        return self._level2rank[self._level_str]
-
-    @property
-    def is_completed(self):
-        return self._level_str == "completed"
-
-    @property
-    def is_unstarted(self):
-        return self._level_str == "unstarted"
-
-    @property
-    def is_running(self):
-        return self._level_str == "running"
-
-    @property
-    def is_error(self):
-        return self._level_str == "error"
-
-    def __repr__(self):
-        return "<%s at %s, task = %s, level = %s>" % (
-            self.__class__.__name__, id(self), repr(self._task), self._level_str)
-
-    def __str__(self):
-        return str(self._task) + self._level_str
-
-    # Rich comparison support. Mainly used for selecting the 
-    # most critical status when we have several tasks executed inside a workflow.
-    def __lt__(self, other):
-        return self.rank < other.rank
-
-    def __le__(self, other):
-        return self.rank <= other.rank
-
-    def __eq__(self, other):
-        return self.rank == other.rank
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __gt__(self, other):
-        return self.rank > other.rank
-
-    def __ge__(self, other):
-        return self.rank >= other.rank
-
-    def show(self, stream=sys.stdout, *args, **kwargs):
-
-        from ..tools import StringColorizer
-        str_colorizer = StringColorizer(stream)
-                                                                       
-        _status2txtcolor = {
-          "completed" : lambda string : str_colorizer(string, "green"),
-          "error"     : lambda string : str_colorizer(string, "red"),
-          "running"   : lambda string : str_colorizer(string, "blue"),
-          "unstarted" : lambda string : str_colorizer(string, "cyan"),
-        }
-
-        color = lambda stat : str
-        if stream_has_colours(stream):
-            color = lambda stat : _status2txtcolor[stat](stat)
-
-        stream.write(self._task.name + ': ' + color(self._level_str) + "\n")
-
-    def print_ewc_messages(self, stream=sys.stdout, **kwargs):
-
-        verbose = kwargs.pop("verbose", 0)
-
-        # Read the number of errors, warnings and comments 
-        # for the (last) main output and the log file.
-        main, log =  self._task.read_mainlog_ewc()
-                                                            
-        main_info = main.tostream(stream)
-        log_info  = log.tostream(stream)
-                                                            
-        stream.write("\n".join([main_info, log_info]) + "\n")
-
-        if verbose:
-            for w in main.warnings: 
-                stream.write(w + "\n")
-            if verbose > 1:
-                for w in log.warnings: 
-                    stream.write(w + "\n")
-
-        if self.is_error:
-            for e in log.errors: 
-                    stream.write(e + "\n")
-
-            if not log.errors: # Read the standard error.
-                with open(self._task.stderr_file.path, "r") as f:
-                    lines = f.readlines()
-                    stream.write("\n".join(lines))
-
-##########################################################################################
-
-class TaskDependencies(object):
-    """
-    This object describes the dependencies among Task instances.
-    """
-
-    _ext2getvars = {
-        "DEN" : "getden_path",
-        "WFK" : "getwfk_path",
-        "SCR" : "getscr_path",
-        "QPS" : "getqps_path",
-    }
-
-    def __init__(self, task, task_id, *odata_required):
-        """
-        Args:
-            task: 
-                AbinitTask instance
-            task_id: 
-                Task identifier 
-            odata_required:
-                Output data required for running the task.
-        """
-        self.task    = task
-        self.task_id = task_id
-
-        self.odata_required = []
-        if odata_required:
-            self.odata_required = odata_required
-
-    def with_odata(self, *odata_required):
-        return TaskDependencies(self.task, self.task_id, *odata_required)
-
-    def get_varpaths(self):
-        vars = {}
-        for ext in self.odata_required:
-            varname = self._ext2getvars[ext]
-            path = self.task.odata_path_from_ext(ext)
-            vars.update({varname : path})
-        return vars
+#__all__ = [
+#]
 
 ##########################################################################################
 class WorkError(Exception):
@@ -544,19 +50,14 @@ class Work(MSONable):
     """
     Error = WorkError
 
-    def __init__(self, workdir, user_options=None):
+    def __init__(self, workdir, **kwargs):
         """
         Args:
             workdir:
-            user_options:
         """
         self.workdir = os.path.abspath(workdir)
 
-        if user_options is not None:
-            self.user_options = user_options
-        else:
-            # TODO Use default configuration.
-            self.user_options = user_options
+        self.kwargs = kwargs
 
         self._tasks = []
 
@@ -632,6 +133,16 @@ class Work(MSONable):
 
         stream.write("\n".join(lines))
 
+    def _add_task(self, task, depends=()):
+        self._tasks.append(task)
+                                         
+        task_id = len(self)
+
+        if depends:
+            self._deps[task_id] = depends
+
+        return task_id
+
     def register_input(self, input, depends=()):
 
         task_workdir = os.path.join(self.workdir, "task_" + str(len(self) + 1))
@@ -648,8 +159,7 @@ class Work(MSONable):
                 #print("varpaths %s" % str(varpaths))
 
         new_task = AbinitTask(input, task_workdir, 
-                              varpaths     = varpaths,
-                              user_options = self.user_options, 
+                              varpaths = varpaths,
                              )
 
         # Add it to the list and return the ID of the task 
@@ -657,10 +167,11 @@ class Work(MSONable):
         #if new_task in self._deps:
         #    raise ValueError("task is already registered!")
 
-        self._tasks.append(new_task)
+        newtask_id = self._add_task(new_task, depends=depends)
 
-        newtask_id = len(self)
-        self._deps[newtask_id] = depends
+        #self._tasks.append(new_task)
+        #newtask_id = len(self)
+        #self._deps[newtask_id] = depends
 
         return TaskDependencies(new_task, newtask_id)
 
@@ -697,7 +208,7 @@ class Work(MSONable):
         if kwargs.pop('verbose', 0):
             print('Removing directory tree: %s' % self.workdir)
                                                                                     
-        _remove_tree(self.workdir, **kwargs)
+        remove_tree(self.workdir, **kwargs)
 
     def run(self, *args, **kwargs):
 
@@ -741,7 +252,7 @@ class Work(MSONable):
             Args:
                 num_pythreads = Number of python threads to use (defaults to 1)
         """
-
+        # Acquire the lock
         lock = FileLock(self.path_in_workdir("__lock__"))
 
         try:
@@ -749,15 +260,19 @@ class Work(MSONable):
         except FileLock.Exception:
             raise
 
+        # Initial setup
         self.setup(*args, **kwargs)
 
-        self.run(*args, **kwargs)
+        # Execute 
+        results = self.run(*args, **kwargs)
 
-        self.teardown(*args, **kwargs)
+        # Finalize
+        self.teardown(*args, results=results)
 
+        # Release the lock
         lock.release()
 
-    def get_etotal(self):
+    def read_etotal(self):
         """
         Reads the total energy from the GSR file produced by the task.
 
@@ -778,63 +293,209 @@ class Work(MSONable):
 
 ##########################################################################################
 
-class PseudoEcutTest(Work):
+class IterativeWork(Work):
+    """
+    TODO
+    """
+    __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, pseudo, ecut_list, 
+    def __init__(self, workdir, input_generator, max_niter=10):
+        """
+        Args:
+            workdir:
+            input_generator:
+            max_niter:
+                Maximum number of iterations. 
+                A negative value is equivalent to having an infinite number of iterations.
+        """
+        super(IterativeWork, self).__init__(workdir)
+
+        self.input_generator = input_generator
+
+        self.max_niter = max_niter
+
+    def next_task(self):
+        """
+        Generate and register a new task
+
+        Return: task object
+        """
+        try:
+            next_input = next(self.input_generator)
+        except StopIteration:
+            raise StopIteration
+
+        self.register_input(next_input)
+        assert len(self) == self.niter
+
+        return self[-1]
+
+    def run(self, *args, **kwargs):
+
+        self.niter = 1
+        results = {"converged": False}
+
+        while True:
+            if self.max_niter > 0 and self.niter > self.max_niter: 
+                raise StopIteration("niter %d > max_niter %d" % (self.niter, self.max_niter))
+
+            try:
+                task = self.next_task()
+            except StopIteration:
+                break
+
+            task.build()
+
+            task.run(*args,**kwargs)
+
+            results = self.exit_iteration(*args, **kwargs)
+
+            if results["converged"]:
+                break
+
+            self.niter += 1
+
+        return results
+
+    @abc.abstractmethod
+    def exit_iteration(self, *args, **kwargs):
+        "return exit, data"
+
+##########################################################################################
+def iterator_from_slice(s):
+    "Constructs an iterator given a slice object"
+
+    start = s.start if s.start is not None else 0
+    step  = s.step  if s.step is not None else 1
+
+    if s.stop is None: 
+        # Infinite iterators.
+        import itertools
+        return itertools.count(start=start, step=step)
+    else:
+        # xrange-like iterator.
+        return iter(range(start, s.stop, step))
+
+class PseudoEcutConvergence(IterativeWork):
+
+    def __init__(self, workdir, pseudo, ecut_list_or_slice, 
                  spin_mode     = "polarized", 
-                 smearing      = None,
                  acell         = 3*(8,), 
+                 smearing      = None,
                 ):
         """
         Args:
             pseudo:
                 string or Pseudo instance
         """
-        user_options = {}
-
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
-        super(PseudoEcutTest, self).__init__(workdir, user_options=user_options)
-        
+        self._spin_mode = spin_mode
+        self._smearing  = smearing
+        self._acell     = acell
+
+        if isinstance(ecut_list_or_slice, slice):
+            self.ecut_iterator = iterator_from_slice(ecut_list_or_slice)
+        else:
+            self.ecut_iterator = iter(ecut_list_or_slice)
+
+        def input_generator():
+            for ecut in self.ecut_iterator:
+                yield self.input_with_ecut(ecut)
+
+        super(PseudoEcutConvergence, self).__init__(workdir, input_generator(), max_niter=-1)
+
+        if not self.isnc:
+            raise NotImplementedError("PAW convergence tests are not supported yet")
+
+    def input_with_ecut(self, ecut):
+
         # Define System: one atom in a box of lenghts acell. 
-        box = System.boxed_atom(self.pseudo, acell=acell)
+        boxed_atom = System.boxed_atom(self.pseudo, acell=self._acell)
 
         # Gamma-only sampling.
         gamma_only = Kpoints.gamma_only()
 
         # Default setup for electrons: no smearing.
-        electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
+        electrons = Electrons(spin_mode=self._spin_mode, smearing=self._smearing)
 
         # Generate inputs with different values of ecut and register the task.
-        self.ecut_list = np.array(ecut_list)
+        control = Control(boxed_atom, electrons, gamma_only,
+                          ecut        = ecut, 
+                          prtwf       = 0,
+                          want_forces = False,
+                          want_stress = False,
+                         )
 
-        for ecut in self.ecut_list:
-            control = Control(box, electrons, gamma_only,
-                              ecut        = ecut, 
-                              prtwf       = 0,
-                              want_forces = False,
-                              want_stress = False,
-                             )
+        return Input(control, boxed_atom, gamma_only, electrons)
 
-            self.register_input(Input(control, box, gamma_only, electrons))
+    @property
+    def ecut_list(self):
+        return [float(task.input.get_variable("ecut")) for task in self]
 
-    def start(self, *args, **kwargs):
+    def exit_iteration(self, *args, **kwargs):
 
-        self.setup(*args, **kwargs)
+        ecut_list = self.ecut_list
+        etotal = self.read_etotal()
 
-        for task in self:
-            task.run(*args, **kwargs)
+        num_ene = len(etotal)
+        etotal_inf = etotal[-1]
+                                                                
+        #ediff_mev = [(e-etotal_inf)* Ha_eV * 1.e+3 for e in etotal]
+        print(" idx ecut, etotal (et-e_inf) [meV]")
+        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+            print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
 
-        self.teardown(*args, **kwargs)
+        ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
+        strange_data = 0
+
+        de_high, de_normal, de_low = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 1e-3/Ha_eV
+
+        if (num_ene > 3) and (abs(etotal[-2] - etotal_inf) < de_high):
+
+            for i in range(num_ene-2, -1, -1):
+                etot  = etotal[i] 
+                ediff = etot - etotal_inf
+                if ediff < 0.0: strange_data += 1
+
+                if ecut_high is None and ediff > de_high:
+                    conv_idx =  i+1
+                    ecut_high = ecut_list[i+1]
+                                                                                      
+                if ecut_normal is None and ediff > de_normal:
+                    ecut_normal = ecut_list[i+1]
+                                                                                      
+                if ecut_low is None and ediff > de_low:
+                    ecut_low = ecut_list[i+1]
+                                                                                      
+            if conv_idx is None or (num_ene - conv_idx) < 2:
+                print("Not converged %s " % str(conv_idx))
+                strange_data += 1
+
+        results = {
+            "converged"  : conv_idx,
+            "ecut_list"  : ecut_list,
+            "etotal"     : list(etotal),
+            "ecut_low"   : ecut_low,
+            "ecut_normal": ecut_normal,
+            "ecut_high"  : ecut_high,
+        }
+
+        return results
 
     def teardown(self, *args, **kwargs):
+        import json
 
-        if not self.isnc:
-            raise NotImplementedError("PAW convergence tests are not supported yet")
+        results = kwargs.pop("results", {})
+        print(results)
 
-        etotal = self.get_etotal()
+        if results:
+            with open(self.path_in_workdir("results.json"), "w") as fh:
+                json.dump(results, fh)
+
+        etotal = self.read_etotal()
 
         etotal_dict = {1.0 : etotal}
 
@@ -850,7 +511,7 @@ class PseudoEcutTest(Work):
         for task in self:
             main, log =  task.read_mainlog_ewc()
 
-            num_errors  =  max(num_errors, main.num_errors)
+            num_errors  =  max(num_errors,   main.num_errors)
             num_warnings = max(num_warnings, main.num_warnings)
             num_comments = max(num_comments, main.num_comments)
 
@@ -869,7 +530,6 @@ class PseudoEcutTest(Work):
         if num_errors != 0 or num_warnings != 0: strange_data = 999
 
         pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict, strange_data)
-
         #pp_info.show_etotal()
 
         # Append PP_EXTRA_INFO section to the pseudo file
@@ -878,24 +538,11 @@ class PseudoEcutTest(Work):
         xml_string = pp_info.toxml()
         #print self.pseudo.basename, xml_string
 
-        #path = self.pseudo.path
-        #if pp_info.strange_data is not None:
-        #    path = self.pseudo.path + ".strange"
-
         with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
             fh.write(xml_string)
         #new = pp_info.from_string(xml_string)
         #print new
         #print new.toxml()
-
-    #def get_etotal(self):
-    #    etotal = []
-    #    for task in self:
-    #        # Open the GSR file and read etotal (Hartree)
-    #        gsr_path = task.odata_path_from_ext("GSR") 
-    #        with GSR_Reader(gsr_path) as gsr_data:
-    #            etotal.append(gsr_data.get_value("etotal"))
-    #    return np.array(etotal)
 
 ##########################################################################################
 
@@ -908,9 +555,7 @@ class BandStructure(Work):
                  dos_ngkpt = None
                 ):
 
-        user_options = {}
-
-        super(BandStructure, self).__init__(workdir, user_options=user_options)
+        super(BandStructure, self).__init__(workdir)
 
         scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
                                           spin_mode = spin_mode,
@@ -939,19 +584,17 @@ class Relaxation(Work):
                  smearing  = None,
                 ):
                                                                                                    
-        user_options = {}
-                                                                                                   
-        super(Relaxation, self).__init__(workdir, user_options=user_options)
+        super(Relaxation, self).__init__(workdir)
 
         ions_relax = Relax(
-                    iomov     = 3, 
-                    optcell   = 2, 
-                    dilatmx   = 1.1, 
-                    ecutsm    = 0.5, 
-                    ntime     = 80, 
-                    strtarget = None,
-                    strfact   = 100,
-                    )                                                                                                                  
+                        iomov     = 3, 
+                        optcell   = 2, 
+                        dilatmx   = 1.1, 
+                        ecutsm    = 0.5, 
+                        ntime     = 80, 
+                        strtarget = None,
+                        strfact   = 100,
+                        )                                                                                                                  
 
         ions_dep = self.register_input(ions_relax)
 
@@ -979,9 +622,7 @@ class DeltaTest(Work):
 
         self._input_structure = structure
 
-        user_options = {}
-                                                                                                   
-        super(DeltaTest, self).__init__(workdir, user_options=user_options)
+        super(DeltaTest, self).__init__(workdir)
 
         v0 = structure.volume
 
@@ -1009,7 +650,7 @@ class DeltaTest(Work):
     def teardown(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
 
-        etotal = Ha2eV(self.get_etotal())
+        etotal = Ha2eV(self.read_etotal())
 
         with open(self.path_in_workdir("data.txt"), "w") as fh:
             fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
@@ -1037,9 +678,7 @@ class PvsV(Work):
                 ):
         raise NotImplementedError()
 
-        user_options = {}
-                                                                                                   
-        super(PvsV, self).__init__(workdir, user_options=user_options)
+        super(PvsV, self).__init__(workdir)
 
         if isinstance(structure_or_cif, Structure):
             structure = cif_or_stucture
@@ -1098,9 +737,7 @@ class G0W0(Work):
                  smearing  = None,
                 ):
 
-        user_options = {}
-
-        super(G0W0, self).__init__(workdir, user_options=user_options)
+        super(G0W0, self).__init__(workdir)
 
         scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
                                           spin_mode = spin_mode, 
@@ -1130,9 +767,6 @@ class G0W0(Work):
         self.register_input(sigma_input, depends=depends)
 
      #@staticmethod
-     #def with_GodbyNeedsPPM()
-
-     #@staticmethod
      #def with_contour_deformation()
 
 ##########################################################################################
@@ -1146,8 +780,6 @@ def test_abinitio(structure):
 
     pptable_or_pseudos = GGA_HGHK_PPTABLE
     pseudo = GGA_HGHK_PPTABLE[14][0]
-
-    user_options = {}
 
     pptest_wf = PseudoEcutTest("Test_pseudo", pseudo, list(range(10,40,2)))
 
@@ -1199,10 +831,13 @@ class EcutTest(object):
 
         table_name = table.name
 
-        table = [p for p in table if p.Z < 5]
+        #table = [p for p in table if p.Z < 5]
+        table = [p for p in table if p.Z < 2]
+
         for pseudo in table:
-            #ecut_list = list(range(10,21,4))
-            ecut_list = list(range(50,451,50))
+            ecut_list = list(range(10,31,5))
+            #ecut_list = list(range(50,451,50))
+            #ecut_list = slice(20, None, 40)
 
             #element = pseudo.element
             #print(element.Z, element)
@@ -1211,12 +846,15 @@ class EcutTest(object):
 
             workdir = "PPTEST_" + table_name + "_" + pseudo.basename
 
-            pp_wf = PseudoEcutTest(workdir, pseudo, ecut_list,
+            pp_wf = PseudoEcutConvergence(workdir, pseudo, ecut_list,
                         spin_mode  = spin_mode,
                         smearing   = None,
                         acell      = 3*(8,), 
                        )
+
             #print(pp_wf.show_inputs())
+            #sys.exit(1)
+
             works.append(pp_wf)
 
         self.works = works
@@ -1225,11 +863,13 @@ class EcutTest(object):
         for work in self.works:
             work.build(*args, **kwargs)
 
-    def start(self, num_pythreads=1):
+    def start(self, *args, **kwargs):
+
+        num_pythreads = kwargs.pop("num_pythreads", 1)
 
         if num_pythreads == 1:
             for work in self.works:
-                work.start()
+                work.start(*args, **kwargs)
             return
 
         # Threaded version.
@@ -1255,58 +895,6 @@ class EcutTest(object):
 
         #Block until all tasks are done. 
         q.join()  
-
-##########################################################################################
-# Helper functions.
-
-def _remove_tree(*paths, **kwargs):
-    import shutil
-    ignore_errors = kwargs.pop("ignore_errors", True)
-    onerror       = kwargs.pop("onerror", None)
-                                                                           
-    for path in paths:
-        shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
-
-##########################################################################################
-
-class File(object):
-    """
-    Very simple class used to store file basenames, absolute paths and directory names.
-
-    Provides wrappers for the most commonly used os.path functions.
-    """
-    def __init__(self, basename, dirname="."):
-        self.basename = basename
-        self.dirname = os.path.abspath(dirname)
-        self.path = os.path.join(self.dirname, self.basename)
-
-    def __str__(self):
-       return self.read()
-
-    def __repr__(self):
-        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
-
-    @property
-    def exists(self):
-        "True if file exists."
-        return os.path.exists(self.path)
-
-    @property
-    def isncfile(self):
-        "True if self is a NetCDF file"
-        return self.basename.endswith(".nc")
-
-    def read(self):
-        with open(self.path, "r") as f: return f.read()
-
-    def readlines(self):
-        with open(self.path, "r") as f: return f.readlines()
-
-    def write(self, string):
-        with open(self.path, "w") as f: return f.write(string)
-                                        
-    def writelines(self, lines):
-        with open(self.path, "w") as f: return f.writelines()
 
 ##########################################################################################
 
