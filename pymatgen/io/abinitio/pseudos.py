@@ -19,6 +19,7 @@ from warnings import warn
 
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.core.physical_constants import Ha_eV, Ha2meV
+from pymatgen.util.num_utils import iterator_from_slice 
 
 try:
     import periodictable 
@@ -1292,8 +1293,18 @@ class PseudoTable(object):
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):
-        "Retrieve pseudos for the atomic number z."
-        return self._pseudos_with_z[Z]
+        """
+        Retrieve pseudos for the atomic number z.
+        Accepts both int and slice objects.
+        """
+        if isinstance(Z, slice):
+            assert Z.stop is not None
+            pseudos = []
+            for znum in iterator_from_slice(Z):
+                pseudos.extend(self._pseudos_with_z[znum])
+            return pseudos
+        else:
+            return self._pseudos_with_z[Z]
 
     def __len__(self):
         return len(list(self._iter__()))

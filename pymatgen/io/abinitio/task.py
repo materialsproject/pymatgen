@@ -113,14 +113,6 @@ class AbinitTask(object):
         return self.input_file.basename
 
     @property
-    def return_code(self):
-        "Return code of the subprocess."
-        try:
-            return self._return_code
-        except AttributeError:
-            return None
-
-    @property
     def jobfile_path(self):
         "Absolute path of the job file (shell script)."
         return os.path.join(self.workdir, self.basename.jobfile)    
@@ -270,6 +262,7 @@ class AbinitTask(object):
        """
        main = parse_ewc(self.output_file.path, nafter=nafter)
        log  = parse_ewc(self.log_file.path, nafter=nafter)
+
        return main, log
 
     def get_status(self):
@@ -302,9 +295,15 @@ class AbinitTask(object):
 
         return hints
 
-    def run(self, *args, **kwargs):
+    def start(self, *args, **kwargs):
         """
-        Run the calculation by executing the job file from the shell.
+        Start the calculation by performing the following steps: 
+            - acquire a file lock
+            - call the setup method
+            - execute the job file within the shell.
+            - call the teardown method
+            - release the file lock
+            - return TaskResults object
 
         Keyword arguments:
             verbose: (0)
@@ -317,25 +316,25 @@ class AbinitTask(object):
         if kwargs.pop('verbose', 0):
             print('Running ' + self.input_path)
 
-        lock = FileLock(self.path_in_workdir(AbinitTask.basename.lockfile))
+        self.build(*args, **kwargs)
 
-        try:
-            lock.acquire()
-        except FileLock.Exception:
-            raise
+        with FileLock(self.path_in_workdir(AbinitTask.basename.lockfile)) as lock:
 
-        self.setup(*args, **kwargs)
+            self.setup(*args, **kwargs)
 
-        self._return_code = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
+            return_code = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
 
-        if self._return_code == 0:
+            results = {"return_code": return_code}
+
+            kwargs.update(results)
+
             self.teardown(*args, **kwargs)
 
-        lock.release()
-
-        return self._return_code
+            return results
 
 ##########################################################################################
+# TODO
+#class TaskResult(dict):
 
 class Status(object):
     """

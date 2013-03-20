@@ -19,7 +19,7 @@ class FileLock(object):
         """ Prepare the file locker. Specify the file to lock and optionally
             the maximum timeout and the delay between each attempt to lock.
         """
-        self.file_name = file_name
+        self.file_name = os.path.abspath(file_name)
         self.lockfile = os.path.abspath(file_name) + ".lock"
         self.timeout = float(timeout)
         self.delay = float(delay)
@@ -49,7 +49,6 @@ class FileLock(object):
                 time.sleep(self.delay)
 
         self.is_locked = True
-
 
     def release(self):
         """ Get rid of the lock by deleting the lockfile.
