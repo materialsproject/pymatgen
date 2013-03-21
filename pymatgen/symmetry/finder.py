@@ -486,7 +486,7 @@ class SymmetryFinder(object):
                               'length': latt.abc[i],
                               'orig_index': i} for i in [0, 1, 2]],
                             key=lambda k: k['length'])
-        results = None
+        new_struct = None
         if latt_type in ("orthorhombic", "cubic"):
             #you want to keep the c axis where it is
             #to keep the C- settings
@@ -511,12 +511,12 @@ class SymmetryFinder(object):
                               [0, sorted_lengths[1], 0],
                               [0, 0, sorted_lengths[2]]]
             new_sites = []
-            for s in struct._sites:
+            for s in struct.sites:
                 new_sites.append(
                     PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
                                  Lattice(new_matrix), to_unit_cell=True,
                                  properties=s.properties))
-            results = Structure.from_sites(new_sites)
+            new_struct = Structure.from_sites(new_sites)
 
         elif latt_type == "tetragonal":
             #find the "a" vectors
@@ -534,12 +534,12 @@ class SymmetryFinder(object):
                           [0, a, 0],
                           [0, 0, c]]
             new_sites = []
-            for s in struct._sites:
+            for s in struct.sites:
                 new_sites.append(
                     PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
                                  Lattice(new_matrix), to_unit_cell=True,
                                  properties=s.properties))
-            results = Structure.from_sites(new_sites)
+            new_struct = Structure.from_sites(new_sites)
 
         elif latt_type in ("hexagonal", "rhombohedral"):
             #for the conventional cell representation,
@@ -563,12 +563,12 @@ class SymmetryFinder(object):
                           [0, 0, c]]
 
             new_sites = []
-            for s in struct._sites:
+            for s in struct.sites:
                 new_sites.append(
                     PeriodicSite(s.specie, s.coords, Lattice(new_matrix),
                                  to_unit_cell=True, coords_are_cartesian=True,
                                  properties=s.properties))
-            results = Structure.from_sites(new_sites)
+            new_struct = Structure.from_sites(new_sites)
 
         elif latt_type == "monoclinic":
             #you want to keep the c axis where it is
@@ -586,10 +586,9 @@ class SymmetryFinder(object):
                 c = latt.abc[2]
                 new_matrix = None
                 for t in itertools.permutations(range(2), 2):
-                    landang = Lattice([latt.matrix[t[0]],
-                                       latt.matrix[t[1]],
-                                       latt.matrix[2]]) \
-                        .lengths_and_angles
+                    m = latt.matrix
+                    landang = Lattice(
+                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
                     if landang[1][0] > 90:
                         #if the angle is > 90 we invert a and b to get
                         #an angle < 90
@@ -609,9 +608,6 @@ class SymmetryFinder(object):
                         continue
 
                     elif landang[1][0] < 90:
-                        landang = Lattice([latt.matrix[t[0]],
-                                           latt.matrix[t[1]],
-                                           latt.matrix[2]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = 1
                         trans[1][t[1]] = 1
@@ -643,10 +639,9 @@ class SymmetryFinder(object):
                 #and b<c
                 new_matrix = None
                 for t in itertools.permutations(range(3), 3):
-                    landang = Lattice([latt.matrix[t[0]],
-                                       latt.matrix[t[1]],
-                                       latt.matrix[t[2]]]) \
-                        .lengths_and_angles
+                    m = latt.matrix
+                    landang = Lattice(
+                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
                             [np.multiply(latt.matrix[t[0]], -1.0),
@@ -663,9 +658,6 @@ class SymmetryFinder(object):
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
                     elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
-                        m = latt.matrix
-                        landang = Lattice(
-                            [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles
                         trans = np.zeros(shape=(3, 3))
                         trans[0][t[0]] = 1
                         trans[1][t[1]] = 1
@@ -681,12 +673,12 @@ class SymmetryFinder(object):
                         trans[c][sorted_dic[c]['orig_index']] = 1
 
             new_sites = []
-            for s in struct._sites:
+            for s in struct.sites:
                 new_sites.append(
                     PeriodicSite(s.specie, np.dot(trans, s.frac_coords),
                                  Lattice(new_matrix), to_unit_cell=True,
                                  properties=s.properties))
-            results = Structure.from_sites(new_sites)
+            new_struct = Structure.from_sites(new_sites)
 
         elif latt_type == "triclinic":
             #we use a LLL Minkowski-like reduction for the triclinic cells
@@ -705,13 +697,13 @@ class SymmetryFinder(object):
                                          + 2 * cos(alpha) * cos(beta)
                                          * cos(gamma)) / sin(gamma)]]
             new_sites = []
-            for s in struct._sites:
+            for s in struct.sites:
                 new_sites.append(
                     PeriodicSite(s.specie, s.frac_coords, Lattice(new_matrix),
                                  to_unit_cell=False, properties=s.properties))
-            results = Structure.from_sites(new_sites)
+            new_struct = Structure.from_sites(new_sites)
 
-        return results.get_sorted_structure()
+        return new_struct.get_sorted_structure()
 
 
 def get_point_group(rotations):
