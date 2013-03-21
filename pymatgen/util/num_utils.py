@@ -4,6 +4,7 @@ This module provides utilities for basic math operations.
 from __future__ import division, print_function
 
 import itertools
+import numpy as _np
 
 def iterator_from_slice(s):
     """
@@ -18,5 +19,5 @@ def iterator_from_slice(s):
         # Infinite iterator.
         return itertools.count(start=start, step=step)
     else:
-        # xrange-like iterator.
-        return iter(range(start, s.stop, step))
+        # xrange-like iterator that suppors float.
+        return iter(_np.arange(start, s.stop, step))

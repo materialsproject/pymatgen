@@ -22,7 +22,7 @@ from pymatgen.util.num_utils import iterator_from_slice
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
-from .abinit_input import Input, Electrons, System, Control, Kpoints
+from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
 from .task import AbinitTask, TaskDependencies
 from .utils import parse_ewc, abinit_output_iscomplete, remove_tree
 
@@ -290,14 +290,14 @@ class IterativeWork(Work):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, input_generator, max_niter=10):
+    def __init__(self, workdir, input_generator, max_niter=25):
         """
         Args:
             workdir:
             input_generator:
             max_niter:
-                Maximum number of iterations. 
-                A negative value is equivalent to having an infinite number of iterations.
+                Maximum number of iterations. A negative value or zero value 
+                is equivalent to having an infinite number of iterations.
         """
         super(IterativeWork, self).__init__(workdir)
 
@@ -336,7 +336,8 @@ class IterativeWork(Work):
         while True:
 
             if self.max_niter > 0 and self.niter > self.max_niter: 
-                raise StopIteration("niter %d > max_niter %d" % (self.niter, self.max_niter))
+                print("niter %d > max_niter %d" % (self.niter, self.max_niter))
+                break 
 
             try:
                 task = self.next_task()
@@ -382,6 +383,9 @@ class PseudoEcutConvergence(IterativeWork):
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
+        if smearing is None: 
+            smearing = Smearing.FermiDirac(0.1/Ha_eV)
+
         self._spin_mode = spin_mode
         self._smearing  = smearing
         self._acell     = acell
@@ -396,7 +400,7 @@ class PseudoEcutConvergence(IterativeWork):
             for ecut in self.ecut_iterator:
                 yield self.input_with_ecut(ecut)
 
-        super(PseudoEcutConvergence, self).__init__(workdir, input_generator(), max_niter=-1)
+        super(PseudoEcutConvergence, self).__init__(workdir, input_generator(), max_niter=100)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -437,6 +441,7 @@ class PseudoEcutConvergence(IterativeWork):
         etotal_inf = etotal[-1]
                                                                 
         #ediff_mev = [(e-etotal_inf)* Ha_eV * 1.e+3 for e in etotal]
+        print(" pseudo: %s" % self.pseudo.basename)
         print(" idx ecut, etotal (et-e_inf) [meV]")
         for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
             print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
@@ -444,7 +449,7 @@ class PseudoEcutConvergence(IterativeWork):
         ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
         strange_data = 0
 
-        de_high, de_normal, de_low = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 1e-3/Ha_eV
+        de_high, de_normal, de_low = 0.05e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
 
         if (num_ene > 3) and (abs(etotal[-2] - etotal_inf) < de_high):
 
@@ -468,12 +473,13 @@ class PseudoEcutConvergence(IterativeWork):
                 strange_data += 1
 
         results = {
-            "converged"  : conv_idx,
-            "ecut_list"  : ecut_list,
-            "etotal"     : list(etotal),
-            "ecut_low"   : ecut_low,
-            "ecut_normal": ecut_normal,
-            "ecut_high"  : ecut_high,
+            "pseudo_name" : self.pseudo.basename,
+            "converged"   : conv_idx,
+            "ecut_list"   : ecut_list,
+            "etotal"      : list(etotal),
+            "ecut_low"    : ecut_low,
+            "ecut_normal" : ecut_normal,
+            "ecut_high"   : ecut_high,
         }
 
         return results
@@ -754,33 +760,29 @@ class G0W0(Work):
 
 class EcutTest(object):
 
-    def __init__(self, table, zslice=None, spin_mode="polarized"):
+    def __init__(self, pseudos, spin_mode="polarized", smearing=None, pp_erange=None):
         works = []
 
-        table_name = table.name
-        #table = [p for p in table if p.Z < 5]
-        #table = [p for p in table if p.Z==11]
+        for pseudo in pseudos:
 
-        if zslice is not None:
-            table = table[zslice]
+            ecut_range = slice(20, None, 40)
 
-        for pseudo in table:
-            ecut_list = list(range(10,31,5))
-            #ecut_list = list(range(50,451,50))
-            #ecut_list = slice(20, None, 40)
+            if pp_erange is not None:
+                ecut_range = pp_erange[pseudo.basename]
 
-            workdir = "PPTEST_" + table_name + "_" + pseudo.basename
+            workdir = pseudo.basename
 
             if os.path.exists(workdir): 
+                print("%s already exists, skipping the calculation")
                 continue
 
-            pp_wf = PseudoEcutConvergence(workdir, pseudo, ecut_list,
+            pp_work = PseudoEcutConvergence(workdir, pseudo, ecut_range,
                         spin_mode  = spin_mode,
-                        smearing   = None,
+                        smearing   = smearing,
                         acell      = 3*(8,), 
                        )
 
-            works.append(pp_wf)
+            works.append(pp_work)
 
         self.works = works
 
@@ -821,14 +823,14 @@ class EcutTest(object):
             with open(work.path_in_workdir("results.json"), "r") as fh:
                 results[work.pseudo.basename] = json.load(fh)
 
-        database = "database.json"
-        if os.path.exists(database): 
-            with open(database, "r") as fh:
-                old_results = json.load(database)
-                results.update(old_results)
+        #database = "database.json"
+        #if os.path.exists(database): 
+        #    with open(database, "r") as fh:
+        #        old_results = json.load(fh)
+        #        results.update(old_results)
 
-        with open(database, "w") as fh:
-            json.dump(results, fh)
+        #with open(database, "w") as fh:
+        #    json.dump(results, fh)
 
 ##########################################################################################
 
