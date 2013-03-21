@@ -362,10 +362,19 @@ class MITGGAVaspInputSet(VaspInputSet):
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITGGAVaspInputSet.json")) as f:
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MIT GGA", json.load(f),
+                self, "MaterialsProject GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
+        self.incar_settings['LDAU'] = False
+        if 'LDAUU' in self.incar_settings:
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
@@ -387,7 +396,7 @@ class MITHSEVaspInputSet(VaspInputSet):
 class MaterialsProjectVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
-    Materials Project. Typically, the psuedopotentials chosen contain more
+    Materials Project. Typically, the pseudopotentials chosen contain more
     electrons than the MIT parameters, and the k-point grid is ~50% more dense.
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values (even though the methodology of
@@ -399,6 +408,30 @@ class MaterialsProjectVaspInputSet(DictVaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MaterialsProject", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+
+class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
+    """
+    Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
+    turned off.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject GGA", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
+        self.incar_settings['LDAU'] = False
+        if 'LDAUU' in self.incar_settings:
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
