@@ -575,8 +575,8 @@ class SymmetryFinder(object):
             #to keep the C- settings
 
             if self.get_spacegroup().int_symbol.startswith("C"):
-                trans = np.zeros(shape=(3, 3))
-                trans[2] = [0, 0, 1]
+                transf = np.zeros(shape=(3, 3))
+                transf[2] = [0, 0, 1]
                 sorted_dic = sorted([{'vec': latt.matrix[i],
                                       'length': latt.abc[i],
                                       'orig_index': i} for i in [0, 1]],
@@ -593,13 +593,11 @@ class SymmetryFinder(object):
                         #if the angle is > 90 we invert a and b to get
                         #an angle < 90
                         landang = Lattice(
-                            [np.multiply(latt.matrix[t[0]], -1),
-                             np.multiply(latt.matrix[t[1]], -1),
-                             latt.matrix[2]]).lengths_and_angles
-                        trans = np.zeros(shape=(3, 3))
-                        trans[0][t[0]] = -1
-                        trans[1][t[1]] = -1
-                        trans[2][2] = 1
+                            [-m[t[0]], -m[t[1]], m[2]]).lengths_and_angles
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = -1
+                        transf[1][t[1]] = -1
+                        transf[2][2] = 1
                         a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
@@ -608,10 +606,10 @@ class SymmetryFinder(object):
                         continue
 
                     elif landang[1][0] < 90:
-                        trans = np.zeros(shape=(3, 3))
-                        trans[0][t[0]] = 1
-                        trans[1][t[1]] = 1
-                        trans[2][2] = 1
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = 1
+                        transf[1][t[1]] = 1
+                        transf[2][2] = 1
                         a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
@@ -629,9 +627,9 @@ class SymmetryFinder(object):
                     new_matrix = [[a, 0, 0],
                                   [0, b, 0],
                                   [0, 0, c]]
-                    trans = np.zeros(shape=(3, 3))
+                    transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
-                        trans[c][sorted_dic[c]['orig_index']] = 1
+                        transf[c][sorted_dic[c]['orig_index']] = 1
             #if not C-setting
             else:
                 #try all permutations of the axis
@@ -644,13 +642,11 @@ class SymmetryFinder(object):
                         [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
-                            [np.multiply(latt.matrix[t[0]], -1.0),
-                             np.multiply(latt.matrix[t[1]], -1.0),
-                             latt.matrix[t[2]]]).lengths_and_angles
-                        trans = np.zeros(shape=(3, 3))
-                        trans[0][t[0]] = -1
-                        trans[1][t[1]] = -1
-                        trans[2][t[2]] = 1
+                            [-m[t[0]], -m[t[1]], m[t[2]]]).lengths_and_angles
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = -1
+                        transf[1][t[1]] = -1
+                        transf[2][t[2]] = 1
                         a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
@@ -658,24 +654,24 @@ class SymmetryFinder(object):
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
                     elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
-                        trans = np.zeros(shape=(3, 3))
-                        trans[0][t[0]] = 1
-                        trans[1][t[1]] = 1
-                        trans[2][t[2]] = 1
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = 1
+                        transf[1][t[1]] = 1
+                        transf[2][t[2]] = 1
                         a, b, c = landang[0]
                         alpha = math.pi * landang[1][0] / 180
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                 if new_matrix is None:
-                    trans = np.zeros(shape=(3, 3))
+                    transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
-                        trans[c][sorted_dic[c]['orig_index']] = 1
+                        transf[c][sorted_dic[c]['orig_index']] = 1
 
             new_sites = []
             for s in struct.sites:
                 new_sites.append(
-                    PeriodicSite(s.specie, np.dot(trans, s.frac_coords),
+                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
                                  Lattice(new_matrix), to_unit_cell=True,
                                  properties=s.properties))
             new_struct = Structure.from_sites(new_sites)
