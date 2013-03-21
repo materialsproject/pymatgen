@@ -1111,6 +1111,7 @@ class PotcarSingle(object):
                         os.path.join(get_potcar_dir(), funcdir, symbol,
                                      "POTCAR")]
         for p in paths_to_try:
+            p = os.path.expanduser(p)
             if os.path.exists(p):
                 return PotcarSingle.from_file(p)
         raise IOError("You do not have the right POTCAR with functional " +
