@@ -470,15 +470,6 @@ class PseudoExtraInfo(object):
         self.extra_text   = extra_text
         self.strange_data = strange_data
 
-    #@staticmethod
-    #def from_pickle(path):
-    #    with open(path, "r") as fh:
-    #        return pickle.load(fh)
-
-    #def dump_pickle(self, path, protocol=-1):
-    #    with open(path, "w") as fh:
-    #        pickle.dump(self, fh, protocol=protocol)
-
     @staticmethod
     def from_filename(filename):
         with open(filename, "r") as fh:
@@ -1562,14 +1553,12 @@ class PseudoDatabase(dict):
 
         # Save the database in the cpickle file.
         # Use file locking mechanism to prevent IO from other processes.
-        #lock = FileLock(cached_database + "lock")
-        #lock.acquire()
+        #with FileLock(cached_database) as lock
+
         self._path = cached_database
 
         with open(cached_database, "w") as fh:
             pickle.dump(self, fh, protocol=protocol)
-
-        #lock.release()
 
     def iter_pseudos(self):
         for (xc_type, table) in nested_dict_items(self):
@@ -1654,17 +1643,3 @@ class PseudoHashTable(object):
     #def has_pseudo(pseudo):
 
 ##########################################################################################
-
-if __name__ == "__main__":
-    import sys
-    try:
-        dirpath = sys.argv[1]
-    except IndexError:
-        dirpath = "."
-
-    database = PseudoDatabase(dirpath=dirpath, force_reload=True)
-    #for table in database.nc_tables("LDA"):
-    #    print table.name, table
-    si_lda_pseudos = database.nc_pseudos("Si", "LDA")
-    #for pp in si_lda_pseudos: print pp
-    #si_pseudo = si_lda_pseudos[0]
