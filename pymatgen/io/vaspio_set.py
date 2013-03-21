@@ -362,10 +362,19 @@ class MITGGAVaspInputSet(VaspInputSet):
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITGGAVaspInputSet.json")) as f:
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MIT GGA", json.load(f),
+                self, "MaterialsProject GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
+        self.incar_settings['LDAU'] = False
+        if 'LDAUU' in self.incar_settings:
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
@@ -415,15 +424,17 @@ class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
                 self, "MaterialsProject GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
 
-        # INCAR settings to override for GGA runs, since we are basing off a GGA+U inputset
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
         self.incar_settings['LDAU'] = False
         if 'LDAUU' in self.incar_settings:
-            del self.incar_settings['LDAUU']  # technically not needed, but clarifies INCAR
-            del self.incar_settings['LDAUJ']  # technically not needed, but clarifies INCAR
-            del self.incar_settings['LDAUL']  # technically not needed, but clarifies INCAR
-
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
