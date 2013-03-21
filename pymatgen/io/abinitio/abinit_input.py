@@ -876,15 +876,15 @@ class Smearing(MSONable):
 
     @staticmethod
     def NoSmearing():
-        return Smearing("None", None)
+        return Smearing(1, None)
 
     @staticmethod
     def FermiDirac(tsmear):
-        return Smearing("fermi_dirac", tsmear)
+        return Smearing(3, tsmear)
 
     @staticmethod
     def Gaussian(tsmear):
-        return Smearing("gaussian", tsmear)
+        return Smearing(7, tsmear)
 
     @property
     def to_dict(self):
@@ -1417,16 +1417,16 @@ class Control(AbinitCard):
     }
 
     # Tolerances for (normal, high) accuracy.
-    T = collections.namedtuple('Tolerance', "normal, high")
+    T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
-        "toldfe" : T(1.e-10, 1.e-12), 
-        "tolvrs" : T(1.e-10, 1.e-12),
-        "tolwfr" : T(1.e-18, 1.e-20),
-        "tolrdf" : T(0.02,   0.01),
+        "toldfe" : T(1.e-9,  1.e-10, 1.e-11), 
+        "tolvrs" : T(1.e-8,  1.e-9,  1.e-10),
+        "tolwfr" : T(1.e-15, 1.e-17, 1.e-19),
+        "tolrdf" : T(0.04,   0.02,   0.01),
         }
     del T
 
-    accuracies = Enum(("normal", "high",))
+    accuracies = Enum(("low", "normal", "high",))
 
     #paral_modes = Enum("automatic", "explicit",)
 
@@ -1534,7 +1534,7 @@ class Control(AbinitCard):
             "optdriver" : self.optdriver,
             "ecut"      : ecut,
             "nbdbuf"    : nbdbuf,
-            "nstep"     : 150 if high else 100,
+            "nstep"     : 100 if high else 75,
             tol_varname : tol.high if high else tol.normal,
             "prtwf"     : prtwf,
             "prtgkk"    : prtgkk,

@@ -452,7 +452,7 @@ class PseudoExtraInfo(object):
 #</PP_INFO>
 
     #:Energy differences for the different accuracy levels.
-    DE_HIGH, DE_NORMAL, DE_LOW = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 1e-3/Ha_eV
+    DE_HIGH, DE_NORMAL, DE_LOW = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
 
     _xml_version = "1.0"
 
