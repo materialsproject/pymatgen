@@ -170,7 +170,7 @@ class EOS_Fit(object):
 
         self.v0 = self.eos_params[3]
         self.e0 = self.eos_params[0]
-        self.B  = self.eos_params[1]
+        self.b  = self.eos_params[1]
 
         #TODO: Add support for rich comparison so that we can define an order
         # based on the accuracy of the fit.
@@ -180,7 +180,7 @@ class EOS_Fit(object):
         app = lines.append
         app("Equation of State: %s" % self.name)
         app("Minimum volume = %1.2f Ang^3" % self.v0)
-        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" % (self.B, self.B*160.21773))
+        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" % (self.b, self.b*160.21773))
         return "\n".join(lines)
 
     @property
@@ -227,7 +227,7 @@ class EOS_Fit(object):
         ax.legend(lines, legends, 'upper right', shadow=True)
                                                                                                                                          
         fig.text(0.4,0.5,'Min volume = %1.2f $\AA^3$' % self.v0, transform = ax.transAxes)
-        fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (self.B, self.B*160.21773), transform = ax.transAxes)
+        fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (self.b, self.b*160.21773), transform = ax.transAxes)
 
         if show:
             plt.show()
