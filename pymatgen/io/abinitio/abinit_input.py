@@ -1491,6 +1491,7 @@ class Control(AbinitCard):
         # Setup accuracy, cutoff and other basic parameters.
         self.accuracy = kwargs.pop("accuracy",    "normal")
         ecut          = kwargs.pop("ecut",        None)
+        pawecutdg     = kwargs.pop("pawecutdg",   None)
         prtwf         = kwargs.pop("prtwf",       None)
         boxcutmin     = kwargs.pop("boxcutmin",   None)
         want_forces   = kwargs.pop("want_forces", False)
@@ -1498,21 +1499,18 @@ class Control(AbinitCard):
 
         self._comment = "mode = %s, with accuracy = %s" % (self.mode, self.accuracy)
 
-        high = (self.accuracy == Control.accuracies.high)
-                                                                          
-        pawecutdg = None
+        hints = [p.hint_for_accuracy(self.accuracy) for p in system.pseudos]
 
         if system.isnc:
             if ecut is None:
-                # Find cutoff energy from pseudos.
-                #ecut = max(p.suggested_ecut_for(accuracy) for p in self.pseudos])
-                ecut = 40 if high else 10
-                                                                          
+                # Find the cutoff energy from the hints.
+                ecut = max(hint.ecut for hint in hints)
+
         elif system.ispaw:
             raise NotImplementedError("")
             #ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])
-            ratio = augration_high if high else augratio_norm 
-            pawecutdg = ecut * ratio
+            #ratio = augration_high if high else augratio_norm 
+            #pawecutdg = ecut * ratio
 
         else:
             raise RuntimeError("Neither NC nor PAW!!")
@@ -1530,12 +1528,14 @@ class Control(AbinitCard):
 
         prtgkk = 1 if self.mode == "dfpt" else None
 
+        aidx = ["low", "normal", "high"].index(self.accuracy)
+
         self.update( {
             "optdriver" : self.optdriver,
             "ecut"      : ecut,
             "nbdbuf"    : nbdbuf,
-            "nstep"     : 100 if high else 75,
-            tol_varname : tol.high if high else tol.normal,
+            "nstep"     : [50,  75, 100][aidx],
+            tol_varname : getattr(tol, self.accuracy),
             "prtwf"     : prtwf,
             "prtgkk"    : prtgkk,
             "boxcutmin" : boxcutmin,

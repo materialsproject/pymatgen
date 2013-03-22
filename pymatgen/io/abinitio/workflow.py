@@ -635,22 +635,24 @@ class DeltaTest(Work):
     def teardown(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
 
-        etotal_pat = Ha2eV(self.read_etotal())
-        volumes_pat = self.volumes / num_sites
+        etotal = Ha2eV(self.read_etotal())
+
+        from .eos import EOS
+        eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
+        print(eos_fit)
+        #eos_fit.plot()
 
         results = {
-            etotal_pat: list(etotal_pat),
-            volumes_pat: list(volumes_pat),
+            "etotal" : list(etotal),
+            "volumes": list(self.volumes),
+            "natom"  : num_sites,
+            "v0"     : eos_fit.v0,
+            "b"      : eos_fit.b,
         }
 
         #fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
         with open(self.path_in_workdir("results.json"), "w") as fh:
             json.dump(results, fh)
-
-        from .eos import EOS
-        eos_fit = EOS.Murnaghan().fit(volumes_pat, etotal_pat)
-        print(eos_fit)
-        #eos_fit.plot()
 
 ##########################################################################################
 

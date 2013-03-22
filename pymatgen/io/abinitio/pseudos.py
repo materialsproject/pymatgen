@@ -28,6 +28,16 @@ try:
 except ImportError:
     have_periodictable = False
 
+#FIXME pymatgen periodic table is not complete
+#from pymatgen.core.periodic_table import PeriodicTable
+#periodic_table = PeriodicTable()
+#atomic_numbers = [e.Z for e in periodic_table]
+#for (idx, element) in enumerate(periodic_table):
+#    if idx+1 != element.Z: 
+#        missing.append(element)
+#print missing
+#print atomic_numbers
+
 __all__ = [
 'Pseudo',
 'PseudoDatabase', 
@@ -257,6 +267,14 @@ class Pseudo(object):
             Args: 
                 accuracy: ["low", "normal", "high"]
         """
+
+    @property
+    def has_hints(self):
+        "True if self provides hints."
+        for acc in ["low", "normal", "high"]:
+            if self.hint_for_accuracy(acc) is None: 
+                return False
+        return True
 
     def checksum(self):
         """
