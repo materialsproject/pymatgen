@@ -230,12 +230,11 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         automatically sorted in LiFePO4.
         """
 
-        def avg_electroneg(sps):
-            return sum((sp.X * occu for sp, occu in sps.items()))
-
-        if avg_electroneg(self._species) < avg_electroneg(other._species):
+        if self._species.average_electroneg < \
+                other._species.average_electroneg:
             return -1
-        if avg_electroneg(self._species) > avg_electroneg(other._species):
+        if self._species.average_electroneg > \
+                other._species.average_electroneg:
             return 1
         return 0
 
