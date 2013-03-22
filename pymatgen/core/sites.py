@@ -26,9 +26,11 @@ from pymatgen.core.composition import Composition
 
 class Site(collections.Mapping, collections.Hashable, MSONable):
     """
-    A generalized *non-periodic* site. Atoms and occupancies should be a dict
-    of element:occupancy or an element, in which case the occupancy default to
-    1. Coords are given in standard cartesian coordinates.
+    A generalized *non-periodic* site. This is essentially a composition
+    at a point in space, with some optional properties associated with it. A
+    Composition is used to represent the atoms and occupancy, which allows for
+    disordered site representation. Coords are given in standard cartesian
+    coordinates.
     """
 
     supported_properties = ("magmom", "charge", "coordination_no", "forces")
@@ -121,16 +123,14 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     @property
     def species_and_occu(self):
         """
-        The species at the site, i.e., a dict of element and occupancy.
+        The species at the site, i.e., a Composition mapping type of
+        element/species to occupancy.
         """
         return self._species
 
     @property
     def specie(self):
         """
-        .. deprecated:: 1.0
-            Use :func:`species_and_occu` instead.
-
         The Specie/Element at the site. Only works for ordered sites. Otherwise
         an AttributeError is raised. Use this property sparingly.  Robust
         design should make use of the property species_and_occu instead.

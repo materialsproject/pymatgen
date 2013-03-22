@@ -25,7 +25,8 @@ from pymatgen.serializers.json_coders import MSONable
 
 class Composition (collections.Mapping, collections.Hashable, MSONable):
     """
-    Represents a Composition, which is essentially a {element:amount} dict.
+    Represents a Composition, which is essentially a {element:amount} mapping
+    type.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
