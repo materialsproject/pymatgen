@@ -13,6 +13,7 @@ from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.smartio import read_structure
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -64,7 +65,7 @@ class StructureMatcherTest(unittest.TestCase):
 
         #Test anonymous fit.
         self.assertEqual(sm.fit_anonymous(lfp, nfp),
-                         [({Element("Li"): 1}, {Element("Na"):1})])
+                         {Composition("Li"): Composition("Na")})
 
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
@@ -83,7 +84,7 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertEqual(sm.fit_anonymous(s1, s2),
-                         [({Element("Fe"): 0.5}, {Element("Fe"): 0.25})])
+                         {Composition("Fe0.5"): Composition("Fe0.25")})
 
     def test_oxi(self):
         """Test oxidation state removal matching"""

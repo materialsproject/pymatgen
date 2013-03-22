@@ -537,24 +537,23 @@ class StructureMatcher(MSONable):
             occupancy dicts. This complicated return for is necessary because
             species and occupancy dicts are non-hashable.
         """
-        sp1 = {site.species_string: site.species_and_occu for site in struct1}
-        sp2 = {site.species_string: site.species_and_occu for site in struct2}
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
         if len(sp1) != len(sp2):
             return None
 
-        sp1_keys = list(sp1.keys())
-        for perm in itertools.permutations(sp2.keys()):
+        for perm in itertools.permutations(sp2):
             perm = list(perm)
             mapped_sp = []
             for site in struct1:
-                ind = sp1_keys.index(site.species_string)
-                mapped_sp.append(sp2[perm[ind]])
+                ind = sp1.index(site.species_and_occu)
+                mapped_sp.append(perm[ind])
 
             transformed_structure = Structure(struct1.lattice, mapped_sp,
                                               struct1.frac_coords)
             if self.fit(transformed_structure, struct2):
-                return [(sp1[sp1_keys[i]], sp2[perm[i]])
-                        for i in xrange(len(sp1_keys))
-                        if sp1[sp1_keys[i]] != sp2[perm[i]]]
+                return {sp1[i]: perm[i] for i in xrange(len(sp1))
+                        if sp1[i] != perm[i]}
 
         return None
