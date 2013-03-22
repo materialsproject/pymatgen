@@ -16,6 +16,7 @@ import numpy as np
 
 from os.path import join as pj
 from warnings import warn
+from pprint import pprint
 
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.core.physical_constants import Ha_eV, Ha2meV
@@ -96,7 +97,10 @@ _l2str = {
 
 def l2str(l): 
     "Convert the angular momentum l (int) to string."
-    return _l2str[l]
+    try:
+        return _l2str[l]
+    except KeyError:
+        return "Unknown: received l = %s" % l
 
 # TODO 
 # Should become an API common for the different codes that requires pseudos
@@ -142,7 +146,7 @@ class Pseudo(object):
         return pseudos
 
     def __repr__(self):
-        return "<%s at %s, task_workdir = %s>" % (
+        return "<%s at %s, basename = %s>" % (
             self.__class__.__name__, id(self), self.basename)
 
     def __str__(self): 
@@ -235,22 +239,24 @@ class Pseudo(object):
     #def generation_mode
     #    "scalar scalar-relativistic, relativistic"
 
-    @property
-    def has_input(self):
-        "True if self contains the input file used to generate the pseudo."
-        return hasattr(self, "input") and self.input is not None
+    #@property
+    #def has_input(self):
+    #    "True if self contains the input file used to generate the pseudo."
+    #    return hasattr(self, "input") and self.input is not None
 
-    @property
-    def has_extra_info(self):
-        "True if self contains the extra_info section."
-        return hasattr(self, "extra_info") and self.extra_info is not None
+    #@property
+    #def has_extra_info(self):
+    #    "True if self contains the extra_info section."
+    #    return hasattr(self, "extra_info") and self.extra_info is not None
 
-    def hint_for_accuracy(accuracy):
-        "Returns hint on the cutoff energy for given accuracy."
-        if self.has_extra_info:
-            return self.extra_info.hint_for_accuracy(accuracy)
-        else:
-            return None
+    @abc.abstractmethod
+    def hint_for_accuracy(self, accuracy):
+        """
+        Returns an hint object with parameters such as ecut and aug_ratio for given accuracy
+        Returns None if no hint is available.
+            Args: 
+                accuracy: ["low", "normal", "high"]
+        """
 
     def checksum(self):
         """
@@ -311,6 +317,7 @@ class AbinitPseudo(Pseudo):
 
         self.path     = path
         self._summary = header.summary
+        self.extra_info = header.extra_info
         #self.pspcod  = header.pspcod
 
         for (attr_name, desc) in header.items():
@@ -344,10 +351,16 @@ class AbinitPseudo(Pseudo):
     def l_local(self): 
         return self._lloc
 
-    @property
-    def has_input(self):
-        "True if self contains the input file used to generate the pseudo."
-        return hasattr(self, "input") and self.input is not None
+    def hint_for_accuracy(self, accuracy):
+        if self.extra_info is not None:
+            return self.extra_info.hint_for_accuracy(accuracy)
+        else:
+            return None
+
+    #@property
+    #def has_input(self):
+    #    "True if self contains the input file used to generate the pseudo."
+    #    return hasattr(self, "input") and self.input is not None
 
 ##########################################################################################
 
@@ -402,7 +415,6 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
-
     @classmethod
     def from_csv(cls, string):
         "Return new instance from a string in csv format"
@@ -420,7 +432,7 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
 
 ##########################################################################################
 
-class PseudoExtraInfo(object):
+class PseudoExtraInfo(ET.Element):
 
 #<PP_INFO>
 #  Generated using XXX code v.N
@@ -456,72 +468,49 @@ class PseudoExtraInfo(object):
 
     _xml_version = "1.0"
 
-    def __init__(self, ecut_list, etotal_dict, hints_dict, 
-                 input        = None, 
-                 extra_text   = None, 
-                 strange_data = None,
-                ):
-                                                            
-        self.ecut_list    = ecut_list
-        self._etotal_dict = etotal_dict
-        self._hints_dict  = hints_dict
-                                                            
-        self.input        = input
-        self.extra_text   = extra_text
-        self.strange_data = strange_data
+    _tag = "pp_extra_info"
 
-    @staticmethod
-    def from_filename(filename):
+    #def __init__(self, ecut_list, etotal_dict, hints_dict, 
+    #             input        = None, 
+    #             extra_text   = None, 
+    #             strange_data = None,
+    #            ):
+    #                                                        
+    #    self.ecut_list    = ecut_list
+    #    self._etotal_dict = etotal_dict
+    #    self._hints_dict  = hints_dict
+    #                                                        
+    #    self.input        = input
+    #    self.extra_text   = extra_text
+    #    self.strange_data = strange_data
+
+    def __init__(self):
+        attrib = {}
+        extra = {}
+        ET.Element.__init__(self, self._tag, attrib=attrib, **extra)
+
+    @classmethod
+    def from_filename(cls, filename):
+        "Instanciate the object from file filename"
         with open(filename, "r") as fh:
             text = fh.read()
-        try:
-            return PseudoExtrainfo.from_string(text)
-        except:
-            return None
+            index = text.find("<"+cls._tag)
+
+            if index != -1:
+                return PseudoExtraInfo.from_string(text[index:])
+            else:
+                return None # no tag found
 
     @classmethod
     def from_string(cls, string):
         "Return a new instance from a string with data in XML format."
-        root = ET.fromstring(string)
-        #print root
-
-        input = root.find("./PP_INPUT")
-        if input is not None:
-            input = input.text
-
-        extra_text = root.find("./PP_EXTRA_TEXT")
-        if extra_text is not None:
-            extra_text = extra_text.text
-
-        # Parse the section with the hints.
-        # Create dictionary "accuracy_name" --> hint object.
-        hints = root.find("./PP_HINTS")
-        hints_dict = collections.OrderedDict()
-
-        for hint in hints:
-            hints_dict[hint.tag] = Hint.from_csv(hint.text)
-
-        ecut_text = root.find("./PP_CONVERGENCE_TEST/ECUT").text
-        ecut_list = [float(e) for e in ecut_text.split()]
-
-        all_etotal_nodes = root.findall("./PP_CONVERGENCE_TEST/ETOTAL")
-
-        etotal_dict = {}
-        for node in all_etotal_nodes:
-            aug_ratio = float(node.attrib["aug_ratio"])
-            etotal = [float(e) for e in node.text.split()]
-            etotal_dict[aug_ratio] = etotal
-
-        # Use ordered dictionary:
-        new = cls(ecut_list, etotal_dict, hints_dict, 
-        #          input        = None, 
-        #          extra_text   = None, 
-        #          #strange_data = None,
-                  )
+        new = ET.fromstring(string)
+        # We want an instance of PseudoExtraInfo.
+        new.__class__ = cls
         return new
 
     @classmethod
-    def from_data(cls, ecut_list, etotal_dict, strange_data=0):
+    def from_data(cls, ecut_list, etotal_dict, input=None, extra_text=None, strange_data=0):
         """
         Return a new instance from data.
             Args:
@@ -547,9 +536,9 @@ class PseudoExtraInfo(object):
             num_ene = len(etotal)
             etotal_inf = etotal[-1]
 
-            print(" idx ecut, etotal (et-e_inf) [meV]")
-            for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-                print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+            #print(" idx ecut, etotal (et-e_inf) [meV]")
+            #for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+            #    print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
 
             ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
 
@@ -587,45 +576,67 @@ class PseudoExtraInfo(object):
 
         return cls(ecut_list, etotal_dict, hints_dict, strange_data=strange_data)
 
+    @property
+    def input(self):
+        e = self.find("./pp_input")
+        if e is not None:
+            return e.text
+        else:
+            return ""
+
+    @property
+    def extra_text(self):
+        e = self.find("./pp_extra_text")
+        if e is not None:
+            return e.text
+        else:
+            return ""
+
+    @property
+    def hints_dict(self):
+        # Find the section with the hints.
+        e = self.find("./pp_hints")
+
+        # Create dictionary "accuracy_name" --> hint object.
+        hints_dict = collections.OrderedDict()
+        for hint in e:
+            hints_dict[hint.tag] = Hint.from_csv(hint.text)
+
+        return hints_dict
+
+    def hint_for_accuracy(self, accuracy):
+        return self.hints_dict[accuracy]
+
     def toxml(self, pretty_xml=True):
         """
         Return a string with data written in XML format.
         """
         extra = {
           "version"    : self._xml_version,
-          "units"      : "a.u",
+          "units"      : "a.u.",
         #  "psp_type"  : "NC",
         }
 
-        root = ET.Element("PP_EXTRA_INFO", **extra)
+        root = ET.Element("pp_extra_info", **extra)
 
         if self.input:
-            input_sube = ET.SubElement(root, 'PP_INPUT_FILE')
+            input_sube = ET.SubElement(root, 'pp_input_file')
             input_sube.text = "".join(str(line) for line in self.input)
 
-        # TODO
-        #if self.extra_text:
-        #    extra_text_sube = ET.SubElement(root, 'PP_EXTRA_TEXT')
-        #    extra_text_sube.text = self.extra_text
+        if self.extra_text:
+            extra_text_sube = ET.SubElement(root, 'pp_extra_text')
+            extra_text_sube.text = self.extra_text
      
         # Put this attribute if results seem not to be converged.
-        extra = {}
-        if self.strange_data:
-            extra = {"strange_data" : str(self.strange_data)}
+        #extra = {}
+        #if self.strange_data:
+        #    extra = {"strange_data" : str(self.strange_data)}
 
-        hints_sube = ET.SubElement(root, 'PP_HINTS', **extra)
+        hints_sube = ET.SubElement(root, 'pp_hints', **extra)
 
         for accuracy in ["low", "normal", "high"]:
             csv_string = self._hints_dict[accuracy].to_csv()
             ET.SubElement(hints_sube, accuracy).text = csv_string
-
-        convtest_sube = ET.SubElement(root, 'PP_CONVERGENCE_TEST') 
-
-        ET.SubElement(convtest_sube, 'ECUT').text = " ".join(str(e) for e in self.ecut_list)
-
-        for (aug_ratio, etotal) in self._etotal_dict.items():
-            sube = ET.SubElement(convtest_sube, 'ETOTAL', aug_ratio=str(aug_ratio))
-            sube.text = " ".join(str(e) for e in etotal)
 
         strio = StringIO.StringIO()
 
@@ -641,13 +652,6 @@ class PseudoExtraInfo(object):
             xml_string = xml.toprettyxml(indent=4*" ")
 
         return xml_string
-
-    @property
-    def has_hints(self):
-        return hasattr(self._hints_dict)
-
-    def hint_for_accuracy(self, accuracy):
-        return self._hints_dict[accuracy]
 
     def show_etotal(self, *args, **kwargs):
         """
@@ -757,26 +761,23 @@ class AbinitHeader(dict):
             except KeyError as exc:
                 raise AttributeError(str(exc))
 
-    def set_input(self, input):
-        self._input = input
-
-    def get_input(self):
-        try:
-            return self._input 
-        except AttributeError:
-            return "No input available"
-
-    def set_projectors(self, projectors):
-        self._projectors = projectors
-
-    def get_projectors(self):
-        try:
-            return self._projectors
-        except AttributeError:
-            return None
-
     #def extra_info(self):
     #    "extra_info object"
+
+    #def input(self):
+    #    try:
+    #        return self._input 
+    #    except AttributeError:
+    #        return "No input available"
+
+    #def set_projectors(self, projectors):
+    #    self._projectors = projectors
+
+    #def get_projectors(self):
+    #    try:
+    #        return self._projectors
+    #    except AttributeError:
+    #        return None
 
 ##########################################################################################
 def _int_from_str(string):
@@ -834,8 +835,12 @@ class NcAbinitHeader(AbinitHeader):
 
             self[key] = value
 
+        # Add extra_info section.
+        self["extra_info"] = kwargs.pop("extra_info", None)
+
         if kwargs:
-            raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+            msg = "kwargs should be empty but got %s" % str(kwargs)
+            raise RuntimeError(msg)
 
     @staticmethod
     def fhi_header(filename, ppdesc):
@@ -851,7 +856,7 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
         summary = lines[0]
 
-        #extra_info = PseudoExtraInfo.from_file(filename)
+        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -868,7 +873,7 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
-        #extra_info = PseudoExtraInfo.from_file(filename)
+        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -921,7 +926,7 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(header, [0,3,6,3])
 
-        #extra_info = PseudoExtraInfo.from_file(filename)
+        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -1026,7 +1031,7 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        #extra_info = PseudoExtraInfo.from_file(filename)
+        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
 
         return PawAbinitHeader(summary, **header)
 
@@ -1071,6 +1076,11 @@ class PseudoParser(object):
     def scan_directory(self, dirname, exclude_exts=None):
         """
         Analyze the files contained in directory dirname.
+        Args:
+            dirname:
+                directory path
+            exclude_exts:
+                list of file extensions that should be skipped.
 
         :return: List of pseudopotential objects.
         """
@@ -1123,7 +1133,7 @@ class PseudoParser(object):
                         tokens = line.split()
                         pspcod, pspxc = map(int, tokens[:2])
                     except:
-                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (basename(filename), line)
+                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
                         sys.stderr.write(msg)
                         return None
 
@@ -1338,7 +1348,7 @@ class PseudoTable(object):
     def pseudos_with_symbol(self, symbol):
         """
         Return the list of pseudopotentials in the table the with given symbol.  
-        Empty list if no pseudo is avaiable
+        Return an empty list if no pseudo is avaiable
         """
         try:
             return getattr(self, str(symbol))
@@ -1441,7 +1451,9 @@ class PseudoDatabase(dict):
 
     def __new__(cls, dirpath=None, force_reload=False):
         new = dict.__new__(cls)
-        if dirpath is None: return new
+
+        if dirpath is None: 
+            return new
 
         dirpath = os.path.abspath(dirpath)
 
@@ -1458,7 +1470,7 @@ class PseudoDatabase(dict):
         pass
 
     def __len__(self):
-        return len([self.iter_pseudos])
+        return len([self.all_pseudos])
 
     def __build(self, top):
         print("Building new database...")
@@ -1475,18 +1487,19 @@ class PseudoDatabase(dict):
 
         for (dirpath, dirnames, filenames) in os.walk(top):
             for dirname in dirnames:
+
                 try:
                     psp_type, xc_type, table_type = os.path.basename(dirname).split("_")
                 except:
                     err_msg = "Malformatted name for directory %s" % dirname
                     raise RuntimeError(err_msg)
-                print(psp_type, xc_type, table_type)
+                #print(psp_type, xc_type, table_type)
 
                 if psp_type not in self.PSP_TYPES or xc_type not in self.XC_TYPES:
                     raise ValueError("Don't know how to handle %s %s" % (psp_type, xc_type))
 
                 pseudos = parser.scan_directory( os.path.join(dirpath, dirname), 
-                    exclude_exts = [".ini", ".sh", ".gz", ".pl", ".txt", ".swp", ".data", "pickle",])
+                    exclude_exts = [".py", ".ini", ".sh", ".gz", ".pl", ".txt", ".swp", ".data", "pickle",])
 
                 table = PseudoTable(psp_type, xc_type, table_type, pseudos)
 
@@ -1504,17 +1517,14 @@ class PseudoDatabase(dict):
         cached_database = filename
         if cached_database is None: cached_database = self._save_file
                                                                           
-        print("Loading database from file: %s" % cached_database)
+        print("Loading database from: %s" % cached_database)
                                                                          
         # Read the database from the cpickle file.
         # Use file locking mechanism to prevent IO from other processes.
-        #lock = FileLock(database_path + ".lock")
-        #lock.acquire()
-                                                                          
+        #with FileLock(database_path + ".lock") as lock:
         with open(cached_database, "r") as fh:
             database = pickle.load(fh)
                                                                           
-        #lock.release()
         #assert database.dirpath == os.path.split(abspath(cached_database))[0]
         return database
 
@@ -1553,22 +1563,24 @@ class PseudoDatabase(dict):
 
         # Save the database in the cpickle file.
         # Use file locking mechanism to prevent IO from other processes.
-        #with FileLock(cached_database) as lock
+        #with FileLock(cached_database) as lock:
 
         self._path = cached_database
 
         with open(cached_database, "w") as fh:
             pickle.dump(self, fh, protocol=protocol)
 
-    def iter_pseudos(self):
+    @property
+    def all_pseudos(self):
+        "Return a list with all the pseudopotentials in the database"
+        pseudos = []
         for (xc_type, table) in nested_dict_items(self):
             #print type(table), table.type, table.xc_type, table
-            for pseudo in table: 
-                yield pseudo
+            pseudos.extend([p for p in table])
+        return pseudos
 
     def write_hash_table(self, filename):
         #with open(filename, "w") as fh
-        import sys
         fh = sys.stdout
 
         def tail2(path):
@@ -1577,22 +1589,22 @@ class PseudoDatabase(dict):
             return pj(tail1, tail0)
 
         fh.write("# relative_path, md5 num_line\n")
-        for pseudo in self.iter_pseudos():
+        for pseudo in self.all_pseudos():
             #print type(pseudo), pseudo
             checksum = pseudo.checksum()
             relative_path = tail2(pseudo.path)
             fh.write("%s %s %s\n" % (relative_path, checksum[0], checksum[1]))
 
-    def iter_tables(self, psp_type, xc_type):
+    def table(self, psp_type, xc_type):
         return self[psp_type][xc_type].values()
 
     def nc_tables(self, xc_type):
         "Iterate over the norm-conserving tables with XC type xc_type." 
-        return self.iter_tables("NC", xc_type)
+        return self.table("NC", xc_type)
 
     def paw_tables(self, psp_type, xc_type):
         "Iterate over the PAW tables with XC type xc_type." 
-        return self.iter_tables("PAW", xc_type)
+        return self.table("PAW", xc_type)
 
     def nc_pseudos(self, symbol, xc_type, table_type=None, **kwargs):
         "Return a list of :class:`Pseudo` instances."
@@ -1607,39 +1619,29 @@ class PseudoDatabase(dict):
 
     #def find_all(self, symbol, xc_type):
 
-##########################################################################################
+def add_hints(dirname):
+    json_filename = os.path.join(dirname, "validated.json")
+    if not os.path.exists(json_filename):
+        return 
 
-class PseudoHashTable(object):
-    # FIXME
-    "filename (relative to root dir) hexmd5, number_of_line"
+    import json 
 
-    _filename = "pseudo_checksum.txt"
+    with open(json_filename, "r") as fh:
+        results = json.load(fh)
 
-    def from_file(filename):
-        hash_table = {}
-        with open(filename, "r") as fh:
-            for line in fh:
-                relative_path, hexmd5, line_num = [l.split() for l in line.split()]
-                if relative_path in hash_table:
-                    raise ValueError("Duplicated entry %s" % relative_path)
-                hash_table[relative_path] = (hexmd5, int(line_num))
+    pprint(results)
 
-    def has_file(filename):
-        relative_path = os.path.relpath(os.path.abspath(filename), start='.')
+    for ppname, res in results.items():
+        ecut_list = res["ecut_list"]
+        etotal_dict = { 1 : res["etotal"] }
 
-        with open(filename, "r") as fh:
-            import hashlib
-            hasher = hashlib.md5()
-            lines = fh.readlines()
-            hasher.update(lines)
-            hexmd5 = hasher.hexdigest()
-            checksum = (hexmd5, len(lines))
+        extra = PseudoExtraInfo.from_data(ecut_list, etotal_dict)
 
-        try:
-            return hash_table[relative_path] == check
-        except KeyError:
-            return False
+        xml_string = extra.toxml()
+        print(xml_string)
 
-    #def has_pseudo(pseudo):
+        #fname = os.path.join(dirname, ppname)
+        #with open(fname, "a") as fh:
+        #    fh.write(xml_string)
 
 ##########################################################################################
