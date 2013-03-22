@@ -204,6 +204,5 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertEqual(6, len(ws_cell))
         self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
                                        [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
-
 if __name__ == '__main__':
     unittest.main()
