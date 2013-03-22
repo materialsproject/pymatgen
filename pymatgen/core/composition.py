@@ -181,6 +181,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def __iter__(self):
         return self._elmap.__iter__()
 
+    @property
+    def average_electroneg(self):
+        return sum((el.X * amt for el, amt in self._elmap.items())) / \
+            self.num_atoms
+
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
         """
         Returns true if compositions are equal within a tolerance.
