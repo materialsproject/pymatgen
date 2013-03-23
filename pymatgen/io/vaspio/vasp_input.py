@@ -1208,7 +1208,7 @@ class Potcar(list):
         with zopen(filename, "r") as reader:
             fdata = reader.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
                                     re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
