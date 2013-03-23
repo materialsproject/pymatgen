@@ -156,14 +156,14 @@ class Pseudo(object):
         return pseudos
 
     def __repr__(self):
-        return "<%s at %s, basename = %s>" % (
-            self.__class__.__name__, id(self), self.basename)
+        return "<%s at %s, name = %s>" % (
+            self.__class__.__name__, id(self), self.name)
 
     def __str__(self): 
         "String representation"
         lines = []
         app = lines.append
-        app("<%s: %s>" % (self.__class__.__name__, self.basename))
+        app("<%s: %s>" % (self.__class__.__name__, self.name))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
         app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
@@ -181,7 +181,7 @@ class Pseudo(object):
         "Absolute path of the pseudopotential file"
 
     @property
-    def basename(self):
+    def name(self):
         "File basename"
         return os.path.basename(self.filepath)
 
@@ -195,7 +195,7 @@ class Pseudo(object):
 
     @property
     def element(self):
-        "Element instance"
+        "Pymatgen Element"
         return _periodic_table[self.Z]
 
     @property
@@ -254,11 +254,6 @@ class Pseudo(object):
     #    "True if self contains the input file used to generate the pseudo."
     #    return hasattr(self, "input") and self.input is not None
 
-    #@property
-    #def has_extra_info(self):
-    #    "True if self contains the extra_info section."
-    #    return hasattr(self, "extra_info") and self.extra_info is not None
-
     @abc.abstractmethod
     def hint_for_accuracy(self, accuracy):
         """
@@ -270,7 +265,7 @@ class Pseudo(object):
 
     @property
     def has_hints(self):
-        "True if self provides hints."
+        "True if self provides hints on the cutoff energy"
         for acc in ["low", "normal", "high"]:
             if self.hint_for_accuracy(acc) is None: 
                 return False
@@ -281,7 +276,7 @@ class Pseudo(object):
         Return the checksum of the pseudopotential file. 
                                                                         
         The checksum is given by the tuple (basename, line_num, hexmd5)
-        where basename if the file basename, hexmd5 is the (hex) MD5 hash, 
+        where basename if the file name, hexmd5 is the (hex) MD5 hash, 
         and line_num is the number of lines in the file.
         """
         import hashlib
@@ -289,7 +284,7 @@ class Pseudo(object):
         with open(self.filepath, "r") as fh:
             hasher.update(fh.read())
                                                                         
-        return self.basename, len(text.splitlines()), hasher.hexdigest()
+        return self.name, len(text.splitlines()), hasher.hexdigest()
 
 ##########################################################################################
 
@@ -484,23 +479,7 @@ class PseudoExtraInfo(ET.Element):
     #:Energy differences for the different accuracy levels.
     DE_HIGH, DE_NORMAL, DE_LOW = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
 
-    _xml_version = "1.0"
-
     _tag = "pp_extra_info"
-
-    #def __init__(self, ecut_list, etotal_dict, hints_dict, 
-    #             input        = None, 
-    #             extra_text   = None, 
-    #             strange_data = None,
-    #            ):
-    #                                                        
-    #    self.ecut_list    = ecut_list
-    #    self._etotal_dict = etotal_dict
-    #    self._hints_dict  = hints_dict
-    #                                                        
-    #    self.input        = input
-    #    self.extra_text   = extra_text
-    #    self.strange_data = strange_data
 
     def __init__(self):
         attrib = {}
@@ -535,6 +514,7 @@ class PseudoExtraInfo(ET.Element):
                 ecut_list:
                 etotal_list:
         """
+        # TODO: Rewrite this method
         # Convert values to float. 
         aug_ratios = [(float(k), k) for k in etotal_dict]
 
@@ -1208,7 +1188,7 @@ class PseudoParser(object):
         root, ext = os.path.splitext(path)
                                                                 
         # Add the content of input file (if present). 
-        # The name of the input is basename + ".ini"
+        # The name of the input is name + ".ini"
         input = None
         input_path = root + ".ini"
         if os.path.exists(input_path):
@@ -1372,6 +1352,13 @@ class PseudoTable(object):
             return getattr(self, str(symbol))
         except AttributeError:
             return []
+
+    def pseudo_from_name(self, name):
+        "Return the pseudo in the table with the given name"
+        for pseudo in self:
+            if pseudo.name == name:
+                return pseudo
+        return None
 
     def list(self, *props, **kw):
         """

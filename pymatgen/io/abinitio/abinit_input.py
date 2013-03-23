@@ -545,7 +545,7 @@ class Kpoints(AbinitCard):
         if mode in ("monkhorst",):
             assert num_kpts == 0
             ngkpt  = np.reshape(kpts, (3,)),
-            shiftk = np.reshape(kpt_shifts, (-1,3,))
+            shiftk = np.reshape(kpt_shifts, (-1,3))
 
             if use_symmetries and use_time_reversal: kptopt = 1
             if not use_symmetries and use_time_reversal: kptopt = 2
@@ -718,7 +718,7 @@ class Kpoints(AbinitCard):
                       )
 
     @staticmethod
-    def automatic_density(structure, kppa):
+    def automatic_density(structure, kppa, use_symmetries=True, use_time_reversal=True):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
@@ -733,26 +733,26 @@ class Kpoints(AbinitCard):
             kppa:
                 Grid density
         """
-        raise NotImplementedError()
-        rec_lattice = structure.lattice.reciprocal_lattice
+        #raise NotImplementedError()
+        #rec_lattice = structure.lattice.reciprocal_lattice
 
         #min_idx, min_abc = minloc(rec_lattice.abc)
         # See np.argmax
-        ratios = rec_lattice.abc / min_abc
+        #ratios = rec_lattice.abc / min_abc
 
-        kpt_shifts = [0.5, 0.5, 0.5]
-        kpt_shifts = np.atleast_2d(kpt_shifts)
+        #kpt_shifts = [0.5, 0.5, 0.5]
+        #kpt_shifts = np.atleast_2d(kpt_shifts)
 
-        num_shifts = len(kpt_shifts)
+        #num_shifts = len(kpt_shifts)
 
-        ndiv, num_points = 0, 0
+        #ndiv, num_points = 0, 0
 
-        while num_points < min_npoints:
-            ndiv += 1
-            trial_divs = [int(round(n)) for n in ratios * ndiv]
-            # ensure that trial_divs  > 0
-            trial_divs = [i if i > 0 else 1 for i in trial_divs]
-            num_points = num_shifts * np.product(trial_divs)
+        #while num_points < min_npoints:
+        #    ndiv += 1
+        #    trial_divs = [int(round(n)) for n in ratios * ndiv]
+        #    # ensure that trial_divs  > 0
+        #    trial_divs = [i if i > 0 else 1 for i in trial_divs]
+        #    num_points = num_shifts * np.product(trial_divs)
 
         lattice = structure.lattice
         lengths = lattice.abc
@@ -778,18 +778,20 @@ class Kpoints(AbinitCard):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        style = Kpoints.modes.gamma
-        if not is_hexagonal:
-            num_div = [i + i % 2 for i in num_div]
-            style = Kpoints.modes.monkhorst
-        comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
-        num_kpts = 0
+        #style = Kpoints.modes.gamma
+        #if not is_hexagonal:
+        #    num_div = [i + i % 2 for i in num_div]
+        #    style = Kpoints.modes.monkhorst
 
-        return Kpoints(
-                       num_kpts    = num_kpts, 
-                       kpts        = [num_div], 
-                       kpt_shifts  = [0, 0, 0],
-                       comment     = comment, 
+        comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+
+        return Kpoints(mode              = "monkhorst",
+                       num_kpts          = 0, 
+                       kpts              = [num_div], 
+                       kpt_shifts        = [0, 0, 0],
+                       use_symmetries    = use_symmetries   , 
+                       use_time_reversal = use_time_reversal,
+                       comment           = comment, 
                       )
 
     @property
@@ -1493,11 +1495,12 @@ class Control(AbinitCard):
         ecut          = kwargs.pop("ecut",        None)
         pawecutdg     = kwargs.pop("pawecutdg",   None)
         prtwf         = kwargs.pop("prtwf",       None)
+        prtden        = kwargs.pop("prtwf",       None)
         boxcutmin     = kwargs.pop("boxcutmin",   None)
         want_forces   = kwargs.pop("want_forces", False)
         want_stress   = kwargs.pop("want_stress", False)
 
-        self._comment = "mode = %s, with accuracy = %s" % (self.mode, self.accuracy)
+        self._comment = "mode = %s, accuracy = %s" % (self.mode, self.accuracy)
 
         hints = [p.hint_for_accuracy(self.accuracy) for p in system.pseudos]
 
@@ -1537,6 +1540,7 @@ class Control(AbinitCard):
             "nstep"     : [50,  75, 100][aidx],
             tol_varname : getattr(tol, self.accuracy),
             "prtwf"     : prtwf,
+            "prtden"    : prtden,
             "prtgkk"    : prtgkk,
             "boxcutmin" : boxcutmin,
             "optforces" : None if (self.need_forces or want_forces) else 2,
@@ -1628,7 +1632,10 @@ class Input(dict, MSONable):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), str([k for k in self.card_names]))
 
     def __str__(self):
-        output = []
+        output = [
+            "# This is an automatically generated input file, prepared for you by %s" % self.__class__.__name__,
+            "# *** Do not edit. Any change will be lost if the input if re-generated ***"
+            ]
         keys = self.card_names
         keys.sort()
         for k in keys:
@@ -1822,7 +1829,9 @@ class Input(dict, MSONable):
         return self.add_vars_to_card(vars, "System")
 
     @staticmethod
-    def SCF_groundstate(structure, pptable_or_pseudos, ngkpt, 
+    def SCF_groundstate(structure, pptable_or_pseudos, 
+                        ngkpt = None,
+                        kppa  = None,
                         spin_mode = "polarized", 
                         smearing  = None,
                         **kwargs
@@ -1837,6 +1846,8 @@ class Input(dict, MSONable):
                 PseudoTable or list of pseudopotentials.
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            kppa:
+                Grid density (kppa / natom). 
             spin_mode: 
                 Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
             smearing: 
@@ -1855,7 +1866,13 @@ class Input(dict, MSONable):
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
 
         # K-point sampling.
-        kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
+        if [obj is not None for obj in [ngkpt, kppa,]].count(True) != 1:
+            raise ValueError("only one variable among ngkpt, kppa should be supplied")
+
+        if ngkpt is not None:
+            kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
+        elif kppa is not None:
+            kmesh = Kpoints.automatic_density(structure, kppa)
 
         scf_control = Control(system, electrons, kmesh, **kwargs)
 
