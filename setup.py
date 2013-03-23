@@ -3,7 +3,7 @@ import os
 import sys
 
 from distribute_setup import use_setuptools
-use_setuptools(version='0.6.10')
+use_setuptools()
 from setuptools import setup, find_packages, Extension
 
 try:
