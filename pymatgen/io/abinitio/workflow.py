@@ -441,7 +441,7 @@ class PseudoEcutConvergence(IterativeWork):
         etotal_inf = etotal[-1]
                                                                 
         #ediff_mev = [(e-etotal_inf)* Ha_eV * 1.e+3 for e in etotal]
-        print(" pseudo: %s" % self.pseudo.basename)
+        print(" pseudo: %s" % self.pseudo.name)
         print(" idx ecut, etotal (et-e_inf) [meV]")
         for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
             print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
@@ -473,7 +473,7 @@ class PseudoEcutConvergence(IterativeWork):
                 strange_data += 1
 
         results = {
-            "pseudo_name" : self.pseudo.basename,
+            "pseudo_name" : self.pseudo.name,
             "converged"   : conv_idx,
             "ecut_list"   : ecut_list,
             "etotal"      : list(etotal),
@@ -523,7 +523,7 @@ class PseudoEcutConvergence(IterativeWork):
         # provided that the results seem ok. If results seem strange, 
         # the XML section is written on a separate file.
         xml_string = pp_info.toxml()
-        #print self.pseudo.basename, xml_string
+        #print self.pseudo.name, xml_string
 
         with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
             fh.write(xml_string)
@@ -542,7 +542,8 @@ class BandStructure(Work):
 
         super(BandStructure, self).__init__(workdir)
 
-        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
+        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, 
+                                          ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode,
                                           smearing  = smearing,
                                          )
@@ -591,12 +592,11 @@ class Relaxation(Work):
 
 class DeltaTest(Work):
 
-    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
+    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, kppa,
                  spin_mode = "polarized",
                  smearing  = None,
                  accuracy  = "normal",
                  ecutsm    = 0.05,
-                 ecut      = None
                 ):
 
         if isinstance(structure_or_cif, Structure):
@@ -619,18 +619,16 @@ class DeltaTest(Work):
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
 
-            scf_input = Input.SCF_groundstate(new_structure, pptable_or_pseudos, ngkpt, 
+            scf_input = Input.SCF_groundstate(new_structure, pptable_or_pseudos, 
+                                              kppa      = kppa,
                                               spin_mode = spin_mode,
                                               smearing  = smearing,
                                               # **kwargs
                                               accuracy  = accuracy,
                                               ecutsm    = ecutsm,
-                                              ecut      = ecut,
+                                              prtwf     = 0,
                                              )
             self.register_input(scf_input)
-
-    #def start(self, *args, **kwargs):
-    #    pass
 
     def teardown(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
@@ -639,8 +637,10 @@ class DeltaTest(Work):
 
         from .eos import EOS
         eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
+
         print(eos_fit)
-        #eos_fit.plot()
+
+        eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.jpg"))
 
         results = {
             "etotal" : list(etotal),
@@ -648,11 +648,17 @@ class DeltaTest(Work):
             "natom"  : num_sites,
             "v0"     : eos_fit.v0,
             "b"      : eos_fit.b,
+            "bp"     : eos_fit.bp,
         }
 
-        #fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
         with open(self.path_in_workdir("results.json"), "w") as fh:
             json.dump(results, fh)
+
+        # Write data for the computation of the delta factor
+        with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
+            fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
+            for (v, e) in zip(self.volumes, etotal):
+                fh.write("%s %s\n" % (v/num_sites, e/num_sites))
 
 ##########################################################################################
 
@@ -728,7 +734,8 @@ class G0W0(Work):
 
         super(G0W0, self).__init__(workdir)
 
-        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, scf_ngkpt, 
+        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, 
+                                          ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode, 
                                           smearing  = smearing,
                                          )
@@ -760,119 +767,76 @@ class G0W0(Work):
 
 ##########################################################################################
 
-class EcutTest(object):
+class PPConvergenceFactory(object):
+    "Factory object"
 
-    def __init__(self, pseudos, spin_mode="polarized", smearing=None, pp_erange=None):
-        works = []
+    def work_for_pseudo(self, pseudo, ecut_range, dirname=".", spin_mode="polarized", smearing=None):
+        """
+        Return a Work object from the given pseudopotential.
+        """
+        workdir = os.path.join(os.path.abspath(dirname), pseudo.name)
 
-        for pseudo in pseudos:
+        if smearing is None:
+            smearing = Smearing.FermiDirac(0.1 / Ha_eV)
 
-            ecut_range = slice(20, None, 40)
-
-            if pp_erange is not None:
-                ecut_range = pp_erange[pseudo.basename]
-
-            workdir = pseudo.basename
-
-            if os.path.exists(workdir): 
-                print("%s already exists, skipping the calculation")
-                continue
-
-            pp_work = PseudoEcutConvergence(workdir, pseudo, ecut_range,
-                        spin_mode  = spin_mode,
-                        smearing   = smearing,
-                        acell      = 3*(8,), 
-                       )
-
-            works.append(pp_work)
-
-        self.works = works
-
-    def start(self, *args, **kwargs):
-        num_pythreads = kwargs.pop("num_pythreads", 1)
-
-        if num_pythreads == 1:
-            for work in self.works:
-                work.start(*args, **kwargs)
-
-        else:
-            # Threaded version.
-            from threading import Thread
-            from Queue import Queue
-            print("Threaded version with num_pythreads %s" % num_pythreads)
-
-            def worker():
-                while True:
-                    func, args, kwargs = q.get()
-                    func(*args, **kwargs)
-                    q.task_done()
-                                                         
-            q = Queue()
-            for i in range(num_pythreads):
-                t = Thread(target=worker)
-                t.setDaemon(True)
-                t.start()
-
-            args, kwargs = [], {}
-            for work in self.works:
-                q.put((work.start, args, kwargs))
-
-            #Block until all tasks are done. 
-            q.join()  
-
-        results = {}
-        for work in self.works:
-            with open(work.path_in_workdir("results.json"), "r") as fh:
-                results[work.pseudo.basename] = json.load(fh)
-
-        #database = "database.json"
-        #if os.path.exists(database): 
-        #    with open(database, "r") as fh:
-        #        old_results = json.load(fh)
-        #        results.update(old_results)
-
-        #with open(database, "w") as fh:
-        #    json.dump(results, fh)
+        work = PseudoEcutConvergence(workdir, pseudo, ecut_range,
+                                     spin_mode  = spin_mode,
+                                     smearing   = smearing,
+                                     acell      = 3*(8,), 
+                                    )
+        return work
 
 ##########################################################################################
 
-def remove_me(structure):
-    psp_dir = get_abinit_psp_dir()
+class SimpleParallelRunner(object):
+    "Execute a list of work objects in parallel with python threads"
 
-    pp_database = PseudoDatabase(dirpath=psp_dir, force_reload=False)
+    def __init__(self, max_numthreads):
+        """
+            Args:
+                max_numthreads: The maximum number of threads that can be used
+        """
+        self.max_numthreads = max_numthreads 
 
-    GGA_HGHK_PPTABLE = pp_database.GGA_HGHK_PPTABLE
+    def run_works(self, works, *args, **kwargs):
+        "Call the start method of the object contained in the iterable works."
 
-    pptable_or_pseudos = GGA_HGHK_PPTABLE
-    pseudo = GGA_HGHK_PPTABLE[14][0]
+        # Remove num_pythreads from kwargs since it's one of the options 
+        # accepted by the start methods.
+        kwargs.pop("num_pythreads", None)
 
-    #pptest_wf = PseudoEcutTest("Test_pseudo", pseudo, list(range(10,40,2)))
+        num_works = len(works)
 
-    #pptest.show_inputs()
-    pptest_wf.start()
-    sys.exit(1)
+        num_pythreads = min(num_works, self.max_numthreads)
 
-    scf_ngkpt = [4,4,4]
-    kpath_bounds = [0,0,0, 0.5,0.5,0.5]
-    nscf_nband = 333
+        print("%s: Executing works with num_pythreads %d" % (self.__class__.__name__, num_pythreads))
+        from threading import Thread
+        from Queue import Queue
 
-    bands_wf = BandStructure("Test_bands",structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds)
-    #bands_wf.start()
+        def worker():
+            while True:
+                func, args, kwargs = q.get()
+                func(*args, **kwargs)
+                q.task_done()
+                                                     
+        q = Queue()
+        for i in range(num_pythreads):
+            t = Thread(target=worker)
+            t.setDaemon(True)
+            t.start()
 
-    #bands_wf.show_inputs()
-    #sys.exit(1)
+        # If works is a Work instance, we have to call setup here
+        if hasattr(works, "setup"):
+            works.setup(*args, **kwargs)
 
-    ecuteps   = 10
-    ecutsigx  = 30
-    nband_screening = 100
-    nband_sigma = 50
+        for work in works:
+            q.put((work.start, args, kwargs))
 
-    nscf_ngkpt = [2,2,2]
+        # Block until all tasks are done. 
+        q.join()  
 
-    ppmodel_or_freqmesh = PPModel.Godby()
-    #ppmodel_or_freqmesh = ScreeningFrequencyMesh(nomega_real=None, maxomega_real=None, nomega_imag=None)
+        # If works is a Work instance, we have to call teardown here
+        if hasattr(works, "teardown"):
+            works.teardown(*args, **kwargs)
 
-    g0w0_wf = G0W0("Test_G0W0", structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
-                            ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma)
-
-    g0w0_wf.show_inputs()
+##########################################################################################

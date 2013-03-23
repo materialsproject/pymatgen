@@ -1,4 +1,5 @@
 "Tools to compute equations of states with different models."
+from __future__ import division, print_function
 import numpy as np
 
 __all__ = [
@@ -157,7 +158,7 @@ class EOS_Fit(object):
         vmin, vmax = self.volumes.min(), self.volumes.max()
 
         if not (vmin < v0 and v0 < vmax):
-            print 'Warning the minimum volume of a fitted parabola is not in your volumes. You may not have a minimum in your dataset'
+            print('Warning the minimum volume of a fitted parabola is not in your volumes\n. You may not have a minimum in your dataset')
 
         # Initial guesses for the parameters
         self.p0 = [e0, b0, bP, v0] 
@@ -168,9 +169,10 @@ class EOS_Fit(object):
         if self.ierr not in [1,2,3,4]:
             raise RuntimeError("Optimal parameters not found")
 
-        self.v0 = self.eos_params[3]
         self.e0 = self.eos_params[0]
         self.b  = self.eos_params[1]
+        self.bp = self.eos_params[2]
+        self.v0 = self.eos_params[3]
 
         #TODO: Add support for rich comparison so that we can define an order
         # based on the accuracy of the fit.
@@ -180,19 +182,19 @@ class EOS_Fit(object):
         app = lines.append
         app("Equation of State: %s" % self.name)
         app("Minimum volume = %1.2f Ang^3" % self.v0)
-        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa" % (self.b, self.b*160.21773))
+        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, bp = %1.2f" % (self.b, self.b*160.21773, self.bp))
         return "\n".join(lines)
 
     @property
     def name(self):
         return self.func.__name__
 
-    def plot(self, show=True, filename=None):
+    def plot(self, show=True, savefig=None):
         """
         Plot fitted energy curve.
                                                                       
         Uses Matplotlib to plot the energy curve.  Use *show=True* to
-        show the figure and *filename='abc.png'* or *filename='abc.eps'* 
+        show the figure and *savefig='abc.png'* or *savefig='abc.eps'* 
         to save the figure to a file.
         """
         import matplotlib.pyplot as plt
@@ -228,12 +230,13 @@ class EOS_Fit(object):
                                                                                                                                          
         fig.text(0.4,0.5,'Min volume = %1.2f $\AA^3$' % self.v0, transform = ax.transAxes)
         fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (self.b, self.b*160.21773), transform = ax.transAxes)
+        fig.text(0.4,0.3,'Bp = %1.2f' % self.bp, transform = ax.transAxes)
 
         if show:
             plt.show()
 
-        if filename is not None:
-            fig.savefig(filename)
+        if savefig is not None:
+            fig.savefig(savefig)
 
 ##########################################################################################
 
@@ -244,5 +247,5 @@ if __name__ == "__main__":
     for eos_name in EOS.functions:
         eos = EOS(eos_name=eos_name)
         fit = eos.fit(v, e)
-        print fit
+        print(fit)
         fit.plot()
