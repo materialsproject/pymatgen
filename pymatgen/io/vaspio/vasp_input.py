@@ -1228,7 +1228,7 @@ class Potcar(list):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip() for potcar in self])
+        return "\n".join([str(potcar).strip("\n") for potcar in self])
 
     def write_file(self, filename):
         """
