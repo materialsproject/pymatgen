@@ -28,13 +28,13 @@ from IPython.frontend.terminal.embed import InteractiveShellEmbed
 banner = """
 Custom ipython environment for pymatgen. Useful aliases such as Element,
 Specie, Composition, Structure, Molecule, Lattice, PMGJSONEncoder,
-PMGJSONDecoder, Spin, Orbital, zopen, read_structure and write_structure have
-been loaded.
+PMGJSONDecoder, Spin, Orbital, zopen, read_structure and write_structure
+have been loaded.
 """
 ipshell = InteractiveShellEmbed(
     config=cfg,
     banner1=banner,
-    exit_msg = 'Leaving pymatgen interpreter, back to program.')
+    exit_msg='Leaving pymatgen interpreter, back to program.')
 
 from pymatgen import *
 ipshell()

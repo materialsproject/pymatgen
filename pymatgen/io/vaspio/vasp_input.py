@@ -1111,6 +1111,7 @@ class PotcarSingle(object):
                         os.path.join(get_potcar_dir(), funcdir, symbol,
                                      "POTCAR")]
         for p in paths_to_try:
+            p = os.path.expanduser(p)
             if os.path.exists(p):
                 return PotcarSingle.from_file(p)
         raise IOError("You do not have the right POTCAR with functional " +
@@ -1207,7 +1208,7 @@ class Potcar(list):
         with zopen(filename, "r") as reader:
             fdata = reader.read()
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?\s*(.*?End of Dataset)",
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
                                     re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
@@ -1227,7 +1228,7 @@ class Potcar(list):
         return potcar
 
     def __str__(self):
-        return "".join([str(potcar) for potcar in self])
+        return "\n".join([str(potcar).strip("\n") for potcar in self])
 
     def write_file(self, filename):
         """

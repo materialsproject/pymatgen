@@ -3,7 +3,7 @@ import os
 import sys
 
 from distribute_setup import use_setuptools
-use_setuptools(version='0.6.10')
+use_setuptools()
 from setuptools import setup, find_packages, Extension
 
 try:
@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.6.1",
+    version="2.6.2",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
