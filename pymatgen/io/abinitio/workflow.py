@@ -640,7 +640,7 @@ class DeltaTest(Work):
 
         print(eos_fit)
 
-        eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.jpg"))
+        eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
         results = {
             "etotal" : list(etotal),
