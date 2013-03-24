@@ -25,7 +25,8 @@ from pymatgen.serializers.json_coders import MSONable
 
 class Composition (collections.Mapping, collections.Hashable, MSONable):
     """
-    Represents a Composition, which is essentially a {element:amount} dict.
+    Represents a Composition, which is essentially a {element:amount} mapping
+    type.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
@@ -180,7 +181,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def __iter__(self):
         return self._elmap.__iter__()
 
-    def almost_equals(self, other, rtol = 0.1, atol = 1e-8):
+    @property
+    def average_electroneg(self):
+        return sum((el.X * amt for el, amt in self._elmap.items())) / \
+            self.num_atoms
+
+    def almost_equals(self, other, rtol=0.1, atol=1e-8):
         """
         Returns true if compositions are equal within a tolerance.
 
@@ -197,7 +203,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             a = self[sp]
             b = other[sp]
             tol = atol + rtol * (abs(a) + abs(b)) / 2
-            if abs(b-a) > tol:
+            if abs(b - a) > tol:
                 return False
         return True
 
