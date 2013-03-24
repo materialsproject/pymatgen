@@ -3,6 +3,7 @@
 import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule, StructureError
 from pymatgen.core.lattice import Lattice
 import numpy as np
@@ -53,8 +54,8 @@ class StructureTest(unittest.TestCase):
         s = Structure(self.lattice, ["O", "Li"], coords,
                       site_properties={'charge': [-2, 1]})
         sorted_s = s.get_sorted_structure()
-        self.assertEqual(sorted_s[0].species_and_occu, {Element("Li"): 1})
-        self.assertEqual(sorted_s[1].species_and_occu, {Element("O"): 1})
+        self.assertEqual(sorted_s[0].species_and_occu, Composition("Li"))
+        self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
 
@@ -188,7 +189,7 @@ class StructureTest(unittest.TestCase):
         coords = [[0,0,0], [0.5,0.5,0.5]]
         bcc_li = Structure(Lattice.cubic(4.09), ["Li"] * 2, coords)
         self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
-        
+
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)
         coords = [[0.5,0.8,0],[0.5,0.2,0],

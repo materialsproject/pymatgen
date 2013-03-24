@@ -210,6 +210,9 @@ class Vasprun(object):
         """
         True if a relaxation run is converged.  Always True for a static run.
         """
+        if len(self.ionic_steps[-1]["electronic_steps"]) == \
+                self.parameters["NELM"]:
+            return False
         return len(self.structures) - 2 < self.parameters["NSW"] or \
             self.parameters["NSW"] == 0
 

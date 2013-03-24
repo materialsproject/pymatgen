@@ -73,16 +73,13 @@ class CifParser(object):
         output = cStringIO.StringIO(cif_string)
         return CifParser(output, occupancy_tolerance)
 
-    def _unique_coords(self, coord_in, primitive, lattice, primlattice):
+    def _unique_coords(self, coord_in):
         """
         Generate unique coordinates using coord and symmetry positions.
         """
         coords = []
         for op in self.symmetry_operations:
             coord = op.operate(coord_in)
-            if primitive:
-                cart = lattice.get_cartesian_coords(np.array(coord))
-                coord = primlattice.get_fractional_coords(cart)
             coord = np.array([i - math.floor(i) for i in coord])
             if not in_coord_list_pbc(coords, coord, atol=1e-3):
                 coords.append(coord)
@@ -92,18 +89,11 @@ class CifParser(object):
         """
         Generate structure from part of the cif.
         """
-        spacegroup = data.get("_symmetry_space_group_name_H-M", "P1")
-
-        if len(spacegroup) == 0:
-            latt_type = "P"
-        else:
-            latt_type = spacegroup[0]
         lengths = [float_from_str(data["_cell_length_" + i])
                    for i in ["a", "b", "c"]]
         angles = [float_from_str(data["_cell_angle_" + i])
                   for i in ["alpha", "beta", "gamma"]]
         lattice = Lattice.from_lengths_and_angles(lengths, angles)
-        primlattice = lattice.get_primitive_lattice(latt_type)
         try:
             sympos = data["_symmetry_equiv_pos_as_xyz"]
         except KeyError:
@@ -121,7 +111,6 @@ class CifParser(object):
                 return m.group(1)
             return ""
 
-        #oxi_states = None
         try:
             oxi_states = {data["_atom_type_symbol"][i]:
                           float_from_str(data["_atom_type_oxidation_number"][i])
@@ -156,8 +145,7 @@ class CifParser(object):
         allcoords = []
 
         for coord, species in coord_to_species.items():
-            coords = self._unique_coords(coord, primitive, lattice,
-                                         primlattice)
+            coords = self._unique_coords(coord)
             allcoords.extend(coords)
             allspecies.extend(len(coords) * [species])
 
@@ -168,10 +156,9 @@ class CifParser(object):
                 for key, value in species.iteritems():
                     species[key] = value / totaloccu
 
+        struct = Structure(lattice, allspecies, allcoords)
         if primitive:
-            struct = Structure(primlattice, allspecies, allcoords)
-        else:
-            struct = Structure(lattice, allspecies, allcoords)
+            struct = struct.get_primitive_structure()
         return struct.get_sorted_structure()
 
     def get_structures(self, primitive=True):
@@ -187,8 +174,13 @@ class CifParser(object):
         Returns:
             List of Structures.
         """
-        return [self._get_structure(v, primitive)
-                for k, v in self._cif.items()]
+        structures = []
+        for k, v in self._cif.items():
+            try:
+                structures.append(self._get_structure(v, primitive))
+            except KeyError:
+                pass
+        return structures
 
     @property
     def to_dict(self):
@@ -239,7 +231,8 @@ class CifWriter:
 
         contains_oxidation = True
         try:
-            symbol_to_oxinum = {str(el): el.oxi_state for el in comp.elements}
+            symbol_to_oxinum = {str(el): float(el.oxi_state)
+                                for el in comp.elements}
         except AttributeError:
             symbol_to_oxinum = {el.symbol: 0 for el in comp.elements}
             contains_oxidation = False

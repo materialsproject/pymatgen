@@ -65,11 +65,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-1. Vastly improved Gaussian input file parsing that supports more varieties
-   of input specifications.
-2. StructureNL now supports molecules as well as structures.
-3. Updated atomic and vdw radius for Elements.
-4. Miscellaneous bug fixes and speedups.
+1. Site and PeriodicSite now uses a Composition mapping type to represent
+   the species and occupancy, instead of a standard dict.
+2. Bug fix for reading and re-writing out of Potcars.
+3. VaspInputSet now supports MSONable framework.
+4. Strain cell option in StructureEditor.
+5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
@@ -258,6 +259,17 @@ Users are strongly encouraged to explore the detailed :doc:`usage pages
    :maxdepth: 2
 
    usage
+
+Add-ons
+-------
+
+Some add-ons are available for pymatgen today:
+
+1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+   provides tools to create databases of calculated run data using pymatgen.
+2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
+   a JIT job management and error correction for calculations, particularly
+   VASP calculations.
 
 Contributing
 ============

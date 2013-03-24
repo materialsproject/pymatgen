@@ -23,19 +23,6 @@ class  LatticeTestCase(unittest.TestCase):
                 self.assertAlmostEqual(lattice.matrix[i][j],
                                        lattice2.matrix[i][j], 5,
                                        "Inconsistent matrix from two inits!")
-        primlatt = lattice.get_primitive_lattice('I')
-        (lengths, angles) = primlatt.lengths_and_angles
-        for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], 7.81674529, 5,
-                                   "Wrong primitive lattice obtained!")
-            self.assertAlmostEqual(angles[i], 109.47122063, 5,
-                                   "Wrong primitive lattice obtained!")
-        coord = lattice.get_cartesian_coords(np.array([0.5, 0.5, 0.5]))
-        prim_frac = primlatt.get_fractional_coords(coord)
-        for i in range(0, 3):
-            self.assertAlmostEqual(coord[i], 4.513, 5, "Wrong coord!")
-            self.assertAlmostEqual(prim_frac[i], 1, 5,
-                                   "Wrong primitive frac coord!")
 
     def test_get_cartesian_or_frac_coord(self):
         coord = self.lattice.get_cartesian_coords(np.array([0.15, 0.3, 0.4]))
@@ -92,13 +79,13 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertEqual(xyz[2], 4.5)
 
     def test_consistency(self):
-        '''
+        """
         when only lengths and angles are given for constructors, the
         internal matrix representation is ambiguous since the lattice rotation
         is not specified.
         This test makes sure that a consistent definition is specified for the
         lattice rotation when using different constructors from lengths angles
-        '''
+        """
         l = [3.840198, 3.84019885, 3.8401976]
         a = [119.99998575, 90, 60.00000728]
         mat1 = Lattice.from_lengths_and_angles(l, a).matrix
@@ -211,5 +198,11 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
 
+    def test_get_wigner_seitz_cell(self):
+        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
+                                        .get_wigner_seitz_cell()
+        self.assertEqual(6, len(ws_cell))
+        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
+                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
 if __name__ == '__main__':
     unittest.main()

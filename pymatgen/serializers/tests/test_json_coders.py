@@ -81,7 +81,8 @@ class PMGJSONTest(unittest.TestCase):
                    [1.9200989668, 3.3257101909, 0.00],
                    [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
-        objs = [struct, struct[0], struct.lattice, struct[0].specie, struct.composition]
+        objs = [struct, struct[0], struct.lattice, struct[0].species_and_occu,
+                struct.composition]
         for o in  objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)

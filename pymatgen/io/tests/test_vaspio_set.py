@@ -2,12 +2,14 @@
 
 import unittest
 import os
+from numpy import array
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MaterialsProjectVaspInputSet, MITGGAVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
-from numpy import array
+from pymatgen.serializers.json_coders import PMGJSONDecoder
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -138,6 +140,35 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
+    def test_to_from_dict(self):
+        self.mitparamset = MITVaspInputSet()
+        self.mithseparamset = MITHSEVaspInputSet()
+        self.paramset = MaterialsProjectVaspInputSet()
+        self.userparamset = MaterialsProjectVaspInputSet(
+            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+        )
+        dec = PMGJSONDecoder()
+        d = self.mitparamset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MITVaspInputSet)
+
+        d = self.mitggaparam.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MITGGAVaspInputSet)
+
+        d = self.mithseparamset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MITHSEVaspInputSet)
+
+        d = self.paramset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MaterialsProjectVaspInputSet)
+
+        d = self.userparamset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MaterialsProjectVaspInputSet)
+        self.assertEqual(v.incar_settings["MAGMOM"],
+                         {"Fe": 10, "S": -5, "Mn3+": 100})
 
 if __name__ == '__main__':
     unittest.main()

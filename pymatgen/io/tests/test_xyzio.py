@@ -57,7 +57,7 @@ H -0.513360 0.889165 -0.363000"""
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
         for i, site in enumerate(mol):
-            self.assertEqual(site.specie.symbol, sp[i])
+            self.assertEqual(site.species_string, sp[i])
 
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')

@@ -38,7 +38,14 @@ from pymatgen.serializers.json_coders import PMGJSONEncoder
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST
-    interface.
+    interface. The recommended way to use MPRester is with the "with" context
+    manager to ensure that sessions are properly closed after usage::
+
+        with MPRester("API_KEY") as m:
+            do_something
+
+    MPRester uses the "requests" package, which provides for HTTP connection
+    pooling. All connections are made via https for security.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -72,6 +79,20 @@ class MPRester(object):
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
         self.preamble = "https://{}/rest/v1".format(host)
+        self.session = requests.Session()
+        self.session.headers = {"x-api-key": self.api_key}
+
+    def __enter__(self):
+        """
+        Support for "with" context.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Support for "with" context.
+        """
+        self.session.close()
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -95,7 +116,6 @@ class MPRester(object):
                 MPRestAdaptor.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
-        headers = {"x-api-key": self.api_key}
         if prop:
             url = "{}/materials/{}/{}/{}".format(
                 self.preamble, chemsys_formula_id, data_type, prop)
@@ -104,7 +124,7 @@ class MPRester(object):
                 self.preamble, chemsys_formula_id, data_type)
 
         try:
-            response = requests.get(url, headers=headers)
+            response = self.session.get(url)
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)
                 if data["valid_response"]:
@@ -295,7 +315,7 @@ class MPRester(object):
         url = "{}/parameters/vasp".format(self.preamble)
         payload = {"date": date_string} if date_string else {}
         try:
-            response = requests.get(url, data=payload)
+            response = self.session.get(url, data=payload)
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)
                 if data["valid_response"]:
@@ -345,10 +365,8 @@ class MPRester(object):
         try:
             payload = {"criteria": json.dumps(criteria),
                        "properties": json.dumps(properties)}
-            headers = {"x-api-key": self.api_key}
-            response = requests.post(
-                "{}/mpquery".format(self.preamble),
-                headers=headers, data=payload)
+            response = self.session.post(
+                "{}/mpquery".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)

@@ -3,6 +3,8 @@ import os
 import json
 import numpy as np
 import random
+
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -11,12 +13,14 @@ from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.smartio import read_structure
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
 class StructureMatcherTest(unittest.TestCase):
+
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
@@ -59,6 +63,10 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
+        #Test anonymous fit.
+        self.assertEqual(sm.fit_anonymous(lfp, nfp),
+                         {Composition("Li"): Composition("Na")})
+
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
                        [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
@@ -70,6 +78,13 @@ class StructureMatcherTest(unittest.TestCase):
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertFalse(sm.fit(s1, s2))
         self.assertFalse(sm.fit(s2, s1))
+        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+                       [{"Fe": 0.25}, {"Fe": 0.25}, {"Fe": 0.25},
+                        {"Fe": 0.25}],
+                       [[0, 0, 0], [0.25, 0.25, 0.25],
+                        [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
+        self.assertEqual(sm.fit_anonymous(s1, s2),
+                         {Composition("Fe0.5"): Composition("Fe0.25")})
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
@@ -89,7 +104,7 @@ class StructureMatcherTest(unittest.TestCase):
     def test_class(self):
         """Tests entire class as single working unit"""
         sm = StructureMatcher()
-        """ Test group_structures and find_indicies"""
+        """ Test group_structures and find_indices"""
         out = sm.group_structures(self.struct_list)
 
         self.assertEqual(sm.find_indexes(self.struct_list, out),

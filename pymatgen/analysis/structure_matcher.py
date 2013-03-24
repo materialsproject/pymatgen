@@ -19,6 +19,7 @@ import itertools
 import abc
 
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -290,12 +291,12 @@ class StructureMatcher(MSONable):
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
         #same variables and calculating determinants individually
-        bfl = np.array(nv[0])[None, None, :, None, :] *\
-            np.array([1, 0, 0])[None, None, None, :, None] +\
-            np.array(nv[1])[None, :, None, None, :] *\
-            np.array([0, 1, 0])[None, None, None, :, None] +\
-            np.array(nv[2])[:, None, None, None, :] *\
-            np.array([0, 0, 1])[None, None, None, :, None]
+        bfl = (np.array(nv[0])[None, None, :, None, :] *
+               np.array([1, 0, 0])[None, None, None, :, None] +
+               np.array(nv[1])[None, :, None, None, :] *
+               np.array([0, 1, 0])[None, None, None, :, None] +
+               np.array(nv[2])[:, None, None, None, :] *
+               np.array([0, 0, 1])[None, None, None, :, None])
 
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
@@ -310,8 +311,8 @@ class StructureMatcher(MSONable):
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[:, i] = np.sum(bfl[valid][:, j, :] *
-                                  bfl[valid][:, k, :], 1) \
+            angles[:, i] = \
+                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1)\
                 / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
@@ -513,4 +514,46 @@ class StructureMatcher(MSONable):
             primitive_cell=d["primitive_cell"], scale=d["scale"],
             comparator=AbstractComparator.from_dict(d["comparator"]))
 
+    def fit_anonymous(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar.
 
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            A minimal species mapping that would map struct1 to struct2 in
+            terms of structure similarity, or None if no fit is found. For
+            example, to map the cubic Li2O to cubic Na2O,
+            we need a Li->Na mapping. This method will return
+            [({Element("Li"): 1}, {Element("Na"): 1})]. Since O is the same
+            in both structures, there is no O to O mapping required.
+            Note that the return form is a list of pairs of species and
+            occupancy dicts. This complicated return for is necessary because
+            species and occupancy dicts are non-hashable.
+        """
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
+        if len(sp1) != len(sp2):
+            return None
+
+        for perm in itertools.permutations(sp2):
+            perm = list(perm)
+            mapped_sp = []
+            for site in struct1:
+                ind = sp1.index(site.species_and_occu)
+                mapped_sp.append(perm[ind])
+
+            transformed_structure = Structure(struct1.lattice, mapped_sp,
+                                              struct1.frac_coords)
+            if self.fit(transformed_structure, struct2):
+                return {sp1[i]: perm[i] for i in xrange(len(sp1))
+                        if sp1[i] != perm[i]}
+
+        return None
