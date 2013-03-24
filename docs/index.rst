@@ -67,7 +67,10 @@ Latest Change Log
 
 1. Site and PeriodicSite now uses a Composition mapping type to represent
    the species and occupancy, instead of a standard dict.
-2. Miscellaneous bug fixes and speedups.
+2. Bug fix for reading and re-writing out of Potcars.
+3. VaspInputSet now supports MSONable framework.
+4. Strain cell option in StructureEditor.
+5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
 
