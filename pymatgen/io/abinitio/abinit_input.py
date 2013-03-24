@@ -484,7 +484,7 @@ class Kpoints(AbinitCard):
                  mode              = modes.monkhorst,
                  num_kpts          = 0, 
                  kpts              = ((1, 1, 1),), 
-                 kpt_shifts        = (0, 0, 0), 
+                 kpt_shifts        = (0.5, 0.5, 0.5), 
                  use_symmetries    = True,
                  use_time_reversal = True,
                  kpts_weights      = None, 
@@ -632,7 +632,7 @@ class Kpoints(AbinitCard):
     #                   )
 
     @staticmethod
-    def monkhorst(ngkpt, shiftk=(0, 0, 0), use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst(ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None):
         """
         Convenient static constructor for a Monkhorst-Pack mesh.
 
@@ -654,11 +654,12 @@ class Kpoints(AbinitCard):
                        kpt_shifts        = shiftk,
                        use_symmetries    = use_symmetries,
                        use_time_reversal = use_time_reversal,
+                       chksymbreak       = chksymbreak,
                        comment           = comment if comment else "Monkhorst-Pack scheme with user-specified shiftk", 
                        )
 
     @staticmethod
-    def monkhorst_automatic(structure, ngkpt, use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst_automatic(structure, ngkpt, chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None):
         """
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
                                                                                    
@@ -681,7 +682,7 @@ class Kpoints(AbinitCard):
         # TODO
         nshiftk = 1
         #shiftk = 3*(0.5,) # this is the default
-        shiftk = 3*(0.0,)
+        shiftk = 3*(0.5,)
 
         #if lattice.ishexagonal:
         #elif lattice.isbcc
@@ -689,6 +690,7 @@ class Kpoints(AbinitCard):
 
         return Kpoints.monkhorst(ngkpt, 
                                  shiftk            = shiftk, 
+                                 chksymbreak       = chksymbreak,
                                  use_symmetries    = use_symmetries, 
                                  use_time_reversal = use_time_reversal,
                                  comment           = comment if comment else "Automatic Monkhorst-Pack scheme",
@@ -718,7 +720,7 @@ class Kpoints(AbinitCard):
                       )
 
     @staticmethod
-    def automatic_density(structure, kppa, use_symmetries=True, use_time_reversal=True):
+    def automatic_density(structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
@@ -788,7 +790,8 @@ class Kpoints(AbinitCard):
         return Kpoints(mode              = "monkhorst",
                        num_kpts          = 0, 
                        kpts              = [num_div], 
-                       kpt_shifts        = [0, 0, 0],
+                       kpt_shifts        = [0.5, 0.5, 0.5],
+                       chksymbreak       = chksymbreak,
                        use_symmetries    = use_symmetries   , 
                        use_time_reversal = use_time_reversal,
                        comment           = comment, 
@@ -1418,11 +1421,11 @@ class Control(AbinitCard):
         "bse"       : 'toldfe',   # ?
     }
 
-    # Tolerances for (normal, high) accuracy.
+    # Tolerances for the different levels of accuracy.
     T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
         "toldfe" : T(1.e-9,  1.e-10, 1.e-11), 
-        "tolvrs" : T(1.e-8,  1.e-9,  1.e-10),
+        "tolvrs" : T(1.e-7,  1.e-8,  1.e-9),
         "tolwfr" : T(1.e-15, 1.e-17, 1.e-19),
         "tolrdf" : T(0.04,   0.02,   0.01),
         }
