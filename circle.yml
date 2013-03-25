@@ -8,6 +8,6 @@ dependencies:
 test:
   override:
     - mv pymatgen pmg
-    - nosetests:
+    - nosetests -v:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit
