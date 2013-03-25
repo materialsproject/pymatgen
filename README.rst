@@ -233,6 +233,8 @@ some quick examples of the core capabilities and objects:
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
+    >>> #Note that Composition conveniently allows strings to be treated just
+    >>> #like an Element object.
     >>> comp[mg.Element("Fe")]
     2.0
     >>> comp.get_atomic_fraction(mg.Element("Fe"))
