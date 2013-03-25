@@ -271,6 +271,19 @@ class StructureEditor(StructureModifier):
                                           properties=site.properties))
         self._sites = new_sites
 
+    def apply_strain(self, strain):
+        """
+        Apply an isotropic strain to the lattice.
+
+        Args:
+            strain:
+                Amount of strain to apply. E.g., 0.01 means all lattice
+                vectors are increased by 1%. This is equivalent to
+                calling modify_lattice with a lattice with lattice parameters
+                that are 1% larger.
+        """
+        self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
+
     def translate_sites(self, indices, vector, frac_coords=True):
         """
         Translate specific sites by some vector, keeping the sites within the

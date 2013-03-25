@@ -4,6 +4,7 @@ from nose.exc import SkipTest
 
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
     get_minkowski_red, get_vasp_kpoint_file_sym
+from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.io_utils import which
@@ -34,7 +35,7 @@ class AconvaspCallerTest(unittest.TestCase):
         new_struct = get_minkowski_red(self.struct)
         self.assertAlmostEqual(new_struct.lattice.a, 3.840198)
         self.assertAlmostEqual(new_struct.lattice.alpha, 60.0)
-        self.assertEqual(new_struct.species_and_occu[0], {Element("Si"): 1})
+        self.assertEqual(new_struct.species_and_occu[0], Composition("Si"))
         self.assertEqual(new_struct.frac_coords[1][0], 0.25)
 
     def test_get_vasp_kpoint_file_sym(self):
