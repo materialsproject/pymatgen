@@ -83,7 +83,6 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    download_url="https://github.com/materialsproject/pymatgen/tarball/master",
     ext_modules=[get_spglib_ext()],
     scripts=[os.path.join("scripts", f) for f in os.listdir("scripts")]
 )
