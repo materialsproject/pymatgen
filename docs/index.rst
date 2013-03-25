@@ -222,13 +222,13 @@ examples of the core capabilities and objects:
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
-    >>> comp[mg.Element("Fe")]
+    >>> comp["Fe"]
     2.0
-    >>> comp.get_atomic_fraction(mg.Element("Fe"))
+    >>> comp.get_atomic_fraction("Fe")
     0.4
     >>> lattice = mg.Lattice.cubic(4.2)
     >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-    ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
+    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
     >>> structure.volume
     74.088000000000008
     >>> structure[0]
