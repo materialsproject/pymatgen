@@ -23,10 +23,11 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
 
-class Composition (collections.Mapping, collections.Hashable, MSONable):
+class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
-    type.
+    type. Composition is written to be immutable and hashable,
+    unless a standard Python dict.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
@@ -39,6 +40,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     Also adds more convenience methods relevant to compositions, e.g.,
     get_fraction.
+
+    It should also be noted that many Composition related functionality takes
+    in a standard string as a convenient input. For example,
+    even though the internal representation of a Fe2O3 composition is
+    {Element("Fe"): 2, Element("O"): 3}, you can obtain the amount of Fe
+    simply by comp["Fe"] instead of the more verbose comp[Element("Fe")].
 
     >>> comp = Composition("LiFePO4")
     >>> comp.get_atomic_fraction(Element("Li"))
