@@ -76,6 +76,13 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
+    def test_average_electroneg(self):
+        val = [2.7224999999999997, 2.4160000000000004, 2.5485714285714285,
+               2.21, 2.718, 3.08, 1.21, 2.43]
+        for i, c in enumerate(self.comp):
+            self.assertAlmostEqual(c.average_electroneg,
+                                   val[i])
+
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
                             'Li4 O4', 'Li3 Fe2 Mo3 O12', 'Li3 Fe2 P6 C10 O54',
@@ -140,10 +147,10 @@ class CompositionTest(unittest.TestCase):
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
         for el in ["Li", "Fe", "P", "O"]:
-            self.assertEqual(self.comp[0].get_atomic_fraction(Element(el)),
+            self.assertEqual(self.comp[0].get_atomic_fraction(el),
                              correct_at_frac[el],
                              "Wrong computed atomic fractions")
-        self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0,
+        self.assertEqual(self.comp[0].get_atomic_fraction("S"), 0,
                          "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
@@ -158,7 +165,7 @@ class CompositionTest(unittest.TestCase):
                            "P": 0.222604831158, "O": 0.459943320496}
         for el in ["Li", "Fe", "P", "O"]:
             self.assertAlmostEqual(correct_wt_frac[el],
-                                   self.comp[0].get_wt_fraction(Element(el)),
+                                   self.comp[0].get_wt_fraction(el),
                                    5, "Wrong computed weight fraction")
         self.assertEqual(self.comp[0].get_wt_fraction(Element("S")), 0,
                          "Wrong computed weight fractions")
@@ -220,7 +227,7 @@ class CompositionTest(unittest.TestCase):
                                                        comp2.formula))
         self.assertEqual(comp1.__hash__(), comp2.__hash__(),
                          "Hashcode equality test failed!")
-        
+
     def test_almost_equals(self):
         c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
         c2 = Composition({'O': 3.2, 'Fe': 1.9, 'Zn': 0})
