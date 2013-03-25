@@ -3,11 +3,11 @@ dependencies:
     - pip install -q numpy
     - pip install scipy
     - pip install -r requirements.txt
+    - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz
     - python setup.py install
 test:
   override:
     - mv pymatgen pmg
-    - pwd
     - nosetests:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit
