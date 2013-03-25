@@ -24,7 +24,9 @@ from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, pbc_all_distances, pbc_shortest_vectors
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
+    pbc_shortest_vectors
+
 
 class AbstractComparator(MSONable):
     """
@@ -355,7 +357,7 @@ class StructureMatcher(MSONable):
         avgLat = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
         nsites = sum([len(i) for i in s1])
         dist = np.zeros([nsites, nsites]) + np.Inf
-        vec_matrix = np.zeros([nsites, nsites,3])
+        vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
         for s1_coords, s2_coords in zip(s1, s2):
             vecs = pbc_shortest_vectors(avgLat, s1_coords, s2_coords)
@@ -368,8 +370,10 @@ class StructureMatcher(MSONable):
 
         shortest_vecs = vec_matrix[inds, lin.solution, :]
         shortest_vec_square = np.sum((shortest_vecs -
-            np.average(shortest_vecs, axis=0)) ** 2, -1)
-        rms = np.average(shortest_vec_square) ** 0.5 / ((norm_volume / nsites) ** (1.0 / 3))
+                                      np.average(shortest_vecs, axis=0)) ** 2,
+                                     -1)
+        rms = (np.average(shortest_vec_square) ** 0.5 /
+               ((norm_volume / nsites) ** (1 / 3)))
         max_dist = np.max(shortest_vec_square) ** 0.5
 
         return rms, max_dist
@@ -521,7 +525,8 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl, nl1, scale_vol)
+                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
+                                                               nl1, scale_vol)
                     if break_on_match and max_dist < stol:
                         return max_dist
                     elif rms < stored_rms[0]:
