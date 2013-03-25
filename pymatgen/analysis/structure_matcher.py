@@ -340,7 +340,7 @@ class StructureMatcher(MSONable):
                 return False
         return True
 
-    def _cmp_cartesian_struct(self, s1, s2, l1, l2, norm_volume):
+    def _cmp_cartesian_struct(self, s1, s2, l1, l2):
         """
         Once a fit is found, a rms minimizing fit is done to
         ensure the fit is correct. To do this,
@@ -352,10 +352,11 @@ class StructureMatcher(MSONable):
         4) return rms distance normalized by (V/Natom) ^ 1/3
             and the maximum distance found
         """
+        nsites = np.sum([len(i) for i in s1])
+        norm_volume = (l1.volume + l2.volume) / (2 * nsites)
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
         avgLat = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
-        nsites = sum([len(i) for i in s1])
         dist = np.zeros([nsites, nsites]) + np.Inf
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
@@ -526,7 +527,7 @@ class StructureMatcher(MSONable):
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
                     rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1, scale_vol)
+                                                               nl1)
                     if break_on_match and max_dist < stol:
                         return max_dist
                     elif rms < stored_rms[0]:
