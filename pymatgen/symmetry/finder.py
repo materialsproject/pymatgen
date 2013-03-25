@@ -716,7 +716,10 @@ class SymmetryFinder(object):
             alpha = math.pi * struct.lattice.lengths_and_angles[1][0] / 180
             beta = math.pi * struct.lattice.lengths_and_angles[1][1] / 180
             gamma = math.pi * struct.lattice.lengths_and_angles[1][2] / 180
-            new_matrix = [[a, 0, 0],
+            
+            new_matrix = None
+            
+            test_matrix = [[a, 0, 0],
                           [b * cos(gamma), b * sin(gamma), 0.0],
                           [c * cos(beta),
                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
@@ -725,10 +728,85 @@ class SymmetryFinder(object):
                                          - cos(beta) ** 2
                                          + 2 * cos(alpha) * cos(beta)
                                          * cos(gamma)) / sin(gamma)]]
+            
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                    
+            
+                trans = [[1.0,0.0,0.0],
+                         [0.0,1.0,0.0],
+                         [0.0,0.0,1.0]]
+                new_matrix = test_matrix
+            
+            test_matrix = [[-a, 0, 0],
+                          [b * cos(gamma), b * sin(gamma), 0.0],
+                          [-c * cos(beta),
+                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[-1.0,0.0,0.0],
+                         [0.0,1.0,0.0],
+                         [0.0,0.0,-1.0]]
+                new_matrix=test_matrix
+            
+            test_matrix = [[-a, 0, 0],
+                          [-b * cos(gamma), -b * sin(gamma), 0.0],
+                          [c * cos(beta),
+                           c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[-1.0,0.0,0.0],
+                         [0.0,-1.0,0.0],
+                         [0.0,0.0,1.0]]
+                new_matrix = test_matrix
+            
+            test_matrix = [[a, 0, 0],
+                          [-b * cos(gamma), -b * sin(gamma), 0.0],
+                          [-c * cos(beta),
+                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[1.0,0.0,0.0],
+                         [0.0,-1.0,0.0],
+                         [0.0,0.0,-1.0]]
+                new_matrix = test_matrix
+            
+            
             new_sites = []
             for s in struct._sites:
                 new_sites.append(
-                    PeriodicSite(s.specie, s.frac_coords, Lattice(new_matrix),
+                    PeriodicSite(s.specie, np.dot(trans, s.frac_coords), Lattice(new_matrix),
                                  to_unit_cell=False, properties=s.properties))
             results = Structure.from_sites(new_sites)
 
