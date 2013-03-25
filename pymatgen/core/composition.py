@@ -270,8 +270,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def get_reduced_composition_and_factor(self):
         """
-        Returns a normalized composition and a multiplicative factor,
-        i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
+        Calculates a reduced composition and factor.
+
+        Returns:
+            A normalized composition and a multiplicative factor, i.e.,
+            Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
         factor = self.get_reduced_formula_and_factor()[1]
         reduced_comp = Composition({el: self[el] / factor for el in self})
@@ -279,8 +282,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def get_reduced_formula_and_factor(self):
         """
-        Returns a pretty normalized formula and a multiplicative factor, i.e.,
-        Li4Fe4P4O16 returns (LiFePO4, 4).
+        Calculates a reduced formula and factor.
+
+        Returns:
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            Li4Fe4P4O16 returns (LiFePO4, 4).
         """
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
@@ -362,7 +368,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Weight fraction for element el in Composition
         """
-        return el.atomic_mass * self[el] / self.weight
+        return smart_element_or_specie(el).atomic_mass * self[el] / self.weight
 
     def _parse_formula(self, formula):
         """
