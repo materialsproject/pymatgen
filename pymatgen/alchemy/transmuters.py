@@ -438,7 +438,6 @@ def _apply_transformation(inputs):
     Returns:
         List of output structures (the modified initial structure, plus
         any new structures created by a one-to-many transformation)
-
     """
     ts, transformation, extend_collection, clear_redo = inputs
     new = ts.append_transformation(transformation, extend_collection,
