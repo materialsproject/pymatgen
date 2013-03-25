@@ -7,4 +7,5 @@ dependencies:
 test:
   override:
     - mv pymatgen pmg
+    - export PATH=$PATH:pmg/cmd_line/enum/Linux_64bit
     - nosetests
