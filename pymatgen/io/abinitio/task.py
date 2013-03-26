@@ -6,15 +6,17 @@ from __future__ import division, print_function
 import sys
 import os
 import os.path
+import shutil
 import collections
-import subprocess
+import abc
 import numpy as np
+import json
 
 from pymatgen.core.design_patterns import Enum
 from pymatgen.util.string_utils import stream_has_colours
-from pymatgen.util.filelock import FileLock
+#from pymatgen.util.filelock import FileLock
 
-from .utils import parse_ewc, abinit_output_iscomplete, remove_tree, File
+from .utils import parse_ewc, abinit_output_iscomplete, File
 from .jobfile import JobFile
 
 #import logging
@@ -33,8 +35,72 @@ __all__ = [
 ]
 
 ##########################################################################################
+class BaseTask(object):
+    __metaclass__ = abc.ABCMeta
 
-class AbinitTask(object):
+    @abc.abstractproperty
+    def process(self):
+        "Return an object that support the subprocess.Popen protocol."
+
+    # Interface modeled after subprocess.Popen
+    def poll(self):
+        "Check if child process has terminated. Set and return returncode attribute."
+        return self.process.poll()
+
+    def wait(self):
+        "Wait for child process to terminate. Set and return returncode attribute."
+        return self.process.wait()
+
+    def communicate(self, input=None):
+        """
+        Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. 
+        Wait for process to terminate. The optional input argument should be a string to be sent to the 
+        child process, or None, if no data should be sent to the child.
+
+        communicate() returns a tuple (stdoutdata, stderrdata).
+        """
+        return self.process.communicate(input=input)
+
+    @property
+    def returncode(self):
+        """
+        The child return code, set by poll() and wait() (and indirectly by communicate()). 
+        A None value indicates that the process hasn't terminated yet.
+        A negative value -N indicates that the child was terminated by signal N (Unix only).
+        """
+        return self.process.returncode
+
+    def kill(self):
+        "Kill the child"
+        self.process.kill()
+
+    @abc.abstractmethod
+    def setup(self, *args, **kwargs):
+        """Method called before submitting the task."""
+
+    def _setup(self, *args, **kwargs):
+        self.setup(*args, **kwargs)
+
+    def get_results(self, *args, **kwargs):
+        """
+        Method called once the calculation is completed.
+        Subclasses should extend this method (if needed).
+        Here put specialized code that perform some kind of 
+        post-processing and return the results.
+        """
+        # Check whether the process completed.
+        if self.returncode is None:
+            raise ValueError("return code is None, you should call wait, communitate or poll")
+
+        return TaskResults({
+            "task_name": self.name,
+            "task_returncode" : self.returncode,
+            #"task_status": self.get_status()
+            })
+
+##########################################################################################
+
+class AbinitTask(BaseTask):
     """
     Base class defining a generic abinit calculation
     """
@@ -110,7 +176,11 @@ class AbinitTask(object):
 
     @property
     def name(self):
-        return self.input_file.basename
+        return self.workdir
+
+    @property
+    def process(self):
+        return self._process
 
     @property
     def jobfile_path(self):
@@ -185,14 +255,6 @@ class AbinitTask(object):
         "True if PAW calculation"
         return all(p.ispaw for p in self.pseudos)
 
-    #def in_files(self):
-    #    "Return all the input data files."
-    #    files = list()
-    #    for file in os.listdir(dirname(self.idat_root)):
-    #        if file.startswith(basename(self.idat_root)):
-    #            files.append(join(dirname(self.idat_root), file))
-    #    return files
-                                                                  
     def outfiles(self):
         "Return all the output data files produced."
         files = list()
@@ -250,7 +312,7 @@ class AbinitTask(object):
         if kwargs.pop('verbose', 0):
             print('Removing directory tree: %s' % self.workdir)
 
-        remove_tree(self.workdir, **kwargs)
+        shutil.rmtree(self.workdir)
 
     def read_mainlog_ewc(self, nafter=5):
        """
@@ -271,18 +333,6 @@ class AbinitTask(object):
     def show_status(self, stream=sys.stdout, *args, **kwargs):
         self.get_status().show(stream=stream, *args, **kwargs)
 
-    def setup(self, *args, **kwargs):
-        """
-        Method called before running the calculations. 
-        The default implementation creates the workspace directory and the input files.
-        """
-
-    def teardown(self, *args, **kwargs):
-        """
-        Method called once the calculations completed.
-        The default implementation does nothing.
-        """
-
     def get_runhints(self, max_numproc):
         """
         Run abinit in sequential to obtain a set of possible
@@ -295,15 +345,24 @@ class AbinitTask(object):
 
         return hints
 
+    def setup(self, *args, **kwargs):
+        pass
+
+    def _submit(self, *args, **kwargs):
+        # Start the calculation in a subprocess and return
+        from subprocess import Popen, PIPE
+        self._process = Popen((self.jobfile.shell, self.jobfile.path), cwd=self.workdir, stderr=PIPE)
+
+    #def map_test(self, *args, **kwargs):
+    #    print("in map test: %s" % repr(self))
+
     def start(self, *args, **kwargs):
         """
         Start the calculation by performing the following steps: 
-            - acquire a file lock
-            - call the setup method
-            - execute the job file within the shell.
-            - call the teardown method
-            - release the file lock
-            - return TaskResults object
+            - build dirs and files
+            - call the _setup method
+            - execute the job file via the shell or other means.
+            - return Results object
 
         Keyword arguments:
             verbose: (0)
@@ -318,23 +377,103 @@ class AbinitTask(object):
 
         self.build(*args, **kwargs)
 
-        with FileLock(self.path_in_workdir(AbinitTask.basename.lockfile)) as lock:
+        self._setup(*args, **kwargs)
 
-            self.setup(*args, **kwargs)
-
-            return_code = subprocess.call((self.jobfile.shell, self.jobfile.path), cwd=self.workdir)
-
-            results = {"return_code": return_code}
-
-            kwargs.update(results)
-
-            self.teardown(*args, **kwargs)
-
-            return results
+        self._submit(*args, **kwargs)
 
 ##########################################################################################
-# TODO
-#class TaskResult(dict):
+
+import cPickle as pickle
+class Pickleable(object):
+
+    def write_to_pickle_file(self, filename, protocol=-1):
+        """
+        Writes the pickle representation to a file.
+
+        Args:
+            filename:
+                filename to write to. It is recommended that the file extension be ".pickle".
+        """
+        with open(filename, "w") as f:
+            pickle.dump(self, filename)
+
+    def from_pickle_file(filename):
+        """
+        Return the object from the pickle representation stored in a file.
+                                                                                              
+        Args:
+            filename:
+                filename to read. 
+        """
+        with open(filename, "r") as f:
+            return pickle.load(filename)
+#TODO
+from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
+
+class TaskResults(dict, MSONable):
+    """
+    Dictionary used to store some of the results produce by a Task object
+    """
+    _mandatory_keys = [
+        "task_name",
+        "task_returncode",
+        #"status",
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super(TaskResults, self).__init__(*args, **kwargs)
+
+        for k in self._mandatory_keys:
+            if k not in self:
+                raise ValueError("%s must be specified" % k)
+
+    def __getattribute__(self, name):
+        try:
+            # Default behaviour
+            return super(TaskResults, self).__getattribute__(name)
+        except AttributeError:
+            try:
+                # Try in the dictionary.
+                return self[name]
+            except KeyError as exc:
+                raise AttributeError(str(exc))
+
+    def __setitem__(self, key, val):
+        "Add key-value pair to self."
+        if key in self:
+            try:
+                if val == self[key]:
+                    return
+            except:
+                raise ValueError("key %s already exists and cannot check for equality" % key)
+
+        super(TaskResult, self).__setitem__(key, val)
+
+    def update(self, *args, **kwargs):
+        for (k, v) in dict(*args, **kwargs).iteritems():
+            self[k] = v
+
+    @property
+    def to_dict(self):
+        d = self
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        my_dict = {k: v for k in d if k not in ["@module", "@class",]}
+        return cls(**my_dict)
+
+    #def json_load(self, filename):
+    #    with open(filename, "r") as fh
+    #       return Results.from_dict(json.load(fh))
+
+    #def json_dump(self, filename):
+    #    with open(filename, "w") as fh
+    #        json.dump(self.to_dict, fh)
+    
+##########################################################################################
 
 class Status(object):
     """
