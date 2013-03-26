@@ -135,6 +135,13 @@ class StructureMatcherTest(unittest.TestCase):
         sm2 = StructureMatcher.from_dict(d)
         self.assertEqual(sm2.to_dict, d)
 
+    def test_no_scaling(self):
+        sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2,
+                              scale=False, comparator=ElementComparator())
+        self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
+
+        self.assertTrue(sm.get_rms(self.struct_list[0],
+                                   self.struct_list[1])[0] < 0.0008)
 
 if __name__ == '__main__':
     unittest.main()
