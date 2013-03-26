@@ -20,7 +20,7 @@ import json
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
-
+from functools import total_ordering
 
 #Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
@@ -44,6 +44,7 @@ def symbol_from_Z(z):
     return _z2symbol[z]
 
 @cached_class
+@total_ordering
 class Element(object):
     """
     Basic immutable element object with all relevant properties.
@@ -423,14 +424,6 @@ class Element(object):
     def __str__(self):
         return self._symbol
 
-    def __cmp__(self, other):
-        """
-        Sets a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas.  For example, FeO4PLi is
-        automatically sorted into LiFePO4.
-        """
-        return self._x - other._x
-
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
@@ -650,6 +643,8 @@ class Element(object):
                 "element": self._symbol}
 
 
+@cached_class
+@total_ordering
 class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
@@ -842,7 +837,9 @@ class Specie(MSONable):
                       d.get("properties", None))
 
 
-class DummySpecie(Specie, MSONable):
+@cached_class
+@total_ordering
+class DummySpecie(MSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -864,10 +861,8 @@ class DummySpecie(Specie, MSONable):
         """
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                msg = "{} contains {}".format(symbol, symbol[:i])
-                msg += " which is a valid element symbol."
-                msg += " Choose a different dummy symbol."
-                raise ValueError(msg)
+                raise ValueError("{} contains {}, which is a valid element "
+                                 "symbol.".format(symbol, symbol[:i]))
 
         # Set required attributes for DummySpecie to function like a Specie in
         # most instances.
@@ -877,6 +872,38 @@ class DummySpecie(Specie, MSONable):
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
+
+    def __getattr__(self, a):
+        #overriding getattr doens't play nice with pickle, so we
+        #can't use self._properties
+        p = object.__getattribute__(self, '_properties')
+        if a in p:
+            return p[a]
+        try:
+            return getattr(self._el, a)
+        except:
+            raise AttributeError(a)
+
+    def __eq__(self, other):
+        """
+        Specie is equal to other only if element and oxidation states are
+        exactly the same.
+        """
+        if not isinstance(other, DummySpecie):
+            return False
+        return self.symbol == other.symbol \
+            and self._oxi_state == other._oxi_state
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        """
+        Sets a default sort order for atomic species by electronegativity,
+        followed by oxidation state.
+        """
+        other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
 
     @property
     def Z(self):

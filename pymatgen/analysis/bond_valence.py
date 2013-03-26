@@ -174,7 +174,9 @@ class BVAnalyzer(object):
             equi_sites = [[site] for site in structure]
 
         #Sort the equivalent sites by decreasing electronegativity.
-        equi_sites = sorted(equi_sites, key=lambda sites: -sites[0].specie.X)
+        equi_sites = sorted(equi_sites,
+                            key=lambda sites: -sites[0].species_and_occu
+                            .average_electroneg)
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.

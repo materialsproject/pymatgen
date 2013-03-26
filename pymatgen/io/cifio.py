@@ -231,7 +231,8 @@ class CifWriter:
 
         contains_oxidation = True
         try:
-            symbol_to_oxinum = {str(el): el.oxi_state for el in comp.elements}
+            symbol_to_oxinum = {str(el): float(el.oxi_state)
+                                for el in comp.elements}
         except AttributeError:
             symbol_to_oxinum = {el.symbol: 0 for el in comp.elements}
             contains_oxidation = False

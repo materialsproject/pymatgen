@@ -380,17 +380,6 @@ class Structure(SiteCollection, MSONable):
         constant = AMU_TO_KG * 1000 / 1e-24
         return self.composition.weight / self.volume * constant
 
-    @property
-    def site_properties(self):
-        """
-        Returns site properties as a dict of {property: [values]}.
-        """
-        props = collections.defaultdict(list)
-        for site in self._sites:
-            for k, v in site.properties.items():
-                props[k].append(v)
-        return props
-
     def __eq__(self, other):
         if other is None:
             return False
