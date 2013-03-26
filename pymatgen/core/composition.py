@@ -23,9 +23,11 @@ from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 
 
-class Composition (collections.Mapping, collections.Hashable, MSONable):
+class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
-    Represents a Composition, which is essentially a {element:amount} dict.
+    Represents a Composition, which is essentially a {element:amount} mapping
+    type. Composition is written to be immutable and hashable,
+    unless a standard Python dict.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
@@ -38,6 +40,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     Also adds more convenience methods relevant to compositions, e.g.,
     get_fraction.
+
+    It should also be noted that many Composition related functionality takes
+    in a standard string as a convenient input. For example,
+    even though the internal representation of a Fe2O3 composition is
+    {Element("Fe"): 2, Element("O"): 3}, you can obtain the amount of Fe
+    simply by comp["Fe"] instead of the more verbose comp[Element("Fe")].
 
     >>> comp = Composition("LiFePO4")
     >>> comp.get_atomic_fraction(Element("Li"))
@@ -180,7 +188,12 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
     def __iter__(self):
         return self._elmap.__iter__()
 
-    def almost_equals(self, other, rtol = 0.1, atol = 1e-8):
+    @property
+    def average_electroneg(self):
+        return sum((el.X * amt for el, amt in self._elmap.items())) / \
+            self.num_atoms
+
+    def almost_equals(self, other, rtol=0.1, atol=1e-8):
         """
         Returns true if compositions are equal within a tolerance.
 
@@ -197,7 +210,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
             a = self[sp]
             b = other[sp]
             tol = atol + rtol * (abs(a) + abs(b)) / 2
-            if abs(b-a) > tol:
+            if abs(b - a) > tol:
                 return False
         return True
 
@@ -264,8 +277,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def get_reduced_composition_and_factor(self):
         """
-        Returns a normalized composition and a multiplicative factor,
-        i.e., Li4Fe4P4O16 returns (LiFePO4, 4).
+        Calculates a reduced composition and factor.
+
+        Returns:
+            A normalized composition and a multiplicative factor, i.e.,
+            Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
         factor = self.get_reduced_formula_and_factor()[1]
         reduced_comp = Composition({el: self[el] / factor for el in self})
@@ -273,8 +289,11 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
 
     def get_reduced_formula_and_factor(self):
         """
-        Returns a pretty normalized formula and a multiplicative factor, i.e.,
-        Li4Fe4P4O16 returns (LiFePO4, 4).
+        Calculates a reduced formula and factor.
+
+        Returns:
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            Li4Fe4P4O16 returns (LiFePO4, 4).
         """
         all_int = all([x == int(x) for x in self._elmap.values()])
         if not all_int:
@@ -356,7 +375,7 @@ class Composition (collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Weight fraction for element el in Composition
         """
-        return el.atomic_mass * self[el] / self.weight
+        return smart_element_or_specie(el).atomic_mass * self[el] / self.weight
 
     def _parse_formula(self, formula):
         """

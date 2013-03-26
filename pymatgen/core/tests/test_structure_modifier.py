@@ -22,18 +22,18 @@ class StructureEditorTest(unittest.TestCase):
         lattice = Lattice.cubic(10)
         s = Structure(lattice, ["Si", "Fe"], coords)
         self.modifier = StructureEditor(s)
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-        
+
     def test_to_unit_cell(self):
-        self.modifier.append_site(self.fe, [1.75, 0.5, 0.75]
-                                  , validate_proximity = False)
+        self.modifier.append_site(self.fe, [1.75, 0.5, 0.75],
+                                  validate_proximity=False)
         self.modifier.to_unit_cell()
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1",
                          "Wrong formula!")
+
+    def test_to_unit_cell(self):
+        self.modifier.apply_strain(0.01)
+        self.assertEqual(self.modifier.modified_structure.lattice.abc,
+                         (10.1, 10.1, 10.1))
 
     def test_translate_sites(self):
         self.modifier.translate_sites([0, 1], [0.5, 0.5, 0.5],
@@ -111,7 +111,7 @@ class StructureEditorTest(unittest.TestCase):
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice.cubic(10)
         s = Structure(lattice, [si, fe], coords)
-        oxidation_states = {"Fe": 2, "Si":-4}
+        oxidation_states = {"Fe": 2, "Si": -4}
         mod = StructureEditor(s)
         mod.add_oxidation_state_by_element(oxidation_states)
         mod_s = mod.modified_structure
@@ -124,6 +124,7 @@ class StructureEditorTest(unittest.TestCase):
                           oxidation_states)
         mod.add_oxidation_state_by_site([2, -4])
         mod_s = mod.modified_structure
+        self.assertEqual(mod_s[0].specie.oxi_state, 2)
         self.assertRaises(ValueError, mod.add_oxidation_state_by_site,
                           [1])
 

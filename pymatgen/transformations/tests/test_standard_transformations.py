@@ -145,8 +145,8 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li", "Li", "O", "O"], coords)
         s = t.apply_transformation(struct)
-        self.assertEqual(str(s[0].specie), "Li+")
-        self.assertEqual(str(s[2].specie), "O2-")
+        self.assertEqual(s[0].species_string, "Li+")
+        self.assertEqual(s[2].species_string, "O2-")
 
 
 class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
@@ -182,8 +182,8 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
-        self.assertEqual(str(s[0].specie), "Li")
-        self.assertEqual(str(s[2].specie), "O")
+        self.assertEqual(s[0].species_string, "Li")
+        self.assertEqual(s[2].species_string, "O")
 
 
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):

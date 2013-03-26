@@ -20,6 +20,7 @@ import pickle
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.composition import Composition
 
 
 class SiteTest(unittest.TestCase):
@@ -78,7 +79,8 @@ class PeriodicSiteTest(unittest.TestCase):
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45],
                                  self.lattice)
         self.site2 = PeriodicSite({"Si": 0.5}, [0, 0, 0], self.lattice)
-        self.assertEquals(self.site2.species_and_occu, {Element('Si'): 0.5},
+        self.assertEquals(self.site2.species_and_occu,
+                          Composition({Element('Si'): 0.5}),
                           "Inconsistent site created!")
         self.propertied_site = PeriodicSite(Specie("Fe", 2),
                                             [0.25, 0.35, 0.45],
