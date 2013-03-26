@@ -12,8 +12,3 @@ test:
     - nosetests:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit
-deployment:
-  automerge:
-    branch: master
-    commands:
-      - ./merge_master.sh
