@@ -83,10 +83,9 @@ class BaseTask(object):
 
     def get_results(self, *args, **kwargs):
         """
-        Method called once the calculation is completed.
-        Subclasses should extend this method (if needed).
-        Here put specialized code that perform some kind of 
-        post-processing and return the results.
+        Method called once the calculation is completed, returns TaskResults instance.
+        Subclasses should extend this method (if needed) by adding 
+        specialized code that perform some kind of post-processing.
         """
         # Check whether the process completed.
         if self.returncode is None:
@@ -299,7 +298,7 @@ class AbinitTask(BaseTask):
             with open(self.jobfile_path, "w") as f:
                     f.write(str(self.jobfile))
 
-    def destroy(self, *args, **kwargs):
+    def rmtree(self, *args, **kwargs):
         """
         Remove all files and directories.
                                                                                    
@@ -352,9 +351,6 @@ class AbinitTask(BaseTask):
         # Start the calculation in a subprocess and return
         from subprocess import Popen, PIPE
         self._process = Popen((self.jobfile.shell, self.jobfile.path), cwd=self.workdir, stderr=PIPE)
-
-    #def map_test(self, *args, **kwargs):
-    #    print("in map test: %s" % repr(self))
 
     def start(self, *args, **kwargs):
         """
