@@ -353,15 +353,14 @@ class StructureMatcher(MSONable):
             and the maximum distance found
         """
         nsites = np.sum([len(i) for i in s1])
-        norm_volume = (l1.volume + l2.volume) / (2 * nsites)
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
-        avgLat = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
+        avg_lattice = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
         dist = np.zeros([nsites, nsites]) + np.Inf
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
         for s1_coords, s2_coords in zip(s1, s2):
-            vecs = pbc_shortest_vectors(avgLat, s1_coords, s2_coords)
+            vecs = pbc_shortest_vectors(avg_lattice, s1_coords, s2_coords)
             distances = (np.sum(vecs ** 2, axis=-1)) ** 0.5
             dist[i: i + len(s1_coords), i: i + len(s1_coords)] = distances
             vec_matrix[i: i + len(s1_coords), i: i + len(s1_coords)] = vecs
@@ -374,7 +373,7 @@ class StructureMatcher(MSONable):
                                       np.average(shortest_vecs, axis=0)) ** 2,
                                      -1)
         rms = (np.average(shortest_vec_square) ** 0.5 /
-               ((norm_volume / nsites) ** (1 / 3)))
+               ((avg_lattice.volume / nsites) ** (1 / 3)))
         max_dist = np.max(shortest_vec_square) ** 0.5
 
         return rms, max_dist
