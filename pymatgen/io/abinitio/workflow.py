@@ -258,7 +258,7 @@ class Work(BaseWork, MSONable):
     def processes(self):
         return [task.process for task in self]
 
-    def destroy(self, *args, **kwargs):
+    def rmtree(self, *args, **kwargs):
         """
         Remove all calculation files and directories.
                                                                                    
@@ -486,11 +486,36 @@ class PseudoConvergence(Work):
                                                acell         = acell, 
                                                smearing      = smearing,
                                               )
+        self.pseudo = pseudo
+        if not isinstance(pseudo, Pseudo):
+            self.pseudo = Pseudo.from_filename(pseudo)
 
+        self.ecut_list = []
         for ecut in ecut_list:
             input = generator.input_with_ecut(ecut)
+            self.ecut_list.append(ecut)
             self.register_input(input)
 
+    def get_results(self, *args, **kwargs):
+
+        # Get the results of the tasks.
+        work_results = super(PseudoConvergence, self).get_results(*args, **kwargs)
+
+        etotal = self.read_etotal()
+
+        data = {
+            "ecut_list"   : self.ecut_list,
+            "etotal"      : list(etotal),
+            "pseudo_name" : self.pseudo.name,
+            "pseudo_path" : self.pseudo.path,
+            #"ecut_low"    : ecut_low,
+            #"ecut_normal" : ecut_normal,
+            #"ecut_high"   : ecut_high,
+        }
+
+        work_results.update(data)
+
+        return work_results
 
 class PseudoIterativeConvergence(IterativeWork):
 
@@ -644,23 +669,6 @@ class PseudoIterativeConvergence(IterativeWork):
         #    json.dump(work_results, fh)
 
         return work_results
-
-        # TODO handle possible problems with the SCF cycle
-        #strange_data = 0
-        #if num_errors != 0 or num_warnings != 0: strange_data = 999
-
-        #pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict, strange_data)
-        #pp_info.show_etotal()
-
-        # Append PP_EXTRA_INFO section to the pseudo file
-        # provided that the results seem ok. If results seem strange, 
-        # the XML section is written on a separate file.
-        #xml_string = pp_info.toxml()
-        #print self.pseudo.name, xml_string
-
-        #with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
-        #    fh.write(xml_string)
-        #new = pp_info.from_string(xml_string)
 
 ##########################################################################################
 

@@ -19,15 +19,12 @@ class WorkflowTestCase(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_pseudoecutconvergence(self):
+    def test_pseudoconvergence(self):
 
-        workdir = "test_pseudoecutconvergence"
+        workdir = "test_pseudoconvergence"
         #workdir = mkdtemp()
 
-        pptest_wf = PseudoEcutConvergence(workdir, filepath("14si.pspnc"), range(10,40,2))
-
-        #with self.assertRaises(Workflow.Error):
-        #    cannot_have_another_wf_in_same_workdir = PseudoEcutTest_Workflow(workdir, filepath("14si.pspnc"), range(10,40,2))
+        pptest_wf = PseudoConvergence(workdir, filepath("14si.pspnc"), range(10,40,2))
 
         print(repr(pptest_wf))
         print(pptest_wf)
@@ -39,4 +36,4 @@ class WorkflowTestCase(unittest.TestCase):
 
         pptest_wf.build()
 
-        pptest_wf.destroy()
+        pptest_wf.rmtree()

@@ -434,31 +434,6 @@ class System(AbinitCard):
 
 ##########################################################################################
 
-#class KPathDescriptor(object):
-#    # TODO
-#    def __init__(self, kptbounds, ndivsm=20, labels=None, structure=None):
-#        self.kptbounds = np.reshape(kptbounds, (-1,3))
-#
-#        if labels is not None:
-#            assert len(labels) == len(kptbounds)
-#            self._labels = labels
-#        else:
-#            if structure is None:
-#                raise ValueError("lattice must be specified")
-#
-#    def get_labels(self):
-#        raise NotImplementedError("")
-#
-#    def toabivars(self):
-#        d = {"kptbounds" : kptbounds,
-#             "ndivsm"    : num_kpts,
-#             "kptopt"    : -len(kptbounds)+1,
-#             #"labels"   : labels,  # TODO
-#            }
-#        return d
-
-##########################################################################################
-
 class Kpoints(AbinitCard):
     """
     Input variables defining the K-point sampling.
@@ -697,11 +672,13 @@ class Kpoints(AbinitCard):
                                  )
 
     @staticmethod
-    def path(kpath_bounds, ndivsm, comment=None):
+    def _path(ndivsm, structure=None, kpath_bounds=None, comment=None):
         """
-        Convenient static constructor for path in k-space. 
+        Static constructor for path in k-space. 
                                                                                    
         Args:
+            structure:
+                pymatgen structure.
             kpath_bounds:
                 List with the reduced coordinates of the k-points defining the path.
             ndivsm:
@@ -712,12 +689,44 @@ class Kpoints(AbinitCard):
         Returns:
             Kpoints object
         """
+        if kpath_bounds is None:
+            # Compute the boundaries from the input structure.
+            from pymatgen.symmetry.bandstructure import HighSymmKpath
+            sp = HighSymmKpath(structure)
+
+            # Flat the array since "path" is a a list of lists!
+            kpath_labels = []
+            for labels in sp.kpath["path"]:
+                kpath_labels.extend(labels)
+
+            kpath_bounds = []
+            for label in kpath_labels:
+                red_coord = sp.kpath["kpoints"][label])
+                print("label %s, red_coord %s" % (label, red_coord))
+                kpath_bounds.append(red_coord)
+
         return Kpoints(
                       mode      = Kpoints.modes.path, 
                       num_kpts  = ndivsm,
                       kpts      = kpath_bounds,
                       comment   = comment if comment else "K-Path scheme", 
                       )
+
+        @staticmethod
+        def path_from_structure(ndivsm, structure):
+            "See _path for the meaning of the variables"
+            return Kpoints._path(ndivsm, 
+                                 structure=structure, 
+                                 comment="K-path generated automatically from pymatgen structure")
+                                                                                                   
+                                                                                                   
+        @staticmethod
+        def explicit_path(ndivsm, kpath_bounds):
+            "See _path for the meaning of the variables"
+            return Kpoints._path(ndivsm, 
+                                 kpath_bounds=kpath_bounds,
+                                 comment="Explicit K-path")
+
 
     @staticmethod
     def automatic_density(structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True):
