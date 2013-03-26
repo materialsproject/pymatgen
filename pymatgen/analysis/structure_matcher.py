@@ -476,8 +476,7 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = 2 * np.array([stol / i for i in struct1.lattice.abc])
-
+        frac_tol = (2 / (1 - self.ltol)) * np.array([stol / i for i in struct1.lattice.abc])
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -518,7 +517,6 @@ class StructureMatcher(MSONable):
         s1_translation = s1[0][0]
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
-
         #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2, vol_tol):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
