@@ -355,7 +355,8 @@ class StructureMatcher(MSONable):
         nsites = np.sum([len(i) for i in s1])
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
-        avg_lattice = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
+        avg_lattice = Lattice.from_lengths_and_angles(avg_params[0],
+                                                      avg_params[1])
         dist = np.zeros([nsites, nsites]) + np.Inf
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
@@ -476,7 +477,8 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = (2 / (1 - self.ltol)) * np.array([stol / i for i in struct1.lattice.abc])
+        frac_tol = (2 / (1 - self.ltol)) * \
+            np.array([stol / i for i in struct1.lattice.abc])
         #generate structure coordinate lists
         species_list = []
         s1 = []
