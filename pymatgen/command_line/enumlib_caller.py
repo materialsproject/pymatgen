@@ -185,7 +185,7 @@ class EnumlibAdaptor(object):
             else:
                 min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
-                species = sites[0].species_and_occu
+                species = {k: v for k, v in sites[0].species_and_occu.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     #Let us first make add a dummy element for every single
                     #site whose total occupancies don't sum to 1.

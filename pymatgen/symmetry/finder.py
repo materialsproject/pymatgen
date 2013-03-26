@@ -23,11 +23,17 @@ import re
 import itertools
 
 import numpy as np
+import math
+from math import cos
+from math import sin
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import PeriodicSite
+from pymatgen.core.structure_modifier import SupercellMaker
 
 try:
     import pymatgen._spglib as spg
@@ -36,7 +42,7 @@ except ImportError:
         import pyspglib._spglib as spg
     except ImportError:
         msg = "Spglib required. Please either run python setup.py install" + \
-            " for pymatgen, or install pyspglib from spglib."
+              " for pymatgen, or install pyspglib from spglib."
         raise ImportError(msg)
 
 
@@ -154,6 +160,25 @@ class SymmetryFinder(object):
                 crystal_sytem = k
                 break
         return crystal_sytem
+
+    def get_lattice_type(self):
+        """
+        Get the lattice for the structure, e.g., (triclinic,
+        orthorhombic, cubic, etc.).This is the same than the
+        crystal system with the exception of the hexagonal/rhombohedral
+        lattice
+
+        Returns:
+            Crystal system for structure.
+        """
+        n = self.get_spacegroup_number()
+        system = self.get_crystal_system()
+        if n in [146, 148, 155, 160, 161, 166, 167]:
+            return "rhombohedral"
+        elif system == "trigonal":
+            return "hexagonal"
+        else:
+            return system
 
     def get_symmetry_dataset(self):
         """
@@ -370,6 +395,388 @@ class SymmetryFinder(object):
                 n.append(i)
         return irr_kpts
 
+    def get_primitive_standard_structure(self):
+        """
+        Gives a structure with a primitive cell according to certain standards
+        the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
+        High-throughput electronic band structure calculations:
+        Challenges and tools. Computational Materials Science,
+        49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+
+        Returns:
+            The structure in a primitive standardized cell
+        """
+        conv = self.get_conventional_standard_structure()
+        lattice = self.get_lattice_type()
+
+        if "P" in self.get_spacegroup_symbol() or lattice == "hexagonal":
+            return conv
+
+        if lattice == "rhombohedral":
+            conv = self.get_refined_structure()
+            lengths, angles = conv.lattice.lengths_and_angles
+            a = lengths[0]
+            alpha = math.pi * angles[0] / 180
+            new_matrix = [
+                [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
+                [a * cos(alpha / 2), a * sin(alpha / 2), 0],
+                [a * cos(alpha) / cos(alpha / 2), 0,
+                 a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
+            new_sites = []
+            for s in conv.sites:
+                new_s = PeriodicSite(
+                    s.specie, s.frac_coords, Lattice(new_matrix),
+                    to_unit_cell=True, properties=s.properties)
+                unique = True
+                for t in new_sites:
+                    if new_s.is_periodic_image(t):
+                        unique = False
+                if unique:
+                    new_sites.append(new_s)
+            return Structure.from_sites(new_sites)
+
+        transf = np.eye(3)
+        if "I" in self.get_spacegroup_symbol():
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
+                              dtype=np.float) / 2
+        elif "F" in self.get_spacegroup_symbol():
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
+                              dtype=np.float) / 2
+        elif "C" in self.get_spacegroup_symbol():
+            if self.get_crystal_system() == "monoclinic":
+                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
+                                  dtype=np.float) / 2
+            else:
+                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]],
+                                  dtype=np.float) / 2
+        new_sites = []
+        for s in conv.sites:
+            new_s = PeriodicSite(
+                s.specie, s.coords,
+                Lattice(np.dot(transf, conv.lattice.matrix)),
+                to_unit_cell=True, coords_are_cartesian=True,
+                properties=s.properties)
+            unique = True
+            for t in new_sites:
+                if new_s.is_periodic_image(t):
+                    unique = False
+            if unique:
+                new_sites.append(new_s)
+        return Structure.from_sites(new_sites)
+
+    def get_conventional_standard_structure(self):
+        """
+        Gives a structure with a conventional cell according to certain
+        standards. The standards are defined in Setyawan, W., & Curtarolo,
+        S. (2010). High-throughput electronic band structure calculations:
+        Challenges and tools. Computational Materials Science,
+        49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
+        They basically enforce as much as possible
+        norm(a1)<norm(a2)<norm(a3)
+
+        Returns:
+            The structure in a conventional standardized cell
+        """
+        tol = 1e-5
+        struct = self.get_refined_structure()
+        latt = struct.lattice
+        latt_type = self.get_lattice_type()
+        sorted_lengths = sorted(latt.abc)
+        sorted_dic = sorted([{'vec': latt.matrix[i],
+                              'length': latt.abc[i],
+                              'orig_index': i} for i in [0, 1, 2]],
+                            key=lambda k: k['length'])
+        new_struct = None
+        if latt_type in ("orthorhombic", "cubic"):
+            #you want to keep the c axis where it is
+            #to keep the C- settings
+            if self.get_spacegroup_symbol().startswith("C"):
+                transf = np.zeros(shape=(3, 3))
+                transf[2] = [0, 0, 1]
+                sorted_lengths = sorted(latt.abc[:2])
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
+                                      'orig_index': i} for i in [0, 1]],
+                                    key=lambda k: k['length'])
+                for c in range(2):
+                    transf[c][sorted_dic[c]['orig_index']] = 1
+                    new_matrix = [[sorted_lengths[0], 0, 0],
+                                  [0, sorted_lengths[1], 0],
+                                  [0, 0, latt.abc[2]]]
+            else:
+                transf = np.zeros(shape=(3, 3))
+                for c in range(len(sorted_dic)):
+                    transf[c][sorted_dic[c]['orig_index']] = 1
+                new_matrix = [[sorted_lengths[0], 0, 0],
+                              [0, sorted_lengths[1], 0],
+                              [0, 0, sorted_lengths[2]]]
+            new_sites = []
+            for s in struct.sites:
+                new_sites.append(
+                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
+                                 Lattice(new_matrix), to_unit_cell=True,
+                                 properties=s.properties))
+            new_struct = Structure.from_sites(new_sites)
+
+        elif latt_type == "tetragonal":
+            #find the "a" vectors
+            #it is basically the vector repeated two times
+            transf = np.zeros(shape=(3, 3))
+            a, b, c = sorted_lengths
+            for d in range(len(sorted_dic)):
+                transf[d][sorted_dic[d]['orig_index']] = 1
+
+            if abs(b - c) < tol:
+                a, c = c, a
+                transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
+
+            new_matrix = [[a, 0, 0],
+                          [0, a, 0],
+                          [0, 0, c]]
+            new_sites = []
+            for s in struct.sites:
+                new_sites.append(
+                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
+                                 Lattice(new_matrix), to_unit_cell=True,
+                                 properties=s.properties))
+            new_struct = Structure.from_sites(new_sites)
+
+        elif latt_type in ("hexagonal", "rhombohedral"):
+            #for the conventional cell representation,
+            #we allways show the rhombohedral lattices as hexagonal
+
+            #check first if we have the refined structure shows a rhombohedral
+            #cell
+            #if so, make a supercell
+            a, b, c = latt.abc
+            if abs(a - b) < 0.001 and abs(c - b) < 0.001 and abs(a - c) < 0.001:
+                struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
+                                                 (1, 1, 1))).modified_structure
+                sorted_lengths = sorted(struct.lattice.abc)
+
+            a, b, c = sorted_lengths
+
+            if abs(b - c) < 0.001:
+                a, c = c, a
+            new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
+                          [a / 2, a * math.sqrt(3) / 2, 0],
+                          [0, 0, c]]
+
+            new_sites = []
+            for s in struct.sites:
+                new_sites.append(
+                    PeriodicSite(s.specie, s.coords, Lattice(new_matrix),
+                                 to_unit_cell=True, coords_are_cartesian=True,
+                                 properties=s.properties))
+            new_struct = Structure.from_sites(new_sites)
+
+        elif latt_type == "monoclinic":
+            #you want to keep the c axis where it is
+            #to keep the C- settings
+
+            if self.get_spacegroup().int_symbol.startswith("C"):
+                transf = np.zeros(shape=(3, 3))
+                transf[2] = [0, 0, 1]
+                sorted_dic = sorted([{'vec': latt.matrix[i],
+                                      'length': latt.abc[i],
+                                      'orig_index': i} for i in [0, 1]],
+                                    key=lambda k: k['length'])
+                a = sorted_dic[0]['length']
+                b = sorted_dic[1]['length']
+                c = latt.abc[2]
+                new_matrix = None
+                for t in itertools.permutations(range(2), 2):
+                    m = latt.matrix
+                    landang = Lattice(
+                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
+                    if landang[1][0] > 90:
+                        #if the angle is > 90 we invert a and b to get
+                        #an angle < 90
+                        landang = Lattice(
+                            [-m[t[0]], -m[t[1]], m[2]]).lengths_and_angles
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = -1
+                        transf[1][t[1]] = -1
+                        transf[2][2] = 1
+                        a, b, c = landang[0]
+                        alpha = math.pi * landang[1][0] / 180
+                        new_matrix = [[a, 0, 0],
+                                      [0, b, 0],
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        continue
+
+                    elif landang[1][0] < 90:
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = 1
+                        transf[1][t[1]] = 1
+                        transf[2][2] = 1
+                        a, b, c = landang[0]
+                        alpha = math.pi * landang[1][0] / 180
+                        new_matrix = [[a, 0, 0],
+                                      [0, b, 0],
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                if new_matrix is None:
+                    #this if is to treat the case
+                    #where alpha==90 (but we still have a monoclinic sg
+                    new_matrix = [[a, 0, 0],
+                                  [0, b, 0],
+                                  [0, c * cos(alpha), c * sin(alpha)]]
+                if new_matrix is None:
+                    #this if is to treat the case
+                    #where alpha==90 (but we still have a monoclinic sg
+                    new_matrix = [[a, 0, 0],
+                                  [0, b, 0],
+                                  [0, 0, c]]
+                    transf = np.zeros(shape=(3, 3))
+                    for c in range(len(sorted_dic)):
+                        transf[c][sorted_dic[c]['orig_index']] = 1
+            #if not C-setting
+            else:
+                #try all permutations of the axis
+                #keep the ones with the non-90 angle=alpha
+                #and b<c
+                new_matrix = None
+                for t in itertools.permutations(range(3), 3):
+                    m = latt.matrix
+                    landang = Lattice(
+                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
+                    if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
+                        landang = Lattice(
+                            [-m[t[0]], -m[t[1]], m[t[2]]]).lengths_and_angles
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = -1
+                        transf[1][t[1]] = -1
+                        transf[2][t[2]] = 1
+                        a, b, c = landang[0]
+                        alpha = math.pi * landang[1][0] / 180
+                        new_matrix = [[a, 0, 0],
+                                      [0, b, 0],
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        continue
+                    elif landang[1][0] < 90 and landang[0][1] < landang[0][2]:
+                        transf = np.zeros(shape=(3, 3))
+                        transf[0][t[0]] = 1
+                        transf[1][t[1]] = 1
+                        transf[2][t[2]] = 1
+                        a, b, c = landang[0]
+                        alpha = math.pi * landang[1][0] / 180
+                        new_matrix = [[a, 0, 0],
+                                      [0, b, 0],
+                                      [0, c * cos(alpha), c * sin(alpha)]]
+                if new_matrix is None:
+                    transf = np.zeros(shape=(3, 3))
+                    for c in range(len(sorted_dic)):
+                        transf[c][sorted_dic[c]['orig_index']] = 1
+
+            new_sites = []
+            for s in struct.sites:
+                new_sites.append(
+                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
+                                 Lattice(new_matrix), to_unit_cell=True,
+                                 properties=s.properties))
+            new_struct = Structure.from_sites(new_sites)
+
+        elif latt_type == "triclinic":
+            #we use a LLL Minkowski-like reduction for the triclinic cells
+            struct = struct.get_reduced_structure("LLL")
+
+            a, b, c = latt.lengths_and_angles[0]
+            alpha, beta, gamma = [math.pi * i / 180
+                                  for i in latt.lengths_and_angles[1]]
+            new_matrix = None
+            test_matrix = [[a, 0, 0],
+                          [b * cos(gamma), b * sin(gamma), 0.0],
+                          [c * cos(beta),
+                           c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                    
+            
+                trans = [[1.0,0.0,0.0],
+                         [0.0,1.0,0.0],
+                         [0.0,0.0,1.0]]
+                new_matrix = test_matrix
+            
+            test_matrix = [[-a, 0, 0],
+                          [b * cos(gamma), b * sin(gamma), 0.0],
+                          [-c * cos(beta),
+                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[-1.0,0.0,0.0],
+                         [0.0,1.0,0.0],
+                         [0.0,0.0,-1.0]]
+                new_matrix=test_matrix
+            
+            test_matrix = [[-a, 0, 0],
+                          [-b * cos(gamma), -b * sin(gamma), 0.0],
+                          [c * cos(beta),
+                           c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[-1.0,0.0,0.0],
+                         [0.0,-1.0,0.0],
+                         [0.0,0.0,1.0]]
+                new_matrix = test_matrix
+            
+            test_matrix = [[a, 0, 0],
+                          [-b * cos(gamma), -b * sin(gamma), 0.0],
+                          [-c * cos(beta),
+                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                           sin(gamma),
+                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                         - cos(beta) ** 2
+                                         + 2 * cos(alpha) * cos(beta)
+                                         * cos(gamma)) / sin(gamma)]]
+            if (Lattice(test_matrix).reciprocal_lattice.angles[0] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] <= 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] <= 90) or \
+                (Lattice(test_matrix).reciprocal_lattice.angles[0] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[1] > 90 and \
+                Lattice(test_matrix).reciprocal_lattice.angles[2] > 90):
+                trans = [[1.0,0.0,0.0],
+                         [0.0,-1.0,0.0],
+                         [0.0,0.0,-1.0]]
+                new_matrix = test_matrix
+            
+            
+            new_sites = []
+            for s in struct.sites:
+                new_sites.append(
+                    PeriodicSite(s.specie, np.dot(trans, s.frac_coords), Lattice(new_matrix),
+                                 to_unit_cell=False, properties=s.properties))
+            new_struct = Structure.from_sites(new_sites)
+
+        return new_struct.get_sorted_structure()
+
 
 def get_point_group(rotations):
     """
@@ -410,5 +817,5 @@ def get_point_group(rotations):
     """
     if rotations.dtype == "float64":
         rotations = np.int_(rotations)
-    # (symbol, pointgroup_number, transformation_matrix)
+        # (symbol, pointgroup_number, transformation_matrix)
     return spg.pointgroup(rotations)

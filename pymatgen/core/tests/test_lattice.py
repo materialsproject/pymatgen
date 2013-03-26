@@ -79,13 +79,13 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertEqual(xyz[2], 4.5)
 
     def test_consistency(self):
-        '''
+        """
         when only lengths and angles are given for constructors, the
         internal matrix representation is ambiguous since the lattice rotation
         is not specified.
         This test makes sure that a consistent definition is specified for the
         lattice rotation when using different constructors from lengths angles
-        '''
+        """
         l = [3.840198, 3.84019885, 3.8401976]
         a = [119.99998575, 90, 60.00000728]
         mat1 = Lattice.from_lengths_and_angles(l, a).matrix
@@ -198,5 +198,11 @@ class  LatticeTestCase(unittest.TestCase):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
             self.assertEqual(t.angles[i], self.tetragonal.angles[i])
 
+    def test_get_wigner_seitz_cell(self):
+        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
+                                        .get_wigner_seitz_cell()
+        self.assertEqual(6, len(ws_cell))
+        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
+                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
 if __name__ == '__main__':
     unittest.main()

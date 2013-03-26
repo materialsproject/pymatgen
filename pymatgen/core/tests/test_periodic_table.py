@@ -19,6 +19,9 @@ class  ElementTestCase(unittest.TestCase):
         for sym in fictional_symbols:
             self.assertRaises(KeyError, Element, sym)
 
+        #Test caching
+        self.assertEqual(id(Element("Fe")), id(Element("Fe")))
+
     def test_dict(self):
         fe = Element("Fe")
         d = fe.to_dict
@@ -119,6 +122,10 @@ class  SpecieTestCase(unittest.TestCase):
 
     def test_init(self):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
+
+    def test_cached(self):
+        specie5 = Specie("Fe", 2)
+        self.assertEqual(id(specie5), id(self.specie3))
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
