@@ -147,10 +147,10 @@ class CompositionTest(unittest.TestCase):
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
         for el in ["Li", "Fe", "P", "O"]:
-            self.assertEqual(self.comp[0].get_atomic_fraction(Element(el)),
+            self.assertEqual(self.comp[0].get_atomic_fraction(el),
                              correct_at_frac[el],
                              "Wrong computed atomic fractions")
-        self.assertEqual(self.comp[0].get_atomic_fraction(Element("S")), 0,
+        self.assertEqual(self.comp[0].get_atomic_fraction("S"), 0,
                          "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
@@ -165,7 +165,7 @@ class CompositionTest(unittest.TestCase):
                            "P": 0.222604831158, "O": 0.459943320496}
         for el in ["Li", "Fe", "P", "O"]:
             self.assertAlmostEqual(correct_wt_frac[el],
-                                   self.comp[0].get_wt_fraction(Element(el)),
+                                   self.comp[0].get_wt_fraction(el),
                                    5, "Wrong computed weight fraction")
         self.assertEqual(self.comp[0].get_wt_fraction(Element("S")), 0,
                          "Wrong computed weight fractions")
