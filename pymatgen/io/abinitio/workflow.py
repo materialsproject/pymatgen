@@ -6,9 +6,11 @@ from __future__ import division, print_function
 import sys
 import os
 import os.path
+import shutil
 import abc
 import json
 import collections
+import functools
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
@@ -17,14 +19,14 @@ from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
-from pymatgen.util.filelock import FileLock
+#from pymatgen.util.filelock import FileLock
 from pymatgen.util.num_utils import iterator_from_slice 
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
 from .task import AbinitTask, TaskDependencies
-from .utils import parse_ewc, abinit_output_iscomplete, remove_tree
+from .utils import parse_ewc, abinit_output_iscomplete
 
 from .jobfile import JobFile
 
@@ -43,10 +45,76 @@ __date__ = "$Feb 21, 2013M$"
 #]
 
 ##########################################################################################
+
+def map_method(method):
+    "Decorator that calls item.method for all items in a iterable object."
+    @functools.wraps(method)
+    def wrapped(iter_obj, *args, **kwargs):
+        return [getattr(item, method.__name__)(*args, **kwargs) for item in iter_obj]
+    return wrapped
+
+
 class WorkError(Exception):
     pass
 
-class Work(MSONable):
+class BaseWork(object):
+    __metaclass__ = abc.ABCMeta
+
+    Error = WorkError
+
+    @abc.abstractproperty
+    def processes(self):
+        "Return a list of objects that support the subprocess.Popen protocol."
+
+    # interface modeled after subprocess.Popen
+    def poll(self):
+        "Check if all child processes have terminated. Set and return returncode attribute."
+        return [p.poll() for p in self.processes]
+
+    def wait(self):
+        "Wait for child processed to terminate. Set and return returncode attributes."
+        return [p.wait() for p in self.processes]
+
+    def communicate(self, input=None):
+        """
+        Interact with processes: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. 
+        Wait for process to terminate. The optional input argument should be a string to be sent to the 
+        child processed, or None, if no data should be sent to the children
+
+        communicate() returns a list of tuples (stdoutdata, stderrdata).
+        """
+        return [p.communicate(input) for p in self.processes]
+
+    def returncodes(self):
+        """
+        The children return codes, set by poll() and wait() (and indirectly by communicate()). 
+        A None value indicates that the process hasn't terminated yet.
+        A negative value -N indicates that the child was terminated by signal N (Unix only).
+        """
+        return [p.returncode for p in self.processes]
+
+    @abc.abstractmethod
+    def setup(self, *args, **kwargs):
+        """
+        Method called before submitting the calculations. 
+        """
+                                                         
+    def _setup(self, *args, **kwargs):
+        self.setup(*args, **kwargs)
+
+    def get_results(self, *args, **kwargs):
+        """
+        Method called once the calculations completes.
+        The base version returns a dictionary task_name : TaskResults for each task in self.
+        """
+        results = collections.OrderedDict()
+        for task in self:
+            results[task.name] = task.get_results(*args, **kwargs)
+        return results
+                                                         
+##########################################################################################
+
+class Work(BaseWork, MSONable):
     """
     A work is a list of (possibly connected) tasks.
     """
@@ -111,12 +179,6 @@ class Work(MSONable):
     def setup(self, *args, **kwargs):
         """
         Method called before running the calculations. 
-        The default implementation is empty.
-        """
-
-    def teardown(self, *args, **kwargs):
-        """
-        Method called once the calculations completed.
         The default implementation is empty.
         """
 
@@ -192,6 +254,10 @@ class Work(MSONable):
         else:
             return status_list
 
+    @property
+    def processes(self):
+        return [task.process for task in self]
+
     def destroy(self, *args, **kwargs):
         """
         Remove all calculation files and directories.
@@ -205,9 +271,9 @@ class Work(MSONable):
         if kwargs.pop('verbose', 0):
             print('Removing directory tree: %s' % self.workdir)
                                                                                     
-        remove_tree(self.workdir, **kwargs)
+        shutil.rmtree(self.workdir)
 
-    def start_tasks(self, *args, **kwargs):
+    def submit_tasks(self, *args, **kwargs):
 
         num_pythreads = int(kwargs.pop("num_pythreads", 1))
 
@@ -216,6 +282,7 @@ class Work(MSONable):
         if num_pythreads == 1:
             for task in self:
                 task.start(*args, **kwargs)
+                #stdoutdata, stderrdata = task.communicate()
 
         else:
             # Threaded version.
@@ -225,43 +292,39 @@ class Work(MSONable):
 
             def worker():
                 while True:
-                    func, args, kwargs = q.get()
-                    func(*args, **kwargs)
-                    q.task_done()
+                    task, args, kwargs = qin.get()
+                    task.start(*args, **kwargs)
+                    #stdoutdata, stderrdata = task.communicate()
+                    qin.task_done()
                                                          
-            q = Queue()
+            qin = Queue()
             for i in range(num_pythreads):
                 t = Thread(target=worker)
                 t.setDaemon(True)
                 t.start()
 
             for task in self:
-                q.put((task.start, args, kwargs))
+                qin.put((task, args, kwargs))
                                                                     
             # Block until all tasks are done. 
-            q.join()  
+            qin.join()  
 
     def start(self, *args, **kwargs):
         """
         Start the work. Call setup first, then the 
-        the tasks are executed. Finally, the teardown method is called.
+        the tasks are executed. Finally, the get_results method is called.
 
             Args:
                 num_pythreads = Number of python threads to use (defaults to 1)
         """
+        # Build dirs and files.
         self.build(*args, **kwargs)
 
-        # Acquire the lock
-        with FileLock(self.path_in_workdir("__lock__")) as lock:
+        # Initial setup
+        self._setup(*args, **kwargs)
 
-            # Initial setup
-            self.setup(*args, **kwargs)
-
-            # Execute 
-            results = self.start_tasks(*args, **kwargs)
-
-            # Finalize
-            self.teardown(*args, results=results)
+        # Submit tasks (non-blocking)
+        self.submit_tasks(*args, **kwargs)
 
     def read_etotal(self):
         """
@@ -321,17 +384,16 @@ class IterativeWork(Work):
 
         return self[-1]
 
-    def start_tasks(self, *args, **kwargs):
+    def submit_tasks(self, *args, **kwargs):
         """
         Run the tasks till self.exit_iteration says to exit or the number of iterations exceeds self.max_niter
 
         Return dictionary with the final results
         """
         self.niter = 1
-        results = {"converged": False}
+        iteration_results = {"converged": False}
 
         #if kwargs.pop("num_pythreads", 1) != 1
-        #
 
         while True:
 
@@ -344,16 +406,17 @@ class IterativeWork(Work):
             except StopIteration:
                 break
 
+            # Start the task and block till completion.
             task.start(*args,**kwargs)
 
-            results = self.exit_iteration(*args, **kwargs)
+            task.communicate()
 
-            if results["converged"]:
+            data = self.exit_iteration(*args, **kwargs)
+
+            if data["exit"]:
                 break
 
             self.niter += 1
-
-        return results
 
     @abc.abstractmethod
     def exit_iteration(self, *args, **kwargs):
@@ -365,12 +428,77 @@ class IterativeWork(Work):
 
 ##########################################################################################
 
-class PseudoEcutConvergence(IterativeWork):
+def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
+    """
+    Given a list of values and a tolerance tol, returns the leftmost index for which
+
+        abs(value[i] - vinf) < tol if mode == "abs"
+
+        or 
+
+        abs(value[i] - vinf) / vinf < tol if mode == "rel"
+
+    returns -1 if convergence is not achieved. By default, vinf = values[-1]
+
+    Args:
+        tol:
+            Tolerance
+        min_numpts:
+            Minimum number of points that must be converged. 
+        mode:
+            "abs" for absolute convergence, "rel" for relative convergence.
+        vinf:
+            Used to specify an alternative value instead of values[-1].
+    """
+    vinf = values[-1] if vinf is None else vinf
+
+    if mode == "abs":
+        vdiff = [abs(v - vinf) for v in values]
+    elif mode == "rel":
+        vdiff = [abs(v - vinf) / vinf for v in values]
+    else:
+        raise ValueError("Wrong mode %s" % mode)
+
+    numpts = len(vdiff)
+    i = -2
+
+    if (numpts > min_numpts) and vdiff[-2] < tol:
+        for i in range(numpts-1, -1, -1):
+            if vdiff[i] > tol:
+                break
+        if (numpts - i -1) < min_numpts: i = -2
+ 
+    return i + 1
+
+class PseudoConvergence(Work):
+
+    def __init__(self, workdir, pseudo, ecut_list, 
+                 spin_mode     = "polarized", 
+                 acell         = 3*(8,), 
+                 smearing      = None,
+                ):
+
+        super(PseudoConvergence, self).__init__(workdir)
+
+        # Temporary object used to build the input files
+        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, 
+                                               spin_mode     = spin_mode, 
+                                               acell         = acell, 
+                                               smearing      = smearing,
+                                              )
+
+        for ecut in ecut_list:
+            input = generator.input_with_ecut(ecut)
+            self.register_input(input)
+
+
+class PseudoIterativeConvergence(IterativeWork):
 
     def __init__(self, workdir, pseudo, ecut_list_or_slice, 
                  spin_mode     = "polarized", 
                  acell         = 3*(8,), 
                  smearing      = None,
+                 max_niter     = 100,
                 ):
         """
         Args:
@@ -378,6 +506,12 @@ class PseudoEcutConvergence(IterativeWork):
                 string or Pseudo instance
             ecut_list_or_slice:
                 List of cutoff energies or slice object (mainly used for infinite iterations). 
+            spin_mode:
+                Defined how the electronic spin will be treated.
+            acell:
+                Lengths of the periodic box in Bohr.
+            smearing:
+                Smearing instance. Default: FemiDirac with T=0.1 eV
         """
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
@@ -400,7 +534,7 @@ class PseudoEcutConvergence(IterativeWork):
             for ecut in self.ecut_iterator:
                 yield self.input_with_ecut(ecut)
 
-        super(PseudoEcutConvergence, self).__init__(workdir, input_generator(), max_niter=100)
+        super(PseudoIterativeConvergence, self).__init__(workdir, input_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -432,49 +566,43 @@ class PseudoEcutConvergence(IterativeWork):
         "The list of cutoff energies computed so far"
         return [float(task.input.get_variable("ecut")) for task in self]
 
-    def exit_iteration(self, *args, **kwargs):
+    def check_etotal_convergence(self, *args, **kwargs):
 
         ecut_list = self.ecut_list
         etotal = self.read_etotal()
 
         num_ene = len(etotal)
         etotal_inf = etotal[-1]
-                                                                
-        #ediff_mev = [(e-etotal_inf)* Ha_eV * 1.e+3 for e in etotal]
-        print(" pseudo: %s" % self.pseudo.name)
-        print(" idx ecut, etotal (et-e_inf) [meV]")
-        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-            print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
 
-        ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
-        strange_data = 0
+        lines = []
+        app = lines.append
+
+        app(" pseudo: %s" % self.pseudo.name)
+        app(" idx ecut etotal (et-e_inf) [meV]")
+        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+            line = "%d %.3f %.3f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+            app(line)
+
+        stream = sys.stdout
+        stream.writelines("\n".join(lines)+"\n")
 
         de_high, de_normal, de_low = 0.05e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
+        
+        ihigh   = check_conv(etotal, de_high, min_numpts=1)
+        inormal = check_conv(etotal, de_normal)
+        ilow    = check_conv(etotal, de_low)
 
-        if (num_ene > 3) and (abs(etotal[-2] - etotal_inf) < de_high):
+        print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
 
-            for i in range(num_ene-2, -1, -1):
-                etot  = etotal[i] 
-                ediff = etot - etotal_inf
-                if ediff < 0.0: strange_data += 1
+        ecut_high, ecut_normal, ecut_low = 3 * (None,)
+        exit = (ihigh != -1)
+        if exit:
+            ecut_low    = self.ecut_list[ilow] 
+            ecut_normal = self.ecut_list[inormal] 
+            ecut_high   = self.ecut_list[ihigh] 
 
-                if ecut_high is None and ediff > de_high:
-                    conv_idx =  i+1
-                    ecut_high = ecut_list[i+1]
-                                                                                      
-                if ecut_normal is None and ediff > de_normal:
-                    ecut_normal = ecut_list[i+1]
-                                                                                      
-                if ecut_low is None and ediff > de_low:
-                    ecut_low = ecut_list[i+1]
-                                                                                      
-            if conv_idx is None or (num_ene - conv_idx) < 2:
-                print("Not converged %s " % str(conv_idx))
-                strange_data += 1
-
-        results = {
-            "pseudo_name" : self.pseudo.name,
-            "converged"   : conv_idx,
+        data = {
+            "exit"        : ihigh != -1,
             "ecut_list"   : ecut_list,
             "etotal"      : list(etotal),
             "ecut_low"    : ecut_low,
@@ -482,51 +610,56 @@ class PseudoEcutConvergence(IterativeWork):
             "ecut_high"   : ecut_high,
         }
 
-        return results
+        return data
 
-    def teardown(self, *args, **kwargs):
-        results = kwargs.pop("results", {})
+    def exit_iteration(self, *args, **kwargs):
+        return self.check_etotal_convergence(self, *args, **kwargs)
+                                                                                       
+    def get_results(self, *args, **kwargs):
 
-        etotal = self.read_etotal()
+        # Get the results of the tasks.
+        work_results = super(PseudoIterativeConvergence, self).get_results(*args, **kwargs)
 
-        etotal_dict = {1.0 : etotal}
+        data = self.check_etotal_convergence()
 
-        status_list = self.get_status()
+        work_results.update(data)
 
-        status = max(status_list)
+        #etotal = self.read_etotal()
+        #etotal_dict = {1.0 : etotal}
+        #status_list = self.get_status()
+        #status = max(status_list)
+        #num_errors, num_warnings, num_comments = 0, 0, 0 
+        #for task in self:
+        #    main, log =  task.read_mainlog_ewc()
+        #    num_errors  =  max(num_errors,   main.num_errors)
+        #    num_warnings = max(num_warnings, main.num_warnings)
+        #    num_comments = max(num_comments, main.num_comments)
+        #work_results.update({
+        #    "num_errors":   num_errors,
+        #    "num_warnings": num_warnings,
+        #    "num_comments": num_comments,
+        #})
 
-        num_errors, num_warnings, num_comments = 0, 0, 0 
-        for task in self:
-            main, log =  task.read_mainlog_ewc()
+        #with open(self.path_in_workdir("results.json"), "w") as fh:
+        #    json.dump(work_results, fh)
 
-            num_errors  =  max(num_errors,   main.num_errors)
-            num_warnings = max(num_warnings, main.num_warnings)
-            num_comments = max(num_comments, main.num_comments)
-
-        results.update({
-            "num_errors":   num_errors,
-            "num_warnings": num_warnings,
-            "num_comments": num_comments,
-        })
-
-        with open(self.path_in_workdir("results.json"), "w") as fh:
-            json.dump(results, fh)
+        return work_results
 
         # TODO handle possible problems with the SCF cycle
-        strange_data = 0
-        if num_errors != 0 or num_warnings != 0: strange_data = 999
+        #strange_data = 0
+        #if num_errors != 0 or num_warnings != 0: strange_data = 999
 
-        pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict, strange_data)
+        #pp_info = PseudoExtraInfo.from_data(self.ecut_list, etotal_dict, strange_data)
         #pp_info.show_etotal()
 
         # Append PP_EXTRA_INFO section to the pseudo file
         # provided that the results seem ok. If results seem strange, 
         # the XML section is written on a separate file.
-        xml_string = pp_info.toxml()
+        #xml_string = pp_info.toxml()
         #print self.pseudo.name, xml_string
 
-        with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
-            fh.write(xml_string)
+        #with open(self.path_in_workdir("pp_info.xml"), "w") as fh:
+        #    fh.write(xml_string)
         #new = pp_info.from_string(xml_string)
 
 ##########################################################################################
@@ -630,7 +763,7 @@ class DeltaTest(Work):
                                              )
             self.register_input(scf_input)
 
-    def teardown(self, *args, **kwargs):
+    def get_results(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
 
         etotal = Ha2eV(self.read_etotal())
@@ -711,7 +844,7 @@ class PvsV(Work):
 
             self.register_input(scf_input)
 
-    def teardown(self):
+    def get_results(self):
         pressures, volumes = [], []
         for task in self:
             # Open GSR file and read etotal (Hartree)
@@ -779,11 +912,20 @@ class PPConvergenceFactory(object):
         if smearing is None:
             smearing = Smearing.FermiDirac(0.1 / Ha_eV)
 
-        work = PseudoEcutConvergence(workdir, pseudo, ecut_range,
+        if isinstance(ecut_range, slice):
+            work = PseudoIterativeConvergence(workdir, pseudo, ecut_range,
+                                              spin_mode  = spin_mode,
+                                              smearing   = smearing,
+                                              acell      = 3*(8,), 
+                                             )
+
+        else:
+            work = PseudoConvergence(workdir, pseudo, ecut_range,
                                      spin_mode  = spin_mode,
                                      smearing   = smearing,
                                      acell      = 3*(8,), 
                                     )
+
         return work
 
 ##########################################################################################
@@ -807,6 +949,10 @@ class SimpleParallelRunner(object):
 
         num_works = len(works)
 
+        if num_works == 0:
+            # Likely an iterative work, run it with one thread.
+            num_works = 1
+
         num_pythreads = min(num_works, self.max_numthreads)
 
         print("%s: Executing works with num_pythreads %d" % (self.__class__.__name__, num_pythreads))
@@ -816,7 +962,7 @@ class SimpleParallelRunner(object):
         def worker():
             while True:
                 func, args, kwargs = q.get()
-                func(*args, **kwargs)
+                results = func(*args, **kwargs)
                 q.task_done()
                                                      
         q = Queue()
@@ -826,8 +972,8 @@ class SimpleParallelRunner(object):
             t.start()
 
         # If works is a Work instance, we have to call setup here
-        if hasattr(works, "setup"):
-            works.setup(*args, **kwargs)
+        #if hasattr(works, "setup"):
+        #    works.setup(*args, **kwargs)
 
         for work in works:
             q.put((work.start, args, kwargs))
@@ -835,8 +981,13 @@ class SimpleParallelRunner(object):
         # Block until all tasks are done. 
         q.join()  
 
-        # If works is a Work instance, we have to call teardown here
-        if hasattr(works, "teardown"):
-            works.teardown(*args, **kwargs)
+        work.communicate()
+
+        # If works is a Work instance, we have to call get_results here
+        #results = {}
+        #if hasattr(works, "get_results"):
+        #    results = works.get_results(*args, **kwargs)
+
+        #return results
 
 ##########################################################################################

@@ -8,7 +8,7 @@ from pymatgen.util.string_utils import list_strings, StringColorizer
 ##########################################################################################
 # Helper functions.
 
-def remove_tree(*paths, **kwargs):
+def remove_trees(*paths, **kwargs):
     import shutil
     ignore_errors = kwargs.pop("ignore_errors", True)
     onerror       = kwargs.pop("onerror", None)
