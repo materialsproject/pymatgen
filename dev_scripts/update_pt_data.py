@@ -166,5 +166,12 @@ def update_ionic_radii():
         json.dump(data, f)
 
 
+def gen_periodic_table():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+
+    with open('periodic_table.json', 'w') as f:
+        json.dump(data, f)
+
 if __name__ == "__main__":
-    update_ionic_radii()
+    gen_periodic_table()

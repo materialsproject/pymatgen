@@ -25,9 +25,10 @@ import json
 import re
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.serializers.json_coders import MSONable
 
 
-class AbstractVaspInputSet(object):
+class AbstractVaspInputSet(MSONable):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
@@ -282,11 +283,23 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
     @property
     def to_dict(self):
-        return {
+        config_dict = {
             "INCAR": self.incar_settings,
             "KPOINTS": self.kpoints_settings,
             "POTCAR": self.potcar_settings
         }
+        return {
+            "name": self.name,
+            "config_dict": config_dict,
+            "constrain_total_magmom": self.set_nupdown,
+            "@class": self.__class__.__name__,
+            "@module": self.__module__.__name__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return DictVaspInputSet(d["name"], d["config_dict"],
+                                d["constrain_total_magmom"])
 
 
 class VaspInputSet(DictVaspInputSet):
@@ -314,11 +327,13 @@ class VaspInputSet(DictVaspInputSet):
                 False.
         """
         self.name = name
+        self.config_file = config_file
         self._config = ConfigParser.SafeConfigParser()
         self._config.optionxform = str
         with open(config_file, "r") as f:
             self._config.readfp(f)
 
+        self.user_incar_settings = user_incar_settings
         potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
         kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
         incar_settings = dict(self._config.items(self.name + 'INCAR'))
@@ -331,6 +346,23 @@ class VaspInputSet(DictVaspInputSet):
             self, name, {"INCAR": incar_settings, "KPOINTS": kpoints_settings,
                          "POTCAR": potcar_settings},
             constrain_total_magmom=constrain_total_magmom)
+
+    @property
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "config_file": self.config_file,
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__module__.__name__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return VaspInputSet(d["name"], d["config_file"],
+                            user_incar_settings=d["user_incar_settings"],
+                            constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITVaspInputSet(VaspInputSet):
@@ -352,8 +384,25 @@ class MITVaspInputSet(VaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MIT", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+        self.user_incar_settings = user_incar_settings
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
+    @property
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MITVaspInputSet(
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITGGAVaspInputSet(VaspInputSet):
@@ -362,12 +411,36 @@ class MITGGAVaspInputSet(VaspInputSet):
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITGGAVaspInputSet.json")) as f:
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MIT GGA", json.load(f),
+                self, "MaterialsProject GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+        self.user_incar_settings = user_incar_settings
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
+        self.incar_settings['LDAU'] = False
+        if 'LDAUU' in self.incar_settings:
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
+    @property
+    def to_dict(self):
+        return {
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MITGGAVaspInputSet(
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITHSEVaspInputSet(VaspInputSet):
@@ -380,14 +453,30 @@ class MITHSEVaspInputSet(VaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MIT HSE", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+        self.user_incar_settings = user_incar_settings
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
+    @property
+    def to_dict(self):
+        return {
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MITHSEVaspInputSet(
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MaterialsProjectVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
-    Materials Project. Typically, the psuedopotentials chosen contain more
+    Materials Project. Typically, the pseudopotentials chosen contain more
     electrons than the MIT parameters, and the k-point grid is ~50% more dense.
     The LDAUU parameters are also different due to the different psps used,
     which result in different fitted values (even though the methodology of
@@ -399,8 +488,64 @@ class MaterialsProjectVaspInputSet(DictVaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MaterialsProject", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
+        self.user_incar_settings = user_incar_settings
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
+
+    @property
+    def to_dict(self):
+        return {
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MaterialsProjectVaspInputSet(
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"])
+
+
+class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
+    """
+    Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
+    turned off.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject GGA", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+
+        self.user_incar_settings = user_incar_settings
+        # INCAR settings to override for GGA runs, since we are basing off a
+        # GGA+U inputset
+        self.incar_settings['LDAU'] = False
+        if 'LDAUU' in self.incar_settings:
+            # technically not needed, but clarifies INCAR
+            del self.incar_settings['LDAUU']
+            del self.incar_settings['LDAUJ']
+            del self.incar_settings['LDAUL']
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+    @property
+    def to_dict(self):
+        return {
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MaterialsProjectGGAVaspInputSet(
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"])
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,

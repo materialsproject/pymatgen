@@ -174,8 +174,13 @@ class CifParser(object):
         Returns:
             List of Structures.
         """
-        return [self._get_structure(v, primitive)
-                for k, v in self._cif.items()]
+        structures = []
+        for k, v in self._cif.items():
+            try:
+                structures.append(self._get_structure(v, primitive))
+            except KeyError:
+                pass
+        return structures
 
     @property
     def to_dict(self):
@@ -226,7 +231,8 @@ class CifWriter:
 
         contains_oxidation = True
         try:
-            symbol_to_oxinum = {str(el): el.oxi_state for el in comp.elements}
+            symbol_to_oxinum = {str(el): float(el.oxi_state)
+                                for el in comp.elements}
         except AttributeError:
             symbol_to_oxinum = {el.symbol: 0 for el in comp.elements}
             contains_oxidation = False

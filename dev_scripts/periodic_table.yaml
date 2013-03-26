@@ -2437,7 +2437,7 @@ Rh:
   Critical temperature: no data K
   Density of solid: 12450 kg m<sup>-3</sup>
   Electrical resistivity: 4.3 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Kr].4d<sup>8</sup>5s<sup>1</sup>'
+  Electronic structure: '[Kr].4d<sup>8</sup>.5s<sup>1</sup>'
   Ionic radii: {3: 0.805, 4: 0.74, 5: 0.69}
   Liquid range: 1731 K
   Melting point: 2237 K
@@ -2482,7 +2482,7 @@ Ru:
   Critical temperature: no data K
   Density of solid: 12370 kg m<sup>-3</sup>
   Electrical resistivity: 7.1 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Kr].4d<sup>7</sup>5s<sup>1</sup>'
+  Electronic structure: '[Kr].4d<sup>7</sup>.5s<sup>1</sup>'
   Ionic radii: {3: 0.82, 4: 0.76, 5: 0.705, 7: 0.52, 8: 0.5}
   Liquid range: 1816 K
   Melting point: 2607 K
@@ -2844,7 +2844,7 @@ Tc:
   Critical temperature: no data K
   Density of solid: 11500 kg m<sup>-3</sup>
   Electrical resistivity: about 22 10<sup>-8</sup> &Omega; m
-  Electronic structure: '[Kr].4d<sup>6</sup>.5s<sup>1</sup>'
+  Electronic structure: '[Kr].4d<sup>5</sup>.5s<sup>2</sup>'
   Ionic radii: {4: 0.785, 5: 0.74, 7: 0.7}
   Liquid range: 2108 K
   Melting point: 2430 K

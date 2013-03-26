@@ -20,6 +20,7 @@ __date__ = "Sep 23, 2011"
 from operator import itemgetter
 import logging
 
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.core.structure import Structure
@@ -447,7 +448,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
         sp = smart_element_or_specie(self._specie)
         specie_indices = [i for i in xrange(len(structure))
-                          if structure[i].specie == sp]
+                          if structure[i].species_and_occu ==
+                          Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
                                                  [self._frac], algo=self._algo)
         return trans.apply_transformation(structure, return_ranked_list)

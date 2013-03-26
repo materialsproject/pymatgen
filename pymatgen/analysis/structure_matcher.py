@@ -8,10 +8,10 @@ from __future__ import division
 
 __author__ = "Stephen Dacek, William Davidson Richards, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
+__version__ = "1.0"
 __maintainer__ = "Stephen Dacek"
 __email__ = "sdacek@mit.edu"
-__status__ = "Beta"
+__status__ = "Production"
 __date__ = "Dec 3, 2012"
 
 import numpy as np
@@ -19,11 +19,13 @@ import itertools
 import abc
 
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.structure import Structure
 from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
+    pbc_shortest_vectors
 
 
 class AbstractComparator(MSONable):
@@ -290,12 +292,12 @@ class StructureMatcher(MSONable):
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
         #same variables and calculating determinants individually
-        bfl = np.array(nv[0])[None, None, :, None, :] *\
-            np.array([1, 0, 0])[None, None, None, :, None] +\
-            np.array(nv[1])[None, :, None, None, :] *\
-            np.array([0, 1, 0])[None, None, None, :, None] +\
-            np.array(nv[2])[:, None, None, None, :] *\
-            np.array([0, 0, 1])[None, None, None, :, None]
+        bfl = (np.array(nv[0])[None, None, :, None, :] *
+               np.array([1, 0, 0])[None, None, None, :, None] +
+               np.array(nv[1])[None, :, None, None, :] *
+               np.array([0, 1, 0])[None, None, None, :, None] +
+               np.array(nv[2])[:, None, None, None, :] *
+               np.array([0, 0, 1])[None, None, None, :, None])
 
         #Compute volume of each array
         vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
@@ -310,8 +312,8 @@ class StructureMatcher(MSONable):
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[:, i] = np.sum(bfl[valid][:, j, :] *
-                                  bfl[valid][:, k, :], 1) \
+            angles[:, i] = \
+                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1)\
                 / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
@@ -338,6 +340,45 @@ class StructureMatcher(MSONable):
                 return False
         return True
 
+    def _cmp_cartesian_struct(self, s1, s2, l1, l2):
+        """
+        Once a fit is found, a rms minimizing fit is done to
+        ensure the fit is correct. To do this,
+
+        1) The structures are placed into an average lattice
+        2) All sites are shifted by the mean
+            displacement vector between matched sites.
+        3) calculate distances
+        4) return rms distance normalized by (V/Natom) ^ 1/3
+            and the maximum distance found
+        """
+        nsites = np.sum([len(i) for i in s1])
+        norm_volume = (l1.volume + l2.volume) / (2 * nsites)
+        avg_params = (np.array(l1.lengths_and_angles) +
+                      np.array(l2.lengths_and_angles)) / 2
+        avgLat = Lattice.from_lengths_and_angles(avg_params[0], avg_params[1])
+        dist = np.zeros([nsites, nsites]) + np.Inf
+        vec_matrix = np.zeros([nsites, nsites, 3])
+        i = 0
+        for s1_coords, s2_coords in zip(s1, s2):
+            vecs = pbc_shortest_vectors(avgLat, s1_coords, s2_coords)
+            distances = (np.sum(vecs ** 2, axis=-1)) ** 0.5
+            dist[i: i + len(s1_coords), i: i + len(s1_coords)] = distances
+            vec_matrix[i: i + len(s1_coords), i: i + len(s1_coords)] = vecs
+            i += len(s1_coords)
+        lin = LinearAssignment(dist)
+        inds = np.arange(nsites)
+
+        shortest_vecs = vec_matrix[inds, lin.solution, :]
+        shortest_vec_square = np.sum((shortest_vecs -
+                                      np.average(shortest_vecs, axis=0)) ** 2,
+                                     -1)
+        rms = (np.average(shortest_vec_square) ** 0.5 /
+               ((norm_volume / nsites) ** (1 / 3)))
+        max_dist = np.max(shortest_vec_square) ** 0.5
+
+        return rms, max_dist
+
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -349,14 +390,56 @@ class StructureMatcher(MSONable):
                 2nd structure
 
         Returns:
-            True if the structures are the equivalent, else False.
+            True or False.
+        """
+
+        max_dist = self._calc_rms(struct1, struct2, break_on_match=True)
+
+        if max_dist is None:
+            return False
+
+        else:
+            return max_dist <= self.stol
+
+    def get_rms(self, struct1, struct2):
+        """
+        Calculate RMS displacement between two structures
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            rms displacement normalized by (Vol / nsites) ** (1/3)
+            and maximum distance between paired sites
+        """
+        return self._calc_rms(struct1, struct2, break_on_match=False)
+
+    def _calc_rms(self, struct1, struct2, break_on_match):
+        """
+        Calculate RMS displacement between two structures
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+            break_on_match:
+                True or False. Will break if the maximum
+                    distance found is less than the
+                    provided stol
+
+        Returns:
+            rms displacement normalized by (Vol / nsites) ** (1/3) and
+            maximum distance found between two paired sites
         """
         stol = self.stol
         comparator = self._comparator
-
         if comparator.get_structure_hash(struct1) !=\
                 comparator.get_structure_hash(struct2):
-            return False
+            return None
 
         #primitive cell transformation
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
@@ -365,7 +448,9 @@ class StructureMatcher(MSONable):
 
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
-            return False
+            return None
+        #initial stored rms
+        stored_rms = [np.Inf, np.Inf]
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -391,8 +476,8 @@ class StructureMatcher(MSONable):
         #Volume to determine invalid lattices
         vol_tol = nl2.volume / 2
 
-        #fractional tolerance of atomic positions
-        frac_tol = np.array([stol / i for i in struct1.lattice.abc])
+        #fractional tolerance of atomic positions (2x for initial fitting)
+        frac_tol = 2 * np.array([stol / i for i in struct1.lattice.abc])
 
         #generate structure coordinate lists
         species_list = []
@@ -421,14 +506,14 @@ class StructureMatcher(MSONable):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
-            #if no site match found return false
+            #if no site match found return None
             if not found:
-                return False
+                return None
 
         #check that sizes of the site groups are identical
         for f1, c2 in zip(s1, s2_cart):
             if len(f1) != len(c2):
-                return False
+                return None
 
         #translate s1
         s1_translation = s1[0][0]
@@ -441,8 +526,13 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
-                    return True
-        return False
+                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
+                                                               nl1)
+                    if break_on_match and max_dist < stol:
+                        return max_dist
+                    elif rms < stored_rms[0]:
+                        stored_rms = [rms, max_dist]
+        return stored_rms
 
     def find_indexes(self, s_list, group_list):
         """
@@ -513,4 +603,46 @@ class StructureMatcher(MSONable):
             primitive_cell=d["primitive_cell"], scale=d["scale"],
             comparator=AbstractComparator.from_dict(d["comparator"]))
 
+    def fit_anonymous(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar.
 
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            A minimal species mapping that would map struct1 to struct2 in
+            terms of structure similarity, or None if no fit is found. For
+            example, to map the cubic Li2O to cubic Na2O,
+            we need a Li->Na mapping. This method will return
+            [({Element("Li"): 1}, {Element("Na"): 1})]. Since O is the same
+            in both structures, there is no O to O mapping required.
+            Note that the return form is a list of pairs of species and
+            occupancy dicts. This complicated return for is necessary because
+            species and occupancy dicts are non-hashable.
+        """
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
+        if len(sp1) != len(sp2):
+            return None
+
+        for perm in itertools.permutations(sp2):
+            perm = list(perm)
+            mapped_sp = []
+            for site in struct1:
+                ind = sp1.index(site.species_and_occu)
+                mapped_sp.append(perm[ind])
+
+            transformed_structure = Structure(struct1.lattice, mapped_sp,
+                                              struct1.frac_coords)
+            if self.fit(transformed_structure, struct2):
+                return {sp1[i]: perm[i] for i in xrange(len(sp1))
+                        if sp1[i] != perm[i]}
+
+        return None
