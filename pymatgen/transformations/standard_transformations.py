@@ -448,8 +448,8 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         """
         sp = smart_element_or_specie(self._specie)
         specie_indices = [i for i in xrange(len(structure))
-                          if structure[i].species_and_occu == Composition({
-                sp: 1})]
+                          if structure[i].species_and_occu ==
+                          Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
                                                  [self._frac], algo=self._algo)
         return trans.apply_transformation(structure, return_ranked_list)
