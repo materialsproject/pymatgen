@@ -70,7 +70,7 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-Version 2.6.3
+Version 2.6.2
 -------------
 
 1. Site and PeriodicSite now uses a Composition mapping type to represent

@@ -9,6 +9,14 @@ symmetry Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bandstructure` Module
+---------------------------
+
+.. automodule:: pymatgen.symmetry.bandstructure
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`finder` Module
 --------------------
 
