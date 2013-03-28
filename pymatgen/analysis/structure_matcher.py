@@ -352,9 +352,11 @@ class StructureMatcher(MSONable):
         4) return rms distance normalized by (V/Natom) ^ 1/3
             and the maximum distance found
         """
-        nsites = np.sum([len(i) for i in s1])
+        nsites = sum([len(i) for i in s1])
+
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
+
         avg_lattice = Lattice.from_lengths_and_angles(avg_params[0],
                                                       avg_params[1])
         dist = np.zeros([nsites, nsites]) + np.Inf
@@ -373,11 +375,15 @@ class StructureMatcher(MSONable):
         shortest_vec_square = np.sum((shortest_vecs -
                                       np.average(shortest_vecs, axis=0)) ** 2,
                                      -1)
-        rms = (np.average(shortest_vec_square) ** 0.5 /
-               ((avg_lattice.volume / nsites) ** (1 / 3)))
-        max_dist = np.max(shortest_vec_square) ** 0.5
+        norm_length = (avg_lattice.volume / nsites) ** (1.0 / 3)
 
-        return rms, max_dist
+        rms = np.average(shortest_vec_square) ** 0.5 / norm_length
+
+        fit_dist = np.max(shortest_vec_square) ** 0.5
+
+        max_dist = fit_dist / norm_length
+
+        return rms, max_dist, fit_dist
 
     def fit(self, struct1, struct2):
         """
@@ -401,7 +407,7 @@ class StructureMatcher(MSONable):
         else:
             return max_dist <= self.stol
 
-    def get_rms(self, struct1, struct2):
+    def rms_dist(self, struct1, struct2):
         """
         Calculate RMS displacement between two structures
 
@@ -525,10 +531,9 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1)
-                    if break_on_match and max_dist < stol:
-                        return max_dist
+                    rms, max_dist, fit_dist = self._cmp_cartesian_struct(s1, t_s2, nl, nl1)
+                    if break_on_match and fit_dist < stol:
+                        return fit_dist
                     elif rms < stored_rms[0]:
                         stored_rms = [rms, max_dist]
         return stored_rms
