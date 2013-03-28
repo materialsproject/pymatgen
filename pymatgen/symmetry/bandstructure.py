@@ -155,7 +155,7 @@ class HighSymmKpath(object):
     def get_kpoints(self, line_density=20):
         """
             Returns:
-                the kpoints along the path in fractional coordinates
+                the kpoints along the paths in cartesian coordinates
         """
         list_k_points = []
         for b in self.kpath['path']:
