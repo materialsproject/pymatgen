@@ -595,6 +595,27 @@ class MPRester(object):
             remarks=remarks, data=metadata, histories=histories,
             created_at=created_at)
 
+    def get_stability(self, entries):
+        """
+        Returns the stability of all entries.
+        """
+        try:
+            payload = {"entries": json.dumps(entries, cls=PMGJSONEncoder)}
+            response = self.session.post("{}/phase_diagram/calculate_stability"
+                                         .format(self.preamble), data=payload)
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                if resp["valid_response"]:
+                    if resp.get("warning"):
+                        warnings.warn(resp["warning"])
+                    return resp
+                else:
+                    raise MPRestError(resp["error"])
+            raise MPRestError("REST error with status code {} and error {}"
+            .format(response.status_code, response.text))
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
 
 class MPRestError(Exception):
     """
