@@ -612,7 +612,7 @@ class MPRester(object):
                 else:
                     raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 
