@@ -29,6 +29,25 @@ class Compatibility(EntryPostProcessor):
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. This is a base class from which other specific compatibility
     schemes are implemented.
+
+    For compatibility to be checked, the entry supplied have two additional
+    restrictions in terms of its parameters key:
+
+    1. Entry.parameters must contain a "hubbards" key which is a dict of all
+       non-zero Hubbard U values used in the calculation. For example,
+       if you ran a Fe2O3 calculation with Materials Project parameters,
+       this would look like entry.parameters["hubbards"] = {"Fe": 5.3}
+       If the "hubbards" key is missing, a GGA run is assumed.
+    2. Entry.parameters must contain a "potcar_symbols" key that is a list of
+       all POTCARs used in the run. Again, using the example of an Fe2O3 run
+       using Materials Project parameters, this would look like
+       entry.parameters["potcar_symbols"] = ['PAW_PBE Fe_pv 06Sep2000',
+       'PAW_PBE O 08Apr2002'].
+
+    It should be noted that ComputedEntries assimilated using the
+    pymatgen.apps.borg package and obtained via the MaterialsProject REST
+    interface using the pymatgen.matproj.rest package will automatically have
+    these fields populated.
     """
 
     def __init__(self, input_set_name, compat_type):
@@ -111,19 +130,28 @@ class Compatibility(EntryPostProcessor):
         Returns:
             An adjusted entry if entry is compatible, otherwise None is
             returned.
+
+        Raises:
+            ValueError if entry do not contain "potcar_symbols" key.
         """
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
 
         cpdenergies = self.cpd_energies
-        calc_u = entry.parameters["hubbards"]
+        calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
         #Check that POTCARs are valid
         rform = comp.reduced_formula
         if rform not in cpdenergies:
-            psp_settings = set([sym.split(" ")[1]
-                                for sym in entry.parameters["potcar_symbols"]])
+            try:
+                psp_settings = set([sym.split(" ")[1]
+                                    for sym
+                                    in entry.parameters["potcar_symbols"]])
+            except KeyError:
+                raise ValueError("Compatibility can only be checked for "
+                                 "entries with a \"potcar_symbols\" in "
+                                 "entry.parameters")
             if not self.valid_potcars.issuperset(psp_settings):
                 return None
 
