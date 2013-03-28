@@ -5,6 +5,7 @@ Created on March 25, 2013
 '''
 
 import numpy as np
+from math import ceil
 from math import cos
 from math import sin
 from math import tan
@@ -130,6 +131,13 @@ class HighSymmKpath(object):
                 self._kpath = self.trib()
 
     @property
+    def structure(self):
+        """
+            Returns the standardized primitive structure
+        """
+        return self._prim
+
+    @property
     def kpath(self):
         """
             Returns the symmetry line path in reciprocal space
@@ -144,9 +152,30 @@ class HighSymmKpath(object):
         """
         return self._name
 
+    def get_kpoints(self, line_density=20):
+        """
+            Returns:
+                the kpoints along the paths in cartesian coordinates
+        """
+        list_k_points = []
+        for b in self.kpath['path']:
+            print b
+            for i in range(1, len(b)):
+                start = np.array(self.kpath['kpoints'][b[i-1]])
+                end = np.array(self.kpath['kpoints'][b[i]])
+                distance = np.linalg.norm(self._prim_rec.get_cartesian_coords(start) -
+                                          self._prim_rec.get_cartesian_coords(end))
+                nb = int(ceil(distance * line_density))
+                list_k_points.extend([self._prim_rec.
+                                      get_cartesian_coords(start)
+                                     + float(i) / float(nb) *
+                                     (self._prim_rec.get_cartesian_coords(end)
+                                      - self._prim_rec.get_cartesian_coords(start)) for i in range(0, nb + 1)])
+        return list_k_points
+
     def get_kpath_plot(self):
         """
-            gives the plot (as a matplotlib object) of the 
+            gives the plot (as a matplotlib object) of the
             symmetry line path in the Brillouin Zone
         """
         import itertools
