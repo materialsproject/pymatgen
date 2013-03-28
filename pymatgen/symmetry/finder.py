@@ -549,7 +549,7 @@ class SymmetryFinder(object):
             #cell
             #if so, make a supercell
             a, b, c = latt.abc
-            if np.all(np.abs(a - b, c-b, a-c) < 0.001):
+            if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
                                                  (1, 1, 1))).modified_structure
                 sorted_lengths = sorted(struct.lattice.abc)
