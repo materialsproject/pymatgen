@@ -70,6 +70,14 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.3
+-------------
+1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
+   (currently open in beta for collaborators only).
+2. Added support for new MaterialsProject REST method get_stability.
+3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
+   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
+
 Version 2.6.2
 -------------
 
