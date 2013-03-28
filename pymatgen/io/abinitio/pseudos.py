@@ -9,6 +9,7 @@ import os.path
 import sys
 import abc
 import collections
+import json
 import cPickle as pickle
 import xml.etree.ElementTree as ET
 import cStringIO as StringIO
@@ -134,7 +135,7 @@ _periodic_table = PeriodicTable()
 
 class Pseudo(object):
     """
-    Abstract class defining the methods that must be implemented by the concrete pseudopotential classes.
+    Abstract base class defining the methods that must be implemented by the concrete pseudopotential classes.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -249,10 +250,49 @@ class Pseudo(object):
     #def generation_mode
     #    "scalar scalar-relativistic, relativistic"
 
-    #@property
-    #def has_input(self):
-    #    "True if self contains the input file used to generate the pseudo."
-    #    return hasattr(self, "input") and self.input is not None
+    @property
+    def dojo_level(self):
+        report = self.read_dojo_report()
+        if not report:
+            return None
+        else:
+            raise NotImplementedError("")
+            #return report["dojo_level"]
+
+    #def dojo_rank(self):
+
+    def read_dojo_report(self):
+       with open(self.path, "r") as fh:
+            lines = fh.readlines()
+            try:
+                start = lines.index("<DOJO_REPORT>\n")
+            except ValueError:
+                return {}
+            return json.loads(lines[start+1])
+
+    def write_dojo_report(self, report):
+        # Create JSON string from report.
+        jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
+
+        # Read lines from file and insert jstring between the tags.
+        with open(self.path, "r") as fh:
+             lines = fh.readlines()
+             try:
+                 start = lines.index("<DOJO_REPORT>\n")
+             except ValueError:
+                 start = -1
+
+             if start == -1:
+                # DOJO_REPORT was not present.
+                lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+             else:
+                stop = lines.index("</DOJO_REPORT>\n")
+                lines.insert(stop, jstring)
+                del lines[start+1:stop]
+
+        #  Write new file.
+        with open(self.path, "w") as fh:
+            fh.writelines(lines)
 
     @abc.abstractmethod
     def hint_for_accuracy(self, accuracy):
@@ -369,11 +409,6 @@ class AbinitPseudo(Pseudo):
             return self.extra_info.hint_for_accuracy(accuracy)
         else:
             return None
-
-    #@property
-    #def has_input(self):
-    #    "True if self contains the input file used to generate the pseudo."
-    #    return hasattr(self, "input") and self.input is not None
 
 ##########################################################################################
 
@@ -599,7 +634,6 @@ class PseudoExtraInfo(ET.Element):
         hints_dict = collections.OrderedDict()
         for hint in e:
             hints_dict[hint.tag] = Hint.from_csv(hint.text)
-
         return hints_dict
 
     def hint_for_accuracy(self, accuracy):
@@ -759,25 +793,8 @@ class AbinitHeader(dict):
             except KeyError as exc:
                 raise AttributeError(str(exc))
 
-    #def extra_info(self):
-    #    "extra_info object"
-
-    #def input(self):
-    #    try:
-    #        return self._input 
-    #    except AttributeError:
-    #        return "No input available"
-
-    #def set_projectors(self, projectors):
-    #    self._projectors = projectors
-
-    #def get_projectors(self):
-    #    try:
-    #        return self._projectors
-    #    except AttributeError:
-    #        return None
-
 ##########################################################################################
+
 def _int_from_str(string):
     float_num = float(string)
     int_num = int(float_num)
@@ -1206,7 +1223,7 @@ class PseudoParser(object):
 
 ##########################################################################################
 
-class PseudoTable(object):
+class PseudoTable(collections.Sequence):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1257,31 +1274,27 @@ class PseudoTable(object):
     .. Note::
            Properties 
     """
-    def __init__(self, psp_type, xc_type, table_type, pseudos):
+    def __init__(self, pseudos):
         """
         Args:
-            psp_type:
-                Pseudopotential type, e.g. ("NC", "PAW")
-            xc_type:
-                exchange-correlation type, e.g. LDA, GGA  
-            table_type:
-                Table type
             pseudos:
-                List of pseudopotentials
+                List of pseudopotentials or filepaths
         """
-
-        self.psp_type = psp_type
-        self.xc_type  = xc_type
-        self.name = table_type # TODO
-     
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
 
+        if not isinstance(pseudos, collections.Iterable):
+            pseudos = [pseudos]
+
         self._pseudos_with_z = collections.defaultdict(list)
 
         for pseudo in pseudos:
-            self._pseudos_with_z[pseudo.Z].append(pseudo)
+            p = pseudo
+            if not isinstance(pseudo, Pseudo):
+                p = Pseudo.from_filename(pseudo)
+
+            self._pseudos_with_z[p.Z].append(p)
 
         for z in self.zlist:
             pseudo_list = self._pseudos_with_z[z]
@@ -1360,7 +1373,7 @@ class PseudoTable(object):
                 return pseudo
         return None
 
-    def list(self, *props, **kw):
+    def list_properties(self, *props, **kw):
         """
         Print a list of elements with the given set of properties.
 
@@ -1506,7 +1519,7 @@ class PseudoDatabase(dict):
                 pseudos = parser.scan_directory( os.path.join(dirpath, dirname), 
                     exclude_exts = [".py", ".ini", ".sh", ".gz", ".pl", ".txt", ".swp", ".data", "pickle",])
 
-                table = PseudoTable(psp_type, xc_type, table_type, pseudos)
+                table = PseudoTable(pseudos)
 
                 new_database[psp_type][xc_type][table_type] = table
 
@@ -1535,21 +1548,15 @@ class PseudoDatabase(dict):
 
     @property
     def LDA_HGH_PPTABLE(self):
-        for table in self.nc_tables('LDA'):
-            if table.name == "HGH": return table
-        return None
+        return self["NC"]["LDA"]["HGH"]
 
     @property
     def GGA_FHI_PPTABLE(self):
-        for table in self.nc_tables('GGA'):
-            if table.name == "FHI": return table
-        return None
+        return self["NC"]["GGA"]["FHI"]
 
     @property
     def GGA_HGHK_PPTABLE(self):
-        for table in self.nc_tables('GGA'):
-            if table.name == "HGHK": return table
-        return None
+        return self["NC"]["GGA"]["HGHK"]
 
     @property
     def path(self):
@@ -1579,8 +1586,7 @@ class PseudoDatabase(dict):
     def all_pseudos(self):
         "Return a list with all the pseudopotentials in the database"
         pseudos = []
-        for (xc_type, table) in nested_dict_items(self):
-            #print type(table), table.type, table.xc_type, table
+        for (k, table) in nested_dict_items(self):
             pseudos.extend([p for p in table])
         return pseudos
 

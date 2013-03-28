@@ -391,8 +391,6 @@ class IterativeWork(Work):
         Return dictionary with the final results
         """
         self.niter = 1
-        iteration_results = {"converged": False}
-
         #if kwargs.pop("num_pythreads", 1) != 1
 
         while True:
@@ -470,6 +468,56 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
  
     return i + 1
 
+def compute_hints(ecut_list, etotal, pseudo, atols_mev=(10, 1, 0.05)):
+
+        de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
+
+        num_ene = len(etotal)
+        etotal_inf = etotal[-1]
+
+        lines = []
+        app = lines.append
+
+        app(" pseudo: %s" % pseudo.name)
+        app(" idx ecut etotal (et-e_inf) [meV]")
+        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+            line = "%d %.3f %.3f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+            app(line)
+
+        stream = sys.stdout
+        stream.writelines("\n".join(lines)+"\n")
+        
+        ihigh   = check_conv(etotal, de_high, min_numpts=1)
+        inormal = check_conv(etotal, de_normal)
+        ilow    = check_conv(etotal, de_low)
+
+        print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
+
+        ecut_high, ecut_normal, ecut_low = 3 * (None,)
+        exit = (ihigh != -1)
+
+        if exit:
+            ecut_low    = ecut_list[ilow] 
+            ecut_normal = ecut_list[inormal] 
+            ecut_high   = ecut_list[ihigh] 
+
+        aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
+
+        data = {
+            "exit"        : ihigh != -1,
+            "etotal"      : list(etotal),
+            "ecut_list"   : ecut_list,
+            "low"         : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
+            "normal"      : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
+            "high"        : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
+            "pseudo_name" : pseudo.name,
+            "pseudo_path" : pseudo.path,
+            "atols_mev"   : atols_mev,
+            "dojo_level"  : 0,
+        }
+
+        return data
+
 class PseudoConvergence(Work):
 
     def __init__(self, workdir, pseudo, ecut_list, 
@@ -501,17 +549,7 @@ class PseudoConvergence(Work):
         # Get the results of the tasks.
         work_results = super(PseudoConvergence, self).get_results(*args, **kwargs)
 
-        etotal = self.read_etotal()
-
-        data = {
-            "ecut_list"   : self.ecut_list,
-            "etotal"      : list(etotal),
-            "pseudo_name" : self.pseudo.name,
-            "pseudo_path" : self.pseudo.path,
-            #"ecut_low"    : ecut_low,
-            #"ecut_normal" : ecut_normal,
-            #"ecut_high"   : ecut_high,
-        }
+        data = compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
 
         work_results.update(data)
 
@@ -593,49 +631,7 @@ class PseudoIterativeConvergence(IterativeWork):
 
     def check_etotal_convergence(self, *args, **kwargs):
 
-        ecut_list = self.ecut_list
-        etotal = self.read_etotal()
-
-        num_ene = len(etotal)
-        etotal_inf = etotal[-1]
-
-        lines = []
-        app = lines.append
-
-        app(" pseudo: %s" % self.pseudo.name)
-        app(" idx ecut etotal (et-e_inf) [meV]")
-        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-            line = "%d %.3f %.3f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
-            app(line)
-
-        stream = sys.stdout
-        stream.writelines("\n".join(lines)+"\n")
-
-        de_high, de_normal, de_low = 0.05e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
-        
-        ihigh   = check_conv(etotal, de_high, min_numpts=1)
-        inormal = check_conv(etotal, de_normal)
-        ilow    = check_conv(etotal, de_low)
-
-        print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
-
-        ecut_high, ecut_normal, ecut_low = 3 * (None,)
-        exit = (ihigh != -1)
-        if exit:
-            ecut_low    = self.ecut_list[ilow] 
-            ecut_normal = self.ecut_list[inormal] 
-            ecut_high   = self.ecut_list[ihigh] 
-
-        data = {
-            "exit"        : ihigh != -1,
-            "ecut_list"   : ecut_list,
-            "etotal"      : list(etotal),
-            "ecut_low"    : ecut_low,
-            "ecut_normal" : ecut_normal,
-            "ecut_high"   : ecut_high,
-        }
-
-        return data
+        return compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
 
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
@@ -649,41 +645,23 @@ class PseudoIterativeConvergence(IterativeWork):
 
         work_results.update(data)
 
-        #etotal = self.read_etotal()
-        #etotal_dict = {1.0 : etotal}
-        #status_list = self.get_status()
-        #status = max(status_list)
-        #num_errors, num_warnings, num_comments = 0, 0, 0 
-        #for task in self:
-        #    main, log =  task.read_mainlog_ewc()
-        #    num_errors  =  max(num_errors,   main.num_errors)
-        #    num_warnings = max(num_warnings, main.num_warnings)
-        #    num_comments = max(num_comments, main.num_comments)
-        #work_results.update({
-        #    "num_errors":   num_errors,
-        #    "num_warnings": num_warnings,
-        #    "num_comments": num_comments,
-        #})
-
-        #with open(self.path_in_workdir("results.json"), "w") as fh:
-        #    json.dump(work_results, fh)
-
         return work_results
 
 ##########################################################################################
 
 class BandStructure(Work):
 
-    def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_nband, kpath_bounds, 
-                 spin_mode = "polarized",
-                 smearing  = None,
-                 ndivsm    = 20, 
-                 dos_ngkpt = None
+    def __init__(self, workdir, structure, pseudos, scf_ngkpt, nscf_nband,
+                 spin_mode    = "polarized",
+                 smearing     = None,
+                 kpath_bounds = None,
+                 ndivsm       = 20, 
+                 dos_ngkpt    = None
                 ):
 
         super(BandStructure, self).__init__(workdir)
 
-        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, 
+        scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode,
                                           smearing  = smearing,
@@ -691,7 +669,7 @@ class BandStructure(Work):
 
         scf_dep = self.register_input(scf_input)
 
-        nscf_input = Input.NSCF_kpath_from_SCF(scf_input, nscf_nband, kpath_bounds, ndivsm=ndivsm)
+        nscf_input = Input.NSCF_kpath_from_SCF(scf_input, nscf_nband, ndivsm=ndivsm, kpath_bounds=kpath_bounds)
 
         self.register_input(nscf_input, depends=scf_dep.with_odata("DEN"))
 
@@ -706,7 +684,7 @@ class BandStructure(Work):
 
 class Relaxation(Work):
 
-    def __init__(self, workdir, structure, pptable_or_pseudos, ngkpt,
+    def __init__(self, workdir, structure, pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
@@ -733,7 +711,7 @@ class Relaxation(Work):
 
 class DeltaTest(Work):
 
-    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, kppa,
+    def __init__(self, workdir, structure_or_cif, pseudos, kppa,
                  spin_mode = "polarized",
                  smearing  = None,
                  accuracy  = "normal",
@@ -760,7 +738,7 @@ class DeltaTest(Work):
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
 
-            scf_input = Input.SCF_groundstate(new_structure, pptable_or_pseudos, 
+            scf_input = Input.SCF_groundstate(new_structure, pseudos, 
                                               kppa      = kppa,
                                               spin_mode = spin_mode,
                                               smearing  = smearing,
@@ -772,6 +750,7 @@ class DeltaTest(Work):
             self.register_input(scf_input)
 
     def get_results(self, *args, **kwargs):
+
         num_sites = self._input_structure.num_sites
 
         etotal = Ha2eV(self.read_etotal())
@@ -784,16 +763,17 @@ class DeltaTest(Work):
         eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
         results = {
-            "etotal" : list(etotal),
-            "volumes": list(self.volumes),
-            "natom"  : num_sites,
-            "v0"     : eos_fit.v0,
-            "b"      : eos_fit.b,
-            "bp"     : eos_fit.bp,
+            "etotal"     : list(etotal),
+            "volumes"    : list(self.volumes),
+            "natom"      : num_sites,
+            "v0"         : eos_fit.v0,
+            "b"          : eos_fit.b,
+            "bp"         : eos_fit.bp,
+            "dojo_level" : 1,
         }
 
         with open(self.path_in_workdir("results.json"), "w") as fh:
-            json.dump(results, fh)
+            json.dump(results, fh, indent=4, sort_keys=True)
 
         # Write data for the computation of the delta factor
         with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
@@ -806,7 +786,7 @@ class DeltaTest(Work):
 class PvsV(Work):
     "Calculates P(V)."
 
-    def __init__(self, workdir, structure_or_cif, pptable_or_pseudos, ngkpt,
+    def __init__(self, workdir, structure_or_cif, pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                  ecutsm    = 0.05,  # 1.0
@@ -843,7 +823,7 @@ class PvsV(Work):
 
         for target in strtargets:
 
-            input = Input.Relax(new_structure, pptable_or_pseudos, ngkpt, 
+            input = Input.Relax(new_structure, pseudos, ngkpt, 
                                 spin_mode = spin_mode,
                                 smearing  = smearing,
                                 # **kwargs
@@ -867,7 +847,7 @@ class PvsV(Work):
 
 class G0W0(Work):
 
-    def __init__(self, workdir, structure, pptable_or_pseudos, scf_ngkpt, nscf_ngkpt, 
+    def __init__(self, workdir, structure, pseudos, scf_ngkpt, nscf_ngkpt, 
                  ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma,
                  spin_mode = "polarized",
                  smearing  = None,
@@ -875,7 +855,7 @@ class G0W0(Work):
 
         super(G0W0, self).__init__(workdir)
 
-        scf_input = Input.SCF_groundstate(structure, pptable_or_pseudos, 
+        scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode, 
                                           smearing  = smearing,
@@ -911,11 +891,11 @@ class G0W0(Work):
 class PPConvergenceFactory(object):
     "Factory object"
 
-    def work_for_pseudo(self, pseudo, ecut_range, dirname=".", spin_mode="polarized", smearing=None):
+    def work_for_pseudo(self, workdir, pseudo, ecut_range, spin_mode="polarized", smearing=None):
         """
         Return a Work object from the given pseudopotential.
         """
-        workdir = os.path.join(os.path.abspath(dirname), pseudo.name)
+        workdir = os.path.abspath(workdir)
 
         if smearing is None:
             smearing = Smearing.FermiDirac(0.1 / Ha_eV)
