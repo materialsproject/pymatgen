@@ -106,7 +106,7 @@ class PDAnalyzer(object):
                 A composition
 
         Returns:
-            Decomposition as a dict of {PDEntry: amount}
+            Decomposition as a dict of {Entry: amount}
         """
         facet = self._get_facet(comp)
         comp_list = [self._pd.qhull_entries[i].composition for i in facet]
@@ -127,7 +127,8 @@ class PDAnalyzer(object):
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
-            energy above hull of 0.
+            energy above hull of 0. The decomposition is provided as a dict of
+            {Entry: amount}.
         """
         if entry in self._pd.stable_entries:
             return {entry: 1}, 0
