@@ -439,9 +439,8 @@ class MPRester(object):
                 jsondata.append(snl.to_dict)
 
             payload = {"snl": json.dumps(jsondata, cls=PMGJSONEncoder)}
-            headers = {"x-api-key": self.api_key}
-            response = requests.post("{}/snl/submit".format(self.preamble),
-                                     headers=headers, data=payload)
+            response = self.session.post("{}/snl/submit".format(self.preamble),
+                                         data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=PMGJSONDecoder)
                 if resp["valid_response"]:
@@ -452,7 +451,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -473,10 +472,8 @@ class MPRester(object):
         """
         try:
             payload = {"ids": json.dumps(snl_ids)}
-            headers = {"x-api-key": self.api_key}
-            response = requests.post(
-                "{}/snl/delete".format(self.preamble),
-                headers=headers, data=payload)
+            response = self.session.post(
+                "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=PMGJSONDecoder)
@@ -488,7 +485,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -512,10 +509,8 @@ class MPRester(object):
         """
         try:
             payload = {"criteria": json.dumps(criteria)}
-            headers = {"x-api-key": self.api_key}
-            response = requests.post("{}/snl/query".format(self.preamble),
-                                     headers=headers, data=payload)
-
+            response = self.session.post("{}/snl/query".format(self.preamble),
+                                         data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text)
                 if resp["valid_response"]:
@@ -526,7 +521,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
