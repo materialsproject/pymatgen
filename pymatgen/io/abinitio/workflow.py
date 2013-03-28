@@ -23,7 +23,7 @@ from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice 
 
 from .netcdf import GSR_Reader
-from .pseudos import Pseudo, PseudoDatabase, PseudoTable, PseudoExtraInfo, get_abinit_psp_dir
+from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
 from .task import AbinitTask, TaskDependencies
 from .utils import parse_ewc, abinit_output_iscomplete

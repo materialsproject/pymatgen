@@ -11,7 +11,6 @@ import abc
 import collections
 import json
 import cPickle as pickle
-import xml.etree.ElementTree as ET
 import cStringIO as StringIO
 import numpy as np
 
@@ -22,6 +21,7 @@ from pprint import pprint
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.core.physical_constants import Ha_eV, Ha2meV
 from pymatgen.util.num_utils import iterator_from_slice 
+#from pymatgen.serializers.json_coders import MSONable 
 
 try:
     import periodictable 
@@ -95,6 +95,19 @@ def _read_nlines(filename, nlines):
             if lineno == nlines: break
             lines.append(line)
         return lines
+
+def read_dojo_report(filename):
+    with open(filename, "r") as fh:
+         lines = fh.readlines()
+         try:
+             start = lines.index("<DOJO_REPORT>\n")
+         except ValueError:
+             return {}
+         stop = lines.index("</DOJO_REPORT>\n")
+
+         s = "".join(l for l in lines[start+1:stop])
+         return json.loads(s)
+
 
 _l2str = {
     0 : "s",
@@ -250,10 +263,11 @@ class Pseudo(object):
     #def generation_mode
     #    "scalar scalar-relativistic, relativistic"
 
+    #def has_dojo_report(self)
+
     @property
     def dojo_level(self):
-        report = self.read_dojo_report()
-        if not report:
+        if not self.dojo_report:
             return None
         else:
             raise NotImplementedError("")
@@ -262,13 +276,7 @@ class Pseudo(object):
     #def dojo_rank(self):
 
     def read_dojo_report(self):
-       with open(self.path, "r") as fh:
-            lines = fh.readlines()
-            try:
-                start = lines.index("<DOJO_REPORT>\n")
-            except ValueError:
-                return {}
-            return json.loads(lines[start+1])
+        return read_dojo_report(self.path)
 
     def write_dojo_report(self, report):
         # Create JSON string from report.
@@ -276,25 +284,47 @@ class Pseudo(object):
 
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
-             lines = fh.readlines()
-             try:
-                 start = lines.index("<DOJO_REPORT>\n")
-             except ValueError:
-                 start = -1
+            lines = fh.readlines()
+            try:
+                start = lines.index("<DOJO_REPORT>\n")
+            except ValueError:
+                start = -1
 
-             if start == -1:
-                # DOJO_REPORT was not present.
-                lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
-             else:
-                stop = lines.index("</DOJO_REPORT>\n")
-                lines.insert(stop, jstring)
-                del lines[start+1:stop]
+            if start == -1:
+               # DOJO_REPORT was not present.
+               lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+            else:
+               stop = lines.index("</DOJO_REPORT>\n")
+               lines.insert(stop, jstring)
+               del lines[start+1:stop]
 
         #  Write new file.
         with open(self.path, "w") as fh:
             fh.writelines(lines)
 
-    @abc.abstractmethod
+    def remove_dojo_report(self):
+        # Read lines from file and insert jstring between the tags.
+        with open(self.path, "r") as fh:
+            lines = fh.readlines()
+            try:
+                start = lines.index("<DOJO_REPORT>\n")
+            except ValueError:
+                start = -1
+                                                                           
+            if start == -1:
+               return
+
+            stop = lines.index("</DOJO_REPORT>\n")
+            if stop == -1:
+               return
+
+            del lines[start+1:stop]
+            #pprint(lines)
+                                                                            
+        #  Write new file.
+        with open(self.path, "w") as fh:
+            fh.writelines(lines)
+
     def hint_for_accuracy(self, accuracy):
         """
         Returns an hint object with parameters such as ecut and aug_ratio for given accuracy
@@ -302,6 +332,10 @@ class Pseudo(object):
             Args: 
                 accuracy: ["low", "normal", "high"]
         """
+        if self.dojo_report:
+            return self.dojo_report["hints"](accuracy)
+        else:
+            return None
 
     @property
     def has_hints(self):
@@ -370,7 +404,7 @@ class AbinitPseudo(Pseudo):
 
         self.path     = path
         self._summary = header.summary
-        self.extra_info = header.extra_info
+        self.dojo_report = header.dojo_report
         #self.pspcod  = header.pspcod
 
         for (attr_name, desc) in header.items():
@@ -403,12 +437,6 @@ class AbinitPseudo(Pseudo):
     @property
     def l_local(self): 
         return self._lloc
-
-    def hint_for_accuracy(self, accuracy):
-        if self.extra_info is not None:
-            return self.extra_info.hint_for_accuracy(accuracy)
-        else:
-            return None
 
 ##########################################################################################
 
@@ -478,255 +506,18 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
         "String representation in csv format"
         return "ecut = %s, aug_ratio = %s" % (self.ecut, self.aug_ratio)
 
-##########################################################################################
-
-class PseudoExtraInfo(ET.Element):
-
-#<PP_INFO>
-#  Generated using XXX code v.N
-#  Author: Jon Doe
-#  Generation date: 32Oct1976
-#  Pseudopotential type: SL|NC|1/r|US|PAW
-#  Element:  Tc
-#  Functional:  SLA  PW   PBX  PBC
-#  Suggested minimum cutoff for wavefunctions:  N Ry
-#  Suggested minimum cutoff for charge density: M Ry
-#  Non-/scalar-/fully-relativistic pseudopotential
-#  Local potential generation info (L, rcloc, pseudization)
-#  Pseudopotential is spin-orbit/contains GIPAW data
-#  Valence configuration:
-#  nl, pn, l, occ, Rcut, Rcut US, E pseu
-#  els(1),  nns(1),  lchi(1),  oc(1),  rcut(1),  rcutus(1),  epseu(1)
-#  ...
-#  els(n),  nns(n),  lchi(n),  oc(n),  rcut(n),  rcutus(n),  epseu(n)
-#  Generation configuration:
-#     as above, including all states used in generation
-#  Pseudization used: Martins-Troullier/RRKJ
-#  <PP_INPUTFILE>
-#    Copy of the input file used in generation
-#  </PP_INPUTFILE>
-#  <PP_SUGGESTED_CUTOFF, units="a.u">
-#  </PP_SUGGESTED_CUTOFF>
-# <PP_ETOTAL_VS_ECUT, units="a.u">
-# </PP_ETOTAL_VS_ECUT>
-#</PP_INFO>
-
-    #:Energy differences for the different accuracy levels.
-    DE_HIGH, DE_NORMAL, DE_LOW = 0.1e-3/Ha_eV,  1e-3/Ha_eV, 10e-3/Ha_eV
-
-    _tag = "pp_extra_info"
-
-    def __init__(self):
-        attrib = {}
-        extra = {}
-        ET.Element.__init__(self, self._tag, attrib=attrib, **extra)
-
-    @classmethod
-    def from_filename(cls, filename):
-        "Instanciate the object from file filename"
-        with open(filename, "r") as fh:
-            text = fh.read()
-            index = text.find("<"+cls._tag)
-
-            if index != -1:
-                return PseudoExtraInfo.from_string(text[index:])
-            else:
-                return None # no tag found
-
-    @classmethod
-    def from_string(cls, string):
-        "Return a new instance from a string with data in XML format."
-        new = ET.fromstring(string)
-        # We want an instance of PseudoExtraInfo.
-        new.__class__ = cls
-        return new
-
-    @classmethod
-    def from_data(cls, ecut_list, etotal_dict, input=None, extra_text=None, strange_data=0):
-        """
-        Return a new instance from data.
-            Args:
-                ecut_list:
-                etotal_list:
-        """
-        # TODO: Rewrite this method
-        # Convert values to float. 
-        aug_ratios = [(float(k), k) for k in etotal_dict]
-
-        aug_ratios.sort(key = lambda t : t[0])
-
-        # Sort keys in etotal_dict according to aug_ratio (as float).
-        odict = collections.OrderedDict()
-        for (float_ratio, str_ratio) in aug_ratios:
-            odict[float_ratio] = etotal_dict[str_ratio]
-
-        etotal_dict = odict
-
-        hints_dict = collections.OrderedDict()
-
-        for (aug_ratio, etotal) in etotal_dict.items():
-
-            num_ene = len(etotal)
-            etotal_inf = etotal[-1]
-
-            #print(" idx ecut, etotal (et-e_inf) [meV]")
-            #for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-            #    print(idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
-
-            ecut_high, ecut_normal, ecut_low, conv_idx = 4 * (None,)
-
-            # Spline
-            #from scipy import interpolate
-            #spline = interpolate.InterpolatedUnivariateSpline(ecut_list, Ha2meV(etotal-etotal_inf))
-            #derivatives = spline.derivatives(ecut_list[-1])
-            #print derivatives
-            #roots = spline.roots()
-            #print roots
-
-            for i in range(num_ene-2, -1, -1):
-                etot  = etotal[i] 
-                ediff = etot - etotal_inf
-                if ediff < 0.0: strange_data += 1
-
-                if ecut_high is None and ediff > cls.DE_HIGH:
-                    conv_idx =  i+1
-                    ecut_high = ecut_list[i+1]
-                                                                                      
-                if ecut_normal is None and ediff > cls.DE_NORMAL:
-                    ecut_normal = ecut_list[i+1]
-                                                                                      
-                if ecut_low is None and ediff > cls.DE_LOW:
-                    ecut_low = ecut_list[i+1]
-                                                                                      
-            if conv_idx is None or (num_ene - conv_idx) < 2:
-                print("Not converged %d " % conv_idx)
-                strange_data += 1
-
-            # Hints for ecut and aug_ratio.
-            hints_dict["low"]    = Hint(ecut_low   , aug_ratio)
-            hints_dict["normal"] = Hint(ecut_normal, aug_ratio)
-            hints_dict["high"]   = Hint(ecut_high  , aug_ratio)
-
-        return cls(ecut_list, etotal_dict, hints_dict, strange_data=strange_data)
-
     @property
-    def input(self):
-        e = self.find("./pp_input")
-        if e is not None:
-            return e.text
-        else:
-            return ""
-
-    @property
-    def extra_text(self):
-        e = self.find("./pp_extra_text")
-        if e is not None:
-            return e.text
-        else:
-            return ""
-
-    @property
-    def hints_dict(self):
-        # Find the section with the hints.
-        e = self.find("./pp_hints")
-
-        # Create dictionary "accuracy_name" --> hint object.
-        hints_dict = collections.OrderedDict()
-        for hint in e:
-            hints_dict[hint.tag] = Hint.from_csv(hint.text)
-        return hints_dict
-
-    def hint_for_accuracy(self, accuracy):
-        return self.hints_dict[accuracy]
-
-    def toxml(self, pretty_xml=True):
-        """
-        Return a string with data written in XML format.
-        """
-        extra = {
-          "version"    : self._xml_version,
-          "units"      : "a.u.",
-        #  "psp_type"  : "NC",
-        }
-
-        root = ET.Element("pp_extra_info", **extra)
-
-        if self.input:
-            input_sube = ET.SubElement(root, 'pp_input_file')
-            input_sube.text = "".join(str(line) for line in self.input)
-
-        if self.extra_text:
-            extra_text_sube = ET.SubElement(root, 'pp_extra_text')
-            extra_text_sube.text = self.extra_text
-     
-        # Put this attribute if results seem not to be converged.
-        #extra = {}
-        #if self.strange_data:
-        #    extra = {"strange_data" : str(self.strange_data)}
-
-        hints_sube = ET.SubElement(root, 'pp_hints', **extra)
-
-        for accuracy in ["low", "normal", "high"]:
-            csv_string = self._hints_dict[accuracy].to_csv()
-            ET.SubElement(hints_sube, accuracy).text = csv_string
-
-        strio = StringIO.StringIO()
-
-        ET.ElementTree(root).write(strio, 
-            encoding="us-ascii", xml_declaration=None, default_namespace=None, method="xml")
-
-        strio.seek(0)
-        xml_string = "\n".join(line for line in strio)
-
-        if pretty_xml:
-            import xml.dom.minidom
-            xml = xml.dom.minidom.parseString(xml_string)
-            xml_string = xml.toprettyxml(indent=4*" ")
-
-        return xml_string
-
-    def show_etotal(self, *args, **kwargs):
-        """
-        Plot the value of varname as function of ecut.
-        """
-        import matplotlib.pyplot as plt
-
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-
-        lines, legends = [], []
-
-        emax = -np.inf
-        for (aug_ratio, etotal) in self._etotal_dict.items():
-            emev = Ha2meV(etotal)
-            emev_inf = len(self.ecut_list) * [emev[-1]]
-            yy = emev - emev_inf
-
-            emax = max(emax, np.max(yy))
-
-            line, = ax.plot(self.ecut_list, yy, "-->", linewidth=3.0, markersize=10)
-            lines.append(line)
-            legends.append("aug_ratio = %s" % aug_ratio)
-
-            #line, = ax.plot(self.ecut_list, emev_inf, "-->", linewidth=3.0, markersize=10)
-            #lines.append(line)
-            #legends.append("aug_ratio = %s" % aug_ratio)
-
-        ax.legend(lines, legends, 'upper right', shadow=True)
-
-        # Set xticks and labels.
-        ax.grid(True)
-        ax.set_xlabel("Ecut [Ha]")
-        ax.set_ylabel("$\Delta$ Etotal [meV]")
-        ax.set_xticks(self.ecut_list)
-
-        ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
-
-        ax.set_title("$\Delta$ Etotal Vs Ecut")
-        if self.strange_data:
-            ax.set_title("Strange Data" + str(self.strange_data))
-
-        plt.show()
+    def to_dict(self):
+        d = {}
+        #d["@module"] = self.__class__.__module__
+        #d["@class"] = self.__class__.__name__
+        for f in self._fields:
+            d[f] = getattr(self, f)
+        return d
+                                                                                    
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**{k: v for k,v in d if not k.startswith("@")})
 
 ##########################################################################################
 
@@ -850,8 +641,8 @@ class NcAbinitHeader(AbinitHeader):
 
             self[key] = value
 
-        # Add extra_info section.
-        self["extra_info"] = kwargs.pop("extra_info", None)
+        # Add dojo_report
+        self["dojo_report"] = kwargs.pop("dojo_report", {})
 
         if kwargs:
             msg = "kwargs should be empty but got %s" % str(kwargs)
@@ -871,7 +662,7 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
         summary = lines[0]
 
-        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
+        header["dojo_report"] = read_dojo_report(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -888,7 +679,7 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
-        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
+        header["dojo_report"] = read_dojo_report(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -941,7 +732,7 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(header, [0,3,6,3])
 
-        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
+        header["dojo_report"] = read_dojo_report(filename)
 
         return NcAbinitHeader(summary, **header) 
 
@@ -1046,7 +837,7 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        header["extra_info"] = PseudoExtraInfo.from_filename(filename)
+        header["dojo_report"] = read_dojo_report(filename)
 
         return PawAbinitHeader(summary, **header)
 
@@ -1629,30 +1420,5 @@ class PseudoDatabase(dict):
     #def paw_pseudos(self, symbol, xc_type, table_type=None, **kwargs):
 
     #def find_all(self, symbol, xc_type):
-
-def add_hints(dirname):
-    json_filename = os.path.join(dirname, "validated.json")
-    if not os.path.exists(json_filename):
-        return 
-
-    import json 
-
-    with open(json_filename, "r") as fh:
-        results = json.load(fh)
-
-    pprint(results)
-
-    for ppname, res in results.items():
-        ecut_list = res["ecut_list"]
-        etotal_dict = { 1 : res["etotal"] }
-
-        extra = PseudoExtraInfo.from_data(ecut_list, etotal_dict)
-
-        xml_string = extra.toxml()
-        print(xml_string)
-
-        #fname = os.path.join(dirname, ppname)
-        #with open(fname, "a") as fh:
-        #    fh.write(xml_string)
 
 ##########################################################################################
