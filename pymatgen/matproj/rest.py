@@ -579,11 +579,14 @@ class MPRester(object):
         #TODO: Get histories from the data.
         for e in queen.get_data():
             structures.append(e.structure)
-            m = {"_vasp": {"parameters": e.parameters,
-                           "final_energy": e.energy,
-                           "final_energy_per_atom": e.energy_per_atom,
-                           "initial_structure": e.data["initial_structure"]
-                           .to_dict}}
+            m = {
+                "_vasp": {
+                    "parameters": e.parameters,
+                    "final_energy": e.energy,
+                    "final_energy_per_atom": e.energy_per_atom,
+                    "initial_structure": e.data["initial_structure"].to_dict
+                }
+            }
             if master_data is not None:
                 m.update(master_data)
             metadata.append(m)
