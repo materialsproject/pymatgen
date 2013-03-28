@@ -536,7 +536,11 @@ class StructureMatcher(MSONable):
                         return fit_dist
                     elif rms < stored_rms[0]:
                         stored_rms = [rms, max_dist]
-        return stored_rms
+
+        if break_on_match:
+            return None
+        else:
+            return stored_rms
 
     def find_indexes(self, s_list, group_list):
         """
