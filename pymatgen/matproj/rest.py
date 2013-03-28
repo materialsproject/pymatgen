@@ -608,7 +608,7 @@ class MPRester(object):
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
-                    return resp
+                    return resp["response"]
                 else:
                     raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
