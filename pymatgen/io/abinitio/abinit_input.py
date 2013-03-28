@@ -266,13 +266,13 @@ class System(AbinitCard):
         "nsym",
     ]
 
-    def __init__(self, structure, pptable_or_pseudos, nsym=None, comment=None): 
+    def __init__(self, structure, pseudos, nsym=None, comment=None): 
         """
         Args:
             structure:
                 Input pymatgen structure.
-            pptable_or_pseudos:
-                PseudoTable instance or list of pseudopotentials.
+            pseudos:
+                List of pseudopotentials.
             nsym:
                 Number of space group symmetries used by abinit. Set it to 1 to disable the use of symmetries.
             comment:
@@ -288,27 +288,23 @@ class System(AbinitCard):
 
         self._comment = structure.formula if comment is None else comment
 
-        if isinstance(pptable_or_pseudos, PseudoTable):
-            pseudos = []
-            table = pptable_or_pseudos
-            for typ in structure.types_of_specie:
-                                                                                     
-                # Get list of pseudopotentials in table from atom symbol.
-                pseudos_for_type = table.pseudos_with_symbol(typ)
-                                                                                     
-                if pseudos_for_type is None or len(pseudos_for_type) != 1:
-                    raise ValueError("Cannot find unique pseudo for type %s" % typ)
-                                                                                     
-                pseudos.append(pseudos_for_type[0])
-                                                                                     
-        else:
-            pseudos = pptable_or_pseudos
-            if not isinstance(pseudos, collections.Iterable):
-                pseudos = [pptable_or_pseudos]
+        if not isinstance(pseudos, PseudoTable):
+            pseudos = PseudoTable(pseudos)
 
-        self.pseudos = tuple(pseudos)
+        # Extract pseudos for this calculation (needed when we pass an entier periodic table)
+        table = pseudos
+        pseudos = []
 
-        pseudo_list = ", ".join(p.path for p in self.pseudos)
+        for typ in structure.types_of_specie:
+            # Get list of pseudopotentials in table from atom symbol.
+            pseudos_for_type = table.pseudos_with_symbol(typ)
+                                                                                 
+            if pseudos_for_type is None or len(pseudos_for_type) != 1:
+                raise ValueError("Cannot find unique pseudo for type %s" % typ)
+                                                                                 
+            pseudos.append(pseudos_for_type[0])
+                                                                                     
+        self.pseudos = PseudoTable(pseudos)
 
         # TODO
         #self.num_valence_electrons 
@@ -350,8 +346,7 @@ class System(AbinitCard):
             "znucl"  : znucl_type,
             "xred"   : xred,
             "nsym"   : nsym,
-            #"pseudo_dir"  : pseudo_dir,
-            #"pseudo_list" : pseudo_list,
+            #"pseudo_list" : ", ".join(p.path for p in self.pseudos),
         })
 
 
@@ -701,7 +696,7 @@ class Kpoints(AbinitCard):
 
             kpath_bounds = []
             for label in kpath_labels:
-                red_coord = sp.kpath["kpoints"][label])
+                red_coord = sp.kpath["kpoints"][label]
                 print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
@@ -968,7 +963,8 @@ class Electrons(AbinitCard):
         self.spin_mode = spin_mode
 
         spin_vars = Electrons._mode2vars[spin_mode]
-                                                      
+
+        #fband = 4
         self.update({
             "nsppol"  : spin_vars.nsppol,
             "nspinor" : spin_vars.nspinor,
@@ -1841,7 +1837,7 @@ class Input(dict, MSONable):
         return self.add_vars_to_card(vars, "System")
 
     @staticmethod
-    def SCF_groundstate(structure, pptable_or_pseudos, 
+    def SCF_groundstate(structure, pseudos, 
                         ngkpt = None,
                         kppa  = None,
                         spin_mode = "polarized", 
@@ -1854,8 +1850,8 @@ class Input(dict, MSONable):
         Args:
             structure:
                 pymatgen structure
-            pptable_or_pseudos:
-                PseudoTable or list of pseudopotentials.
+            pseudos:
+                List of pseudopotentials.
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             kppa:
@@ -1872,7 +1868,7 @@ class Input(dict, MSONable):
         """
 
         # Initialize system section from structure.
-        system = System(structure, pptable_or_pseudos)
+        system = System(structure, pseudos)
 
         # Variabled for electrons
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
@@ -1891,8 +1887,9 @@ class Input(dict, MSONable):
         return Input(system, electrons, kmesh, scf_control)
 
     @staticmethod
-    def NSCF_kpath_from_SCF(scf_input, nband, kpath_bounds, 
-                            ndivsm=20, 
+    def NSCF_kpath_from_SCF(scf_input, nband, 
+                            ndivsm       = 20, 
+                            kpath_bounds = None, 
                             **kwargs
                            ):
         """
@@ -1903,10 +1900,10 @@ class Input(dict, MSONable):
                 Input for self-consistent calculations.
             nband:
                 Number of bands to compute
-            kpath_bound:
-                Extrema of the k-path.
             ndivsm:
                 Number of division for the smallest segment
+            kpath_bounds:
+                Extrema of the k-path.
             **kwargs:
                 Extra variables added directly to the input file
                                                                                                        
@@ -1916,7 +1913,10 @@ class Input(dict, MSONable):
         # Change Kpoints and Electrons.
         nscf_cards = scf_input.copy_cards(exclude=["Kpoints", "Electrons",])
 
-        nscf_cards.append(Kpoints.path(kpath_bounds, ndivsm))
+        if kpath_bound is not None:
+            nscf_cards.append(Kpoints.explicit_path(ndivsm, kpath_bounds))
+        else:
+            nscf_cards.append(Kpoints.path_from_structure(ndivsm, scf_input.structure))
 
         spin_mode = scf_input.Electrons.spin_mode
 
@@ -1959,7 +1959,7 @@ class Input(dict, MSONable):
 
         return Input(*nscf_cards)
 
-    def Relax(structure, pptable_or_pseudos, ngkpt, 
+    def Relax(structure, pseudos, ngkpt, 
               spin_mode = "polarized", 
               smearing  = None,
               **kwargs
@@ -1970,8 +1970,8 @@ class Input(dict, MSONable):
         Args:
             structure:
                 pymatgen structure
-            pptable_or_pseudos:
-                PseudoTable or list of pseudopotentials.
+            pseudos:
+                List of pseudopotentials.
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             spin_mode: 
@@ -1985,7 +1985,7 @@ class Input(dict, MSONable):
             AbinitInput instance.
         """
         # Initialize geometry section from structure.
-        system = System(structure, pptable_or_pseudos)
+        system = System(structure, pseudos)
 
         # Variables for electrons
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
