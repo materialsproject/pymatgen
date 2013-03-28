@@ -77,6 +77,10 @@ Version 2.6.3
 2. Added support for new MaterialsProject REST method get_stability.
 3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
    PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
+4. Improvements to StructureMatcher: stol (site - tolerance) redefined as
+   a fraction of the average length per atom. Structures matched in fractional
+   space are now also matched in cartesian space and a rms displacement
+   normalized by length per atom can be returned using the rms_dist method.
 
 Version 2.6.2
 -------------
