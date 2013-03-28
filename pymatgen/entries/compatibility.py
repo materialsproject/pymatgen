@@ -43,6 +43,11 @@ class Compatibility(EntryPostProcessor):
        using Materials Project parameters, this would look like
        entry.parameters["potcar_symbols"] = ['PAW_PBE Fe_pv 06Sep2000',
        'PAW_PBE O 08Apr2002'].
+
+    It should be noted that ComputedEntries assimilated using the
+    pymatgen.apps.borg package and obtained via the MaterialsProject REST
+    interface using the pymatgen.matproj.rest package will automatically have
+    these fields populated.
     """
 
     def __init__(self, input_set_name, compat_type):
