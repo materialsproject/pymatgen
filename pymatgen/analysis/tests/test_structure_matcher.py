@@ -140,7 +140,7 @@ class StructureMatcherTest(unittest.TestCase):
                               scale=False, comparator=ElementComparator())
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
-        self.assertTrue(sm.get_rms(self.struct_list[0],
+        self.assertTrue(sm.rms_dist(self.struct_list[0],
                                    self.struct_list[1])[0] < 0.0008)
 
 if __name__ == '__main__':
