@@ -24,9 +24,6 @@ class AttrDict(dict):
         self.__dict__ = self
 
 ##########################################################################################
-#class PseudoCandidate(object):
-
-##########################################################################################
 
 class DojoError(Exception):
     pass
@@ -259,3 +256,47 @@ class DeltaFactorMaster(object):
         return {"delta_factor" : d}, isok
 
 ##########################################################################################
+
+def show_etotal(self, *args, **kwargs):
+    """
+    Plot the value of varname as function of ecut.
+    """
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+
+    lines, legends = [], []
+
+    emax = -np.inf
+    for (aug_ratio, etotal) in self._etotal_dict.items():
+        emev = Ha2meV(etotal)
+        emev_inf = len(self.ecut_list) * [emev[-1]]
+        yy = emev - emev_inf
+
+        emax = max(emax, np.max(yy))
+
+        line, = ax.plot(self.ecut_list, yy, "-->", linewidth=3.0, markersize=10)
+        lines.append(line)
+        legends.append("aug_ratio = %s" % aug_ratio)
+
+        #line, = ax.plot(self.ecut_list, emev_inf, "-->", linewidth=3.0, markersize=10)
+        #lines.append(line)
+        #legends.append("aug_ratio = %s" % aug_ratio)
+
+    ax.legend(lines, legends, 'upper right', shadow=True)
+
+    # Set xticks and labels.
+    ax.grid(True)
+    ax.set_xlabel("Ecut [Ha]")
+    ax.set_ylabel("$\Delta$ Etotal [meV]")
+    ax.set_xticks(self.ecut_list)
+
+    ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
+
+    ax.set_title("$\Delta$ Etotal Vs Ecut")
+    if self.strange_data:
+        ax.set_title("Strange Data" + str(self.strange_data))
+
+    plt.show()
+
