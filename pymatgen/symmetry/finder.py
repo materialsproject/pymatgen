@@ -705,14 +705,14 @@ class SymmetryFinder(object):
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
-                          [b * cos(gamma), b * sin(gamma), 0.0],
-                          [-c * cos(beta),
-                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                           sin(gamma),
-                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                          - cos(beta) ** 2
-                                          + 2 * cos(alpha) * cos(beta)
-                                          * cos(gamma)) / sin(gamma)]]
+                           [b * cos(gamma), b * sin(gamma), 0.0],
+                           [-c * cos(beta),
+                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                           - cos(beta) ** 2
+                                           + 2 * cos(alpha) * cos(beta)
+                                           * cos(gamma)) / sin(gamma)]]
 
             if matrix_test(test_matrix):
                 trans = [[-1.0, 0.0, 0.0],
@@ -737,14 +737,14 @@ class SymmetryFinder(object):
                 new_matrix = test_matrix
 
             test_matrix = [[a, 0, 0],
-                          [-b * cos(gamma), -b * sin(gamma), 0.0],
-                          [-c * cos(beta),
-                           -c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                           sin(gamma),
-                           -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                          - cos(beta) ** 2
-                                          + 2 * cos(alpha) * cos(beta)
-                                          * cos(gamma)) / sin(gamma)]]
+                           [-b * cos(gamma), -b * sin(gamma), 0.0],
+                           [-c * cos(beta),
+                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                           - cos(beta) ** 2
+                                           + 2 * cos(alpha) * cos(beta)
+                                           * cos(gamma)) / sin(gamma)]]
             if matrix_test(test_matrix):
                 trans = [[1.0, 0.0, 0.0],
                          [0.0, -1.0, 0.0],
