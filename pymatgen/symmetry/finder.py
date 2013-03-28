@@ -639,7 +639,7 @@ class SymmetryFinder(object):
                 for t in itertools.permutations(range(3), 3):
                     m = latt.matrix
                     landang = Lattice(
-                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
+                        [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
                             [-m[t[0]], -m[t[1]], m[t[2]]]).lengths_and_angles
