@@ -523,7 +523,7 @@ class PseudoConvergence(Work):
     def __init__(self, workdir, pseudo, ecut_list, 
                  spin_mode     = "polarized", 
                  acell         = 3*(8,), 
-                 smearing      = None,
+                 smearing      = "fermi_dirac:0.1 eV",
                 ):
 
         super(PseudoConvergence, self).__init__(workdir)
@@ -560,7 +560,7 @@ class PseudoIterativeConvergence(IterativeWork):
     def __init__(self, workdir, pseudo, ecut_list_or_slice, 
                  spin_mode     = "polarized", 
                  acell         = 3*(8,), 
-                 smearing      = None,
+                 smearing      = "fermi_dirac:0.1 eV",
                  max_niter     = 100,
                 ):
         """
@@ -574,14 +574,13 @@ class PseudoIterativeConvergence(IterativeWork):
             acell:
                 Lengths of the periodic box in Bohr.
             smearing:
-                Smearing instance. Default: FemiDirac with T=0.1 eV
+                Smearing instance or string in the form "mode:tsmear". Default: FemiDirac with T=0.1 eV
         """
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
-        if smearing is None: 
-            smearing = Smearing.FermiDirac(0.1/Ha_eV)
+        smearing = Smearing.from_mode(smearing)
 
         self._spin_mode = spin_mode
         self._smearing  = smearing
@@ -891,14 +890,16 @@ class G0W0(Work):
 class PPConvergenceFactory(object):
     "Factory object"
 
-    def work_for_pseudo(self, workdir, pseudo, ecut_range, spin_mode="polarized", smearing=None):
+    def work_for_pseudo(self, workdir, pseudo, ecut_range, 
+                        spin_mode = "polarized", 
+                        smearing  = "fermi_dirac:0.1 eV",
+                       ):
         """
         Return a Work object from the given pseudopotential.
         """
         workdir = os.path.abspath(workdir)
 
-        if smearing is None:
-            smearing = Smearing.FermiDirac(0.1 / Ha_eV)
+        smearing = Smearing.from_mode(smearing)
 
         if isinstance(ecut_range, slice):
             work = PseudoIterativeConvergence(workdir, pseudo, ecut_range,

@@ -12,8 +12,9 @@ import numpy as np
 from pprint import pprint
 
 from pymatgen.util.num_utils import sort_dict
-from pymatgen.io.abinitio.workflow import PPConvergenceFactory
 from pymatgen.io.abinitio.pseudos import Pseudo
+from pymatgen.io.abinitio.workflow import PPConvergenceFactory
+from pymatgen.io.abinitio.deltaworks import DeltaFactory
 
 ##########################################################################################
 
@@ -35,7 +36,7 @@ class Dojo(object):
         # List of master classes that will be instanciated afterwards.
         # They are ordered according to the master level.
         self.master_classes = [m for m in DojoMaster.__subclasses__()]
-        self.master_classes.sort(key = lambda cls : cls.level)
+        self.master_classes.sort(key = lambda cls : cls.dojo_level)
 
     def accept_pseudos(self, pseudos):
 
@@ -74,15 +75,15 @@ class DojoMaster(object):
         self.errors = []
 
     @staticmethod
-    def from_level(level):
+    def from_dojo_level(level):
         "Static constructor, returns an instance of DojoMaster for the the given level"
         classes = []
         for cls in DojoMaster.__subclasses__():
-            if cls.level == level:
+            if cls.dojo_level == dojo_level:
                 classes.append(cls)
 
         if len(classes) != 1:
-            raise self.Error("Found %d drones for dojo_level %d" % (len(classes), level))
+            raise self.Error("Found %d drones for dojo_level %d" % (len(classes), dojo_level))
                                                                                               
         return classes[0]()
 
@@ -98,14 +99,15 @@ class DojoMaster(object):
         ready = False
         if pseudo.dojo_level is None:
             # hints are missing
-            ready = (self.level == 0)
+            ready = (self.dojo_level == 0)
         else:
-            ready = (pseudo.dojo_level == self.level - 1)
+            ready = (pseudo.dojo_level == self.dojo_level - 1)
 
         if not ready:
-            msg = "%s-san, you are not ready for my training" % pseudo.name
+            msg = "%s: Sorry, %s-san, I cannot train you" % (self.__class__.__name__, pseudo.name)
+            print(msg)
         else:
-            print("Welcome %s-san, I will be your level %d master" % (pseudo.name, self.level))
+            print("%s: Welcome %s-san, I will be your level %d trainer" % (self.__class__.__name__, pseudo.name, self.dojo_level))
             self.pseudo = pseudo
 
         return ready
@@ -153,7 +155,8 @@ class DojoMaster(object):
 ##########################################################################################
 
 class HintsMaster(DojoMaster):
-    level = 0
+    dojo_level = 0
+    dojo_key = "hints"
 
     def challenge(self, workdir, **kwargs):
         pseudo = self.pseudo
@@ -161,7 +164,7 @@ class HintsMaster(DojoMaster):
         #tols_mev TODO
         factory = PPConvergenceFactory()
 
-        workdir = os.path.join(workdir, "LEVEL_" + str(0))
+        workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
         estep = 10 
         eslice = slice(5,None,estep)
@@ -208,19 +211,22 @@ class HintsMaster(DojoMaster):
             except KeyError:
                 raise KeyError("%s is missing in input results" % key)
 
-        return {"hints" : d}, isok
+        return {self.dojo_key : d}, isok
 
 ##########################################################################################
 
-#class DeltaFactorMaster(DojoMaster):
-class DeltaFactorMaster(object):
-    level = 1
+class DeltaFactorMaster(DojoMaster):
+    dojo_level = 1
+    dojo_key = "delta_factor"
 
     def challenge(self, workdir, **kwargs):
+        pseudo = self.pseudo
+
         factory = DeltaFactory()
 
-        #w = factory.work_for_pseudo(workdir, self.pseudo)
-        w = factory.work_for_pseudo(self.pseudo)
+        workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
+
+        w = factory.work_for_pseudo(workdir, pseudo, kppa=1)
 
         w.start()
         w.wait()
@@ -253,7 +259,17 @@ class DeltaFactorMaster(object):
         #    except KeyError:
         #        raise KeyError("%s is missing in input results" % key)
 
-        return {"delta_factor" : d}, isok
+        return {self.dojo_key : d}, isok
+
+##########################################################################################
+
+_key2lev = {}
+for cls in DojoMaster.__subclasses__():
+    _key2lev[cls.dojo_key] = cls.dojo_level
+
+def dojo_key2level(key):
+    "Return the level of the trial from the name found in the pseudo"
+    return _key2lev[key] 
 
 ##########################################################################################
 
