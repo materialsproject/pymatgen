@@ -662,3 +662,43 @@ class TaskDependencies(object):
             vars.update({varname : path})
         return vars
 
+
+##########################################################################################
+class TaskLauncher(object): 
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, paral_info=None, env=None, modules=None, pre_cmds=None, post_cmds=None):
+
+        self.paral_info = paral_info if paral_info is not None else {}
+        self.env = env if env is not None else {}
+        self.modules = modules if modules is not None else []
+        self.pre_cmds = pre_cmds if pre_cmds is not None else []
+        self.post_cmds = post_cmds if post_cmds is not None else []
+
+    @abc.abstractmethod
+    def write_jobfile(self, task):
+        "Write the submission script"
+
+    @abc.abstractmethod
+    def submit_task(self, task):
+        "Submit a task, set task._process (process-like object)"
+
+    def launch_task(self, task):
+        self.write_jobfile(task)
+        self.submit_task(task)
+
+##########################################################################################
+
+class ShellLauncher(TaskLauncher): 
+
+    def submit_task(self, task):
+        # Start the calculation in a subprocess and return
+        from subprocess import Popen, PIPE
+        task._process = Popen((task.jobfile.shell, task.jobfile.path), cwd=task.workdir, stderr=PIPE)
+
+##########################################################################################
+
+class SlurmLauncher(TaskLauncher): 
+    pass
+
+##########################################################################################

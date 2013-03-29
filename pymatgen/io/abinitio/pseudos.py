@@ -263,15 +263,19 @@ class Pseudo(object):
     #def generation_mode
     #    "scalar scalar-relativistic, relativistic"
 
-    #def has_dojo_report(self)
+    @property
+    def has_dojo_report(self):
+        return self.dojo_report
 
     @property
     def dojo_level(self):
+        "The maximum level of the DOJO trials passes by the pseudo."
         if not self.dojo_report:
             return None
         else:
-            raise NotImplementedError("")
-            #return report["dojo_level"]
+            from pymatgen.io.abinitio.pseudo_dojo import dojo_key2level
+            levels = [dojo_key2level(key) for key in self.dojo_report]
+            return max(levels)
 
     #def dojo_rank(self):
 
@@ -321,7 +325,7 @@ class Pseudo(object):
             del lines[start+1:stop]
             #pprint(lines)
                                                                             
-        #  Write new file.
+        # Write new file.
         with open(self.path, "w") as fh:
             fh.writelines(lines)
 
@@ -333,7 +337,7 @@ class Pseudo(object):
                 accuracy: ["low", "normal", "high"]
         """
         if self.dojo_report:
-            return self.dojo_report["hints"](accuracy)
+            return Hint.from_dict(self.dojo_report["hints"][accuracy])
         else:
             return None
 
@@ -491,33 +495,15 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
-    @classmethod
-    def from_csv(cls, string):
-        "Return new instance from a string in csv format"
-        tokens = string.split(",")
-        d = {}
-        for tok in tokens:
-            k, v = tok.split("=")
-            d[k.strip()] = float(v)
-
-        return cls(**d)
-
-    def to_csv(self):
-        "String representation in csv format"
-        return "ecut = %s, aug_ratio = %s" % (self.ecut, self.aug_ratio)
-
     @property
     def to_dict(self):
-        d = {}
         #d["@module"] = self.__class__.__module__
         #d["@class"] = self.__class__.__name__
-        for f in self._fields:
-            d[f] = getattr(self, f)
-        return d
-                                                                                    
+        return {f: getattr(self, f) for f in self._fields}
+
     @classmethod
     def from_dict(cls, d):
-        return cls(**{k: v for k,v in d if not k.startswith("@")})
+        return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
 
 ##########################################################################################
 

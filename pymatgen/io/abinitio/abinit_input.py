@@ -14,6 +14,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
+from pymatgen.core.units import any2Ha
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -875,6 +876,35 @@ class Smearing(MSONable):
 
     def __ne__(self, other):
         return not self == other
+
+    @classmethod
+    def from_mode(cls, mode):
+        """
+        Constructs an instance of Smearing from mode . 
+        Accepts mode in the form:
+
+            * "mode:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
+            * "mode:tsmear units" e.g. "gaussian:0.1 eV"
+            * None
+            * Smearing instances
+        """
+        if isinstance(mode, cls):
+            return mode
+
+        mode, tsmear = mode.split(":")
+        mode.strip()
+
+        if mode == "None" or mode is None:
+            return cls.NoSmearing()
+        else:
+            occopt = cls._mode2occopt[mode]
+            try:
+                tsmear = float(tsmear)
+            except ValueError:
+                tsmear, units = tsmear.split()
+                tsmear = any2Ha(units)(float(tsmear))
+
+            return cls(occopt, tsmear)
 
     @property
     def mode(self):
