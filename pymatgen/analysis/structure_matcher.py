@@ -254,7 +254,7 @@ class StructureMatcher(MSONable):
 
     """
 
-    def __init__(self, ltol=0.2, stol=0.2, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
         Args:
@@ -263,7 +263,7 @@ class StructureMatcher(MSONable):
             stol:
                 Site tolerance. Defined as the fraction of the
                 average free length per atom := ( V / Nsites ) ** (1/3)
-                Default is 0.2
+                Default is 0.3
             angle_tol:
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
@@ -379,7 +379,7 @@ class StructureMatcher(MSONable):
 
         avg_lattice = Lattice.from_lengths_and_angles(avg_params[0],
                                                       avg_params[1])
-        dist = np.zeros([nsites, nsites]) + 5 * nsites
+        dist = np.zeros([nsites, nsites]) + 100 * nsites
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
         for s1_coords, s2_coords in zip(s1, s2):
@@ -501,8 +501,10 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = (2 / (1 - self.ltol)) * \
-            np.array([stol / i for i in struct1.lattice.abc]) * (nl1.volume + nl2.volume) / 2
+        frac_tol = (1 / (1 - self.ltol)) * \
+            np.array([stol / i for i in struct1.lattice.abc]) * \
+                   ((nl1.volume + nl2.volume) /
+                    (2 * struct1.num_sites)) ** (1.0 / 3)
         #generate structure coordinate lists
         species_list = []
         s1 = []
