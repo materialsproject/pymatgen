@@ -566,7 +566,7 @@ class Kpoints(AbinitCard):
     @staticmethod
     def gamma_only():
         "Gamma-only sampling"
-        return Kpoints(comment="Gamma-only sampling")
+        return Kpoints(kpt_shifts=(0.0,0.0,0.0), comment="Gamma-only sampling")
 
     @staticmethod
     def gamma_centered(kpts=(1, 1, 1), use_symmetries=True, use_time_reversal=True):
@@ -998,7 +998,8 @@ class Electrons(AbinitCard):
 
         spin_vars = Electrons._mode2vars[spin_mode]
 
-        #fband = 4
+        #FIXME
+        fband = 4
         self.update({
             "nsppol"  : spin_vars.nsppol,
             "nspinor" : spin_vars.nspinor,

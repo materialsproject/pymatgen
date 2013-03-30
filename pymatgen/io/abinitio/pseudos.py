@@ -105,8 +105,7 @@ def read_dojo_report(filename):
              return {}
          stop = lines.index("</DOJO_REPORT>\n")
 
-         s = "".join(l for l in lines[start+1:stop])
-         return json.loads(s)
+         return json.loads("".join(l for l in lines[start+1:stop]))
 
 _l2str = {
     0 : "s",
@@ -1006,49 +1005,16 @@ class PseudoTable(collections.Sequence):
 
     For example, the following all retrieve iron:
 
-    .. doctest::
-
-        >>> from periodictable import *
-        >>> print elements[26]
-        Fe
-        >>> print elements.Fe
-        Fe
-        >>> print elements.symbol('Fe')
-        Fe
-        >>> print elements.name('iron')
-        Fe
-        >>> print elements.isotope('Fe')
-        Fe
-
-
-    To get iron-56, use:
-
-    .. doctest::
-
-        >>> print elements[26][56]
-        56-Fe
-        >>> print elements.Fe[56]
-        56-Fe
-        >>> print elements.isotope('56-Fe')
-        56-Fe
-
-
-    To show all the elements in the table, use the iterator:
-
-    .. doctest::
-
-        >>> from periodictable import *
-        >>> for el in elements:  # lists the element symbols
-        ...     print el.symbol,el.name  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-        n neutron
-        H hydrogen
-        He helium
-        ...
-        Uuh ununhexium
-
-
-    .. Note::
-           Properties 
+    print elements[26]
+    Fe
+    print elements.Fe
+    Fe
+    print elements.symbol('Fe')
+    Fe
+    print elements.name('iron')
+    Fe
+    print elements.isotope('Fe')
+    Fe
     """
     def __init__(self, pseudos):
         """
@@ -1164,15 +1130,13 @@ class PseudoTable(collections.Sequence):
 
         For example, print a table of mass and density.
 
-        .. doctest::
-
-            >>> from periodictable import elements
-            >>> elements.list('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3") 
-            H :   1.01 u   0.07 g/cm^3
-            He:   4.00 u   0.12 g/cm^3
-            Li:   6.94 u   0.53 g/cm^3
-            ...
-            Bk: 247.00 u  14.00 g/cm^3
+        from periodictable import elements
+        elements.list('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3") 
+        H :   1.01 u   0.07 g/cm^3
+        He:   4.00 u   0.12 g/cm^3
+        Li:   6.94 u   0.53 g/cm^3
+        ...
+        Bk: 247.00 u  14.00 g/cm^3
         """
         format = kw.pop('format',None)
         assert len(kw) == 0

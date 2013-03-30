@@ -19,12 +19,12 @@ from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, H
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 #from pymatgen.util.filelock import FileLock
-from pymatgen.util.num_utils import iterator_from_slice 
+from pymatgen.util.num_utils import iterator_from_slice, chunks
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
-from .task import AbinitTask, TaskDependencies
+from .task import AbinitTask, TaskLinks, RunMode
 from .utils import parse_ewc, abinit_output_iscomplete
 
 from .jobfile import JobFile
@@ -119,12 +119,14 @@ class Work(BaseWork, MSONable):
     """
     Error = WorkError
 
-    def __init__(self, workdir, **kwargs):
+    def __init__(self, workdir, runmode, **kwargs):
         """
         Args:
             workdir:
         """
         self.workdir = os.path.abspath(workdir)
+
+        self.runmode = runmode
 
         self.kwargs = kwargs
 
@@ -137,6 +139,11 @@ class Work(BaseWork, MSONable):
 
     def __iter__(self):
         return self._tasks.__iter__()
+
+    def chunks(self, chunk_size):
+        "Yield successive chunks of tasks of lenght chunk_size."
+        for tasks in chunks(self, chunk_size):
+            yield tasks
 
     def __getitem__(self, slice):
         return self._tasks[slice]
@@ -221,7 +228,7 @@ class Work(BaseWork, MSONable):
                 varpaths.update( dep.get_varpaths() )
                 #print("varpaths %s" % str(varpaths))
 
-        new_task = AbinitTask(input, task_workdir, 
+        new_task = AbinitTask(input, task_workdir, self.runmode,
                               varpaths = varpaths,
                              )
 
@@ -236,7 +243,7 @@ class Work(BaseWork, MSONable):
         #newtask_id = len(self)
         #self._deps[newtask_id] = depends
 
-        return TaskDependencies(new_task, newtask_id)
+        return TaskLinks(new_task, newtask_id)
 
     def build(self, *args, **kwargs):
         "Creates the top level directory"
@@ -272,49 +279,45 @@ class Work(BaseWork, MSONable):
                                                                                     
         shutil.rmtree(self.workdir)
 
-    def submit_tasks(self, *args, **kwargs):
+    def move(self, dst, isabspath=False):
+        """
+        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+        The destination path must not already exist. If the destination already exists 
+        but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        num_pythreads = int(kwargs.pop("num_pythreads", 1))
+        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        to specify an absolute path.
+        """
+        if not isabspath:
+            dst = os.path.join(os.path.dirname(self.workdir), dst)
 
-        # TODO Run only the calculations that are not done 
-        # and whose dependencies are satisfied.
-        if num_pythreads == 1:
+        shutil.move(self.workdir, dst)
+
+    def submit_tasks(self, chunk_size=None, *args, **kwargs):
+        """
+        Submits the task in self.
+            Args:
+                chunk_size:
+        """
+        if chunk_size is not None and chunk_size > 0:
+            print("submitting %d task in chunks of size %d" % (len(self), chunk_size))
+            for tasks in self.chunks(chunk_size):
+                for t in tasks:
+                    t.start(*args, **kwargs)
+                for t in tasks:
+                    t.wait() 
+        else:
             for task in self:
                 task.start(*args, **kwargs)
-                #stdoutdata, stderrdata = task.communicate()
 
-        else:
-            # Threaded version.
-            from threading import Thread
-            from Queue import Queue
-            print("Threaded version with num_pythreads %s" % num_pythreads)
-
-            def worker():
-                while True:
-                    task, args, kwargs = qin.get()
-                    task.start(*args, **kwargs)
-                    #stdoutdata, stderrdata = task.communicate()
-                    qin.task_done()
-                                                         
-            qin = Queue()
-            for i in range(num_pythreads):
-                t = Thread(target=worker)
-                t.setDaemon(True)
-                t.start()
-
-            for task in self:
-                qin.put((task, args, kwargs))
-                                                                    
-            # Block until all tasks are done. 
-            qin.join()  
 
     def start(self, *args, **kwargs):
         """
-        Start the work. Call setup first, then the 
-        the tasks are executed. Finally, the get_results method is called.
+        Start the work. Calls build and _setup first, then the tasks are submitted.
+        Non-blockin call, unless chunk_size is given
 
             Args:
-                num_pythreads = Number of python threads to use (defaults to 1)
+                chunk_size:
         """
         # Build dirs and files.
         self.build(*args, **kwargs)
@@ -322,8 +325,10 @@ class Work(BaseWork, MSONable):
         # Initial setup
         self._setup(*args, **kwargs)
 
-        # Submit tasks (non-blocking)
-        self.submit_tasks(*args, **kwargs)
+        # Submit tasks (does not block, unless chunk_size is given)
+        chunk_size = kwargs.pop("chunk_size", None)
+
+        self.submit_tasks(*args, chunk_size=chunk_size, **kwargs)
 
     def read_etotal(self):
         """
@@ -352,7 +357,7 @@ class IterativeWork(Work):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, input_generator, max_niter=25):
+    def __init__(self, workdir, runmode, input_generator, max_niter=25):
         """
         Args:
             workdir:
@@ -361,7 +366,7 @@ class IterativeWork(Work):
                 Maximum number of iterations. A negative value or zero value 
                 is equivalent to having an infinite number of iterations.
         """
-        super(IterativeWork, self).__init__(workdir)
+        super(IterativeWork, self).__init__(workdir, runmode)
 
         self.input_generator = input_generator
 
@@ -390,10 +395,8 @@ class IterativeWork(Work):
         Return dictionary with the final results
         """
         self.niter = 1
-        #if kwargs.pop("num_pythreads", 1) != 1
 
         while True:
-
             if self.max_niter > 0 and self.niter > self.max_niter: 
                 print("niter %d > max_niter %d" % (self.niter, self.max_niter))
                 break 
@@ -404,7 +407,7 @@ class IterativeWork(Work):
                 break
 
             # Start the task and block till completion.
-            task.start(*args,**kwargs)
+            task.start(*args, **kwargs)
 
             task.communicate()
 
@@ -467,30 +470,34 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
  
     return i + 1
 
-def compute_hints(ecut_list, etotal, pseudo, atols_mev=(10, 1, 0.05)):
-
+def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1):
         de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
 
         num_ene = len(etotal)
         etotal_inf = etotal[-1]
 
-        lines = []
-        app = lines.append
-
-        app(" pseudo: %s" % pseudo.name)
-        app(" idx ecut etotal (et-e_inf) [meV]")
-        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-            line = "%d %.3f %.3f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
-            app(line)
-
-        stream = sys.stdout
-        stream.writelines("\n".join(lines)+"\n")
-        
-        ihigh   = check_conv(etotal, de_high, min_numpts=1)
+        ihigh   = check_conv(etotal, de_high, min_numpts=min_numpts)
         inormal = check_conv(etotal, de_normal)
         ilow    = check_conv(etotal, de_low)
 
-        print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
+        accidx = {ihigh: "H", inormal: "N", ilow: "L"}
+
+        table = []
+        app = table.append
+                                                                                     
+        app(["step", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
+        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+            line = "%d %.1f %g %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+            row = line.split() + [accidx.get(idx, " "),]
+            app(row)
+                                                                                     
+        from pymatgen.util.string_utils import pprint_table
+        stream = sys.stdout
+                                                                                     
+        stream.write("pseudo: %s\n" % pseudo.name)
+        pprint_table(table, out=stream)
+
+        #print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
 
         ecut_high, ecut_normal, ecut_low = 3 * (None,)
         exit = (ihigh != -1)
@@ -577,7 +584,8 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     ax.set_ylabel("$\Delta$ Etotal [meV]")
     ax.set_xticks(ecut_list)
 
-    ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
+    #ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
+    ax.yaxis.set_view_interval(-10, 20)
 
     ax.set_title("$\Delta$ Etotal Vs Ecut")
 
@@ -589,20 +597,25 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
 
 class PseudoConvergence(Work):
 
-    def __init__(self, workdir, pseudo, ecut_list, 
+    def __init__(self, workdir, pseudo, ecut_list, atols_mev,
+                 runmode       = None,
                  spin_mode     = "polarized", 
-                 acell         = 3*(8,), 
+                 acell         = (8, 9, 10), 
                  smearing      = "fermi_dirac:0.1 eV",
                 ):
 
-        super(PseudoConvergence, self).__init__(workdir)
+        runmode = runmode if runmode else RunMode.sequential()
+
+        super(PseudoConvergence, self).__init__(workdir, runmode)
 
         # Temporary object used to build the input files
-        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, 
+        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev, 
                                                spin_mode     = spin_mode, 
                                                acell         = acell, 
                                                smearing      = smearing,
+                                               max_niter     = len(ecut_list),
                                               )
+        self.atols_mev = atols_mev
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
@@ -618,7 +631,7 @@ class PseudoConvergence(Work):
         # Get the results of the tasks.
         work_results = super(PseudoConvergence, self).get_results(*args, **kwargs)
 
-        data = compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
+        data = compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
 
         plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
@@ -629,18 +642,23 @@ class PseudoConvergence(Work):
 
 class PseudoIterativeConvergence(IterativeWork):
 
-    def __init__(self, workdir, pseudo, ecut_list_or_slice, 
+    def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
+                 runmode       = None,
                  spin_mode     = "polarized", 
-                 acell         = 3*(8,), 
+                 acell         = (8, 9, 10), 
                  smearing      = "fermi_dirac:0.1 eV",
-                 max_niter     = 100,
+                 max_niter     = 50,
                 ):
         """
         Args:
+            workdir:
+                Working directory.
             pseudo:
                 string or Pseudo instance
             ecut_list_or_slice:
                 List of cutoff energies or slice object (mainly used for infinite iterations). 
+            atols_mev:
+                List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
             spin_mode:
                 Defined how the electronic spin will be treated.
             acell:
@@ -652,11 +670,14 @@ class PseudoIterativeConvergence(IterativeWork):
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
+        runmode = runmode if runmode else RunMode.sequential()
+
         smearing = Smearing.smart_mode(smearing)
 
-        self._spin_mode = spin_mode
-        self._smearing  = smearing
-        self._acell     = acell
+        self.atols_mev = atols_mev
+        self.spin_mode = spin_mode
+        self.smearing  = smearing
+        self.acell     = acell
 
         if isinstance(ecut_list_or_slice, slice):
             self.ecut_iterator = iterator_from_slice(ecut_list_or_slice)
@@ -668,7 +689,7 @@ class PseudoIterativeConvergence(IterativeWork):
             for ecut in self.ecut_iterator:
                 yield self.input_with_ecut(ecut)
 
-        super(PseudoIterativeConvergence, self).__init__(workdir, input_generator(), max_niter=max_niter)
+        super(PseudoIterativeConvergence, self).__init__(workdir, runmode, input_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -677,13 +698,13 @@ class PseudoIterativeConvergence(IterativeWork):
         "Return an Input instance with given cutoff energy ecut"
 
         # Define System: one atom in a box of lenghts acell. 
-        boxed_atom = System.boxed_atom(self.pseudo, acell=self._acell)
+        boxed_atom = System.boxed_atom(self.pseudo, acell=self.acell)
 
         # Gamma-only sampling.
         gamma_only = Kpoints.gamma_only()
 
         # Setup electrons.
-        electrons = Electrons(spin_mode=self._spin_mode, smearing=self._smearing)
+        electrons = Electrons(spin_mode=self.spin_mode, smearing=self.smearing)
 
         # Generate inputs with different values of ecut and register the task.
         control = Control(boxed_atom, electrons, gamma_only,
@@ -701,7 +722,7 @@ class PseudoIterativeConvergence(IterativeWork):
         return [float(task.input.get_variable("ecut")) for task in self]
 
     def check_etotal_convergence(self, *args, **kwargs):
-        return compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
+        return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
 
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
@@ -724,7 +745,7 @@ class PseudoIterativeConvergence(IterativeWork):
 
 class BandStructure(Work):
 
-    def __init__(self, workdir, structure, pseudos, scf_ngkpt, nscf_nband,
+    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_nband,
                  spin_mode    = "polarized",
                  smearing     = None,
                  kpath_bounds = None,
@@ -732,7 +753,7 @@ class BandStructure(Work):
                  dos_ngkpt    = None
                 ):
 
-        super(BandStructure, self).__init__(workdir)
+        super(BandStructure, self).__init__(workdir, runmode)
 
         smearing = Smearing.smart(smearing)
 
@@ -759,12 +780,12 @@ class BandStructure(Work):
 
 class Relaxation(Work):
 
-    def __init__(self, workdir, structure, pseudos, ngkpt,
+    def __init__(self, workdir, runmode, structure, pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
                                                                                                    
-        super(Relaxation, self).__init__(workdir)
+        super(Relaxation, self).__init__(workdir, runmode)
 
         smearing = Smearing.smart_mode(smearing)
 
@@ -788,7 +809,7 @@ class Relaxation(Work):
 
 class DeltaTest(Work):
 
-    def __init__(self, workdir, structure_or_cif, pseudos, kppa,
+    def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
                  spin_mode = "polarized",
                  smearing  = None,
                  accuracy  = "normal",
@@ -805,7 +826,7 @@ class DeltaTest(Work):
 
         self._input_structure = structure
 
-        super(DeltaTest, self).__init__(workdir)
+        super(DeltaTest, self).__init__(workdir, runmode)
 
         v0 = structure.volume
 
@@ -864,7 +885,7 @@ class DeltaTest(Work):
 class PvsV(Work):
     "Calculates P(V)."
 
-    def __init__(self, workdir, structure_or_cif, pseudos, ngkpt,
+    def __init__(self, workdir, runmode, structure_or_cif, pseudos, ngkpt,
                  spin_mode = "polarized",
                  smearing  = None,
                  ecutsm    = 0.05,  # 1.0
@@ -873,7 +894,7 @@ class PvsV(Work):
                 ):
         raise NotImplementedError()
 
-        super(PvsV, self).__init__(workdir)
+        super(PvsV, self).__init__(workdir, runmode)
 
         if isinstance(structure_or_cif, Structure):
             structure = cif_or_stucture
@@ -927,13 +948,13 @@ class PvsV(Work):
 
 class G0W0(Work):
 
-    def __init__(self, workdir, structure, pseudos, scf_ngkpt, nscf_ngkpt, 
+    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, 
                  ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma,
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
 
-        super(G0W0, self).__init__(workdir)
+        super(G0W0, self).__init__(workdir, runmode)
 
         smearing = Smearing.smart_mode(smearing)
 
@@ -974,7 +995,10 @@ class PPConvergenceFactory(object):
     "Factory object"
 
     def work_for_pseudo(self, workdir, pseudo, ecut_range, 
+                        runmode   = None,
+                        atols_mev = (10, 1, 0.1),
                         spin_mode = "polarized", 
+                        acell     = (8, 9, 10),
                         smearing  = "fermi_dirac:0.1 eV",
                        ):
         """
@@ -984,18 +1008,22 @@ class PPConvergenceFactory(object):
 
         smearing = Smearing.smart_mode(smearing)
 
+        runmode = runmode if runmode else RunMode.sequential()
+
         if isinstance(ecut_range, slice):
-            work = PseudoIterativeConvergence(workdir, pseudo, ecut_range,
+            work = PseudoIterativeConvergence(workdir, pseudo, ecut_range, atols_mev,
+                                              runmode    = runmode,
                                               spin_mode  = spin_mode,
+                                              acell      = acell, 
                                               smearing   = smearing,
-                                              acell      = 3*(8,), 
                                              )
 
         else:
-            work = PseudoConvergence(workdir, pseudo, ecut_range,
+            work = PseudoConvergence(workdir, pseudo, ecut_range, atols_mev,
+                                     runmode    = runmode,
                                      spin_mode  = spin_mode,
+                                     acell      = acell, 
                                      smearing   = smearing,
-                                     acell      = 3*(8,), 
                                     )
 
         return work
