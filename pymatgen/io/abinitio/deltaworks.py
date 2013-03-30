@@ -33,7 +33,7 @@ class DeltaFactory(object):
 
         self.delta_data = DeltaFactorDataset()
 
-    def work_for_pseudo(self, workdir, pseudo, 
+    def work_for_pseudo(self, workdir, runmode, pseudo,
                         accuracy  = "normal",
                         kppa      = 6750, 
                         smearing  = "fermi_dirac:0.0005"
@@ -61,7 +61,7 @@ class DeltaFactory(object):
 
         smearing = Smearing.from_mode(smearing)
 
-        work = DeltaTest(workdir, cif_path, pseudo, kppa,
+        work = DeltaTest(workdir, runmode, cif_path, pseudo, kppa,
                          accuracy  = accuracy,
                          spin_mode = spin_mode,
                          smearing  = smearing,

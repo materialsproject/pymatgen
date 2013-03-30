@@ -11,10 +11,10 @@ import collections
 import abc
 import numpy as np
 
-from pymatgen.core.design_patterns import Enum
+from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours
 #from pymatgen.util.filelock import FileLock
-from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_load #, PMGJSONDecoder
 
 from .utils import parse_ewc, abinit_output_iscomplete, File
 from .jobfile import JobFile
@@ -115,7 +115,7 @@ class AbinitTask(BaseTask):
     basename = Basename("run.input", "run.output", "run.files", "log", "stderr", "job.sh", "__lock__")
     del Basename
 
-    def __init__(self, input, workdir, 
+    def __init__(self, input, workdir, runmode, 
                  varpaths = None, 
                  **kwargs
                 ):
@@ -125,9 +125,13 @@ class AbinitTask(BaseTask):
                 AbinitInput instance.
             workdir:
                 Path to the working directory.
+            runmode:
+                RunMode instance.
             varpaths:
         """
         self.workdir = os.path.abspath(workdir)
+
+        self.runmode = runmode
 
         self.input = input.copy()
 
@@ -238,7 +242,6 @@ class AbinitTask(BaseTask):
     @staticmethod
     def from_dict(d):
         raise NotimplementedError("")
-        return AbinitTask(**d)
 
     def iscomplete(self):
         "True if the output file is complete."
@@ -623,7 +626,7 @@ class Status(object):
 
 ##########################################################################################
 
-class TaskDependencies(object):
+class TaskLinks(object):
     """
     This object describes the dependencies among Task instances.
     """
@@ -653,7 +656,7 @@ class TaskDependencies(object):
             self.odata_required = odata_required
 
     def with_odata(self, *odata_required):
-        return TaskDependencies(self.task, self.task_id, *odata_required)
+        return TaskLinks(self.task, self.task_id, *odata_required)
 
     def get_varpaths(self):
         vars = {}
@@ -665,16 +668,163 @@ class TaskDependencies(object):
 
 ##########################################################################################
 
+class RunMode(AttrDict):
+    """
+    User-specified options controlling the execution of the run (submission, 
+    coarse- and fine-grained parallelism ...)
+    """
+    _defaults = {
+        "launcher"       : "shell",    # ["shell", "slurm", "pbs"]
+        "policy"         : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
+        "max_npcus"      : 0,          # Max number of cpus that can be used. If 0, no maximum limit is enforced
+        "omp_numthreads" : 0,          # Number of OpenMP threads, 0 if OMP is not used 
+        "chunk_size"     : 1,          # Used when we don't have a queue_manager and several jobs to run
+                                       # In this case we run at most chunk_size tasks when work.start is called.
+        "queue_params"   : {},         # Parameters passed to the firework QeueAdapter.
+    }
+
+    @classmethod
+    def from_defaults(cls):
+        return cls(cls._defaults.copy())
+
+    @classmethod
+    def sequential(cls, chunk_size=1, launcher=None):
+        d = cls.from_defaults()
+        d["chunk_size"] = chunk_size
+        if launcher is not None:
+            d["launcher"] = launcher
+        return cls(d)
+
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Initialize an instance of RunMode from the configuration file filename (JSON format)
+        """
+        defaults = RunMode._defaults.copy() 
+        d = json_load(filename) 
+
+        # Put default values if they are not in d.
+        for (k,v) in defaults.items():
+            if k not in d:
+                d[k] = v
+        return cls(d)
+
+    def __init__(self, *args, **kwargs):
+        super(RunMode, self).__init__(*args, **kwargs)
+
+    @property
+    def has_queue_manager(self):
+        "True if job submission is handled by a resource manager."
+        return self.launcher not in ["shell",]
+
+    def get_chunk_size(self):
+        if self.has_queue_manager:
+            return None
+        return self.chunk_size
+
+    #def get_defaults(self):
+    #    return RunMode._defaults.copy()
+
+    #def with_max_ncpus(self, max_ncpus):
+    #    d = RunMode._defaults.copy()
+    #    d["max_ncpus"] = 1
+    #    return RunMode(**d)
+
+##########################################################################################
+
+class RunHints(collections.OrderedDict):
+    """
+    Dictionary with the hints for the parallel execution reported by abinit.
+
+    Example:
+        <RUN_HINTS, max_ncpus = "108", autoparal="3">
+            "1" : {"tot_ncpus": 2,           # Total number of CPUs
+                   "mpi_ncpus": 2,           # Number of MPI processes.
+                   "omp_ncpus": 1,           # Number of OMP threads (0 if not used)
+                   "memory_gb": 10,          # Estimated memory requirement in Gigabytes (total or per proc?)
+                   "weight"   : 0.4,         # 1.0 corresponds to an "expected" optimal efficiency.
+                   "variables": {            # Dictionary with the variables that should be added to the input.
+                        "varname1": varvalue1,
+                        "varname2": varvalue2,
+                        }
+                }
+        </RUN_HINTS>
+
+    For paral_kgb we have:
+    nproc     npkpt  npspinor    npband     npfft    bandpp    weight   
+       108       1         1        12         9         2        0.25
+       108       1         1       108         1         2       27.00
+        96       1         1        24         4         1        1.50
+        84       1         1        12         7         2        0.25
+    """
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Read the <RUN_HINTS> section from file filename
+        Assumes the file contains only one section.
+        """
+        with open(filaname, "r") as fh:
+            lines = fh.readlines()
+
+        try:
+            start = lines.index("<RUN_HINTS>\n")
+            stop  = lines.index("</RUN_HINTS>\n")
+        except ValueError:
+            raise ValueError("%s does not contain any valid RUN_HINTS section" % filename)
+
+        runhints = json_loads("".join(l for l in lines[start+1:stop]))
+
+        # Sort the dict so that configuration with minimum (weight-1.0) appears in the first positions
+        return cls(sorted(runhints, key=lambda t : abs(t[1]["weight"] - 1.0), reverse=False))
+
+    def __init__(self, *args, **kwargs):
+        super(RunHints, self).__init__(*args, **kwargs)
+
+    def get_hint(self, policy):
+        # Find the optimal configuration depending on policy
+        raise NotImplementedError("")
+
+        # Copy the dictionary and return AttrDict instance.
+        odict = self[okey].copy()
+        odict["_policy"] = policy
+
+        return AttrDict(odict)
+
+##########################################################################################
+
+class RunParams(AttrDict):
+    """
+    Dictionary with the parameters governing the execution of the task.
+    In contains the parameters passed by the user via RunMode and the 
+    parameteres suggested by abinit.
+    """
+    def __init__(self, *args, **kwargs):
+        super(TaskRunParams, self).__init__(*args, **kwargs)
+
+##########################################################################################
+
 class TaskLauncher(object): 
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, paral_info=None, env=None, modules=None, pre_cmds=None, post_cmds=None):
 
-        self.paral_info = paral_info if paral_info is not None else {}
-        self.env = env if env is not None else {}
-        self.modules = modules if modules is not None else []
-        self.pre_cmds = pre_cmds if pre_cmds is not None else []
-        self.post_cmds = post_cmds if post_cmds is not None else []
+        self.paral_info = paral_info if paral_info else {}
+        self.env = env if env else {}
+        self.modules = modules if modules else []
+        self.pre_cmds = pre_cmds if pre_cmds else []
+        self.post_cmds = post_cmds if post_cmds else []
+
+    @staticmethod
+    def subclass_from_name(self, name):
+        "Returns the TaskLauncher subclass given dojo_level"
+        classes = []
+        for cls in TaskLauncher.__subclasses__():
+            if cls._name == name:
+                classes.append(cls)
+        if len(classes) != 1:
+            raise self.Error("Found %d TaskLaunchers with name %s" % (len(classes), name))
+                                                                                              
+        return classes[0]
 
     @abc.abstractmethod
     def write_jobfile(self, task):
@@ -684,13 +834,17 @@ class TaskLauncher(object):
     def submit_task(self, task):
         "Submit a task, set task._process (process-like object)"
 
+    @property
+    def name(self):
+        return self._name
+
     def launch_task(self, task):
         self.write_jobfile(task)
         self.submit_task(task)
 
 ##########################################################################################
-
 class ShellLauncher(TaskLauncher): 
+    _name = "shell"
 
     def submit_task(self, task):
         # Start the calculation in a subprocess and return
@@ -698,8 +852,5 @@ class ShellLauncher(TaskLauncher):
         task._process = Popen((task.jobfile.shell, task.jobfile.path), cwd=task.workdir, stderr=PIPE)
 
 ##########################################################################################
-
-class SlurmLauncher(TaskLauncher): 
-    pass
-
+#class SlurmLauncher(TaskLauncher): 
 ##########################################################################################

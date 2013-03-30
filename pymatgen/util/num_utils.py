@@ -46,3 +46,16 @@ def sort_dict(d, key=None, reverse=False):
 
     # Build ordered dict.
     return collections.OrderedDict(kv_items)
+
+def chunks(items, n):
+    """
+    Yield successive n-sized chunks from a list-like object.
+
+    >>> import pprint
+    >>> pprint.pprint(list(chunks(range(1, 25), 10)))
+    [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+     [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+     [21, 22, 23, 24]]
+    """
+    for i in range(0, len(items), n):
+        yield items[i:i+n]

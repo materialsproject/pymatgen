@@ -18,49 +18,43 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJS
 
 ##########################################################################################
 
-class AttrDict(dict):
-    "Access dict keys as obj.foo instead of obj['foo']"
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-##########################################################################################
-
 class DojoError(Exception):
     pass
 
 class Dojo(object):
     Error = DojoError
 
-    def __init__(self):
+    def __init__(self, max_level=None):
+
         # List of master classes that will be instanciated afterwards.
         # They are ordered according to the master level.
-        self.master_classes = [m for m in DojoMaster.__subclasses__()]
-        self.master_classes.sort(key = lambda cls : cls.dojo_level)
+        classes = [m for m in DojoMaster.__subclasses__()]
+        classes.sort(key = lambda cls : cls.dojo_level)
 
-    def accept_pseudos(self, pseudos):
+        self.master_classes = classes
+        if max_level is not None:
+            self.master_classes = classes[:max_level+1]
 
-        if isinstance(pseudos, str) or not isinstance(pseudos, collections.Iterable):
-            pseudos = [pseudos,]
+    def challenge_pseudo(self, pseudo, runmode):
 
-        self.pseudos = []
-        for pseudo in pseudos:
-            if not isinstance(pseudo, Pseudo):
-                pseudo = Pseudo.from_filename(pseudo)
-            self.pseudos.append(pseudo)
+        #if isinstance(pseudos, str) or not isinstance(pseudos, collections.Iterable):
+        #    pseudos = [pseudos,]
 
-    def start_training(self, **kwargs):
+        #pseudo = pseudo.smart_mode(pseudo)
+        if not isinstance(pseudo, Pseudo):
+            pseudo = Pseudo.from_filename(pseudo)
 
-        for pseudo in self.pseudos:
-            workdir = "DOJO_" + pseudo.name
+        workdir = "DOJO_" + pseudo.name
 
-            for cls in self.master_classes:
-                master = cls()
-                if master.accept_pseudo(pseudo):
-                    master.start_training(workdir, **kwargs)
+        # Build master instances.
+        masters = [cls(runmode=runmode) for cls in self.master_classes]
 
-    #def rank_pseudos(self):
-    #    pass
+        kwargs = {}
+        for master in masters:
+            if master.accept_pseudo(pseudo):
+                master.start_training(workdir, **kwargs)
+
+        return masters
 
 ##########################################################################################
 
@@ -70,28 +64,29 @@ class DojoMaster(object):
 
     Error = DojoError
 
-    def __init__(self):
+    def __init__(self, runmode=None):
+        self.runmode = runmode if runmode else RunMode.sequential()
+
         self.reports = []
         self.errors = []
 
     @staticmethod
-    def from_dojo_level(level):
-        "Static constructor, returns an instance of DojoMaster for the the given level"
+    def subclass_from_dojo_level(dojo_level):
+        "Returns the DojoMaster subclass given dojo_level"
         classes = []
         for cls in DojoMaster.__subclasses__():
             if cls.dojo_level == dojo_level:
                 classes.append(cls)
-
         if len(classes) != 1:
-            raise self.Error("Found %d drones for dojo_level %d" % (len(classes), dojo_level))
+            raise self.Error("Found %d masters with dojo_level %d" % (len(classes), dojo_level))
                                                                                               
-        return classes[0]()
+        return classes[0]
 
     def accept_pseudo(self, pseudo):
         """
         This method is called before testing the pseudo
-        Return True if self can train the pseudo. 
-        A master can train pseudo if his level == pseudo.dojo_level + 1"
+        Return True if the mast can train the pseudo. 
+        A master can train the pseudo if his level == pseudo.dojo_level + 1
         """
         if not isinstance(pseudo, Pseudo):
             pseudo = Pseudo.from_filename(pseudo)
@@ -147,6 +142,8 @@ class DojoMaster(object):
 
         report, isok = self.make_report(results, **kwargs)
 
+        json_pretty_dump(results, os.path.join(workdir, "report.json"))
+
         if isok:
             self.write_dojo_report(report)
         else:
@@ -161,37 +158,42 @@ class HintsMaster(DojoMaster):
     def challenge(self, workdir, **kwargs):
         pseudo = self.pseudo
 
-        #tols_mev TODO
+        atols_mev = (10, 1, 0.1)
         factory = PPConvergenceFactory()
 
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
         estep = 10 
         eslice = slice(5,None,estep)
-        print("Converging %s in iterative mode with eslice %s" % (pseudo.name, eslice))
 
-        w = factory.work_for_pseudo(workdir, pseudo, eslice)
-        #print(w)
-
+        w = factory.work_for_pseudo(workdir, pseudo, eslice, 
+                                    runmode   = self.runmode,
+                                    atols_mev = atols_mev,
+                                   )
         if os.path.exists(w.workdir):
             shutil.rmtree(w.workdir)
 
+        print("Converging %s in iterative mode with eslice %s" % (pseudo.name, eslice))
         w.start()
         w.wait()
 
         wres = w.get_results()
-        w.rmtree()
+        w.move("ITERATIVE")
 
-        #estart, estop, estep = max(wres["ecut_low"] - estep, 5), 10, 1
-        estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 5
+        #estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 5
+        estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 1
 
         erange = list(np.arange(estart, estop, estep))
 
-        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f" % (estart, estop, estep))
-        w = factory.work_for_pseudo(workdir, pseudo, erange)
-        print(w)
 
-        w.start()
+
+        w = factory.work_for_pseudo(workdir, pseudo, erange, 
+                                    runmode   = self.runmode, 
+                                    atols_mev = atols_mev,
+                                   )
+        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f" % (estart, estop, estep))
+
+        w.start(chunk_size=self.runmode.get_chunk_size())
         w.wait()
 
         wres = w.get_results()
@@ -201,8 +203,6 @@ class HintsMaster(DojoMaster):
         return wres
 
     def make_report(self, results, **kwargs):
-        isok = True
-
         d = {}
         for key in ["low", "normal", "high"]:
             try:
@@ -210,7 +210,9 @@ class HintsMaster(DojoMaster):
             except KeyError:
                 raise KeyError("%s is missing in input results" % key)
 
-        return {self.dojo_key : d}, isok
+        isok = True
+
+        return {self.dojo_key: d}, isok
 
 ##########################################################################################
 
@@ -225,9 +227,12 @@ class DeltaFactorMaster(DojoMaster):
 
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
-        w = factory.work_for_pseudo(workdir, pseudo, kppa=1)
+        w = factory.work_for_pseudo(workdir, runmode, pseudo, kppa=1)
 
-        w.start()
+        chunk_size = None
+        chunk_size = 2
+
+        w.start(chunk_size=self.runmode.get_chunk_size())
         w.wait()
                                                                         
         wres = w.get_results()
