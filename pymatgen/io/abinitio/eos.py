@@ -191,11 +191,13 @@ class EOS_Fit(object):
 
     def plot(self, show=True, savefig=None):
         """
-        Plot fitted energy curve.
-                                                                      
-        Uses Matplotlib to plot the energy curve.  Use *show=True* to
-        show the figure and *savefig='abc.png'* or *savefig='abc.eps'* 
-        to save the figure to a file.
+        Uses Matplotlib to plot the energy curve.  
+
+        Args:
+            show: 
+                True to show the figure 
+            savefig:
+                'abc.png' or 'abc.eps' to save the figure to a file.
         """
         import matplotlib.pyplot as plt
                                                                                                                                          

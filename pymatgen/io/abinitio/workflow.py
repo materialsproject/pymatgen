@@ -8,7 +8,6 @@ import os
 import os.path
 import shutil
 import abc
-import json
 import collections
 import functools
 import numpy as np
@@ -17,7 +16,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 #from pymatgen.util.filelock import FileLock
 from pymatgen.util.num_utils import iterator_from_slice 
@@ -343,7 +342,7 @@ class Work(BaseWork, MSONable):
             except:
                 etotal.append(np.inf)
                                                             
-        return np.array(etotal)
+        return etotal
 
 ##########################################################################################
 
@@ -501,12 +500,14 @@ def compute_hints(ecut_list, etotal, pseudo, atols_mev=(10, 1, 0.05)):
             ecut_normal = ecut_list[inormal] 
             ecut_high   = ecut_list[ihigh] 
 
+        aug_ratios = [1,]
         aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
 
         data = {
             "exit"        : ihigh != -1,
             "etotal"      : list(etotal),
             "ecut_list"   : ecut_list,
+            "aug_ratios"  : aug_ratios,
             "low"         : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
             "normal"      : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
             "high"        : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
@@ -517,6 +518,74 @@ def compute_hints(ecut_list, etotal, pseudo, atols_mev=(10, 1, 0.05)):
         }
 
         return data
+
+def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, **kwargs):
+    """
+    Uses Matplotlib to plot the energy curve as function of ecut
+
+    Args:
+        ecut_list:
+            List of cutoff energies
+        etotals:
+            Total energies in Hartree, see aug_ratios
+        aug_ratios:
+            List augmentation rations. [1,] for norm-conserving, [4, ...] for PAW
+            The number of elements in aug_ration must equal the number of (sub)lists
+            in etotals. Example:
+
+                - NC: etotals = [3.4, 4,5 ...], aug_ratios = [1,]
+                - PAW: etotals = [[3.4, ...], [3.6, ...]], aug_ratios = [4,6]
+
+        show:
+            True to show the figure
+        savefig:
+            'abc.png' or 'abc.eps'* to save the figure to a file.
+    """
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+
+    npts = len(ecut_list) 
+
+    if len(aug_ratios) != 1 and len(aug_ratios) != len(etotals):
+        raise ValueError("The number of sublists in etotal must equal the number of aug_ratios")
+
+    if len(aug_ratios) == 1:
+        etotals = [etotals,]
+
+    lines, legends = [], []
+
+    emax = -np.inf
+    for (aratio, etot) in zip(aug_ratios, etotals):
+        emev = Ha2meV(etot)
+        emev_inf = npts * [emev[-1]]
+        yy = emev - emev_inf
+
+        emax = max(emax, np.max(yy))
+
+        line, = ax.plot(ecut_list, yy, "-->", linewidth=3.0, markersize=10)
+
+        lines.append(line)
+        legends.append("aug_ratio = %s" % aratio)
+
+    ax.legend(lines, legends, 'upper right', shadow=True)
+
+    # Set xticks and labels.
+    ax.grid(True)
+    ax.set_xlabel("Ecut [Ha]")
+    ax.set_ylabel("$\Delta$ Etotal [meV]")
+    ax.set_xticks(ecut_list)
+
+    ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
+
+    ax.set_title("$\Delta$ Etotal Vs Ecut")
+
+    if show:
+        plt.show()
+                             
+    if savefig is not None:
+        fig.savefig(savefig)
 
 class PseudoConvergence(Work):
 
@@ -551,6 +620,9 @@ class PseudoConvergence(Work):
 
         data = compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
 
+        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
+            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+
         work_results.update(data)
 
         return work_results
@@ -580,7 +652,7 @@ class PseudoIterativeConvergence(IterativeWork):
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
-        smearing = Smearing.from_mode(smearing)
+        smearing = Smearing.smart_mode(smearing)
 
         self._spin_mode = spin_mode
         self._smearing  = smearing
@@ -610,7 +682,7 @@ class PseudoIterativeConvergence(IterativeWork):
         # Gamma-only sampling.
         gamma_only = Kpoints.gamma_only()
 
-        # Default setup for electrons: no smearing.
+        # Setup electrons.
         electrons = Electrons(spin_mode=self._spin_mode, smearing=self._smearing)
 
         # Generate inputs with different values of ecut and register the task.
@@ -629,7 +701,6 @@ class PseudoIterativeConvergence(IterativeWork):
         return [float(task.input.get_variable("ecut")) for task in self]
 
     def check_etotal_convergence(self, *args, **kwargs):
-
         return compute_hints(self.ecut_list, self.read_etotal(), self.pseudo)
 
     def exit_iteration(self, *args, **kwargs):
@@ -641,6 +712,9 @@ class PseudoIterativeConvergence(IterativeWork):
         work_results = super(PseudoIterativeConvergence, self).get_results(*args, **kwargs)
 
         data = self.check_etotal_convergence()
+
+        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
+            show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         work_results.update(data)
 
@@ -659,6 +733,8 @@ class BandStructure(Work):
                 ):
 
         super(BandStructure, self).__init__(workdir)
+
+        smearing = Smearing.smart(smearing)
 
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
@@ -689,6 +765,8 @@ class Relaxation(Work):
                 ):
                                                                                                    
         super(Relaxation, self).__init__(workdir)
+
+        smearing = Smearing.smart_mode(smearing)
 
         ions_relax = Relax(
                         iomov     = 3, 
@@ -722,6 +800,8 @@ class DeltaTest(Work):
         else:
             # Assume CIF file
             structure = read_structure(structure_or_cif)
+
+        smearing = Smearing.smart_mode(smearing)
 
         self._input_structure = structure
 
@@ -771,8 +851,7 @@ class DeltaTest(Work):
             "dojo_level" : 1,
         }
 
-        with open(self.path_in_workdir("results.json"), "w") as fh:
-            json.dump(results, fh, indent=4, sort_keys=True)
+        json_pretty_dump(results, self.path_in_workdir("results.json"))
 
         # Write data for the computation of the delta factor
         with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
@@ -802,6 +881,8 @@ class PvsV(Work):
             # Assume CIF file
             from pymatgen import read_structure
             structure = read_structure(structure_or_cif)
+
+        smearing = Smearing.smart_mode(smearing)
 
         #ndtset 5
 
@@ -854,6 +935,8 @@ class G0W0(Work):
 
         super(G0W0, self).__init__(workdir)
 
+        smearing = Smearing.smart_mode(smearing)
+
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode, 
@@ -899,7 +982,7 @@ class PPConvergenceFactory(object):
         """
         workdir = os.path.abspath(workdir)
 
-        smearing = Smearing.from_mode(smearing)
+        smearing = Smearing.smart_mode(smearing)
 
         if isinstance(ecut_range, slice):
             work = PseudoIterativeConvergence(workdir, pseudo, ecut_range,

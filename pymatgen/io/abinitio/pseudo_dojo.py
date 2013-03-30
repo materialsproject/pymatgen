@@ -5,7 +5,6 @@ import os
 import os.path
 import collections
 import abc
-import json
 import shutil
 import numpy as np
 
@@ -15,6 +14,7 @@ from pymatgen.util.num_utils import sort_dict
 from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.workflow import PPConvergenceFactory
 from pymatgen.io.abinitio.deltaworks import DeltaFactory
+from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
 
 ##########################################################################################
 
@@ -107,7 +107,7 @@ class DojoMaster(object):
             msg = "%s: Sorry, %s-san, I cannot train you" % (self.__class__.__name__, pseudo.name)
             print(msg)
         else:
-            print("%s: Welcome %s-san, I will be your level %d trainer" % (self.__class__.__name__, pseudo.name, self.dojo_level))
+            print("%s: Welcome %s-san, I'm your level-%d trainer" % (self.__class__.__name__, pseudo.name, self.dojo_level))
             self.pseudo = pseudo
 
         return ready
@@ -196,8 +196,7 @@ class HintsMaster(DojoMaster):
 
         wres = w.get_results()
 
-        with open(w.path_in_workdir("ppdojo_results.json"), "w") as fh:
-            json.dump(wres, fh, indent=4, sort_keys=True)
+        json_pretty_dump(wres, w.path_in_workdir("results.json"))
 
         return wres
 
@@ -233,11 +232,8 @@ class DeltaFactorMaster(DojoMaster):
                                                                         
         wres = w.get_results()
                                                                         
-        #pprint(wres)
-        #import json
-        with open(w.path_in_workdir("ppdojo_results.json"), "w") as fh:
-            json.dump(wres, fh, indent=4, sort_keys=True)
-                                                                        
+        json_pretty_dump(wres, w.path_in_workdir("results.json"))
+
         return wres
 
     def make_report(self, results, **kwargs):
@@ -245,6 +241,7 @@ class DeltaFactorMaster(DojoMaster):
 
         d = { 
             #"delta_factor" : ,
+            #"e0" :
             #"v0" :
             #"b"  :
             #"bp" :
@@ -268,51 +265,8 @@ for cls in DojoMaster.__subclasses__():
     _key2lev[cls.dojo_key] = cls.dojo_level
 
 def dojo_key2level(key):
-    "Return the level of the trial from the name found in the pseudo"
+    "Return the trial level from the name found in the pseudo"
     return _key2lev[key] 
 
 ##########################################################################################
-
-def show_etotal(self, *args, **kwargs):
-    """
-    Plot the value of varname as function of ecut.
-    """
-    import matplotlib.pyplot as plt
-
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
-
-    lines, legends = [], []
-
-    emax = -np.inf
-    for (aug_ratio, etotal) in self._etotal_dict.items():
-        emev = Ha2meV(etotal)
-        emev_inf = len(self.ecut_list) * [emev[-1]]
-        yy = emev - emev_inf
-
-        emax = max(emax, np.max(yy))
-
-        line, = ax.plot(self.ecut_list, yy, "-->", linewidth=3.0, markersize=10)
-        lines.append(line)
-        legends.append("aug_ratio = %s" % aug_ratio)
-
-        #line, = ax.plot(self.ecut_list, emev_inf, "-->", linewidth=3.0, markersize=10)
-        #lines.append(line)
-        #legends.append("aug_ratio = %s" % aug_ratio)
-
-    ax.legend(lines, legends, 'upper right', shadow=True)
-
-    # Set xticks and labels.
-    ax.grid(True)
-    ax.set_xlabel("Ecut [Ha]")
-    ax.set_ylabel("$\Delta$ Etotal [meV]")
-    ax.set_xticks(self.ecut_list)
-
-    ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
-
-    ax.set_title("$\Delta$ Etotal Vs Ecut")
-    if self.strange_data:
-        ax.set_title("Strange Data" + str(self.strange_data))
-
-    plt.show()
 
