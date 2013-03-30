@@ -37,7 +37,7 @@ class MPResterTest(unittest.TestCase):
     def setUp(self):
         if "MAPI_KEY" not in os.environ:
             raise SkipTest("MAPI_KEY environment variable not set. Skipping...")
-        self.adaptor = MPRester()
+        self.rester = MPRester()
 
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
@@ -53,28 +53,28 @@ class MPResterTest(unittest.TestCase):
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
-                val = self.adaptor.get_data(540081, prop=prop)[0][prop]
+                val = self.rester.get_data(540081, prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
-                                 set(self.adaptor.get_data(540081,
+                                 set(self.rester.get_data(540081,
                                                            prop=prop)[0][prop]))
             else:
                 self.assertEqual(expected_vals[i],
-                                 self.adaptor.get_data(540081,
+                                 self.rester.get_data(540081,
                                                        prop=prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
-            obj = self.adaptor.get_data(540081, prop=prop)[0][prop]
+            obj = self.rester.get_data(540081, prop=prop)[0][prop]
             if prop.endswith("structure"):
                 self.assertIsInstance(obj, Structure)
             elif prop == "entry":
-                obj = self.adaptor.get_data(540081, prop=prop)[0][prop]
+                obj = self.rester.get_data(540081, prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
         #Test chemsys search
-        data = self.adaptor.get_data('Fe-Li-O', prop='unit_cell_formula')
+        data = self.rester.get_data('Fe-Li-O', prop='unit_cell_formula')
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
         for d in data:
@@ -82,13 +82,13 @@ class MPResterTest(unittest.TestCase):
                 set(Composition(d['unit_cell_formula']).elements).issubset(
                     elements))
 
-        self.assertRaises(MPRestError, self.adaptor.get_data, "Fe2O3",
+        self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
-        all_entries = self.adaptor.get_entries_in_chemsys(syms, False)
-        entries = self.adaptor.get_entries_in_chemsys(syms)
+        all_entries = self.rester.get_entries_in_chemsys(syms, False)
+        entries = self.rester.get_entries_in_chemsys(syms)
         self.assertTrue(len(entries) <= len(all_entries))
         elements = set([Element(sym) for sym in syms])
         for e in entries:
@@ -96,66 +96,65 @@ class MPResterTest(unittest.TestCase):
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
     def test_get_structure_by_material_id(self):
-        s1 = self.adaptor.get_structure_by_material_id(1)
+        s1 = self.rester.get_structure_by_material_id(1)
         self.assertEqual(s1.formula, "Cs1")
 
     def test_get_entry_by_material_id(self):
-        e = self.adaptor.get_entry_by_material_id(540081)
+        e = self.rester.get_entry_by_material_id(540081)
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
     def test_mpquery(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['formula', 'energy']
-        data = self.adaptor.mpquery(criteria=criteria, properties=props)
+        data = self.rester.mpquery(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
 
     def test_get_exp_thermo_data(self):
-        data = self.adaptor.get_exp_thermo_data("Fe2O3")
+        data = self.rester.get_exp_thermo_data("Fe2O3")
         self.assertTrue(len(data) > 0)
         for d in data:
             self.assertEqual(d.formula, "Fe2O3")
 
     def test_get_dos_by_id(self):
-        dos = self.adaptor.get_dos_by_material_id(2254)
+        dos = self.rester.get_dos_by_material_id(2254)
         self.assertIsInstance(dos, CompleteDos)
 
     def test_get_bandstructure_by_material_id(self):
-        bs = self.adaptor.get_bandstructure_by_material_id(2254)
+        bs = self.rester.get_bandstructure_by_material_id(2254)
         self.assertIsInstance(bs, BandStructureSymmLine)
 
     def test_get_structures(self):
-        structs = self.adaptor.get_structures("Mn3O4")
+        structs = self.rester.get_structures("Mn3O4")
         self.assertTrue(len(structs) > 0)
         for s in structs:
             self.assertEqual(s.composition.reduced_formula, "Mn3O4")
 
     def test_get_entries(self):
-        entries = self.adaptor.get_entries("TiO2")
+        entries = self.rester.get_entries("TiO2")
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
     def test_get_exp_entry(self):
-        entry = self.adaptor.get_exp_entry("Fe2O3")
+        entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
 
     def test_submit_query_delete_snl(self):
         s = Structure([[5, 0, 0], [0, 5, 0], [0,0,5]], ["Fe"], [[0,0,0]])
-        d = self.adaptor.submit_snl(
+        d = self.rester.submit_snl(
             [s, s], remarks=["unittest"],
             authors="Test User <test@materialsproject.com>")
         self.assertEqual(len(d["inserted_ids"]), 2)
-        data = self.adaptor.query_snl({"about.remarks": "unittest"})
+        data = self.rester.query_snl({"about.remarks": "unittest"})
         self.assertEqual(len(data), 2)
         snlids = [d["_id"] for d in data]
-        self.adaptor.delete_snl(snlids)
-        data = self.adaptor.query_snl({"about.remarks": "unittest"})
+        self.rester.delete_snl(snlids)
+        data = self.rester.query_snl({"about.remarks": "unittest"})
         self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
-        m = MPRester()
-        entries = m.get_entries("Fe-O")
+        entries = self.rester.get_entries("Fe-O")
         modified_entries = []
         for entry in entries:
             # Create modified entries with energies that are 0.01eV higher
@@ -166,7 +165,7 @@ class MPResterTest(unittest.TestCase):
                                   entry.uncorrected_energy + 0.01,
                                   parameters=entry.parameters,
                                   entry_id="mod_{}".format(entry.entry_id)))
-        rest_ehulls = m.get_stability(modified_entries)
+        rest_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
         compat = MaterialsProjectCompatibility()
         all_entries = compat.process_entries(all_entries)
