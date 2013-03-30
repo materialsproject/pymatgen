@@ -106,10 +106,10 @@ class BaseWork(object):
         Method called once the calculations completes.
         The base version returns a dictionary task_name : TaskResults for each task in self.
         """
-        results = collections.OrderedDict()
+        work_results = collections.OrderedDict()
         for task in self:
-            results[task.name] = task.get_results(*args, **kwargs)
-        return results
+            work_results[task.name] = task.get_results()
+        return work_results
                                                          
 ##########################################################################################
 
@@ -253,7 +253,7 @@ class Work(BaseWork, MSONable):
     def get_status(self, only_highest_rank=False):
         "Get the status of the tasks in self."
 
-        status_list = [task.get_status() for task in self]
+        status_list = [task.get_taskstatus() for task in self]
 
         if only_highest_rank:
             return max(status_list)
@@ -309,7 +309,6 @@ class Work(BaseWork, MSONable):
         else:
             for task in self:
                 task.start(*args, **kwargs)
-
 
     def start(self, *args, **kwargs):
         """
@@ -629,7 +628,7 @@ class PseudoConvergence(Work):
     def get_results(self, *args, **kwargs):
 
         # Get the results of the tasks.
-        work_results = super(PseudoConvergence, self).get_results(*args, **kwargs)
+        work_results = super(PseudoConvergence, self).get_results()
 
         data = compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
 
@@ -637,6 +636,9 @@ class PseudoConvergence(Work):
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         work_results.update(data)
+
+        if kwargs.get("json_dump", True):
+            json_pretty_dump(work_results, self.path_in_workdir("results.json"))
 
         return work_results
 
@@ -728,9 +730,8 @@ class PseudoIterativeConvergence(IterativeWork):
         return self.check_etotal_convergence(self, *args, **kwargs)
                                                                                        
     def get_results(self, *args, **kwargs):
-
         # Get the results of the tasks.
-        work_results = super(PseudoIterativeConvergence, self).get_results(*args, **kwargs)
+        work_results = super(PseudoIterativeConvergence, self).get_results()
 
         data = self.check_etotal_convergence()
 
@@ -738,6 +739,9 @@ class PseudoIterativeConvergence(IterativeWork):
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         work_results.update(data)
+
+        if kwargs.get("json_dump", True):
+            json_pretty_dump(work_results, self.path_in_workdir("results.json"))
 
         return work_results
 
@@ -872,7 +876,8 @@ class DeltaTest(Work):
             "dojo_level" : 1,
         }
 
-        json_pretty_dump(results, self.path_in_workdir("results.json"))
+        if kwargs.get("json_dump", True):
+            json_pretty_dump(results, self.path_in_workdir("results.json"))
 
         # Write data for the computation of the delta factor
         with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
@@ -933,7 +938,7 @@ class PvsV(Work):
 
             self.register_input(scf_input)
 
-    def get_results(self):
+    def get_results(self, *args, **kwargs):
         pressures, volumes = [], []
         for task in self:
             # Open GSR file and read etotal (Hartree)
@@ -943,6 +948,10 @@ class PvsV(Work):
 
                 pressures.append(gsr_data.get_value("pressure"))
                 volumes.append(gsr_data.get_value("volume"))
+
+        #if kwargs.get("json_dump", True):
+        #    json_pretty_dump(work_results, self.path_in_workdir("results.json"))
+        #return work_results
 
 ##########################################################################################
 
@@ -1086,7 +1095,7 @@ class SimpleParallelRunner(object):
         # If works is a Work instance, we have to call get_results here
         #results = {}
         #if hasattr(works, "get_results"):
-        #    results = works.get_results(*args, **kwargs)
+        #    results = works.get_results():
 
         #return results
 
