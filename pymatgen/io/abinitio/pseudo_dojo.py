@@ -185,8 +185,6 @@ class HintsMaster(DojoMaster):
 
         erange = list(np.arange(estart, estop, estep))
 
-
-
         w = factory.work_for_pseudo(workdir, pseudo, erange, 
                                     runmode   = self.runmode, 
                                     atols_mev = atols_mev,
@@ -198,7 +196,7 @@ class HintsMaster(DojoMaster):
 
         wres = w.get_results()
 
-        json_pretty_dump(wres, w.path_in_workdir("results.json"))
+        json_pretty_dump(wres, w.path_in_workdir("dojo_results.json"))
 
         return wres
 
@@ -211,6 +209,7 @@ class HintsMaster(DojoMaster):
                 raise KeyError("%s is missing in input results" % key)
 
         isok = True
+        #isok = not work_results.has_warnings 
 
         return {self.dojo_key: d}, isok
 
@@ -237,7 +236,7 @@ class DeltaFactorMaster(DojoMaster):
                                                                         
         wres = w.get_results()
                                                                         
-        json_pretty_dump(wres, w.path_in_workdir("results.json"))
+        json_pretty_dump(wres, w.path_in_workdir("dojo_results.json"))
 
         return wres
 

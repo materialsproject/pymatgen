@@ -14,7 +14,7 @@ import numpy as np
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours
 #from pymatgen.util.filelock import FileLock
-from pymatgen.serializers.json_coders import MSONable, json_load #, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump #, PMGJSONDecoder
 
 from .utils import parse_ewc, abinit_output_iscomplete, File
 from .jobfile import JobFile
@@ -33,23 +33,198 @@ __date__ = "$Feb 21, 2013M$"
 __all__ = [
 "AbinitTask",
 ]
+##########################################################################################
+
+STAT_DONE = 1  # Task completed, note that this does not imply that results are ok or that the calculation completed succesfully
+STAT_WAIT = 2 
+#STAT_SUB  = 2  # Submitted  ?
+STAT_RUN  = 4
+STAT_ERR  = 8
+#STAT_ABIEXC  = 8
+#STAT_SYSERR  = 8
+
+class TaskStatus(object):
+    """
+    Object used to inquire the status of the task and to have access 
+    to the error and warning messages
+    """
+    #: Rank associated to the different status (in order of increasing priority)
+    _level2rank = {
+      "done"     : STAT_DONE, 
+      "waiting"  : STAT_WAIT, 
+      "running"  : STAT_RUN, 
+      "error"    : STAT_ERR,
+    }
+
+    levels = Enum(s for s in _level2rank)
+
+    def __init__(self, task):
+
+        self._task = task
+
+        if task.isdone():
+            # The main output file seems completed.
+            level_str = 'done'
+
+            #TODO
+            # Read the number of errors, warnings and comments 
+            # for the (last) main output and the log file.
+            #main, log =  task.read_mainlog_ewc()
+                                                                
+            #main_info = main.tostream(stream)
+            #log_info  = log.tostream(stream)
+
+        # TODO err file!
+        elif task.output_file.exists and task.log_file.exists:
+            # Inspect the main output and the log file for ERROR messages.
+            main, log = task.read_mainlog_ewc()
+
+            level_str = 'running'
+            if main.errors or log.errors:
+                level_str = 'error'
+
+            with open(task.stderr_file.path, "r") as f:
+                lines = f.readlines()
+                if lines: level_str = 'error'
+        else:
+            level_str = 'waiting'
+
+        self._level_str = level_str
+
+        assert self._level_str in Status.levels
+
+    @property
+    def rank(self):
+        return self._level2rank[self._level_str]
+
+    @property
+    def is_done(self):
+        return self._level_str == "done"
+
+    @property
+    def is_waiting(self):
+        return self._level_str == "waiting"
+
+    @property
+    def is_running(self):
+        return self._level_str == "running"
+
+    @property
+    def is_error(self):
+        return self._level_str == "error"
+
+    def __repr__(self):
+        return "<%s at %s, task = %s, level = %s>" % (
+            self.__class__.__name__, id(self), repr(self._task), self._level_str)
+
+    def __str__(self):
+        return str(self._task) + self._level_str
+
+    # Rich comparison support. Mainly used for selecting the 
+    # most critical status when we have several tasks executed inside a workflow.
+    def __lt__(self, other):
+        return self.rank < other.rank
+
+    def __le__(self, other):
+        return self.rank <= other.rank
+
+    def __eq__(self, other):
+        return self.rank == other.rank
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __gt__(self, other):
+        return self.rank > other.rank
+
+    def __ge__(self, other):
+        return self.rank >= other.rank
+
+    def show(self, stream=sys.stdout, *args, **kwargs):
+
+        from ..tools import StringColorizer
+        str_colorizer = StringColorizer(stream)
+                                                                       
+        _status2txtcolor = {
+          "done"    : lambda string : str_colorizer(string, "green"),
+          "error"   : lambda string : str_colorizer(string, "red"),
+          "running" : lambda string : str_colorizer(string, "blue"),
+          "waiting" : lambda string : str_colorizer(string, "cyan"),
+        }
+
+        color = lambda stat : str
+        if stream_has_colours(stream):
+            color = lambda stat : _status2txtcolor[stat](stat)
+
+        stream.write(self._task.name + ': ' + color(self._level_str) + "\n")
+
+    def print_ewc_messages(self, stream=sys.stdout, **kwargs):
+
+        verbose = kwargs.pop("verbose", 0)
+
+        # Read the number of errors, warnings and comments 
+        # for the (last) main output and the log file.
+        main, log =  self._task.read_mainlog_ewc()
+                                                            
+        main_info = main.tostream(stream)
+        log_info  = log.tostream(stream)
+                                                            
+        stream.write("\n".join([main_info, log_info]) + "\n")
+
+        if verbose:
+            for w in main.warnings: 
+                stream.write(w + "\n")
+            if verbose > 1:
+                for w in log.warnings: 
+                    stream.write(w + "\n")
+
+        if self.is_error:
+            for e in log.errors: 
+                    stream.write(e + "\n")
+
+            if not log.errors: # Read the standard error.
+                with open(self._task.stderr_file.path, "r") as f:
+                    lines = f.readlines()
+                    stream.write("\n".join(lines))
 
 ##########################################################################################
-class BaseTask(object):
+
+class TaskError(Exception):
+    pass
+
+class Task(object):
     __metaclass__ = abc.ABCMeta
 
+    Error = TaskError
+
+    possible_status = [v for v in TaskStatus._level2rank.values()]
+
+    def __init__(self):
+        self._status = STAT_WAIT
+
+    # Interface modeled after subprocess.Popen
     @abc.abstractproperty
     def process(self):
         "Return an object that support the subprocess.Popen protocol."
 
-    # Interface modeled after subprocess.Popen
     def poll(self):
         "Check if child process has terminated. Set and return returncode attribute."
-        return self.process.poll()
+        returncode = self.process.poll()
+        if returncode is not None:
+            if returncode:
+                self.set_status(STAT_ERR)
+            else:
+                self.set_status(STAT_DONE)
+        return returncode
 
     def wait(self):
         "Wait for child process to terminate. Set and return returncode attribute."
-        return self.process.wait()
+        returncode = self.process.wait()
+        if returncode:
+            self.set_status(STAT_ERR)
+        else:
+            self.set_status(STAT_DONE)
+        return returncode
 
     def communicate(self, input=None):
         """
@@ -59,7 +234,12 @@ class BaseTask(object):
 
         communicate() returns a tuple (stdoutdata, stderrdata).
         """
-        return self.process.communicate(input=input)
+        stdoutdata, stderrdata = self.process.communicate(input=input)
+        if self.returncode:
+            self.set_status(STAT_ERR)
+        else:
+            self.set_status(STAT_DONE)
+        return stdoutdata, stderrdata 
 
     @property
     def returncode(self):
@@ -74,6 +254,16 @@ class BaseTask(object):
         "Kill the child"
         self.process.kill()
 
+    @property
+    def status(self):
+        return self._status
+
+    #@status.setter
+    def set_status(self, status):
+        if status not in self.possible_status:
+            raise RunTimeError("Unknown status: %s" % status)
+        self._status = status
+
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
         """Method called before submitting the task."""
@@ -81,27 +271,49 @@ class BaseTask(object):
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
 
+    @property
+    def results(self):
+        return self._results
+
     def get_results(self, *args, **kwargs):
         """
-        Method called once the calculation is completed, returns TaskResults instance.
+        Method called once the calculation is completed, 
+        Updates self._results and returns TaskResults instance.
         Subclasses should extend this method (if needed) by adding 
         specialized code that perform some kind of post-processing.
         """
         # Check whether the process completed.
         if self.returncode is None:
-            raise ValueError("return code is None, you should call wait, communitate or poll")
+            raise self.Error("return code is None, you should call wait, communitate or poll")
 
-        return TaskResults({
-            "task_name": self.name,
-            "task_returncode" : self.returncode,
-            #"task_status": self.get_status()
+        if self.status != STAT_DONE:
+            raise self.Error("Task is not completed")
+
+        main, log = self.read_mainlog_ewc()
+
+        results = TaskResults({
+            "task_name"      : self.name,
+            "task_returncode": self.returncode,
+            "task_status"    : self.status,
+            "num_errors"     : main.num_errors,
+            "num_warnings"   : main.num_warnings,
+            "num_comments"   : main.num_comments,
+            "errors"         : main.errors,
+            "warnings"       : main.warnings,
+            "comments"       : main.comments,
             })
+
+        if not hasattr(self, "_results"):
+            self._results = TaskResults()
+
+        self._results.update(results)
+        return results
 
 ##########################################################################################
 
-class AbinitTask(BaseTask):
+class AbinitTask(Task):
     """
-    Base class defining a generic abinit calculation
+    Base class defining an abinit calculation
     """
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -129,6 +341,8 @@ class AbinitTask(BaseTask):
                 RunMode instance.
             varpaths:
         """
+        super(AbinitTask, self).__init__()
+
         self.workdir = os.path.abspath(workdir)
 
         self.runmode = runmode
@@ -243,7 +457,7 @@ class AbinitTask(BaseTask):
     def from_dict(d):
         raise NotimplementedError("")
 
-    def iscomplete(self):
+    def isdone(self):
         "True if the output file is complete."
         return abinit_output_iscomplete(self.output_file.path)
 
@@ -329,11 +543,11 @@ class AbinitTask(BaseTask):
 
        return main, log
 
-    def get_status(self):
-        return Status(self)
+    def get_taskstatus(self):
+        return TaskStatus(self)
 
     def show_status(self, stream=sys.stdout, *args, **kwargs):
-        self.get_status().show(stream=stream, *args, **kwargs)
+        self.get_taskstatus().show(stream=stream, *args, **kwargs)
 
     def get_runhints(self, max_numproc):
         """
@@ -372,13 +586,15 @@ class AbinitTask(BaseTask):
              calculations with different python threads. 
         """
         if kwargs.pop('verbose', 0):
-            print('Running ' + self.input_path)
+            print('Starting ' + self.input_path)
 
         self.build(*args, **kwargs)
 
         self._setup(*args, **kwargs)
 
         self._submit(*args, **kwargs)
+
+        self.set_status(STAT_RUN)
 
 ##########################################################################################
 
@@ -408,49 +624,19 @@ class Pickleable(object):
             return pickle.load(filename)
 
 ##########################################################################################
-#TODO
-class TaskResults(dict, MSONable):
+
+class TaskResults(AttrDict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
     _mandatory_keys = [
         "task_name",
         "task_returncode",
-        #"status",
+        #"task_status",
+        #"num_errors",
+        #"num_warnings",
+        #"num_comments",
     ]
-
-    def __init__(self, *args, **kwargs):
-        super(TaskResults, self).__init__(*args, **kwargs)
-
-        for k in self._mandatory_keys:
-            if k not in self:
-                raise ValueError("%s must be specified" % k)
-
-    def __getattribute__(self, name):
-        try:
-            # Default behaviour
-            return super(TaskResults, self).__getattribute__(name)
-        except AttributeError:
-            try:
-                # Try in the dictionary.
-                return self[name]
-            except KeyError as exc:
-                raise AttributeError(str(exc))
-
-    def __setitem__(self, key, val):
-        "Add key-value pair to self."
-        if key in self:
-            try:
-                if val == self[key]:
-                    return
-            except:
-                raise ValueError("key %s already exists and cannot check for equality" % key)
-
-        super(TaskResult, self).__setitem__(key, val)
-
-    def update(self, *args, **kwargs):
-        for (k, v) in dict(*args, **kwargs).iteritems():
-            self[k] = v
 
     @property
     def to_dict(self):
@@ -461,168 +647,15 @@ class TaskResults(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        my_dict = {k: v for k in d if k not in ["@module", "@class",]}
-        return cls(**my_dict)
+        my_dict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
+        return cls(my_dict)
 
-    #def json_load(self, filename):
-    #    with open(filename, "r") as fh
-    #       return Results.from_dict(json.load(fh))
+    def json_dump(self, filename):
+        json_pretty_dump(self.to_dict, filename) 
 
-    #def json_dump(self, filename):
-    #    with open(filename, "w") as fh
-    #        json.dump(self.to_dict, fh, indent=4, sort_keys=4)
-
-    
-##########################################################################################
-
-class Status(object):
-    """
-    Object used to inquire the status of the task and to have access 
-    to the error and warning messages
-    """
-    S_OK   = 1 
-    S_WAIT = 2 
-    S_RUN  = 4
-    S_ERR  = 8
-
-    #: Rank associated to the different status (in order of increasing priority)
-    _level2rank = {
-      "completed" : S_OK, 
-      "unstarted" : S_WAIT, 
-      "running"   : S_RUN, 
-      "error"     : S_ERR,
-    }
-
-    levels = Enum(s for s in _level2rank)
-
-    def __init__(self, task):
-
-        self._task = task
-
-        if task.iscomplete():
-            # The main output file seems completed.
-            level_str = 'completed'
-
-            #TODO
-            # Read the number of errors, warnings and comments 
-            # for the (last) main output and the log file.
-            #main, log =  task.read_mainlog_ewc()
-                                                                
-            #main_info = main.tostream(stream)
-            #log_info  = log.tostream(stream)
-
-        # TODO err file!
-        elif task.output_file.exists and task.log_file.exists:
-            # Inspect the main output and the log file for ERROR messages.
-            main, log = task.read_mainlog_ewc()
-
-            level_str = 'running'
-            if main.errors or log.errors:
-                level_str = 'error'
-
-            with open(task.stderr_file.path, "r") as f:
-                lines = f.readlines()
-                if lines: level_str = 'error'
-        else:
-            level_str = 'unstarted'
-
-        self._level_str = level_str
-
-        assert self._level_str in Status.levels
-
-    @property
-    def rank(self):
-        return self._level2rank[self._level_str]
-
-    @property
-    def is_completed(self):
-        return self._level_str == "completed"
-
-    @property
-    def is_unstarted(self):
-        return self._level_str == "unstarted"
-
-    @property
-    def is_running(self):
-        return self._level_str == "running"
-
-    @property
-    def is_error(self):
-        return self._level_str == "error"
-
-    def __repr__(self):
-        return "<%s at %s, task = %s, level = %s>" % (
-            self.__class__.__name__, id(self), repr(self._task), self._level_str)
-
-    def __str__(self):
-        return str(self._task) + self._level_str
-
-    # Rich comparison support. Mainly used for selecting the 
-    # most critical status when we have several tasks executed inside a workflow.
-    def __lt__(self, other):
-        return self.rank < other.rank
-
-    def __le__(self, other):
-        return self.rank <= other.rank
-
-    def __eq__(self, other):
-        return self.rank == other.rank
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __gt__(self, other):
-        return self.rank > other.rank
-
-    def __ge__(self, other):
-        return self.rank >= other.rank
-
-    def show(self, stream=sys.stdout, *args, **kwargs):
-
-        from ..tools import StringColorizer
-        str_colorizer = StringColorizer(stream)
-                                                                       
-        _status2txtcolor = {
-          "completed" : lambda string : str_colorizer(string, "green"),
-          "error"     : lambda string : str_colorizer(string, "red"),
-          "running"   : lambda string : str_colorizer(string, "blue"),
-          "unstarted" : lambda string : str_colorizer(string, "cyan"),
-        }
-
-        color = lambda stat : str
-        if stream_has_colours(stream):
-            color = lambda stat : _status2txtcolor[stat](stat)
-
-        stream.write(self._task.name + ': ' + color(self._level_str) + "\n")
-
-    def print_ewc_messages(self, stream=sys.stdout, **kwargs):
-
-        verbose = kwargs.pop("verbose", 0)
-
-        # Read the number of errors, warnings and comments 
-        # for the (last) main output and the log file.
-        main, log =  self._task.read_mainlog_ewc()
-                                                            
-        main_info = main.tostream(stream)
-        log_info  = log.tostream(stream)
-                                                            
-        stream.write("\n".join([main_info, log_info]) + "\n")
-
-        if verbose:
-            for w in main.warnings: 
-                stream.write(w + "\n")
-            if verbose > 1:
-                for w in log.warnings: 
-                    stream.write(w + "\n")
-
-        if self.is_error:
-            for e in log.errors: 
-                    stream.write(e + "\n")
-
-            if not log.errors: # Read the standard error.
-                with open(self._task.stderr_file.path, "r") as f:
-                    lines = f.readlines()
-                    stream.write("\n".join(lines))
+    @classmethod
+    def json_load(cls, filename):
+        return cls.from_dict(json.load(fh))    
 
 ##########################################################################################
 
@@ -630,12 +663,11 @@ class TaskLinks(object):
     """
     This object describes the dependencies among Task instances.
     """
-
     _ext2getvars = {
-        "DEN" : "getden_path",
-        "WFK" : "getwfk_path",
-        "SCR" : "getscr_path",
-        "QPS" : "getqps_path",
+        "DEN": "getden_path",
+        "WFK": "getwfk_path",
+        "SCR": "getscr_path",
+        "QPS": "getqps_path",
     }
 
     def __init__(self, task, task_id, *odata_required):
@@ -674,13 +706,13 @@ class RunMode(AttrDict):
     coarse- and fine-grained parallelism ...)
     """
     _defaults = {
-        "launcher"       : "shell",    # ["shell", "slurm", "pbs"]
-        "policy"         : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
-        "max_npcus"      : 0,          # Max number of cpus that can be used. If 0, no maximum limit is enforced
-        "omp_numthreads" : 0,          # Number of OpenMP threads, 0 if OMP is not used 
-        "chunk_size"     : 1,          # Used when we don't have a queue_manager and several jobs to run
+        "launcher"      : "shell",    # ["shell", "slurm", "pbs"]
+        "policy"        : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
+        "max_npcus"     : 0,          # Max number of cpus that can be used. If 0, no maximum limit is enforced
+        "omp_numthreads": 0,          # Number of OpenMP threads, 0 if OMP is not used 
+        "chunk_size"    : 1,          # Used when we don't have a queue_manager and several jobs to run
                                        # In this case we run at most chunk_size tasks when work.start is called.
-        "queue_params"   : {},         # Parameters passed to the firework QeueAdapter.
+        "queue_params"  : {},         # Parameters passed to the firework QeueAdapter.
     }
 
     @classmethod
@@ -803,8 +835,13 @@ class RunParams(AttrDict):
 
 ##########################################################################################
 
+class TaskLauncherError(Exception):
+    pass
+
 class TaskLauncher(object): 
     __metaclass__ = abc.ABCMeta
+
+    Error = TaskLauncherError
 
     def __init__(self, paral_info=None, env=None, modules=None, pre_cmds=None, post_cmds=None):
 
