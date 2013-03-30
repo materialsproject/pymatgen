@@ -10,11 +10,11 @@ import shutil
 import collections
 import abc
 import numpy as np
-import json
 
 from pymatgen.core.design_patterns import Enum
 from pymatgen.util.string_utils import stream_has_colours
 #from pymatgen.util.filelock import FileLock
+from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 
 from .utils import parse_ewc, abinit_output_iscomplete, File
 from .jobfile import JobFile
@@ -403,9 +403,9 @@ class Pickleable(object):
         """
         with open(filename, "r") as f:
             return pickle.load(filename)
-#TODO
-from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 
+##########################################################################################
+#TODO
 class TaskResults(dict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
@@ -468,6 +468,7 @@ class TaskResults(dict, MSONable):
     #def json_dump(self, filename):
     #    with open(filename, "w") as fh
     #        json.dump(self.to_dict, fh, indent=4, sort_keys=4)
+
     
 ##########################################################################################
 
@@ -662,8 +663,8 @@ class TaskDependencies(object):
             vars.update({varname : path})
         return vars
 
-
 ##########################################################################################
+
 class TaskLauncher(object): 
     __metaclass__ = abc.ABCMeta
 

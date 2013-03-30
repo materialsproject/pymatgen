@@ -878,7 +878,7 @@ class Smearing(MSONable):
         return not self == other
 
     @classmethod
-    def from_mode(cls, mode):
+    def smart_mode(cls, mode):
         """
         Constructs an instance of Smearing from mode . 
         Accepts mode in the form:
@@ -969,6 +969,7 @@ class Electrons(AbinitCard):
         smearing  = None,
         iscf      = None,
         diemac    = None,
+        charge    = None,
         #occupancies = None,
         comment   = None,
         ):
@@ -983,6 +984,9 @@ class Electrons(AbinitCard):
         Args:
             comment:
                 String comment for Kpoints
+
+            charge: float
+                    Total charge of the system. Default is 0.
         """
         if spin_mode not in Electrons.modes:
             raise ValueError("Unknow spin_mode %s" % spin_mode)

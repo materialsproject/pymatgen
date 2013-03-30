@@ -108,7 +108,6 @@ def read_dojo_report(filename):
          s = "".join(l for l in lines[start+1:stop])
          return json.loads(s)
 
-
 _l2str = {
     0 : "s",
     1 : "p",
