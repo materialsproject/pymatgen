@@ -22,6 +22,10 @@ from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.phasediagram import PhaseDiagram, PDAnalyzer
+
+
 from nose.exc import SkipTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -148,6 +152,34 @@ class MPResterTest(unittest.TestCase):
         self.adaptor.delete_snl(snlids)
         data = self.adaptor.query_snl({"about.remarks": "unittest"})
         self.assertEqual(len(data), 0)
+
+    def test_get_stability(self):
+        m = MPRester()
+        entries = m.get_entries("Fe-O")
+        modified_entries = []
+        for entry in entries:
+            # Create modified entries with energies that are 0.01eV higher
+            # than the corresponding entries.
+            if entry.composition.reduced_formula == "Fe2O3":
+                modified_entries.append(
+                    ComputedEntry(entry.composition,
+                                  entry.uncorrected_energy + 0.01,
+                                  parameters=entry.parameters,
+                                  entry_id="mod_{}".format(entry.entry_id)))
+        rest_ehulls = m.get_stability(modified_entries)
+        all_entries = entries + modified_entries
+        compat = MaterialsProjectCompatibility()
+        all_entries = compat.process_entries(all_entries)
+        pd = PhaseDiagram(all_entries)
+        a = PDAnalyzer(pd)
+        for e in all_entries:
+            if str(e.entry_id).startswith("mod"):
+                for d in rest_ehulls:
+                    if d["entry_id"] == e.entry_id:
+                        data = d
+                        break
+                self.assertAlmostEqual(a.get_e_above_hull(e),
+                                       data["e_above_hull"])
 
 if __name__ == "__main__":
     unittest.main()
