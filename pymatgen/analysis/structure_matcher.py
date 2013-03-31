@@ -245,7 +245,7 @@ class StructureMatcher(MSONable):
                     if normalized max rms displacement is less than
                     stol. Return True
 
-                if rms_dist function called:
+                if get_rms_dist function called:
                     if normalized average rms displacement is less
                     than the stored rms displacement, store and
                     continue. (This function will search all possible
@@ -425,7 +425,7 @@ class StructureMatcher(MSONable):
         else:
             return fit_dist <= self.stol
 
-    def rms_dist(self, struct1, struct2):
+    def get_rms_dist(self, struct1, struct2):
         """
         Calculate RMS displacement between two structures
 
@@ -551,7 +551,8 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl, nl1)
+                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
+                                                               nl1)
                     if break_on_match and max_dist < stol:
                         return max_dist
                     elif rms < stored_rms[0]:
