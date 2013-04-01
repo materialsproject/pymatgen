@@ -447,7 +447,7 @@ class Vasprun(object):
                 elif occu <= 1e-8 and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
-        return cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint
+        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     @property
     def to_dict(self):
