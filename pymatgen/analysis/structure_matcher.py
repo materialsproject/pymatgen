@@ -437,8 +437,10 @@ class StructureMatcher(MSONable):
 
         Returns:
             rms displacement normalized by (Vol / nsites) ** (1/3)
-            and maximum distance between paired sites
+            and maximum distance between paired sites. If no matching
+            lattice is found None is returned.
         """
+
         return self._calc_rms(struct1, struct2, break_on_match=False)
 
     def _calc_rms(self, struct1, struct2, break_on_match):
@@ -474,7 +476,7 @@ class StructureMatcher(MSONable):
         if struct1.num_sites != struct2.num_sites:
             return None
         #initial stored rms
-        stored_rms = [np.Inf, np.Inf]
+        stored_rms = None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -501,7 +503,7 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = (1 / (1 - self.ltol)) * \
+        frac_tol = (2 / (1 - self.ltol)) * \
             np.array([stol / i for i in struct1.lattice.abc]) * \
                    ((nl1.volume + nl2.volume) /
                     (2 * struct1.num_sites)) ** (1.0 / 3)
@@ -555,7 +557,7 @@ class StructureMatcher(MSONable):
                                                                nl1)
                     if break_on_match and max_dist < stol:
                         return max_dist
-                    elif rms < stored_rms[0]:
+                    elif stored_rms is None or rms < stored_rms[0]:
                         stored_rms = [rms, max_dist]
 
         if break_on_match:
