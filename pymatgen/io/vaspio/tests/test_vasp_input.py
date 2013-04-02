@@ -133,6 +133,7 @@ direct
         poscar = Poscar.from_file(filepath)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
+        poscar.selective_dynamics = np.array([[True, False, False]] * 24)
 
     def test_velocities(self):
         si = 14
