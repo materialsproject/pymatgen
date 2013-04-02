@@ -138,7 +138,8 @@ class Poscar(MSONable):
 
     def __setattr__(self, name, value):
         if name in ("selective_dynamics", "velocities"):
-            if value is not None:
+            if value is not None and len(value) > 0:
+                value = list(value)
                 dim = np.array(value).shape
                 if dim[1] != 3 or dim[0] != len(self.structure):
                     raise ValueError(name + " array must be same length as" +
@@ -357,7 +358,7 @@ class Poscar(MSONable):
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
-        if self.selective_dynamics is not None:
+        if self.selective_dynamics:
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
 
@@ -372,12 +373,12 @@ class Poscar(MSONable):
             line += " " + site.species_string
             lines.append(line)
 
-        if self.velocities is not None:
+        if self.velocities:
             lines.append("")
             for v in self.velocities:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        if self.predictor_corrector is not None:
+        if self.predictor_corrector:
             lines.append("")
             lines.append(str(self.predictor_corrector[0][0]))
             lines.append(str(self.predictor_corrector[1][0]))
