@@ -1794,14 +1794,13 @@ class Procar(object):
         self.data = dict()
         self._read_file(filename)
 
-    def get_d_occupation(self, atomNo):
-        row = self.data[atomNo]
+    def get_d_occupation(self, atom_num):
+        row = self.data[atom_num]
         return sum(row[4:9])
 
     def _read_file(self, filename):
-        reader = zopen(filename, "r")
-        lines = clean_lines(reader.readlines())
-        reader.close()
+        with zopen(filename, "r") as f:
+            lines = list(clean_lines(f.readlines()))
         self.name = lines[0]
         kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
         expr = re.compile("^\s*([0-9]+)\s+")
