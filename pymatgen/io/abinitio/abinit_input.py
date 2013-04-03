@@ -20,7 +20,6 @@ from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
 
 from .pseudos import PseudoTable
-from .utils import parse_ewc, abinit_output_iscomplete
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -878,7 +877,7 @@ class Smearing(MSONable):
         return not self == other
 
     @classmethod
-    def smart_mode(cls, mode):
+    def assmearing(cls, mode):
         """
         Constructs an instance of Smearing from mode . 
         Accepts mode in the form:

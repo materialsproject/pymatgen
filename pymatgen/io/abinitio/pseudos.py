@@ -14,7 +14,6 @@ import cPickle as pickle
 import cStringIO as StringIO
 import numpy as np
 
-from os.path import join as pj
 from warnings import warn
 from pprint import pprint
 
@@ -150,6 +149,14 @@ class Pseudo(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    @classmethod
+    def aspseudo(cls, pseudo): 
+        if isinstance(pseudo, Pseudo): 
+            return pseudo
+        else:
+            # Assumes path.
+            return cls.from_filename(pseudo)
+
     @staticmethod
     def from_filename(filename):
         """
@@ -157,15 +164,6 @@ class Pseudo(object):
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)
-
-    @staticmethod
-    def from_filenames(*filenames):
-        "Return a tuple of pseudopotential objects from a list of filenames."
-        parser = PseudoParser()
-        pseudos = []
-        for fname in filenames:
-            pseudos.append(parser.parse(filename))
-        return pseudos
 
     def __repr__(self):
         return "<%s at %s, name = %s>" % (
@@ -334,7 +332,7 @@ class Pseudo(object):
             Args: 
                 accuracy: ["low", "normal", "high"]
         """
-        if self.dojo_report:
+        if self.has_dojo_report:
             return Hint.from_dict(self.dojo_report["hints"][accuracy])
         else:
             return None
@@ -1016,6 +1014,10 @@ class PseudoTable(collections.Sequence):
     print elements.isotope('Fe')
     Fe
     """
+    @classmethod
+    def astable(cls, *items):
+        return cls([Pseudo.aspseudo(item) for item in items])
+
     def __init__(self, pseudos):
         """
         Args:
@@ -1215,7 +1217,7 @@ class PseudoDatabase(dict):
 
         dirpath = os.path.abspath(dirpath)
 
-        cached_database = pj(dirpath, cls._save_file)
+        cached_database = os.path.join(dirpath, cls._save_file)
                                                              
         if not os.path.exists(cached_database) or force_reload:
             new = PseudoDatabase.__build(new, dirpath)
@@ -1264,7 +1266,7 @@ class PseudoDatabase(dict):
                 new_database[psp_type][xc_type][table_type] = table
 
         # Save the database.
-        cached_database = pj(top, self._save_file)
+        cached_database = os.path.join(top, self._save_file)
 
         new_database.save(cached_database)
 
@@ -1337,7 +1339,7 @@ class PseudoDatabase(dict):
         def tail2(path):
             head, tail0 = os.path.split(path)
             head, tail1 = os.path.split(head)
-            return pj(tail1, tail0)
+            return os.path.join(tail1, tail0)
 
         fh.write("# relative_path, md5 num_line\n")
         for pseudo in self.all_pseudos():

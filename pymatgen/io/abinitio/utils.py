@@ -4,18 +4,6 @@ import collections
 
 from pymatgen.util.string_utils import list_strings, StringColorizer
 
-
-##########################################################################################
-# Helper functions.
-
-def remove_trees(*paths, **kwargs):
-    import shutil
-    ignore_errors = kwargs.pop("ignore_errors", True)
-    onerror       = kwargs.pop("onerror", None)
-                                                                           
-    for path in paths:
-        shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
-
 ##########################################################################################
 
 class File(object):
@@ -24,16 +12,19 @@ class File(object):
 
     Provides wrappers for the most commonly used os.path functions.
     """
-    def __init__(self, basename, dirname="."):
-        self.basename = basename
-        self.dirname = os.path.abspath(dirname)
-        self.path = os.path.join(self.dirname, self.basename)
-
-    def __str__(self):
-       return self.read()
+    def __init__(self, path):
+        self.path = os.path.abspath(path)
 
     def __repr__(self):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
+
+    @property
+    def basename(self):
+        return os.path.basename(self.path)
+
+    @property
+    def dirname(self):
+        return os.path.dirname(self.path)
 
     @property
     def exists(self):
@@ -46,94 +37,24 @@ class File(object):
         return self.basename.endswith(".nc")
 
     def read(self):
-        with open(self.path, "r") as f: return f.read()
+        with open(self.path, "r") as f: 
+            return f.read()
 
     def readlines(self):
-        with open(self.path, "r") as f: return f.readlines()
+        with open(self.path, "r") as f: 
+            return f.readlines()
 
     def write(self, string):
-        with open(self.path, "w") as f: return f.write(string)
+        with open(self.path, "w") as f: 
+            return f.write(string)
                                         
     def writelines(self, lines):
-        with open(self.path, "w") as f: return f.writelines()
+        with open(self.path, "w") as f: 
+            return f.writelines()
 
-##########################################################################################
-
-class _ewc_tuple(collections.namedtuple("ewc_tuple", "errors, warnings, comments")):
-
-    @property
-    def num_errors(self):
-        "Number of error messages"
-        return len(self.errors)
-
-    @property
-    def num_warnings(self):
-        "Number of warning messages"
-        return len(self.warnings)
-
-    @property
-    def num_comments(self):
-        "Number of comments"
-        return len(self.comments)
-
-    def tostream(self, stream):
-        "Return a string that can be visualized on stream (with colors if stream support them)."
-        str_colorizer = StringColorizer(stream)
-
-        red  = lambda num : str_colorizer(str(num), "red")
-        blue = lambda num : str_colorizer(str(num), "blue")
-
-        nums = map(len, [self.errors, self.warnings, self.comments])
-
-        colors = (red, blue, str)
-
-        for (i, n) in enumerate(nums): 
-            color = colors[i]
-            nums[i] = color(n) if n else str(n)
-
-        return "%s errors, %s warnings, %s comments in main output file" % tuple(nums)
-
-##########################################################################################
-
-def parse_ewc(filename, nafter=5):
-    """
-    Extract errors, warnings and comments from file filename.
-                                                                                           
-    :arg nafter: Save nafter lines of trailing context after matching lines.  
-    :return: namedtuple instance. The lists of strings with the corresponding messages are
-             available in tuple.errors, tuple.warnings, tuple.comments. 
-    """
-    # TODO
-    # we have to standardize the abinit WARNING, COMMENT and ERROR  so that we can parse them easily
-    # without having to use nafter.
-
-    errors, warnings, comments = [], [], []
-    # Note the space after the name.
-    exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
-
-    handlers = {
-        "ERROR "   : errors.append,
-        "BUG "     : errors.append,
-        "WARNING " : warnings.append,
-        "COMMENT " : comments.append,
-    }
-
-    def exc_case(line):
-        for e in exc_cases:
-            if e in line: return e
-        else:
-            return None
-
-    with open(filename, "r") as fh:      
-        lines = fh.readlines()
-        nlines = len(lines)
-        for (lineno, line) in enumerate(lines):
-            handle = handlers.get(exc_case(line))
-            if handle is None: continue
-            context = lines[lineno: min(lineno+nafter, nlines)]
-            handle( "".join([c for c in context]) )
-
-    return _ewc_tuple(errors, warnings, comments)
+    #def make_dir(self):
+    #    if not os.path.exists(self.dirname):
+    #        os.makedirs(self.dirname)
 
 ##########################################################################################
 
