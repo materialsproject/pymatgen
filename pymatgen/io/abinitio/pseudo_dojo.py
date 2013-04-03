@@ -40,7 +40,7 @@ class Dojo(object):
         #if isinstance(pseudos, str) or not isinstance(pseudos, collections.Iterable):
         #    pseudos = [pseudos,]
 
-        #pseudo = pseudo.smart_mode(pseudo)
+        #pseudo = Pseudo.aspseudo(pseudo)
         if not isinstance(pseudo, Pseudo):
             pseudo = Pseudo.from_filename(pseudo)
 
@@ -163,13 +163,15 @@ class HintsMaster(DojoMaster):
 
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
-        estep = 10 
-        eslice = slice(5,None,estep)
+        estep = kwargs.get("estep", 10)
+
+        eslice = slice(5, None, estep)
 
         w = factory.work_for_pseudo(workdir, pseudo, eslice, 
                                     runmode   = self.runmode,
                                     atols_mev = atols_mev,
                                    )
+
         if os.path.exists(w.workdir):
             shutil.rmtree(w.workdir)
 
@@ -180,7 +182,8 @@ class HintsMaster(DojoMaster):
         wres = w.get_results()
         w.move("ITERATIVE")
 
-        #estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 5
+        estep = max(int(estep/2), 1)
+
         estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 1
 
         erange = list(np.arange(estart, estop, estep))

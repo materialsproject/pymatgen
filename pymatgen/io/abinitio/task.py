@@ -13,11 +13,11 @@ import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours
-#from pymatgen.util.filelock import FileLock
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump #, PMGJSONDecoder
 
-from .utils import parse_ewc, abinit_output_iscomplete, File
-from .jobfile import JobFile
+from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
+from pymatgen.io.abinitio.launcher import TaskLauncher
+from pymatgen.io.abinitio.events import EventParser
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ __date__ = "$Feb 21, 2013M$"
 __all__ = [
 "AbinitTask",
 ]
+
 ##########################################################################################
 
 STAT_DONE = 1  # Task completed, note that this does not imply that results are ok or that the calculation completed succesfully
@@ -50,10 +51,10 @@ class TaskStatus(object):
     """
     #: Rank associated to the different status (in order of increasing priority)
     _level2rank = {
-      "done"     : STAT_DONE, 
-      "waiting"  : STAT_WAIT, 
-      "running"  : STAT_RUN, 
-      "error"    : STAT_ERR,
+      "done"    : STAT_DONE, 
+      "waiting" : STAT_WAIT, 
+      "running" : STAT_RUN, 
+      "error"   : STAT_ERR,
     }
 
     levels = Enum(s for s in _level2rank)
@@ -62,25 +63,20 @@ class TaskStatus(object):
 
         self._task = task
 
+        parser = EventParser()
+
         if task.isdone():
             # The main output file seems completed.
             level_str = 'done'
 
-            #TODO
-            # Read the number of errors, warnings and comments 
-            # for the (last) main output and the log file.
-            #main, log =  task.read_mainlog_ewc()
-                                                                
-            #main_info = main.tostream(stream)
-            #log_info  = log.tostream(stream)
-
         # TODO err file!
         elif task.output_file.exists and task.log_file.exists:
             # Inspect the main output and the log file for ERROR messages.
-            main, log = task.read_mainlog_ewc()
+            main_events = parser.parse(task.output_file.path)
+            log_events  = parser.parse(task.log_file.path)
 
             level_str = 'running'
-            if main.errors or log.errors:
+            if main_events.critical_events or log_events.critical_events:
                 level_str = 'error'
 
             with open(task.stderr_file.path, "r") as f:
@@ -96,26 +92,6 @@ class TaskStatus(object):
     @property
     def rank(self):
         return self._level2rank[self._level_str]
-
-    @property
-    def is_done(self):
-        return self._level_str == "done"
-
-    @property
-    def is_waiting(self):
-        return self._level_str == "waiting"
-
-    @property
-    def is_running(self):
-        return self._level_str == "running"
-
-    @property
-    def is_error(self):
-        return self._level_str == "error"
-
-    def __repr__(self):
-        return "<%s at %s, task = %s, level = %s>" % (
-            self.__class__.__name__, id(self), repr(self._task), self._level_str)
 
     def __str__(self):
         return str(self._task) + self._level_str
@@ -140,53 +116,6 @@ class TaskStatus(object):
     def __ge__(self, other):
         return self.rank >= other.rank
 
-    def show(self, stream=sys.stdout, *args, **kwargs):
-
-        from ..tools import StringColorizer
-        str_colorizer = StringColorizer(stream)
-                                                                       
-        _status2txtcolor = {
-          "done"    : lambda string : str_colorizer(string, "green"),
-          "error"   : lambda string : str_colorizer(string, "red"),
-          "running" : lambda string : str_colorizer(string, "blue"),
-          "waiting" : lambda string : str_colorizer(string, "cyan"),
-        }
-
-        color = lambda stat : str
-        if stream_has_colours(stream):
-            color = lambda stat : _status2txtcolor[stat](stat)
-
-        stream.write(self._task.name + ': ' + color(self._level_str) + "\n")
-
-    def print_ewc_messages(self, stream=sys.stdout, **kwargs):
-
-        verbose = kwargs.pop("verbose", 0)
-
-        # Read the number of errors, warnings and comments 
-        # for the (last) main output and the log file.
-        main, log =  self._task.read_mainlog_ewc()
-                                                            
-        main_info = main.tostream(stream)
-        log_info  = log.tostream(stream)
-                                                            
-        stream.write("\n".join([main_info, log_info]) + "\n")
-
-        if verbose:
-            for w in main.warnings: 
-                stream.write(w + "\n")
-            if verbose > 1:
-                for w in log.warnings: 
-                    stream.write(w + "\n")
-
-        if self.is_error:
-            for e in log.errors: 
-                    stream.write(e + "\n")
-
-            if not log.errors: # Read the standard error.
-                with open(self._task.stderr_file.path, "r") as f:
-                    lines = f.readlines()
-                    stream.write("\n".join(lines))
-
 ##########################################################################################
 
 class TaskError(Exception):
@@ -205,7 +134,7 @@ class Task(object):
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
     def process(self):
-        "Return an object that support the subprocess.Popen protocol."
+        "Return an object that supports the subprocess.Popen protocol."
 
     def poll(self):
         "Check if child process has terminated. Set and return returncode attribute."
@@ -241,6 +170,10 @@ class Task(object):
             self.set_status(STAT_DONE)
         return stdoutdata, stderrdata 
 
+    def kill(self):
+        "Kill the child"
+        self.process.kill()
+
     @property
     def returncode(self):
         """
@@ -250,19 +183,17 @@ class Task(object):
         """
         return self.process.returncode
 
-    def kill(self):
-        "Kill the child"
-        self.process.kill()
-
     @property
     def status(self):
         return self._status
 
-    #@status.setter
     def set_status(self, status):
         if status not in self.possible_status:
             raise RunTimeError("Unknown status: %s" % status)
         self._status = status
+
+        # Notify the observers
+        #self.subject.notify_observers(status)
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -273,7 +204,11 @@ class Task(object):
 
     @property
     def results(self):
-        return self._results
+        "The results produced by the task. Set by get_results"
+        try:
+            return self._results
+        except AttributeError:
+            return None
 
     def get_results(self, *args, **kwargs):
         """
@@ -289,18 +224,14 @@ class Task(object):
         if self.status != STAT_DONE:
             raise self.Error("Task is not completed")
 
-        main, log = self.read_mainlog_ewc()
+        # Analyze the main output and the log file for possible errors or warnings.
+        main_events = EventParser().parse(self.output_file.path)
 
         results = TaskResults({
             "task_name"      : self.name,
             "task_returncode": self.returncode,
             "task_status"    : self.status,
-            "num_errors"     : main.num_errors,
-            "num_warnings"   : main.num_warnings,
-            "num_comments"   : main.num_comments,
-            "errors"         : main.errors,
-            "warnings"       : main.warnings,
-            "comments"       : main.comments,
+            "task_events"    : main_events.to_dict
             })
 
         if not hasattr(self, "_results"):
@@ -355,40 +286,21 @@ class AbinitTask(Task):
             self.input = self.input.add_vars_to_control(varpaths)
 
         # Files required for the execution.
-        self.input_file  = File(self.basename.input      , dirname=self.workdir)
-        self.output_file = File(self.basename.output     , dirname=self.workdir)
-        self.files_file  = File(self.basename.files_file , dirname=self.workdir)
-        self.log_file    = File(self.basename.log_file   , dirname=self.workdir)
-        self.stderr_file = File(self.basename.stderr_file, dirname=self.workdir)
+        self.input_file  = File(os.path.join(self.workdir, self.basename.input))
+        self.output_file = File(os.path.join(self.workdir, self.basename.output))
+        self.files_file  = File(os.path.join(self.workdir, self.basename.files_file))
+        self.log_file    = File(os.path.join(self.workdir, self.basename.log_file))
+        self.stderr_file = File(os.path.join(self.workdir, self.basename.stderr_file))
 
         # Find number of processors ....
-        #self.paral_hint = self.get_runhints(max_numproc)
+        #runhints = self.get_runhints()
 
-        # Set jobfile variables.
-        # TODO Rename JobFile to ShellScript(File)
-        #self.jobfile = File(self.workdir, self.basename.jobfile)
-        #excecutable = "abinit"
-        self.jobfile = JobFile(name   = self.jobfile_path, 
-                               input  = self.files_file.path, 
-                               log    = self.log_file.path,
-                               stderr = self.stderr_file.path,
-                              )
-    def __str__(self):
-        lines = []
-        app = lines.append
+        self.launcher = TaskLauncher.from_task(self)
 
-        #basenames = ["input", "files_file", "jobfile"]
-        #for s in basenames:
-        #    apath = getattr(self, s + "_path") 
-        #    app(s + ": " + apath)
-
-        app("outfiles_dir: " + self.outfiles_dir)
-        app("tmpfiles_dir: " + self.tmpfiles_dir)
-
-        return "\n".join(lines)
+    #def __str__(self):
 
     def __repr__(self):
-        return "<%s at %s, task_workdir = %s>" % (
+        return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
 
     @property
@@ -511,9 +423,9 @@ class AbinitTask(Task):
         if not self.files_file.exists:
             self.files_file.write(self.filesfile_string)
 
-        if not os.path.exists(self.jobfile_path):
-            with open(self.jobfile_path, "w") as f:
-                    f.write(str(self.jobfile))
+        #if not os.path.exists(self.jobfile_path):
+        #    with open(self.jobfile_path, "w") as f:
+        #            f.write(str(self.jobfile))
 
     def rmtree(self, *args, **kwargs):
         """
@@ -530,44 +442,23 @@ class AbinitTask(Task):
 
         shutil.rmtree(self.workdir)
 
-    def read_mainlog_ewc(self, nafter=5):
-       """
-       Read errors, warnings and comments from the main output and the log file.
-                                                                                        
-       :return: Two namedtuple instances: main, log. 
-                The lists of strings with the corresponding messages are
-                available in main.errors, main.warnings, main.comments, log.errors etc.
-       """
-       main = parse_ewc(self.output_file.path, nafter=nafter)
-       log  = parse_ewc(self.log_file.path, nafter=nafter)
-
-       return main, log
-
     def get_taskstatus(self):
         return TaskStatus(self)
 
-    def show_status(self, stream=sys.stdout, *args, **kwargs):
-        self.get_taskstatus().show(stream=stream, *args, **kwargs)
-
-    def get_runhints(self, max_numproc):
+    def get_runhints(self):
         """
         Run abinit in sequential to obtain a set of possible
-        configuration for the number of processors
+        configuration for the number of processors.
+        RunMode is used to select the paramenters of the run.
         """
         raise NotImplementedError("")
 
         # number of MPI processors, number of OpenMP processors, memory estimate in Gb.
         RunHints = collections.namedtuple('RunHints', "mpi_nproc omp_nproc memory_gb")
-
         return hints
 
     def setup(self, *args, **kwargs):
         pass
-
-    def _submit(self, *args, **kwargs):
-        # Start the calculation in a subprocess and return
-        from subprocess import Popen, PIPE
-        self._process = Popen((self.jobfile.shell, self.jobfile.path), cwd=self.workdir, stderr=PIPE)
 
     def start(self, *args, **kwargs):
         """
@@ -592,36 +483,10 @@ class AbinitTask(Task):
 
         self._setup(*args, **kwargs)
 
-        self._submit(*args, **kwargs)
+        # Start the calculation in a subprocess and return
+        self._process = self.launcher.launch()
 
         self.set_status(STAT_RUN)
-
-##########################################################################################
-
-import cPickle as pickle
-class Pickleable(object):
-
-    def write_to_pickle_file(self, filename, protocol=-1):
-        """
-        Writes the pickle representation to a file.
-
-        Args:
-            filename:
-                filename to write to. It is recommended that the file extension be ".pickle".
-        """
-        with open(filename, "w") as f:
-            pickle.dump(self, filename)
-
-    def from_pickle_file(filename):
-        """
-        Return the object from the pickle representation stored in a file.
-                                                                                              
-        Args:
-            filename:
-                filename to read. 
-        """
-        with open(filename, "r") as f:
-            return pickle.load(filename)
 
 ##########################################################################################
 
@@ -632,15 +497,13 @@ class TaskResults(AttrDict, MSONable):
     _mandatory_keys = [
         "task_name",
         "task_returncode",
-        #"task_status",
-        #"num_errors",
-        #"num_warnings",
-        #"num_comments",
+        "task_status",
+        "task_events",
     ]
 
     @property
     def to_dict(self):
-        d = self
+        d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -655,7 +518,7 @@ class TaskResults(AttrDict, MSONable):
 
     @classmethod
     def json_load(cls, filename):
-        return cls.from_dict(json.load(fh))    
+        return cls.from_dict(json_load(filename))    
 
 ##########################################################################################
 
@@ -706,13 +569,13 @@ class RunMode(AttrDict):
     coarse- and fine-grained parallelism ...)
     """
     _defaults = {
-        "launcher"      : "shell",    # ["shell", "slurm", "pbs"]
+        "launcher"      : "shell",    # ["shell", "slurm", "slurm-fw", "pbs"]
         "policy"        : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
         "max_npcus"     : 0,          # Max number of cpus that can be used. If 0, no maximum limit is enforced
         "omp_numthreads": 0,          # Number of OpenMP threads, 0 if OMP is not used 
         "chunk_size"    : 1,          # Used when we don't have a queue_manager and several jobs to run
-                                       # In this case we run at most chunk_size tasks when work.start is called.
-        "queue_params"  : {},         # Parameters passed to the firework QeueAdapter.
+                                      # In this case we run at most chunk_size tasks when work.start is called.
+        "queue_params"  : {},         # Parameters passed to the firework QueueAdapter.
     }
 
     @classmethod
@@ -741,9 +604,6 @@ class RunMode(AttrDict):
                 d[k] = v
         return cls(d)
 
-    def __init__(self, *args, **kwargs):
-        super(RunMode, self).__init__(*args, **kwargs)
-
     @property
     def has_queue_manager(self):
         "True if job submission is handled by a resource manager."
@@ -753,9 +613,6 @@ class RunMode(AttrDict):
         if self.has_queue_manager:
             return None
         return self.chunk_size
-
-    #def get_defaults(self):
-    #    return RunMode._defaults.copy()
 
     #def with_max_ncpus(self, max_ncpus):
     #    d = RunMode._defaults.copy()
@@ -833,61 +690,4 @@ class RunParams(AttrDict):
     def __init__(self, *args, **kwargs):
         super(TaskRunParams, self).__init__(*args, **kwargs)
 
-##########################################################################################
-
-class TaskLauncherError(Exception):
-    pass
-
-class TaskLauncher(object): 
-    __metaclass__ = abc.ABCMeta
-
-    Error = TaskLauncherError
-
-    def __init__(self, paral_info=None, env=None, modules=None, pre_cmds=None, post_cmds=None):
-
-        self.paral_info = paral_info if paral_info else {}
-        self.env = env if env else {}
-        self.modules = modules if modules else []
-        self.pre_cmds = pre_cmds if pre_cmds else []
-        self.post_cmds = post_cmds if post_cmds else []
-
-    @staticmethod
-    def subclass_from_name(self, name):
-        "Returns the TaskLauncher subclass given dojo_level"
-        classes = []
-        for cls in TaskLauncher.__subclasses__():
-            if cls._name == name:
-                classes.append(cls)
-        if len(classes) != 1:
-            raise self.Error("Found %d TaskLaunchers with name %s" % (len(classes), name))
-                                                                                              
-        return classes[0]
-
-    @abc.abstractmethod
-    def write_jobfile(self, task):
-        "Write the submission script"
-
-    @abc.abstractmethod
-    def submit_task(self, task):
-        "Submit a task, set task._process (process-like object)"
-
-    @property
-    def name(self):
-        return self._name
-
-    def launch_task(self, task):
-        self.write_jobfile(task)
-        self.submit_task(task)
-
-##########################################################################################
-class ShellLauncher(TaskLauncher): 
-    _name = "shell"
-
-    def submit_task(self, task):
-        # Start the calculation in a subprocess and return
-        from subprocess import Popen, PIPE
-        task._process = Popen((task.jobfile.shell, task.jobfile.path), cwd=task.workdir, stderr=PIPE)
-
-##########################################################################################
-#class SlurmLauncher(TaskLauncher): 
 ##########################################################################################

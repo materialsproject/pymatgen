@@ -25,9 +25,7 @@ from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
 from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
 from .task import AbinitTask, TaskLinks, RunMode
-from .utils import parse_ewc, abinit_output_iscomplete
-
-from .jobfile import JobFile
+from .utils import abinit_output_iscomplete
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -300,7 +298,7 @@ class Work(BaseWork, MSONable):
                 chunk_size:
         """
         if chunk_size is not None and chunk_size > 0:
-            print("submitting %d task in chunks of size %d" % (len(self), chunk_size))
+            print("submitting %d tasks in chunks of size %d" % (len(self), chunk_size))
             for tasks in self.chunks(chunk_size):
                 for t in tasks:
                     t.start(*args, **kwargs)
@@ -426,6 +424,15 @@ class IterativeWork(Work):
         """
 
 ##########################################################################################
+def min_max_indexes(seq): 
+    """
+    uses enumerate, max, and min to return the indices of the values 
+    in a list with the maximum and minimum value:
+    """
+    minimum = min(enumerate(seq), key=lambda s: s[1]) 
+    maximum = max(enumerate(seq), key=lambda s: s[1]) 
+    return minimum[0], maximum[0]
+
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -479,7 +486,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1):
         inormal = check_conv(etotal, de_normal)
         ilow    = check_conv(etotal, de_low)
 
-        accidx = {ihigh: "H", inormal: "N", ilow: "L"}
+        accidx = {"H": ihigh, "N": inormal, "L": ilow}
 
         table = []
         app = table.append
@@ -487,7 +494,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1):
         app(["step", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
         for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
             line = "%d %.1f %g %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
-            row = line.split() + [accidx.get(idx, " "),]
+            row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
             app(row)
                                                                                      
         from pymatgen.util.string_utils import pprint_table
@@ -674,7 +681,7 @@ class PseudoIterativeConvergence(IterativeWork):
 
         runmode = runmode if runmode else RunMode.sequential()
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         self.atols_mev = atols_mev
         self.spin_mode = spin_mode
@@ -791,7 +798,7 @@ class Relaxation(Work):
                                                                                                    
         super(Relaxation, self).__init__(workdir, runmode)
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         ions_relax = Relax(
                         iomov     = 3, 
@@ -826,7 +833,7 @@ class DeltaTest(Work):
             # Assume CIF file
             structure = read_structure(structure_or_cif)
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         self._input_structure = structure
 
@@ -908,7 +915,7 @@ class PvsV(Work):
             from pymatgen import read_structure
             structure = read_structure(structure_or_cif)
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         #ndtset 5
 
@@ -965,7 +972,7 @@ class G0W0(Work):
 
         super(G0W0, self).__init__(workdir, runmode)
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
@@ -1015,7 +1022,7 @@ class PPConvergenceFactory(object):
         """
         workdir = os.path.abspath(workdir)
 
-        smearing = Smearing.smart_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         runmode = runmode if runmode else RunMode.sequential()
 
