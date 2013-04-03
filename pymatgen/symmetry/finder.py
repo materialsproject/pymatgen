@@ -694,11 +694,11 @@ class SymmetryFinder(object):
                                          + 2 * cos(alpha) * cos(beta)
                                          * cos(gamma)) / sin(gamma)]]
 
-            def matrix_test(m):
+            def is_all_acute_or_obtuse(m):
                 recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
                 return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
 
-            if matrix_test(test_matrix):
+            if is_all_acute_or_obtuse(test_matrix):
                 trans = [[1.0, 0.0, 0.0],
                          [0.0, 1.0, 0.0],
                          [0.0, 0.0, 1.0]]
@@ -714,7 +714,7 @@ class SymmetryFinder(object):
                                            + 2 * cos(alpha) * cos(beta)
                                            * cos(gamma)) / sin(gamma)]]
 
-            if matrix_test(test_matrix):
+            if is_all_acute_or_obtuse(test_matrix):
                 trans = [[-1.0, 0.0, 0.0],
                          [0.0, 1.0, 0.0],
                          [0.0, 0.0, -1.0]]
@@ -730,7 +730,7 @@ class SymmetryFinder(object):
                                           + 2 * cos(alpha) * cos(beta)
                                           * cos(gamma)) / sin(gamma)]]
 
-            if matrix_test(test_matrix):
+            if is_all_acute_or_obtuse(test_matrix):
                 trans = [[-1.0, 0.0, 0.0],
                          [0.0, -1.0, 0.0],
                          [0.0, 0.0, 1.0]]
@@ -745,7 +745,7 @@ class SymmetryFinder(object):
                                            - cos(beta) ** 2
                                            + 2 * cos(alpha) * cos(beta)
                                            * cos(gamma)) / sin(gamma)]]
-            if matrix_test(test_matrix):
+            if is_all_acute_or_obtuse(test_matrix):
                 trans = [[1.0, 0.0, 0.0],
                          [0.0, -1.0, 0.0],
                          [0.0, 0.0, -1.0]]
