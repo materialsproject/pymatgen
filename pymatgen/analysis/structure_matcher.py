@@ -245,7 +245,7 @@ class StructureMatcher(MSONable):
                     if normalized max rms displacement is less than
                     stol. Return True
 
-                if rms_dist function called:
+                if get_rms_dist function called:
                     if normalized average rms displacement is less
                     than the stored rms displacement, store and
                     continue. (This function will search all possible
@@ -425,7 +425,7 @@ class StructureMatcher(MSONable):
         else:
             return fit_dist <= self.stol
 
-    def rms_dist(self, struct1, struct2):
+    def get_rms_dist(self, struct1, struct2):
         """
         Calculate RMS displacement between two structures
 
@@ -437,8 +437,10 @@ class StructureMatcher(MSONable):
 
         Returns:
             rms displacement normalized by (Vol / nsites) ** (1/3)
-            and maximum distance between paired sites
+            and maximum distance between paired sites. If no matching
+            lattice is found None is returned.
         """
+
         return self._calc_rms(struct1, struct2, break_on_match=False)
 
     def _calc_rms(self, struct1, struct2, break_on_match):
@@ -474,7 +476,7 @@ class StructureMatcher(MSONable):
         if struct1.num_sites != struct2.num_sites:
             return None
         #initial stored rms
-        stored_rms = [np.Inf, np.Inf]
+        stored_rms = None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -501,7 +503,7 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = (1 / (1 - self.ltol)) * \
+        frac_tol = (2 / (1 - self.ltol)) * \
             np.array([stol / i for i in struct1.lattice.abc]) * \
                    ((nl1.volume + nl2.volume) /
                     (2 * struct1.num_sites)) ** (1.0 / 3)
@@ -551,10 +553,11 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl, nl1)
+                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
+                                                               nl1)
                     if break_on_match and max_dist < stol:
                         return max_dist
-                    elif rms < stored_rms[0]:
+                    elif stored_rms is None or rms < stored_rms[0]:
                         stored_rms = [rms, max_dist]
 
         if break_on_match:
