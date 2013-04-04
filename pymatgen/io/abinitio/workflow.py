@@ -12,6 +12,8 @@ import collections
 import functools
 import numpy as np
 
+from pprint import pprint
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
@@ -23,9 +25,9 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
-from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
-from .task import AbinitTask, TaskLinks, RunMode
-from .utils import abinit_output_iscomplete
+from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing, RelaxStrategy
+from .task import RunMode
+from .utils import abinit_output_iscomplete, File
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -50,6 +52,92 @@ def map_method(method):
         return [getattr(item, method.__name__)(*args, **kwargs) for item in iter_obj]
     return wrapped
 
+##########################################################################################
+
+class Product(object):
+    """
+    A product represents the file produced by an AbinitTask instance, file
+    that is needed by another task in order to start the calculation.
+    """
+    # TODO
+    # It would be nice to pass absolute paths to abinit with getsomething_path
+    # so that I can avoid creating symbolic links before running but
+    # the presence of the C-bindings complicates the implementation
+    # (gfortran SIGFAULTs if I add strings to dataset_type!
+    _ext2abivars = {
+        "_DEN": {"irdden": 1}, #"getden_path",  
+        "_WFK": {"irdwfk": 1}, #"getwfk_path",
+        "_SCR": {"irdscr": 1}, #"getscr_path",
+        "_QPS": {"irdqps": 1}, #"getqps_path",
+    }
+    def __init__(self, ext, path):
+        self.ext = ext
+        self.file = File(path)
+
+    def __str__(self):
+        return "ext = %s, file = %s" % (self.ext, self.file)
+
+    def get_filepath(self):
+        return self.file.path
+
+    def get_abivars(self):
+        return self._ext2abivars[self.ext].copy()
+
+class WorkLink(object):
+    """
+    This object describes the dependencies among the AbinitTask objects contained in a Work instance.
+    A  WorkLink is a task that produces a list of products (files) reused by another task belonging 
+    a Work instance.
+    """
+    def __init__(self, task, exts=None):
+        """
+        Args:
+            task: 
+                AbinitTask instance
+            exts:
+                Extensions of the output files that are needed for running the other tasks.
+        """
+        self._task = task
+
+        self._products = []
+
+        if exts is not None:
+            if isinstance(exts, str):
+                exts = [exts,]
+
+            for ext in exts:
+                prod = Product(ext, task.odata_path_from_ext(ext))
+                self._products.append(prod)
+
+    def __str__(self):
+        s = "%s: task %s with products\n %s" % (
+                self.__class__.__name__, repr(self._task), "\n".join(str(p) for p in self.products))
+        return s
+
+    @property
+    def products(self):
+        return self._products
+
+    def produces_exts(self, exts):
+        return WorkLink(self._task, exts=exts)
+
+    def get_abivars(self):
+        """
+        Returns a dictionary with the abinit variables that to 
+        be added to the input file in order to connect the two tasks.
+        """
+        abivars =  {}
+        for prod in self._products:
+            abivars.update(prod.get_abivars())
+        return abivars
+
+    def get_filepaths_and_exts(self):
+        "Return the paths of the output files produces by self and its extension"
+        filepaths = [prod.get_filepath() for prod in self._products]
+        exts = [prod.ext for prod in self._products]
+        return filepaths, exts
+
+##########################################################################################
 
 class WorkError(Exception):
     pass
@@ -59,11 +147,11 @@ class BaseWork(object):
 
     Error = WorkError
 
+    # interface modeled after subprocess.Popen
     @abc.abstractproperty
     def processes(self):
         "Return a list of objects that support the subprocess.Popen protocol."
 
-    # interface modeled after subprocess.Popen
     def poll(self):
         "Check if all child processes have terminated. Set and return returncode attribute."
         return [p.poll() for p in self.processes]
@@ -82,6 +170,7 @@ class BaseWork(object):
         """
         return [p.communicate(input) for p in self.processes]
 
+    @property
     def returncodes(self):
         """
         The children return codes, set by poll() and wait() (and indirectly by communicate()). 
@@ -126,11 +215,12 @@ class Work(BaseWork, MSONable):
 
         self.runmode = runmode
 
-        self.kwargs = kwargs
+        self._kwargs = kwargs
 
         self._tasks = []
 
-        self._deps = collections.OrderedDict()
+        # Dict with the dependencies of each task, indexed by task.tid
+        self._links_dict = collections.defaultdict(list)
 
     def __len__(self):
         return len(self._tasks)
@@ -151,20 +241,17 @@ class Work(BaseWork, MSONable):
 
     @property
     def to_dict(self):
-        raise NotImplementedError("")
-        #d = {k: v for k, v in self.items()}
-        #d["@module"] = self.__class__.__module__
-        #d["@class"] = self.__class__.__name__
-        #return d
+        d = {"workdir": self.workdir,
+             "runmode": self.runmode.to_dict,
+             "kwargs" : self._kwargs,
+            }
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
-    @classmethod
-    def from_dict(cls, d):
-        raise NotImplementedError("")
-        #i = cls()
-        #for (k, v) in d.items():
-        #    if k not in ("@module", "@class"):
-        #        i[k] = v
-        #return i
+    @staticmethod
+    def from_dict( d):
+        return Work(d["workdir"], d["runmode"], **d["kwargs"])
 
     @property
     def isnc(self):
@@ -201,47 +288,42 @@ class Work(BaseWork, MSONable):
 
         stream.write("\n".join(lines))
 
-    def _add_task(self, task, depends=()):
-        self._tasks.append(task)
-                                         
-        task_id = len(self)
+    def register_input(self, input, links=()):
+        """
+        Registers a new Input:
 
-        if depends:
-            self._deps[task_id] = depends
+            - creates a new AbinitTask from input.
+            - adds the new task to the internal list, taking into account possible dependencies.
 
-        return task_id
+        Returns: WorkLink object
+        """
+        task_id = len(self) + 1
 
-    def register_input(self, input, depends=()):
-
-        task_workdir = os.path.join(self.workdir, "task_" + str(len(self) + 1))
+        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
         
         # Handle possible dependencies.
-        varpaths = None
-        if depends:
-            if not isinstance(depends, collections.Iterable): 
-                depends = [depends]
+        if links:
+            if not isinstance(links, collections.Iterable): 
+                links = [links,]
 
-            varpaths = {}
-            for dep in depends:
-                varpaths.update( dep.get_varpaths() )
-                #print("varpaths %s" % str(varpaths))
+        # Create the new task
+        from .task import AbinitTask
+        task = AbinitTask(input, task_workdir, self.runmode,
+                         task_id  = task_id,
+                         links    = links,
+                         )
 
-        new_task = AbinitTask(input, task_workdir, self.runmode,
-                              varpaths = varpaths,
-                             )
-
-        # Add it to the list and return the ID of the task 
-        # so that client code can specify possible dependencies.
-        #if new_task in self._deps:
+        # Add it to the internal list.
+        #if task.tid in self._links_dict:
         #    raise ValueError("task is already registered!")
 
-        newtask_id = self._add_task(new_task, depends=depends)
+        self._tasks.append(task)
+                                         
+        if links:
+            self._links_dict[task_id].extend(links)
+            print("task_id %s neeeds\n %s" % (task_id, [str(l) for l in links]))
 
-        #self._tasks.append(new_task)
-        #newtask_id = len(self)
-        #self._deps[newtask_id] = depends
-
-        return TaskLinks(new_task, newtask_id)
+        return WorkLink(task)
 
     def build(self, *args, **kwargs):
         "Creates the top level directory"
@@ -307,6 +389,8 @@ class Work(BaseWork, MSONable):
         else:
             for task in self:
                 task.start(*args, **kwargs)
+                # FIXME
+                task.wait()
 
     def start(self, *args, **kwargs):
         """
@@ -424,15 +508,6 @@ class IterativeWork(Work):
         """
 
 ##########################################################################################
-def min_max_indexes(seq): 
-    """
-    uses enumerate, max, and min to return the indices of the values 
-    in a list with the maximum and minimum value:
-    """
-    minimum = min(enumerate(seq), key=lambda s: s[1]) 
-    maximum = max(enumerate(seq), key=lambda s: s[1]) 
-    return minimum[0], maximum[0]
-
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -502,8 +577,6 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1):
                                                                                      
         stream.write("pseudo: %s\n" % pseudo.name)
         pprint_table(table, out=stream)
-
-        #print("ihigh %d, inormal %d, ilow %d" % (ihigh, inormal, ilow))
 
         ecut_high, ecut_normal, ecut_low = 3 * (None,)
         exit = (ihigh != -1)
@@ -758,7 +831,7 @@ class BandStructure(Work):
 
     def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_nband,
                  spin_mode    = "polarized",
-                 smearing     = None,
+                 scf_smearing = None,
                  kpath_bounds = None,
                  ndivsm       = 20, 
                  dos_ngkpt    = None
@@ -766,55 +839,57 @@ class BandStructure(Work):
 
         super(BandStructure, self).__init__(workdir, runmode)
 
-        smearing = Smearing.smart(smearing)
+        scf_smearing = Smearing.assmearing(scf_smearing)
 
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode,
-                                          smearing  = smearing,
+                                          smearing  = scf_smearing,
                                          )
 
-        scf_dep = self.register_input(scf_input)
+        scf_link = self.register_input(scf_input)
 
         nscf_input = Input.NSCF_kpath_from_SCF(scf_input, nscf_nband, ndivsm=ndivsm, kpath_bounds=kpath_bounds)
 
-        self.register_input(nscf_input, depends=scf_dep.with_odata("DEN"))
+        self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
         if dos_ngkpt is not None:
 
             dos_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, dos_ngkpt)
 
-            self.register_input(dos_input, depends=scf_dep.with_odata("DEN"))
+            self.register_input(dos_input, links=scf_link.produces_exts("_DEN"))
 
 ##########################################################################################
 
 class Relaxation(Work):
 
-    def __init__(self, workdir, runmode, structure, pseudos, ngkpt,
+    def __init__(self, workdir, runmode, structure, pseudos, strategy,
+                 ngkpt     = None,
+                 kppa      = None,
                  spin_mode = "polarized",
                  smearing  = None,
+                 **kwargs
                 ):
                                                                                                    
         super(Relaxation, self).__init__(workdir, runmode)
 
         smearing = Smearing.assmearing(smearing)
 
-        ions_relax = Relax(
-                        iomov     = 3, 
-                        optcell   = 2, 
-                        dilatmx   = 1.1, 
-                        ecutsm    = 0.5, 
-                        ntime     = 80, 
-                        strtarget = None,
-                        strfact   = 100,
-                        )                                                                                                                  
+        strategy = RelaxStrategy.asstrategy(strategy)
 
-        ions_dep = self.register_input(ions_relax)
+        ions_relax = Input.GeometryRelax(structure, pseudos, strategy,
+                                         ngkpt     = ngkpt,
+                                         kppa      = kppa,
+                                         spin_mode = "polarized", 
+                                         smearing  = smearing,
+                                         **kwargs
+                                        )
+        ions_link = self.register_input(ions_relax)
 
-        cell_ions_relax = Relax()
+        #cell_ions_relax = Relax()
 
-        #self.register_input(cell_ions, depends=ions_dep.with_odata("WFK"))
+        #self.register_input(cell_ions, links=ions_link.produces_exts("_WFK"))
 
 ##########################################################################################
 
@@ -965,7 +1040,7 @@ class PvsV(Work):
 class G0W0(Work):
 
     def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, 
-                 ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma,
+                 ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma, kptgw, bdgw, 
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
@@ -980,7 +1055,7 @@ class G0W0(Work):
                                           smearing  = smearing,
                                          )
 
-        scf_dep = self.register_input(scf_input)
+        scf_link = self.register_input(scf_input)
 
         max_nband = max(nband_screening, nband_sigma) 
 
@@ -988,22 +1063,24 @@ class G0W0(Work):
 
         nscf_input = Input.NSCF_kmesh_from_SCF(scf_input, nband, scf_ngkpt)
 
-        nscf_dep = self.register_input(nscf_input, depends=scf_dep.with_odata("DEN"))
+        nscf_link = self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
-        screen_input = Input.SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, smearing=smearing)
+        # FIXME
+        inclvkb = 0
+        screen_input = Input.SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
+                                           smearing=smearing,
+                                           inclvkb =inclvkb,
+                                          )
 
-        screen_dep = self.register_input(screen_input, depends=nscf_dep.with_odata("WFK"))
+        screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
 
-        kptgw = [0,0,0]
-        bdgw = [1,4]
-        sigma_input = Input.SIGMA_from_SCR(screen_input, nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, smearing=smearing)
+        sigma_input = Input.SIGMA_from_SCR(screen_input, nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
+                                           smearing=smearing,
+                                          )
 
-        depends = [nscf_dep.with_odata("WFK"), screen_dep.with_odata("SCR"),]
+        sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
 
-        self.register_input(sigma_input, depends=depends)
-
-     #@staticmethod
-     #def with_contour_deformation()
+        self.register_input(sigma_input, links=sigma_links)
 
 ##########################################################################################
 
