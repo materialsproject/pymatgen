@@ -1791,36 +1791,33 @@ class Procar(object):
         """
         #create and return data object containing the information of a PROCAR
         self.name = ""
-        self.data = dict()
-        self._read_file(filename)
+        self.data = {}
+        with zopen(filename, "r") as f:
+            lines = list(clean_lines(f.readlines()))
+            self.name = lines[0]
+            kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
+            expr = re.compile("^\s*([0-9]+)\s+")
+            dataexpr = re.compile("[\.0-9]+")
+            weight = 0
+            for l in lines:
+                if kpointexpr.match(l):
+                    m = kpointexpr.match(l)
+                    currentKpoint = int(m.group(1))
+                    weight = float(m.group(2))
+                    if currentKpoint == 1:
+                        self.data = dict()
+                if expr.match(l):
+                    linedata = dataexpr.findall(l)
+                    linefloatdata = map(float, linedata)
+                    index = int(linefloatdata.pop(0))
+                    if index in self.data:
+                        self.data[index] += np.array(linefloatdata) * weight
+                    else:
+                        self.data[index] = np.array(linefloatdata) * weight
 
     def get_d_occupation(self, atom_num):
         row = self.data[atom_num]
         return sum(row[4:9])
-
-    def _read_file(self, filename):
-        with zopen(filename, "r") as f:
-            lines = list(clean_lines(f.readlines()))
-        self.name = lines[0]
-        kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
-        expr = re.compile("^\s*([0-9]+)\s+")
-        dataexpr = re.compile("[\.0-9]+")
-        weight = 0
-        for l in lines:
-            if kpointexpr.match(l):
-                m = kpointexpr.match(l)
-                currentKpoint = int(m.group(1))
-                weight = float(m.group(2))
-                if currentKpoint == 1:
-                    self.data = dict()
-            if expr.match(l):
-                linedata = dataexpr.findall(l)
-                linefloatdata = map(float, linedata)
-                index = int(linefloatdata.pop(0))
-                if index in self.data:
-                    self.data[index] += np.array(linefloatdata) * weight
-                else:
-                    self.data[index] = np.array(linefloatdata) * weight
 
 
 class Oszicar(object):
