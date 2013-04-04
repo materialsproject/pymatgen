@@ -97,6 +97,9 @@ class TaskLauncher(object):
             if c._queue_type == queue_type:
                 cls = c
 
+        # Find number of processors ....
+        #runhints = self.get_runhints()
+
          return cls(task.jobfile_path, 
                     abi_stdin  = task.files_file.path, 
                     abi_stdout = task.log_file.path,
@@ -128,6 +131,10 @@ class TaskLauncher(object):
             mpirun:
                 The mpi runner.
                 E.g. 'mpiexec -npernode 6'. Default is None.
+            mpi_ncpus
+                Number of MPI processes (default 1)
+            omp_ncpus
+                Number of OpenMP threads (default 0, i.e not used)
             vars:
                 Dictionary {varname:varvalue} containing variable declaration.
         """
@@ -138,6 +145,8 @@ class TaskLauncher(object):
         self.bindir       = kwargs.pop("bindir", "")
         self.exe          = os.path.join(self.bindir, kwargs.pop("exe", "abinit"))
         self.mpirun       = kwargs.pop("mpirun", "")
+        self.mpi_ncpus    = kwargs.pop("mpi_ncpus", 1)
+        self.omp_ncpus    = kwargs.pop("omp_ncpus", 0)
         self.vars         = kwargs.pop("vars", {})
         self.modules      = kwargs.pop("modules", [])
         self.envars       = kwargs.pop("envars", {})
@@ -154,31 +163,39 @@ class TaskLauncher(object):
         # Submission instructions for the queue manager.
         se.add_lines(self.get_queue_header())
 
-        # Variable declarations.
+        se.add_comment("Variable declarations")
         vars = self.vars.copy()
         vars.update({
-                'EXECUTABLE': self.exe,
-                'ABI_STDIN' : self.abi_stdin,
-                'ABI_STDOUT': self.abi_stdout,
-                'ABI_STDERR': self.abi_stderr,
-                'MPIRUN'    : self.mpirun,
+                "EXECUTABLE": self.exe,
+                "ABI_STDIN" : self.abi_stdin,
+                "ABI_STDOUT": self.abi_stdout,
+                "ABI_STDERR": self.abi_stderr,
+                "MPIRUN"    : self.mpirun,
+                "MPI_NCPUS" : self.mpi_ncpus,
                })
 
         se.declare_vars(vars)
 
-        # Modules
+        se.add_comment("Modules")
         se.load_modules(self.modules)
 
-        # Set environment variables
+        se.add_comment("Environment")
         se.export_envars(self.envars)
 
-        # Lines before execution
+        if self.omp_ncpus:
+            se.export_envars("OMP_NUM_THREADS", self.omp_ncpus)
+
+        se.add_comment("Commands before execution")
         se.add_lines(self.pre_lines)
 
         # Execution line
-        se.add_line('$MPIRUN $EXECUTABLE < $ABI_STDIN > $ABI_STDOUT 2> $ABI_STDERR')
+        # TODO: better treatment of mpirun syntax.
+        if self.mpirun:
+            se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $ABI_STDIN > $ABI_STDOUT 2> $ABI_STDERR')
+        else:
+            se.add_line('$EXECUTABLE < $ABI_STDIN > $ABI_STDOUT 2> $ABI_STDERR')
 
-        # Lines after execution
+        se.add_comment("Commands after execution")
         se.add_lines(self.post_lines)
 
         return se.get_script_str()

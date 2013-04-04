@@ -184,6 +184,15 @@ class Task(object):
         return self.process.returncode
 
     @property
+    def tid(self):
+        "Task identifier"
+        return self._tid
+
+    def set_tid(self, tid):
+        "Set the task identifier"
+        self._tid = tid
+
+    @property
     def status(self):
         return self._status
 
@@ -200,6 +209,20 @@ class Task(object):
         """Method called before submitting the task."""
 
     def _setup(self, *args, **kwargs):
+        #
+        # Create symbolic links to the output files produced by the other tasks
+        for link in self._links:
+            filepaths, exts = link.get_filepaths_and_exts()
+            for (path, ext) in zip(filepaths, exts):
+                dst = self.idata_path_from_ext(ext)
+                print("Will make %s point to %s" % (dst, path))
+
+                if not os.path.exists(path):
+                    raise self.Error("%s is needed by this task by it does not exist" % path)
+                else:
+                    # Link path to dst
+                    os.symlink(path, dst)
+
         self.setup(*args, **kwargs)
 
     @property
@@ -250,16 +273,17 @@ class AbinitTask(Task):
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
     pj = os.path.join
 
-    prefix = Prefix("in", pj("output","out"), pj("temporary","tmp"))
+    prefix = Prefix(pj("indata", "in"), pj("outdata","out"), pj("tmpdata","tmp"))
     del Prefix, pj
 
     # Basenames for Abinit input and output files.
     Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.input", "run.output", "run.files", "log", "stderr", "job.sh", "__lock__")
+    basename = Basename("run.in", "run.out", "run.files", "log", "stderr", "job.sh", "__lock__")
     del Basename
 
     def __init__(self, input, workdir, runmode, 
-                 varpaths = None, 
+                 task_id  = 1,
+                 links    = None, 
                  **kwargs
                 ):
         """
@@ -270,7 +294,8 @@ class AbinitTask(Task):
                 Path to the working directory.
             runmode:
                 RunMode instance.
-            varpaths:
+            links:
+                List of WorkLink objects specifying the dependencies of self.
         """
         super(AbinitTask, self).__init__()
 
@@ -278,19 +303,25 @@ class AbinitTask(Task):
 
         self.runmode = runmode
 
+        self.set_tid(task_id)
+
         self.input = input.copy()
 
-        self.need_files = []
-        if varpaths is not None: 
-            self.need_files.extend(varpaths.values())
-            self.input = self.input.add_vars_to_control(varpaths)
+        # Connect this task to the other tasks (needed if are creating a Work instance with dependencies
+        self._links = []
+        if links is not None: 
+            self._links = links
+            for link in links:
+                abivars = link.get_abivars()
+                print("abivars", abivars)
+                self.input = self.input.add_vars_to_control(abivars)
 
         # Files required for the execution.
-        self.input_file  = File(os.path.join(self.workdir, self.basename.input))
-        self.output_file = File(os.path.join(self.workdir, self.basename.output))
-        self.files_file  = File(os.path.join(self.workdir, self.basename.files_file))
-        self.log_file    = File(os.path.join(self.workdir, self.basename.log_file))
-        self.stderr_file = File(os.path.join(self.workdir, self.basename.stderr_file))
+        self.input_file  = File(os.path.join(self.workdir, AbinitTask.basename.input))
+        self.output_file = File(os.path.join(self.workdir, AbinitTask.basename.output))
+        self.files_file  = File(os.path.join(self.workdir, AbinitTask.basename.files_file))
+        self.log_file    = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
+        self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
 
         # Find number of processors ....
         #runhints = self.get_runhints()
@@ -317,18 +348,26 @@ class AbinitTask(Task):
         return os.path.join(self.workdir, self.basename.jobfile)    
 
     @property
-    def outfiles_dir(self):
+    def indata_dir(self):
+        head, tail = os.path.split(self.prefix.idata)
+        return os.path.join(self.workdir, head)
+
+    @property
+    def outdata_dir(self):
         head, tail = os.path.split(self.prefix.odata)
         return os.path.join(self.workdir, head)
 
     @property
-    def tmpfiles_dir(self):
+    def tmpdata_dir(self):
         head, tail = os.path.split(self.prefix.tdata)
         return os.path.join(self.workdir, head)
 
+    def idata_path_from_ext(self, ext):
+        "Return the path of the input file with extension ext"
+        return os.path.join(self.workdir, (self.prefix.idata + ext))
+
     def odata_path_from_ext(self, ext):
         "Return the path of the output file with extension ext"
-        if ext[0] != "_": ext = "_" + ext
         return os.path.join(self.workdir, (self.prefix.odata + ext))
 
     @property
@@ -386,37 +425,51 @@ class AbinitTask(Task):
     def outfiles(self):
         "Return all the output data files produced."
         files = list()
-        for file in os.listdir(self.outfiles_dir):
+        for file in os.listdir(self.outdata_dir):
             if file.startswith(os.path.basename(self.prefix.odata)):
-                files.append(os.path.join(self.outfiles_dir, file))
+                files.append(os.path.join(self.outdata_dir, file))
         return files
                                                                   
     def tmpfiles(self):
         "Return all the input data files produced."
         files = list()
-        for file in os.listdir(self.tmpfiles_dir):
+        for file in os.listdir(self.tmpdata_dir):
             if file.startswith(os.path.basename(self.prefix.tdata)):
-                files.append(os.path.join(self.tmpfiles_dir, file))
+                files.append(os.path.join(self.tmpdata_dir, file))
         return files
 
     def path_in_workdir(self, filename):
-        "Create the absolute path of filename in the workind directory."
+        "Create the absolute path of filename in the top-level working directory."
         return os.path.join(self.workdir, filename)
+
+    def path_in_indatadir(self, filename):
+        "Create the absolute path of filename in the indata directory."
+        return os.path.join(self.indata_dir, filename)
+
+    def path_in_outdatadir(self, filename):
+        "Create the absolute path of filename in the outdata directory."
+        return os.path.join(self.outdata_dir, filename)
 
     def build(self, *args, **kwargs):
         """
         Writes Abinit input files and directory.
         Do not overwrite files if they already exist.
         """
+        # Top-level dir
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
 
-        if not os.path.exists(self.outfiles_dir):
-            os.makedirs(self.outfiles_dir)
+        # Create dirs for input, output and tmp data.
+        if not os.path.exists(self.indata_dir):
+            os.makedirs(self.indata_dir)
 
-        if not os.path.exists(self.tmpfiles_dir):
-            os.makedirs(self.tmpfiles_dir)
+        if not os.path.exists(self.outdata_dir):
+            os.makedirs(self.outdata_dir)
 
+        if not os.path.exists(self.tmpdata_dir):
+            os.makedirs(self.tmpdata_dir)
+
+        # Write input file and files file.
         if not self.input_file.exists:
             self.input_file.write(str(self.input))
 
@@ -454,8 +507,7 @@ class AbinitTask(Task):
         raise NotImplementedError("")
 
         # number of MPI processors, number of OpenMP processors, memory estimate in Gb.
-        RunHints = collections.namedtuple('RunHints', "mpi_nproc omp_nproc memory_gb")
-        return hints
+        return runhints
 
     def setup(self, *args, **kwargs):
         pass
@@ -476,9 +528,6 @@ class AbinitTask(Task):
              This method must be thread safe since we may want to run several indipendent
              calculations with different python threads. 
         """
-        if kwargs.pop('verbose', 0):
-            print('Starting ' + self.input_path)
-
         self.build(*args, **kwargs)
 
         self._setup(*args, **kwargs)
@@ -510,8 +559,8 @@ class TaskResults(AttrDict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        my_dict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
-        return cls(my_dict)
+        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
+        return cls(mydict)
 
     def json_dump(self, filename):
         json_pretty_dump(self.to_dict, filename) 
@@ -522,61 +571,34 @@ class TaskResults(AttrDict, MSONable):
 
 ##########################################################################################
 
-class TaskLinks(object):
-    """
-    This object describes the dependencies among Task instances.
-    """
-    _ext2getvars = {
-        "DEN": "getden_path",
-        "WFK": "getwfk_path",
-        "SCR": "getscr_path",
-        "QPS": "getqps_path",
-    }
-
-    def __init__(self, task, task_id, *odata_required):
-        """
-        Args:
-            task: 
-                AbinitTask instance
-            task_id: 
-                Task identifier 
-            odata_required:
-                Output data required for running the task.
-        """
-        self.task    = task
-        self.task_id = task_id
-
-        self.odata_required = []
-        if odata_required:
-            self.odata_required = odata_required
-
-    def with_odata(self, *odata_required):
-        return TaskLinks(self.task, self.task_id, *odata_required)
-
-    def get_varpaths(self):
-        vars = {}
-        for ext in self.odata_required:
-            varname = self._ext2getvars[ext]
-            path = self.task.odata_path_from_ext(ext)
-            vars.update({varname : path})
-        return vars
-
-##########################################################################################
-
-class RunMode(AttrDict):
+class RunMode(AttrDict, MSONable):
     """
     User-specified options controlling the execution of the run (submission, 
     coarse- and fine-grained parallelism ...)
     """
     _defaults = {
-        "launcher"      : "shell",    # ["shell", "slurm", "slurm-fw", "pbs"]
+        "launcher"      : "shell",    # ["shell", "slurm", "slurm-fw", "pbs", "pbs-fw",]
         "policy"        : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
+        "mpirun"        : "mpirun",   # path to the mpirunnner.
         "max_npcus"     : 0,          # Max number of cpus that can be used. If 0, no maximum limit is enforced
         "omp_numthreads": 0,          # Number of OpenMP threads, 0 if OMP is not used 
         "chunk_size"    : 1,          # Used when we don't have a queue_manager and several jobs to run
                                       # In this case we run at most chunk_size tasks when work.start is called.
         "queue_params"  : {},         # Parameters passed to the firework QueueAdapter.
     }
+
+    @staticmethod
+    def load_user_configuration():
+        fname = "runmode.json"
+        cwd = os.getcwd()
+
+        path = os.path.join(cwd, fname)
+        if os.path.exists(path):
+            return RunMode.from_file(path)
+        else:
+            raise NotImplementedError("Try in the pymatgen dir")
+        #else:
+        #    return RunMode.sequential()
 
     @classmethod
     def from_defaults(cls):
@@ -613,6 +635,17 @@ class RunMode(AttrDict):
         if self.has_queue_manager:
             return None
         return self.chunk_size
+
+    @property
+    def to_dict(self):
+        d = self.copy()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+                                                 
+    @classmethod
+    def from_dict(cls, d):
+        return RunMode({k:v for (k, v) in d.items() if k not in ("@module", "@class")})
 
     #def with_max_ncpus(self, max_ncpus):
     #    d = RunMode._defaults.copy()

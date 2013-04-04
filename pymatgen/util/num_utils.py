@@ -59,3 +59,13 @@ def chunks(items, n):
     """
     for i in range(0, len(items), n):
         yield items[i:i+n]
+
+
+def min_max_indexes(seq): 
+    """
+    Uses enumerate, max, and min to return the indices of the values 
+    in a list with the maximum and minimum value:
+    """
+    minimum = min(enumerate(seq), key=lambda s: s[1]) 
+    maximum = max(enumerate(seq), key=lambda s: s[1]) 
+    return minimum[0], maximum[0]

@@ -45,16 +45,18 @@ class File(object):
             return f.readlines()
 
     def write(self, string):
+        self.make_dir()
         with open(self.path, "w") as f: 
             return f.write(string)
                                         
     def writelines(self, lines):
+        self.make_dir()
         with open(self.path, "w") as f: 
             return f.writelines()
 
-    #def make_dir(self):
-    #    if not os.path.exists(self.dirname):
-    #        os.makedirs(self.dirname)
+    def make_dir(self):
+        if not os.path.exists(self.dirname):
+            os.makedirs(self.dirname)
 
 ##########################################################################################
 

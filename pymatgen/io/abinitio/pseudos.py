@@ -150,12 +150,18 @@ class Pseudo(object):
     __metaclass__ = abc.ABCMeta
 
     @classmethod
-    def aspseudo(cls, pseudo): 
-        if isinstance(pseudo, Pseudo): 
-            return pseudo
+    def aspseudo(cls, obj): 
+        """
+        Convert obj into a pseudo 
+        Accepts:
+            * Pseudo object
+            * path
+        """
+        if isinstance(obj, cls): 
+            return obj
         else:
             # Assumes path.
-            return cls.from_filename(pseudo)
+            return cls.from_filename(obj)
 
     @staticmethod
     def from_filename(filename):

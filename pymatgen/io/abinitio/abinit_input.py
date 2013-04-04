@@ -10,6 +10,8 @@ import warnings
 import collections
 import numpy as np
 
+from pprint import pprint
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.design_patterns import Enum
@@ -512,6 +514,9 @@ class Kpoints(AbinitCard):
 
         self._comment = comment
 
+        # FIXME
+        chksymbreak = 0
+
         if mode in ("monkhorst",):
             assert num_kpts == 0
             ngkpt  = np.reshape(kpts, (3,)),
@@ -707,20 +712,20 @@ class Kpoints(AbinitCard):
                       comment   = comment if comment else "K-Path scheme", 
                       )
 
-        @staticmethod
-        def path_from_structure(ndivsm, structure):
-            "See _path for the meaning of the variables"
-            return Kpoints._path(ndivsm, 
-                                 structure=structure, 
-                                 comment="K-path generated automatically from pymatgen structure")
+    @staticmethod
+    def path_from_structure(ndivsm, structure):
+        "See _path for the meaning of the variables"
+        return Kpoints._path(ndivsm, 
+                             structure=structure, 
+                             comment="K-path generated automatically from pymatgen structure")
                                                                                                    
                                                                                                    
-        @staticmethod
-        def explicit_path(ndivsm, kpath_bounds):
-            "See _path for the meaning of the variables"
-            return Kpoints._path(ndivsm, 
-                                 kpath_bounds=kpath_bounds,
-                                 comment="Explicit K-path")
+    @staticmethod
+    def explicit_path(ndivsm, kpath_bounds):
+        "See _path for the meaning of the variables"
+        return Kpoints._path(ndivsm, 
+                             kpath_bounds=kpath_bounds,
+                             comment="Explicit K-path")
 
 
     @staticmethod
@@ -811,10 +816,6 @@ class Kpoints(AbinitCard):
         #     "kpoints": self.kpts,
         #     "usershift": self.kpt_shift
         #    }
-        #optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
-        #for para in optional_paras:
-        #    if para in self.__dict__:
-        #        d[para] = self.__dict__[para]
         #d["@module"] = self.__class__.__module__
         #d["@class"] = self.__class__.__name__
         #return d
@@ -822,12 +823,6 @@ class Kpoints(AbinitCard):
     @staticmethod
     def from_dict(d):
         raise NotImplementedError("")
-        #comment = d.get("comment", "")
-        #generation_style = d.get("generation_style")
-        #kpts = d.get("kpoints", [[1, 1, 1]])
-        #kpt_shifts = d.get("usershift", [0, 0, 0])
-        #num_kpts = d.get("nkpoints", 0)
-        ##coord_type = d.get("coord_type", None)
         #return Kpoints(
         #         mode              = modes.monkhorst,
         #         num_kpts          = 0, 
@@ -877,26 +872,30 @@ class Smearing(MSONable):
         return not self == other
 
     @classmethod
-    def assmearing(cls, mode):
+    def assmearing(cls, obj):
         """
-        Constructs an instance of Smearing from mode . 
-        Accepts mode in the form:
+        Constructs an instance of Smearing from obj . 
+        Accepts obj in the form:
 
-            * "mode:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
-            * "mode:tsmear units" e.g. "gaussian:0.1 eV"
+            * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
+            * "name:tsmear units" e.g. "gaussian:0.1 eV"
             * None
-            * Smearing instances
+            * Smearing instance
         """
-        if isinstance(mode, cls):
-            return mode
+        if isinstance(obj, cls):
+            return obj
 
-        mode, tsmear = mode.split(":")
-        mode.strip()
+        if obj is None:
+            return Smearing.NoSmearing()
 
-        if mode == "None" or mode is None:
+        # obj is a string
+        obj, tsmear = obj.split(":")
+        obj.strip()
+
+        if obj == "None" or obj is None:
             return cls.NoSmearing()
         else:
-            occopt = cls._mode2occopt[mode]
+            occopt = cls._mode2occopt[obj]
             try:
                 tsmear = float(tsmear)
             except ValueError:
@@ -997,25 +996,27 @@ class Electrons(AbinitCard):
 
         spin_vars = Electrons._mode2vars[spin_mode]
 
-        #FIXME
-        fband = 4
+        # FIXME
+        if nband is None:
+            fband = 4
+
         self.update({
-            "nsppol"  : spin_vars.nsppol,
-            "nspinor" : spin_vars.nspinor,
-            "nspden"  : spin_vars.nspden,
-            "nband"   : nband,
-            "fband"   : fband,
-            "iscf"    : iscf,
-            "diemac"  : diemac,
-            #diemac   : None if self..ismetal else ... TODO
+            "nsppol" : spin_vars.nsppol,
+            "nspinor": spin_vars.nspinor,
+            "nspden" : spin_vars.nspden,
+            "nband"  : nband,
+            "fband"  : fband,
+            "iscf"   : iscf,
+            "diemac" : diemac,
+            #diemac  : None if self..ismetal else ... TODO
         })
 
         self.smearing = smearing
 
         if smearing is not None:
             self.update({
-                "occopt" : smearing.occopt,
-                "tsmear" : smearing.tsmear,
+                "occopt": smearing.occopt,
+                "tsmear": smearing.tsmear,
             })
 
     @property 
@@ -1051,28 +1052,78 @@ class Electrons(AbinitCard):
 
 
 ##########################################################################################
-class Constraint(object):
-    "Container to store the variables for constrained optimization"
-    pass
 
-class Relax(AbinitCard):
+class RelaxStrategy(object):
+    "Container to store the variables for (constrained) optimization"
+
+    def __init__(self, ionmov=3, optcell=2, **vars):
+        self.ionmov = ionmov
+        self.optcell = optcell
+
+        self.extra_vars = vars
+        #        ionmov      = 3, 
+        #        optcell     = 2, 
+        #        dilatmx     = 1.1, 
+        #        ecutsm      = 0.5, 
+        #        ntime       = 80, 
+        #        strfact     = 100,
+        #        tolmxf      = None,
+        #        strtarget   = None,
+        #        ):
+
+    @classmethod
+    def asstrategy(cls, obj):
+        """
+        Constructs an instance of RelaxStrategy from obj. 
+        Accepts obj in the form:
+
+            * RelaxStrategy object.
+            * String, e.g. "ions", "cell", "ions-cell"
+        """
+        if isinstance(obj, cls):
+            return obj
+
+        # obj is a String
+        if "-" in obj:
+            items = obj.split(":")
+            assert len(items) == 2
+        else:
+            items = [obj,]
+
+        ionmov = 3 if "ions" in items else 0
+        optcell = 2 if "cell" in items else 0
+        return cls(ionmov, optcell)
+
+    @property
+    def move_ions(self):
+        "True if ions must be moved"
+        return self.ionmov != 0
+
+    @property
+    def move_cell(self):
+        "True if lattice parameters must be optimized"
+        return self.optcell != 0
+
+    @property
+    def with_constraints(self):
+        "Dictionary with the constraints. Empty dict if no constraint is enforced"
+        return {}
+
+class GeoOptimization(AbinitCard):
     "Card containing the parameters for the relaxation of the atomic position and of the unit cell."
 
-    def __init__(self, 
-                iomov      = 3, 
-                optcell    = 2, 
-                dilatmx    = 1.1, 
-                ecutsm     = 0.5, 
-                ntime      = 80, 
-                tolmxf     = None,
-                strtarget  = None,
-                strfact    = 100,
-                constraint = None,
+    def __init__(self, strategy,
+                ionmov      = 3, 
+                optcell     = 2, 
+                dilatmx     = 1.1, 
+                ecutsm      = 0.5, 
+                ntime       = 80, 
+                tolmxf      = None,
+                strtarget   = None,
+                strfact     = 100,
                 ):
 
-        super(Relax, self).__init__()
-
-        raise NotImplementedError("")
+        super(GeoOptimization, self).__init__()
 
         self.update({ 
             "ionmov"    : ionmov,
@@ -1087,6 +1138,8 @@ class Relax(AbinitCard):
             #"toldff"   : 1.0D-7 (or tolvrs 1.0D-12 if all ions are on special positions)
         })
 
+        pprint(self)
+
     @property
     def to_dict(self):
         """json friendly dict representation of Kpoints"""
@@ -1094,7 +1147,7 @@ class Relax(AbinitCard):
 
     @staticmethod
     def from_dict(d):
-        return Relax(
+        return GeoOptimization(
                 iomov      = 3, 
                 optcell    = 2, 
                 dilatmx    = 1.1, 
@@ -1132,6 +1185,35 @@ class PPModel(MSONable):
     }
 
     modes = Enum(k for k in _mode2ppmodel)
+
+    @classmethod
+    def asppmodel(cls, obj):
+        """
+        Constructs an instance of PPModel from obj. 
+        Accepts obj in the form:
+            * PPmodel instance
+            * None
+            * string. e.g "godby:12.3 eV", "linden".
+        """
+        if isinstance(obj, cls):
+            return obj
+                                                           
+        if obj is None:
+            return Smearing.NoSmearing()
+
+        # obj is a string
+        if ":" not in obj:
+            mode, plasmon_freq = obj, None
+        else:
+            # Extract mode and plasmon_freq
+            mode, plasmon_freq = obj.split(":")
+            try:
+                plasmon_freq = float(plasmon_freq)
+            except ValueError:
+                plasmon_freq, units = plasmon_freq.split()
+                plasmon_freq = any2Ha(units)(float(plasmon_freq))
+
+        return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode=modes.godby, plasmon_freq=None):
         assert mode in PPModel.modes
@@ -1537,7 +1619,7 @@ class Control(AbinitCard):
         ecut          = kwargs.pop("ecut",        None)
         pawecutdg     = kwargs.pop("pawecutdg",   None)
         prtwf         = kwargs.pop("prtwf",       None)
-        prtden        = kwargs.pop("prtwf",       None)
+        prtden        = kwargs.pop("prtden",       None)
         boxcutmin     = kwargs.pop("boxcutmin",   None)
         want_forces   = kwargs.pop("want_forces", False)
         want_stress   = kwargs.pop("want_stress", False)
@@ -1600,12 +1682,13 @@ class Control(AbinitCard):
     @property
     def need_forces(self):
         "True if forces are required at each SCF step (like the stresses)."
-        return self.has_card_names("Relax")
+        return self.has_card_names("GeoOptimization")
                                                                             
     @property
     def need_stress(self):
         "True if the computation of the stress is required"
-        return self.has_card_names("Relax")
+        # TODO: here it's easier to check if optcell != 0
+        return self.has_card_names("GeoOptimization")
 
     def has_card_names(self, *card_names):
         self_card_names = [card.name for card in self._cards]
@@ -1676,7 +1759,7 @@ class Input(dict, MSONable):
     def __str__(self):
         output = [
             "# This file has been generated by pymatgen",
-            "# *** Do not edit. Any change will be lost if the input if re-generated ***"
+            "# *** Do not edit. Any change will be lost if the input if regenerated ***"
             ]
         keys = self.card_names
         keys.sort()
@@ -1947,7 +2030,7 @@ class Input(dict, MSONable):
         # Change Kpoints and Electrons.
         nscf_cards = scf_input.copy_cards(exclude=["Kpoints", "Electrons",])
 
-        if kpath_bound is not None:
+        if kpath_bounds is not None:
             nscf_cards.append(Kpoints.explicit_path(ndivsm, kpath_bounds))
         else:
             nscf_cards.append(Kpoints.path_from_structure(ndivsm, scf_input.structure))
@@ -1961,7 +2044,11 @@ class Input(dict, MSONable):
         return Input(*nscf_cards)
 
     @staticmethod
-    def NSCF_kmesh_from_SCF(scf_input, nband, ngkpt, **kwargs):
+    def NSCF_kmesh_from_SCF(scf_input, nband, 
+                            ngkpt = None, 
+                            kppa  = None,
+                            **kwargs
+                           ):
         """
         Constructor for non-self-consistent ground-state calculations (DOS calculations).
                                                                                                        
@@ -1970,10 +2057,10 @@ class Input(dict, MSONable):
                 Input for self-consistent calculations.
             nband:
                 Number of bands to compute
-            kpath_bound:
-                Extrema of the k-path.
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            kppa:
+                Grid density (kppa / natom). 
             **kwargs:
                 Extra variables added directly to the input file
                                                                                                        
@@ -1983,7 +2070,13 @@ class Input(dict, MSONable):
         # Change Kpoints and Electrons.
         nscf_cards = scf_input.copy_cards(exclude=["Kpoints", "Electrons",])
 
-        nscf_cards.append(Kpoints.monkhorst_automatic(scf_input.structure, ngkpt))
+        # K-point sampling.
+        if ngkpt is not None:
+            kmesh = Kpoints.monkhorst_automatic(scf_input.structure, ngkpt)
+        elif kppa is not None:
+            kmesh = Kpoints.automatic_density(scf_input.structure, kppa)
+
+        nscf_cards.append(kmesh)
 
         spin_mode = scf_input.Electrons.spin_mode
 
@@ -1993,7 +2086,10 @@ class Input(dict, MSONable):
 
         return Input(*nscf_cards)
 
-    def Relax(structure, pseudos, ngkpt, 
+    @staticmethod
+    def GeometryRelax(structure, pseudos, strategy,
+              ngkpt     = None,
+              kppa      = None,
               spin_mode = "polarized", 
               smearing  = None,
               **kwargs
@@ -2006,8 +2102,12 @@ class Input(dict, MSONable):
                 pymatgen structure
             pseudos:
                 List of pseudopotentials.
+            strategy:
+                RelaxStrategy instance
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            kppa:
+                Grid density (kppa / natom). 
             spin_mode: 
                 Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
             smearing: 
@@ -2025,17 +2125,21 @@ class Input(dict, MSONable):
         electrons = Electrons(spin_mode=spin_mode, smearing=smearing)
 
         # K-point sampling.
-        kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
+        if ngkpt is not None:
+            kmesh = Kpoints.monkhorst_automatic(structure, ngkpt)
+        elif kppa is not None:
+            kmesh = Kpoints.automatic_density(structure, kppa)
 
-        relax = Relax()
+        geo_optim = GeoOptimization(strategy)
 
-        control = Control(system, electrons, kmesh, relax, **kwargs)
+        control = Control(system, electrons, kmesh, geo_optim, **kwargs)
 
-        return Input(system, electrons, kmesh, relax, control)
+        return Input(system, electrons, kmesh, geo_optim, control)
 
     @staticmethod
     def SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
-                      smearing=None, 
+                      smearing = None, 
+                      inclvkb  = None,
                       **kwargs
                      ):
         """
@@ -2065,7 +2169,7 @@ class Input(dict, MSONable):
 
         scr_cards.append(Electrons(spin_mode=spin_mode, nband=nband_screening, smearing=smearing))
 
-        scr_cards.append(Screening(ecuteps, ppmodel_or_freqmesh))
+        scr_cards.append(Screening(ecuteps, ppmodel_or_freqmesh, inclvkb=inclvkb))
 
         scr_cards.append(Control(*scr_cards, **kwargs))
 
