@@ -6,4 +6,9 @@ and standalone.
 """
 
 __author__ = "Shyue"
-__date__ = "$Nov 30, 2010 9:25:43 AM$"
+__date__ = "Mar 28 2013"
+
+from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
+    GrandPotentialPhaseDiagram
+from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.plotter import PDPlotter

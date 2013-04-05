@@ -447,7 +447,7 @@ class Vasprun(object):
                 elif occu <= 1e-8 and eigenval < cbm:
                     cbm = eigenval
                     cbm_kpoint = k[0]
-        return cbm - vbm, cbm, vbm, vbm_kpoint == cbm_kpoint
+        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     @property
     def to_dict(self):
@@ -1564,6 +1564,7 @@ class VolumetricData(object):
         read_dataset = False
         ngrid_pts = 0
         data_count = 0
+        poscar = None
         with zopen(filename) as f:
             for line in f:
                 line = line.strip()
@@ -1781,7 +1782,30 @@ class Chgcar(VolumetricData):
 
 class Procar(object):
     """
-    Object for reading a PROCAR file
+    Object for reading a PROCAR file.
+
+    .. attribute:: data
+
+        A nested dict containing the PROCAR data of the form below. It should
+        be noted that VASP uses 1-based indexing for atoms, but this is
+        converted to zero-based indexing in this parser to be consistent with
+        representation of structures in pymatgen::
+
+            {
+                atom_index: {
+                    kpoint_index: {
+                        "bands": {
+                            band_index: {
+                                "p": 0.002,
+                                "s": 0.025,
+                                "d": 0.0
+                            },
+                            ...
+                        },
+                        "weight": 0.03125
+                    },
+                    ...
+            }
     """
     def __init__(self, filename):
         """
@@ -1789,39 +1813,98 @@ class Procar(object):
             filename:
                 Name of file containing PROCAR.
         """
-        #create and return data object containing the information of a PROCAR
-        self.name = ""
-        self.data = dict()
-        self._read_file(filename)
+        data = defaultdict(dict)
+        headers = None
+        with zopen(filename, "r") as f:
+            lines = list(clean_lines(f.readlines()))
+            self.name = lines[0]
+            kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
+            bandexpr = re.compile("^\s*band\s+(\d+)")
+            ionexpr = re.compile("^ion.*")
+            expr = re.compile("^\s*([0-9]+)\s+")
+            dataexpr = re.compile("[\.0-9]+")
+            weight = 0
+            current_kpoint = 0
+            current_band = 0
+            for l in lines:
+                if bandexpr.match(l):
+                    m = bandexpr.match(l)
+                    current_band = int(m.group(1))
+                elif kpointexpr.match(l):
+                    m = kpointexpr.match(l)
+                    current_kpoint = int(m.group(1))
+                    weight = float(m.group(2))
+                elif headers is None and ionexpr.match(l):
+                    headers = l.split()
+                    headers.pop(0)
+                    headers.pop(-1)
+                elif expr.match(l):
+                    linedata = dataexpr.findall(l)
+                    num_data = map(float, linedata)
+                    #Convert to zero-based indexing for atoms.
+                    index = int(num_data.pop(0)) - 1
+                    num_data.pop(-1)
+                    if current_kpoint not in data[index]:
+                        data[index][current_kpoint] = {"weight": weight,
+                                                       "bands": {}}
+                    data[index][current_kpoint]["bands"][current_band] = \
+                        dict(zip(headers, num_data))
+            self.data = data
 
-    def get_d_occupation(self, atomNo):
-        row = self.data[atomNo]
-        return sum(row[4:9])
+    def get_d_occupation(self, atom_index):
+        """
+        .. deprecated:: v2.6.4
 
-    def _read_file(self, filename):
-        reader = zopen(filename, "r")
-        lines = clean_lines(reader.readlines())
-        reader.close()
-        self.name = lines[0]
-        kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
-        expr = re.compile("^\s*([0-9]+)\s+")
-        dataexpr = re.compile("[\.0-9]+")
-        weight = 0
-        for l in lines:
-            if kpointexpr.match(l):
-                m = kpointexpr.match(l)
-                currentKpoint = int(m.group(1))
-                weight = float(m.group(2))
-                if currentKpoint == 1:
-                    self.data = dict()
-            if expr.match(l):
-                linedata = dataexpr.findall(l)
-                linefloatdata = map(float, linedata)
-                index = int(linefloatdata.pop(0))
-                if index in self.data:
-                    self.data[index] += np.array(linefloatdata) * weight
-                else:
-                    self.data[index] = np.array(linefloatdata) * weight
+            Use get_occpuation instead.
+
+        Returns the d occupation of a particular atom.
+
+        Args:
+            atom_index:
+                Index of atom in PROCAR. It should be noted that VASP uses
+                1-based indexing for atoms, but this is converted to
+                zero-based indexing in this parser to be consistent with
+                representation of structures in pymatgen.
+
+        Returns:
+            d-occupation of atom at atom_index.
+        """
+        warnings.warn("get_d_occupation has been deprecated. Use "
+                      "get_occupation instead.", DeprecationWarning)
+        return self.get_occupation(atom_index, 'd')
+
+    def get_occupation(self, atom_index, orbital):
+        """
+        Returns the occupation for a particular orbital of a particular atom.
+
+        Args:
+            atom_num:
+                Index of atom in the PROCAR. It should be noted that VASP uses
+                1-based indexing for atoms, but this is converted to
+                zero-based indexing in this parser to be consistent with
+                representation of structures in pymatgen.
+            orbital:
+                A string representing an orbital. If it is a single
+                character, e.g., s, p, d or f, the sum of all s-type,
+                p-type, d-type or f-type orbitals occupations are returned
+                respectively. If it is a specific orbital, e.g., px, dxy,
+                etc., only the occupation of that orbital is returned.
+
+        Returns:
+            Sum occupation of orbital of atom.
+        """
+        total = 0
+        found = False
+        for kpoint, d in self.data[atom_index].items():
+            wt = d["weight"]
+            for band, dd in d["bands"].items():
+                for orb, v in dd.items():
+                    if orb.startswith(orbital):
+                        found = True
+                        total += v * wt
+        if not found:
+            raise ValueError("Invalid orbital {}".format(orbital))
+        return total
 
 
 class Oszicar(object):
@@ -1984,8 +2067,8 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
         if os.path.exists(xml_file):
-            return Vasprun(xml_file, parse_projected_eigen=projections) \
-            .get_band_structure(kpoints_filename=None, efermi=efermi)
+            return Vasprun(xml_file, parse_projected_eigen=projections)\
+                .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
 

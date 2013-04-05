@@ -1,13 +1,6 @@
 Change log
 ==========
 
-Version 2.6.1
--------------
-1. Use requests.Session in MPRester for connection pooling and code simplicity.
-2. Support for "with" context manager in MPRester.
-3. Updated periodic table data to correct errors in Ru, Tc and other elements.
-4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
-5. Miscellaneous bug fixes and speedups.
 
 Version 2.5.5
 -------------

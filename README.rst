@@ -39,7 +39,7 @@ So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
-   such, the analysis it produces survives rigourous scrutiny every single
+   such, the analysis it produces survives rigorous scrutiny every single
    day. Bugs tend to be found and corrected quickly.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
@@ -49,6 +49,11 @@ several advantages over other codes out there:
    improved. We have a policy of attributing any code you contribute to any
    publication you choose. Contributing to pymatgen means your research
    becomes more visible, which translates to greater impact.
+4. **It is fast.** Many of the core numerical methods in pymatgen have been
+   optimized by vectorizing in numpy. This means that coordinate
+   manipulations are extremely fast and are in fact comparable to codes
+   written in other languages. Pymatgen also comes with a complete system for
+   handling periodic boundary conditions.
 
 Getting pymatgen
 ================
@@ -233,9 +238,11 @@ some quick examples of the core capabilities and objects:
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
-    >>> comp[mg.Element("Fe")]
+    >>> #Note that Composition conveniently allows strings to be treated just
+    >>> #like an Element object.
+    >>> comp["Fe"]
     2.0
-    >>> comp.get_atomic_fraction(mg.Element("Fe"))
+    >>> comp.get_atomic_fraction("Fe")
     0.4
     >>> lattice = mg.Lattice.cubic(4.2)
     >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
@@ -265,12 +272,22 @@ Users are strongly encouraged to explore the detailed `usage pages
 <http://pythonhosted.org/pymatgen/usage.html>`_ and `api docs
 <http://pythonhosted.org/pymatgen/modules.html>`_.
 
+Example scripts
+---------------
+
+A good way to explore the functionality of pymatgen is to look at examples. We
+have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing various
+kinds of functions with pymatgen. Please feel free to check them out and we
+welcome your contributions as well!
+
 Add-ons
 -------
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly
