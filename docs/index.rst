@@ -70,6 +70,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.5
+-------------
+1. Added a command_line caller to do Bader charge analysis using Henkelmann
+   et al.'s algorithm.
+
 Version 2.6.4
 -------------
 1. Bug fixes for selective dynamics in Poscar.
