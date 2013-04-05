@@ -1781,7 +1781,30 @@ class Chgcar(VolumetricData):
 
 class Procar(object):
     """
-    Object for reading a PROCAR file
+    Object for reading a PROCAR file.
+
+    .. attribute:: data
+
+        A nested dict containing the PROCAR data of the form below. It should
+        be noted that VASP uses 1-based indexing for atoms, but this is
+        converted to zero-based indexing in this parser to be consistent with
+        representation of structures in pymatgen::
+
+            {
+                atom_index: {
+                    kpoint_index: {
+                        "bands": {
+                            band_index: {
+                                "p": 0.002,
+                                "s": 0.025,
+                                "d": 0.0
+                            },
+                            ...
+                        },
+                        "weight": 0.03125
+                    },
+                    ...
+            }
     """
     def __init__(self, filename):
         """
@@ -1791,35 +1814,43 @@ class Procar(object):
         """
         #create and return data object containing the information of a PROCAR
         self.name = ""
-        self.data = {}
-        self.headers = None
+        data = defaultdict(dict)
+        headers = None
         with zopen(filename, "r") as f:
             lines = list(clean_lines(f.readlines()))
             self.name = lines[0]
             kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
+            bandexpr = re.compile("^\s*band\s+(\d+)")
             ionexpr = re.compile("^ion.*")
             expr = re.compile("^\s*([0-9]+)\s+")
             dataexpr = re.compile("[\.0-9]+")
             weight = 0
-
+            current_kpoint = 0
+            current_band = 0
             for l in lines:
-                if kpointexpr.match(l):
+                if bandexpr.match(l):
+                    m = bandexpr.match(l)
+                    current_band = int(m.group(1))
+                elif kpointexpr.match(l):
                     m = kpointexpr.match(l)
-                    currentKpoint = int(m.group(1))
+                    current_kpoint = int(m.group(1))
                     weight = float(m.group(2))
-                    if currentKpoint == 1:
-                        self.data = dict()
-                elif ionexpr.match(l) and self.headers is None:
-                    self.headers = l.split()
-                    self.headers.pop(0)
+                elif headers is None and ionexpr.match(l):
+                    headers = l.split()
+                    headers.pop(0)
+                    headers.pop(-1)
                 elif expr.match(l):
                     linedata = dataexpr.findall(l)
-                    linefloatdata = map(float, linedata)
-                    index = int(linefloatdata.pop(0))
-                    if index in self.data:
-                        self.data[index] += np.array(linefloatdata) * weight
-                    else:
-                        self.data[index] = np.array(linefloatdata) * weight
+                    num_data = map(float, linedata)
+                    #Convert to zero-based indexing for atoms.
+                    index = int(num_data.pop(0)) - 1
+                    num_data.pop(-1)
+                    if current_kpoint not in data[index]:
+                        data[index][current_kpoint] = {"weight": weight,
+                                                       "bands": {}}
+                    data[index][current_kpoint]["bands"][current_band] = \
+                        dict(zip(headers, num_data))
+            self.data = data
 
     def get_d_occupation(self, atom_index):
         """
@@ -1831,7 +1862,10 @@ class Procar(object):
 
         Args:
             atom_index:
-                Index of atom in PROCAR.
+                Index of atom in PROCAR. It should be noted that VASP uses
+                1-based indexing for atoms, but this is converted to
+                zero-based indexing in this parser to be consistent with
+                representation of structures in pymatgen.
 
         Returns:
             d-occupation of atom at atom_index.
@@ -1846,7 +1880,10 @@ class Procar(object):
 
         Args:
             atom_num:
-                Index of atom in the PROCAR
+                Index of atom in the PROCAR. It should be noted that VASP uses
+                1-based indexing for atoms, but this is converted to
+                zero-based indexing in this parser to be consistent with
+                representation of structures in pymatgen.
             orbital:
                 A string representing an orbital. If it is a single
                 character, e.g., s, p, d or f, the sum of all s-type,
@@ -1857,13 +1894,15 @@ class Procar(object):
         Returns:
             Sum occupation of orbital of atom.
         """
-        row = self.data[atom_index]
         total = 0
         found = False
-        for orb, data in zip(self.headers, row):
-            if orb.startswith(orbital):
-                found = True
-                total += data
+        for kpoint, d in self.data[atom_index].items():
+            wt = d["weight"]
+            for band, dd in d["bands"].items():
+                for orb, v in dd.items():
+                    if orb.startswith(orbital):
+                        found = True
+                        total += v * wt
         if not found:
             raise ValueError("Invalid orbital {}".format(orbital))
         return total
@@ -2029,8 +2068,8 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
         xml_file = os.path.join(dir_name, "vasprun.xml")
         #Better handling of Errors
         if os.path.exists(xml_file):
-            return Vasprun(xml_file, parse_projected_eigen=projections) \
-            .get_band_structure(kpoints_filename=None, efermi=efermi)
+            return Vasprun(xml_file, parse_projected_eigen=projections)\
+                .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
 
