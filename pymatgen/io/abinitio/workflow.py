@@ -20,7 +20,6 @@ from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
-#from pymatgen.util.filelock import FileLock
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 
 from .netcdf import GSR_Reader
@@ -56,19 +55,19 @@ def map_method(method):
 
 class Product(object):
     """
-    A product represents the file produced by an AbinitTask instance, file
+    A product represents a file produced by an AbinitTask instance, file
     that is needed by another task in order to start the calculation.
     """
     # TODO
-    # It would be nice to pass absolute paths to abinit with getsomething_path
+    # It would be nice to pass absolute paths to abinit with getden_path
     # so that I can avoid creating symbolic links before running but
     # the presence of the C-bindings complicates the implementation
     # (gfortran SIGFAULTs if I add strings to dataset_type!
     _ext2abivars = {
-        "_DEN": {"irdden": 1}, #"getden_path",  
-        "_WFK": {"irdwfk": 1}, #"getwfk_path",
-        "_SCR": {"irdscr": 1}, #"getscr_path",
-        "_QPS": {"irdqps": 1}, #"getqps_path",
+        "_DEN": {"irdden": 1},
+        "_WFK": {"irdwfk": 1},
+        "_SCR": {"irdscr": 1},
+        "_QPS": {"irdqps": 1},
     }
     def __init__(self, ext, path):
         self.ext = ext
@@ -85,15 +84,30 @@ class Product(object):
 
 class WorkLink(object):
     """
-    This object describes the dependencies among the AbinitTask objects contained in a Work instance.
-    A  WorkLink is a task that produces a list of products (files) reused by another task belonging 
-    a Work instance.
+    This object describes the dependencies among the tasks contained in a Work instance.
+
+    A  WorkLink is a task that produces a list of products (files) that are 
+    reused by the tasks belonging to a Work instance. 
+    One usually instantiates the object by calling work.register_input and produces_exts.
+    Example:
+
+        # Generate the input file for the SCF calculation
+        scf_input = ...
+
+        # Register the SCF input in work and get the link.
+        scf_link = work.register_input(scf_input)
+
+        # Generate the input file for NSCF calculation
+        nscf_input = ...
+
+        # Register the NSCF input and its dependency on the SCF run.
+        nscf_link = work.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
     """
     def __init__(self, task, exts=None):
         """
         Args:
             task: 
-                AbinitTask instance
+                The task associated to the link.
             exts:
                 Extensions of the output files that are needed for running the other tasks.
         """
@@ -123,7 +137,7 @@ class WorkLink(object):
 
     def get_abivars(self):
         """
-        Returns a dictionary with the abinit variables that to 
+        Returns a dictionary with the abinit variables that must
         be added to the input file in order to connect the two tasks.
         """
         abivars =  {}
@@ -132,15 +146,20 @@ class WorkLink(object):
         return abivars
 
     def get_filepaths_and_exts(self):
-        "Return the paths of the output files produces by self and its extension"
+        "Returns the paths of the output files produced by self and its extensions"
         filepaths = [prod.get_filepath() for prod in self._products]
         exts = [prod.ext for prod in self._products]
         return filepaths, exts
 
+    @property
+    def status(self):
+        "The status of the link, equivalent to the task status"
+        return self._task.status
+
 ##########################################################################################
 
 class WorkError(Exception):
-    pass
+    "Base class for the exceptions raised by Work objects"
 
 class BaseWork(object):
     __metaclass__ = abc.ABCMeta
@@ -154,11 +173,11 @@ class BaseWork(object):
 
     def poll(self):
         "Check if all child processes have terminated. Set and return returncode attribute."
-        return [p.poll() for p in self.processes]
+        return [task.poll() for task in self]
 
     def wait(self):
         "Wait for child processed to terminate. Set and return returncode attributes."
-        return [p.wait() for p in self.processes]
+        return [task.wait() for task in self]
 
     def communicate(self, input=None):
         """
@@ -168,7 +187,7 @@ class BaseWork(object):
 
         communicate() returns a list of tuples (stdoutdata, stderrdata).
         """
-        return [p.communicate(input) for p in self.processes]
+        return [task.communicate(input) for task in self]
 
     @property
     def returncodes(self):
@@ -177,7 +196,34 @@ class BaseWork(object):
         A None value indicates that the process hasn't terminated yet.
         A negative value -N indicates that the child was terminated by signal N (Unix only).
         """
-        return [p.returncode for p in self.processes]
+        return [task.returncode for task in self]
+
+    @property
+    def ncpus_reserved(self):
+        "Returns the number of CPUs reserved in this moment."
+        ncpus = 0
+        for task in self:
+            if task.status in [task.S_SUB, task.S_RUN]:
+                ncpus += task.tot_ncpus
+        return ncpus
+
+    def fetch_task_to_run(self):
+        """
+        Returns the first task that is ready to run or None if no task can be submitted at present" 
+
+        Raises StopIteration if all tasks are done. 
+        """
+        for task in self:
+            # The task is ready to run if its status is S_READY and all the other links (if any) are done!
+            if (task.status == task.S_READY) and all([link_stat==task.S_DONE for link_stat in task.links_status]):
+                return task
+
+        # All the tasks are done so raise an exception that will be handled by the client code.
+        if all([task.status == task.S_DONE for task in self]): 
+            raise StopIteration
+
+        # No task found, this usually happens when we have dependencies. Beware of possible deadlocks here!
+        return None
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -219,7 +265,7 @@ class Work(BaseWork, MSONable):
 
         self._tasks = []
 
-        # Dict with the dependencies of each task, indexed by task.tid
+        # Dict with the dependencies of each task, indexed by task.id
         self._links_dict = collections.defaultdict(list)
 
     def __len__(self):
@@ -314,7 +360,7 @@ class Work(BaseWork, MSONable):
                          )
 
         # Add it to the internal list.
-        #if task.tid in self._links_dict:
+        #if task.id in self._links_dict:
         #    raise ValueError("task is already registered!")
 
         self._tasks.append(task)
@@ -333,7 +379,7 @@ class Work(BaseWork, MSONable):
     def get_status(self, only_highest_rank=False):
         "Get the status of the tasks in self."
 
-        status_list = [task.get_taskstatus() for task in self]
+        status_list = [task.status for task in self]
 
         if only_highest_rank:
             return max(status_list)
@@ -551,59 +597,58 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
  
     return i + 1
 
-def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1):
-        de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
+def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
+    de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
 
-        num_ene = len(etotal)
-        etotal_inf = etotal[-1]
+    num_ene = len(etotal)
+    etotal_inf = etotal[-1]
 
-        ihigh   = check_conv(etotal, de_high, min_numpts=min_numpts)
-        inormal = check_conv(etotal, de_normal)
-        ilow    = check_conv(etotal, de_low)
+    ihigh   = check_conv(etotal, de_high, min_numpts=min_numpts)
+    inormal = check_conv(etotal, de_normal)
+    ilow    = check_conv(etotal, de_low)
 
-        accidx = {"H": ihigh, "N": inormal, "L": ilow}
+    accidx = {"H": ihigh, "N": inormal, "L": ilow}
 
-        table = []
-        app = table.append
-                                                                                     
-        app(["step", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
-        for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-            line = "%d %.1f %g %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
-            row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
-            app(row)
-                                                                                     
+    table = []
+    app = table.append
+                                                                                 
+    app(["step", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
+    for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
+        line = "%d %.1f %g %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+        row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
+        app(row)
+
+    if stream is not None:
         from pymatgen.util.string_utils import pprint_table
-        stream = sys.stdout
-                                                                                     
         stream.write("pseudo: %s\n" % pseudo.name)
         pprint_table(table, out=stream)
 
-        ecut_high, ecut_normal, ecut_low = 3 * (None,)
-        exit = (ihigh != -1)
+    ecut_high, ecut_normal, ecut_low = 3 * (None,)
+    exit = (ihigh != -1)
 
-        if exit:
-            ecut_low    = ecut_list[ilow] 
-            ecut_normal = ecut_list[inormal] 
-            ecut_high   = ecut_list[ihigh] 
+    if exit:
+        ecut_low    = ecut_list[ilow] 
+        ecut_normal = ecut_list[inormal] 
+        ecut_high   = ecut_list[ihigh] 
 
-        aug_ratios = [1,]
-        aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
+    aug_ratios = [1,]
+    aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
 
-        data = {
-            "exit"        : ihigh != -1,
-            "etotal"      : list(etotal),
-            "ecut_list"   : ecut_list,
-            "aug_ratios"  : aug_ratios,
-            "low"         : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
-            "normal"      : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
-            "high"        : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
-            "pseudo_name" : pseudo.name,
-            "pseudo_path" : pseudo.path,
-            "atols_mev"   : atols_mev,
-            "dojo_level"  : 0,
-        }
+    data = {
+        "exit"        : ihigh != -1,
+        "etotal"      : list(etotal),
+        "ecut_list"   : ecut_list,
+        "aug_ratios"  : aug_ratios,
+        "low"         : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
+        "normal"      : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
+        "high"        : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
+        "pseudo_name" : pseudo.name,
+        "pseudo_path" : pseudo.path,
+        "atols_mev"   : atols_mev,
+        "dojo_level"  : 0,
+    }
 
-        return data
+    return data
 
 def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, **kwargs):
     """
@@ -833,7 +878,7 @@ class BandStructure(Work):
                  spin_mode    = "polarized",
                  scf_smearing = None,
                  kpath_bounds = None,
-                 ndivsm       = 20, 
+                 ndivsm       = 15, 
                  dos_ngkpt    = None
                 ):
 
@@ -902,6 +947,8 @@ class DeltaTest(Work):
                  ecutsm    = 0.05,
                 ):
 
+        super(DeltaTest, self).__init__(workdir, runmode)
+
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
         else:
@@ -911,8 +958,6 @@ class DeltaTest(Work):
         smearing = Smearing.assmearing(smearing)
 
         self._input_structure = structure
-
-        super(DeltaTest, self).__init__(workdir, runmode)
 
         v0 = structure.volume
 
@@ -1068,8 +1113,8 @@ class G0W0(Work):
         # FIXME
         inclvkb = 0
         screen_input = Input.SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
-                                           smearing=smearing,
-                                           inclvkb =inclvkb,
+                                           smearing = smearing,
+                                           inclvkb  = inclvkb,
                                           )
 
         screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
@@ -1120,67 +1165,5 @@ class PPConvergenceFactory(object):
                                     )
 
         return work
-
-##########################################################################################
-
-class SimpleParallelRunner(object):
-    "Execute a list of work objects in parallel with python threads"
-
-    def __init__(self, max_numthreads):
-        """
-            Args:
-                max_numthreads: The maximum number of threads that can be used
-        """
-        self.max_numthreads = max_numthreads 
-
-    def run_works(self, works, *args, **kwargs):
-        "Call the start method of the object contained in the iterable works."
-
-        # Remove num_pythreads from kwargs since it's one of the options 
-        # accepted by the start methods.
-        kwargs.pop("num_pythreads", None)
-
-        num_works = len(works)
-
-        if num_works == 0:
-            # Likely an iterative work, run it with one thread.
-            num_works = 1
-
-        num_pythreads = min(num_works, self.max_numthreads)
-
-        print("%s: Executing works with num_pythreads %d" % (self.__class__.__name__, num_pythreads))
-        from threading import Thread
-        from Queue import Queue
-
-        def worker():
-            while True:
-                func, args, kwargs = q.get()
-                results = func(*args, **kwargs)
-                q.task_done()
-                                                     
-        q = Queue()
-        for i in range(num_pythreads):
-            t = Thread(target=worker)
-            t.setDaemon(True)
-            t.start()
-
-        # If works is a Work instance, we have to call setup here
-        #if hasattr(works, "setup"):
-        #    works.setup(*args, **kwargs)
-
-        for work in works:
-            q.put((work.start, args, kwargs))
-
-        # Block until all tasks are done. 
-        q.join()  
-
-        work.communicate()
-
-        # If works is a Work instance, we have to call get_results here
-        #results = {}
-        #if hasattr(works, "get_results"):
-        #    results = works.get_results():
-
-        #return results
 
 ##########################################################################################

@@ -8,15 +8,20 @@ import collections
 import abc
 
 from subprocess import Popen, PIPE
+
 from pymatgen.io.abinitio.utils import File
+
 
 __all__ = ['AbinitJobScript',]
 
 # =========================================================================== #
 
-class ShellEditor(object):
+class ScriptEditor(object):
     "Simple editor that simplifies the writing of shell scripts"
     _shell = '/bin/bash'
+
+    def __init__(self):
+        self._lines = []
 
     @property
     def shell(self):
@@ -28,8 +33,15 @@ class ShellEditor(object):
         else:
             self._lines.extend([pre + t for t in text])
 
-    def shabang(self):
-        self._lines = ['#!' + self.shell,]
+    def reset(self):
+        try:
+            del self._lines
+        except AttributeError:
+            pass
+
+    def shebang(self):
+        "Adds the shebang line"
+        self._lines.append('#!' + self.shell)
 
     def declare_var(self, key, val):
         "Return a lines setting a variable."
@@ -67,14 +79,91 @@ class ShellEditor(object):
     def add_lines(self, lines):
         self._add(lines)
 
-    def get_script_str(self):
-        "Returns a string with the script and reset the editor"
+    def get_script_str(self, reset=True):
+        "Returns a string with the script and reset the editor if reset is True"
         s = "\n".join(l for l in self._lines)
-        self.clear()
+        if reset:
+            self.reset()
         return s
 
-    def clear(self):
-        del self._lines
+##########################################################################################
+
+class OMPEnv(dict):
+    """
+    Dictionary with the OpenMP environment variables"
+    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables"
+    """
+    _keys = [
+       "OMP_SCHEDULE",
+       "OMP_NUM_THREADS",
+       "OMP_DYNAMIC",
+       "OMP_PROC_BIND",
+       "OMP_NESTED",
+       "OMP_STACKSIZE",
+       "OMP_WAIT_POLICY",
+       "OMP_MAX_ACTIVE_LEVELS",
+       "OMP_THREAD_LIMIT",
+       "OMP_STACKSIZE",
+       "OMP_PROC_BIND",
+    ]
+
+    def __init__(self, *args, **kwargs):
+        """ 
+        Constructor method inherited from dictionary:
+                                                   
+        >>> OMPEnv(OMP_NUM_THREADS=1)
+        {'OMP_NUM_THREADS': '1'}
+                                                   
+        To create an instance from the INI file fname, use:
+           OMPEnv.from_file(fname)
+        """
+        self.update(*args, **kwargs)
+
+        err_msg = ""
+        for key, value in self.items():
+            self[key] = str(value)
+            if key not in OMPEnv._keys:
+                err_msg += "unknown option %s" % key
+
+        if err_msg: 
+            raise ValueError(err_msg)
+
+    @staticmethod
+    def from_file(fname, allow_empty=False):
+        from ConfigParser import SafeConfigParser, NoOptionError
+        parser = SafeConfigParser()
+        parser.read(fname)
+
+        obj = OMPEnv()
+
+        # Consistency check. Note that we only check if the option name is correct, 
+        # we do not check whether the value is correct or not.
+        if "openmp" not in parser.sections():
+            if not allow_empty:
+                raise ValueError("%s does not contain any [openmp] section" % fname) 
+            return obj
+
+        err_msg = ""
+        for key in parser.options("openmp"):
+            if key.upper() not in OMPEnv._keys:
+                err_msg += "unknown option %s, maybe a typo" % key
+
+        if err_msg: 
+            raise ValueError(err_msg)
+
+        for key in OMPEnv._keys:
+            try:
+                obj[key] = str(parser.get("openmp", key))
+            except NoOptionError:
+                try:
+                    obj[key] = str(parser.get("openmp", key.lower()))
+                except NoOptionError:
+                    pass
+
+        if not allow_empty and not obj:
+            raise ValueError("Refusing to return with an empty dict") 
+
+        return obj
 
 ##########################################################################################
 
@@ -130,13 +219,13 @@ class TaskLauncher(object):
                 The name of the binary to be executed (located in bindir or in $PATH if not bindir). Default is abinit.
             mpirun:
                 The mpi runner.
-                E.g. 'mpiexec -npernode 6'. Default is None.
+                E.g. 'mpirun -n 6'. Default is None.
             mpi_ncpus
                 Number of MPI processes (default 1)
-            omp_ncpus
-                Number of OpenMP threads (default 0, i.e not used)
+            omp_env
+                Dictionary with the OMP environment variables. Default is {}
             vars:
-                Dictionary {varname:varvalue} containing variable declaration.
+                Dictionary {varname:varvalue} with variable declaration.
         """
         self.jobfile      = File(path)
         self.abi_stdin    = kwargs.pop("abi_stdin",  "abi.files")
@@ -146,7 +235,9 @@ class TaskLauncher(object):
         self.exe          = os.path.join(self.bindir, kwargs.pop("exe", "abinit"))
         self.mpirun       = kwargs.pop("mpirun", "")
         self.mpi_ncpus    = kwargs.pop("mpi_ncpus", 1)
-        self.omp_ncpus    = kwargs.pop("omp_ncpus", 0)
+        self.omp_env      = kwargs.pop("omp_env", {})
+        if self.omp_env:
+            self.omp_env = OMPEnv(self.omp_env)
         self.vars         = kwargs.pop("vars", {})
         self.modules      = kwargs.pop("modules", [])
         self.envars       = kwargs.pop("envars", {})
@@ -154,11 +245,34 @@ class TaskLauncher(object):
         self.post_lines   = kwargs.pop("post_lines", [])
         self.queue_params = kwargs.pop("queue_params", {})
 
+    @property
+    def tot_ncpus(self):
+        "Total number of CPUs employed"
+        return self.mpi_ncpus * self.omp_ncpus 
+
+    @property
+    def has_mpirun(self):
+        "True if we are using a mpirunner"
+        return bool(self.mpirun)
+
+    @property
+    def has_omp(self):
+        "True if we are using OMP threads"
+        return ( hasattr(self, "omp_env") and bool(getattr(self, "omp_env")) )
+                                                      
+    @property
+    def omp_ncpus(self):
+        "Number of OMP threads" 
+        if self.has_omp:
+            return self.omp_env["OMP_NUM_THREADS"]
+        else:
+            return 1
+
     def get_script_str(self):
         "Returns a string wth the script."
-        se = ShellEditor()
+        se = ScriptEditor()
 
-        se.shabang()
+        se.shebang()
 
         # Submission instructions for the queue manager.
         se.add_lines(self.get_queue_header())
@@ -182,8 +296,8 @@ class TaskLauncher(object):
         se.add_comment("Environment")
         se.export_envars(self.envars)
 
-        if self.omp_ncpus:
-            se.export_envars("OMP_NUM_THREADS", self.omp_ncpus)
+        if self.has_omp:
+            se.export_envars(self.omp_env)
 
         se.add_comment("Commands before execution")
         se.add_lines(self.pre_lines)
@@ -216,8 +330,17 @@ class TaskLauncher(object):
         "Return a list of string with the options passes to the queue manager"
 
     @abc.abstractmethod
-    def launch(self, *args, **kwargs):
-        "Run the script in a subprocess, returns a Popen-like object."
+    def launch(self, task, *args, **kwargs):
+        """
+        Run the script in a subprocess, returns a Popen-like object.
+
+        Args:
+            task:
+                Task instance. launch should call task.set_status to modify the status 
+                of the object. 
+                task.set_status(Task.S_SUB) is called before submitting the task
+                task.set_status(Task.S_RUN) is called once the task has started to run.
+        """
 
 ##########################################################################################
 # Concrete classes
@@ -228,30 +351,92 @@ class ShellLauncher(TaskLauncher):
     def get_queue_header(self):
         return []
 
-    def launch(self, *args, **kwargs):
+    def launch(self, task, *args, **kwargs):
         self.write_script()
-        return Popen(("/bin/bash", self.jobfile.path), cwd=self.jobfile.dirname, stderr=PIPE)
+
+        task.set_status(task.S_SUB)
+        process = Popen(("/bin/bash", self.jobfile.path), cwd=self.jobfile.dirname, stderr=PIPE)
+        task.set_status(task.S_RUN)
+
+        return process
 
 ##########################################################################################
 
-class SlurmLauncher(TaskLauncher):
-    _queue_type = "slurm"
+#class SlurmLauncher(TaskLauncher):
+#    _queue_type = "slurm"
+#
+#    def get_queue_header(self):
+#        raise NotImplementedError()
+#
+#    def launch(self, *args, **kwargs):
+#        """
+#        Run the script in a subprocess, returns a Popen-like object.
+#        This is a very delicate part. Hopefully fireworks will help solve the problem!
+#        """
+#        raise NotImplementedError()
 
-    def get_queue_header(self):
-        raise NotImplementedError()
+##########################################################################################
 
-    def launch(self, *args, **kwargs):
+class SimpleResourceManager(object):
+
+    def __init__(self, work, max_ncpus, sleep_time=0.5):
         """
-        Run the script in a subprocess, returns a Popen-like object.
-        This is a very delicate part. Hopefully fireworks will help solve the problem!
+            Args:
+                work:
+                    Work instance.
+                max_ncpsu: 
+                    The maximum number of CPUs that can be used.
+                sleep_time:
+                    Time delay (seconds) before trying to start a new task.
         """
-        raise NotImplementedError()
+        self.work = work
+        self.max_ncpus = max_ncpus 
+        self.sleep_time = sleep_time
+
+        for task in self.work:
+            if task.tot_ncpus > self.max_ncpus:
+                raise ValueError("Task %s requires %s CPUs, but max_ncpus is %d" % (
+                    repr(task), task.tot_cpus, max_ncpus))
+
+    def run(self, *args, **kwargs):
+        "Call the start method of the object contained in work."
+
+        while True:
+            polls = self.work.poll()
+            print("work polls %s" % polls)
+            print("work status %s" % self.work.get_status())
+
+            # Fetch the first task that is ready to run
+            try:
+                task = self.work.fetch_task_to_run()
+            except StopIteration:
+                break
+
+            if task is None 
+                import time
+                time.sleep(self.sleep_time)
+            else:
+                # Check that we don't exceed the number of cpus employed, before starting.
+                if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
+                    print("Starting task %s" % task)
+                    task.start()
+
+        # Wait until all tasks are completed.
+        self.work.wait()
+
+        #if any([t.status != t.S_DONE for t in self]):
+        #        for task in self:
+        #            print([link for link in task._links])
+        #            #print([link_stat==task.S_DONE for link_stat in task.links_status])
+        #        raise RuntimeError("Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
+
+        return self.work.returncodes
 
 ##########################################################################################
 
 if __name__ == "__main__":
-    se = ShellEditor()
-    se.shabang()
+    se = ScriptEditor()
+    se.shebang()
     se.declare_var("FOO", "BAR")
     se.add_emptyline()
     se.add_comment("This is a comment")
