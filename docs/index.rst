@@ -51,7 +51,7 @@ So you might ask - why should I use pymatgen over others? Pymatgen offer
 several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
-   such, the analysis it produces survives rigourous scrutiny every single
+   such, the analysis it produces survives rigorous scrutiny every single
    day. Bugs tend to be found and corrected quickly.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
@@ -61,15 +61,48 @@ several advantages over other codes out there:
    improved. We have a policy of attributing any code you contribute to any
    publication you choose. Contributing to pymatgen means your research
    becomes more visible, which translates to greater impact.
+4. **It is fast.** Many of the core numerical methods in pymatgen have been
+   optimized by vectorizing in numpy. This means that coordinate
+   manipulations are extremely fast and are in fact comparable to codes
+   written in other languages. Pymatgen also comes with a complete system for
+   handling periodic boundary conditions.
 
 Latest Change Log
 =================
+
+Version 2.6.4
+-------------
+1. Bug fixes for selective dynamics in Poscar.
+2. Improved Procar parsing to support both simple and detailed PROCARs.
+
+Version 2.6.3
+-------------
+1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
+   (currently open in beta for collaborators only).
+2. Added support for new MaterialsProject REST method get_stability.
+3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
+   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
+4. Improvements to StructureMatcher: stol (site - tolerance) redefined as
+   a fraction of the average length per atom. Structures matched in fractional
+   space are now also matched in cartesian space and a rms displacement
+   normalized by length per atom can be returned using the rms_dist method.
+
+Version 2.6.2
+-------------
 
 1. Site and PeriodicSite now uses a Composition mapping type to represent
    the species and occupancy, instead of a standard dict.
 2. Bug fix for reading and re-writing out of Potcars.
 3. VaspInputSet now supports MSONable framework.
 4. Strain cell option in StructureEditor.
+5. Miscellaneous bug fixes and speedups.
+
+Version 2.6.1
+-------------
+1. Use requests.Session in MPRester for connection pooling and code simplicity.
+2. Support for "with" context manager in MPRester.
+3. Updated periodic table data to correct errors in Ru, Tc and other elements.
+4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
 5. Miscellaneous bug fixes and speedups.
 
 :doc:`Older versions </changelog>`
@@ -222,13 +255,15 @@ examples of the core capabilities and objects:
     >>> comp = mg.Composition("Fe2O3")
     >>> comp.weight
     159.6882
-    >>> comp[mg.Element("Fe")]
+    >>> #Note that Composition conveniently allows strings to be treated just
+    >>> #like an Element object.
+    >>> comp["Fe"]
     2.0
-    >>> comp.get_atomic_fraction(mg.Element("Fe"))
+    >>> comp.get_atomic_fraction("Fe")
     0.4
     >>> lattice = mg.Lattice.cubic(4.2)
     >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-    ...                       [[0, 0, 0], [0.5, 0.5, 0.5]])
+    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
     >>> structure.volume
     74.088000000000008
     >>> structure[0]
@@ -260,12 +295,22 @@ Users are strongly encouraged to explore the detailed :doc:`usage pages
 
    usage
 
+Example scripts
+---------------
+
+A good way to explore the functionality of pymatgen is to look at examples. We
+have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing various
+kinds of functions with pymatgen. Please feel free to check them out and we
+welcome your contributions as well!
+
 Add-ons
 -------
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly
