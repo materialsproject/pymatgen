@@ -35,86 +35,22 @@ __all__ = [
 ]
 
 ##########################################################################################
+class FakeProcess(object):
+    def poll(self):
+        return None
 
-STAT_DONE = 1  # Task completed, note that this does not imply that results are ok or that the calculation completed succesfully
-STAT_WAIT = 2 
-#STAT_SUB  = 2  # Submitted  ?
-STAT_RUN  = 4
-STAT_ERR  = 8
-#STAT_ABIEXC  = 8
-#STAT_SYSERR  = 8
+    def wait(self):
+        raise RuntimeError("Cannot wait a Fake Process")
 
-class TaskStatus(object):
-    """
-    Object used to inquire the status of the task and to have access 
-    to the error and warning messages
-    """
-    #: Rank associated to the different status (in order of increasing priority)
-    _level2rank = {
-      "done"    : STAT_DONE, 
-      "waiting" : STAT_WAIT, 
-      "running" : STAT_RUN, 
-      "error"   : STAT_ERR,
-    }
+    def communicate(self, input=None):
+        raise RuntimeError("Cannot communicate with Fake Process")
 
-    levels = Enum(s for s in _level2rank)
-
-    def __init__(self, task):
-
-        self._task = task
-
-        parser = EventParser()
-
-        if task.isdone():
-            # The main output file seems completed.
-            level_str = 'done'
-
-        # TODO err file!
-        elif task.output_file.exists and task.log_file.exists:
-            # Inspect the main output and the log file for ERROR messages.
-            main_events = parser.parse(task.output_file.path)
-            log_events  = parser.parse(task.log_file.path)
-
-            level_str = 'running'
-            if main_events.critical_events or log_events.critical_events:
-                level_str = 'error'
-
-            with open(task.stderr_file.path, "r") as f:
-                lines = f.readlines()
-                if lines: level_str = 'error'
-        else:
-            level_str = 'waiting'
-
-        self._level_str = level_str
-
-        assert self._level_str in Status.levels
+    def kill(self):
+        raise RuntimeError("Cannot kill a Fake Process")
 
     @property
-    def rank(self):
-        return self._level2rank[self._level_str]
-
-    def __str__(self):
-        return str(self._task) + self._level_str
-
-    # Rich comparison support. Mainly used for selecting the 
-    # most critical status when we have several tasks executed inside a workflow.
-    def __lt__(self, other):
-        return self.rank < other.rank
-
-    def __le__(self, other):
-        return self.rank <= other.rank
-
-    def __eq__(self, other):
-        return self.rank == other.rank
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __gt__(self, other):
-        return self.rank > other.rank
-
-    def __ge__(self, other):
-        return self.rank >= other.rank
+    def returncode(self):
+        return None
 
 ##########################################################################################
 
@@ -126,10 +62,22 @@ class Task(object):
 
     Error = TaskError
 
-    possible_status = [v for v in TaskStatus._level2rank.values()]
+    # Possible status of the task.
+    # Rank associated to the different status (in order of increasing priority)
+    S_DONE  = 1  # Task completed, note that this does not imply that results are ok or that the calculation completed succesfully
+    S_READY = 2 # Task is ready for submission.
+    S_SUB   = 4  # Task has been submitted.
+    S_RUN   = 8  # Task is running.
+
+    _status2str = {
+      S_DONE : "done",
+      S_READY: "waiting",
+      S_SUB  : "submitted", 
+      S_RUN  : "running", 
+    }
 
     def __init__(self):
-        self._status = STAT_WAIT
+        self.set_status(Task.S_READY)
 
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -139,20 +87,16 @@ class Task(object):
     def poll(self):
         "Check if child process has terminated. Set and return returncode attribute."
         returncode = self.process.poll()
+        print("In task poll returncode %s" % returncode)
         if returncode is not None:
-            if returncode:
-                self.set_status(STAT_ERR)
-            else:
-                self.set_status(STAT_DONE)
+            print("setting status for task %s" % self)
+            self.set_status(Task.S_DONE)
         return returncode
 
     def wait(self):
         "Wait for child process to terminate. Set and return returncode attribute."
         returncode = self.process.wait()
-        if returncode:
-            self.set_status(STAT_ERR)
-        else:
-            self.set_status(STAT_DONE)
+        self.set_status(Task.S_DONE)
         return returncode
 
     def communicate(self, input=None):
@@ -164,10 +108,7 @@ class Task(object):
         communicate() returns a tuple (stdoutdata, stderrdata).
         """
         stdoutdata, stderrdata = self.process.communicate(input=input)
-        if self.returncode:
-            self.set_status(STAT_ERR)
-        else:
-            self.set_status(STAT_DONE)
+        self.set_status(Task.S_DONE)
         return stdoutdata, stderrdata 
 
     def kill(self):
@@ -184,25 +125,37 @@ class Task(object):
         return self.process.returncode
 
     @property
-    def tid(self):
+    def id(self):
         "Task identifier"
-        return self._tid
+        return self._id
 
-    def set_tid(self, tid):
+    def set_id(self, id):
         "Set the task identifier"
-        self._tid = tid
+        self._id = id
+
+    @property
+    def tot_ncpus(self):
+        "Total number of CPUs used to run the task."
+        return self.launcher.tot_ncpus
 
     @property
     def status(self):
         return self._status
 
     def set_status(self, status):
-        if status not in self.possible_status:
+        if status not in Task._status2str:
             raise RunTimeError("Unknown status: %s" % status)
         self._status = status
 
         # Notify the observers
         #self.subject.notify_observers(status)
+
+    @property
+    def links_status(self):
+        "Returns a list wit the status of the links"
+        if not self._links:
+            return [Task.S_DONE,]
+        return [l.status for l in self._links]
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -244,7 +197,7 @@ class Task(object):
         if self.returncode is None:
             raise self.Error("return code is None, you should call wait, communitate or poll")
 
-        if self.status != STAT_DONE:
+        if self.status != Task.S_DONE:
             raise self.Error("Task is not completed")
 
         # Analyze the main output and the log file for possible errors or warnings.
@@ -303,11 +256,12 @@ class AbinitTask(Task):
 
         self.runmode = runmode
 
-        self.set_tid(task_id)
+        self.set_id(task_id)
 
         self.input = input.copy()
 
-        # Connect this task to the other tasks (needed if are creating a Work instance with dependencies
+        # Connect this task to the other tasks 
+        # (needed if are creating a Work instance with dependencies
         self._links = []
         if links is not None: 
             self._links = links
@@ -325,8 +279,7 @@ class AbinitTask(Task):
 
         # Find number of processors ....
         #runhints = self.get_runhints()
-
-        self.launcher = TaskLauncher.from_task(self)
+        self.set_launcher(TaskLauncher.from_task(self))
 
     #def __str__(self):
 
@@ -340,7 +293,17 @@ class AbinitTask(Task):
 
     @property
     def process(self):
-        return self._process
+        try:
+            return self._process
+        except AttributeError:
+            return FakeProcess()
+
+    @property
+    def launcher(self):
+        return self._launcher
+
+    def set_launcher(self, launcher):
+        self._launcher = launcher
 
     @property
     def jobfile_path(self):
@@ -495,9 +458,6 @@ class AbinitTask(Task):
 
         shutil.rmtree(self.workdir)
 
-    def get_taskstatus(self):
-        return TaskStatus(self)
-
     def get_runhints(self):
         """
         Run abinit in sequential to obtain a set of possible
@@ -533,9 +493,9 @@ class AbinitTask(Task):
         self._setup(*args, **kwargs)
 
         # Start the calculation in a subprocess and return
-        self._process = self.launcher.launch()
+        self._process = self.launcher.launch(self)
 
-        self.set_status(STAT_RUN)
+        self.set_status(Task.S_RUN)
 
 ##########################################################################################
 
