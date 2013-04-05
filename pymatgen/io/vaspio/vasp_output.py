@@ -1564,6 +1564,7 @@ class VolumetricData(object):
         read_dataset = False
         ngrid_pts = 0
         data_count = 0
+        poscar = None
         with zopen(filename) as f:
             for line in f:
                 line = line.strip()
@@ -1812,8 +1813,6 @@ class Procar(object):
             filename:
                 Name of file containing PROCAR.
         """
-        #create and return data object containing the information of a PROCAR
-        self.name = ""
         data = defaultdict(dict)
         headers = None
         with zopen(filename, "r") as f:
