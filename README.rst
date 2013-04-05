@@ -272,12 +272,22 @@ Users are strongly encouraged to explore the detailed `usage pages
 <http://pythonhosted.org/pymatgen/usage.html>`_ and `api docs
 <http://pythonhosted.org/pymatgen/modules.html>`_.
 
+Example scripts
+---------------
+
+A good way to explore the functionality of pymatgen is to look at examples. We
+have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing various
+kinds of functions with pymatgen. Please feel free to check them out and we
+welcome your contributions as well!
+
 Add-ons
 -------
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly

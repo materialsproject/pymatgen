@@ -67,7 +67,7 @@ def zpath(filename):
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
-    Strips whitespace, \n and \r and empty lines from a list.
+    Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
         string_list:
