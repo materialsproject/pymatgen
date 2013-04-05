@@ -70,6 +70,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.4
+-------------
+1. Bug fixes for selective dynamics in Poscar.
+2. Improved Procar parsing to support both simple and detailed PROCARs.
+
 Version 2.6.3
 -------------
 1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
@@ -290,12 +295,22 @@ Users are strongly encouraged to explore the detailed :doc:`usage pages
 
    usage
 
+Example scripts
+---------------
+
+A good way to explore the functionality of pymatgen is to look at examples. We
+have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing various
+kinds of functions with pymatgen. Please feel free to check them out and we
+welcome your contributions as well!
+
 Add-ons
 -------
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly
