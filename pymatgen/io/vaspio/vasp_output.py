@@ -1836,6 +1836,8 @@ class Procar(object):
         Returns:
             d-occupation of atom at atom_index.
         """
+        warnings.warn("get_d_occupation has been deprecated. Use "
+                      "get_occupation instead.")
         return self.get_occupation(atom_index, 'd')
 
     def get_occupation(self, atom_index, orbital):
