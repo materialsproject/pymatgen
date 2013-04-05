@@ -216,9 +216,16 @@ class ChgcarTest(unittest.TestCase):
 class ProcarTest(unittest.TestCase):
 
     def test_init(self):
+        filepath = os.path.join(test_dir, 'PROCAR.simple')
+        p = Procar(filepath)
+        self.assertAlmostEqual(p.get_occupation(1, 'd'), 0)
+        self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
+        self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
+        self.assertRaises(ValueError, p.get_occupation, 1, 'm')
         filepath = os.path.join(test_dir, 'PROCAR')
         p = Procar(filepath)
-        self.assertAlmostEqual(p.get_d_occupation(1), 4.3698147704200059)
+        self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
+        self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
 
 
 if __name__ == "__main__":
