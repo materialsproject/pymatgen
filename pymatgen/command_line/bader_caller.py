@@ -28,6 +28,8 @@ import subprocess
 import tempfile
 import shutil
 
+from pymatgen.io.vaspio.vasp_output import Chgcar
+from pymatgen.io.vaspio.vasp_input import Potcar
 
 class BaderAnalysis(object):
     """
@@ -61,17 +63,34 @@ class BaderAnalysis(object):
     .. attribute: nelectrons
 
         Number of electrons of the Bader analysis.
+
+    .. attribute: chgcar
+
+        Chgcar object associated with input CHGCAR file.
+
+    .. attribute: potcar
+
+        Potcar object associated with POTCAR used for calculation (used for
+        calculating charge transferred).
     """
 
-    def __init__(self, filename):
+    def __init__(self, chgcar_filename, potcar_filename=None):
         """
         Args:
-            filename:
+            chgcar_filename:
                 The filename of the CHGCAR.
+            potcar_filename:
+                Optional: the filename of the corresponding POTCAR file. Used
+                for calculating the charge transfer. If None, the
+                get_charge_transfer method will raise a ValueError.
         """
         temp_dir = tempfile.mkdtemp()
+        self.chgcar = Chgcar.from_file(chgcar_filename)
+        self.potcar = Potcar.from_file(potcar_filename) \
+            if potcar_filename is not None else None
+        self.natoms = self.chgcar.poscar.natoms
         try:
-            shutil.copy(filename, os.path.join(temp_dir, "CHGCAR"))
+            shutil.copy(chgcar_filename, os.path.join(temp_dir, "CHGCAR"))
             current_dir = os.getcwd()
             os.chdir(temp_dir)
             rs = subprocess.Popen(["bader", "CHGCAR"],
@@ -104,6 +123,39 @@ class BaderAnalysis(object):
         finally:
             shutil.rmtree(temp_dir)
 
+    def get_charge(self, atom_index):
+        """
+        Convenience method to get the charge on a particular atom.
 
-if __name__ == "__main__":
-    a = BaderAnalysis("../../test_files/CHGCAR.noncubic")
+        Args:
+            atom_index:
+                Index of atom.
+
+        Returns:
+            Charge associated with atom from the Bader analysis.
+        """
+        return self.data[atom_index]["charge"]
+
+    def get_charge_transfer(self, atom_index):
+        """
+        Returns the charge transferred for a particular atom. Requires POTCAR
+        to be supplied.
+
+        Args:
+            atom_index:
+                Index of atom.
+
+        Returns:
+            Charge transfer associated with atom from the Bader analysis.
+            Given by final charge on atom - nelectrons in POTCAR for
+            associated atom.
+        """
+        if self.potcar is None:
+            raise ValueError("POTCAR must be supplied in order to calculate "
+                             "charge transfer!")
+        potcar_indices = []
+        for i, v in enumerate(self.natoms):
+            potcar_indices += [i] * v
+        nelect = self.potcar[potcar_indices[atom_index]].nelectrons
+        return self.data[atom_index]["charge"] - nelect
+

@@ -206,9 +206,10 @@ class ChgcarTest(unittest.TestCase):
         self.assertAlmostEqual(chg.get_integrated_diff(0, 1)[0, 1],
                                -0.0043896932237534022 * 2)
 
-        filepath = os.path.join(test_dir, 'CHGCAR.noncubic')
+        filepath = os.path.join(test_dir, 'CHGCAR.Fe3O4')
         chg = Chgcar.from_file(filepath)
-        ans = [0.221423, 0.462059, 0.470549, 0.434775, 0.860738, 2.1717482]
+        ans = [1.93313368, 3.91201473, 4.11858277, 4.1240093, 4.10634989,
+               3.38864822]
         myans = chg.get_integrated_diff(0, 3, 6)
         self.assertTrue(np.allclose(myans[:, 1], ans))
 
