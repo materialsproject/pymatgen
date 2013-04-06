@@ -32,12 +32,16 @@ class BaderAnalysisTest(unittest.TestCase):
             raise SkipTest("bader executable not present. Skipping...")
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
-        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.noncubic"))
-        self.assertEqual(len(analysis.data), 8)
-        self.assertAlmostEqual(analysis.data[0]["charge"], 7.4168)
-        self.assertAlmostEqual(analysis.nelectrons, 52)
+        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
+                                 os.path.join(test_dir, "POTCAR.Fe3O4"))
+        self.assertEqual(len(analysis.data), 14)
+        self.assertAlmostEqual(analysis.data[0]["charge"], 6.1485)
+        self.assertAlmostEqual(analysis.nelectrons, 96)
         self.assertAlmostEqual(analysis.vacuum_charge, 0)
-
+        ans = [-1.8515, -1.8132, -1.8132, -1.5562, -1.8132, -1.8515, 1.3369,
+               1.3378, 1.3373, 1.3374, 1.3374, 1.3369, 1.3373, 1.3378]
+        for i in range(14):
+            self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i))
 
 if __name__ == '__main__':
     unittest.main()

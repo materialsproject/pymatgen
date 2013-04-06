@@ -1585,7 +1585,7 @@ class VolumetricData(object):
                         data_count = 0
                         all_dataset.append(dataset)
                 elif not poscar_read:
-                    if line != "":
+                    if line != "" or len(poscar_string) == 0:
                         poscar_string.append(line)
                     elif line == "":
                         poscar = Poscar.from_string("\n".join(poscar_string))
