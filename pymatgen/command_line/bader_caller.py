@@ -74,8 +74,7 @@ class BaderAnalysis(object):
             shutil.copy(filename, os.path.join(temp_dir, "CHGCAR"))
             current_dir = os.getcwd()
             os.chdir(temp_dir)
-            rs = subprocess.Popen(["bader", "-p", "atom_index", "-p", "all_atom",
-                                   "CHGCAR"],
+            rs = subprocess.Popen(["bader", "CHGCAR"],
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
             rs.communicate()
