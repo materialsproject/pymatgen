@@ -74,6 +74,7 @@ Version 2.6.5
 -------------
 1. Added a command_line caller to do Bader charge analysis using Henkelmann
    et al.'s algorithm.
+2. Bug fix for POSCAR parsing when title line is an empty string.
 
 Version 2.6.4
 -------------
