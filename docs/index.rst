@@ -75,6 +75,8 @@ Version 2.6.5
 1. Added a command_line caller to do Bader charge analysis using Henkelmann
    et al.'s algorithm.
 2. Bug fix for POSCAR parsing when title line is an empty string.
+3. Added __rmul__ operator for Composition.
+4. Vastly expanded available aliases.
 
 Version 2.6.4
 -------------
