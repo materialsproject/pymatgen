@@ -48,6 +48,10 @@ the moment) required only for certain features:
    multienum.x and makestr.x executables must be in the path. Get it at
    http://enum.sourceforge.org and follow the instructions to compile
    multienum.x and makestr.x.
+3. bader: For the use of the BaderAnalysis class in pymatgen.command_line.bader
+   module. This library by Henkelmann et al. provides a robust way to
+   calculate the Bader analysis from a CHGCAR. The bader executable must be
+   in the path. Get it at http://theory.cm.utexas.edu/bader.
 
 POTCAR Setup
 ============
