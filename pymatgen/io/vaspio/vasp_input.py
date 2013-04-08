@@ -229,8 +229,10 @@ class Poscar(MSONable):
             Poscar object.
         """
 
-        chunks = re.split("^\s*$", data.strip(), flags=re.MULTILINE)
-
+        chunks = re.split("^\s*$", data.rstrip(), flags=re.MULTILINE)
+        if chunks[0] == "":
+            chunks.pop(0)
+            chunks[0] = "\n" + chunks[0]
         #Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]

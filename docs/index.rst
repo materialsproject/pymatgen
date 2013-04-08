@@ -70,6 +70,14 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.5
+-------------
+1. Added a command_line caller to do Bader charge analysis using Henkelmann
+   et al.'s algorithm.
+2. Bug fix for POSCAR parsing when title line is an empty string.
+3. Added __rmul__ operator for Composition.
+4. Vastly expanded available aliases.
+
 Version 2.6.4
 -------------
 1. Bug fixes for selective dynamics in Poscar.
@@ -174,8 +182,67 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Command line - matgenie.py
---------------------------
+Basic usage
+-----------
+
+Useful aliases for commonly used objects are now provided,
+similar in style to numpy. Supported objects include Element, Composition,
+Structure, Molecule, Spin and Orbital. Here are some quick examples of the
+core capabilities and objects:
+
+.. code-block:: pycon
+
+    >>> import pymatgen as mg
+    >>>
+    >>> si = mg.Element("Si")
+    >>> si.atomic_mass
+    28.0855
+    >>> si.melting_point
+    u'1687 K'
+    >>>
+    >>> comp = mg.Composition("Fe2O3")
+    >>> comp.weight
+    159.6882
+    >>> #Note that Composition conveniently allows strings to be treated just
+    >>> #like an Element object.
+    >>> comp["Fe"]
+    2.0
+    >>> comp.get_atomic_fraction("Fe")
+    0.4
+    >>> lattice = mg.Lattice.cubic(4.2)
+    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
+    >>> structure.volume
+    74.088000000000008
+    >>> structure[0]
+    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
+    >>>
+    >>> #Integrated symmetry tools from spglib.
+    >>> from pymatgen.symmetry.finder import SymmetryFinder
+    >>> finder = SymmetryFinder(structure)
+    >>> finder.get_spacegroup_symbol()
+    'Pm-3m'
+    >>>
+    >>> #Writing out a POSCAR file for VASP calculations.
+    >>> poscar = Poscar(structure)
+    >>> mg.write_structure(structure, "POSCAR")
+    >>>
+    >>> #Reading a structure from a file.
+    >>> structure = mg.read_structure("POSCAR")
+
+The above illustrates only the most basic capabilities of pymatgen.
+
+.. note:: Examples
+
+    A good way to explore the functionality of pymatgen is to look at examples.
+    We have created a `Github wiki page
+    <https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to
+    share their Github gists (essentially mini git repos of scripts)
+    performing various kinds of functions with pymatgen. Please feel free to
+    check them out and we welcome your contributions as well!
+
+matgenie.py - Command line tool
+-------------------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -225,64 +292,14 @@ Here are a few examples of typical usages::
 
     matgenie.py generate --potcar Li_sv O --functional PBE
 
-ipmg - Custom ipython shell
----------------------------
+ipmg - A Custom ipython shell
+-----------------------------
 
 From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
 Upon installing pymatgen in the usual manner, the "ipmg" script will be
 installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
-
-Aliases
--------
-
-From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
-now provided, similar in style to numpy. Supported objects include Element,
-Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects:
-
-.. code-block:: pycon
-
-    >>> import pymatgen as mg
-    >>>
-    >>> si = mg.Element("Si")
-    >>> si.atomic_mass
-    28.0855
-    >>> si.melting_point
-    u'1687 K'
-    >>>
-    >>> comp = mg.Composition("Fe2O3")
-    >>> comp.weight
-    159.6882
-    >>> #Note that Composition conveniently allows strings to be treated just
-    >>> #like an Element object.
-    >>> comp["Fe"]
-    2.0
-    >>> comp.get_atomic_fraction("Fe")
-    0.4
-    >>> lattice = mg.Lattice.cubic(4.2)
-    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
-    >>> structure.volume
-    74.088000000000008
-    >>> structure[0]
-    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-    >>>
-    >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
-    >>> finder.get_spacegroup_symbol()
-    'Pm-3m'
-    >>>
-    >>> #Writing out a POSCAR file for VASP calculations.
-    >>> poscar = Poscar(structure)
-    >>> mg.write_structure(structure, "POSCAR")
-    >>>
-    >>> #Reading a structure from a file.
-    >>> structure = mg.read_structure("POSCAR")
-
-The above illustrates only the most basic capabilities of pymatgen.
 
 Advanced Usage
 --------------
@@ -294,16 +311,6 @@ Users are strongly encouraged to explore the detailed :doc:`usage pages
    :maxdepth: 2
 
    usage
-
-Example scripts
----------------
-
-A good way to explore the functionality of pymatgen is to look at examples. We
-have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists (essentially mini git repos of scripts) performing various
-kinds of functions with pymatgen. Please feel free to check them out and we
-welcome your contributions as well!
 
 Add-ons
 -------
