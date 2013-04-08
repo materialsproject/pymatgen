@@ -25,7 +25,7 @@ from pymatgen.io.abinitio.task import task_factory, Task
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
-from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
+from .input import Input, ElectronsCard, SystemCard, ControlCard, KpointsCard, Smearing
 from .task import RunMode
 from .utils import abinit_output_iscomplete, File
 
@@ -790,11 +790,9 @@ class PseudoIterativeConvergence(IterativeWork):
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
 
-        smearing = Smearing.assmearing(smearing)
-
         self.atols_mev = atols_mev
         self.spin_mode = spin_mode
-        self.smearing  = smearing
+        self.smearing  = Smearing.assmearing(smearing)
         self.acell     = acell
 
         if isinstance(ecut_list_or_slice, slice):
@@ -815,22 +813,22 @@ class PseudoIterativeConvergence(IterativeWork):
     def input_with_ecut(self, ecut):
         "Return an Input instance with given cutoff energy ecut"
 
-        # Define System: one atom in a box of lenghts acell. 
-        boxed_atom = System.boxed_atom(self.pseudo, acell=self.acell)
+        # Define the system: one atom in a box of lenghts acell. 
+        boxed_atom = SystemCard.boxed_atom(self.pseudo, acell=self.acell)
 
         # Gamma-only sampling.
-        gamma_only = Kpoints.gamma_only()
+        gamma_only = KpointsCard.gamma_only()
 
         # Setup electrons.
-        electrons = Electrons(spin_mode=self.spin_mode, smearing=self.smearing)
+        electrons = ElectronsCard(spin_mode=self.spin_mode, smearing=self.smearing)
 
         # Generate inputs with different values of ecut and register the task.
-        control = Control(boxed_atom, electrons, gamma_only,
-                          ecut        = ecut, 
-                          prtwf       = 0,
-                          want_forces = False,
-                          want_stress = False,
-                         )
+        control = ControlCard(boxed_atom, electrons, gamma_only,
+                              ecut        = ecut, 
+                              prtwf       = 0,
+                              want_forces = False,
+                              want_stress = False,
+                             )
 
         return Input(control, boxed_atom, gamma_only, electrons)
 
@@ -867,7 +865,7 @@ class BandStructure(Work):
 
     def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_nband,
                  spin_mode    = "polarized",
-                 scf_smearing = None,
+                 scf_smearing = "fermi_dirac:0.1eV",
                  kpath_bounds = None,
                  ndivsm       = 15, 
                  dos_ngkpt    = None
@@ -903,7 +901,7 @@ class Relaxation(Work):
                  ngkpt     = None,
                  kppa      = None,
                  spin_mode = "polarized",
-                 smearing  = None,
+                 smearing  = "fermi_dirac:0.1 eV",
                  **kwargs
                 ):
                                                                                                    
@@ -911,13 +909,13 @@ class Relaxation(Work):
 
         smearing = Smearing.assmearing(smearing)
 
-        input_relax = Input.GeometryRelax(structure, pseudos, strategy,
-                                          ngkpt     = ngkpt,
-                                          kppa      = kppa,
-                                          spin_mode = "polarized", 
-                                          smearing  = smearing,
-                                          **kwargs
-                                        )
+        input_relax = Input.Relax(structure, pseudos, strategy,
+                                  ngkpt     = ngkpt,
+                                  kppa      = kppa,
+                                  spin_mode = "polarized", 
+                                  smearing  = smearing,
+                                  **kwargs
+                                 )
 
         link = self.register_input(input_relax)
 
@@ -927,7 +925,7 @@ class DeltaTest(Work):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
                  spin_mode = "polarized",
-                 smearing  = None,
+                 smearing  = "fermi_dirac:0.1 eV",
                  accuracy  = "normal",
                  ecutsm    = 0.05,
                 ):
@@ -1004,7 +1002,7 @@ class PvsV(Work):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, ngkpt,
                  spin_mode = "polarized",
-                 smearing  = None,
+                 smearing  = "fermi_dirac:0.1 eV",
                  ecutsm    = 0.05,  # 1.0
                  dilatmx   = 1.1,
                  strtargets = None,
@@ -1071,7 +1069,7 @@ class G0W0(Work):
 
     def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, scr_strategy, sigma_strategy,
                  spin_mode = "polarized",
-                 smearing  = None,
+                 smearing  = "fermi_dirac:0.1 eV",
                 ):
 
         super(G0W0, self).__init__(workdir, runmode)
