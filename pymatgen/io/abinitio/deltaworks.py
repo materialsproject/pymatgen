@@ -7,7 +7,7 @@ import os.path
 import collections
 import numpy as np
 
-from pymatgen.io.abinitio.abinit_input import Smearing
+from pymatgen.io.abinitio.input import Smearing
 from pymatgen.io.abinitio.workflow import DeltaTest
 
 try:
@@ -59,7 +59,7 @@ class DeltaFactory(object):
         if pseudo.symbol in ["Fe", "Co", "Ni"]: spin_mode = "polarized"
         if pseudo.symbol in ["O", "Cr", "Mn"]: spin_mode = "afm"
 
-        smearing = Smearing.from_mode(smearing)
+        smearing = Smearing.assmearing(smearing)
 
         work = DeltaTest(workdir, runmode, cif_path, pseudo, kppa,
                          accuracy  = accuracy,
