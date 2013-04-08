@@ -47,7 +47,7 @@ class AbinitEvent(MSONable):
 
     @property
     def baseclass(self):
-        for cls in _base_classes:
+        for cls in _BASE_CLASSES:
             if isinstance(self, cls):
                 return cls
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
@@ -111,9 +111,8 @@ class Warning(AbinitEvent):
     def iscritical(self):
         return True
 
-
 # Register the concrete base classes.
-_base_classes = [
+_BASE_CLASSES = [
     Comment,
     Error,
     Bug,
@@ -200,7 +199,12 @@ class EventList(collections.Iterable, MSONable):
 
 ##########################################################################################
 
+class EventParserError(Exception):
+    "Base class for the exceptions raised by EventParser"
+
 class EventParser(object):
+
+    Error = EventParserError
 
     @staticmethod
     def parse(filename, nafter=5):

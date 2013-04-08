@@ -1021,8 +1021,10 @@ class PseudoTable(collections.Sequence):
     Fe
     """
     @classmethod
-    def astable(cls, *items):
-        return cls([Pseudo.aspseudo(item) for item in items])
+    def astable(cls, items):
+        if isinstance(items, cls):
+            return items
+        return cls(items)
 
     def __init__(self, pseudos):
         """

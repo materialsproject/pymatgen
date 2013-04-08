@@ -5,8 +5,10 @@ import numpy as np
 import os.path 
 import collections 
 
+from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
 from pymatgen.core.structure import Structure
-from pymatgen.core.physical_constants import Bohr2Ang
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -17,10 +19,10 @@ __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
 __all__ = [
-"NetcdfReader",
-"GSR_Reader",
-"structure_from_etsf_file",
-]
+    "NetcdfReader",
+    "GSR_Reader",
+    "structure_from_etsf_file",
+    ]
 
 ##########################################################################################
 
@@ -66,7 +68,7 @@ class NetcdfReader(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        "Activated at the end of the with statement. It automatically close the file."
+        "Activated at the end of the with statement. It automatically closes the file."
         self.rootgrp.close()
 
     def close(self):
@@ -131,8 +133,35 @@ class GSR_Reader(NetcdfReader):
 
         return structure_from_etsf_file(self, site_properties=site_properties)
 
-    #def isconverged(self):
-    #    "True if calculation is converged"
+    def get_band_structure(self):
+        raise NotImplementedError("")
+        structure = self.get_structure()
+        from pprint import pprint
+
+        kpoints = self.get_value("reduced_coordinates_of_kpoints")
+        efermi = Ha2eV(self.get_value("fermie"))
+        np_eigvals = Ha2eV(self.get_value("eigenvalues"))
+        # TODO
+        #assert np_eigvals.units == "atomic units"
+        nsppol = np_eigvals.shape[0]
+
+        # FIXME: Here I need the labels
+        labels_dict = {}
+        for (i, kpoint) in enumerate(kpoints):
+            labels_dict[str(i)] = kpoint
+
+        eigenvals = {}
+        for isp in range(nsppol): 
+            spin = Spin.up
+            if isp == 1: spin = Spin.down
+            eigenvals[spin] = np_eigvals[isp,:,:].transpose()
+            print(eigenvals[spin].shape)
+            #tmp = np_eigvals[isp,:,:].transpose()
+
+        #bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi, labels_dict=None, structure=structure)
+
+        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice, efermi, labels_dict, structure=structure)
+        return bands
 
 ##########################################################################################
 
@@ -143,7 +172,6 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     Args:
         ncdata: filename or NetcdfReader instance.
     """
-
     open_and_close = isinstance(ncdata, str)
     if open_and_close:
         ncdata = NetcdfReader(ncdata)
@@ -168,7 +196,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     d = {}
     if site_properties is not None:
         for property in site_properties:
-                d[property] = ncdata.get_value(property)
+            d[property] = ncdata.get_value(property)
     
     new_structure = Structure(lattice, species, red_coords, site_properties=d)
 

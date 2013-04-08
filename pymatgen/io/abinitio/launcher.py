@@ -168,34 +168,21 @@ class OMPEnv(dict):
 ##########################################################################################
 
 class TaskLauncher(object):
+    "Abstract class for a task launcher"
     __metaclass__ = abc.ABCMeta
 
     @staticmethod
-    def from_task(task):
-         # shell, slurm, pbs, shell-fw, slurm-fw, pbs-fw
-         queue_type, have_fw = task.runmode["launcher"], False
-         if "-" in queue_type:
-            queue_type, fw = queue_type.split("-")
-            have_fw = (fw == "fw")
+    def from_launcher_type(launcher_type):
+        "Returns the subclass from a string giving its type."
+        classes = []
+        for cls in TaskLauncher.__subclasses__():
+           if cls._type == launcher_type:
+               classes.append(cls)
+        if len(classes) != 1:
+            raise ValueError("Cannot find class from launcher_type %s" % launcher_type)
 
-         if have_fw:
-            raise ValueError("Firework not yet supported")
-                                                        
-         # Find the subclass to instanciate.
-         for c in TaskLauncher.__subclasses__():
-            if c._queue_type == queue_type:
-                cls = c
+        return classes[0]
 
-        # Find number of processors ....
-        #runhints = self.get_runhints()
-
-         return cls(task.jobfile_path, 
-                    abi_stdin  = task.files_file.path, 
-                    abi_stdout = task.log_file.path,
-                    abi_stderr = task.stderr_file.path,
-                    **task.runmode
-                   )
-                                                        
     def __init__(self, path, **kwargs):
         """
         Args:
@@ -258,7 +245,7 @@ class TaskLauncher(object):
     @property
     def has_omp(self):
         "True if we are using OMP threads"
-        return ( hasattr(self, "omp_env") and bool(getattr(self, "omp_env")) )
+        return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
                                                       
     @property
     def omp_ncpus(self):
@@ -275,7 +262,7 @@ class TaskLauncher(object):
         se.shebang()
 
         # Submission instructions for the queue manager.
-        se.add_lines(self.get_queue_header())
+        se.add_lines(self.make_rsmheader())
 
         se.add_comment("Variable declarations")
         vars = self.vars.copy()
@@ -325,9 +312,15 @@ class TaskLauncher(object):
         with open(self.jobfile.path, 'w') as f:
             f.write(self.get_script_str())
 
+    # TODO
+    #@abc.abstractproperty
+    #def has_resource_manager(self):
+    #    "True if job submission is handled by a resource manager."
+    #    #return self.launcher not in ["shell",]
+
     @abc.abstractmethod
-    def get_queue_header(self):
-        "Return a list of string with the options passes to the queue manager"
+    def make_rsmheader(self):
+        "Return a list of string with the options passed to the resource manager"
 
     @abc.abstractmethod
     def launch(self, task, *args, **kwargs):
@@ -346,9 +339,9 @@ class TaskLauncher(object):
 # Concrete classes
 
 class ShellLauncher(TaskLauncher):
-    _queue_type = "shell"
+    _type = "shell"
 
-    def get_queue_header(self):
+    def make_rsmheader(self):
         return []
 
     def launch(self, task, *args, **kwargs):
@@ -363,9 +356,9 @@ class ShellLauncher(TaskLauncher):
 ##########################################################################################
 
 #class SlurmLauncher(TaskLauncher):
-#    _queue_type = "slurm"
+#    _type = "slurm"
 #
-#    def get_queue_header(self):
+#    def make_rsmheader(self):
 #        raise NotImplementedError()
 #
 #    def launch(self, *args, **kwargs):
@@ -403,20 +396,20 @@ class SimpleResourceManager(object):
 
         while True:
             polls = self.work.poll()
-            print("work polls %s" % polls)
-            print("work status %s" % self.work.get_status())
-
             # Fetch the first task that is ready to run
             try:
                 task = self.work.fetch_task_to_run()
             except StopIteration:
                 break
 
-            if task is None 
+            if task is None:
                 import time
                 time.sleep(self.sleep_time)
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
+                print("work polls %s" % polls)
+                print("work status %s" % self.work.get_status())
+
                 if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
                     print("Starting task %s" % task)
                     task.start()
@@ -443,8 +436,6 @@ if __name__ == "__main__":
     se.declare_vars({"FOO1": "BAR1"})
     se.load_modules(["module1", "module2"])
     print(se.get_script_str())
-
-    #launcher = TaskLauncher.from_task(self)
 
     launcher = ShellLauncher("job.sh")
     print(launcher.get_script_str())
