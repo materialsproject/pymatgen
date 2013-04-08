@@ -137,7 +137,6 @@ class DojoMaster(object):
         pseudo.write_dojo_report(old_report)
 
     def start_training(self, workdir, **kwargs):
-
         results = self.challenge(workdir, **kwargs)
 
         report, isok = self.make_report(results, **kwargs)
@@ -194,7 +193,7 @@ class HintsMaster(DojoMaster):
                                    )
         print("Finding optimal values for ecut in the interval %.1f %.1f %1.f" % (estart, estop, estep))
 
-        w.start(chunk_size=self.runmode.get_chunk_size())
+        w.start()
         w.wait()
 
         wres = w.get_results()
@@ -231,10 +230,7 @@ class DeltaFactorMaster(DojoMaster):
 
         w = factory.work_for_pseudo(workdir, runmode, pseudo, kppa=1)
 
-        chunk_size = None
-        chunk_size = 2
-
-        w.start(chunk_size=self.runmode.get_chunk_size())
+        w.start()
         w.wait()
                                                                         
         wres = w.get_results()

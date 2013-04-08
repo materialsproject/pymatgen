@@ -21,10 +21,11 @@ from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, H
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
+from pymatgen.io.abinitio.task import task_factory, Task
 
 from .netcdf import GSR_Reader
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
-from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing, RelaxStrategy
+from .abinit_input import Input, Electrons, System, Control, Kpoints, Smearing
 from .task import RunMode
 from .utils import abinit_output_iscomplete, File
 
@@ -241,7 +242,7 @@ class BaseWork(object):
         """
         work_results = collections.OrderedDict()
         for task in self:
-            work_results[task.name] = task.get_results()
+            work_results[task.name] = task.results
         return work_results
                                                          
 ##########################################################################################
@@ -252,14 +253,25 @@ class Work(BaseWork, MSONable):
     """
     Error = WorkError
 
+    @classmethod
+    def from_task(cls, task):
+        "Build a Work instance from a task object"
+        workdir, tail = os.path.dirname(task.workdir)
+        new = cls(workdir, taks.runmode)
+        new.register_input(task.input)
+        return new
+
     def __init__(self, workdir, runmode, **kwargs):
         """
         Args:
             workdir:
+                Path to the working directory.
+            runmode:
+                RunMode instance or string "sequential"
         """
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = runmode
+        self.runmode = RunMode.asrunmode(runmode)
 
         self._kwargs = kwargs
 
@@ -296,8 +308,12 @@ class Work(BaseWork, MSONable):
         return d
 
     @staticmethod
-    def from_dict( d):
+    def from_dict(d):
         return Work(d["workdir"], d["runmode"], **d["kwargs"])
+
+    @property
+    def alldone(self):
+        return all([task.status == Task.S_DONE for task in self])
 
     @property
     def isnc(self):
@@ -352,12 +368,8 @@ class Work(BaseWork, MSONable):
             if not isinstance(links, collections.Iterable): 
                 links = [links,]
 
-        # Create the new task
-        from .task import AbinitTask
-        task = AbinitTask(input, task_workdir, self.runmode,
-                         task_id  = task_id,
-                         links    = links,
-                         )
+        # Create the new task (note the factory so that we create subclasses easily
+        task = task_factory(input, task_workdir, self.runmode, task_id=task_id, links=links)
 
         # Add it to the internal list.
         #if task.id in self._links_dict:
@@ -378,7 +390,6 @@ class Work(BaseWork, MSONable):
 
     def get_status(self, only_highest_rank=False):
         "Get the status of the tasks in self."
-
         status_list = [task.status for task in self]
 
         if only_highest_rank:
@@ -419,32 +430,19 @@ class Work(BaseWork, MSONable):
 
         shutil.move(self.workdir, dst)
 
-    def submit_tasks(self, chunk_size=None, *args, **kwargs):
+    def submit_tasks(self, *args, **kwargs):
         """
         Submits the task in self.
-            Args:
-                chunk_size:
         """
-        if chunk_size is not None and chunk_size > 0:
-            print("submitting %d tasks in chunks of size %d" % (len(self), chunk_size))
-            for tasks in self.chunks(chunk_size):
-                for t in tasks:
-                    t.start(*args, **kwargs)
-                for t in tasks:
-                    t.wait() 
-        else:
-            for task in self:
-                task.start(*args, **kwargs)
-                # FIXME
-                task.wait()
+        for task in self:
+            task.start(*args, **kwargs)
+            # FIXME
+            task.wait()
 
     def start(self, *args, **kwargs):
         """
         Start the work. Calls build and _setup first, then the tasks are submitted.
-        Non-blockin call, unless chunk_size is given
-
-            Args:
-                chunk_size:
+        Non-blocking call
         """
         # Build dirs and files.
         self.build(*args, **kwargs)
@@ -452,10 +450,8 @@ class Work(BaseWork, MSONable):
         # Initial setup
         self._setup(*args, **kwargs)
 
-        # Submit tasks (does not block, unless chunk_size is given)
-        chunk_size = kwargs.pop("chunk_size", None)
-
-        self.submit_tasks(*args, chunk_size=chunk_size, **kwargs)
+        # Submit tasks (does not block)
+        self.submit_tasks(*args, **kwargs)
 
     def read_etotal(self):
         """
@@ -464,15 +460,14 @@ class Work(BaseWork, MSONable):
         Return a numpy array with the total energies in Hartree 
         The array element is set to np.inf if an exception is raised while reading the GSR file.
         """
+        if not self.alldone:
+            raise self.Error("Some task is still in running/submitted state")
+
         etotal = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
-            gsr_path = task.odata_path_from_ext("GSR") 
-            try:
-                with GSR_Reader(gsr_path) as ncdata:
-                    etotal.append(ncdata.get_value("etotal"))
-            except:
-                etotal.append(np.inf)
+            with GSR_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
+                etotal.append(ncdata.get_value("etotal"))
                                                             
         return etotal
 
@@ -536,7 +531,7 @@ class IterativeWork(Work):
             # Start the task and block till completion.
             task.start(*args, **kwargs)
 
-            task.communicate()
+            task.wait()
 
             data = self.exit_iteration(*args, **kwargs)
 
@@ -722,13 +717,11 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
 class PseudoConvergence(Work):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode       = None,
+                 runmode       = "sequential",
                  spin_mode     = "polarized", 
                  acell         = (8, 9, 10), 
                  smearing      = "fermi_dirac:0.1 eV",
                 ):
-
-        runmode = runmode if runmode else RunMode.sequential()
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
@@ -770,7 +763,7 @@ class PseudoConvergence(Work):
 class PseudoIterativeConvergence(IterativeWork):
 
     def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode       = None,
+                 runmode       = "sequential",
                  spin_mode     = "polarized", 
                  acell         = (8, 9, 10), 
                  smearing      = "fermi_dirac:0.1 eV",
@@ -796,8 +789,6 @@ class PseudoIterativeConvergence(IterativeWork):
         self.pseudo = pseudo
         if not isinstance(pseudo, Pseudo):
             self.pseudo = Pseudo.from_filename(pseudo)
-
-        runmode = runmode if runmode else RunMode.sequential()
 
         smearing = Smearing.assmearing(smearing)
 
@@ -900,7 +891,6 @@ class BandStructure(Work):
 
         # Add DOS computation
         if dos_ngkpt is not None:
-
             dos_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, dos_ngkpt)
 
             self.register_input(dos_input, links=scf_link.produces_exts("_DEN"))
@@ -921,20 +911,15 @@ class Relaxation(Work):
 
         smearing = Smearing.assmearing(smearing)
 
-        strategy = RelaxStrategy.asstrategy(strategy)
-
-        ions_relax = Input.GeometryRelax(structure, pseudos, strategy,
-                                         ngkpt     = ngkpt,
-                                         kppa      = kppa,
-                                         spin_mode = "polarized", 
-                                         smearing  = smearing,
-                                         **kwargs
+        input_relax = Input.GeometryRelax(structure, pseudos, strategy,
+                                          ngkpt     = ngkpt,
+                                          kppa      = kppa,
+                                          spin_mode = "polarized", 
+                                          smearing  = smearing,
+                                          **kwargs
                                         )
-        ions_link = self.register_input(ions_relax)
 
-        #cell_ions_relax = Relax()
-
-        #self.register_input(cell_ions, links=ions_link.produces_exts("_WFK"))
+        link = self.register_input(input_relax)
 
 ##########################################################################################
 
@@ -1069,7 +1054,7 @@ class PvsV(Work):
         pressures, volumes = [], []
         for task in self:
             # Open GSR file and read etotal (Hartree)
-            gsr_path = task.odata_path_from_ext("GSR") 
+            gsr_path = task.odata_path_from_ext("_GSR") 
                                                             
             with GSR_Reader(gsr_path) as gsr_data:
 
@@ -1084,8 +1069,7 @@ class PvsV(Work):
 
 class G0W0(Work):
 
-    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, 
-                 ppmodel_or_freqmesh, ecuteps, ecutsigx, nband_screening, nband_sigma, kptgw, bdgw, 
+    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, scr_strategy, sigma_strategy,
                  spin_mode = "polarized",
                  smearing  = None,
                 ):
@@ -1102,26 +1086,25 @@ class G0W0(Work):
 
         scf_link = self.register_input(scf_input)
 
-        max_nband = max(nband_screening, nband_sigma) 
+        scr_nband = scr_strategy.get_varvalue("nband")
 
-        nband = int(max_nband + 0.05 * max_nband)
+        sigma_nband = sigma_strategy.get_varvalue("nband")
 
-        nscf_input = Input.NSCF_kmesh_from_SCF(scf_input, nband, scf_ngkpt)
+        max_nband = max(scr_nband, sigma_nband) 
+
+        nscf_nband = int(max_nband + 0.05 * max_nband)
+
+        istwfk = "*1" # FIXME
+
+        nscf_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, nscf_ngkpt, istwfk=istwfk)
 
         nscf_link = self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
-        # FIXME
-        inclvkb = 0
-        screen_input = Input.SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
-                                           smearing = smearing,
-                                           inclvkb  = inclvkb,
-                                          )
+        screen_input = Input.SCR_from_NSCF(nscf_input, scr_strategy, smearing=smearing, istwfk=istwfk)
 
         screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
 
-        sigma_input = Input.SIGMA_from_SCR(screen_input, nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
-                                           smearing=smearing,
-                                          )
+        sigma_input = Input.SIGMA_from_SCR(screen_input, sigma_strategy, smearing=smearing, istwfk=istwfk)
 
         sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
 
@@ -1133,7 +1116,7 @@ class PPConvergenceFactory(object):
     "Factory object"
 
     def work_for_pseudo(self, workdir, pseudo, ecut_range, 
-                        runmode   = None,
+                        runmode   = "sequential",
                         atols_mev = (10, 1, 0.1),
                         spin_mode = "polarized", 
                         acell     = (8, 9, 10),
@@ -1146,9 +1129,8 @@ class PPConvergenceFactory(object):
 
         smearing = Smearing.assmearing(smearing)
 
-        runmode = runmode if runmode else RunMode.sequential()
-
         if isinstance(ecut_range, slice):
+
             work = PseudoIterativeConvergence(workdir, pseudo, ecut_range, atols_mev,
                                               runmode    = runmode,
                                               spin_mode  = spin_mode,
@@ -1157,6 +1139,7 @@ class PPConvergenceFactory(object):
                                              )
 
         else:
+
             work = PseudoConvergence(workdir, pseudo, ecut_range, atols_mev,
                                      runmode    = runmode,
                                      spin_mode  = spin_mode,

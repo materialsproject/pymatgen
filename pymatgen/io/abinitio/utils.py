@@ -109,3 +109,12 @@ def abinit_output_iscomplete(output_file):
         except:
             pass
     return False
+
+class NullFile(object):
+    def __init__(self): 
+        import os
+        return open(os.devnull, 'w')
+                                     
+class NullStream(object):
+    def write(*args):
+        pass

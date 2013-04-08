@@ -24,7 +24,7 @@ class WorkflowTestCase(unittest.TestCase):
         workdir = "test_pseudoconvergence"
         #workdir = mkdtemp()
 
-        pptest_wf = PseudoConvergence(workdir, filepath("14si.pspnc"), range(10,40,2))
+        pptest_wf = PseudoConvergence(workdir, filepath("14si.pspnc"), range(10,40,2), atols_mev=(10, 1, 0.1))
 
         print(repr(pptest_wf))
         print(pptest_wf)

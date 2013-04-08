@@ -8,16 +8,18 @@ import os
 import os.path
 import warnings
 import collections
+import abc
 import numpy as np
 
 from pprint import pprint
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.design_patterns import Enum
+from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr
 from pymatgen.core.units import any2Ha
 from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.decorators import singleton
 from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
 
@@ -38,9 +40,9 @@ class AbinitCard(dict, MSONable):
     Base class representing a set of Abinit input parameters associated to a particular topic. 
     Essentially consists of a dictionary with some helper functions.
 
-    The input variables are stored in the dictionary as {"varname" : value}, whereas instance
+    The input variables are stored in the dictionary as {"varname": value}, whereas instance
     attributes are stored in self[_attributes].
-    The __str__ method returns a string with the corresponding section of the abinit input file.
+    str(object) returns a string with the corresponding section of the abinit input file.
     """
     VALID_VARS = tuple()
 
@@ -290,8 +292,7 @@ class System(AbinitCard):
 
         self._comment = structure.formula if comment is None else comment
 
-        if not isinstance(pseudos, PseudoTable):
-            pseudos = PseudoTable(pseudos)
+        pseudos = PseudoTable.astable(pseudos)
 
         # Extract pseudos for this calculation (needed when we pass an entier periodic table)
         table = pseudos
@@ -414,8 +415,8 @@ class System(AbinitCard):
     def to_dict(self):
         return {"@module"   : self.__class__.__module__,
                 "@class"    : self.__class__.__name__,
-                "structure" : self.structure,
-                "pseudos"   : self.pseudos,
+                "structure" : self.structure.to_dict,
+                "pseudos"   : self.pseudos.to_dict,
                 "nsym"      : self.nsym,
                 "comment"   : self._comment,
         }
@@ -809,32 +810,14 @@ class Kpoints(AbinitCard):
     @property
     def to_dict(self):
         """json friendly dict representation of Kpoints"""
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         raise NotImplementedError("")
-        #d = {"comment": self.comment, 
-        #     "nkpoints": self.num_kpts,
-        #     "generation_style": self.style, 
-        #     "kpoints": self.kpts,
-        #     "usershift": self.kpt_shift
-        #    }
-        #d["@module"] = self.__class__.__module__
-        #d["@class"] = self.__class__.__name__
-        #return d
+        return d
 
     @staticmethod
     def from_dict(d):
         raise NotImplementedError("")
-        #return Kpoints(
-        #         mode              = modes.monkhorst,
-        #         num_kpts          = 0, 
-        #         kpts              = ((1, 1, 1),), 
-        #         kpt_shifts        = (0, 0, 0), 
-        #         use_symmetries    = True,
-        #         use_time_reversal = True,
-        #         kpts_weights      = None, 
-        #         labels            = None, 
-        #         chksymbreak       = None,
-        #         comment           = None,
-        #         ):
 
 ##########################################################################################
 
@@ -886,14 +869,14 @@ class Smearing(MSONable):
             return obj
 
         if obj is None:
-            return Smearing.NoSmearing()
+            return Smearing.nosmearing()
 
         # obj is a string
         obj, tsmear = obj.split(":")
         obj.strip()
 
         if obj == "None" or obj is None:
-            return cls.NoSmearing()
+            return cls.nosmearing()
         else:
             occopt = cls._mode2occopt[obj]
             try:
@@ -912,16 +895,8 @@ class Smearing(MSONable):
         raise AttributeError("Unknown occopt %s" % self.occopt)
 
     @staticmethod
-    def NoSmearing():
+    def nosmearing():
         return Smearing(1, None)
-
-    @staticmethod
-    def FermiDirac(tsmear):
-        return Smearing(3, tsmear)
-
-    @staticmethod
-    def Gaussian(tsmear):
-        return Smearing(7, tsmear)
 
     @property
     def to_dict(self):
@@ -948,11 +923,11 @@ class Electrons(AbinitCard):
     SM = collections.namedtuple('SpinMode', "nsppol nspinor nspden")
 
     _mode2vars = {
-        "unpolarized"       : SM(1, 1, 1),
-        "polarized"         : SM(2, 1, 2),
-        "afm"               : SM(1, 1, 2),
-        "spinor"            : SM(1, 2, 4),
-        "spinor_nomagnetic" : SM(1, 2, 1),
+        "unpolarized"      : SM(1, 1, 1),
+        "polarized"        : SM(2, 1, 2),
+        "afm"              : SM(1, 1, 2),
+        "spinor"           : SM(1, 2, 4),
+        "spinor_nomagnetic": SM(1, 2, 1),
     }
     del SM
 
@@ -1020,144 +995,256 @@ class Electrons(AbinitCard):
             })
 
     @property 
-    def nsppol(self): return self["nsppol"]
+    def nsppol(self): 
+        return self["nsppol"]
 
     @property 
-    def nspinor(self): return self["nspinor"]
+    def nspinor(self): 
+        return self["nspinor"]
 
     @property 
-    def nspden(self): return self["nspden"]
+    def nspden(self): 
+        return self["nspden"]
 
     @property 
-    def nband(self): return self["nband"]
+    def nband(self): 
+        return self["nband"]
 
     @property
     def to_dict(self):
-        """json friendly dict representation of Kpoints"""
+        "json friendly dict representation"
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         raise NotImplementedError("")
+        return d
 
     @staticmethod
     def from_dict(d):
         raise NotImplementedError("")
-        return Electrons(
-            spin_mode = modes.polarized, 
-            nband     = None,
-            fband     = None,
-            smearing  = None,
-            iscf      = None,
-            diemac    = None,
-            #occupancies = None,
-            comment   = None,
-            )
-
 
 ##########################################################################################
 
-class RelaxStrategy(object):
-    "Container to store the variables for (constrained) optimization"
+@singleton
+class MandatoryVariable(object):
+    """
+    Singleton used to tag mandatory variables, just because I can use 
+    the cool syntax: variable is MANDATORY!
+    """
 
-    def __init__(self, ionmov=3, optcell=2, **vars):
-        self.ionmov = ionmov
-        self.optcell = optcell
+@singleton
+class DefaultVariable(object):
+    """
+    Singleton used to tag variables that will have the default value"""
 
-        self.extra_vars = vars
-        #        ionmov      = 3, 
-        #        optcell     = 2, 
-        #        dilatmx     = 1.1, 
-        #        ecutsm      = 0.5, 
-        #        ntime       = 80, 
-        #        strfact     = 100,
-        #        tolmxf      = None,
-        #        strtarget   = None,
-        #        ):
+MANDATORY = MandatoryVariable()
+DEFAULT   = DefaultVariable()
+
+class AbivarAble(object):
+    """
+    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
+    """
+    def to_abivars(self):
+        raise RuntimeError("%s: must implement the method to_abivars that returns a dictionary with the abinit variables" % (
+            self.__class__.__name__))
+
+class Strategy(object):
+    """
+    This object generates the set of input variables used to control a particular algorithm 
+    e.g. structural relaxation, self-energy calculations ...
+    A Strategy can absorb data (e.g. data produced in the previous step of a workflow) and 
+    can use this piece of information to generate the input variables.
+    In the simplest case, the variables are passed explicitly by the user via the static
+    constructor class.from_variables.
+    Client code uses the method to_abivars to obtain the list of variables.
+    """
+    __metaclass__ = abc.ABCMeta
 
     @classmethod
-    def asstrategy(cls, obj):
-        """
-        Constructs an instance of RelaxStrategy from obj. 
-        Accepts obj in the form:
+    def from_variables(cls, **kwargs):
+        # Instanciate the Strategy.
+        return cls(**kwargs)
 
-            * RelaxStrategy object.
-            * String, e.g. "ions", "cell", "ions-cell"
-        """
-        if isinstance(obj, cls):
-            return obj
+    def __init__(self, *args, **kwargs):
 
-        # obj is a String
-        if "-" in obj:
-            items = obj.split(":")
-            assert len(items) == 2
+        # Initialize vars with the default values.
+        self.vars = self._default_vars
+                                                                                                                     
+        # Overwrite keys with the args and kwargs passed to constructor.
+        self.vars.update(*args, **kwargs)
+
+        self.vars = AttrDict(self.vars)
+                                                                                                                     
+        for k in self.vars:
+            if k not in self._default_vars:
+                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
+
+    def __str__(self):
+        return str(self.to_abivars())
+
+    def update_data(self, data):
+        "Update the data stored in self"
+        if not hasattr(self, "_data"):
+            self._data = dict(data)
         else:
-            items = [obj,]
-
-        ionmov = 3 if "ions" in items else 0
-        optcell = 2 if "cell" in items else 0
-        return cls(ionmov, optcell)
+            self._data.update(data)
 
     @property
-    def move_ions(self):
-        "True if ions must be moved"
-        return self.ionmov != 0
+    def has_data(self):
+        return self.data
 
+    @property
+    def data(self):
+        try:
+            return self. _data
+        except AttributeError:
+            return {}
+
+    def get_varvalue(self, varname):
+        "Returns the value of the variable varname"
+        return self.vars[varname]
+
+    def validate_abivars(self, abivars):
+        # Sanity check
+        for (k, v) in self.vars.items():
+            if v is MANDATORY:
+                raise ValueError("%s: key %s must have a value specified by the user" % (self.__class__.__name__, k))
+
+    def to_abivars(self):
+        """
+        Return the list of abinit variables.
+        """
+        abivars = self.make_abivars()
+        
+        if self.has_data:
+            self.optimize_vars(abivars)
+                                                                                                              
+        self.validate_abivars(abivars)
+                                                                                                              
+        return abivars                                                                                       
+
+    @abc.abstractmethod
+    def make_abivars(self):
+        "Returns a dictionary with the abinit variables"
+
+class RelaxStrategy(Strategy):
+    """
+    Container to store the variables for (constrained) structural optimization
+    ionmov and optcell specify the type of relaxation.
+    The other variables are optional and their use depend on ionmov and optcell.
+    A None value indicates that we use abinit default. Default values can 
+    be modified by passing them to the constructor.
+    The set of variables are constructed in to_abivars depending on ionmov and optcell.
+    """
+    _default_vars =  {
+        "ionmov"          : MANDATORY,
+        "optcell"         : MANDATORY,
+        "ntime"           : 80, 
+        "dilatmx"         : 1.1, 
+        "ecutsm"          : 0.5, 
+        "strfact"         : None,
+        "tolmxf"          : None,  
+        "strtarget"       : None,
+        "atom_constraints": {}, # Constraints are stored in a dictionary. Empty if no constraint is enforced"
+    }
+
+    IONMOV_DEFAULT = 3
+    OPTCELL_DEFAULT = 2
+
+    @classmethod
+    def atoms_only(cls, atoms_constraints=None):
+        if atoms_constraints is None:
+            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
+        else:
+            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
+        return new
+
+    @classmethod
+    def atoms_and_cell(cls, atoms_constraints=None):
+        if atoms_constraints is None:
+            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
+        else:
+            new = cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
+        return new
+
+    @property
+    def move_atoms(self):
+        "True if atoms must be moved"
+        return self.vars.ionmov != 0
+                                                       
     @property
     def move_cell(self):
         "True if lattice parameters must be optimized"
-        return self.optcell != 0
+        return self.vars.optcell != 0
 
-    @property
-    def with_constraints(self):
-        "Dictionary with the constraints. Empty dict if no constraint is enforced"
+    def make_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        vars = self.vars
+
+        # These variables are always present.
+        abivars = { 
+            "ionmov" : vars.ionmov,
+            "optcell": vars.optcell,
+            "ntime"  : vars.ntime,
+        }
+
+        # Atom relaxation.
+        if self.move_atoms:
+            atoms = {"tolmxf": vars.tolmxf,}
+            abivars.update(atoms)
+
+        # Cell relaxation.
+        if self.move_cell:
+            cell = {
+                "dilatmx"  : vars.dilatmx,
+                "ecutsm"   : vars.ecutsm,
+                "strfact"  : vars.strfact,
+                "strtarget": vars.strtarget,
+            }
+            abivars.update(cell)
+
+        #if self.atom_constraints:
+        #    # Add input variables for constrained relaxation.
+        #    raise NotImplementedError("")
+        #    abivars.update(self.atom_constraints.to_abivars())
+
+        self.validate_abivars(abivars)
+        return abivars
+
+##########################################################################################
+
+class Constraints(AbivarAble):
+    "Object defining the constraints for structural relaxation"
+
+    def __str__(self):
+        return str(self.to_abivars())
+
+    def to_abivars(self):
+        raise NotImplementedError("")
         return {}
 
 class GeoOptimization(AbinitCard):
     "Card containing the parameters for the relaxation of the atomic position and of the unit cell."
 
-    def __init__(self, strategy,
-                ionmov      = 3, 
-                optcell     = 2, 
-                dilatmx     = 1.1, 
-                ecutsm      = 0.5, 
-                ntime       = 80, 
-                tolmxf      = None,
-                strtarget   = None,
-                strfact     = 100,
-                ):
+    def __init__(self, strategy):
 
         super(GeoOptimization, self).__init__()
 
-        self.update({ 
-            "ionmov"    : ionmov,
-            "optcell"   : optcell,
-            "ntime"     : ntime,
-            "tolmxf"    : tolmxf,
-            "strfact"   : 100 if optcell != 0 else None,
-            "ecutsm"    : ecutsm  if optcell != 0 else None,
-            "dilatmx"   : dilatmx if optcell != 0 else None,
-            "strtarget" : strtarget,
-            #"tolrff"   : 0.02,
-            #"toldff"   : 1.0D-7 (or tolvrs 1.0D-12 if all ions are on special positions)
-        })
+        self.strategy = strategy
 
-        pprint(self)
+        self.update(strategy.to_abivars())
 
     @property
     def to_dict(self):
-        """json friendly dict representation of Kpoints"""
+        "json friendly dict representation"
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
         raise NotImplementedError("")
 
     @staticmethod
     def from_dict(d):
-        return GeoOptimization(
-                iomov      = 3, 
-                optcell    = 2, 
-                dilatmx    = 1.1, 
-                ecutsm     = 0.5, 
-                ntime      = 80, 
-                tolmxf     = None,
-                strtarget  = None,
-                strfact    = 100,
-                constraint = None,
-                )
+        raise NotImplementedError("")
 
 ##########################################################################################
 #class Phonons(AbinitCard):
@@ -1173,15 +1260,41 @@ class GeoOptimization(AbinitCard):
 
 ##########################################################################################
 
-class PPModel(MSONable):
-    "Pameters defining the plasmon-pole technique."
+#class WMesh(object):
+#    #def from_slice
+#    #def from_linspace
+#    #Wmesh([0,15,1])
+#
+#    def __init__(self, real_slice=None, imag_slice=None, units="Ha"):
+#        self.real_slice = real_slice
+#        self.imag_slice = imag_slice
+#        self.units = units
+#
+#    @property
+#    def num_rpoints(self)
+#        "Number of points along the real axis"
+#
+#    @property
+#    def num_ipoint(self)
+#        "Number of points along the imaginary axis"
+#
+#    @property
+#    def rstep(self)
+#        "Step used to sample the real axis"
+#
+#    @property
+#    def istep(self)
+#        "Step used to sample the imaginary axis"
+
+class PPModel(AbivarAble, MSONable):
+    "Parameters defining the plasmon-pole technique."
 
     _mode2ppmodel = {  
-        'None'      : 0,
-        'hybersten' : 1,
-        'godby'     : 2,
-        'linden'    : 3,
-        'farid'     : 4,
+        "None"     : 0,
+        "godby"    : 1,
+        "hybersten": 2,
+        "linden"   : 3,
+        "farid"    : 4,
     }
 
     modes = Enum(k for k in _mode2ppmodel)
@@ -1199,7 +1312,7 @@ class PPModel(MSONable):
             return obj
                                                            
         if obj is None:
-            return Smearing.NoSmearing()
+            return cls.noppmodel()
 
         # obj is a string
         if ":" not in obj:
@@ -1220,9 +1333,9 @@ class PPModel(MSONable):
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
-    def tovariables(self):
-        return {"ppmodel" : self._mode2ppmodel[self.mode],
-                "ppmfrq"  : self.plasmon_freq}
+    def to_abivars(self):
+        return {"ppmodel": self._mode2ppmodel[self.mode],
+                "ppmfrq" : self.plasmon_freq}
 
     def __repr__(self):
         return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self), str(self.mode))
@@ -1235,26 +1348,14 @@ class PPModel(MSONable):
     def __ne__(self, other):
         return not self == other
 
-    @staticmethod
-    def Hybertsen():
-        return PPModel(mode="hybersten")
-
-    @staticmethod
-    def Godby(plasmon_freq=None):
-        return PPModel(mode="godby", plasmon_freq=plasmon_freq)
-
-    @staticmethod
-    def Linden():
-        return PPModel(mode="linden")
-
-    @staticmethod
-    def Engel():
-        return PPModel(mode="engel")
+    @classmethod
+    def noppmodel(cls):
+        return cls(mode=modes.None, plasmon_freq=None)
 
     @property
     def to_dict(self):
-        d = {"mode" : self.mode,
-             "plasmon_freq" : plasmon_freq}
+        d = {"mode": self.mode,
+             "plasmon_freq": plasmon_freq}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -1265,124 +1366,210 @@ class PPModel(MSONable):
 
 ##########################################################################################
 
-class ScreeningFrequencyMesh(MSONable):
+class ScreeningStrategy(Strategy):
+    """
+    Container to store the variables for screening calculations. 
+    ionmov and optcell specify the type of relaxation.
+    The other variables are optional and their use depend on ionmov and optcell.
+    A None value indicates that we use abinit default. Default values can 
+    be modified by passing them to the constructor.
+    The set of variables are constructed in to_abivars depending on ionmov and optcell.
+    """
+    _default_vars =  {
+        "ecuteps"  : MANDATORY,
+        "ecutwfn"  : MANDATORY,
+        "nband"    : MANDATORY,
+        "gwpara"   : 2,
+        "awtr"     : 1,
+        "symchi"   : 1,
+        "gwmem"    : None,
+        "gwcalctyp": None,
+        "fftgw"    : None,
+        "inclvkb"  : 2,
+        "spmeth"   : None,
+        "nomegasf" : None,
+        # TODO
+        #"domegasf" : 0.01,
+        # Objects that do not correspond to abinit variables
+        "ppmodel"  : None,
+        #"wmesh"    : None,
+        # TODO
+        # 1) change default values in abinit
+        # 2) Add support for CD calculations.
+        #"freqremax"
+        #"freqremin"
+        #"nfreqre"
+        #"nfreqim",
+    }
 
-    #"freqremax"
-    #"freqremin"
-    #"nfreqre"
-    #"nfreqim",
-
-    def __init__(self, nomega_real=None, maxomega_real=None, nomega_imag=None):
-        self.nomega_real = nomega_real
-        self.maxomega_real = maxomega_real
-        self.nomega_imag = nomega_imag
-
-    def tovariables(self):
-        raise NotImplementedError()
-        return {"nomega" : self._mode2ppmodel[self.mode],
-                "ppfreq"  : self.plasmon_freq}
+    #@classmethod
+    #def hilbert_method(cls):
+    #    return cls(vars)
 
     @property
-    def to_dict(self):
-        d = {"nomega_real"   : self.nomega_real,
-             "maxomega_real" : self.maxomega_real,
-             "nomega_imag"   : self.nomega_imag,
-             }
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+    def has_ppmodel(self):
+        "True if this is a preparatory run for plasmon-pole model calculations"
+        return self.vars.ppmodel is not None
 
-    @staticmethod
-    def from_dict(d):
-        return ScreeningFrequencyMesh(
-            nomega_real   = d["nomega_real"],
-            maxomega_real = d["maxomega_real"],
-            nomega_imag   = d["nomega_imag"], 
-            )
+    #@property
+    #def has_wmesh(self):
+    #    "True if this is a frequency dependent calculation"
+    #    return self.vars.wmesh is not None
 
-##########################################################################################
+    @property
+    def hilbert_transform(self):
+        "True if we are usig the Hilber transform method for the RPA screening."
+        return self.vars.spmeth
+
+    def make_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        vars = self.vars
+
+        # These variables are always present.
+        abivars = { 
+            "ecutwfn"  : vars.ecutwfn,
+            "ecuteps"  : vars.ecuteps,
+            "gwpara"   : vars.gwpara,
+            "awtr"     : vars.awtr,
+            "symchi"   : vars.symchi,
+            "gwmem"    : vars.gwmem,
+            "gwcalctyp": vars.gwcalctyp,
+            "fftgw"    : vars.fftgw,
+            "inclvkb"  : vars.inclvkb,
+        }
+
+        if self.has_ppmodel:
+            abivars.update(vars.ppmodel.to_abivars())
+
+        # Variables for the Hilber transform.
+        if self.hilbert_transform:
+            hilbert = {
+                "spmeth"  : vars.spmeth,
+                "nomegasf": vars.nomegasf,
+            }
+            abivars.update(hilbert)
+
+        return abivars                                                                                       
 
 class Screening(AbinitCard):
     "Card containing the parameters used for the computation of the screening function."
-
-    _modes = [
-        "automatic",
-        "adler_wiser",
-        "hilbert_transform",
-    ]
-
-    modes = Enum(k for k in _modes)
-
     _optdriver = 3
                                               
-    def __init__(self, ecuteps, ppmodel_or_freqmesh, 
-                 mode    = "automatic",
-                 symchi  = 1,
-                 inclvkb = 2,
-                 ecutwfn = None,
-                 gwmem   = None,
-                 fftgw   = None,
-                 comment = None,
-                ):
-
-        assert mode in self.modes
+    def __init__(self, strategy, comment=None):
 
         super(Screening, self).__init__()
 
         self._comment = comment
 
-        gwcalctyp, spmeth, nomegasf = 3 * (None,)
+        self.strategy = strategy 
 
-        self.ppmodel_or_freqmesh = ppmodel_or_freqmesh
-
-        #self.update(ppmodel_or_freqmesh.tovariables())
-
-        self.update({
-            "ecuteps"    : ecuteps,
-            "gwcalctyp"  : gwcalctyp,
-            "ecutwfn"    : ecutwfn,
-            "awtr"       : 1,
-            "symchi"     : symchi,
-            "spmeth"     : None,
-            "nomegasf"   : None,
-            "gwmem"      : gwmem,
-            "fftgw"      : fftgw,
-            "inclvkb"    : inclvkb,
-        })
-
-    @staticmethod
-    def static():
-        raise NotImplementedError("")
-
-    @staticmethod
-    def for_ppmodel(ppmodel):
-        raise NotImplementedError("")
-
-    @staticmethod
-    def for_contour_deformation(frequency_mesh):
-        raise NotImplementedError("")
+        self.update(strategy.to_abivars())
 
     @property
     def to_dict(self):
-        d = {"ecuteps"   : self.ecuteps,
-             }
+        raise NotImplementedError("")
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        return Screening(ecuteps, ppmodel_or_freqmesh, 
-                 mode    = "automatic",
-                 symchi  = 1,
-                 inclvkb = 2,
-                 ecutwfn = None,
-                 gwmem   = None,
-                 fftgw   = None,
-                 comment = None,
-                )
+        raise NotImplementedError("")
 
 ##########################################################################################
+
+class SelfEnergyStrategy(Strategy):
+    """
+    Container to store the variables for SelfEnergy calculations. 
+    A None value indicates that we use abinit default. Default values can 
+    be modified by passing them to the constructor.
+    The set of variables are constructed in to_abivars.
+    """
+    _default_vars =  {
+        "ecutwfn"  : MANDATORY,
+        "ecuteps"  : MANDATORY,
+        "ecutsigx" : MANDATORY,
+        "nband"    : MANDATORY,
+        "gwpara"   : 2,
+        "symsigma" : 1,
+        "gwmem"    : None,
+        "gwcalctyp": None,
+        "fftgw"    : None,
+        "kptgw"    : MANDATORY,
+        "bdgw"     : MANDATORY,
+        # TODO
+        # 1) change default values in abinit
+        # 2) Add support for CD calculations.
+        # Objects that do not correspond to abinit variables
+        "ppmodel"  : None,
+        #"wmesh"    : None,
+    }
+
+    #def __init__(self, *args, **kwargs):
+        #super(SelfEnergyVariables, self).__init__(*args, **kwargs)
+
+        #if self.ppmodel is not None:
+        #    self.ppmodel = PPModel.asppmodel(self.ppmodel)
+
+        #if self.wmesh is not None
+        #    raise NotImplementedError("")
+        #    #self.wmesh = OmegaMesh.asomegamesh(self.wmesh)
+
+        # These variables are always present.
+        #self.kptgw = np.reshape(self.kptgw, (-1,3))
+        #self.nkptgw = len(self.kptgw)
+        #self.bdgw  = np.reshape(self.bdgw, (-1,2))
+
+        # FIXME: problem with the spin
+        #assert len(self.bdgw) == self.nkptgw
+
+    @property
+    def has_ppmodel(self):
+        "True if this is a preparatory run for plasmon-pole model calculations"
+        return self.vars.ppmodel is not None
+
+    #@property
+    #def has_wmesh(self):
+    #    "True if this is a frequency dependent calculation"
+    #    return self.vars.wmesh is not None
+
+    #@property
+    #def oneshot(self):
+    #    "True if one-shot calculation"
+
+    #@property
+    #def sc_energies(self):
+    #    "True if self consistent on energies only"
+
+    #@property
+    #def sc_wavefunctions(self):
+    #    "True if self consistent on wavefunctions"
+
+    #@property
+    #def sigma_type(self):
+    #    "Type of self-energy"
+
+    def make_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        vars = self.vars
+        abivars = { 
+            "ecutwfn"  : vars.ecutwfn,
+            "ecuteps"  : vars.ecuteps,
+            "gwpara"   : vars.gwpara,
+            "symsigma" : vars.symsigma,
+            "gwmem"    : vars.gwmem,
+            "gwcalctyp": vars.gwcalctyp,
+            "fftgw"    : vars.fftgw,
+            "kptgw"    : vars.kptgw,
+            "nkptgw"   : len(vars.kptgw),
+            "bdgw"     : vars.bdgw,
+        }
+
+        # Variables for the Hilber transform.
+        if self.has_ppmodel:
+            abivars.update(vars.ppmodel.to_abivars())
+
+        return abivars                                                                                       
 
 class SelfEnergy(AbinitCard):
     "Parameters for the computation of the self-energy."
@@ -1408,58 +1595,20 @@ class SelfEnergy(AbinitCard):
 
     _optdriver = 4
 
-    def __init__(self, nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
-                 type                = types.gw,
-                 scmode              = scmodes.one_shot,
-                 ppmodel_of_freqmesh = None,
-                 gwmem               = None,
-                 fftgw               = None,
-                 comment             = None
-                ):
+    def __init__(self, strategy, comment=None):
 
         super(SelfEnergy, self).__init__()
 
         self._comment = comment
+
+        self.strategy = strategy
                                
-        assert type in SelfEnergy.types
-        assert scmode in SelfEnergy.scmodes 
-        self.type = type
-        self.scmode = scmode
-
-        gwcalctyp = None
-                                                                  
-        #self.update(type_scmode_tovariables())
-
-        # TODO: check nsppol = 2 case
-        kptgw = np.reshape(kptgw, (-1,3))
-        nkptgw = len(kptgw)
-
-        bdgw  = np.reshape(bdgw, (-1,2))
-        assert len(bdgw == nkptgw)
-
-        symsigma = 0 if scmode == SelfEnergy.scmodes.wavefunctions else 1
-
-        self.update({
-            "ecuteps"  : ecuteps,
-            "ecutsigx" : ecutsigx,
-            "nkptgw"   : nkptgw,
-            "kptgw"    : kptgw,
-            "bdgw"     : bdgw,
-            "gwmem"    : gwmem,
-            "fftgw"    : fftgw,
-            "symsigma" : symsigma
-        })
-
-    def type_scmode_tovars(self):
-        d = { "gwcalctyp"  : gwcalctyp,
-            }
-        return d
+        self.update(strategy.to_abivars())
 
 ##########################################################################################
 
 class BetheSalpeter(AbinitCard):
     "Card containing the parameters for the solution of the Bethe-Salpeter equation."
-
     _optdriver = 99
 
     #types = Enum(_types)
@@ -1485,11 +1634,13 @@ class BetheSalpeter(AbinitCard):
         "model_df"
     }
 
-    def __init__(self, loband, nband,
-                 with_lf             = True,
-                 gwmem               = None,
-                 fftgw               = None,
-                 comment             = None
+    def __init__(self, strategy, 
+                 #loband  = None, 
+                 #nband   = None,
+                 #with_lf = True,
+                 #gwmem   = None,
+                 #fftgw   = None,
+                 #comment = None
                 ):
 
         raise NotImplementedError("")
@@ -1497,11 +1648,9 @@ class BetheSalpeter(AbinitCard):
         super(SelfEnergy, self).__init__()
 
         self._comment = comment
+
+        self.strategy = strategy
                                
-        #self.type = type
-        #self.scmode = scmode
-        #gwcalctyp = None
-                                                                  
         self.update({
             "bs_exchange_term" : 1 if with_lf else 0,
             "inclvkb"  : 2,
@@ -1516,39 +1665,41 @@ class BetheSalpeter(AbinitCard):
             #mdf_epsinf         12.0
         })
 
+        self.update(strategy.to_abivars())
+
 ##########################################################################################
 
 class Control(AbinitCard):
 
     #: Basic variables needed for the different runlevels
     _mode2optdriver = {
-        "scf"       : 0 , 
-        "nscf"      : 0 ,
-        "dfpt"      : 1 ,
-        "screening" : 3 ,
-        "sigma"     : 4 ,
-        "bse"       : 99,
+        "scf"      : 0 , 
+        "nscf"     : 0 ,
+        "dfpt"     : 1 ,
+        "screening": 3 ,
+        "sigma"    : 4 ,
+        "bse"      : 99,
     }
 
     modes = Enum(k for k in _mode2optdriver)
 
     #: Tolerance used by the runlevels.
     _mode2tolname = {
-        "scf"       : 'tolvrs', 
-        "nscf"      : 'tolwfr', 
-        "dfpt"      : 'toldfe',   # ?
-        "screening" : 'toldfe',   # dummy
-        "sigma"     : 'toldfe',   # dummy
-        "bse"       : 'toldfe',   # ?
+        "scf"      : 'tolvrs', 
+        "nscf"     : 'tolwfr', 
+        "dfpt"     : 'toldfe',   # ?
+        "screening": 'toldfe',   # dummy
+        "sigma"    : 'toldfe',   # dummy
+        "bse"      : 'toldfe',   # ?
     }
 
     # Tolerances for the different levels of accuracy.
     T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
-        "toldfe" : T(1.e-9,  1.e-10, 1.e-11), 
-        "tolvrs" : T(1.e-7,  1.e-8,  1.e-9),
-        "tolwfr" : T(1.e-15, 1.e-17, 1.e-19),
-        "tolrdf" : T(0.04,   0.02,   0.01),
+        "toldfe": T(1.e-9,  1.e-10, 1.e-11), 
+        "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
+        "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
+        "tolrdf": T(0.04,   0.02,   0.01),
         }
     del T
 
@@ -1658,17 +1809,17 @@ class Control(AbinitCard):
         aidx = ["low", "normal", "high"].index(self.accuracy)
 
         self.update( {
-            "optdriver" : self.optdriver,
-            "ecut"      : ecut,
-            "nbdbuf"    : nbdbuf,
-            "nstep"     : [50,  75, 100][aidx],
-            tol_varname : getattr(tol, self.accuracy),
-            "prtwf"     : prtwf,
-            "prtden"    : prtden,
-            "prtgkk"    : prtgkk,
-            "boxcutmin" : boxcutmin,
-            "optforces" : None if (self.need_forces or want_forces) else 2,
-            "optstress" : None if (self.need_stress or want_stress) else 0,
+            "optdriver": self.optdriver,
+            "ecut"     : ecut,
+            "nbdbuf"   : nbdbuf,
+            "nstep"    : [50,  75, 100][aidx],
+            tol_varname: getattr(tol, self.accuracy),
+            "prtwf"    : prtwf,
+            "prtden"   : prtden,
+            "prtgkk"   : prtgkk,
+            "boxcutmin": boxcutmin,
+            "optforces": None if (self.need_forces or want_forces) else 2,
+            "optstress": None if (self.need_stress or want_stress) else 0,
         })
 
         if system.ispaw:
@@ -1716,7 +1867,6 @@ class Input(dict, MSONable):
     Class to contain the set of ABINIT input variable defining the calculation.
     Essentially an ordered dictionary of predefined AbinitCard
     """
-
     #: Cards that must be passed to the constructor.
     _mandatory_cards = ['System', 'Kpoints',  'Electrons', 'Control',]
 
@@ -2103,7 +2253,7 @@ class Input(dict, MSONable):
             pseudos:
                 List of pseudopotentials.
             strategy:
-                RelaxStrategy instance
+                Strategy instance
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             kppa:
@@ -2137,24 +2287,15 @@ class Input(dict, MSONable):
         return Input(system, electrons, kmesh, geo_optim, control)
 
     @staticmethod
-    def SCR_from_NSCF(nscf_input, ecuteps, ppmodel_or_freqmesh, nband_screening, 
-                      smearing = None, 
-                      inclvkb  = None,
-                      **kwargs
-                     ):
+    def SCR_from_NSCF(nscf_input, scr_strategy, smearing=None, **kwargs):
         """
         Constructor for screening calculations.
                                                                                                        
         Args:
             nscf_input:
                 Input used for the non-self consistent calculation
-            ecuteps:
-                Cutoff energy [Ha] for the dielectric matrix
-            ppmodel_or_freqmesh:
-                object describing the frequency dependende of the screening function.
-                Either PPmodel instance or ScreeningFrequencyMesh instance.
-            nband_screening:
-                Number of bands for the computation of the screening. 
+            scr_strategy:
+                Strategy for the SCR calculation
             smearing: 
                 Smearing instance. None if smearing technique is not used. 
             **kwargs:
@@ -2167,35 +2308,26 @@ class Input(dict, MSONable):
 
         spin_mode = nscf_input.Electrons.spin_mode
 
+        nband_screening = scr_strategy.get_varvalue("nband")
+
         scr_cards.append(Electrons(spin_mode=spin_mode, nband=nband_screening, smearing=smearing))
 
-        scr_cards.append(Screening(ecuteps, ppmodel_or_freqmesh, inclvkb=inclvkb))
+        scr_cards.append(Screening(scr_strategy, comment="Generated from NSCF input"))
 
         scr_cards.append(Control(*scr_cards, **kwargs))
 
         return Input(*scr_cards)
 
     @staticmethod
-    def SIGMA_from_SCR(scr_input, nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
-                       type     = "gw",
-                       scmode   = "one_shot",
-                       smearing = None,
-                       **kwargs
-                       ):
+    def SIGMA_from_SCR(scr_input, sigma_strategy, smearing=None, **kwargs):
         """
         Constructor for sigma calculations.
                                                                                                        
         Args:
             scr_input:
                 Input used for the screening calculation
-            nband_sigma:
-                Number of bands for the self-energy
-            ecuteps:
-                Cutoff energy [Ha] for the dielectric matrix
-            ecutsigx:
-                Cutoff energy [Ha] for the exchange part of the self-energy
-            type:
-            scmode:
+            sigma_strategy:
+                Strategy for self-energy calculations.
             smearing: 
                 Smearing instance. None if smearing technique is not used. 
             **kwargs:
@@ -2204,24 +2336,134 @@ class Input(dict, MSONable):
         Returns:
             AbinitInput instance.
         """
+        # TODO Add consistency check between SCR and SIGMA strategies
+        sigma_nband = sigma_strategy.get_varvalue("nband")
 
-        ppmodel_or_freqmesh = scr_input.Screening.ppmodel_or_freqmesh
-
-        se_card = SelfEnergy(nband_sigma, ecuteps, ecutsigx, kptgw, bdgw, 
-                             type                = type,
-                             scmode              = scmode,
-                             ppmodel_of_freqmesh = ppmodel_or_freqmesh,
-                             )
+        se_card = SelfEnergy(sigma_strategy, comment="Generated from SCR input")
 
         spin_mode = scr_input.Electrons.spin_mode
         assert smearing == scr_input.Electrons.smearing
 
         sigma_cards = scr_input.copy_cards(exclude=["Screening", "Electrons",])
 
-        sigma_cards.append(Electrons(spin_mode=spin_mode, nband=nband_sigma, smearing=smearing))
+        sigma_cards.append(Electrons(spin_mode=spin_mode, nband=sigma_nband, smearing=smearing))
 
         sigma_cards.append(se_card)
 
         sigma_cards.append(Control(*sigma_cards, **kwargs))
 
         return Input(*sigma_cards)
+
+
+class NewScreeningStrategy(object):
+    # TODO Fallback for the variables
+
+    _default_vars =  {
+        "ecuteps"  : MANDATORY,
+        "ecutwfn"  : MANDATORY,
+        "nband"    : MANDATORY,
+        "gwpara"   : 2,
+        "awtr"     : 1,
+        "symchi"   : 1,
+        "gwmem"    : None,
+        "gwcalctyp": None,
+        "fftgw"    : None,
+        "inclvkb"  : 2,
+        "spmeth"   : None,
+        "nomegasf" : None,
+        # TODO
+        #"domegasf" : 0.01,
+        # Objects that do not correspond to abinit variables
+        "ppmodel"  : None,
+        #"wmesh"   : None,
+        # TODO
+        # 1) change default values in abinit
+        # 2) Add support for CD calculations.
+        #"freqremax"
+        #"freqremin"
+        #"nfreqre"
+        #"nfreqim",
+    }
+
+    @classmethod
+    def from_variables(cls, **kwargs):
+        return cls(**kwargs)
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialize vars with the default values.
+        self.vars = self._default_vars
+
+        # Overwrite keys with the args and kwargs passed to constructor.
+        self.vars.update(*args, **kwargs)
+
+        for k in self.vars:
+            if k not in self._default_vars:
+                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
+
+    @property
+    def has_ppmodel(self):
+        "True if this is a preparatory run for plasmon-pole model calculations"
+        return self.vars.ppmodel is not None
+
+    @property
+    def hilbert_transform(self):
+        "True if we are usig the Hilber transform method for the RPA screening."
+        return self.vars.spmeth
+
+    @property
+    def has_data(self):
+        return self.data
+
+    def validate_abivars(self, abivars):
+        # Sanity check
+        for (k, v) in self.vars.items():
+            if v is MANDATORY:
+                raise ValueError("%s: key %s must have a value specified by the user" % (self.__class__.__name__, k))
+
+    def optimize_vars(self, abivars):
+        "Uses the data stored in self to optmize the values of the variables"
+        if not self.data:
+            return
+        d = self.data
+        #structure, pseudos = d["structure"], d["pseudos"]
+
+    def make_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        vars = self.vars
+
+        # These variables are always present.
+        abivars = { 
+            "ecutwfn"  : vars.ecutwfn,
+            "ecuteps"  : vars.ecuteps,
+            "gwpara"   : vars.gwpara,
+            "awtr"     : vars.awtr,
+            "symchi"   : vars.symchi,
+            "gwmem"    : vars.gwmem,
+            "gwcalctyp": vars.gwcalctyp,
+            "fftgw"    : vars.fftgw,
+            "inclvkb"  : vars.inclvkb,
+        }
+
+        if self.has_ppmodel:
+            abivars.update(vars.ppmodel.to_abivars())
+
+        # Variables for the Hilber transform.
+        if self.hilbert_transform:
+            hilbert = {
+                "spmeth"  : vars.spmeth,
+                "nomegasf": vars.nomegasf,
+            }
+            abivars.update(hilbert)
+
+        return abivars                                                                                       
+
+    def to_abivars(self):
+        abivars = self.make_abivars()
+        
+        if self.has_data:
+            self.optimize_vars(abivars)
+                                                                                                              
+        self.validate_abivars(abivars)
+                                                                                                              
+        return abivars                                                                                       
