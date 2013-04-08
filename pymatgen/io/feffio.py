@@ -918,7 +918,7 @@ class FeffPot(MSONable):
                             if int(line.split()[0]) == pot_data:
                                 pot_data += 1
                                 pot_str.append(line.replace("\r", ""))
-                        except:
+                        except (ValueError, IndexError):
                             if pot_data > 0:
                                 pot_data_over = 0
         return ''.join(pot_str)
@@ -955,7 +955,7 @@ class FeffPot(MSONable):
                     index = int(line.split()[0])
                     pot_dict[atom] = index
                     pot_dict_reverse[index] = atom
-            except:
+            except (ValueError, IndexError):
                 pass
         return pot_dict, pot_dict_reverse
 
@@ -1073,7 +1073,7 @@ class FeffLdos(MSONable):
 
         for i in range(nsites):
             pot_index = pot_dict[structure.species[i].symbol]
-            all_pdos.append(defaultdict())
+            all_pdos.append(defaultdict(dict))
             for k, v in vorb.items():
                 density = [ldos[pot_index][j][forb[k] + 1]
                            for j in range(dlength)]
