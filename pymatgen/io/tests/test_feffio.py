@@ -144,6 +144,5 @@ class XmuTest(unittest.TestCase):
         self.assertEqual(x.absorbing_atom, 'O',
                          "failed to read xmu.dat file properly")
 
-
 if __name__ == '__main__':
     unittest.main()
