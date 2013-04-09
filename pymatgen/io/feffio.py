@@ -1265,8 +1265,9 @@ class Xmu(MSONable):
 
     @property
     def source(self):
-        """Returns source identification from Header file"""
-
+        """
+        Returns source identification from Header file
+        """
         header = Header.header_string_from_file(self.input_file)
         source = header.splitlines()[3].split()[4]
         return source
