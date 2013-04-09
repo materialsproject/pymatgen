@@ -175,10 +175,10 @@ manipulation or analyses.
 Basic usage
 -----------
 
-Useful aliases for commonly used objects are now provided,
-similar in style to numpy. Supported objects include Element, Composition,
-Structure, Molecule, Spin and Orbital. Here are some quick examples of the
-core capabilities and objects:
+Useful aliases for commonly used objects are now provided, similar in style to
+numpy. Supported objects include Element, Composition, Structure, Molecule,
+Spin and Orbital. Here are some quick examples of the core capabilities and
+objects:
 
 .. code-block:: pycon
 

@@ -59,6 +59,8 @@ class GaussianInput(object):
             input_parameters:
                 Additional input parameters for run as a dict. Used for
                 example, in PCM calculations.  E.g., {"EPS":12}
+            link0_parameters:
+                Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
         """
         self._mol = mol
         self.charge = charge
