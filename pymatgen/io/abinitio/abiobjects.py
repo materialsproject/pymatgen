@@ -3,13 +3,17 @@ from __future__ import division, print_function
 
 import collections
 import numpy as np
+import os.path
 
 from pprint import pprint, pformat
 
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum
+from pymatgen.core.units import any2Ha
+from pymatgen.core.physical_constants import Ang2Bohr 
 from pymatgen.serializers.json_coders import MSONable 
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.core.structure import Structure
 
 ##########################################################################################
 
@@ -54,10 +58,9 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
         - spinor (non-collinear magnetism)
         - spinor_nomag (non-collinear, no magnetism)
     """
-
     @classmethod
     def asspinmode(cls, obj):
-        "Convert obj into a SpinMode instance"
+        "Converts obj into a SpinMode instance"
         if isinstance(obj, cls):
             return obj
         else:
@@ -89,7 +92,6 @@ class Smearing(AbivarAble, MSONable):
     Variables defining the smearing technique. The preferred way to instanciate 
     a Smearing object is via the class method Smearing.assmearing(string)
     """
-
     #: Mapping string_mode --> occopt
     _mode2occopt = {  
         'nosmearing' : 1,
@@ -190,6 +192,7 @@ class Smearing(AbivarAble, MSONable):
 ##########################################################################################
 
 class SCFSolver(dict, AbivarAble):
+    "Variables controlling the SCF algorithm."
 
     # None indicates that we use abinit defaults.
     _default_vars = {
@@ -209,8 +212,8 @@ class SCFSolver(dict, AbivarAble):
         #"nline"
     }
 
-    def __init__(self, **kwargs):
-        super(SCFSolver, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(SCFSolver, self).__init__(*args, **kwargs)
 
         for k in self.vars:
             if k not in self._default_vars:
@@ -221,331 +224,88 @@ class SCFSolver(dict, AbivarAble):
 
 ##########################################################################################
 
-class PPModel(AbivarAble, MSONable):
-    """
-    Parameters defining the plasmon-pole technique.
-    The common way to instanciate a PPModel object is via the class method PPModel.asppmodel(string)
-    """
-
-    _mode2ppmodel = {  
-        "noppmodel": 0,
-        "godby"    : 1,
-        "hybersten": 2,
-        "linden"   : 3,
-        "farid"    : 4,
-    }
-
-    modes = Enum(k for k in _mode2ppmodel)
+class AbiStructure(Structure, AbivarAble):
+    "Patches the pymatgen structure adding the method to_abivars"
 
     @classmethod
-    def asppmodel(cls, obj):
+    def asabistructure(cls, obj):
         """
-        Constructs an instance of PPModel from obj. 
-        Accepts obj in the form:
-            * PPmodel instance
-            * string. e.g "godby:12.3 eV", "linden".
+        Convert obj into an AbiStructure object.
+        Accepts:
+            - AbiStructure instance
+            - Subinstances of pymatgen.
+            - File paths
         """
         if isinstance(obj, cls):
             return obj
-                                                           
-        # obj is a string
-        if ":" not in obj:
-            mode, plasmon_freq = obj, None
-        else:
-            # Extract mode and plasmon_freq
-            mode, plasmon_freq = obj.split(":")
-            try:
-                plasmon_freq = float(plasmon_freq)
-            except ValueError:
-                plasmon_freq, units = plasmon_freq.split()
-                plasmon_freq = any2Ha(units)(float(plasmon_freq))
 
-        return cls(mode=mode, plasmon_freq=plasmon_freq)
+        if isinstance(obj, Structure):
+            # Promote 
+            return cls(obj)
 
-    def __init__(self, mode="godby", plasmon_freq=None):
-        assert mode in PPModel.modes
-        self.mode = mode
-        self.plasmon_freq = plasmon_freq
+        if isinstance(obj, str):
+            # Handle file path.
+            if os.path.isfile(obj):
 
-    def __bool__(self):
-        return self.mode != "noppmodel"
+                if obj.endswith(".nc"):
+                    from .netcdf import structure_from_etsf_file
+                    structure = structure_from_etsf_file(obj)
+                    print(structure._sites)
+                else:
+                    from pymatgen.io.smartio import read_structure
+                    structure = read_structure(obj)
 
-    # py2 old version
-    __nonzero__ = __bool__
+                # Promote 
+                return cls(structure)
 
-    def __repr__(self):
-        return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self), str(self.mode))
+        raise ValueError("Don't know how to convert object %s to a AbiStructure structure" % str(obj))
 
-    def to_abivars(self):
-        if self:
-            return {"ppmodel": self._mode2ppmodel[self.mode],
-                    "ppmfrq" : self.plasmon_freq,}
-        else:
-            return {}
+    def __new__(cls, structure):
+        new = structure
+        new.__class__ = cls
+        return new
 
-    @classmethod
-    def noppmodel(cls):
-        return cls(mode=modes.noppmodel, plasmon_freq=None)
-
-    @property
-    def to_dict(self):
-        d = {"mode": self.mode,
-             "plasmon_freq": plasmon_freq}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        return PPmodel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
-
-##########################################################################################
-
-class HilbertTransform(AbivarAble):
-    "Parameters for the Hilbert-transform method (RPA, Screening code)"
-
-    def __init__(self, nomegasf, spmeth=1):
-        self.spmeth = spmeth
-        self.nomegasf = nomegasf
-
-    def to_abivars(self):
-        return {"spmeth"  : self.spmeth,
-                "nomegasf": self.nomegasf,}
-
-##########################################################################################
-
-class ModelDielectricFunction(AbivarAble):
-    "Model dielectric function used for BSE calculation"
-
-    def __init__(self, mdf_epsinf):
-        self.mdf_epsinf = mdf_epsinf
-
-    def to_abivars(self):
-        return {"mdf_epsinf": self.mdf_epsinf}
-
-##########################################################################################
-#################################  WORK IN PROGRESS ######################################
-##########################################################################################
-
-class Constraints(AbivarAble):
-    "Object defining the constraints for structural relaxation"
-
-    def to_abivars(self):
-        raise NotImplementedError("")
-
-##########################################################################################
-
-class Screening(AbivarAble):
-    # FIXME
-    _types = {
-        "gw"           : 0,
-        "hartree_fock" : 5,
-        "sex"          : 6,
-        "cohsex"       : 7,
-        "model_gw_ppm" : 8,
-        "model_gw_cd"  : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"     : 0,
-        "energy_only"  : 1,
-        "wavefunctions": 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
-
-    # Example
-    #ecuteps = 2
-    #scr_strategy = ScreeningStrategy(fftgw=11)
-    #w = Screening(w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None)
-    #scr_strategy.set_w(w)
-
-    def __init__(self, w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None):
-        self.type = w_type
-        self.sc_mode = sc_mode
-        self.ecuteps = ecuteps
-        self.ecutwfn = ecutwfn
-
-        if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
-            raise ValueError("Either ppmodel or freq_mesh can be specified") 
-
-        if ppmodel is not None:
-            self.ppmodel = PPmodel.asppmodel(ppmodel)
-        else:
-            raise NotImplementedError("")
-            self.wmesh = WMesh.aswmesh(wmesh)
-
-    @property
-    def ppmfreq(self):
+    def __init__(self, structure):
         pass
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        abivars = { 
-            "ecuteps"  : vars.ecuteps,
-            "ecutwfn"  : vars.ecutwfn,
-            #"gwpara"   : vars.gwpara,
-            #"awtr"     : vars.awtr,
-            #"symchi"   : vars.symchi,
-            #"gwmem"    : vars.gwmem,
-            #"gwcalctyp": vars.gwcalctyp,
-            #"fftgw"    : vars.fftgw,
-            #"inclvkb"  : vars.inclvkb,
-        }
+        "Returns a dictionary with the abinit variables."
+        types_of_specie = self.types_of_specie
+        natom = self.num_sites
 
-        if self.has_ppmodel:
-            abivars.update(vars.ppmodel.to_abivars())
+        znucl_type = [specie.number for specie in types_of_specie]
+                                                                     
+        znucl_atoms = self.atomic_numbers
 
-        # Variables for the Hilber transform.
-        if self.hilbert_transform:
-            hilbert = {
-                "spmeth"  : vars.spmeth,
-                "nomegasf": vars.nomegasf,
-            }
-            abivars.update(hilbert)
+        typat = np.zeros(natom, np.int)
+        for (atm_idx, site) in enumerate(self):
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        return abivars                                                                                       
+        significant_figures = 12
+        format_str = "{{:.{0}f}}".format(significant_figures)
+        fmt = format_str.format
 
-##########################################################################################
+        lines = []
+        for vec in Ang2Bohr(self.lattice.matrix):
+            lines.append(" ".join([fmt(c) for c in vec]))
+        rprim = "\n" + "\n".join(lines)
 
-class SelfEnergy(AbivarAble):
-    _types = {
-        "gw"          : 0,
-        "hartree_fock": 5,
-        "sex"         : 6,
-        "cohsex"      : 7,
-        "model_gw_ppm": 8,
-        "model_gw_cd" : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"     : 0,
-        "energy_only"  : 1,
-        "wavefunctions": 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
+        lines = []
+        for (i, site) in enumerate(self):
+            coords = site.frac_coords 
+            lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
+        xred = '\n' + "\n".join(lines)
 
-    # Example
-    #ecuteps, nband = 2, 20
-    #self_energy = SelfEnergy("gw", "one_shot", ppmodel="godby", ecuteps, nband)
-    #se_strategy = SelfEnergyStrategy(fftgw=11)
-    #se_strategy.learn_data(data)
-    #se_strategy.set_self_energy(self_energy)
-
-    def __init__(self, se_type, sc_mode, ecuteps, nband, 
-                 ecutwfn=None, ecutsigx=None, kptgw="all", bdgw=None, ppmodel="noppmodel", freq_int=None):
-        "freq_int: cd for contour deformation"
-
-        self.type     = se_type
-        self.sc_mode  = sc_mode
-        self.ecutwfn  = ecutwfn
-        self.ecutsigx = ecutsigx
-        self.ecuteps  = ecuteps
-        self.nband    = nband
-        #band_mode in ["gap", "full"]
-
-        if isinstance(kptgw, str) and kptgw == "all":
-            self.kptgw = None
-            self.nkptgw = None
-        else:
-            self.kptgw = np.reshape(kptgw, (-1,3))
-            self.nkptgw =  len(self.kptgw)
-
-        if bdgw is None:
-            raise ValueError("bdgw must be specified")
-
-        if isinstance(bdgw, str):
-            # TODO add new variable in Abinit so that we can specify 
-            # an energy interval around the KS gap.
-            homo = float(nele) / 2.0
-            #self.bdgw = 
-
-        else:
-            self.bdgw = np.reshape(bdgw, (-1,2))
-
-        self.freq_int = freq_int
-
-        self.ppmodel = PPModel.asppmodel(ppmodel)
-
-    @property
-    def gwcalctyp(self):
-        "Return the value of the gwcalctyp input variable"
-        dig0 = str(SelfEnergy._types[self.type])
-        dig1 = str(SelfEnergy._sc_modes[self.sc_mode])
-        return dig1.strip() + dig0.strip()
-
-    @property
-    def symsigma(self):
-        return 1 if self.sc_mode == "one_shot" else 0
-
-    def nband_green(self):
-        return self.nband
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-
-        abivars = { 
-            "gwcalctyp": self.gwcalctyp,
-            "ecuteps"  : self.ecuteps,
-            "ecutwfn"  : self.ecutwfn,
-            "ecutsigx" : self.ecutsigx,
-            "symsigma" : self.symsigma,
-            "kptgw"    : self.kptgw, 
-            "nkptgw"   : self.nkptgw,
-            "bdgw"     : self.bdgw,
-        }
-
-        # FIXME: problem with the spin
-        #assert len(self.bdgw) == self.nkptgw
-
-        # ppmodel variables
-        if self.ppmodel:
-            abivars.update(self.ppmodel.to_abivars())
-
-        return abivars                                                                                       
-
-##########################################################################################
-
-class CDFrequencyMesh(AbivarAble):
-    "Mesh for the contour-deformation method used for the integration of the self-energy"
-
-    #    #def from_slice
-    #    #def from_linspace
-    #    #FrequencyMesh(real_slice=slice(0,15,1), units="Ha")
-    #
-    #    def __init__(self, r_slice, nfreqim=10, freqim_alpha=5, units="Ha"):
-             #np.arange(start, s.stop, step))
-    #        self.r_slice = r_slice
-    #        self.units = units
-
-    #
-    #    @property
-    #    def num_rpoints(self)
-    #        "Number of points along the real axis"
-    #
-    #    @property
-    #    def num_ipoint(self)
-    #        "Number of points along the imaginary axis"
-    #
-    #    @property
-    #    def r_step(self)
-    #        "Step used to sample the real axis"
-    #
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
         abivars = {
-            "freqremax"   : self.freqremax,
-            "freqremin"   : self.freqremin,
-            "nfreqre"     : self.nfreqre,
-            "nfreqim"     : self.nfreqim,
-            "freqim_alpha": self.freqim_alpha
+            "acell" : 3 * [1.0],
+            "rprim" : rprim,
+            "natom" : natom,
+            "ntypat": len(types_of_specie),
+            "typat" : typat,
+            "xred"  : xred,
+            "znucl" : znucl_type,
         }
+
         return abivars
 
 ##########################################################################################
@@ -820,18 +580,13 @@ class KSampling(AbivarAble):
     @classmethod
     def path_from_structure(cls, ndivsm, structure):
         "See _path for the meaning of the variables"
-        return cls._path(ndivsm, 
-                             structure=structure, 
-                             comment="K-path generated automatically from pymatgen structure")
+        return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from pymatgen structure")
                                                                                                    
                                                                                                    
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
         "See _path for the meaning of the variables"
-        return cls._path(ndivsm, 
-                         kpath_bounds=kpath_bounds,
-                         comment="Explicit K-path")
-
+        return cls._path(ndivsm, kpath_bounds=kpath_bounds, comment="Explicit K-path")
 
     @classmethod
     def automatic_density(cls, structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True):
@@ -933,15 +688,15 @@ class Electrons(AbivarAble):
     The electronic degrees of freedom
     """
     def __init__(self, 
-        spin_mode = "polarized", 
-        smearing  = "fermi_dirac:0.1 eV",
-        nband     = None,
-        fband     = None,
-        charge    = 0.0,
-        #occupancies = None,
-        scf_solver = None,
-        comment   = None,
-        ):
+                 spin_mode = "polarized", 
+                 smearing  = "fermi_dirac:0.1 eV",
+                 scf_solver = None,
+                 nband     = None,
+                 fband     = None,
+                 charge    = 0.0,
+                 comment   = None,
+                 #occupancies = None,
+                ):
         """
         Constructor for Electrons object.
                                                                                 
@@ -1014,6 +769,12 @@ class Electrons(AbivarAble):
         return abivars
 
 ##########################################################################################
+
+class Constraints(AbivarAble):
+    "Object defining the constraints for structural relaxation"
+
+    def to_abivars(self):
+        raise NotImplementedError("")
 
 class RelaxationMethod(AbivarAble):
     """
@@ -1114,5 +875,326 @@ class RelaxationMethod(AbivarAble):
             raise NotImplementedError("")
             abivars.update(vars.atoms_constraints.to_abivars())
 
-        #self.validate_abivars(abivars)
         return abivars
+
+##########################################################################################
+
+class PPModel(AbivarAble, MSONable):
+    """
+    Parameters defining the plasmon-pole technique.
+    The common way to instanciate a PPModel object is via the class method PPModel.asppmodel(string)
+    """
+
+    _mode2ppmodel = {  
+        "noppmodel": 0,
+        "godby"    : 1,
+        "hybersten": 2,
+        "linden"   : 3,
+        "farid"    : 4,
+    }
+
+    modes = Enum(k for k in _mode2ppmodel)
+
+    @classmethod
+    def asppmodel(cls, obj):
+        """
+        Constructs an instance of PPModel from obj. 
+        Accepts obj in the form:
+            * PPmodel instance
+            * string. e.g "godby:12.3 eV", "linden".
+        """
+        if isinstance(obj, cls):
+            return obj
+                                                           
+        # obj is a string
+        if ":" not in obj:
+            mode, plasmon_freq = obj, None
+        else:
+            # Extract mode and plasmon_freq
+            mode, plasmon_freq = obj.split(":")
+            try:
+                plasmon_freq = float(plasmon_freq)
+            except ValueError:
+                plasmon_freq, units = plasmon_freq.split()
+                plasmon_freq = any2Ha(units)(float(plasmon_freq))
+
+        return cls(mode=mode, plasmon_freq=plasmon_freq)
+
+    def __init__(self, mode="godby", plasmon_freq=None):
+        assert mode in PPModel.modes
+        self.mode = mode
+        self.plasmon_freq = plasmon_freq
+
+    def __bool__(self):
+        return self.mode != "noppmodel"
+
+    # py2 old version
+    __nonzero__ = __bool__
+
+    def __repr__(self):
+        return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self), str(self.mode))
+
+    def to_abivars(self):
+        if self:
+            return {"ppmodel": self._mode2ppmodel[self.mode],
+                    "ppmfrq" : self.plasmon_freq,}
+        else:
+            return {}
+
+    @classmethod
+    def noppmodel(cls):
+        return cls(mode=modes.noppmodel, plasmon_freq=None)
+
+    @property
+    def to_dict(self):
+        d = {"mode": self.mode, "plasmon_freq": plasmon_freq}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        return PPmodel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
+
+##########################################################################################
+#################################  WORK IN PROGRESS ######################################
+##########################################################################################
+
+class Screening(AbivarAble):
+    # FIXME
+    _types = {
+        "gw"           : 0,
+        "hartree_fock" : 5,
+        "sex"          : 6,
+        "cohsex"       : 7,
+        "model_gw_ppm" : 8,
+        "model_gw_cd"  : 9,
+    }
+                                    
+    types = Enum(_types)
+                                     
+    _sc_modes = {
+        "one_shot"     : 0,
+        "energy_only"  : 1,
+        "wavefunctions": 2,
+    }
+                                    
+    scmodes = Enum(_sc_modes.keys())
+
+    # Example
+    #ecuteps = 2
+    #scr_strategy = ScreeningStrategy(fftgw=11)
+    #w = Screening(w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None)
+    #scr_strategy.set_w(w)
+
+    def __init__(self, w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None):
+        self.type = w_type
+        self.sc_mode = sc_mode
+        self.ecuteps = ecuteps
+        self.ecutwfn = ecutwfn
+
+        if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
+            raise ValueError("Either ppmodel or freq_mesh can be specified") 
+
+        if ppmodel is not None:
+            self.ppmodel = PPmodel.asppmodel(ppmodel)
+        else:
+            raise NotImplementedError("")
+            self.wmesh = WMesh.aswmesh(wmesh)
+
+    @property
+    def ppmfreq(self):
+        pass
+
+    def to_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        abivars = { 
+            "ecuteps"  : vars.ecuteps,
+            "ecutwfn"  : vars.ecutwfn,
+            #"gwpara"   : vars.gwpara,
+            #"awtr"     : vars.awtr,
+            #"symchi"   : vars.symchi,
+            #"gwmem"    : vars.gwmem,
+            #"gwcalctyp": vars.gwcalctyp,
+            #"fftgw"    : vars.fftgw,
+            #"inclvkb"  : vars.inclvkb,
+        }
+
+        if self.has_ppmodel:
+            abivars.update(vars.ppmodel.to_abivars())
+
+        # Variables for the Hilber transform.
+        if self.hilbert_transform:
+            hilbert = {
+                "spmeth"  : vars.spmeth,
+                "nomegasf": vars.nomegasf,
+            }
+            abivars.update(hilbert)
+
+        return abivars                                                                                       
+
+##########################################################################################
+
+class SelfEnergy(AbivarAble):
+    _types = {
+        "gw"          : 0,
+        "hartree_fock": 5,
+        "sex"         : 6,
+        "cohsex"      : 7,
+        "model_gw_ppm": 8,
+        "model_gw_cd" : 9,
+    }
+                                    
+    types = Enum(_types)
+                                     
+    _sc_modes = {
+        "one_shot"     : 0,
+        "energy_only"  : 1,
+        "wavefunctions": 2,
+    }
+                                    
+    scmodes = Enum(_sc_modes.keys())
+
+    # Example
+    #ecuteps, nband = 2, 20
+    #self_energy = SelfEnergy("gw", "one_shot", ppmodel="godby", ecuteps, nband)
+    #se_strategy = SelfEnergyStrategy(fftgw=11)
+    #se_strategy.learn_data(data)
+    #se_strategy.set_self_energy(self_energy)
+
+    def __init__(self, se_type, sc_mode, ecuteps, nband, 
+                 ecutwfn=None, ecutsigx=None, kptgw="all", bdgw=None, ppmodel="noppmodel", freq_int=None):
+        "freq_int: cd for contour deformation"
+
+        self.type     = se_type
+        self.sc_mode  = sc_mode
+        self.ecutwfn  = ecutwfn
+        self.ecutsigx = ecutsigx
+        self.ecuteps  = ecuteps
+        self.nband    = nband
+        #band_mode in ["gap", "full"]
+
+        if isinstance(kptgw, str) and kptgw == "all":
+            self.kptgw = None
+            self.nkptgw = None
+        else:
+            self.kptgw = np.reshape(kptgw, (-1,3))
+            self.nkptgw =  len(self.kptgw)
+
+        if bdgw is None:
+            raise ValueError("bdgw must be specified")
+
+        if isinstance(bdgw, str):
+            # TODO add new variable in Abinit so that we can specify 
+            # an energy interval around the KS gap.
+            homo = float(nele) / 2.0
+            #self.bdgw = 
+
+        else:
+            self.bdgw = np.reshape(bdgw, (-1,2))
+
+        self.freq_int = freq_int
+
+        self.ppmodel = PPModel.asppmodel(ppmodel)
+
+    @property
+    def gwcalctyp(self):
+        "Return the value of the gwcalctyp input variable"
+        dig0 = str(SelfEnergy._types[self.type])
+        dig1 = str(SelfEnergy._sc_modes[self.sc_mode])
+        return dig1.strip() + dig0.strip()
+
+    @property
+    def symsigma(self):
+        return 1 if self.sc_mode == "one_shot" else 0
+
+    def nband_green(self):
+        return self.nband
+
+    def to_abivars(self):
+        "Returns a dictionary with the abinit variables"
+
+        abivars = { 
+            "gwcalctyp": self.gwcalctyp,
+            "ecuteps"  : self.ecuteps,
+            "ecutwfn"  : self.ecutwfn,
+            "ecutsigx" : self.ecutsigx,
+            "symsigma" : self.symsigma,
+            "kptgw"    : self.kptgw, 
+            "nkptgw"   : self.nkptgw,
+            "bdgw"     : self.bdgw,
+        }
+
+        # FIXME: problem with the spin
+        #assert len(self.bdgw) == self.nkptgw
+
+        # ppmodel variables
+        if self.ppmodel:
+            abivars.update(self.ppmodel.to_abivars())
+
+        return abivars                                                                                       
+
+##########################################################################################
+
+class CDFrequencyMesh(AbivarAble):
+    "Mesh for the contour-deformation method used for the integration of the self-energy"
+
+    #    #def from_slice
+    #    #def from_linspace
+    #    #FrequencyMesh(real_slice=slice(0,15,1), units="Ha")
+    #
+    #    def __init__(self, r_slice, nfreqim=10, freqim_alpha=5, units="Ha"):
+             #np.arange(start, s.stop, step))
+    #        self.r_slice = r_slice
+    #        self.units = units
+
+    #
+    #    @property
+    #    def num_rpoints(self)
+    #        "Number of points along the real axis"
+    #
+    #    @property
+    #    def num_ipoint(self)
+    #        "Number of points along the imaginary axis"
+    #
+    #    @property
+    #    def r_step(self)
+    #        "Step used to sample the real axis"
+    #
+
+    def to_abivars(self):
+        "Returns a dictionary with the abinit variables"
+        abivars = {
+            "freqremax"   : self.freqremax,
+            "freqremin"   : self.freqremin,
+            "nfreqre"     : self.nfreqre,
+            "nfreqim"     : self.nfreqim,
+            "freqim_alpha": self.freqim_alpha
+        }
+        return abivars
+
+##########################################################################################
+
+class HilbertTransform(AbivarAble):
+    "Parameters for the Hilbert-transform method (RPA, Screening code)"
+
+    def __init__(self, nomegasf, spmeth=1):
+        self.spmeth = spmeth
+        self.nomegasf = nomegasf
+
+    def to_abivars(self):
+        return {"spmeth"  : self.spmeth,
+                "nomegasf": self.nomegasf,}
+
+##########################################################################################
+
+class ModelDielectricFunction(AbivarAble):
+    "Model dielectric function used for BSE calculation"
+
+    def __init__(self, mdf_epsinf):
+        self.mdf_epsinf = mdf_epsinf
+
+    def to_abivars(self):
+        return {"mdf_epsinf": self.mdf_epsinf}
+
+##########################################################################################

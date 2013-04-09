@@ -11,8 +11,6 @@ import collections
 import abc
 import numpy as np
 
-from pprint import pprint
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
@@ -24,6 +22,7 @@ from pymatgen.serializers.json_coders import MSONable #, PMGJSONDecoder
 from pymatgen.symmetry.finder import SymmetryFinder
 
 from .pseudos import PseudoTable
+from .abiobjects import AbivarAble, SpinMode, Smearing
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -32,16 +31,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
-
-##########################################################################################
-
-class AbivarAble(object):
-    """
-    An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
-    """
-    def to_abivars(self):
-        raise RuntimeError("%s: must implement the method to_abivars that returns a dictionary with the abinit variables" % (
-            self.__class__.__name__))
 
 ##########################################################################################
 
@@ -168,9 +157,12 @@ class Card(dict, MSONable):
                 warnings.warn("key:" + k + " not in VALID_VARS")
 
             value = self[k]
-            if value is None: continue
 
-            if isinstance(value, collections.Iterable) and not isinstance(value, basestring):
+            # Use default values if value is None.
+            if value is None: 
+                continue
+
+            if isinstance(value, collections.Iterable) and not isinstance(value, str):
                 arr = np.array(value)
 
                 if len(arr.shape) in [0,1]: 
@@ -302,12 +294,10 @@ class SystemCard(Card):
 
         self._comment = structure.formula if comment is None else comment
 
-        pseudos = PseudoTable.astable(pseudos)
+        # Extract pseudos for this calculation (needed when we pass an entire periodic table)
+        table = PseudoTable.astable(pseudos)
 
-        # Extract pseudos for this calculation (needed when we pass an entier periodic table)
-        table = pseudos
         pseudos = []
-
         for typ in structure.types_of_specie:
             # Get list of pseudopotentials in table from atom symbol.
             pseudos_for_type = table.pseudos_with_symbol(typ)
@@ -324,7 +314,7 @@ class SystemCard(Card):
                                                                               
         types_of_specie = structure.types_of_specie
                                                                      
-        natom = structure.num_sites, 
+        natom = structure.num_sites
         ntypat = len(types_of_specie)
                                                                      
         znucl_type = [specie.number for specie in types_of_specie]
@@ -356,22 +346,21 @@ class SystemCard(Card):
             "natom"  : natom, 
             "ntypat" : ntypat,
             "typat"  : typat,
-            "znucl"  : znucl_type,
             "xred"   : xred,
+            "znucl"  : znucl_type,
             "nsym"   : nsym,
-            #"pseudo_list" : ", ".join(p.path for p in self.pseudos),
+            #"pseudo_list": ", ".join(p.path for p in self.pseudos),
         })
-
 
     @property
     def isnc(self):
         "True if norm-conserving calculation"
-        return all(p.isnc for p in self.pseudos)
+        return self.pseudos.allnc
 
     @property
     def ispaw(self):
         "True if PAW calculation"
-        return all(p.ispaw for p in self.pseudos)
+        return self.pseudos.allpaw
 
     # TODO
     #@property
@@ -599,12 +588,11 @@ class KpointsCard(Card):
         Returns:
             KpointsCard object
         """
-        return cls(
-                       kpts              = [kpts],
-                       use_symmetries    = use_symmetries,
-                       use_time_reversal = use_time_reversal,
-                       comment           = "gamma-centered mode", 
-                       )
+        return cls(kpts              = [kpts],
+                   use_symmetries    = use_symmetries,
+                   use_time_reversal = use_time_reversal,
+                   comment           = "gamma-centered mode", 
+                   )
 
     #@classmethod
     #def symetry_breaking(cls, kpts, shift, use_symmetries=True, use_time_reversal=True):
@@ -635,8 +623,7 @@ class KpointsCard(Card):
         Returns:
             KpointsCard object
         """
-        return cls(
-                   kpts              = [ngkpt],
+        return cls(kpts              = [ngkpt],
                    kpt_shifts        = shiftk,
                    use_symmetries    = use_symmetries,
                    use_time_reversal = use_time_reversal,
@@ -716,11 +703,10 @@ class KpointsCard(Card):
                 print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
-        return cls(
-                   mode      = KpointsCard.modes.path, 
-                   num_kpts  = ndivsm,
-                   kpts      = kpath_bounds,
-                   comment   = comment if comment else "K-Path scheme", 
+        return cls(mode     = KpointsCard.modes.path, 
+                   num_kpts = ndivsm,
+                   kpts     = kpath_bounds,
+                   comment  = comment if comment else "K-Path scheme", 
                   )
 
     @classmethod
@@ -830,131 +816,6 @@ class KpointsCard(Card):
         raise NotImplementedError("")
 
 ##########################################################################################
-
-class Smearing(AbivarAble, MSONable):
-    "Container with the abinit variables defining the smearing technique."
-
-    #: Mapping string_mode --> occopt
-    _mode2occopt = {  
-        'nosmering'   : 1,
-        'fermi_dirac' : 3,
-        'marzari4'    : 4,
-        'marzari5'    : 5,
-        'methfessel'  : 6,
-        'gaussian'    : 7,
-    }
-
-    modes = Enum(k for k in _mode2occopt)
-
-    def __init__(self, occopt, tsmear): 
-        self.occopt = occopt
-        self.tsmear = tsmear
-
-    def __str__(self):
-        s  = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
-        if self.tsmear:
-            s += 'tsmear %s' % self.tsmear
-        return s
-
-    def __eq__(self, other):
-        if other is None: 
-            return False
-        else:
-            return (self.occopt == other.occopt and self.tsmear == other.tsmear)
-
-    def __ne__(self, other):
-        return not self == other
-
-    @classmethod
-    def assmearing(cls, obj):
-        """
-        Constructs an instance of Smearing from obj . 
-        Accepts obj in the form:
-
-            * Smearing instance
-            * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
-            * "name:tsmear units" e.g. "gaussian:0.1 eV"
-        """
-        if isinstance(obj, cls):
-            return obj
-
-        # obj is a string
-        obj, tsmear = obj.split(":")
-        obj.strip()
-
-        if obj == "nosmearing":
-            return cls.nosmearing()
-        else:
-            occopt = cls._mode2occopt[obj]
-            try:
-                tsmear = float(tsmear)
-            except ValueError:
-                tsmear, units = tsmear.split()
-                tsmear = any2Ha(units)(float(tsmear))
-
-            return cls(occopt, tsmear)
-
-    @property
-    def mode(self):
-        for (mode_str, occopt) in self._mode2occopt.items():
-            if occopt == self.occopt: 
-                return mode_str
-        raise AttributeError("Unknown occopt %s" % self.occopt)
-
-    @staticmethod
-    def nosmearing():
-        return Smearing(1, None)
-
-    def to_abivars(self):
-        if self.mode == "nosmearing":
-            return {}
-        else:
-            return {"occopt": self.occopt,
-                    "tsmear": self.tsmear,}
-
-    @property
-    def to_dict(self):
-        """json friendly dict representation of Smearing"""
-        d = {"occopt": self.occopt, 
-             "tsmear": self.tsmear,}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-                                                                     
-    @staticmethod
-    def from_dict(d):
-        return Smearing(d["occopt"], d["tsmear"])
-
-##########################################################################################
-
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
-    "Different configurations of the electron density"
-
-    @classmethod
-    def asspinmode(cls, obj):
-        "Convert obj into a SpinMode instance"
-        if isinstance(obj, cls):
-            return obj
-        else:
-            # Assume a string with mode
-            try:
-                return _mode2spinvars[obj]
-            except KeyError:
-                raise KeyError("Wrong value for spin_mode: %s" % str(obj))
-
-    def to_abivars(self):
-        return {"nsppol" : self.nsppol,
-                "nspinor": self.nspinor,
-                "nspden" : self.nspden,
-                }
-
-_mode2spinvars = {
-    "unpolarized" : SpinMode("unpolarized" , 1, 1, 1),
-    "polarized"   : SpinMode("polarized"   , 2, 1, 2),
-    "afm"         : SpinMode("afm"         , 1, 1, 2),
-    "spinor"      : SpinMode("spinor"      , 1, 2, 4),
-    "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
-}
 
 class ElectronsCard(Card):
     """
@@ -1089,9 +950,6 @@ class Strategy(object):
             if k not in self._default_vars:
                 raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
 
-    def __str__(self):
-        return str(self.to_abivars())
-
     def learn_data(self, data):
         "Update the data stored in self"
         if not hasattr(self, "_data"):
@@ -1224,16 +1082,6 @@ class RelaxStrategy(Strategy):
 
 ##########################################################################################
 
-class Constraints(AbivarAble):
-    "Object defining the constraints for structural relaxation"
-
-    def __str__(self):
-        return str(self.to_abivars())
-
-    def to_abivars(self):
-        raise NotImplementedError("")
-        return {}
-
 class RelaxCard(Card):
     "Card containing the parameters for the relaxation of the atomic position and of the unit cell."
 
@@ -1267,105 +1115,6 @@ class RelaxCard(Card):
 #        super(PhononsCard, self).__init__()
 
 #class DDKCard(Card):
-
-##########################################################################################
-
-#class FrequencyMesh(object):
-#    #def from_slice
-#    #def from_linspace
-#    #FrequencyMesh(real_slice=slice(0,15,1), units="eV")
-#
-#    def __init__(self, real_slice=None, imag_slice=None, units="Ha"):
-         #np.arange(start, s.stop, step))
-#        self.real_slice = real_slice
-#        self.imag_slice = imag_slice
-#        self.units = units
-#
-#    @property
-#    def num_rpoints(self)
-#        "Number of points along the real axis"
-#
-#    @property
-#    def num_ipoint(self)
-#        "Number of points along the imaginary axis"
-#
-#    @property
-#    def rstep(self)
-#        "Step used to sample the real axis"
-#
-#    @property
-#    def istep(self)
-#        "Step used to sample the imaginary axis"
-
-class PPModel(AbivarAble, MSONable):
-    "Parameters defining the plasmon-pole technique."
-
-    _mode2ppmodel = {  
-        "noppmodel": 0,
-        "godby"    : 1,
-        "hybersten": 2,
-        "linden"   : 3,
-        "farid"    : 4,
-    }
-
-    modes = Enum(k for k in _mode2ppmodel)
-
-    @classmethod
-    def asppmodel(cls, obj):
-        """
-        Constructs an instance of PPModel from obj. 
-        Accepts obj in the form:
-            * PPmodel instance
-            * string. e.g "godby:12.3 eV", "linden".
-        """
-        if isinstance(obj, cls):
-            return obj
-                                                           
-        # obj is a string
-        if ":" not in obj:
-            mode, plasmon_freq = obj, None
-        else:
-            # Extract mode and plasmon_freq
-            mode, plasmon_freq = obj.split(":")
-            try:
-                plasmon_freq = float(plasmon_freq)
-            except ValueError:
-                plasmon_freq, units = plasmon_freq.split()
-                plasmon_freq = any2Ha(units)(float(plasmon_freq))
-
-        return cls(mode=mode, plasmon_freq=plasmon_freq)
-
-    def __init__(self, mode="godby", plasmon_freq=None):
-        assert mode in PPModel.modes
-        self.mode = mode
-        self.plasmon_freq = plasmon_freq
-
-    def to_abivars(self):
-        if self.mode == "noppmodel":
-            return {}
-        else:
-            return {"ppmodel": self._mode2ppmodel[self.mode],
-                    "ppmfrq" : self.plasmon_freq,
-                   }
-
-    def __repr__(self):
-        return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self), str(self.mode))
-
-    @classmethod
-    def noppmodel(cls):
-        return cls(mode=modes.noppmodel, plasmon_freq=None)
-
-    @property
-    def to_dict(self):
-        d = {"mode": self.mode,
-             "plasmon_freq": plasmon_freq}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        return PPmodel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
 ##########################################################################################
 
@@ -1478,179 +1227,6 @@ class ScreeningCard(Card):
         return cls(d["strategy"], comment=d["comment"])
 
 ##########################################################################################
-
-class ScreenedVc(AbivarAble):
-    # FIXME
-    _types = {
-        "gw"           : 0,
-        "hartree_fock" : 5,
-        "sex"          : 6,
-        "cohsex"       : 7,
-        "model_gw_ppm" : 8,
-        "model_gw_cd"  : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"      : 0,
-        "energy_only"   : 1,
-        "wavefunctions" : 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
-
-    # Example
-    #ecuteps = 2
-    #scr_strategy = ScreeningStrategy(fftgw=11)
-    #w = ScreenedVc(w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None)
-    #scr_strategy.set_w(w)
-
-    def __init__(self, w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None):
-        self.type = w_type
-        self.sc_mode = sc_mode
-        self.ecuteps = ecuteps
-        self.ecutwfn = ecutwfn
-
-        if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
-            raise ValueError("Either ppmodel or freq_mesh can be specified") 
-
-        if ppmodel is not None:
-            self.ppmodel = PPmodel.asppmodel(ppmodel)
-        else:
-            raise NotImplementedError("")
-            self.wmesh = WMesh.aswmesh(wmesh)
-
-    @property
-    def ppmfreq(self):
-        pass
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        abivars = { 
-            "ecuteps"  : vars.ecuteps,
-            "ecutwfn"  : vars.ecutwfn,
-            #"gwpara"   : vars.gwpara,
-            #"awtr"     : vars.awtr,
-            #"symchi"   : vars.symchi,
-            #"gwmem"    : vars.gwmem,
-            #"gwcalctyp": vars.gwcalctyp,
-            #"fftgw"    : vars.fftgw,
-            #"inclvkb"  : vars.inclvkb,
-        }
-
-        if self.has_ppmodel:
-            abivars.update(vars.ppmodel.to_abivars())
-
-        # Variables for the Hilber transform.
-        if self.hilbert_transform:
-            hilbert = {
-                "spmeth"  : vars.spmeth,
-                "nomegasf": vars.nomegasf,
-            }
-            abivars.update(hilbert)
-
-        return abivars                                                                                       
-
-class SelfEnergy(AbivarAble):
-    _types = {
-        "gw"           : 0,
-        "hartree_fock" : 5,
-        "sex"          : 6,
-        "cohsex"       : 7,
-        "model_gw_ppm" : 8,
-        "model_gw_cd"  : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"      : 0,
-        "energy_only"   : 1,
-        "wavefunctions" : 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
-
-    # Example
-    #ecuteps, nband = 2, 20
-    #self_energy = SelfEnergy("gw", "one_shot", ppmodel="godby", ecuteps, nband)
-    #se_strategy = SelfEnergyStrategy(fftgw=11)
-    #se_strategy.learn_data(data)
-    #se_strategy.set_self_energy(self_energy)
-
-    def __init__(self, se_type, sc_mode, ecuteps, nband, 
-                 ecutwfn=None, ecutsigx=None, kptgw="all", bdgw=None, ppmodel=None, freq_int=None):
-        "freq_int: cd for contour deformation"
-
-        self.type     = se_type
-        self.sc_mode  = sc_mode
-        self.ecutwfn  = ecutwfn
-        self.ecutsigx = ecutsigx
-        self.ecuteps  = ecuteps
-        self.nband    = nband
-        #band_mode in ["gap", "full"]
-
-        if isinstance(kptgw, str) and kptgw == "all":
-            self.kptgw = None
-            self.nkptw = None
-        else:
-            self.kptgw = np.reshape(kptgw, (-1,3))
-            self.nkptgw =  len(self.kptgw)
-
-        if bdgw is None:
-            raise ValueError("bdgw must be specified")
-
-        if isinstance(bdgw, str):
-            # TODO add new variable in Abinit so that we can specify 
-            # an energy interval around the KS gap.
-            homo = float(nele) / 2.0
-            #self.bdgw = 
-
-        else:
-            self.bdgw = np.reshape(bdgw, (-1,2))
-
-        self.freq_int = freq_int
-        self.ppmodel = ppmodel
-
-        if self.ppmodel is not None:
-            self.ppmodel = PPModel.asppmodel(ppmodel)
-
-    @property
-    def gwcalctyp(self):
-        "Return the value of the gwcalctyp input variable"
-        dig0 = str(SelfEnergy._types[self.type])
-        dig1 = str(SelfEnergy._sc_mode[self.sc_mode])
-        return dig1.strip() + dig0.strip()
-
-    @property
-    def symsigma(self):
-        return 1 if self.sc_mode == "one_shot" else 0
-
-    def nband_green(self):
-        return self.nband
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        abivars = { 
-            "gwcalctyp": self.gwcalctyp,
-            "ecuteps"  : self.ecuteps,
-            "ecutwfn"  : self.ecutwfn,
-            "ecutsigx" : self.ecutsigx,
-            "symsigma" : self.symsigma,
-            "kptgw"    : self.kptgw, 
-            "nkptgw"   : self.nkptgw,
-            "bdgw"     : self.bdgw,
-        }
-
-        # FIXME: problem with the spin
-        #assert len(self.bdgw) == self.nkptgw
-
-        # Variables for ppmodel.
-        if self.has_ppmodel:
-            abivars.update(self.ppmodel.to_abivars())
-
-        return abivars                                                                                       
 
 class SelfEnergyStrategy(Strategy):
     """
@@ -2238,13 +1814,8 @@ class Input(dict, MSONable):
         return self.add_vars_to_card(vars, "ControlCard")
 
     @staticmethod
-    def SCF_groundstate(structure, pseudos, 
-                        ngkpt = None,
-                        kppa  = None,
-                        spin_mode = "polarized", 
-                        smearing  = "fermi_dirac:0.1 ev",
-                        **kwargs
-                        ):
+    def SCF_groundstate(structure, pseudos, ngkpt=None, kppa=None, spin_mode="polarized", 
+                        smearing="fermi_dirac:0.1 ev", **kwargs):
         """
         Static constructor for self-consistent ground-state calculations.
 
@@ -2288,11 +1859,7 @@ class Input(dict, MSONable):
         return Input(system, electrons, kmesh, scf_control)
 
     @staticmethod
-    def NSCF_kpath_from_SCF(scf_input, nband, 
-                            ndivsm       = 20, 
-                            kpath_bounds = None, 
-                            **kwargs
-                           ):
+    def NSCF_kpath_from_SCF(scf_input, nband, ndivsm=20, kpath_bounds=None, **kwargs):
         """
         Constructor for non-self-consistent ground-state calculations (band structure calculations)
                                                                                                        
@@ -2326,11 +1893,7 @@ class Input(dict, MSONable):
         return Input(*nscf_cards)
 
     @staticmethod
-    def NSCF_kmesh_from_SCF(scf_input, nband, 
-                            ngkpt = None, 
-                            kppa  = None,
-                            **kwargs
-                           ):
+    def NSCF_kmesh_from_SCF(scf_input, nband, ngkpt=None, kppa=None, **kwargs):
         """
         Constructor for non-self-consistent ground-state calculations (DOS calculations).
                                                                                                        
@@ -2367,13 +1930,8 @@ class Input(dict, MSONable):
         return Input(*nscf_cards)
 
     @staticmethod
-    def Relax(structure, pseudos, strategy,
-              ngkpt     = None,
-              kppa      = None,
-              spin_mode = "polarized", 
-              smearing  = "fermi_dirac:0.1 eV",
-              **kwargs
-             ):
+    def Relax(structure, pseudos, strategy, ngkpt=None, kppa=None, spin_mode="polarized", 
+              smearing="fermi_dirac:0.1 eV", **kwargs):
         """
         Constructor for structure relaxation..
                                                                                                        

@@ -23,11 +23,12 @@ from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.io.abinitio.task import task_factory, Task
 
-from .netcdf import GSR_Reader
-from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
-from .input import Input, ElectronsCard, SystemCard, ControlCard, KpointsCard, Smearing
-from .task import RunMode
 from .utils import abinit_output_iscomplete, File
+from .netcdf import GSR_Reader
+from .abiobjects import Smearing
+from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
+from .input import Input, ElectronsCard, SystemCard, ControlCard, KpointsCard 
+from .task import RunMode
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -368,7 +369,7 @@ class Work(BaseWork, MSONable):
             if not isinstance(links, collections.Iterable): 
                 links = [links,]
 
-        # Create the new task (note the factory so that we create subclasses easily
+        # Create the new task (note the factory so that we create subclasses easily).
         task = task_factory(input, task_workdir, self.runmode, task_id=task_id, links=links)
 
         # Add it to the internal list.
@@ -556,7 +557,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
 
         abs(value[i] - vinf) < tol if mode == "abs"
 
-        or 
+    or 
 
         abs(value[i] - vinf) / vinf < tol if mode == "rel"
 
@@ -733,9 +734,7 @@ class PseudoConvergence(Work):
                                                max_niter     = len(ecut_list),
                                               )
         self.atols_mev = atols_mev
-        self.pseudo = pseudo
-        if not isinstance(pseudo, Pseudo):
-            self.pseudo = Pseudo.from_filename(pseudo)
+        self.pseudo = Pseudo.aspseudo(pseudo)
 
         self.ecut_list = []
         for ecut in ecut_list:
@@ -786,9 +785,7 @@ class PseudoIterativeConvergence(IterativeWork):
             smearing:
                 Smearing instance or string in the form "mode:tsmear". Default: FemiDirac with T=0.1 eV
         """
-        self.pseudo = pseudo
-        if not isinstance(pseudo, Pseudo):
-            self.pseudo = Pseudo.from_filename(pseudo)
+        self.pseudo = Pseudo.aspseudo(pseudo)
 
         self.atols_mev = atols_mev
         self.spin_mode = spin_mode
