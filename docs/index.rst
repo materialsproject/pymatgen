@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.6
+-------------
+1. Updates to feffio (credit: Alan Dozier)
+2. Added detailed installation instructions for various platforms.
+
 Version 2.6.5
 -------------
 1. Added a command_line caller to do Bader charge analysis using Henkelmann
