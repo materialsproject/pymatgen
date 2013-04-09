@@ -11,7 +11,7 @@ runs.
 from __future__ import division
 
 __author__ = "Alan Dozier"
-__credits__= "Anubhav Jain, Shyue Ping Ong"
+__credits__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0.3"
 __maintainer__ = "Alan Dozier"
@@ -23,7 +23,6 @@ import abc
 import ConfigParser
 
 from pymatgen.io.feffio import FeffAtoms, FeffTags, FeffPot, Header
-from pymatgen.serializers.json_coders import MSONable
 
 
 class AbstractFeffInputSet(object):
@@ -45,18 +44,19 @@ class AbstractFeffInputSet(object):
             central_atom:
                 atom symbol string for absorbing atom
         """
-        return FeffAtoms(structure)
+        return
 
     @abc.abstractmethod
     def get_feff_tags(self, calc_type):
         """
         Returns standard calculation paramters for either an FEFF XANES or
         EXAFS input.
+
         Args:
             calc_type:
-                at his time either 'XANES' or 'EXAFS' string is supported for K shell
-                excitation. In the future this will be expanded to inlude other shells
-                and material class differentiation.
+                at this time either 'XANES' or 'EXAFS' string is supported
+                for K shell excitation. In the future this will be expanded to
+                inlude other shells and material class differentiation.
         """
         return
 
@@ -89,17 +89,18 @@ class AbstractFeffInputSet(object):
         """
         return
 
-    def get_all_feff_input(self, structure, calc_type, source, central_atom, comment=''):
+    def get_all_feff_input(self, structure, calc_type, source, central_atom,
+                           comment=''):
         """
         Returns all input files as a dict of {filename: feffio object}
 
         Args:
             structure:
                 Structure object
-            calctype:
-                at his time either 'XANES' or 'EXAFS' string is supported for K shell
-                excitation. In the future this will be expanded to inlude other shells
-                and material class differentiation.
+            calc_type:
+                at this time either 'XANES' or 'EXAFS' string is supported
+                for K shell excitation. In the future this will be expanded
+                to inlude other shells and material class differentiation.
             source:
                 source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
@@ -109,8 +110,8 @@ class AbstractFeffInputSet(object):
             comment to appear in Header
 
         Returns:
-            dict of objects used to create feff.inp file i.e. Header, FeffTags, FeffPot
-            FeffAtoms
+            dict of objects used to create feff.inp file i.e. Header, FeffTags,
+            FeffPot, FeffAtoms
         """
 
         feff = {"HEADER": self.get_header(structure, source, comment),
@@ -128,10 +129,10 @@ class AbstractFeffInputSet(object):
         Args:
             structure:
                 Structure object
-            calctype:
-                at his time either 'XANES' or 'EXAFS' string is supported for K shell
-                excitation. In the future this will be expanded to inlude other shells
-                and material class differentiation.
+            calc_type:
+                at this time either 'XANES' or 'EXAFS' string is supported
+                for K shell excitation. In the future this will be expanded
+                to inlude other shells and material class differentiation.
             source:
                 source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
@@ -211,9 +212,10 @@ class FeffInputSet(AbstractFeffInputSet):
 
         Args:
             calc_type:
-                at his time either 'XANES' or 'EXAFS' string is supported for K shell
-                excitation. In the future this will be expanded to inlude other shells
-                and material class differentiation.
+                at this time either 'XANES' or 'EXAFS' string is supported
+                for K shell excitation. In the future this will be expanded
+                to inlude other shells and material class differentiation.
+
         Returns:
             FeffTags object
         """
@@ -223,7 +225,8 @@ class FeffInputSet(AbstractFeffInputSet):
         elif calc_type.upper() == "EXAFS":
             fefftags = FeffTags(self.exafs_settings)
         else:
-            raise ValueError("{} is not a valid calculation type".format(calc_type))
+            raise ValueError("{} is not a valid calculation type"
+                             .format(calc_type))
 
         return fefftags
 
@@ -268,6 +271,7 @@ class FeffInputSet(AbstractFeffInputSet):
                 output.append("")
 
         return "\n".join(output)
+
 
 class MaterialsProjectFeffInputSet(FeffInputSet):
     """
