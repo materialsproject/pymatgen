@@ -339,7 +339,7 @@ class StructureMatcher(MSONable):
         #Check angles are within tolerance
         valid_angles = np.where(np.all(np.abs(angles - s1_angles) <
                                        self.angle_tol, axis=1))
-        if not len(valid_angles[0]):
+        if len(valid_angles[0]) == 0:
             return
         #yield valid lattices
         for lat in bfl[valid][valid_angles]:
@@ -372,7 +372,7 @@ class StructureMatcher(MSONable):
         4) return rms distance normalized by (V/Natom) ^ 1/3
             and the maximum distance found
         """
-        nsites = sum([len(i) for i in s1])
+        nsites = sum(map(len, s1))
 
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
@@ -392,10 +392,9 @@ class StructureMatcher(MSONable):
         inds = np.arange(nsites)
 
         shortest_vecs = vec_matrix[inds, lin.solution, :]
-        shortest_vec_square = np.sum((shortest_vecs -
-                                      np.average(shortest_vecs, axis=0)) ** 2,
-                                     -1)
-        norm_length = (avg_lattice.volume / nsites) ** (1.0 / 3)
+        shortest_vec_square = np.sum(
+            (shortest_vecs - np.average(shortest_vecs, axis=0)) ** 2, -1)
+        norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
 
         rms = np.average(shortest_vec_square) ** 0.5 / norm_length
 
@@ -506,7 +505,7 @@ class StructureMatcher(MSONable):
         frac_tol = (2 / (1 - self.ltol)) * \
             np.array([stol / i for i in struct1.lattice.abc]) * \
                    ((nl1.volume + nl2.volume) /
-                    (2 * struct1.num_sites)) ** (1.0 / 3)
+                    (2 * struct1.num_sites)) ** (1 / 3)
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -558,7 +557,7 @@ class StructureMatcher(MSONable):
                     if break_on_match and max_dist < stol:
                         return max_dist
                     elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = [rms, max_dist]
+                        stored_rms = rms, max_dist
 
         if break_on_match:
             return None

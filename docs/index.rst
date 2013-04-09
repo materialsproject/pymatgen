@@ -52,7 +52,9 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly.
+   day. Bugs tend to be found and corrected quickly. Furthermore,
+   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
+   integration, which ensures that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
    efficient research.
@@ -69,6 +71,11 @@ several advantages over other codes out there:
 
 Latest Change Log
 =================
+
+Version 2.6.6
+-------------
+1. Updates to feffio (credit: Alan Dozier)
+2. Added detailed installation instructions for various platforms.
 
 Version 2.6.5
 -------------
@@ -131,12 +138,16 @@ or::
 
     pip install pymatgen
 
+Detailed installation instructions for various platforms are given on this
+:doc:`page </installation>`.
+
 **Note**: You may need to install numpy before installing pymatgen as numpy's
 distutils is needed to compile the spglib and pyhull dependencies.
 
 **Note for Windows users**: Given that pymatgen requires several Python C
 extensions, it is generally recommended that you install it in a cygwin or
-equivalent environment with the necessary compilers.
+equivalent environment with the necessary compilers. See the detailed
+:doc:`installation </installation>` instructions for more details.
 
 Developmental version
 ---------------------
@@ -223,9 +234,10 @@ core capabilities and objects:
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
-    >>> #Writing out a POSCAR file for VASP calculations.
-    >>> poscar = Poscar(structure)
+    >>> # Convenient IO to various formats. Format is intelligently determined
+    >>> # from file name and extension.
     >>> mg.write_structure(structure, "POSCAR")
+    >>> mg.write_structure(structure, "CsCl.cif")
     >>>
     >>> #Reading a structure from a file.
     >>> structure = mg.read_structure("POSCAR")
