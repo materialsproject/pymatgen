@@ -5,7 +5,6 @@ import os
 from pymatgen.io.feffio_set import FeffInputSet
 from pymatgen.io.feffio import FeffPot
 from pymatgen.io.cifio import CifParser
-from pymatgen.util.io_utils import clean_lines
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -35,16 +34,17 @@ TITLE sites: 4
 
     def test_get_header(self):
         comment = 'From cif file'
-        header = str(FeffInputSet.get_header(x, structure, 'CoO19128.cif', comment))
+        header = str(FeffInputSet.get_header(x, structure, 'CoO19128.cif',
+                                             comment))
         self.maxDiff = 1000
         self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines(), 'Failed to generate header string')
+                         header.splitlines(),
+                         'Failed to generate header string')
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES").to_dict
         self.assertEqual(tags['COREHOLE'], "FSR",
                          "Failed to generate PARAMETERS string")
-
 
     def test_get_feffPot(self):
         POT = str(FeffInputSet.get_feff_pot(x, structure, central_atom))
@@ -52,7 +52,7 @@ TITLE sites: 4
 
         self.assertEqual(d['Co'], 1, "Wrong symbols read in for FeffPot")
 
-    def test_get_feffAtoms(self):
+    def test_get_feff_atoms(self):
         ATOMS = str(FeffInputSet.get_feff_atoms(x, structure, central_atom))
         self.assertEqual(ATOMS.splitlines()[3].split()[4], central_atom,
                          "failed to create ATOMS string")
