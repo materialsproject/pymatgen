@@ -178,10 +178,7 @@ class Header(MSONable):
         comment = hdict['comment']
         source = hdict['source']
         structure = Structure.from_dict(hdict['structure'])
-
-        h = Header(structure, source, comment)
-
-        return h
+        return Header(structure, source, comment)
 
     @staticmethod
     def header_string_from_file(filename):
