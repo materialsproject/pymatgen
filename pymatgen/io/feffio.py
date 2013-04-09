@@ -1343,8 +1343,9 @@ class Xmu(MSONable):
 
     @staticmethod
     def from_dict(xdict):
-        """Returns Xmu object from dictionary"""
-
+        """
+        Returns Xmu object from dictionary
+        """
         return Xmu(xdict)
 
 
