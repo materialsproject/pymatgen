@@ -133,12 +133,16 @@ or::
 
     pip install pymatgen
 
+Detailed installation instructions for various platforms are given on this
+:doc:`page </installation>`.
+
 **Note**: You may need to install numpy before installing pymatgen as numpy's
 distutils is needed to compile the spglib and pyhull dependencies.
 
 **Note for Windows users**: Given that pymatgen requires several Python C
 extensions, it is generally recommended that you install it in a cygwin or
-equivalent environment with the necessary compilers.
+equivalent environment with the necessary compilers. See the detailed
+:doc:`installation </installation>` instructions for more details.
 
 Developmental version
 ---------------------
