@@ -94,21 +94,20 @@ class Header(MSONable):
 
     @staticmethod
     def from_cif_file(cif_file, source='', comment=''):
-
         """
         Static method to create Header object from cif_file
 
-        Arg:
+        Args:
             cif_file:
                 cif_file path and name
             source:
                 User supplied identifier, i.e. for Materials Project this
                 would be the material ID number
-            comment: user comment that goes in header
+            comment:
+                user comment that goes in header
 
         Returns:
             Header Object
-
         """
         r = CifParser(cif_file)
         structure = r.get_structures()[0]
@@ -320,7 +319,8 @@ class Header(MSONable):
 
     def write_file(self, filename='HEADER'):
         """
-        Writes Header into filename on disk
+        Writes Header into filename on disk.
+
         Args:
             filename:
                 Filename and path for file to be written to disk
@@ -1026,7 +1026,6 @@ class FeffPot(MSONable):
 class FeffLdos(MSONable):
     """
     Parser for ldos files ldos01, ldos02, .....
-
     """
 
     def __init__(self, complete_dos):
@@ -1118,16 +1117,19 @@ class FeffLdos(MSONable):
 
     @property
     def to_dict(self):
-        """returns Json-serializable dict representation of CompleteDos"""
-
+        """
+        Returns Json-serializable dict representation of CompleteDos
+        """
         return self.complete_dos.to_dict
 
     @staticmethod
     def from_dict(complete_dos_dict):
-        """Returns FeffLdos object from dict representation
-               Arg:
-                   complete_dos:
-                       dict representation os complete_dos
+        """
+        Returns FeffLdos object from dict representation.
+
+        Args:
+            complete_dos_dict:
+                dict representation os complete_dos
         """
         complete_dos = CompleteDos.from_dict(complete_dos_dict)
         return FeffLdos(complete_dos)

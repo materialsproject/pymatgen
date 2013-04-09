@@ -38,11 +38,15 @@ class AbstractFeffInputSet(object):
     def get_feff_atoms(self, structure, central_atom):
         """
         Returns Atoms string from a structure that goes in feff.inp file.
+
         Args:
             structure:
                 pymatgen structure object
             central_atom:
                 atom symbol string for absorbing atom
+
+        Returns:
+            FeffAtoms object.
         """
         return
 
@@ -107,7 +111,8 @@ class AbstractFeffInputSet(object):
                 example would be Materials Project material ID number.
             central _atom:
                 atom symbol string for absorbing atom
-            comment to appear in Header
+            comment:
+                Comment to appear in Header.
 
         Returns:
             dict of objects used to create feff.inp file i.e. Header, FeffTags,
