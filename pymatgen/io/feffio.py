@@ -1252,7 +1252,6 @@ class Xmu(MSONable):
         data = np.loadtxt(filename)
         return Xmu({'feff.inp': input_filename, 'xmu': data})
 
-
     @property
     def input_file(self):
         """returns filename of FEFF input file normally feff.inp"""
@@ -1347,6 +1346,7 @@ class Xmu(MSONable):
         """Returns Xmu object from dictionary"""
 
         return Xmu(xdict)
+
 
 class FeffParserError(Exception):
     """
