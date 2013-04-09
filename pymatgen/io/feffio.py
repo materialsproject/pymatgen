@@ -128,7 +128,6 @@ class Header(MSONable):
         """
         Property method to return source string.
         """
-
         return self._source
 
     @property
@@ -426,6 +425,26 @@ class FeffAtoms(MSONable):
                     atoms_str.append(line.replace("\r", ""))
 
         return FeffAtoms.from_string(''.join(atoms_str))
+
+    @property
+    def to_dict(self):
+        """
+        Return Dictionary representation of atoms oject
+        """
+        return {'@module': self.__class__.__module__,
+                '@class': self.__class__.__name__,
+                'structure': self._struct.to_dict,
+                'central_atom': self._central_atom,
+                'comment': self.comment}
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Returns feffAtoms object from dictionary
+        """
+        return FeffAtoms(Structure.from_dict(d['structure']),
+                         d['central_atom'],
+                         d['comment'])
 
     @property
     def to_dict(self):
@@ -1233,6 +1252,7 @@ class Xmu(MSONable):
         data = np.loadtxt(filename)
         return Xmu({'feff.inp': input_filename, 'xmu': data})
 
+
     @property
     def input_file(self):
         """returns filename of FEFF input file normally feff.inp"""
@@ -1324,11 +1344,9 @@ class Xmu(MSONable):
 
     @staticmethod
     def from_dict(xdict):
-        """
-        Returns Xmu object from dictionary.
-        """
-        return Xmu(xdict["feff.inp"], xdict["xmu"])
+        """Returns Xmu object from dictionary"""
 
+        return Xmu(xdict)
 
 class FeffParserError(Exception):
     """
