@@ -1089,6 +1089,16 @@ class PseudoTable(collections.Sequence):
     #    return strio.read()
 
     @property
+    def allnc(self):
+        "True if all pseudos are norm-conserving"
+        return all(p.isnc for p in self)
+                                                  
+    @property
+    def allpaw(self):
+        "True if all pseudos are PAW"
+        return all(p.ispaw for p in self)
+
+    @property
     def long_name(self):
         return "-".join([getattr(self, key) for key in ["psp_type", "xc_type", "name"]])
 

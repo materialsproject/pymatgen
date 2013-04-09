@@ -198,9 +198,9 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         for property in site_properties:
             d[property] = ncdata.get_value(property)
     
-    new_structure = Structure(lattice, species, red_coords, site_properties=d)
+    new = Structure(lattice, species, red_coords, site_properties=d)
 
     if open_and_close:
         ncdata.close()
 
-    return new_structure
+    return new
