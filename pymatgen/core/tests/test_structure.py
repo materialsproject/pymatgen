@@ -318,6 +318,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol1.formula, "H3 C1")
         self.assertEqual(mol2.formula, "H1")
 
+    def test_prop(self):
+        self.assertEqual(self.mol.charge, 0)
+        self.assertEqual(self.mol.spin_multiplicity, 1)
+        self.assertEqual(self.mol.nelectrons, 10)
+
 
 if __name__ == '__main__':
     unittest.main()

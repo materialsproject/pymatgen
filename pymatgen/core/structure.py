@@ -875,7 +875,8 @@ class Molecule(SiteCollection, MSONable):
     equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, species, coords, validate_proximity=False,
+    def __init__(self, species, coords, charge=0,
+                 spin_multiplicity=None, validate_proximity=False,
                  site_properties=None):
         """
         Creates a Molecule.
@@ -888,6 +889,13 @@ class Molecule(SiteCollection, MSONable):
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords:
                 list of cartesian coordinates of each species.
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
             validate_proximity:
                 Whether to check if there are sites that are less than 1 Ang
                 apart. Defaults to False.
@@ -915,6 +923,38 @@ class Molecule(SiteCollection, MSONable):
                     raise StructureError(("Molecule contains sites that are ",
                                           "less than 0.01 Angstrom apart!"))
         self._sites = tuple(sites)
+        self._charge = charge
+        nelectrons = 0
+        for site in sites:
+            for sp, amt in site.species_and_occu.items():
+                nelectrons += sp.Z * amt
+        nelectrons += charge
+        self._nelectrons = nelectrons
+        if spin_multiplicity:
+            self._spin_multiplicity = spin_multiplicity
+        else:
+            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    @property
+    def charge(self):
+        """
+        Charge of molecule
+        """
+        return self._charge
+
+    @property
+    def spin_multiplicity(self):
+        """
+        Spin multiplicity of molecule.
+        """
+        return self._spin_multiplicity
+
+    @property
+    def nelectrons(self):
+        """
+        Number of electrons in the molecule.
+        """
+        return self._nelectrons
 
     @property
     def sites(self):
