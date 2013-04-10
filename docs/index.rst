@@ -90,36 +90,6 @@ Version 2.6.4
 1. Bug fixes for selective dynamics in Poscar.
 2. Improved Procar parsing to support both simple and detailed PROCARs.
 
-Version 2.6.3
--------------
-1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
-   (currently open in beta for collaborators only).
-2. Added support for new MaterialsProject REST method get_stability.
-3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
-   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
-4. Improvements to StructureMatcher: stol (site - tolerance) redefined as
-   a fraction of the average length per atom. Structures matched in fractional
-   space are now also matched in cartesian space and a rms displacement
-   normalized by length per atom can be returned using the rms_dist method.
-
-Version 2.6.2
--------------
-
-1. Site and PeriodicSite now uses a Composition mapping type to represent
-   the species and occupancy, instead of a standard dict.
-2. Bug fix for reading and re-writing out of Potcars.
-3. VaspInputSet now supports MSONable framework.
-4. Strain cell option in StructureEditor.
-5. Miscellaneous bug fixes and speedups.
-
-Version 2.6.1
--------------
-1. Use requests.Session in MPRester for connection pooling and code simplicity.
-2. Support for "with" context manager in MPRester.
-3. Updated periodic table data to correct errors in Ru, Tc and other elements.
-4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
-5. Miscellaneous bug fixes and speedups.
-
 :doc:`Older versions </changelog>`
 
 Getting pymatgen
@@ -138,16 +108,13 @@ or::
 
     pip install pymatgen
 
-Detailed installation instructions for various platforms are given on this
-:doc:`page </installation>`.
+Detailed installation instructions for various platforms (Mac and Windows)
+are given on this :doc:`page </installation>`.
 
-**Note**: You may need to install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib and pyhull dependencies.
+.. note:: Install numpy first.
 
-**Note for Windows users**: Given that pymatgen requires several Python C
-extensions, it is generally recommended that you install it in a cygwin or
-equivalent environment with the necessary compilers. See the detailed
-:doc:`installation </installation>` instructions for more details.
+    You may need to install numpy before installing pymatgen as numpy's
+    distutils is needed to compile the spglib and pyhull dependencies.
 
 Developmental version
 ---------------------
@@ -168,8 +135,8 @@ Some extra functionality (e.g., generation of POTCARs) do require additional
 setup.Please see the following sections for further details on the
 dependencies needed, where to get them and how to install them.
 
-Detailed installation help
---------------------------
+Installation help
+-----------------
 
 .. toctree::
    :maxdepth: 1
@@ -196,10 +163,9 @@ manipulation or analyses.
 Basic usage
 -----------
 
-Useful aliases for commonly used objects are now provided,
-similar in style to numpy. Supported objects include Element, Composition,
-Structure, Molecule, Spin and Orbital. Here are some quick examples of the
-core capabilities and objects:
+Useful aliases for commonly used objects are now provided. Supported objects
+include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
+some quick examples of the core capabilities and objects:
 
 .. code-block:: pycon
 
@@ -244,14 +210,15 @@ core capabilities and objects:
 
 The above illustrates only the most basic capabilities of pymatgen.
 
-.. note:: Examples
+More examples
+-------------
 
-    A good way to explore the functionality of pymatgen is to look at examples.
-    We have created a `Github wiki page
-    <https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to
-    share their Github gists (essentially mini git repos of scripts)
-    performing various kinds of functions with pymatgen. Please feel free to
-    check them out and we welcome your contributions as well!
+A good way to explore the functionality of pymatgen is to look at examples.
+We have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing
+various kinds of functions with pymatgen. Please feel free to check them out
+and we welcome your contributions as well!
 
 matgenie.py - Command line tool
 -------------------------------
@@ -262,8 +229,8 @@ that utilize the library to perform all kinds of analyses. You can find these
 scripts in `scripts directory of pymatgen's github repo
 <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
-Here, we will discuss the most versatile of these scripts,
-known as matgenie.py. The typical usage of matgenie.py is::
+Here, we will discuss the most versatile of these scripts, known as matgenie.py.
+The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
