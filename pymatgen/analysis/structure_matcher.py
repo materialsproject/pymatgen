@@ -662,17 +662,12 @@ class StructureMatcher(MSONable):
         if len(sp1) != len(sp2):
             return None
 
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
         for perm in itertools.permutations(sp2):
-            perm = list(perm)
-            mapped_sp = []
-            for site in struct1:
-                ind = sp1.index(site.species_and_occu)
-                mapped_sp.append(perm[ind])
-
-            transformed_structure = Structure(struct1.lattice, mapped_sp,
-                                              struct1.frac_coords)
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
             if self.fit(transformed_structure, struct2):
-                return {sp1[i]: perm[i] for i in xrange(len(sp1))
-                        if sp1[i] != perm[i]}
-
+                return {k: v for k, v in sp_mapping.items() if k != v}
         return None
