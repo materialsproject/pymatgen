@@ -18,8 +18,7 @@ import re
 import numpy as np
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule
+from pymatgen.core import Element, Molecule, Composition
 from pymatgen.util.io_utils import zopen
 from pymatgen.util.coord_utils import get_angle
 
@@ -443,6 +442,7 @@ class GaussianOutput(object):
         self.structures = []
         self.corrections = {}
         self.energies = []
+        self.pcm = None
 
         coord_txt = []
         read_coord = 0
@@ -550,3 +550,45 @@ class GaussianOutput(object):
         elif parameter_patt.search(line):
             m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
+
+    @property
+    def to_dict(self):
+        """
+        Json-serializable dict representation.
+        """
+        structure = self.final_structure
+        d = {"has_gaussian_completed": self.properly_terminated,
+             "nsites": len(structure)}
+        comp = structure.composition
+        d["unit_cell_formula"] = comp.to_dict
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["pretty_formula"] = comp.reduced_formula
+        d["is_pcm"] = self.is_pcm
+
+        unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
+        d["elements"] = unique_symbols
+        d["nelements"] = len(unique_symbols)
+        d["charge"] = self.charge
+        d["spin_multiplicity"] = self.spin_mult
+
+        vin = {"route": self.route, "functional": self.functional,
+               "basis_set": self.basis_set,
+               "nbasisfunctions": self.num_basis_func,
+               "pcm_parameters": self.pcm}
+
+        d["input"] = vin
+
+        nsites = len(self.final_structure)
+
+        vout = {
+            "energies": self.energies,
+            "final_energy": self.final_energy,
+            "final_energy_per_atom": self.final_energy / nsites,
+            "molecule": structure.to_dict,
+            "stationary_type": self.stationary_type,
+            "corrections": self.corrections
+        }
+
+        d['output'] = vout
+
+        return d
