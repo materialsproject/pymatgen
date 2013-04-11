@@ -1056,6 +1056,10 @@ class Molecule(SiteCollection, MSONable):
             return False
         if len(self) != len(other):
             return False
+        if self._charge != other._charge:
+            return False
+        if self._spin_multiplicity != other._spin_multiplicity:
+            return False
         for site in self:
             if site not in other:
                 return False
