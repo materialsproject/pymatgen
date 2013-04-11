@@ -46,6 +46,7 @@ class GaussianInputTest(unittest.TestCase):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=-1)
         gau = GaussianInput(mol, route_parameters={'SP': "", "SCF": "Tight"})
         self.assertEqual(gau.spin_multiplicity, 2)
+        self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
         ans = """#P HF/6-31G(d) SP SCF=Tight Test

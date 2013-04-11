@@ -44,7 +44,8 @@ class GaussianInput(object):
                 file.
             charge:
                 Charge of the molecule. If None, charge on molecule is used.
-                Defaults to None.
+                Defaults to None. This allows the input file to be set a
+                charge independently from the molecule itself.
             spin_multiplicity:
                 Spin multiplicity of molecule. Defaults to None,
                 which means that the spin multiplicity is set to 1 if the
@@ -67,10 +68,15 @@ class GaussianInput(object):
         """
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
+        nelectrons = - self.charge + mol.charge + mol.nelectrons
         if spin_multiplicity is not None:
             self.spin_multiplicity = spin_multiplicity
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                        self.charge, spin_multiplicity))
         else:
-            nelectrons = - self.charge + mol.charge + mol.nelectrons
             self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
         self.functional = functional
         self.basis_set = basis_set
