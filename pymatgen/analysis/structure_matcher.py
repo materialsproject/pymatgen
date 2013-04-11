@@ -419,7 +419,6 @@ class StructureMatcher(MSONable):
 
         if fit_dist is None:
             return False
-
         else:
             return fit_dist <= self.stol
 
@@ -635,6 +634,50 @@ class StructureMatcher(MSONable):
             primitive_cell=d["primitive_cell"], scale=d["scale"],
             comparator=AbstractComparator.from_dict(d["comparator"]))
 
+    def get_minimax_rms_anonymous(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar.
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+
+        Returns:
+            (minimax_rms, min_mapping)
+            min_rms is the minimax rms calculated, and min_mapping is the
+            corresponding minimal species mapping that would map struct1 to
+            struct2. (None, None) is returned if the minimax_rms exceeds the
+            threshold.
+        """
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
+        if len(sp1) != len(sp2):
+            return None
+
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
+        min_rms = float("inf")
+        min_mapping = None
+        for perm in itertools.permutations(sp2):
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
+            rms = self.get_rms_dist(transformed_structure, struct2)
+            if rms is not None:
+                if min_rms > rms[1]:
+                    min_rms = rms[1]
+                    min_mapping = {k: v for k, v in sp_mapping.items()
+                                   if k != v}
+        if min_mapping is None:
+            return None, None
+        else:
+            return min_rms, min_mapping
+
     def fit_anonymous(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
@@ -658,18 +701,8 @@ class StructureMatcher(MSONable):
             occupancy dicts. This complicated return for is necessary because
             species and occupancy dicts are non-hashable.
         """
-        sp1 = list(set(struct1.species_and_occu))
-        sp2 = list(set(struct2.species_and_occu))
-
-        if len(sp1) != len(sp2):
+        min_rms, min_mapping = self.get_minimax_rms_anonymous(struct1, struct2)
+        if min_rms is None or min_rms > self.stol:
             return None
-
-        latt1 = struct1.lattice
-        fcoords1 = struct1.frac_coords
-        for perm in itertools.permutations(sp2):
-            sp_mapping = dict(zip(sp1, perm))
-            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
-            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
-            if self.fit(transformed_structure, struct2):
-                return {k: v for k, v in sp_mapping.items() if k != v}
-        return None
+        else:
+            return min_mapping
