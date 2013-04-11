@@ -345,7 +345,7 @@ class StructureMatcher(MSONable):
             nl = Lattice(lat)
             yield nl
 
-    def _cmp_struct(self, s1, s2, frac_tol):
+    def _cmp_fractional_struct(self, s1, s2, frac_tol):
         #compares the fractional coordinates
         for s1_coords, s2_coords in zip(s1, s2):
             dist = s1_coords[:, None] - s2_coords[None, :]
@@ -393,6 +393,7 @@ class StructureMatcher(MSONable):
         shortest_vecs = vec_matrix[inds, lin.solution, :]
         shortest_vec_square = np.sum(
             (shortest_vecs - np.average(shortest_vecs, axis=0)) ** 2, -1)
+
         norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
 
         rms = np.average(shortest_vec_square) ** 0.5 / norm_length
@@ -552,7 +553,7 @@ class StructureMatcher(MSONable):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                if self._cmp_struct(s1, t_s2, frac_tol):
+                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
                     rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
                                                                nl1)
                     if break_on_match and max_dist < stol:
