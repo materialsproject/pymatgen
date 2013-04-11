@@ -51,8 +51,10 @@ class LinearAssignment(object):
         """
         self.c = np.array(costs)
         self.n = len(costs)
-        self.epsilon = epsilon
-        
+        if epsilon < 0:
+            self.epsilon = epsilon
+        else:
+            raise ValueError("epsilon must be negative")
         #check that cost matrix is square
         if self.c.shape != (self.n, self.n):
             raise ValueError("cost matrix is not square")
