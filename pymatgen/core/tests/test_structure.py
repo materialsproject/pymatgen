@@ -328,6 +328,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.spin_multiplicity, 2)
         self.assertEqual(mol.nelectrons, 9)
 
+        #Triplet O2
+        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                       spin_multiplicity=3)
+        self.assertEqual(mol.spin_multiplicity, 3)
+
     def test_equal(self):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         self.assertNotEqual(mol, self.mol)
