@@ -33,7 +33,7 @@ class GaussianInput(object):
     xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                           "([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
-    def __init__(self, mol, charge=0, spin_multiplicity=1, title=None,
+    def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None):
         """
@@ -43,9 +43,13 @@ class GaussianInput(object):
                 direct input to the geometry section of the Gaussian input
                 file.
             charge:
-                Charge of the molecule. Defaults to 0.
+                Charge of the molecule. If None, charge on molecule is used.
+                Defaults to None.
             spin_multiplicity:
-                Spin multiplicity of molecule. Defaults to 1.
+                Spin multiplicity of molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
             title:
                 Title for run. Defaults to formula of molecule if None.
             functional:
@@ -62,8 +66,12 @@ class GaussianInput(object):
                 Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
         """
         self._mol = mol
-        self.charge = charge
-        self.spin_multiplicity = spin_multiplicity
+        self.charge = charge if charge is not None else mol.charge
+        if spin_multiplicity is not None:
+            self.spin_multiplicity = spin_multiplicity
+        else:
+            nelectrons = - self.charge + mol.charge + mol.nelectrons
+            self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
         self.functional = functional
         self.basis_set = basis_set
         self.link0_parameters = link0_parameters if link0_parameters else {}
