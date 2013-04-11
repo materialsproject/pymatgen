@@ -76,6 +76,8 @@ Version 2.6.6
 -------------
 1. Updates to feffio (credit: Alan Dozier)
 2. Added detailed installation instructions for various platforms.
+3. Support for charge and spin multiplicity in Molecule. Expanded methods
+   available in Molecule.
 
 Version 2.6.5
 -------------
