@@ -307,7 +307,6 @@ class StructureMatcher(MSONable):
             nvi = [np.array(site) for site in nvi]
             nvi = np.dot(nvi, s2.lattice.matrix)
             nv.append(nvi)
-
         #The vectors are broadcast into a 5-D array containing
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
@@ -326,14 +325,14 @@ class StructureMatcher(MSONable):
         valid = np.where(abs(vol) >= vol_tol)
         if not len(valid[0]):
             return
-        #loop over valid lattices to compute the angles for each
+            #loop over valid lattices to compute the angles for each
         lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
         angles = np.zeros((len(bfl[valid]), 3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[:, i] = \
-                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1)\
+                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1) \
                 / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
@@ -341,7 +340,7 @@ class StructureMatcher(MSONable):
                                        self.angle_tol, axis=1))
         if len(valid_angles[0]) == 0:
             return
-        #yield valid lattices
+            #yield valid lattices
         for lat in bfl[valid][valid_angles]:
             nl = Lattice(lat)
             yield nl
@@ -462,7 +461,10 @@ class StructureMatcher(MSONable):
         """
         stol = self.stol
         comparator = self._comparator
-        if comparator.get_structure_hash(struct1) !=\
+        #initial stored rms
+        stored_rms = None
+
+        if comparator.get_structure_hash(struct1) != \
                 comparator.get_structure_hash(struct2):
             return None
 
@@ -474,8 +476,6 @@ class StructureMatcher(MSONable):
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             return None
-        #initial stored rms
-        stored_rms = None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -502,10 +502,12 @@ class StructureMatcher(MSONable):
         vol_tol = nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = (2 / (1 - self.ltol)) * \
-            np.array([stol / i for i in struct1.lattice.abc]) * \
-                   ((nl1.volume + nl2.volume) /
-                    (2 * struct1.num_sites)) ** (1 / 3)
+        frac_tol = \
+            np.array([stol / ((1 - self.ltol) * np.pi) * i for
+                      i in struct1.lattice.reciprocal_lattice.abc]) * \
+            ((nl1.volume + nl2.volume) /
+             (2 * struct1.num_sites)) ** (1.0 / 3)
+
         #generate structure coordinate lists
         species_list = []
         s1 = []
@@ -533,7 +535,7 @@ class StructureMatcher(MSONable):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
-            #if no site match found return None
+                #if no site match found return None
             if not found:
                 return None
 
@@ -546,7 +548,7 @@ class StructureMatcher(MSONable):
         s1_translation = s1[0][0]
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
-        #do permutations of vectors, check for equality
+            #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2, vol_tol):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
