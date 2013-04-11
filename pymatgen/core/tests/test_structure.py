@@ -322,6 +322,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(self.mol.charge, 0)
         self.assertEqual(self.mol.spin_multiplicity, 1)
         self.assertEqual(self.mol.nelectrons, 10)
+        self.assertTrue(np.allclose(self.mol.center_of_mass, np.zeros(3),
+                                    atol=1e-7))
         self.assertRaises(ValueError, Molecule, ["C", "H", "H", "H", "H"],
                           self.coords, charge=1, spin_multiplicity=1)
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
@@ -336,6 +338,15 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_equal(self):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         self.assertNotEqual(mol, self.mol)
+
+    def test_get_centered_molecule(self):
+        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                       spin_multiplicity=3)
+        centered = mol.get_centered_molecule()
+        self.assertFalse(np.allclose(mol.center_of_mass, np.zeros(3),
+                                     atol=1e-7))
+        self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
+                                    atol=1e-7))
 
 if __name__ == '__main__':
     unittest.main()
