@@ -962,6 +962,19 @@ class Molecule(SiteCollection, MSONable):
         return self._nelectrons
 
     @property
+    def center_of_mass(self):
+        """
+        Center of mass of molecule.
+        """
+        center = np.zeros(3)
+        total_weight = 0
+        for site in self:
+            wt = site.species_and_occu.weight
+            center += site.coords * wt
+            total_weight += wt
+        return center / total_weight
+
+    @property
     def sites(self):
         """
         Returns a tuple of sites in the Molecule.
@@ -1230,6 +1243,20 @@ class Molecule(SiteCollection, MSONable):
         return Structure(lattice, self.species, self.cart_coords,
                          coords_are_cartesian=True,
                          site_properties=self.site_properties)
+
+    def get_centered_molecule(self):
+        """
+        Returns a Molecule centered at the center of mass.
+
+        Returns:
+            Molecule centered with center of mass at origin.
+        """
+        center = self.center_of_mass
+        new_coords = np.array(self.cart_coords) - center
+        return Molecule(self.species_and_occu, new_coords,
+                        charge=self._charge,
+                        spin_multiplicity=self._spin_multiplicity,
+                        site_properties=self.site_properties)
 
 
 class StructureError(Exception):
