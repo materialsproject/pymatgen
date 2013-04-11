@@ -63,6 +63,8 @@ class StructureMatcherTest(unittest.TestCase):
         #Test anonymous fit.
         self.assertEqual(sm.fit_anonymous(lfp, nfp),
                          {Composition("Li"): Composition("Na")})
+        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(lfp, nfp)[0],
+                               0.096084154118549828)
 
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
@@ -82,6 +84,8 @@ class StructureMatcherTest(unittest.TestCase):
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertEqual(sm.fit_anonymous(s1, s2),
                          {Composition("Fe0.5"): Composition("Fe0.25")})
+
+        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(s1, s2)[0], 0)
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
