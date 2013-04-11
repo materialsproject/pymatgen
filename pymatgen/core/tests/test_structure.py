@@ -322,7 +322,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(self.mol.charge, 0)
         self.assertEqual(self.mol.spin_multiplicity, 1)
         self.assertEqual(self.mol.nelectrons, 10)
-
+        self.assertRaises(ValueError, Molecule, ["C", "H", "H", "H", "H"],
+                          self.coords, charge=1, spin_multiplicity=1)
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
+        self.assertEqual(mol.spin_multiplicity, 2)
+        self.assertEqual(mol.nelectrons, 9)
 
 if __name__ == '__main__':
     unittest.main()

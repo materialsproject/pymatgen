@@ -928,9 +928,14 @@ class Molecule(SiteCollection, MSONable):
         for site in sites:
             for sp, amt in site.species_and_occu.items():
                 nelectrons += sp.Z * amt
-        nelectrons += charge
+        nelectrons -= charge
         self._nelectrons = nelectrons
         if spin_multiplicity:
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                    self._charge, spin_multiplicity))
             self._spin_multiplicity = spin_multiplicity
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
