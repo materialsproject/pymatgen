@@ -254,7 +254,7 @@ class StructureMatcher(MSONable):
 
     """
 
-    def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
         Args:
@@ -263,7 +263,7 @@ class StructureMatcher(MSONable):
             stol:
                 Site tolerance. Defined as the fraction of the
                 average free length per atom := ( V / Nsites ) ** (1/3)
-                Default is 0.3
+                Default is 0.5.
             angle_tol:
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
@@ -649,10 +649,10 @@ class StructureMatcher(MSONable):
 
         Returns:
             (minimax_rms, min_mapping)
-            min_rms is the minimax rms calculated, and min_mapping is the
-            corresponding minimal species mapping that would map struct1 to
-            struct2. (None, None) is returned if the minimax_rms exceeds the
-            threshold.
+            min_rms is the minimum of the max rms calculated, and min_mapping
+            is the corresponding minimal species mapping that would map
+            struct1 to struct2. (None, None) is returned if the minimax_rms
+            exceeds the threshold.
         """
         sp1 = list(set(struct1.species_and_occu))
         sp2 = list(set(struct2.species_and_occu))
