@@ -18,8 +18,7 @@ import re
 import numpy as np
 
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Molecule
+from pymatgen.core import Element, Molecule, Composition
 from pymatgen.util.io_utils import zopen
 from pymatgen.util.coord_utils import get_angle
 
@@ -34,7 +33,7 @@ class GaussianInput(object):
     xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                           "([\d\.eE\-]+)[\-\.\s,\w.]*$")
 
-    def __init__(self, mol, charge=0, spin_multiplicity=1, title=None,
+    def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None):
         """
@@ -44,9 +43,14 @@ class GaussianInput(object):
                 direct input to the geometry section of the Gaussian input
                 file.
             charge:
-                Charge of the molecule. Defaults to 0.
+                Charge of the molecule. If None, charge on molecule is used.
+                Defaults to None. This allows the input file to be set a
+                charge independently from the molecule itself.
             spin_multiplicity:
-                Spin multiplicity of molecule. Defaults to 1.
+                Spin multiplicity of molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
             title:
                 Title for run. Defaults to formula of molecule if None.
             functional:
@@ -59,10 +63,21 @@ class GaussianInput(object):
             input_parameters:
                 Additional input parameters for run as a dict. Used for
                 example, in PCM calculations.  E.g., {"EPS":12}
+            link0_parameters:
+                Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
         """
         self._mol = mol
-        self.charge = charge
-        self.spin_multiplicity = spin_multiplicity
+        self.charge = charge if charge is not None else mol.charge
+        nelectrons = - self.charge + mol.charge + mol.nelectrons
+        if spin_multiplicity is not None:
+            self.spin_multiplicity = spin_multiplicity
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                        self.charge, spin_multiplicity))
+        else:
+            self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
         self.functional = functional
         self.basis_set = basis_set
         self.link0_parameters = link0_parameters if link0_parameters else {}
@@ -314,12 +329,8 @@ class GaussianInput(object):
 
     def __str__(self):
         def para_dict_to_string(para, joiner=" "):
-            para_str = []
-            for k, v in para.items():
-                if v:
-                    para_str.append("{}={}".format(k, v))
-                else:
-                    para_str.append(k)
+            para_str = ["{}={}".format(k, v) if v else k
+                        for k, v in para.items()]
             return joiner.join(para_str)
         output = []
         if self.link0_parameters:
@@ -445,6 +456,7 @@ class GaussianOutput(object):
         self.structures = []
         self.corrections = {}
         self.energies = []
+        self.pcm = None
 
         coord_txt = []
         read_coord = 0
@@ -552,3 +564,45 @@ class GaussianOutput(object):
         elif parameter_patt.search(line):
             m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
+
+    @property
+    def to_dict(self):
+        """
+        Json-serializable dict representation.
+        """
+        structure = self.final_structure
+        d = {"has_gaussian_completed": self.properly_terminated,
+             "nsites": len(structure)}
+        comp = structure.composition
+        d["unit_cell_formula"] = comp.to_dict
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["pretty_formula"] = comp.reduced_formula
+        d["is_pcm"] = self.is_pcm
+
+        unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
+        d["elements"] = unique_symbols
+        d["nelements"] = len(unique_symbols)
+        d["charge"] = self.charge
+        d["spin_multiplicity"] = self.spin_mult
+
+        vin = {"route": self.route, "functional": self.functional,
+               "basis_set": self.basis_set,
+               "nbasisfunctions": self.num_basis_func,
+               "pcm_parameters": self.pcm}
+
+        d["input"] = vin
+
+        nsites = len(self.final_structure)
+
+        vout = {
+            "energies": self.energies,
+            "final_energy": self.final_energy,
+            "final_energy_per_atom": self.final_energy / nsites,
+            "molecule": structure.to_dict,
+            "stationary_type": self.stationary_type,
+            "corrections": self.corrections
+        }
+
+        d['output'] = vout
+
+        return d

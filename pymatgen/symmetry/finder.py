@@ -338,11 +338,12 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim])
+            return Structure(lattice.T, species, positions[:num_atom_prim])\
+                .get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
             #structure.
-            return self._structure
+            return self._structure.get_reduced_structure()
 
     def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
         """
@@ -549,7 +550,7 @@ class SymmetryFinder(object):
             #cell
             #if so, make a supercell
             a, b, c = latt.abc
-            if abs(a - b) < 0.001 and abs(c - b) < 0.001 and abs(a - c) < 0.001:
+            if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
                                                  (1, 1, 1))).modified_structure
                 sorted_lengths = sorted(struct.lattice.abc)
@@ -639,7 +640,7 @@ class SymmetryFinder(object):
                 for t in itertools.permutations(range(3), 3):
                     m = latt.matrix
                     landang = Lattice(
-                        [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
+                        [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles
                     if landang[1][0] > 90 and landang[0][1] < landang[0][2]:
                         landang = Lattice(
                             [-m[t[0]], -m[t[1]], m[t[2]]]).lengths_and_angles
@@ -683,7 +684,8 @@ class SymmetryFinder(object):
             a, b, c = latt.lengths_and_angles[0]
             alpha, beta, gamma = [math.pi * i / 180
                                   for i in latt.lengths_and_angles[1]]
-            new_matrix = [[a, 0, 0],
+            new_matrix = None
+            test_matrix = [[a, 0, 0],
                           [b * cos(gamma), b * sin(gamma), 0.0],
                           [c * cos(beta),
                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
@@ -692,10 +694,69 @@ class SymmetryFinder(object):
                                          - cos(beta) ** 2
                                          + 2 * cos(alpha) * cos(beta)
                                          * cos(gamma)) / sin(gamma)]]
+
+            def is_all_acute_or_obtuse(m):
+                recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
+                return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
+
+            if is_all_acute_or_obtuse(test_matrix):
+                trans = [[1.0, 0.0, 0.0],
+                         [0.0, 1.0, 0.0],
+                         [0.0, 0.0, 1.0]]
+                new_matrix = test_matrix
+
+            test_matrix = [[-a, 0, 0],
+                           [b * cos(gamma), b * sin(gamma), 0.0],
+                           [-c * cos(beta),
+                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                           - cos(beta) ** 2
+                                           + 2 * cos(alpha) * cos(beta)
+                                           * cos(gamma)) / sin(gamma)]]
+
+            if is_all_acute_or_obtuse(test_matrix):
+                trans = [[-1.0, 0.0, 0.0],
+                         [0.0, 1.0, 0.0],
+                         [0.0, 0.0, -1.0]]
+                new_matrix = test_matrix
+
+            test_matrix = [[-a, 0, 0],
+                           [-b * cos(gamma), -b * sin(gamma), 0.0],
+                           [c * cos(beta),
+                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                          - cos(beta) ** 2
+                                          + 2 * cos(alpha) * cos(beta)
+                                          * cos(gamma)) / sin(gamma)]]
+
+            if is_all_acute_or_obtuse(test_matrix):
+                trans = [[-1.0, 0.0, 0.0],
+                         [0.0, -1.0, 0.0],
+                         [0.0, 0.0, 1.0]]
+                new_matrix = test_matrix
+
+            test_matrix = [[a, 0, 0],
+                           [-b * cos(gamma), -b * sin(gamma), 0.0],
+                           [-c * cos(beta),
+                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
+                            sin(gamma),
+                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
+                                           - cos(beta) ** 2
+                                           + 2 * cos(alpha) * cos(beta)
+                                           * cos(gamma)) / sin(gamma)]]
+            if is_all_acute_or_obtuse(test_matrix):
+                trans = [[1.0, 0.0, 0.0],
+                         [0.0, -1.0, 0.0],
+                         [0.0, 0.0, -1.0]]
+                new_matrix = test_matrix
+
             new_sites = []
             for s in struct.sites:
                 new_sites.append(
-                    PeriodicSite(s.specie, s.frac_coords, Lattice(new_matrix),
+                    PeriodicSite(s.specie, np.dot(trans, s.frac_coords),
+                                 Lattice(new_matrix),
                                  to_unit_cell=False, properties=s.properties))
             new_struct = Structure.from_sites(new_sites)
 

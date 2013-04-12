@@ -5,7 +5,5 @@ classes to be simply called as pymatgen.io.vaspio.Incar for example, to retain
 backwards compatibility.
 """
 
-from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle
-from pymatgen.io.vaspio.vasp_output import Vasprun, Chgcar, Locpot, Oszicar, \
-    Outcar
+from .vasp_input import *
+from .vasp_output import *
