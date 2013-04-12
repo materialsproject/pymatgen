@@ -731,7 +731,7 @@ class Kpoints(MSONable):
                 given in Cartesian or Reciprocal coordinates.
             labels:
                 In line-mode, this should provide a list of labels for each
-                kpt.
+                kpt. It is optional in explicit kpoint mode as comments for k-points.
             tet_number:
                 For explicit kpoints, specifies the number of tetrahedrons for
                 the tetrahedron method.
@@ -1003,7 +1003,11 @@ class Kpoints(MSONable):
             if style == "l":
                 lines[-1] += " ! " + self.labels[i]
             elif self.num_kpts > 0:
-                lines[-1] += " %f" % (self.kpts_weights[i])
+                if self.labels is not None:
+                    lines[-1] += " %f %s" % (self.kpts_weights[i], self.labels[i])
+                else:
+                    lines[-1] += " %f" % (self.kpts_weights[i])
+
 
         #Print tetrahedorn parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
