@@ -128,9 +128,9 @@ class SymmetryFinderTest(unittest.TestCase):
         primitive_structure = s.find_primitive()
         self.assertEqual(primitive_structure.formula, "Li2 O1")
         # This isn't what is expected. All the angles should be 60
-        self.assertAlmostEqual(primitive_structure.lattice.alpha, 120)
+        self.assertAlmostEqual(primitive_structure.lattice.alpha, 60)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
-        self.assertAlmostEqual(primitive_structure.lattice.gamma, 120)
+        self.assertAlmostEqual(primitive_structure.lattice.gamma, 60)
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
 

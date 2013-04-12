@@ -9,9 +9,9 @@ from setuptools import setup, find_packages, Extension
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
-    print "numpy.distutils.misc_util cannot be imported."
-    print "numpy.distutils.misc_util is needed to build the spglib extension."
-    print "Please install numpy first before retrying setup."
+    print("numpy.distutils.misc_util cannot be imported.")
+    print("numpy.distutils.misc_util is needed to build the spglib extension.")
+    print("Please install numpy first before retrying setup.")
     sys.exit(-1)
 
 
@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.6.2",
+    version="2.6.6b",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
@@ -83,7 +83,6 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    download_url="https://github.com/materialsproject/pymatgen/tarball/master",
     ext_modules=[get_spglib_ext()],
     scripts=[os.path.join("scripts", f) for f in os.listdir("scripts")]
 )

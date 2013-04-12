@@ -67,8 +67,8 @@ class XYZ(object):
         for i in xrange(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
-                sp.append(m.group(1))
-                coords.append(map(float, m.groups()[2:5]))
+                sp.append(m.group(1))  # this is 1-indexed
+                coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
         return XYZ(Molecule(sp, coords))
 
     @staticmethod

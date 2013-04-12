@@ -32,11 +32,21 @@ class GaussianInputTest(unittest.TestCase):
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-
+        self.coords = coords
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
         self.gau = GaussianInput(mol,
                                  route_parameters={'SP': "", "SCF": "Tight"},
                                  input_parameters={"EPS": 12})
+
+    def test_init(self):
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
+        gau = GaussianInput(mol, charge=1, route_parameters={'SP': "",
+                                                             "SCF": "Tight"})
+        self.assertEqual(gau.spin_multiplicity, 2)
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=-1)
+        gau = GaussianInput(mol, route_parameters={'SP': "", "SCF": "Tight"})
+        self.assertEqual(gau.spin_multiplicity, 2)
+        self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
         ans = """#P HF/6-31G(d) SP SCF=Tight Test
@@ -143,6 +153,9 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual("HF", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
+        d = gau.to_dict
+        self.assertEqual(d["input"]["functional"], "HF")
+        self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
 
 
 if __name__ == "__main__":
