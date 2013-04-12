@@ -254,7 +254,7 @@ class StructureMatcher(MSONable):
 
     """
 
-    def __init__(self, ltol=0.2, stol=0.5, angle_tol=5, primitive_cell=True,
+    def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, comparator=SpeciesComparator()):
         """
         Args:
@@ -263,7 +263,7 @@ class StructureMatcher(MSONable):
             stol:
                 Site tolerance. Defined as the fraction of the
                 average free length per atom := ( V / Nsites ) ** (1/3)
-                Default is 0.5.
+                Default is 0.3.
             angle_tol:
                 Angle tolerance in degrees. Default is 5 degrees.
             primitive_cell:
