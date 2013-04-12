@@ -1,8 +1,9 @@
+import numpy as np
 import unittest
 import os
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    solid_angle, contains_peroxide, RelaxationAnalyzer
+    solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element
@@ -59,6 +60,29 @@ class RelaxationAnalyzerTest(unittest.TestCase):
             for k2, v2 in v.items():
                 self.assertAlmostEqual(-0.009204092115527862, v2)
 
+class VoronoiConnectivityTest(unittest.TestCase):
+    
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'LiFePO4.cif')
+        parser = CifParser(filepath)
+        self.s = parser.get_structures()[0]
+        
+    def test_connectivity_array(self):
+        vc = VoronoiConnectivity(self.s)
+        ca = vc.connectivity_array
+        np.set_printoptions(threshold = np.NAN, linewidth = np.NAN, suppress = np.NAN)
+        
+        expected = np.array([0, 1.96338392, 0, 0.04594495])
+        self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
+        
+        expected = np.array([0, 2.04147512, 2.12118181])
+        self.assertTrue(np.allclose(ca[1, -3:, 51], expected))
+        
+        site = vc.get_sitej(27, 51)
+        self.assertEqual(site.specie, Element('O'))
+        expected = np.array([-0.04316, 0.25111, 0.29158])
+        self.assertTrue(np.allclose(site.frac_coords, expected))
+    
 
 class MiscFunctionTest(unittest.TestCase):
 
