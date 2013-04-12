@@ -752,7 +752,7 @@ class Structure(SiteCollection, MSONable):
             latt = Lattice(latt)
 
             #Convert to fractional tol
-            tol = tolerance / (2 * np.pi) * np.array(latt.reciprocal_lattice.abc)
+            tol = tolerance / np.array(latt.abc)
 
             #check validity of new basis
             new_l_points = latt.get_fractional_coords(l_points)
