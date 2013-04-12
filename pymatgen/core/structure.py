@@ -647,7 +647,9 @@ class Structure(SiteCollection, MSONable):
                 number of interpolation images. Defaults to 10 images.
 
         Returns:
-            List of interpolated structures.
+            List of interpolated structures. The starting and ending
+            structures included as the first and last structures respectively.
+            A total of (nimages + 1) structures are returned.
         """
         #Check length of structures
         if len(self) != len(end_structure):
@@ -703,7 +705,7 @@ class Structure(SiteCollection, MSONable):
 
         Returns:
             The most primitive structure found. The returned structure is
-            guanranteed to have len(new structure) <= len(structure).
+            guaranteed to have len(new structure) <= len(structure).
         """
         original_volume = self.volume
         (reduced_formula, num_fu) =\
