@@ -219,7 +219,7 @@ class MPRester(object):
 
     def get_dos_by_material_id(self, material_id):
         """
-        Get a ComputedEntry corresponding to a material_id.
+        Get a Dos corresponding to a material_id.
 
         Args:
             material_id:
@@ -233,14 +233,14 @@ class MPRester(object):
 
     def get_bandstructure_by_material_id(self, material_id):
         """
-        Get a ComputedEntry corresponding to a material_id.
+        Get a BandStructure corresponding to a material_id.
 
         Args:
             material_id:
                 Materials Project material_id (an int).
 
         Returns:
-            A Bandstructure object.
+            A BandStructure object.
         """
         data = self.get_data(material_id, prop="bandstructure")
         return data[0]["bandstructure"]
