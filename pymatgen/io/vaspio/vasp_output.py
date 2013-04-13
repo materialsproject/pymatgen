@@ -1707,7 +1707,7 @@ class VolumetricData(object):
         """
         Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
-        fike.
+        file.
 
         Args:
             ind : Index of axis.
