@@ -1716,15 +1716,14 @@ class VolumetricData(object):
             Average total along axis
         """
         m = self.data["total"]
-
         ng = self.dim
         if ind == 0:
-            avg = np.sum(np.sum(m, axis=1), 1)
+            total = np.sum(np.sum(m, axis=1), 1)
         elif ind == 1:
-            avg = np.sum(np.sum(m, axis=0), 1)
+            total = np.sum(np.sum(m, axis=0), 1)
         else:
-            avg = np.sum(np.sum(m, axis=0), 0)
-        return avg / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
+            total = np.sum(np.sum(m, axis=0), 0)
+        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
 
 class Locpot(VolumetricData):
