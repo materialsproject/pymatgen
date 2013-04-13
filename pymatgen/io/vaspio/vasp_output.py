@@ -1724,8 +1724,7 @@ class VolumetricData(object):
             avg = np.sum(np.sum(m, axis=0), 1)
         else:
             avg = np.sum(np.sum(m, axis=0), 0)
-        avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
-        return avg
+        return avg / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
 
 class Locpot(VolumetricData):
