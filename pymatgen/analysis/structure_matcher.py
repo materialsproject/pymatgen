@@ -382,11 +382,12 @@ class StructureMatcher(MSONable):
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
         for s1_coords, s2_coords in zip(s1, s2):
+            j = len(s1_coords)
             vecs = pbc_shortest_vectors(avg_lattice, s1_coords, s2_coords)
             distances = (np.sum(vecs ** 2, axis=-1)) ** 0.5
-            dist[i: i + len(s1_coords), i: i + len(s1_coords)] = distances
-            vec_matrix[i: i + len(s1_coords), i: i + len(s1_coords)] = vecs
-            i += len(s1_coords)
+            dist[i: i + j, i: i + j] = distances
+            vec_matrix[i: i + j, i: i + j] = vecs
+            i += j
         lin = LinearAssignment(dist)
         inds = np.arange(nsites)
 
