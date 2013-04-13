@@ -1718,18 +1718,12 @@ class VolumetricData(object):
         m = self.data["total"]
 
         ng = self.dim
-        avg = []
-        for i in xrange(ng[ind]):
-            subtotal = 0
-            for j in xrange(ng[(ind + 1) % 3]):
-                for k in xrange(ng[(ind + 2) % 3]):
-                    if ind == 0:
-                        subtotal += m[i, j, k]
-                    if ind == 1:
-                        subtotal += m[k, i, j]
-                    if ind == 2:
-                        subtotal += m[j, k, i]
-            avg.append(subtotal)
+        if ind == 0:
+            avg = np.sum(np.sum(m, axis=1), 1)
+        elif ind == 1:
+            avg = np.sum(np.sum(m, axis=0), 1)
+        else:
+            avg = np.sum(np.sum(m, axis=0), 0)
         avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
         return avg
 
