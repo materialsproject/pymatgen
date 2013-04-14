@@ -4,12 +4,10 @@ import os
 
 from pymatgen.io.feffio import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
     FeffAtoms
-from pymatgen.io.cifio import CifParser
-
-import pymatgen
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
 
 class  HeaderTest(unittest.TestCase):
 
@@ -45,7 +43,7 @@ TITLE sites: 4
     def test_get_string(self):
         cif_file = os.path.join(test_dir, 'CoO19128.cif')
         h = Header.from_cif_file(cif_file)
-        Header.set_source(h,'../test_files/CoO19128.cif')
+        Header.set_source(h, '../test_files/CoO19128.cif')
         head = h.get_string()
         self.assertEqual(head.splitlines()[1].split()[-1],
                          HeaderTest.header_string.splitlines()[1].split()[-1],
