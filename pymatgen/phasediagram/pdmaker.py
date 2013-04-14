@@ -101,25 +101,24 @@ class PhaseDiagram (object):
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
         self.all_entries = entries
-        self.elements = tuple(elements)
+        elements = tuple(elements)
         dim = len(elements)
-        self.el_refs = self._get_el_refs()
+        el_refs = self._get_el_refs(elements)
 
         data = []
         for entry in entries:
             comp = entry.composition
-            row = [comp.get_atomic_fraction(el)
-                   for el in self.elements]
+            row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
         qhull_data = np.array(data)
 
-        vec = [self.el_refs[el].energy_per_atom for el in self.elements]
+        vec = [el_refs[el].energy_per_atom for el in elements]
         vec.append(-1)
         form_e = - np.dot(data, vec)
         ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
-        ind.extend([entries.index(e) for e in self.el_refs.values()])
-        self.qhull_entries = [entries[i] for i in ind]
+        ind.extend([entries.index(e) for e in el_refs.values()])
+        qhull_entries = [entries[i] for i in ind]
         qhull_data = qhull_data[ind][:, 1:]
 
         if len(qhull_data) == dim:
@@ -138,7 +137,7 @@ class PhaseDiagram (object):
                     facetmatrix[count] = np.array(qhull_data[vertex])
                     facetmatrix[count, dim - 1] = 1
                     count += 1
-                    if len(self.qhull_entries[vertex].composition) > 1:
+                    if len(qhull_entries[vertex].composition) > 1:
                         is_element_facet = False
                 if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
                         (not is_element_facet):
@@ -148,6 +147,9 @@ class PhaseDiagram (object):
             self.facets = finalfacets
         self.qhull_data = qhull_data
         self.dim = dim
+        self.el_refs = el_refs
+        self.elements = elements
+        self.qhull_entries = qhull_entries
 
     @property
     def unstable_entries(self):
@@ -209,9 +211,9 @@ class PhaseDiagram (object):
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
 
-    def _get_el_refs(self):
+    def _get_el_refs(self, elements):
         el_refs = {}
-        for el in self.elements:
+        for el in elements:
             el_entries = filter(lambda e: e.composition.is_element and
                                 e.composition.elements[0] == el,
                                 self.all_entries)
@@ -395,17 +397,3 @@ class PhaseDiagramError(Exception):
 
     def __str__(self):
         return self.msg
-
-from pymatgen.phasediagram.entries import PDEntryIO
-elements, entries = PDEntryIO.from_csv("tests/pdentries_test.csv")
-
-def test():
-    pd = PhaseDiagram(entries)
-    for e in pd.stable_entries:
-        print e
-
-if __name__ == "__main__":
-    import pstats, cProfile
-    cProfile.runctx("test()", globals(), locals(), "Profile.prof")
-    s = pstats.Stats("Profile.prof")
-    s.strip_dirs().sort_stats("cumulative").print_stats()
