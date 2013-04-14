@@ -222,7 +222,8 @@ class FeffInputSet(AbstractFeffInputSet):
         return atoms.get_string()
 
     def __str__(self):
-        output = [self.name, ""]
+        output = [self.name]
+        output.append("")
         section_names = ["XANES", "EXAFS"]
         count = 0
         for d in [self.xanes_settings, self.exafs_settings]:
