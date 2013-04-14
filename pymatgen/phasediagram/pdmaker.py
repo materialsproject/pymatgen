@@ -118,8 +118,8 @@ class PhaseDiagram (object):
         vec.append(-1)
         form_e = - np.dot(data, vec)
         ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
-        ind.extend([self.all_entries.index(e) for e in self.el_refs.values()])
-        self.qhull_entries = [e for i, e in enumerate(self.all_entries)
+        ind.extend([entries.index(e) for e in self.el_refs.values()])
+        self.qhull_entries = [e for i, e in enumerate(entries)
                               if i in ind]
         qhull_data = qhull_data[ind][:, 1:]
 
@@ -450,6 +450,8 @@ def test():
     from pymatgen.phasediagram.entries import PDEntryIO
     elements, entries = PDEntryIO.from_csv("tests/pdentries_test.csv")
     pd = PhaseDiagram(entries)
+    for e in pd.stable_entries:
+        print e
 
 if __name__ == "__main__":
     import pstats, cProfile
