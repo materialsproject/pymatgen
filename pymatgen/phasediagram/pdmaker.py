@@ -102,9 +102,27 @@ class PhaseDiagram (object):
                                   for entry in entries])
         self.all_entries = entries
         self.elements = tuple(elements)
-        dim = len(self.elements)
+        dim = len(elements)
         self.el_refs = self._get_el_refs()
-        (self.qhull_entries, qhull_data) = self._create_convhull_data()
+
+        data = []
+        for entry in entries:
+            comp = entry.composition
+            row = [comp.get_atomic_fraction(el)
+                   for el in self.elements]
+            row.append(entry.energy_per_atom)
+            data.append(row)
+        qhull_data = np.array(data)
+
+        vec = [self.el_refs[el].energy_per_atom for el in self.elements]
+        vec.append(-1)
+        form_e = - np.dot(data, vec)
+        ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+        ind.extend([self.all_entries.index(e) for e in self.el_refs.values()])
+        self.qhull_entries = [e for i, e in enumerate(self.all_entries)
+                              if i in ind]
+        qhull_data = qhull_data[ind][:, 1:]
+
         if len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
@@ -426,3 +444,15 @@ class PhaseDiagramError(Exception):
 
     def __str__(self):
         return self.msg
+
+
+def test():
+    from pymatgen.phasediagram.entries import PDEntryIO
+    elements, entries = PDEntryIO.from_csv("tests/pdentries_test.csv")
+    pd = PhaseDiagram(entries)
+
+if __name__ == "__main__":
+    import pstats, cProfile
+    cProfile.runctx("test()", globals(), locals(), "Profile.prof")
+    s = pstats.Stats("Profile.prof")
+    s.strip_dirs().sort_stats("cumulative").print_stats()
