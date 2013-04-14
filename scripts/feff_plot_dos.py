@@ -8,12 +8,11 @@ either by site, element, or orbital
 from __future__ import division
 
 __author__ = "Alan Dozier"
-__credits__= "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Alan Dozier"
 __email__ = "adozier@uky.edu"
-__date__ = "April 7, 2012"
+__date__ = "May 11, 2012"
 
 import argparse
 from collections import OrderedDict
@@ -38,13 +37,13 @@ parser.add_argument('-o', '--orbital', dest="orbital", action='store_const',
                     const=True, help='plot orbital projected DOS')
 
 args = parser.parse_args()
-f = FeffLdos.from_file(args.filename1[0], args.filename[0])
+f = FeffLdos(args.filename1[0], args.filename[0])
 dos = f.complete_dos
 
 all_dos = OrderedDict()
 all_dos['Total'] = dos
 
-structure = f.complete_dos.structure
+structure = f.structure
 
 if args.site:
     for i in xrange(len(structure)):
