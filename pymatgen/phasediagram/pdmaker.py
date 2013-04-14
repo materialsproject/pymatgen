@@ -15,7 +15,6 @@ __status__ = "Production"
 __date__ = "Nov 25, 2012"
 
 import collections
-import logging
 
 import numpy as np
 
@@ -26,9 +25,6 @@ from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-
-
-logger = logging.getLogger(__name__)
 
 
 class PhaseDiagram (object):
@@ -100,14 +96,12 @@ class PhaseDiagram (object):
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        self.all_entries = entries
         elements = tuple(elements)
         dim = len(elements)
         el_refs = {}
         for el in elements:
             el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el,
-                                self.all_entries)
+                                e.composition.elements[0] == el, entries)
             if len(el_entries) == 0:
                 raise PhaseDiagramError("There are no entries associated with"
                                         " terminal {}.".format(el))
@@ -120,7 +114,10 @@ class PhaseDiagram (object):
             row.append(entry.energy_per_atom)
             data.append(row)
         qhull_data = np.array(data)
+        self.all_entries_hulldata = qhull_data[:, 1:]
 
+        # Calculate formation energies and remove positive formation energy
+        # entries
         vec = [el_refs[el].energy_per_atom for el in elements]
         vec.append(-1)
         form_e = - np.dot(data, vec)
@@ -133,9 +130,6 @@ class PhaseDiagram (object):
             self.facets = [range(dim)]
         else:
             facets = ConvexHull(qhull_data).vertices
-            logger.debug("Final facets are\n{}".format(facets))
-
-            logger.debug("Removing vertical facets...")
             finalfacets = []
             for facet in facets:
                 facetmatrix = np.zeros((len(facet), len(facet)))
@@ -150,9 +144,8 @@ class PhaseDiagram (object):
                 if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
                         (not is_element_facet):
                     finalfacets.append(facet)
-                else:
-                    logger.debug("Removing vertical facet : {}".format(facet))
             self.facets = finalfacets
+        self.all_entries = entries
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
@@ -177,14 +170,6 @@ class PhaseDiagram (object):
             for vertex in facet:
                 stable_entries.add(self.qhull_entries[vertex])
         return stable_entries
-
-    @property
-    def all_entries_hulldata(self):
-        """
-        Same as qhull_data, but for all entries rather than just negative
-        formation energy ones.
-        """
-        return self._process_entries_qhulldata(self.all_entries)
 
     def get_form_energy(self, entry):
         """
@@ -218,18 +203,6 @@ class PhaseDiagram (object):
         """
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
-
-    def _get_el_refs(self, elements):
-        el_refs = {}
-        for el in elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el,
-                                self.all_entries)
-            if len(el_entries) == 0:
-                raise PhaseDiagramError("There are no entries associated with"
-                                        " terminal {}.".format(el))
-            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
-        return el_refs
 
     def __repr__(self):
         return self.__str__()
