@@ -209,27 +209,6 @@ class PhaseDiagram (object):
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
 
-    def _process_entries_qhulldata(self, entries_to_process):
-        """
-        From a sequence of entries, generate the necessary for the convex hull.
-        Using the Li-Fe-O phase diagram as an example, this is of the form:
-        [[ Fe_fraction_entry_1, O_fraction_entry_1, Energy_per_atom_entry_1],
-         [ Fe_fraction_entry_2, O_fraction_entry_2, Energy_per_atom_entry_2],
-         ...]]
-
-        Note that there are only two independent variables, since the third
-        elemental fraction is fixed by the constraint that all compositions sum
-        to 1. The choice of the elements is arbitrary.
-        """
-        def make_row(entry):
-            comp = entry.composition
-            row = [comp.get_atomic_fraction(self.elements[i])
-                   for i in xrange(1, len(self.elements))]
-            row.append(entry.energy_per_atom)
-            return row
-
-        return map(make_row, entries_to_process)
-
     def _get_el_refs(self):
         el_refs = {}
         for el in self.elements:
@@ -241,33 +220,6 @@ class PhaseDiagram (object):
                                         " terminal {}.".format(el))
             el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
         return el_refs
-
-    def _create_convhull_data(self):
-        """
-        Make data suitable for convex hull procedure from the list of entries.
-        The procedure is as follows:
-
-        1. First find the elemental references, i.e., the lowest energy entry
-           for the vertices of the phase diagram. Using the Li-Fe-O phase
-           diagram as an example, this means the lowest energy Li, Fe, and O
-           phases.
-        2. Calculate the formation energies from these elemental references for
-           all entries. Exclude all positive formation energy ones from the
-           data for convex hull.
-        3. Generate the convex hull data.
-        """
-        logger.debug("Creating convex hull data...")
-        # Remove positive formation energy entries
-        qhull_entries = []
-        for entry in self.all_entries:
-            if self.get_form_energy(entry) <= -self.formation_energy_tol:
-                qhull_entries.append(entry)
-            else:
-                logger.debug("Removing positive formation energy entry " +
-                             "{}".format(entry))
-        qhull_entries.extend(self.el_refs.values())
-
-        return qhull_entries, self._process_entries_qhulldata(qhull_entries)
 
     def __repr__(self):
         return self.__str__()
@@ -444,10 +396,10 @@ class PhaseDiagramError(Exception):
     def __str__(self):
         return self.msg
 
+from pymatgen.phasediagram.entries import PDEntryIO
+elements, entries = PDEntryIO.from_csv("tests/pdentries_test.csv")
 
 def test():
-    from pymatgen.phasediagram.entries import PDEntryIO
-    elements, entries = PDEntryIO.from_csv("tests/pdentries_test.csv")
     pd = PhaseDiagram(entries)
     for e in pd.stable_entries:
         print e
