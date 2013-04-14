@@ -49,6 +49,8 @@ class PhaseDiagramTest(unittest.TestCase):
         for formula, energy in expected_formation_energies.items():
             self.assertAlmostEqual(energy, stable_formation_energies[formula],
                                    7)
+    def test_all_entries_hulldata(self):
+        self.assertEqual(len(self.pd.all_entries_hulldata), 492)
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
