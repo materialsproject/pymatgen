@@ -106,7 +106,7 @@ class PhaseDiagram (object):
         el_refs = {}
         for el in elements:
             el_entries = filter(lambda e: e.composition.is_element and
-                                          e.composition.elements[0] == el,
+                                e.composition.elements[0] == el,
                                 self.all_entries)
             if len(el_entries) == 0:
                 raise PhaseDiagramError("There are no entries associated with"
