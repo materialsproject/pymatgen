@@ -37,7 +37,7 @@ class AbstractFeffInputSet(object):
         """
         Returns Atoms string from a structure that goes in feff.inp file.
         """
-        return FeffAtoms(structure)
+        return FeffAtoms(structure, central_atom)
 
     @abc.abstractmethod
     def get_feff_tags(self, calctype):
