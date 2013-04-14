@@ -103,7 +103,15 @@ class PhaseDiagram (object):
         self.all_entries = entries
         elements = tuple(elements)
         dim = len(elements)
-        el_refs = self._get_el_refs(elements)
+        el_refs = {}
+        for el in elements:
+            el_entries = filter(lambda e: e.composition.is_element and
+                                          e.composition.elements[0] == el,
+                                self.all_entries)
+            if len(el_entries) == 0:
+                raise PhaseDiagramError("There are no entries associated with"
+                                        " terminal {}.".format(el))
+            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
 
         data = []
         for entry in entries:
