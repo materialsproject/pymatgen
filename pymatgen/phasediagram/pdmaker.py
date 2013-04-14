@@ -119,8 +119,7 @@ class PhaseDiagram (object):
         form_e = - np.dot(data, vec)
         ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
         ind.extend([entries.index(e) for e in self.el_refs.values()])
-        self.qhull_entries = [e for i, e in enumerate(entries)
-                              if i in ind]
+        self.qhull_entries = [entries[i] for i in ind]
         qhull_data = qhull_data[ind][:, 1:]
 
         if len(qhull_data) == dim:
