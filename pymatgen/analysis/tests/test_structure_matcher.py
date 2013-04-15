@@ -147,5 +147,16 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm.get_rms_dist(self.struct_list[0],
                                         self.struct_list[1])[0] < 0.0008)
 
+    def test_supercell_fit(self):
+        sm = StructureMatcher(attempt_supercell=False)
+        s1 = read_structure(os.path.join(test_dir, "Al3F9.cif"))
+        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.cif"))
+
+        self.assertFalse(sm.fit(s1, s2))
+
+        sm = StructureMatcher(attempt_supercell=True)
+
+        self.assertTrue(sm.fit(s1, s2))
+
 if __name__ == '__main__':
     unittest.main()
