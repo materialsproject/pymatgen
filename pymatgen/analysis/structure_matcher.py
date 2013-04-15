@@ -452,7 +452,7 @@ class StructureMatcher(MSONable):
         frac_tol = \
             np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) / struct1.num_sites) ** (1.0 / 3)
+            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) ** (1.0 / 3)
 
         #generate structure coordinate lists
         species_list = []
