@@ -20,7 +20,7 @@ import abc
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.structure import Structure
-from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
@@ -255,7 +255,7 @@ class StructureMatcher(MSONable):
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
-                 scale=True, comparator=SpeciesComparator()):
+                 scale=True, attempt_supercell=False, comparator=SpeciesComparator()):
         """
         Args:
             ltol:
@@ -272,6 +272,11 @@ class StructureMatcher(MSONable):
             scale:
                 Input structures are scaled to equivalent volume if true;
                 For exact matching, set to False.
+            attempt_supercell:
+                If set to True and number of sites in cells differ
+                after a primitive cell reduction (divisible by an integer)
+                attempts to generate a supercell transformation of the
+                smaller cell which is equivalent to the larger structure.
             comparator:
                 A comparator object implementing an equals method that declares
                 declaring equivalency of sites. Default is
@@ -292,12 +297,14 @@ class StructureMatcher(MSONable):
         self._comparator = comparator
         self._primitive_cell = primitive_cell
         self._scale = scale
+        self._supercell = attempt_supercell
 
     def _get_lattices(self, s1, s2, vol_tol):
         s1_lengths, s1_angles = s1.lattice.lengths_and_angles
         all_nn = get_points_in_sphere_pbc(
             s2.lattice, [[0, 0, 0]], [0, 0, 0],
             (1 + self.ltol) * max(s1_lengths))[:, [0, 1]]
+
         nv = []
         for l in s1_lengths:
             nvi = all_nn[np.where((all_nn[:, 1] < (1 + self.ltol) * l)
@@ -307,7 +314,7 @@ class StructureMatcher(MSONable):
             nvi = [np.array(site) for site in nvi]
             nvi = np.dot(nvi, s2.lattice.matrix)
             nv.append(nvi)
-        #The vectors are broadcast into a 5-D array containing
+            #The vectors are broadcast into a 5-D array containing
         #all permutations of the entries in nv[0], nv[1], nv[2]
         #produces the same result as three nested loops over the
         #same variables and calculating determinants individually
@@ -403,6 +410,113 @@ class StructureMatcher(MSONable):
 
         return rms, max_dist
 
+    def _supercell_fit(self, struct1, struct2, break_on_match):
+        """
+        Calculate RMS displacement between two structures
+        where one is a potential supercell of the other
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
+            break_on_match:
+                True or False. Will break if the maximum
+                    distance found is less than the
+                    provided stol
+
+        Returns:
+            rms displacement normalized by (Vol / nsites) ** (1/3) and
+            maximum distance found between two paired sites
+        """
+
+        stored_rms = None
+
+        #reset struct1 to supercell
+        if struct2.num_sites > struct1.num_sites:
+            [struct2, struct1] = [struct1, struct2]
+
+        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
+        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
+
+        nl1 = struct1.lattice
+        nl2 = struct2.lattice
+
+        #Volume to determine invalid lattices
+        vol_tol = nl1.volume / 2
+
+        #fractional tolerance of atomic positions (2x for initial fitting)
+        frac_tol = \
+            np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
+                      i in struct1.lattice.reciprocal_lattice.abc]) * \
+            (nl1.volume / struct1.num_sites) ** (1.0 / 3)
+
+        #generate structure coordinate lists
+        species_list = []
+        s1 = []
+        for site in struct1:
+            found = False
+            for i, species in enumerate(species_list):
+                if self._comparator.are_equal(site.species_and_occu, species):
+                    found = True
+                    s1[i].append(site.frac_coords)
+                    break
+            if not found:
+                s1.append([site.frac_coords])
+                species_list.append(site.species_and_occu)
+
+        zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
+
+        s1 = [x[0] for x in zipped]
+        species_list = [x[1] for x in zipped]
+
+        #translate s1
+        s1_translation = s1[0][0]
+        for i in range(len(species_list)):
+            s1[i] = np.mod(s1[i] - s1_translation, 1)
+
+        #do permutations of vectors, check for equality
+        for nl in self._get_lattices(struct1, struct2, vol_tol):
+
+            s2_cart = [[] for i in s1]
+
+            aligned_m, rotation_matrix, scale_matrix = \
+                nl2.find_mapping(nl, ltol=self.ltol, atol=self.angle_tol)
+
+            scm = SupercellMaker(struct2, np.linalg.inv(scale_matrix).astype('int'))
+
+            for site in scm.modified_structure.sites:
+                found = False
+                for i, species in enumerate(species_list):
+                    if self._comparator.are_equal(site.species_and_occu, species):
+                        found = True
+                        s2_cart[i].append(site.coords)
+                        break
+                        #if no site match found return None
+                if not found:
+                    return None
+
+            #check that sizes of the site groups are identical
+            for f1, c2 in zip(s1, s2_cart):
+                if len(f1) != len(c2):
+                    return None
+
+            s2 = [nl.get_fractional_coords(c) for c in s2_cart]
+            for coord in s2[0]:
+                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
+                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
+                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
+                                                               nl1)
+                    if break_on_match and max_dist < self.stol:
+                        return max_dist
+                    elif stored_rms is None or rms < stored_rms[0]:
+                        stored_rms = rms, max_dist
+
+        if break_on_match:
+            return None
+        else:
+            return stored_rms
+
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -476,7 +590,12 @@ class StructureMatcher(MSONable):
 
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
-            return None
+            #if mismatch try to fit a supercell or return None
+            if self._supercell and ((struct1.num_sites % struct2.num_sites == 0)
+                                    or (struct2.num_sites % struct1.num_sites == 0)):
+                return self._supercell_fit(struct1, struct2, break_on_match)
+            else:
+                return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -536,7 +655,7 @@ class StructureMatcher(MSONable):
                     found = True
                     s2_cart[i].append(site.coords)
                     break
-                #if no site match found return None
+                    #if no site match found return None
             if not found:
                 return None
 
