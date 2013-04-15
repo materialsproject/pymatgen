@@ -436,6 +436,9 @@ class StructureMatcher(MSONable):
         if struct2.num_sites > struct1.num_sites:
             [struct2, struct1] = [struct1, struct2]
 
+        #number of formula units
+        fu = struct1.num_sites / struct2.num_sites
+
         struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
         struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
 
@@ -443,13 +446,13 @@ class StructureMatcher(MSONable):
         nl2 = struct2.lattice
 
         #Volume to determine invalid lattices
-        vol_tol = nl1.volume / 2
+        vol_tol = fu * nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
         frac_tol = \
             np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
-            (nl1.volume / struct1.num_sites) ** (1.0 / 3)
+            ((nl1.volume + fu * nl2.volume) / struct1.num_sites) ** (1.0 / 3)
 
         #generate structure coordinate lists
         species_list = []
