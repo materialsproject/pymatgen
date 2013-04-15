@@ -78,6 +78,7 @@ Version 2.6.6
 2. Added detailed installation instructions for various platforms.
 3. Support for charge and spin multiplicity in Molecule. Expanded methods
    available in Molecule.
+4. Added supercell matching capabilities to StructureMatcher.
 
 Version 2.6.5
 -------------
