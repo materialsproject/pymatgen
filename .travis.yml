@@ -22,6 +22,6 @@ branches:
 notifications:
   email:
     recipients:
-      - pymatgen-dev@mit.edu
+      - shyuep@gmail.com
     on_success: change
     on_failure: always
