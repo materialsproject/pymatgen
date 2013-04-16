@@ -20,7 +20,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class StructureMatcherTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
