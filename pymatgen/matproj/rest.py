@@ -113,7 +113,7 @@ class MPRester(object):
                 "exp".
             prop:
                 Property to be obtained. Should be one of the
-                MPRestAdaptor.supported_properties. Leave as empty string for a
+                MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
         if prop:
