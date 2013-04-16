@@ -453,7 +453,8 @@ class StructureMatcher(MSONable):
         frac_tol = \
             np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) ** (1 / 3)
+            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) \
+            ** (1 / 3)
 
         #generate structure coordinate lists
         species_list = []
@@ -484,11 +485,9 @@ class StructureMatcher(MSONable):
 
             s2_cart = [[] for i in s1]
 
-            aligned_m, rotation_matrix, scale_matrix = \
-                nl2.find_mapping(nl, ltol=self.ltol, atol=self.angle_tol)
+            scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
 
-            scm = SupercellMaker(struct2,
-                                 np.linalg.inv(scale_matrix).astype('int'))
+            scm = SupercellMaker(struct2, scale_matrix.astype('int'))
 
             for site in scm.modified_structure.sites:
                 found = False
@@ -597,9 +596,10 @@ class StructureMatcher(MSONable):
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             #if mismatch try to fit a supercell or return None
-            if self._supercell and (
-                    (struct1.num_sites % struct2.num_sites == 0) or
-                    (struct2.num_sites % struct1.num_sites == 0)):
+
+            if self._supercell and \
+                    not ((struct1.num_sites % struct2.num_sites)
+                         and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match)
             else:
                 return None
