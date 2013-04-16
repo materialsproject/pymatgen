@@ -1707,7 +1707,7 @@ class VolumetricData(object):
         """
         Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
-        fike.
+        file.
 
         Args:
             ind : Index of axis.
@@ -1716,22 +1716,14 @@ class VolumetricData(object):
             Average total along axis
         """
         m = self.data["total"]
-
         ng = self.dim
-        avg = []
-        for i in xrange(ng[ind]):
-            subtotal = 0
-            for j in xrange(ng[(ind + 1) % 3]):
-                for k in xrange(ng[(ind + 2) % 3]):
-                    if ind == 0:
-                        subtotal += m[i, j, k]
-                    if ind == 1:
-                        subtotal += m[k, i, j]
-                    if ind == 2:
-                        subtotal += m[j, k, i]
-            avg.append(subtotal)
-        avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
-        return avg
+        if ind == 0:
+            total = np.sum(np.sum(m, axis=1), 1)
+        elif ind == 1:
+            total = np.sum(np.sum(m, axis=0), 1)
+        else:
+            total = np.sum(np.sum(m, axis=0), 0)
+        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
 
 class Locpot(VolumetricData):
