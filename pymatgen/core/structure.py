@@ -227,6 +227,17 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                           np.dot(v12, v23)) * 180 / math.pi
 
+    @property
+    def is_valid(self):
+        """
+        True if SiteCollection does not contain atoms that are too close
+        together. Defined as 0.01 A.
+        """
+        for (s1, s2) in itertools.combinations(self.sites, 2):
+            if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
+                return False
+        return True
+
 
 class Structure(SiteCollection, MSONable):
     """
@@ -265,7 +276,7 @@ class Structure(SiteCollection, MSONable):
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang
+                Whether to check if there are sites that are less than 0.01 Ang
                 apart. Defaults to False.
             coords_are_cartesian:
                 Set to True if you are providing coordinates in cartesian
@@ -295,13 +306,11 @@ class Structure(SiteCollection, MSONable):
                                       self._lattice, to_unit_cell,
                                       coords_are_cartesian,
                                       properties=prop))
-
-        if validate_proximity:
-            for (s1, s2) in itertools.combinations(sites, 2):
-                if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
-                    raise StructureError(("Structure contains sites that are ",
-                                          "less than 0.01 Angstrom apart!"))
         self._sites = tuple(sites)
+        if validate_proximity and not self.is_valid:
+            raise StructureError(("Structure contains sites that are ",
+                                  "less than 0.01 Angstrom apart!"))
+
 
     @staticmethod
     def from_sites(sites):
@@ -919,12 +928,12 @@ class Molecule(SiteCollection, MSONable):
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
             sites.append(Site(species[i], coords[i], properties=prop))
-        if validate_proximity:
-            for (s1, s2) in itertools.combinations(sites, 2):
-                if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
-                    raise StructureError(("Molecule contains sites that are ",
-                                          "less than 0.01 Angstrom apart!"))
+
         self._sites = tuple(sites)
+        if validate_proximity and not self.is_valid:
+            raise StructureError(("Molecule contains sites that are ",
+                                  "less than 0.01 Angstrom apart!"))
+
         self._charge = charge
         nelectrons = 0
         for site in sites:

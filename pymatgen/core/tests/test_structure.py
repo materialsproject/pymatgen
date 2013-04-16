@@ -34,6 +34,15 @@ class StructureTest(unittest.TestCase):
                                               site_properties={'magmom':
                                                                [5, -5]})
 
+    def test_bad_structure(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        coords.append([0.75, 0.5, 0.75])
+        self.assertRaises(StructureError, Structure, self.lattice, ["Si"] * 3,
+                          coords, validate_proximity=True)
+
+
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
         self.assertAlmostEqual(self.struct.density, 2.33, 2,
@@ -222,6 +231,17 @@ class MoleculeTest(unittest.TestCase):
                   [-0.513360, 0.889165, -0.363000]]
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_bad_molecule(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.36301]]
+        self.assertRaises(StructureError, Molecule,
+                          ["C", "H", "H", "H", "H", "H"], coords,
+                          validate_proximity=True)
 
     def test_get_angle_dihedral(self):
         self.assertAlmostEqual(self.mol.get_angle(1, 0, 2), 109.47122144618737)
