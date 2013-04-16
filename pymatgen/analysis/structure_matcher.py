@@ -453,8 +453,7 @@ class StructureMatcher(MSONable):
         frac_tol = \
             np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) \
-            ** (1 / 3)
+            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) ** (1 / 3)
 
         #generate structure coordinate lists
         species_list = []
@@ -462,7 +461,8 @@ class StructureMatcher(MSONable):
         for site in struct1:
             found = False
             for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu, species):
+                if self._comparator.are_equal(site.species_and_occu,
+                                              species):
                     found = True
                     s1[i].append(site.frac_coords)
                     break
@@ -596,10 +596,9 @@ class StructureMatcher(MSONable):
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             #if mismatch try to fit a supercell or return None
-
-            if self._supercell and \
-                    not ((struct1.num_sites % struct2.num_sites)
-                         and (struct2.num_sites % struct1.num_sites)):
+            if self._supercell and not (
+                    (struct1.num_sites % struct2.num_sites)
+                    and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match)
             else:
                 return None
