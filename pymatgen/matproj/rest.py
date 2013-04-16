@@ -187,10 +187,11 @@ class MPRester(object):
             entries = MaterialsProjectCompatibility().process_entries(entries)
         return entries
 
-    def get_structure_entries(self, chemsys_formula_id, compatible_only=True, final=True):
+    def get_structure_entries(self, chemsys_formula_id, compatible_only=True,
+                              final=True):
         """
-        Get a list of ComputedStructureEntries corresponding to  a chemical system,
-        formula, or materials_id.
+        Get a list of ComputedStructureEntries corresponding to a chemical
+        system, formula, or materials_id.
 
         Args:
             chemsys_formula_id:
