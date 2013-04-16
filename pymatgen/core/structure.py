@@ -227,14 +227,17 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                           np.dot(v12, v23)) * 180 / math.pi
 
-    @property
-    def is_valid(self):
+    def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
         True if SiteCollection does not contain atoms that are too close
-        together. Defined as 0.01 A.
+        together.
+
+        Args:
+            tol:
+                Distance tolerance. Default is 0.01A.
         """
         for (s1, s2) in itertools.combinations(self.sites, 2):
-            if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
+            if s1.distance(s2) < tol:
                 return False
         return True
 
@@ -307,7 +310,7 @@ class Structure(SiteCollection, MSONable):
                                       coords_are_cartesian,
                                       properties=prop))
         self._sites = tuple(sites)
-        if validate_proximity and not self.is_valid:
+        if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
 
@@ -930,7 +933,7 @@ class Molecule(SiteCollection, MSONable):
             sites.append(Site(species[i], coords[i], properties=prop))
 
         self._sites = tuple(sites)
-        if validate_proximity and not self.is_valid:
+        if validate_proximity and not self.is_valid():
             raise StructureError(("Molecule contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
 
