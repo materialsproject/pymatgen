@@ -19,7 +19,7 @@ import os
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
@@ -135,6 +135,12 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
+
+    def test_get_structure_entries(self):
+        entries = self.rester.get_structure_entries("TiO2")
+        self.assertTrue(len(entries) > 1)
+        for e in entries:
+            self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
