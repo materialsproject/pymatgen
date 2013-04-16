@@ -14,6 +14,7 @@ https://www.materialsproject.org/profile.
 from __future__ import division
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
+__credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -26,6 +27,7 @@ import json
 import warnings
 
 from pymatgen import Composition, PMGJSONDecoder
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.io.vaspio_set import DictVaspInputSet
@@ -184,6 +186,41 @@ class MPRester(object):
         if compatible_only:
             entries = MaterialsProjectCompatibility().process_entries(entries)
         return entries
+
+    def get_structure_entries(self, chemsys_formula_id, compatible_only=True, final=True):
+        """
+        Get a list of ComputedStructureEntries corresponding to  a chemical system,
+        formula, or materials_id.
+
+        Args:
+            chemsys_formula_id:
+                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
+                materials_id (e.g., 1234).
+            compatible_only:
+                Whether to return only "compatible" entries. Compatible entries
+                are entries that have been processed using the
+                MaterialsProjectCompatibility class, which performs adjustments
+                to allow mixing of GGA and GGA+U calculations for more accurate
+                phase diagrams and reaction energies.
+            final:
+                Whether to get the final structure, or the initial
+                (pre-relaxation) structure. Defaults to True.
+
+        Returns:
+            List of ComputedStructureEntry objects.
+        """
+        # ComputedEntry objects (no structure)
+        entries = self.get_entries(chemsys_formula_id, compatible_only)
+
+        # structures
+        prop = "final_structure" if final else "initial_structure"
+        data = self.get_data(chemsys_formula_id, prop=prop)
+        id_structure = dict([(d['material_id'], d[prop]) for d in data])
+
+        # ComputedStructureEntries
+        return [ComputedStructureEntry(id_structure[e.entry_id], e.energy,
+                                       e.correction, e.parameters, e.data,
+                                       e.entry_id) for e in entries]
 
     def get_structure_by_material_id(self, material_id, final=True):
         """
