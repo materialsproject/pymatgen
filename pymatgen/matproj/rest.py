@@ -162,7 +162,8 @@ class MPRester(object):
         data = self.get_data(chemsys_formula_id, prop=prop)
         return [d[prop] for d in data]
 
-    def get_entries(self, chemsys_formula_id, compatible_only=True):
+    def get_entries(self, chemsys_formula_id, compatible_only=True,
+                    inc_structure=None):
         """
         Get a list of ComputedEntries corresponding to  a chemical system,
         formula, or materials_id.
@@ -177,51 +178,32 @@ class MPRester(object):
                 MaterialsProjectCompatibility class, which performs adjustments
                 to allow mixing of GGA and GGA+U calculations for more accurate
                 phase diagrams and reaction energies.
+            inc_structure:
+                If None, entries returned are ComputedEntries. If
+                inc_structure="final", ComputedStructureEntries with final
+                structures are returned. Otherwise, ComputedStructureEntries
+                with initial structures are returned.
 
         Returns:
             List of ComputedEntry objects.
         """
         data = self.get_data(chemsys_formula_id, prop="entry")
         entries = [d["entry"] for d in data]
+
+        def make_struct_entry(entry):
+            s = self.get_structure_by_material_id(entry.entry_id,
+                                                  inc_structure == "final")
+            return ComputedStructureEntry(s, entry.energy,
+                                          entry.correction, entry.parameters,
+                                          entry.data, entry.entry_id)
+
+        if inc_structure:
+            entries = map(make_struct_entry, entries)
+
         if compatible_only:
             entries = MaterialsProjectCompatibility().process_entries(entries)
+
         return entries
-
-    def get_structure_entries(self, chemsys_formula_id, compatible_only=True,
-                              final=True):
-        """
-        Get a list of ComputedStructureEntries corresponding to a chemical
-        system, formula, or materials_id.
-
-        Args:
-            chemsys_formula_id:
-                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., 1234).
-            compatible_only:
-                Whether to return only "compatible" entries. Compatible entries
-                are entries that have been processed using the
-                MaterialsProjectCompatibility class, which performs adjustments
-                to allow mixing of GGA and GGA+U calculations for more accurate
-                phase diagrams and reaction energies.
-            final:
-                Whether to get the final structure, or the initial
-                (pre-relaxation) structure. Defaults to True.
-
-        Returns:
-            List of ComputedStructureEntry objects.
-        """
-        # ComputedEntry objects (no structure)
-        entries = self.get_entries(chemsys_formula_id, compatible_only)
-
-        # structures
-        prop = "final_structure" if final else "initial_structure"
-        data = self.get_data(chemsys_formula_id, prop=prop)
-        id_structure = dict([(d['material_id'], d[prop]) for d in data])
-
-        # ComputedStructureEntries
-        return [ComputedStructureEntry(id_structure[e.entry_id], e.energy,
-                                       e.correction, e.parameters, e.data,
-                                       e.entry_id) for e in entries]
 
     def get_structure_by_material_id(self, material_id, final=True):
         """

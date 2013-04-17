@@ -136,8 +136,7 @@ class MPResterTest(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
-    def test_get_structure_entries(self):
-        entries = self.rester.get_structure_entries("TiO2")
+        entries = self.rester.get_entries("TiO2", inc_structure="final")
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
