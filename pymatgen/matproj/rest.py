@@ -165,8 +165,8 @@ class MPRester(object):
     def get_entries(self, chemsys_formula_id, compatible_only=True,
                     inc_structure=None):
         """
-        Get a list of ComputedEntries corresponding to  a chemical system,
-        formula, or materials_id.
+        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        to a chemical system, formula, or materials_id.
 
         Args:
             chemsys_formula_id:
@@ -185,7 +185,7 @@ class MPRester(object):
                 with initial structures are returned.
 
         Returns:
-            List of ComputedEntry objects.
+            List of ComputedEntry or ComputedStructureEntry objects.
         """
         data = self.get_data(chemsys_formula_id, prop="entry")
         entries = [d["entry"] for d in data]
