@@ -706,7 +706,7 @@ class StructureMatcher(MSONable):
         inds = [-1] * len(s_list)
         for j in range(len(s_list)):
             for i in range(len(group_list)):
-                if len(np.where(s_list[j] in group_list[i])[0]):
+                if s_list[j] in group_list[i]:
                     inds[j] = i
                     break
         return inds
