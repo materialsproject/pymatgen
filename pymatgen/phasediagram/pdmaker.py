@@ -141,12 +141,10 @@ class PhaseDiagram (object):
                     finalfacets = []
                     for facet in facets:
                         facetmatrix = np.zeros((len(facet), len(facet)))
-                        count = 0
                         is_element_facet = True
-                        for vertex in facet:
-                            facetmatrix[count] = np.array(qhull_data[vertex])
-                            facetmatrix[count, dim - 1] = 1
-                            count += 1
+                        for i, vertex in enumerate(facet):
+                            facetmatrix[i] = np.array(qhull_data[vertex])
+                            facetmatrix[i, dim - 1] = 1
                             if len(qhull_entries[vertex].composition) > 1:
                                 is_element_facet = False
                         if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
