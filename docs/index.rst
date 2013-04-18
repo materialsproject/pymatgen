@@ -79,6 +79,8 @@ Version 2.6.6
 3. Support for charge and spin multiplicity in Molecule. Expanded methods
    available in Molecule.
 4. Added supercell matching capabilities to StructureMatcher.
+5. More robust creation of PhaseDiagrams to take into account potential qhull
+   precision errors.
 
 Version 2.6.5
 -------------
