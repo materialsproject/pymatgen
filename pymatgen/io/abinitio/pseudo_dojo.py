@@ -19,7 +19,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJS
 ##########################################################################################
 
 class DojoError(Exception):
-    pass
+    "Base Error class for DOJO calculations."
 
 class Dojo(object):
     Error = DojoError

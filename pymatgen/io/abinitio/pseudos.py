@@ -1,6 +1,6 @@
 """
 This module provides objects describing the basic parameters of the pseudopotentials used in Abinit,
-a parser to instanciate pseudopotential objects from file and a simple database to access the official pseudopotential tables.
+a parser to instantiate pseudopotential objects from file and a simple database to access the official pseudopotential tables.
 """
 from __future__ import division, print_function
 
@@ -154,8 +154,8 @@ class Pseudo(object):
         """
         Convert obj into a pseudo 
         Accepts:
-            * Pseudo object
-            * path
+            * Pseudo object.
+            * string defining a path.
         """
         if isinstance(obj, cls): 
             return obj
@@ -267,6 +267,7 @@ class Pseudo(object):
 
     @property
     def has_dojo_report(self):
+        "True if self contains the DOJO_REPORT section."
         return self.dojo_report
 
     @property
@@ -450,8 +451,6 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     """
     Norm-conserving pseudopotential in the Abinit format.
     """
-    #_format = None
-    #_format_version = None
 
     @property
     def summary(self):

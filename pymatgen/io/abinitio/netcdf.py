@@ -22,12 +22,12 @@ __all__ = [
     "NetcdfReader",
     "GSR_Reader",
     "structure_from_etsf_file",
-    ]
+]
 
 ##########################################################################################
 
 class NetcdfReader(object):
-    "Wraps and extend netCDF4.Dataset. Read only mode"
+    "Wraps and extends netCDF4.Dataset. Read only mode"
 
     def __init__(self, filename):
         self.path = os.path.abspath(filename)
@@ -126,6 +126,7 @@ class NetcdfReader(object):
 ##########################################################################################
 
 class GSR_Reader(NetcdfReader):
+    "Netcdf reader for the Ground-State Results file."
 
     def get_structure(self, site_properties=None):
         if self.ngroups != 1:

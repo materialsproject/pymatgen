@@ -531,7 +531,6 @@ class IterativeWork(Work):
 
             # Start the task and block till completion.
             task.start(*args, **kwargs)
-
             task.wait()
 
             data = self.exit_iteration(*args, **kwargs)
@@ -872,6 +871,8 @@ class BandStructure(Work):
 
         scf_smearing = Smearing.assmearing(scf_smearing)
 
+        # Construct the input for the GS-SCF run.
+        #scf_input = gs_strategy.make_input()
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode,
@@ -880,12 +881,17 @@ class BandStructure(Work):
 
         scf_link = self.register_input(scf_input)
 
+        # Construct the input for the NSCF run.
+        #nscf_strategy.learn(scf_input=scf_input)
+        #nscf_input = nscf_strategy.make_input()
         nscf_input = Input.NSCF_kpath_from_SCF(scf_input, nscf_nband, ndivsm=ndivsm, kpath_bounds=kpath_bounds)
 
         self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
         if dos_ngkpt is not None:
+            #dos_strategy.learn(scf_input=scf_input)
+            #dos_input = dos_strategy.make_input()
             dos_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, dos_ngkpt)
 
             self.register_input(dos_input, links=scf_link.produces_exts("_DEN"))
@@ -906,7 +912,9 @@ class Relaxation(Work):
 
         smearing = Smearing.assmearing(smearing)
 
-        input_relax = Input.Relax(structure, pseudos, strategy,
+        #relax_input = strategy.make_input()
+
+        relax_input = Input.Relax(structure, pseudos, strategy,
                                   ngkpt     = ngkpt,
                                   kppa      = kppa,
                                   spin_mode = "polarized", 
@@ -914,7 +922,7 @@ class Relaxation(Work):
                                   **kwargs
                                  )
 
-        link = self.register_input(input_relax)
+        link = self.register_input(relax_input)
 
 ##########################################################################################
 
@@ -994,85 +1002,39 @@ class DeltaTest(Work):
 
 ##########################################################################################
 
-class PvsV(Work):
-    "Calculates P(V)."
-
-    def __init__(self, workdir, runmode, structure_or_cif, pseudos, ngkpt,
-                 spin_mode = "polarized",
-                 smearing  = "fermi_dirac:0.1 eV",
-                 ecutsm    = 0.05,  # 1.0
-                 dilatmx   = 1.1,
-                 strtargets = None,
-                ):
-        raise NotImplementedError()
-
-        super(PvsV, self).__init__(workdir, runmode)
-
-        if isinstance(structure_or_cif, Structure):
-            structure = cif_or_stucture
-        else:
-            # Assume CIF file
-            from pymatgen import read_structure
-            structure = read_structure(structure_or_cif)
-
-        smearing = Smearing.assmearing(smearing)
-
-        #ndtset 5
-
-        #strtarget1 3*3.4D-5 3*0.0
-        #strtarget2 3*1.7D-5 3*0.0
-        #strtarget3 3*0.0 3*0.0
-        #strtarget4 3*-1.7D-5 3*0.0
-        #strtarget5 3*-3.4D-5 3*0.0
-        # -1.0 GPa, -0.5 GPa, 0.0 GPa, 0.5 GPa, and 1.0 GPa
-
-        #ionmov 2
-        #optcell 2
-        #ntime 20
-        #ecutsm 1.0
-        #dilatmx 1.1
-        #tolmxf 1.0D-6
-        #toldff 1.0D-7 (or tolvrs 1.0D-12 if all ions are on special positions)
-
-        for target in strtargets:
-
-            input = Input.Relax(new_structure, pseudos, ngkpt, 
-                                spin_mode = spin_mode,
-                                smearing  = smearing,
-                                # **kwargs
-                                ecutsm = 0.05,
-                                )
-
-            self.register_input(scf_input)
-
-    def get_results(self, *args, **kwargs):
-        pressures, volumes = [], []
-        for task in self:
-            # Open GSR file and read etotal (Hartree)
-            gsr_path = task.odata_path_from_ext("_GSR") 
-                                                            
-            with GSR_Reader(gsr_path) as gsr_data:
-
-                pressures.append(gsr_data.get_value("pressure"))
-                volumes.append(gsr_data.get_value("volume"))
-
-        #if kwargs.get("json_dump", True):
-        #    json_pretty_dump(work_results, self.path_in_workdir("results.json"))
-        #return work_results
-
-##########################################################################################
-
 class G0W0(Work):
 
     def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, scr_strategy, sigma_strategy,
-                 spin_mode = "polarized",
-                 smearing  = "fermi_dirac:0.1 eV",
-                ):
+                 spin_mode = "polarized", smearing  = "fermi_dirac:0.1 eV"):
+        """
+            Args:
+                workdir:
+                    Working directory of the calculation.
+                runmode:
+                structure: 
+                    pymatgen structure.
+                pseudos: 
+                    List of pseudopotentials
+                # FIXME
+                scf_ngkpt: 
+                nscf_ngkpt: 
+
+                scr_strategy: 
+                    Strategy for the screening run.
+                sigma_strategy:
+                    Strategy for the self-energy run.
+                spin_mode: 
+                    Spin polarization.
+                smearing:
+                    Smearing technique
+        """
 
         super(G0W0, self).__init__(workdir, runmode)
 
         smearing = Smearing.assmearing(smearing)
 
+        # Construct the input for the GS-SCF run.
+        #scf_input = gs_strategy.make_input()
         scf_input = Input.SCF_groundstate(structure, pseudos, 
                                           ngkpt     = scf_ngkpt, 
                                           spin_mode = spin_mode, 
@@ -1091,14 +1053,23 @@ class G0W0(Work):
 
         istwfk = "*1" # FIXME
 
+        # Construct the input for the NSCF run.
+        #nscf_strategy.learn(scf_input=scf_input)
+        #nscf_input = nscf_strategy.make_input()
         nscf_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, nscf_ngkpt, istwfk=istwfk)
 
         nscf_link = self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
+        # Construct the input for the SCR run.
+        #scr_strategy.learn(scf_input=scf_input, nscf_input=nscf_input)
+        #screen_input = scr_strategy.make_input()
         screen_input = Input.SCR_from_NSCF(nscf_input, scr_strategy, smearing=smearing, istwfk=istwfk)
 
         screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
 
+        # Construct the input for the SIGMA run.
+        #sigma_strategy.learn(scf_input=scf_input, nscf_input=nscf_input, scr_input=scr_input)
+        #sigma_input = sigma_strategy.make_input()
         sigma_input = Input.SIGMA_from_SCR(screen_input, sigma_strategy, smearing=smearing, istwfk=istwfk)
 
         sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
@@ -1118,7 +1089,24 @@ class PPConvergenceFactory(object):
                         smearing  = "fermi_dirac:0.1 eV",
                        ):
         """
-        Return a Work object from the given pseudopotential.
+        Return a Work object given the pseudopotential pseudo
+
+        Args:
+            workdir: 
+                Working directory.
+            pseudo: 
+                Pseudo object.
+            ecut_range:
+                range of cutoff energies in Ha units.
+            runmode: 
+            atols_mev:
+                Tolerances in meV for accuracy in ["low", "normal", "high"]
+            spin_mode:
+                Spin polarization.
+            acell: 
+                Length of the real space lattice (Bohr units)
+            smearing: 
+                Defines the smearing technique.
         """
         workdir = os.path.abspath(workdir)
 

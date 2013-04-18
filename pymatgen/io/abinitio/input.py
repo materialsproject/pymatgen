@@ -1838,7 +1838,6 @@ class Input(dict, MSONable):
         Returns:
             AbinitInput instance.
         """
-
         # Initialize system section from structure.
         system = SystemCard(structure, pseudos)
 

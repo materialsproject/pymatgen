@@ -27,6 +27,7 @@ class AbinitEvent(MSONable):
     """
     @staticmethod
     def from_string(string, lineno):
+        "Constructs an event given a string and the line number."
         d = json.loads(string)
         cls = d.pop["class"]
         assert "lineno" not in d
@@ -42,6 +43,7 @@ class AbinitEvent(MSONable):
     def __str__(self):
         return "%s:\n%s" % (self.lineno, self.message)
 
+    @property
     def name(self):
         return self.__class__.__name__
 
@@ -153,6 +155,7 @@ class EventList(collections.Iterable, MSONable):
         return "\n".join(l for l in lines)
 
     def append(self, event):
+        "Add an event to the list."
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
 
@@ -178,6 +181,12 @@ class EventList(collections.Iterable, MSONable):
         return self.select(Warning)
 
     def select(self, base_class, only_critical=False):
+        """
+        Return list of events that inherits from class base_class
+
+        only_critical:
+            if True, only critical events are returned.
+        """
         if only_critical:
             return [e for e in self._events_by_baseclass[base_class] if e.iscritical]
         else:
@@ -203,7 +212,10 @@ class EventParserError(Exception):
     "Base class for the exceptions raised by EventParser"
 
 class EventParser(object):
-
+    """
+    Parses the output or the log file produced by abinit and extract the list
+    of events.
+    """
     Error = EventParserError
 
     @staticmethod
@@ -307,20 +319,3 @@ class EventParser(object):
                 events.append(Event.from_string(s, lineno))
 
             return events
-
-#def tostream(self, stream):
-#    "Return a string that can be visualized on stream (with colors if stream support them)."
-#    str_colorizer = StringColorizer(stream)
-#
-#    red  = lambda num : str_colorizer(str(num), "red")
-#    blue = lambda num : str_colorizer(str(num), "blue")
-#
-#    nums = map(len, [self.errors, self.warnings, self.comments])
-#
-#    colors = (red, blue, str)
-#
-#    for (i, n) in enumerate(nums): 
-#        color = colors[i]
-#        nums[i] = color(n) if n else str(n)
-#
-#    return "%s errors, %s warnings, %s comments in main output file" % tuple(nums)

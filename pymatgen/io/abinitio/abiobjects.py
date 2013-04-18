@@ -1,9 +1,10 @@
-"Low-level classes providing an abstraction for the objects involved in the calculation."
+"Low-level objects providing an abstraction for the objects involved in the calculation."
 from __future__ import division, print_function
 
 import collections
 import numpy as np
 import os.path
+import abc
 
 from pprint import pprint, pformat
 
@@ -21,9 +22,11 @@ class AbivarAble(object):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
     def to_abivars(self):
-        raise RuntimeError("%s: must implement the method to_abivars that returns a dictionary with the abinit variables" % (
-            self.__class__.__name__))
+        "Returns a dictionary with the abinit variables."
 
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
@@ -49,7 +52,7 @@ DEFAULT   = DefaultVariable()
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
     """
     Different configurations of the electron density as implemented in abinit:
-    One can use asspimode to construct the object via SpinMode.asspinmode(string) 
+    One can use asspinmode to construct the object via SpinMode.asspinmode(string) 
     where string can assume the values:
 
         - polarized
@@ -224,41 +227,129 @@ class SCFSolver(dict, AbivarAble):
 
 ##########################################################################################
 
+class Electrons(AbivarAble):
+    """
+    The electronic degrees of freedom
+    """
+    def __init__(self, 
+                 spin_mode = "polarized", 
+                 smearing  = "fermi_dirac:0.1 eV",
+                 scf_solver = None,
+                 nband     = None,
+                 fband     = None,
+                 charge    = 0.0,
+                 comment   = None,
+                 #occupancies = None,
+                ):
+        """
+        Constructor for Electrons object.
+                                                                                
+        Args:
+            comment:
+                String comment for Electrons
+
+            charge: float
+                    Total charge of the system. Default is 0.
+        """
+        super(Electrons, self).__init__()
+
+        self.comment = comment
+
+        self.smearing = Smearing.assmearing(smearing)
+
+        self.spin_mode = SpinMode.asspinmode(spin_mode)
+
+        self.nband = nband
+        self.fband = fband
+        self.charge = charge
+
+        self.scf_solver = scf_solver
+
+        # FIXME
+        if nband is None:
+            self.fband = 4
+
+    @property 
+    def nsppol(self): 
+        return self.spin_mode.nsppol
+
+    @property 
+    def nspinor(self): 
+        return self.spin_mode.nspinor
+
+    @property 
+    def nspden(self): 
+        return self.spin_mode.nspden
+
+    @property
+    def to_dict(self):
+        "json friendly dict representation"
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        raise NotImplementedError("")
+        return d
+
+    @staticmethod
+    def from_dict(d):
+        raise NotImplementedError("")
+
+    def to_abivars(self):
+        abivars = self.spin_mode.to_abivars()
+                                                 
+        abivars.update({
+            "nband"  : self.nband,
+            "fband"  : self.fband,
+            "charge" : self.charge,
+        })
+
+        if self.smearing:
+            abivars.update(self.smearing.to_abivars())
+
+        if self.scf_solver:
+            abivars.update(self.scf_solver.to_abivars())
+
+        abivars["_comment"] = comment
+        return abivars
+
+#########################################################################################
+
+def asabistructure(obj):
+    """
+    Convert obj into an AbiStructure object.
+    Accepts:
+        - AbiStructure instance
+        - Subinstances of pymatgen.
+        - File paths
+    """
+    if isinstance(obj, AbiStructure):
+        return obj
+                                                                                                    
+    if isinstance(obj, Structure):
+        # Promote 
+        return AbiStructure(obj)
+                                                                                                    
+    if isinstance(obj, str):
+        # Handle file paths.
+        if os.path.isfile(obj):
+                                                                                                    
+            if obj.endswith(".nc"):
+                from .netcdf import structure_from_etsf_file
+                structure = structure_from_etsf_file(obj)
+                print(structure._sites)
+            else:
+                from pymatgen.io.smartio import read_structure
+                structure = read_structure(obj)
+                                                                                                    
+            # Promote 
+            return AbiStructure(structure)
+                                                                                                    
+    raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
+
 class AbiStructure(Structure, AbivarAble):
     "Patches the pymatgen structure adding the method to_abivars"
 
-    @classmethod
-    def asabistructure(cls, obj):
-        """
-        Convert obj into an AbiStructure object.
-        Accepts:
-            - AbiStructure instance
-            - Subinstances of pymatgen.
-            - File paths
-        """
-        if isinstance(obj, cls):
-            return obj
-
-        if isinstance(obj, Structure):
-            # Promote 
-            return cls(obj)
-
-        if isinstance(obj, str):
-            # Handle file path.
-            if os.path.isfile(obj):
-
-                if obj.endswith(".nc"):
-                    from .netcdf import structure_from_etsf_file
-                    structure = structure_from_etsf_file(obj)
-                    print(structure._sites)
-                else:
-                    from pymatgen.io.smartio import read_structure
-                    structure = read_structure(obj)
-
-                # Promote 
-                return cls(structure)
-
-        raise ValueError("Don't know how to convert object %s to a AbiStructure structure" % str(obj))
+    asabistructure = asabistructure
 
     def __new__(cls, structure):
         new = structure
@@ -680,93 +771,6 @@ class KSampling(AbivarAble):
 
     def to_abivars(self):
         return self.abivars.copy()
-
-##########################################################################################
-
-class Electrons(AbivarAble):
-    """
-    The electronic degrees of freedom
-    """
-    def __init__(self, 
-                 spin_mode = "polarized", 
-                 smearing  = "fermi_dirac:0.1 eV",
-                 scf_solver = None,
-                 nband     = None,
-                 fband     = None,
-                 charge    = 0.0,
-                 comment   = None,
-                 #occupancies = None,
-                ):
-        """
-        Constructor for Electrons object.
-                                                                                
-        Args:
-            comment:
-                String comment for Electrons
-
-            charge: float
-                    Total charge of the system. Default is 0.
-        """
-        super(Electrons, self).__init__()
-
-        self.comment = comment
-
-        self.smearing = Smearing.assmearing(smearing)
-
-        self.spin_mode = SpinMode.asspinmode(spin_mode)
-
-        self.nband = nband
-        self.fband = fband
-        self.charge = charge
-
-        self.scf_solver = self.scf_solver
-
-        # FIXME
-        if nband is None:
-            self.fband = 4
-
-    @property 
-    def nsppol(self): 
-        return self.spin_mode.nsppol
-
-    @property 
-    def nspinor(self): 
-        return self.spin_mode.nspinor
-
-    @property 
-    def nspden(self): 
-        return self.spin_mode.nspden
-
-    @property
-    def to_dict(self):
-        "json friendly dict representation"
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        raise NotImplementedError("")
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        raise NotImplementedError("")
-
-    def to_abivars(self):
-        abivars = self.spin_mode.to_abivars()
-                                                 
-        abivars.update({
-            "nband"  : self.nband,
-            "fband"  : self.fband,
-            "charge" : self.charge,
-        })
-
-        if self.smearing:
-            abivars.update(self.smearing.to_abivars())
-
-        if self.scf_solver:
-            abivars.update(self.scf_solver.to_abivars())
-
-        abivars["_comment"] = comment
-        return abivars
 
 ##########################################################################################
 
