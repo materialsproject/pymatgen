@@ -450,10 +450,10 @@ class StructureMatcher(MSONable):
         vol_tol = fu * nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = \
-            np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
-                      i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) ** (1 / 3)
+        frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
+                             for i in struct1.lattice.reciprocal_lattice.abc])
+        frac_tol *= ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) \
+            ** (1 / 3)
 
         #generate structure coordinate lists
         species_list = []
