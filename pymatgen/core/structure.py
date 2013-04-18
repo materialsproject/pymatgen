@@ -249,6 +249,20 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
                           np.dot(v12, v23)) * 180 / math.pi
 
+    def is_valid(self, tol=DISTANCE_TOLERANCE):
+        """
+        True if SiteCollection does not contain atoms that are too close
+        together.
+
+        Args:
+            tol:
+                Distance tolerance. Default is 0.01A.
+        """
+        for (s1, s2) in itertools.combinations(self.sites, 2):
+            if s1.distance(s2) < tol:
+                return False
+        return True
+
 
 class Structure(SiteCollection, MSONable):
     """
@@ -287,7 +301,7 @@ class Structure(SiteCollection, MSONable):
             fractional_coords:
                 list of fractional coordinates of each species.
             validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang
+                Whether to check if there are sites that are less than 0.01 Ang
                 apart. Defaults to False.
             coords_are_cartesian:
                 Set to True if you are providing coordinates in cartesian
@@ -317,13 +331,11 @@ class Structure(SiteCollection, MSONable):
                                       self._lattice, to_unit_cell,
                                       coords_are_cartesian,
                                       properties=prop))
-
-        if validate_proximity:
-            for (s1, s2) in itertools.combinations(sites, 2):
-                if s1.distance(s2) < SiteCollection.DISTANCE_TOLERANCE:
-                    raise StructureError(("Structure contains sites that are ",
-                                          "less than 0.01 Angstrom apart!"))
         self._sites = tuple(sites)
+        if validate_proximity and not self.is_valid():
+            raise StructureError(("Structure contains sites that are ",
+                                  "less than 0.01 Angstrom apart!"))
+
 
     @staticmethod
     def from_sites(sites):
@@ -679,7 +691,9 @@ class Structure(SiteCollection, MSONable):
                 number of interpolation images. Defaults to 10 images.
 
         Returns:
-            List of interpolated structures.
+            List of interpolated structures. The starting and ending
+            structures included as the first and last structures respectively.
+            A total of (nimages + 1) structures are returned.
         """
         #Check length of structures
         if len(self) != len(end_structure):
@@ -735,7 +749,7 @@ class Structure(SiteCollection, MSONable):
 
         Returns:
             The most primitive structure found. The returned structure is
-            guanranteed to have len(new structure) <= len(structure).
+            guaranteed to have len(new structure) <= len(structure).
         """
         original_volume = self.volume
         (reduced_formula, num_fu) =\
@@ -907,7 +921,8 @@ class Molecule(SiteCollection, MSONable):
     equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, species, coords, validate_proximity=False,
+    def __init__(self, species, coords, charge=0,
+                 spin_multiplicity=None, validate_proximity=False,
                  site_properties=None):
         """
         Creates a Molecule.
@@ -920,6 +935,13 @@ class Molecule(SiteCollection, MSONable):
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords:
                 list of cartesian coordinates of each species.
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
             validate_proximity:
                 Whether to check if there are sites that are less than 1 Ang
                 apart. Defaults to False.
@@ -941,12 +963,62 @@ class Molecule(SiteCollection, MSONable):
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
             sites.append(Site(species[i], coords[i], properties=prop))
-        if validate_proximity:
-            for (s1, s2) in itertools.combinations(sites, 2):
-                if s1.distance(s2) < Structure.DISTANCE_TOLERANCE:
-                    raise StructureError(("Molecule contains sites that are ",
-                                          "less than 0.01 Angstrom apart!"))
+
         self._sites = tuple(sites)
+        if validate_proximity and not self.is_valid():
+            raise StructureError(("Molecule contains sites that are ",
+                                  "less than 0.01 Angstrom apart!"))
+
+        self._charge = charge
+        nelectrons = 0
+        for site in sites:
+            for sp, amt in site.species_and_occu.items():
+                nelectrons += sp.Z * amt
+        nelectrons -= charge
+        self._nelectrons = nelectrons
+        if spin_multiplicity:
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                    self._charge, spin_multiplicity))
+            self._spin_multiplicity = spin_multiplicity
+        else:
+            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    @property
+    def charge(self):
+        """
+        Charge of molecule
+        """
+        return self._charge
+
+    @property
+    def spin_multiplicity(self):
+        """
+        Spin multiplicity of molecule.
+        """
+        return self._spin_multiplicity
+
+    @property
+    def nelectrons(self):
+        """
+        Number of electrons in the molecule.
+        """
+        return self._nelectrons
+
+    @property
+    def center_of_mass(self):
+        """
+        Center of mass of molecule.
+        """
+        center = np.zeros(3)
+        total_weight = 0
+        for site in self:
+            wt = site.species_and_occu.weight
+            center += site.coords * wt
+            total_weight += wt
+        return center / total_weight
 
     @property
     def sites(self):
@@ -1042,6 +1114,10 @@ class Molecule(SiteCollection, MSONable):
         if other is None:
             return False
         if len(self) != len(other):
+            return False
+        if self._charge != other._charge:
+            return False
+        if self._spin_multiplicity != other._spin_multiplicity:
             return False
         for site in self:
             if site not in other:
@@ -1213,6 +1289,20 @@ class Molecule(SiteCollection, MSONable):
         return Structure(lattice, self.species, self.cart_coords,
                          coords_are_cartesian=True,
                          site_properties=self.site_properties)
+
+    def get_centered_molecule(self):
+        """
+        Returns a Molecule centered at the center of mass.
+
+        Returns:
+            Molecule centered with center of mass at origin.
+        """
+        center = self.center_of_mass
+        new_coords = np.array(self.cart_coords) - center
+        return Molecule(self.species_and_occu, new_coords,
+                        charge=self._charge,
+                        spin_multiplicity=self._spin_multiplicity,
+                        site_properties=self.site_properties)
 
 
 class StructureError(Exception):
