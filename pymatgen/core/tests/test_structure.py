@@ -34,6 +34,15 @@ class StructureTest(unittest.TestCase):
                                               site_properties={'magmom':
                                                                [5, -5]})
 
+    def test_bad_structure(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        coords.append([0.75, 0.5, 0.75])
+        self.assertRaises(StructureError, Structure, self.lattice, ["Si"] * 3,
+                          coords, validate_proximity=True)
+
+
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
         self.assertAlmostEqual(self.struct.density, 2.33, 2,
@@ -183,20 +192,20 @@ class StructureTest(unittest.TestCase):
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
     def test_get_primitive_structure(self):
-        coords = [[0,0,0], [0.5,0.5,0], [0,0.5,0.5], [0.5,0,0.5]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
         self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
-        coords = [[0,0,0], [0.5,0.5,0.5]]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         bcc_li = Structure(Lattice.cubic(4.09), ["Li"] * 2, coords)
         self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
 
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)
-        coords = [[0.5,0.8,0],[0.5,0.2,0],
-                  [0.5,0.8,0.333],[0.5,0.5,0.333],
-                  [0.5,0.5,0.666],[0.5,0.2,0.666]]
+        coords = [[0.5, 0.8, 0], [0.5, 0.2, 0],
+                  [0.5, 0.8, 0.333], [0.5, 0.5, 0.333],
+                  [0.5, 0.5, 0.666], [0.5, 0.2, 0.666]]
         s = Structure(l, ["Ag"] * 6, coords)
-        sprim = s.get_primitive_structure(tolerance = 0.1)
+        sprim = s.get_primitive_structure(tolerance=0.1)
         self.assertEqual(len(sprim), 6)
 
     def test_get_all_neighbors_and_get_neighbors(self):
@@ -222,6 +231,17 @@ class MoleculeTest(unittest.TestCase):
                   [-0.513360, 0.889165, -0.363000]]
         self.coords = coords
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_bad_molecule(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.36301]]
+        self.assertRaises(StructureError, Molecule,
+                          ["C", "H", "H", "H", "H", "H"], coords,
+                          validate_proximity=True)
 
     def test_get_angle_dihedral(self):
         self.assertAlmostEqual(self.mol.get_angle(1, 0, 2), 109.47122144618737)
@@ -318,6 +338,35 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol1.formula, "H3 C1")
         self.assertEqual(mol2.formula, "H1")
 
+    def test_prop(self):
+        self.assertEqual(self.mol.charge, 0)
+        self.assertEqual(self.mol.spin_multiplicity, 1)
+        self.assertEqual(self.mol.nelectrons, 10)
+        self.assertTrue(np.allclose(self.mol.center_of_mass, np.zeros(3),
+                                    atol=1e-7))
+        self.assertRaises(ValueError, Molecule, ["C", "H", "H", "H", "H"],
+                          self.coords, charge=1, spin_multiplicity=1)
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
+        self.assertEqual(mol.spin_multiplicity, 2)
+        self.assertEqual(mol.nelectrons, 9)
+
+        #Triplet O2
+        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                       spin_multiplicity=3)
+        self.assertEqual(mol.spin_multiplicity, 3)
+
+    def test_equal(self):
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
+        self.assertNotEqual(mol, self.mol)
+
+    def test_get_centered_molecule(self):
+        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                       spin_multiplicity=3)
+        centered = mol.get_centered_molecule()
+        self.assertFalse(np.allclose(mol.center_of_mass, np.zeros(3),
+                                     atol=1e-7))
+        self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
+                                    atol=1e-7))
 
 if __name__ == '__main__':
     unittest.main()

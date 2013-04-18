@@ -338,11 +338,12 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim])
+            return Structure(lattice.T, species, positions[:num_atom_prim])\
+                .get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
             #structure.
-            return self._structure
+            return self._structure.get_reduced_structure()
 
     def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
         """

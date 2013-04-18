@@ -1058,16 +1058,21 @@ def smart_element_or_specie(obj):
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    if isinstance(obj, (Element, Specie, DummySpecie)):
+    t = type(obj)
+    if t in (Element, Specie, DummySpecie):
         return obj
-    elif isinstance(obj, int):
+    elif t == int:
         return Element.from_Z(obj)
-    elif isinstance(obj, basestring):
+    else:
+        obj = str(obj)
         try:
             return Specie.from_string(obj)
         except (ValueError, KeyError):
             try:
                 return Element(obj)
             except (ValueError, KeyError):
-                return DummySpecie.from_string(obj)
-    raise ValueError("Can't parse Element or String from " + str(obj))
+                try:
+                    return DummySpecie.from_string(obj)
+                except:
+                    raise ValueError("Can't parse Element or String from " +
+                                     str(obj))

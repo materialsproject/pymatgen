@@ -89,7 +89,7 @@ class SpecieProximityFilterTest(unittest.TestCase):
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()

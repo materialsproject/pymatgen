@@ -38,17 +38,23 @@ class LinearAssignment(object):
         to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
     """
 
-    def __init__(self, costs):
+    def __init__(self, costs, epsilon=-1e-6):
         """
         Args:
             costs:
                 The cost matrix of the problem. cost[i,j] should be the
                 cost of matching x[i] to y[j]. The cost matrix must be
                 square
+
+            epsilon:
+                tolerance for determining if solution vector is < 0
         """
         self.c = np.array(costs)
         self.n = len(costs)
-        
+        if epsilon < 0:
+            self.epsilon = epsilon
+        else:
+            raise ValueError("epsilon must be negative")
         #check that cost matrix is square
         if self.c.shape != (self.n, self.n):
             raise ValueError("cost matrix is not square")
@@ -63,7 +69,7 @@ class LinearAssignment(object):
             self._augmenting_row_reduction()
             #initialize the reduced costs
             self._update_cred()
-            while np.min(self._x) < 0:
+            while np.min(self._x) < self.epsilon:
                 self._augment()
 
         self.solution = self._x
@@ -194,7 +200,7 @@ class LinearAssignment(object):
                 self._mu = np.min(self._d[self._todo])
                 self._scan[np.where(self._d == self._mu)] = 1
                 self._todo[self._scan] = 0
-                if np.min(self._y * self._scan) < 0:
+                if np.min(self._y * self._scan) < self.epsilon:
                     self._j = np.argmin(self._y * self._scan)
                     return
 

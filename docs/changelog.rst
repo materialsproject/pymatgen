@@ -1,6 +1,35 @@
 Change log
 ==========
 
+Version 2.6.3
+-------------
+1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
+   (currently open in beta for collaborators only).
+2. Added support for new MaterialsProject REST method get_stability.
+3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
+   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
+4. Improvements to StructureMatcher: stol (site - tolerance) redefined as
+   a fraction of the average length per atom. Structures matched in fractional
+   space are now also matched in cartesian space and a rms displacement
+   normalized by length per atom can be returned using the rms_dist method.
+
+Version 2.6.2
+-------------
+
+1. Site and PeriodicSite now uses a Composition mapping type to represent
+   the species and occupancy, instead of a standard dict.
+2. Bug fix for reading and re-writing out of Potcars.
+3. VaspInputSet now supports MSONable framework.
+4. Strain cell option in StructureEditor.
+5. Miscellaneous bug fixes and speedups.
+
+Version 2.6.1
+-------------
+1. Use requests.Session in MPRester for connection pooling and code simplicity.
+2. Support for "with" context manager in MPRester.
+3. Updated periodic table data to correct errors in Ru, Tc and other elements.
+4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
+5. Miscellaneous bug fixes and speedups.
 
 Version 2.5.5
 -------------

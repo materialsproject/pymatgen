@@ -147,8 +147,10 @@ class HighSymmKpath(object):
         """
             Returns:
                 the kpoints along the paths in cartesian coordinates
+                together with the labels for symmetry points -Wei
         """
         list_k_points = []
+        sym_point_labels = []
         for b in self.kpath['path']:
             for i in range(1, len(b)):
                 start = np.array(self.kpath['kpoints'][b[i - 1]])
@@ -157,13 +159,14 @@ class HighSymmKpath(object):
                     self._prim_rec.get_cartesian_coords(start) -
                     self._prim_rec.get_cartesian_coords(end))
                 nb = int(ceil(distance * line_density))
+                sym_point_labels.extend([b[i - 1]] + [''] * (nb - 1) + [b[i]])
                 list_k_points.extend(
                     [self._prim_rec.get_cartesian_coords(start)
                      + float(i) / float(nb) *
                      (self._prim_rec.get_cartesian_coords(end)
                       - self._prim_rec.get_cartesian_coords(start))
                      for i in range(0, nb + 1)])
-        return list_k_points
+        return list_k_points, sym_point_labels
 
     def get_kpath_plot(self):
         """

@@ -20,7 +20,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class StructureMatcherTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), 'rb') as fp:
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
@@ -63,6 +63,8 @@ class StructureMatcherTest(unittest.TestCase):
         #Test anonymous fit.
         self.assertEqual(sm.fit_anonymous(lfp, nfp),
                          {Composition("Li"): Composition("Na")})
+        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(lfp, nfp)[0],
+                               0.096084154118549828)
 
         #Test partial occupancies.
         s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
@@ -82,6 +84,8 @@ class StructureMatcherTest(unittest.TestCase):
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertEqual(sm.fit_anonymous(s1, s2),
                          {Composition("Fe0.5"): Composition("Fe0.25")})
+
+        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(s1, s2)[0], 0)
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
@@ -142,6 +146,17 @@ class StructureMatcherTest(unittest.TestCase):
 
         self.assertTrue(sm.get_rms_dist(self.struct_list[0],
                                         self.struct_list[1])[0] < 0.0008)
+
+    def test_supercell_fit(self):
+        sm = StructureMatcher(attempt_supercell=False)
+        s1 = read_structure(os.path.join(test_dir, "Al3F9.cif"))
+        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.cif"))
+
+        self.assertFalse(sm.fit(s1, s2))
+
+        sm = StructureMatcher(attempt_supercell=True)
+
+        self.assertTrue(sm.fit(s1, s2))
 
 if __name__ == '__main__':
     unittest.main()
