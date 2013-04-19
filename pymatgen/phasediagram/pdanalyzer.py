@@ -138,7 +138,8 @@ class PDAnalyzer(object):
             return {entry: 1}, 0
 
         # Hackish fix to deal with problem of -ve ehulls in very high
-        # dimensional convex hulls. TODO: find a better fix.
+        # dimensional convex hulls (typically 8D and above).
+        # TODO: find a better fix.
         for facet in self._get_facets(entry.composition):
             comp_list = [self._pd.qhull_entries[i].composition for i in facet]
             m = self._make_comp_matrix(comp_list)
