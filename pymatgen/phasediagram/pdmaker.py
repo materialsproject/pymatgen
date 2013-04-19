@@ -97,7 +97,8 @@ class PhaseDiagram (object):
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
         error = True
-        # Qhull seems to be sensitive to ordering of elements sometimes. The
+        # Qhull seems to be sensitive to choice of independent composition
+        # components due to numerical issues in higher dimensions. The
         # code permutes the element sequence until one that works is found.
         for elements in itertools.permutations(elements):
             try:
