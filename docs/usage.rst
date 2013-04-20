@@ -369,10 +369,9 @@ the web interface.
 In parallel, we have coded in the pymatgen.matproj.rest module a MPRester,
 a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses.  To use the Materials API,
-a user first needs to be registered with the Materials Project,
-and generate his API key in his profile at
-https://www.materialsproject.org/profile. In the examples below, the user's
-Materials API key is designated as "USER_API_KEY".
+your need to first register with the Materials Project and generate your API
+key in your profile at https://www.materialsproject.org/profile. In the
+examples below, the user's Materials API key is designated as "USER_API_KEY".
 
 The MPRester provides many convenience methods, but we will just highlight
 a few key methods here.
