@@ -121,7 +121,7 @@ class Smearing(AbivarAble, MSONable):
         if other is None: 
             return False
         else:
-            return (self.occopt == other.occopt and self.tsmear == other.tsmear)
+            return (self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear))
 
     def __ne__(self, other):
         return not self == other
@@ -888,7 +888,6 @@ class PPModel(AbivarAble, MSONable):
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method PPModel.asppmodel(string)
     """
-
     _mode2ppmodel = {  
         "noppmodel": 0,
         "godby"    : 1,
@@ -929,6 +928,21 @@ class PPModel(AbivarAble, MSONable):
         self.mode = mode
         self.plasmon_freq = plasmon_freq
 
+    def __eq__(self, other):
+        if other is None: 
+            return False
+        else:
+            if self.mode != other.mode: 
+                return False
+
+            if self.plasmon_freq is None:
+                return other.plasmon_freq is None
+            else:
+                return np.allclose(self.plasmon_freq, other.plasmon_freq)
+                                                                                            
+    def __ne__(self, other):
+        return not self == other
+
     def __bool__(self):
         return self.mode != "noppmodel"
 
@@ -947,18 +961,18 @@ class PPModel(AbivarAble, MSONable):
 
     @classmethod
     def noppmodel(cls):
-        return cls(mode=modes.noppmodel, plasmon_freq=None)
+        return cls(mode="noppmodel", plasmon_freq=None)
 
     @property
     def to_dict(self):
-        d = {"mode": self.mode, "plasmon_freq": plasmon_freq}
+        d = {"mode": self.mode, "plasmon_freq": self.plasmon_freq}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
 
     @staticmethod
     def from_dict(d):
-        return PPmodel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
+        return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
 ##########################################################################################
 #################################  WORK IN PROGRESS ######################################
