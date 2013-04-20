@@ -15,7 +15,7 @@ __status__ = "Production"
 __date__ = "Nov 25, 2012"
 
 import collections
-
+import itertools
 import numpy as np
 
 from pyhull.convex_hull import ConvexHull
@@ -96,61 +96,74 @@ class PhaseDiagram (object):
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        elements = tuple(elements)
-        dim = len(elements)
-        el_refs = {}
-        for el in elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el, entries)
-            if len(el_entries) == 0:
-                raise PhaseDiagramError("There are no entries associated with"
-                                        " terminal {}.".format(el))
-            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
+        error = True
+        # Qhull seems to be sensitive to choice of independent composition
+        # components due to numerical issues in higher dimensions. The
+        # code permutes the element sequence until one that works is found.
+        for elements in itertools.permutations(elements):
+            try:
+                elements = tuple(elements)
+                dim = len(elements)
+                el_refs = {}
+                for el in elements:
+                    el_entries = filter(lambda e: e.composition.is_element and
+                                        e.composition.elements[0] == el,
+                                        entries)
+                    if len(el_entries) == 0:
+                        raise PhaseDiagramError(
+                            "There are no entries associated with terminal {}."
+                            .format(el))
+                    el_refs[el] = min(el_entries,
+                                      key=lambda e: e.energy_per_atom)
 
-        data = []
-        for entry in entries:
-            comp = entry.composition
-            row = [comp.get_atomic_fraction(el) for el in elements]
-            row.append(entry.energy_per_atom)
-            data.append(row)
-        qhull_data = np.array(data)
-        self.all_entries_hulldata = qhull_data[:, 1:]
+                data = []
+                for entry in entries:
+                    comp = entry.composition
+                    row = [comp.get_atomic_fraction(el) for el in elements]
+                    row.append(entry.energy_per_atom)
+                    data.append(row)
+                qhull_data = np.array(data)
+                self.all_entries_hulldata = qhull_data[:, 1:]
 
-        # Calculate formation energies and remove positive formation energy
-        # entries
-        vec = [el_refs[el].energy_per_atom for el in elements]
-        vec.append(-1)
-        form_e = - np.dot(data, vec)
-        ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
-        ind.extend([entries.index(e) for e in el_refs.values()])
-        qhull_entries = [entries[i] for i in ind]
-        qhull_data = qhull_data[ind][:, 1:]
+                # Calculate formation energies and remove positive formation
+                # energy entries
+                vec = [el_refs[el].energy_per_atom for el in elements]
+                vec.append(-1)
+                form_e = - np.dot(data, vec)
+                ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+                ind.extend([entries.index(e) for e in el_refs.values()])
+                qhull_entries = [entries[i] for i in ind]
+                qhull_data = qhull_data[ind][:, 1:]
 
-        if len(qhull_data) == dim:
-            self.facets = [range(dim)]
-        else:
-            facets = ConvexHull(qhull_data).vertices
-            finalfacets = []
-            for facet in facets:
-                facetmatrix = np.zeros((len(facet), len(facet)))
-                count = 0
-                is_element_facet = True
-                for vertex in facet:
-                    facetmatrix[count] = np.array(qhull_data[vertex])
-                    facetmatrix[count, dim - 1] = 1
-                    count += 1
-                    if len(qhull_entries[vertex].composition) > 1:
-                        is_element_facet = False
-                if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
-                        (not is_element_facet):
-                    finalfacets.append(facet)
-            self.facets = finalfacets
-        self.all_entries = entries
-        self.qhull_data = qhull_data
-        self.dim = dim
-        self.el_refs = el_refs
-        self.elements = elements
-        self.qhull_entries = qhull_entries
+                if len(qhull_data) == dim:
+                    self.facets = [range(dim)]
+                else:
+                    facets = ConvexHull(qhull_data).vertices
+                    finalfacets = []
+                    for facet in facets:
+                        facetmatrix = np.zeros((len(facet), len(facet)))
+                        is_element_facet = True
+                        for i, vertex in enumerate(facet):
+                            facetmatrix[i] = np.array(qhull_data[vertex])
+                            facetmatrix[i, dim - 1] = 1
+                            if len(qhull_entries[vertex].composition) > 1:
+                                is_element_facet = False
+                        if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
+                                (not is_element_facet):
+                            finalfacets.append(facet)
+                    self.facets = finalfacets
+                self.all_entries = entries
+                self.qhull_data = qhull_data
+                self.dim = dim
+                self.el_refs = el_refs
+                self.elements = elements
+                self.qhull_entries = qhull_entries
+                error = False
+                break
+            except:
+                pass
+        if error:
+            raise PhaseDiagramError("Unable to construct PD")
 
     @property
     def unstable_entries(self):
