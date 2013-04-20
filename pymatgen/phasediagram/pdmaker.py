@@ -141,16 +141,14 @@ class PhaseDiagram (object):
                     facets = ConvexHull(qhull_data).vertices
                     finalfacets = []
                     for facet in facets:
-                        m = qhull_data[facet]
-                        m[:, -1] = 1
-                        is_element_facet = True
-                        for vertex in facet:
-                            if len(qhull_entries[vertex].composition) > 1:
-                                is_element_facet = False
-                                break
-                        if (not is_element_facet) and abs(np.linalg.det(
-                                m)) > 1e-8:
-                            finalfacets.append(facet)
+                        is_non_element_facet = any(
+                            (len(qhull_entries[i].composition) > 1
+                             for i in facet))
+                        if is_non_element_facet:
+                            m = qhull_data[facet]
+                            m[:, -1] = 1
+                            if abs(np.linalg.det(m)) > 1e-8:
+                                finalfacets.append(facet)
                     self.facets = finalfacets
                 self.all_entries = entries
                 self.qhull_data = qhull_data
