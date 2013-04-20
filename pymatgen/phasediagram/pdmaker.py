@@ -122,8 +122,8 @@ class PhaseDiagram (object):
                     row = map(comp.get_atomic_fraction, elements)
                     row.append(entry.energy_per_atom)
                     data.append(row)
-                qhull_data = np.array(data)
-                self.all_entries_hulldata = qhull_data[:, 1:]
+                data = np.array(data)
+                self.all_entries_hulldata = data[:, 1:]
 
                 # Calculate formation energies and remove positive formation
                 # energy entries
@@ -133,7 +133,7 @@ class PhaseDiagram (object):
                 ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
                 ind.extend(map(entries.index, el_refs.values()))
                 qhull_entries = [entries[i] for i in ind]
-                qhull_data = qhull_data[ind][:, 1:]
+                qhull_data = data[ind][:, 1:]
 
                 if len(qhull_data) == dim:
                     self.facets = [range(dim)]
