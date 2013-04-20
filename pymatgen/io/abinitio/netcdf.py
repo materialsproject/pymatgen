@@ -188,11 +188,12 @@ def structure_from_etsf_file(ncdata, site_properties=None):
 
     typat = ncdata.get_value("atom_species")
 
-    species = np.zeros(natom, np.int)
+    species = natom * [None,]
+
     for atom in range(natom):
         # Fortran to C index and float --> int conversion.
         type_idx = typat[atom] - 1
-        species[atom] = znucl_type[type_idx-1]
+        species[atom] = int(znucl_type[type_idx-1])
 
     d = {}
     if site_properties is not None:
