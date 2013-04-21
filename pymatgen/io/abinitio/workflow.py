@@ -18,7 +18,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_pretty_dump 
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.io.abinitio.task import task_factory, Task
@@ -229,9 +229,7 @@ class BaseWork(object):
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
-        """
-        Method called before submitting the calculations. 
-        """
+        "Method called before submitting the calculations."
                                                          
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
@@ -239,6 +237,7 @@ class BaseWork(object):
     def get_results(self, *args, **kwargs):
         """
         Method called once the calculations completes.
+
         The base version returns a dictionary task_name : TaskResults for each task in self.
         """
         work_results = collections.OrderedDict()
@@ -859,40 +858,23 @@ class PseudoIterativeConvergence(IterativeWork):
 
 class BandStructure(Work):
 
-    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_nband,
-                 spin_mode    = "polarized",
-                 scf_smearing = "fermi_dirac:0.1eV",
-                 kpath_bounds = None,
-                 ndivsm       = 15, 
-                 dos_ngkpt    = None
-                ):
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, dos_strategy=None):
 
         super(BandStructure, self).__init__(workdir, runmode)
 
-        scf_smearing = Smearing.assmearing(scf_smearing)
-
         # Construct the input for the GS-SCF run.
-        #scf_input = gs_strategy.make_input()
-        scf_input = Input.SCF_groundstate(structure, pseudos, 
-                                          ngkpt     = scf_ngkpt, 
-                                          spin_mode = spin_mode,
-                                          smearing  = scf_smearing,
-                                         )
+        scf_input = scf_strategy.make_input()
 
         scf_link = self.register_input(scf_input)
 
         # Construct the input for the NSCF run.
-        #nscf_strategy.learn(scf_input=scf_input)
-        #nscf_input = nscf_strategy.make_input()
-        nscf_input = Input.NSCF_kpath_from_SCF(scf_input, nscf_nband, ndivsm=ndivsm, kpath_bounds=kpath_bounds)
+        nscf_input = nscf_strategy.make_input()
 
         self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
-        if dos_ngkpt is not None:
-            #dos_strategy.learn(scf_input=scf_input)
-            #dos_input = dos_strategy.make_input()
-            dos_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, dos_ngkpt)
+        if dos_strategy is not None:
+            dos_input = dos_strategy.make_input()
 
             self.register_input(dos_input, links=scf_link.produces_exts("_DEN"))
 
@@ -900,27 +882,10 @@ class BandStructure(Work):
 
 class Relaxation(Work):
 
-    def __init__(self, workdir, runmode, structure, pseudos, strategy,
-                 ngkpt     = None,
-                 kppa      = None,
-                 spin_mode = "polarized",
-                 smearing  = "fermi_dirac:0.1 eV",
-                 **kwargs
-                ):
-                                                                                                   
+    def __init__(self, workdir, runmode, relax_strategy): 
         super(Relaxation, self).__init__(workdir, runmode)
 
-        smearing = Smearing.assmearing(smearing)
-
-        #relax_input = strategy.make_input()
-
-        relax_input = Input.Relax(structure, pseudos, strategy,
-                                  ngkpt     = ngkpt,
-                                  kppa      = kppa,
-                                  spin_mode = "polarized", 
-                                  smearing  = smearing,
-                                  **kwargs
-                                 )
+        relax_input = relax_strategy.make_input()
 
         link = self.register_input(relax_input)
 
@@ -1004,73 +969,47 @@ class DeltaTest(Work):
 
 class G0W0(Work):
 
-    def __init__(self, workdir, runmode, structure, pseudos, scf_ngkpt, nscf_ngkpt, scr_strategy, sigma_strategy,
-                 spin_mode = "polarized", smearing  = "fermi_dirac:0.1 eV"):
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy):
         """
             Args:
                 workdir:
                     Working directory of the calculation.
                 runmode:
-                structure: 
-                    pymatgen structure.
-                pseudos: 
-                    List of pseudopotentials
-                # FIXME
-                scf_ngkpt: 
-                nscf_ngkpt: 
-
+                scf_strategy:
+                    SCFStrategy instance
+                nscf_strategy:
+                    NSCFStrategy instance
                 scr_strategy: 
                     Strategy for the screening run.
                 sigma_strategy:
                     Strategy for the self-energy run.
-                spin_mode: 
-                    Spin polarization.
-                smearing:
-                    Smearing technique
         """
 
         super(G0W0, self).__init__(workdir, runmode)
 
-        smearing = Smearing.assmearing(smearing)
-
         # Construct the input for the GS-SCF run.
-        #scf_input = gs_strategy.make_input()
-        scf_input = Input.SCF_groundstate(structure, pseudos, 
-                                          ngkpt     = scf_ngkpt, 
-                                          spin_mode = spin_mode, 
-                                          smearing  = smearing,
-                                         )
+        scf_input = scf_strategy.make_input()
 
         scf_link = self.register_input(scf_input)
 
-        scr_nband = scr_strategy.get_varvalue("nband")
-
-        sigma_nband = sigma_strategy.get_varvalue("nband")
-
-        max_nband = max(scr_nband, sigma_nband) 
-
-        nscf_nband = int(max_nband + 0.05 * max_nband)
-
-        istwfk = "*1" # FIXME
+        #scr_nband = scr_strategy.get_varvalue("nband")
+        #sigma_nband = sigma_strategy.get_varvalue("nband")
+        #max_nband = max(scr_nband, sigma_nband) 
+        #nscf_nband = int(max_nband + 0.05 * max_nband)
 
         # Construct the input for the NSCF run.
-        #nscf_strategy.learn(scf_input=scf_input)
-        #nscf_input = nscf_strategy.make_input()
-        nscf_input = Input.NSCF_kmesh_from_SCF(scf_input, nscf_nband, nscf_ngkpt, istwfk=istwfk)
+        istwfk = "*1" # FIXME
+        nscf_input = nscf_strategy.make_input()
 
         nscf_link = self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
 
         # Construct the input for the SCR run.
-        #scr_strategy.learn(scf_input=scf_input, nscf_input=nscf_input)
-        #screen_input = scr_strategy.make_input()
-        screen_input = Input.SCR_from_NSCF(nscf_input, scr_strategy, smearing=smearing, istwfk=istwfk)
+        screen_input = scr_strategy.make_input()
 
         screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
 
         # Construct the input for the SIGMA run.
-        #sigma_strategy.learn(scf_input=scf_input, nscf_input=nscf_input, scr_input=scr_input)
-        #sigma_input = sigma_strategy.make_input()
-        sigma_input = Input.SIGMA_from_SCR(screen_input, sigma_strategy, smearing=smearing, istwfk=istwfk)
+        sigma_input = sigma_strategy.make_input()
 
         sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
 
@@ -1113,7 +1052,6 @@ class PPConvergenceFactory(object):
         smearing = Smearing.assmearing(smearing)
 
         if isinstance(ecut_range, slice):
-
             work = PseudoIterativeConvergence(workdir, pseudo, ecut_range, atols_mev,
                                               runmode    = runmode,
                                               spin_mode  = spin_mode,
@@ -1122,7 +1060,6 @@ class PPConvergenceFactory(object):
                                              )
 
         else:
-
             work = PseudoConvergence(workdir, pseudo, ecut_range, atols_mev,
                                      runmode    = runmode,
                                      spin_mode  = spin_mode,

@@ -2,10 +2,28 @@
 from __future__ import division, print_function
 
 import unittest
+import os.path
+
 import numpy as np
 
-from pymatgen.io.abinitio.abiobjects import *
+from pymatgen.core.structure import Structure
 from pymatgen.core.physical_constants import Ha_eV
+from pymatgen.io.abinitio.abiobjects import *
+
+test_dir = os.path.join(os.path.dirname(__file__))
+
+def cif_paths():
+    import pymatgen
+    dirpath = os.path.join(os.path.dirname(os.path.dirname(pymatgen.__file__)), "test_files")
+    cifpaths = []
+    print(dirpath)
+    for fname in os.listdir(dirpath):
+        fname = os.path.join(dirpath, fname)
+        if os.path.isfile(fname) and fname.endswith(".cif"):
+            cifpaths.append(fname)
+
+    assert cifpaths
+    return cifpaths
 
 ##########################################################################################
 
@@ -45,12 +63,44 @@ class SmearingTest(unittest.TestCase):
 
 ##########################################################################################
 
-#class ElectronsTest(unittest.TestCase):
-#    default_electrons = Electrons()
+class ElectronsAlgorithmTest(unittest.TestCase):
+    def test_base(self):
+        algo = ElectronsAlgorithm(nstep=70)
+        print(algo.to_abivars())
 
 ##########################################################################################
 
-#class AbiStructureTest(unittest.TestCase):
+class ElectronsTest(unittest.TestCase):
+    def test_base(self):
+        default_electrons = Electrons()
+        self.assertTrue(default_electrons.nsppol==2)
+        self.assertTrue(default_electrons.nspinor==1)
+        self.assertTrue(default_electrons.nspden==2)
+
+        print(default_electrons.to_abivars())
+
+        #new = Electron.from_dict(default_electrons.to_dict())
+
+##########################################################################################
+
+class AbiStructureTest(unittest.TestCase):
+
+    def setUp(self):
+        self.cif_paths = cif_paths()
+
+    def test_asabistructure(self):
+        for cif_path in self.cif_paths:
+            print("about to init abistructure from %s " % cif_path)
+            st = asabistructure(cif_path)
+            self.assertTrue(st is asabistructure(st))
+            self.assertTrue(isinstance(st, Structure))
+
+            # FIXME
+            if not st.is_ordered:
+                print("Unordered structures are not supported")
+                continue
+
+            print(st.to_abivars())
 
 ##########################################################################################
 

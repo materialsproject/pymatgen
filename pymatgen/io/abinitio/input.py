@@ -34,6 +34,178 @@ __date__ = "$Feb 21, 2013M$"
 
 ##########################################################################################
 
+class NewCard(AbivarAble):
+    """
+    Base class representing a set of Abinit input parameters associated to a particular topic. 
+    Essentially consists of a dictionary with some helper functions.
+
+    The objects are stored in the dictionary as {obj.__class__.__name__: obj}
+
+    str(self) returns a string with the corresponding section of the abinit input file.
+    """
+    def __init__(self, *args, **kwargs):
+        "Creates a Card object."
+        self.obj_dict = dict()
+
+        self._comment = kwargs.get("comment", "")
+
+    def __str__(self):
+        "String representation (the section of the abinit input file)"
+        return self.get_string()
+                                                                                          
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
+    def objects(self):
+        "List of objects stored in self"
+        return self.obj_dict.values()
+
+    def get_obj(self, classname):
+        "Return the object from its class name"
+        return self.obj_dict[classname]
+
+    def add_obj(self, obj):
+        "Add the object to the card"
+        cname = obj.__class__.__name__
+        if cname in self.obj_dict:
+            raise ValueError("%s is already in the Card" % cname)
+        self.obj_dict[cname] = obj
+
+    def pop_obj(self, obj, *d):
+        "Remove the object obj and returns it"
+        return self.obj_dict.pop(obj.__class__.__name__, d)
+
+    def to_abivars():
+        "Returns a dictionary with the abinit variables defined by the Card"
+        abivars = {}
+        for obj in self.objects:
+            abivars.update(obj.to_abivars())
+        return abivars
+
+    @property
+    def comment(self):
+        "String comment (comment of self + comments of the objects, if any)"
+        lines = [self._comment,]
+
+        for obj in self.objects:
+            if hasattr(obj, "comment"):
+                lines.append("%s: %s" % (obj.__class__.__name__, obj.comment))
+
+        return "\n".join(lines)
+
+    def get_string(self, pretty=False):
+        """
+        Returns a string representation of self. The reason why this
+        method is different from the __str__ method is to provide options for pretty printing.
+
+        Args:
+            pretty:
+                Set to True for pretty aligned output. Defaults to False.
+        """
+        abivars = self.to_abivars()
+        sorted_keys = sorted([k for k in abivars])
+
+        lines = []
+        if self.comment: 
+            lines.append(["# comment: ", self.comment.replace("\n", "\n#")])
+            lines.append(["#", "\n"])
+
+        for k in sorted_keys:
+            value = abivars[k]
+
+            # Use default values if value is None.
+            if value is None: 
+                continue
+
+            if isinstance(value, collections.Iterable) and not isinstance(value, str):
+                arr = np.array(value)
+
+                if len(arr.shape) in [0,1]: 
+                    # scalar or vector.
+                    lines.append([k, " ".join([str(i) for i in arr])])
+
+                else: 
+                    # array --> matrix 
+                    matrix = np.reshape(arr, (-1, arr.shape[-1])) 
+                    for (idx, row) in enumerate(matrix):
+                        kname = k +"\n" if idx == 0 else ""
+                        lines.append([kname, " ".join([str(i) for i in row])])
+
+            else:
+                lines.append([k, value])
+
+        if pretty:
+            return str_aligned(lines, header=None)
+        else:
+            return str_delimited(lines, header=None, delimiter=5*" ")
+
+    #def merge(self, other):
+    #    """
+    #    Add all the values of another Card object to this object.
+    #    """
+    #    if self.name != other.name:
+    #        raise ValueError("Cannot merge cards of different type: %s, %s!" % (self.name, other.name) )
+
+    #    s_items = {k : v for (k, v) in self.items()}
+    #    s_attributes = s_items.pop("_attributes")
+
+    #    o_items = {k : v for (k, v) in other.items()}
+    #    o_attributes = o_items.pop("_attributes")
+
+    #    new_dict = s_items.copy()
+    #    for (k, v) in o_items:
+    #        if k in new_dict and new_dict[k] != v:
+    #            raise ValueError("Cards have conflicting variables!")
+    #        else:
+    #            new_dict[k] = v
+
+    #    new_attributes = s_attributes.copy()
+    #    for (k, v) in o_attributes:
+    #        if k in new_attributes and new_attributes[k] != v:
+    #            raise ValueError("Cards have conflicting attributes!")
+    #        else:
+    #            new_attributes[k] = v
+
+    #    new = Card(new_attributes, **new_dict)
+    #    # Return same type as self.
+    #    new.__class__ = self.__class__
+    #    return new
+
+    #def diff(self, other):
+    #    """
+    #    Diff function for Card.  Compares two objects and indicates which
+    #    parameters are the same and which are not. Useful for checking whether
+    #    two runs were done using the same parameters.
+                                                                                    
+    #    Args:
+    #        other:
+    #            The other Card object to compare to.
+                                                                                    
+    #    Returns:
+    #        Dict of the following format:
+    #        {"Same" : parameters_that_are_the_same,
+    #        "Different": parameters_that_are_different}
+    #        Note that the parameters are return as full dictionaries of values.
+    #        E.g. {"natom":3}
+    #    """
+    #    similar_param, different_param = {}, {}
+    #    for (k1, v1) in self.items():
+    #        if k1 not in other:
+    #            different_param[k1] = {self.name : v1, other.name : "Default"}
+    #        elif v1 != other[k1]:
+    #            different_param[k1] = {self.name : v1, other.name : other[k1]}
+    #        else:
+    #            similar_param[k1] = v1
+                                                                                    
+    #    for (k2, v2) in other.items():
+    #        if k2 not in similar_param and k2 not in different_param:
+    #            if k2 not in self:
+    #                different_param[k2] = {self.name : "Default", other.name : v2}
+                                                                                    
+    #    return {"Same": similar_param, "Different": different_param}
+
 class Card(dict, MSONable):
     """
     Base class representing a set of Abinit input parameters associated to a particular topic. 
@@ -43,8 +215,6 @@ class Card(dict, MSONable):
     attributes are stored in self[_attributes].
     str(object) returns a string with the corresponding section of the abinit input file.
     """
-    VALID_VARS = tuple()
-
     def __init__(self, attributes=None, **kwargs):
         """
         Creates a Card object.
@@ -110,18 +280,6 @@ class Card(dict, MSONable):
         except:
             return "No comment available"
 
-    #def __setitem__(self, key, val):
-    #    """
-    #    Add parameter-value pair to self.  Warns if parameter is not in list of
-    #    valid tags. Also cleans the parameter and val by stripping
-    #    leading and trailing white spaces.
-    #    """
-    #    if self.VALID_VARS and key.strip() not in self.VALID_VARS:
-    #        warnings.warn(key + " not in VALID_VARS")
-    #    super(Card, self).__setitem__(key.strip(),
-    #                                        self.proc_val(key.strip(), val.strip())
-    #                                        if isinstance(val, str) else val)
-
     @property
     def to_dict(self):
         raise NotImplementedError("Subclasses should provide the to_dict method")
@@ -152,9 +310,6 @@ class Card(dict, MSONable):
 
         for k in keys:
             if k == "_attributes": continue # Don't print the attributes.
-
-            if self.VALID_VARS and k.strip() not in self.VALID_VARS:
-                warnings.warn("key:" + k + " not in VALID_VARS")
 
             value = self[k]
 
@@ -261,17 +416,6 @@ class SystemCard(Card):
     .. attribute:: comment
         Optional comment string.
     """
-    VALID_VARS = [
-        "acell", 
-        "rprim",
-        "natom",
-        "ntypat",
-        "typat",
-        "znucl",
-        "xred",
-        "nsym",
-    ]
-
     def __init__(self, structure, pseudos, nsym=None, comment=None): 
         """
         Args:
@@ -437,20 +581,6 @@ class KpointsCard(Card):
     """
     #: Modes supported by the constructor.
     modes = Enum(('monkhorst', 'path', 'automatic',))
-
-    VALID_VARS = [
-        "kptopt",
-        "ngkpt",
-        "nshiftk",
-        "shiftk",
-        "kptbounds",
-        "ndivsm",
-        "nkpt",
-        "kpt",
-        "kptnrm",
-        "wtk",
-        "chksymbreak",
-    ]
 
     def __init__(self, 
                  mode              = modes.monkhorst,
@@ -821,8 +951,6 @@ class ElectronsCard(Card):
     """
     Electrons section.
     """
-    VALID_VARS = []
-
     def __init__(self, 
         spin_mode = "polarized", 
         smearing  = "fermi_dirac:0.1 eV",
@@ -904,184 +1032,6 @@ class ElectronsCard(Card):
 
 ##########################################################################################
 
-@singleton
-class MandatoryVariable(object):
-    """
-    Singleton used to tag mandatory variables, just because I can use 
-    the cool syntax: variable is MANDATORY!
-    """
-
-@singleton
-class DefaultVariable(object):
-    """
-    Singleton used to tag variables that will have the default value"""
-
-MANDATORY = MandatoryVariable()
-DEFAULT   = DefaultVariable()
-
-class Strategy(object):
-    """
-    This object generates the set of input variables used to control a particular algorithm 
-    e.g. structural relaxation, self-energy calculations ...
-    A Strategy can absorb data (e.g. data produced in the previous step of a workflow) and 
-    can use this piece of information to generate the input variables.
-    In the simplest case, the variables are passed explicitly by the user via the static
-    constructor class.from_variables.
-    Client code uses the method to_abivars to obtain the list of variables.
-    """
-    __metaclass__ = abc.ABCMeta
-
-    @classmethod
-    def from_variables(cls, **kwargs):
-        # Instanciate new Strategy object.
-        return cls(**kwargs)
-
-    def __init__(self, *args, **kwargs):
-
-        # Initialize vars with the default values.
-        self.vars = self._default_vars
-                                                                                                                     
-        # Overwrite keys with the args and kwargs passed to constructor.
-        self.vars.update(*args, **kwargs)
-
-        self.vars = AttrDict(self.vars)
-                                                                                                                     
-        for k in self.vars:
-            if k not in self._default_vars:
-                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
-
-    def learn_data(self, data):
-        "Update the data stored in self"
-        if not hasattr(self, "_data"):
-            self._data = dict(data)
-        else:
-            self._data.update(data)
-
-    @property
-    def has_data(self):
-        return self.data
-
-    @property
-    def data(self):
-        try:
-            return self. _data
-        except AttributeError:
-            return {}
-
-    def get_varvalue(self, varname):
-        "Returns the value of the variable varname"
-        return self.vars[varname]
-
-    def validate_abivars(self, abivars):
-        # Sanity check
-        for (k, v) in self.vars.items():
-            if v is MANDATORY:
-                raise ValueError("%s: key %s must have a value specified by the user" % (self.__class__.__name__, k))
-
-    def to_abivars(self):
-        """
-        Return the list of abinit variables.
-        """
-        abivars = self.make_abivars()
-        
-        if self.has_data:
-            self.optimize_vars(abivars)
-                                                                                                              
-        self.validate_abivars(abivars)
-                                                                                                              
-        return abivars                                                                                       
-
-    @abc.abstractmethod
-    def make_abivars(self):
-        "Returns a dictionary with the abinit variables"
-
-class RelaxStrategy(Strategy):
-    """
-    Container to store the variables for (constrained) structural optimization
-    ionmov and optcell specify the type of relaxation.
-    The other variables are optional and their use depend on ionmov and optcell.
-    A None value indicates that we use abinit default. Default values can 
-    be modified by passing them to the constructor.
-    The set of variables are constructed in to_abivars depending on ionmov and optcell.
-    """
-    _default_vars =  {
-        "ionmov"          : MANDATORY,
-        "optcell"         : MANDATORY,
-        "ntime"           : 80, 
-        "dilatmx"         : 1.1, 
-        "ecutsm"          : 0.5, 
-        "strfact"         : None,
-        "tolmxf"          : None,  
-        "strtarget"       : None,
-        "atoms_constraints": {}, # Constraints are stored in a dictionary. Empty if no constraint is enforced"
-    }
-
-    IONMOV_DEFAULT = 3
-    OPTCELL_DEFAULT = 2
-
-    @classmethod
-    def atoms_only(cls, atoms_constraints=None):
-        if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
-        else:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
-        return new
-
-    @classmethod
-    def atoms_and_cell(cls, atoms_constraints=None):
-        if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
-        else:
-            new = cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
-        return new
-
-    @property
-    def move_atoms(self):
-        "True if atoms must be moved"
-        return self.vars.ionmov != 0
-                                                       
-    @property
-    def move_cell(self):
-        "True if lattice parameters must be optimized"
-        return self.vars.optcell != 0
-
-    def make_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        vars = self.vars
-
-        # These variables are always present.
-        abivars = { 
-            "ionmov" : vars.ionmov,
-            "optcell": vars.optcell,
-            "ntime"  : vars.ntime,
-        }
-
-        # Atom relaxation.
-        if self.move_atoms:
-            abivars.update({
-                "tolmxf": vars.tolmxf,
-            })
-
-        # Cell relaxation.
-        if self.move_cell:
-            abivars.update({
-                "dilatmx"  : vars.dilatmx,
-                "ecutsm"   : vars.ecutsm,
-                "strfact"  : vars.strfact,
-                "strtarget": vars.strtarget,
-            })
-
-
-        if vars.atoms_constraints:
-            # Add input variables for constrained relaxation.
-            raise NotImplementedError("")
-            abivars.update(vars.atoms_constraints.to_abivars())
-
-        self.validate_abivars(abivars)
-        return abivars
-
-##########################################################################################
-
 class RelaxCard(Card):
     "Card containing the parameters for the relaxation of the atomic position and of the unit cell."
 
@@ -1118,87 +1068,6 @@ class RelaxCard(Card):
 
 ##########################################################################################
 
-class ScreeningStrategy(Strategy):
-    """
-    Container to store the variables for screening calculations. 
-    ionmov and optcell specify the type of relaxation.
-    The other variables are optional and their use depend on ionmov and optcell.
-    A None value indicates that we use abinit default. Default values can 
-    be modified by passing them to the constructor.
-    The set of variables are constructed in to_abivars depending on ionmov and optcell.
-    """
-    _default_vars =  {
-        "ecuteps"  : MANDATORY,
-        "ecutwfn"  : MANDATORY,
-        "nband"    : MANDATORY,
-        "gwpara"   : 2,
-        "awtr"     : 1,
-        "symchi"   : 1,
-        "gwmem"    : None,
-        "gwcalctyp": None,
-        "fftgw"    : None,
-        "inclvkb"  : 2,
-        "spmeth"   : None,
-        "nomegasf" : None,
-        # TODO
-        #"domegasf" : 0.01,
-        # Objects that do not correspond to abinit variables
-        "ppmodel"  : None,
-        #"wmesh"    : None,
-        # TODO
-        # 1) change default values in abinit
-        # 2) Add support for CD calculations.
-        #"freqremax"
-        #"freqremin"
-        #"nfreqre"
-        #"nfreqim",
-    }
-
-    @property
-    def has_ppmodel(self):
-        "True if this is a preparatory run for plasmon-pole model calculations"
-        return self.vars.ppmodel is not None
-
-    #@property
-    #def has_wmesh(self):
-    #    "True if this is a frequency dependent calculation"
-    #    return self.vars.wmesh is not None
-
-    @property
-    def hilbert_transform(self):
-        "True if we are usig the Hilber transform method for the RPA screening."
-        return self.vars.spmeth
-
-    def make_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        vars = self.vars
-
-        # These variables are always present.
-        abivars = { 
-            "ecutwfn"  : vars.ecutwfn,
-            "ecuteps"  : vars.ecuteps,
-            "gwpara"   : vars.gwpara,
-            "awtr"     : vars.awtr,
-            "symchi"   : vars.symchi,
-            "gwmem"    : vars.gwmem,
-            "gwcalctyp": vars.gwcalctyp,
-            "fftgw"    : vars.fftgw,
-            "inclvkb"  : vars.inclvkb,
-        }
-
-        if self.has_ppmodel:
-            abivars.update(vars.ppmodel.to_abivars())
-
-        # Variables for the Hilber transform.
-        if self.hilbert_transform:
-            hilbert = {
-                "spmeth"  : vars.spmeth,
-                "nomegasf": vars.nomegasf,
-            }
-            abivars.update(hilbert)
-
-        return abivars                                                                                       
-
 class ScreeningCard(Card):
     "Card containing the parameters used for the computation of the screening function."
     _optdriver = 3
@@ -1227,74 +1096,6 @@ class ScreeningCard(Card):
         return cls(d["strategy"], comment=d["comment"])
 
 ##########################################################################################
-
-class SelfEnergyStrategy(Strategy):
-    """
-    Container to store the variables for Sigma calculations. 
-    A None value indicates that we use abinit default. Default values can 
-    be modified by passing them to the constructor.
-    The set of variables are constructed in to_abivars.
-    """
-    _default_vars =  {
-        "ecutwfn"  : MANDATORY,
-        "ecuteps"  : MANDATORY,
-        "ecutsigx" : MANDATORY,
-        "nband"    : MANDATORY,
-        "gwpara"   : 2,
-        "symsigma" : 1,
-        "gwmem"    : None,
-        "gwcalctyp": None,
-        "fftgw"    : None,
-        "kptgw"    : MANDATORY,
-        "bdgw"     : MANDATORY,
-        # TODO
-        # 1) change default values in abinit
-        # 2) Add support for CD calculations.
-        # Objects that do not correspond to abinit variables
-        "ppmodel"  : None,
-        #"wmesh"    : None,
-    }
-
-    #def __init__(self, *args, **kwargs):
-        #super(SelfEnergyStrategy, self).__init__(*args, **kwargs)
-
-        #if self.ppmodel is not None:
-        #    self.ppmodel = PPModel.asppmodel(self.ppmodel)
-
-        #if self.wmesh is not None
-        #    raise NotImplementedError("")
-        #    #self.wmesh = OmegaMesh.asomegamesh(self.wmesh)
-
-    @property
-    def has_ppmodel(self):
-        "True if this is a preparatory run for plasmon-pole model calculations"
-        return self.vars.ppmodel is not None
-
-    def make_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        vars = self.vars
-
-        abivars = { 
-            "ecutwfn"  : vars.ecutwfn,
-            "ecuteps"  : vars.ecuteps,
-            "gwpara"   : vars.gwpara,
-            "symsigma" : vars.symsigma,
-            "gwmem"    : vars.gwmem,
-            "gwcalctyp": vars.gwcalctyp,
-            "fftgw"    : vars.fftgw,
-            "kptgw"    : np.reshape(vars.kptgw, (-1,3)),
-            "nkptgw"   : len(vars.kptgw),
-            "bdgw"     : np.reshape(vars.bdgw, (-1,2)),
-        }
-
-        # FIXME: problem with the spin
-        #assert len(self.bdgw) == self.nkptgw
-
-        # Variables for ppmodel.
-        if self.has_ppmodel:
-            abivars.update(vars.ppmodel.to_abivars())
-
-        return abivars                                                                                       
 
 class SelfEnergyCard(Card):
     "Parameters for the computation of the self-energy."
@@ -1585,10 +1386,11 @@ class ControlCard(Card):
 
 ##########################################################################################
 
-class Input(dict, MSONable):
+class Input(object):
     """
-    Class to contain the set of ABINIT input variable defining the calculation.
-    Essentially an ordered dictionary of predefined Card
+    Abstraction for the abinit input file: an input contains a dictionary of cards. 
+    Each card is associated to a particular topic/calculation and gathers several objects 
+    indexed by the class name e.g. card[__class__.__name__] --> object
     """
     # Mandatory cards that must be passed to the constructor.
     _mandatory_cards = ['SystemCard', 'KpointsCard',  'ElectronsCard', 'ControlCard',]
@@ -1599,444 +1401,177 @@ class Input(dict, MSONable):
             cards:
                 List of Cards. Mandatory cards: SystemCard, KpointsCard, ElectronsCard, ControlCard
         """
-        super(Input, self).__init__()
+        self._cards_dict = {}
 
         for card in cards:
-            if card.name in self:
+            key = card.name
+            if key in self._cards_dict:
                 raise ValueError("Card %s is already in the dictionary" % card.name)
-            self[card.name] = card 
 
-        # Sanity check: no variable duplication is allowed.
-        counter = collections.Counter(self.varnames)
-        duplicated = filter(lambda t: t[1] > 1, counter.items())
-                                                                                  
-        if duplicated:
-            raise ValueError("Found duplicated variables: %s" % str(duplicated))
+            self._cards_dict[key] = card 
 
         # Check for presence of mandatory cards.
         card_names = set([card.name for card in cards])
         if not set(card_names).issuperset(Input._mandatory_cards):
             raise ValueError("Mandatory cards are missing, got %s" % str(card_names))
 
-    def __getattribute__(self, name):
-        try:
-            # Default behaviour
-            return super(Input, self).__getattribute__(name)
-        except AttributeError:
-            # Try in self
-            return self[name]
+        # Sanity check: no variable duplication is allowed.
+        # TODO
+        #counter = collections.Counter(self.varnames)
+        #duplicated = filter(lambda t: t[1] > 1, counter.items())
+        #                                                                          
+        #if duplicated:
+        #    raise ValueError("Found duplicated variables: %s" % str(duplicated))
 
     def __repr__(self):
-        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), str([k for k in self.card_names]))
+        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), str(self.card_names))
 
     def __str__(self):
         lines = [
-            "# This file has been generated by pymatgen",
+            "# This input file has been generated by pymatgen",
             "# *** Do not edit. Any change will be lost if the input if regenerated ***"
             ]
-        keys = self.card_names
-        keys.sort()
-        for k in keys:
-            card = self[k]
+
+        for k in sorted(self.card_names):
+            card = self._cards_dict[k]
             lines.append( k.center(len(k)+2).center(90, "#") )
             lines.append(str(card))
             lines.append("")
-
+                                                                                         
         return "\n".join(lines)
 
     @property
-    def pseudos(self):
-        "List of pseudopotentials"
-        return self.SystemCard.pseudos
+    def card_names(self):
+        return [k for k in self._cards_dict]
+                                         
+    @property
+    def cards(self):
+        return self._cards_dict.values()
+
+    @property
+    def system_card(self):
+        return self.cards_dict["SystemCard"]
+
+    @property
+    def electrons_card(self):
+        return self.cards_dict["ElectronsCard"]
+
+    @property
+    def kpoints_card(self):
+        return self.cards_dict["KpointsCard"]
+
+    @property
+    def control_card(self):
+        return self.cards_dict["ControlCard"]
 
     @property
     def structure(self):
         "Pymatgen structure"
-        return self.SystemCard.structure
+        return self.system_card.structure
+
+    @property
+    def pseudos(self):
+        "List of pseudopotentials"
+        return self.system_card.pseudos
 
     @property
     def spin_mode(self):
         "SpinMode object"
-        return self.ElectronsCard.spin_mode
+        return self.electrons_card.spin_mode
 
     @property
     def smearing(self):
         "Object defining the smearing technique"
-        return self.ElectronsCard.smearing
+        return self.electrons_card.smearing
 
-    @property
-    def description(self):
-        "Description string"
-        lines = []
-        app = lines.append
-        for (card_name, card) in self.items():
-            card_comment = getattr(card, "comment", "No comment avaiable")
-            app(card_name + ": " + str(card_comment))
-        return "\n".join(lines)
-
-    @property
-    def to_dict(self):
-        d = {"cards" : self.cards}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        return Input(*d["cards"])
-
-    @property
-    def card_names(self):
-        return self.keys()
-
-    @property
-    def cards(self):
-        return self.values()
+    #@property
+    #def description(self):
+    #    "Description string"
+    #    lines = []
+    #    app = lines.append
+    #    for (card_name, card) in self.items():
+    #        card_comment = getattr(card, "comment", "No comment avaiable")
+    #        app(card_name + ": " + str(card_comment))
+    #    return "\n".join(lines)
 
     def copy(self):
+        "Shallow copy"
         return Input(*self.cards)
 
-    def iter_variables(self):
-        "Iterator over (varname, varvalue)"
-        for card in self.cards:
-            for item in card.items(): 
-                if item[0] != "_attributes": yield item
+    #def iter_variables(self):
+    #    "Iterator over (varname, varvalue)"
+    #    for card in self.cards:
+    #        for obj in card.objects: 
+    #            for (k, v) in obj.to_abivars():
+    #                yield k,v
 
-    @property
-    def varnames(self):
-        return [v[0] for v in self.variables]
+    #@property
+    #def varnames(self):
+    #    return [v[0] for v in self.variables]
 
-    @property
-    def variables(self):
-        return list(self.iter_variables())
+    #@property
+    #def variables(self):
+    #    return list(self.iter_variables())
 
-    @property
-    def varnames2card(self):
-        d = {}
-        for (card_name, card) in self.items():
-            d[card_name] = card.keys()
+    #@property
+    #def varnames2card(self):
+    #    d = {}
+    #    for (card_name, card) in self.items():
+    #        d[card_name] = card.keys()
 
-        vnames2card = {}
-        for (card_name, vname_list) in d.items():
-            for var_name in vname_list:
+    #    vnames2card = {}
+    #    for (card_name, vname_list) in d.items():
+    #        for var_name in vname_list:
 
-                if var_name == "_attributes": 
-                    continue
+    #            if var_name == "_attributes": 
+    #                continue
 
-                if var_name in vnames2card:
-                    raise ValueError("variable %s occurs more than once" % var_name)
+    #            if var_name in vnames2card:
+    #                raise ValueError("variable %s occurs more than once" % var_name)
 
-                vnames2card[var_name] = self[card_name]
+    #            vnames2card[var_name] = self[card_name]
 
-        return vnames2card
+    #    return vnames2card
 
-    def get_variable(self, variable_name):
-        try:
-            card = self.varnames2card[variable_name]
-            return card[variable_name]
-        except KeyError:
-            raise KeyError("variable %s not found" % variable_name)
+    #def copy_cards(self, exclude=None, aslist=True):
+    #    if exclude is None: 
+    #        exclude = []
+    #    else:
+    #        # Check for typos!
+    #        if not set(exclude).issubset(self.card_names):
+    #            print("exclude_list: %s" % str(exclude))
+    #            print("card_names: %s" % str(self.card_names))
+    #            raise ValueError("Wrong value for exclude, likely a typo")
+    #        
+    #    # The entry "ControlCard" is automatically generated when we instanciate 
+    #    # hence we don't add it to the cards.
+    #    new_dict = {}
+    #    for card_name in self.card_names:
+    #        if card_name not in exclude + ["ControlCard"]: 
+    #            new_dict[card_name] = self[card_name].copy()
 
-    def set_variable(self, variable_name, variable_value):
-        try:
-            card = self.varnames2card[variable_name]
-            card[variable_name] = variable_value
-        except KeyError:
-            raise KeyError("variable %s not found" % variable_name)
-
-    def delete_variable(self, variable_name):
-        try:
-            card = self.varnames2card[variable_name]
-            del card[variable_name]
-        except KeyError:
-            raise KeyError("variable %s not found" % variable_name)
-
-    def copy_cards(self, exclude=None, aslist=True):
-        if exclude is None: 
-            exclude = []
-        else:
-            # Check for typos!
-            if not set(exclude).issubset(self.card_names):
-                print("exclude_list: %s" % str(exclude))
-                print("card_names: %s" % str(self.card_names))
-                raise ValueError("Wrong value for exclude, likely a typo")
-            
-        # The entry "ControlCard" is automatically generated when we instanciate 
-        # hence we don't add it to the cards.
-        new_dict = {}
-        for card_name in self.card_names:
-            if card_name not in exclude + ["ControlCard"]: 
-                new_dict[card_name] = self[card_name].copy()
-
-        if aslist:
-            return new_dict.values()
-        else:
-            return new_dict
-
-    # FIXME
-    # These methods are obsolete!
-    def add_card(self, card):
-        if card.name in self.card_names:
-            raise ValueError("Card %s is already in %s" % (card.name, repr(self)))
-        new = Input(*self.cards)
-        new[card.name] = card
-        return new
-
-    def replace_card(self, card_name, new_card, check_name=True):
-        "Modify the value of self[card_name] with new_card"
-
-        old_card = self[card_name]
-
-        if check_name and old_card.name != new_card.name:
-            raise ValueError("Cannot replace %s with Card of type %s" % (card_name, new_card.name))
-
-        new = Input(*self.cards)
-        new[card_name] = new_card
-        return new
+    #    if aslist:
+    #        return new_dict.values()
+    #    else:
+    #        return new_dict
 
     def add_vars_to_card(self, vars, card_name):
         "Add new_vars to the Card self[card_name]. Return new instance of Input."
-
         if card_name not in self.card_names:
             raise ValueError("card_name %s not present in Input" % card_name)
 
+        print(card_name, vars)
+                                                                                  
         cards = {}
-        for (k, v) in self.items():
-            if k == card_name:
-                cards[k] = self[k].copy()
-                cards[k].update(vars)
+        for (cname, card) in self._cards_dict.items():
+            if cname == card_name:
+                cards[cname] = card.copy()
+                # FIXME
+                cards[cname].update(vars)
             else:
-                cards[k] = self[k]
-
+                cards[cname] = card
+                                                                                  
         return Input(*cards.values())
-
+                                                                                  
     def add_vars_to_control(self, vars):
         return self.add_vars_to_card(vars, "ControlCard")
-
-    @staticmethod
-    def SCF_groundstate(structure, pseudos, ngkpt=None, kppa=None, spin_mode="polarized", 
-                        smearing="fermi_dirac:0.1 ev", **kwargs):
-        """
-        Static constructor for self-consistent ground-state calculations.
-
-        Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ngkpt:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            kppa:
-                Grid density (kppa / natom). 
-            spin_mode: 
-                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
-            smearing: 
-                String or Smearing instance. 
-            **kwargs:
-                Extra variables added directly to the input file
-
-        Returns:
-            AbinitInput instance.
-        """
-        # Initialize system section from structure.
-        system = SystemCard(structure, pseudos)
-
-        # Variabled for electrons
-        electrons = ElectronsCard(spin_mode=spin_mode, smearing=smearing)
-
-        # K-point sampling.
-        if [obj is not None for obj in [ngkpt, kppa,]].count(True) != 1:
-            raise ValueError("only one variable among ngkpt, kppa should be supplied")
-
-        if ngkpt is not None:
-            kmesh = KpointsCard.monkhorst_automatic(structure, ngkpt)
-        elif kppa is not None:
-            kmesh = KpointsCard.automatic_density(structure, kppa)
-
-        scf_control = ControlCard(system, electrons, kmesh, **kwargs)
-
-        return Input(system, electrons, kmesh, scf_control)
-
-    @staticmethod
-    def NSCF_kpath_from_SCF(scf_input, nband, ndivsm=20, kpath_bounds=None, **kwargs):
-        """
-        Constructor for non-self-consistent ground-state calculations (band structure calculations)
-                                                                                                       
-        Args:
-            scf_input:
-                Input for self-consistent calculations.
-            nband:
-                Number of bands to compute
-            ndivsm:
-                Number of division for the smallest segment
-            kpath_bounds:
-                Extrema of the k-path.
-            **kwargs:
-                Extra variables added directly to the input file
-                                                                                                       
-        Returns:
-            AbinitInput instance.
-        """
-        # Change KpointsCard and ElectronsCard.
-        nscf_cards = scf_input.copy_cards(exclude=["KpointsCard", "ElectronsCard",])
-
-        if kpath_bounds is not None:
-            nscf_cards.append(KpointsCard.explicit_path(ndivsm, kpath_bounds))
-        else:
-            nscf_cards.append(KpointsCard.path_from_structure(ndivsm, scf_input.structure))
-
-        nscf_cards.append(ElectronsCard(spin_mode=scf_input.spin_mode, nband=nband, iscf=-2))
-
-        nscf_cards.append(ControlCard(*nscf_cards, **kwargs))
-
-        return Input(*nscf_cards)
-
-    @staticmethod
-    def NSCF_kmesh_from_SCF(scf_input, nband, ngkpt=None, kppa=None, **kwargs):
-        """
-        Constructor for non-self-consistent ground-state calculations (DOS calculations).
-                                                                                                       
-        Args:
-            scf_input:
-                Input for self-consistent calculations.
-            nband:
-                Number of bands to compute
-            ngkpt:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            kppa:
-                Grid density (kppa / natom). 
-            **kwargs:
-                Extra variables added directly to the input file
-                                                                                                       
-        Returns:
-            AbinitInput instance.
-        """
-        # Change KpointsCard and ElectronsCard.
-        nscf_cards = scf_input.copy_cards(exclude=["KpointsCard", "ElectronsCard",])
-
-        # K-point sampling.
-        if ngkpt is not None:
-            kmesh = KpointsCard.monkhorst_automatic(scf_input.structure, ngkpt)
-        elif kppa is not None:
-            kmesh = KpointsCard.automatic_density(scf_input.structure, kppa)
-
-        nscf_cards.append(kmesh)
-
-        nscf_cards.append(ElectronsCard(spin_mode=scf_input.spin_mode, nband=nband, iscf=-3))
-
-        nscf_cards.append(ControlCard(*nscf_cards, **kwargs))
-
-        return Input(*nscf_cards)
-
-    @staticmethod
-    def Relax(structure, pseudos, strategy, ngkpt=None, kppa=None, spin_mode="polarized", 
-              smearing="fermi_dirac:0.1 eV", **kwargs):
-        """
-        Constructor for structure relaxation..
-                                                                                                       
-        Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            strategy:
-                Strategy instance
-            ngkpt:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            kppa:
-                Grid density (kppa / natom). 
-            spin_mode: 
-                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
-            smearing: 
-                String or Smearing instance. 
-            **kwargs:
-                Extra variables added directly to the input file
-
-        Returns:
-            AbinitInput instance.
-        """
-        # Initialize geometry section from structure.
-        system = SystemCard(structure, pseudos)
-
-        # Variables for electrons
-        electrons = ElectronsCard(spin_mode=spin_mode, smearing=smearing)
-
-        # K-point sampling.
-        if ngkpt is not None:
-            kmesh = KpointsCard.monkhorst_automatic(structure, ngkpt)
-        elif kppa is not None:
-            kmesh = KpointsCard.automatic_density(structure, kppa)
-
-        relax = RelaxCard(strategy)
-
-        control = ControlCard(system, electrons, kmesh, relax, **kwargs)
-
-        return Input(system, electrons, kmesh, relax, control)
-
-    @staticmethod
-    def SCR_from_NSCF(nscf_input, scr_strategy, smearing="fermi_dirac:0.1 eV", **kwargs):
-        """
-        Constructor for screening calculations.
-                                                                                                       
-        Args:
-            nscf_input:
-                Input used for the non-self consistent calculation
-            scr_strategy:
-                Strategy for the SCR calculation
-            smearing: 
-                String or Smearing instance. 
-            **kwargs:
-                Extra variables added directly to the input file
-
-        Returns:
-            AbinitInput instance.
-        """
-        scr_cards = nscf_input.copy_cards(exclude=["ElectronsCard",])
-
-        nband_screening = scr_strategy.get_varvalue("nband")
-
-        scr_cards.append(ElectronsCard(spin_mode=nscf_input.spin_mode, nband=nband_screening, smearing=smearing))
-
-        scr_cards.append(ScreeningCard(scr_strategy, comment="Generated from NSCF input"))
-
-        scr_cards.append(ControlCard(*scr_cards, **kwargs))
-
-        return Input(*scr_cards)
-
-    @staticmethod
-    def SIGMA_from_SCR(scr_input, sigma_strategy, smearing="fermi_dirac:0.1 eV", **kwargs):
-        """
-        Constructor for sigma calculations.
-                                                                                                       
-        Args:
-            scr_input:
-                Input used for the screening calculation
-            sigma_strategy:
-                Strategy for self-energy calculations.
-            smearing: 
-                String or Smearing instance. 
-            **kwargs:
-                Extra variables added directly to the input file
-
-        Returns:
-            AbinitInput instance.
-        """
-        # TODO Add consistency check between SCR and SIGMA strategies
-        smearing = Smearing.assmearing(smearing)
-
-        if (smearing != scr_input.smearing):
-            raise ValueError("Input smearing differs from the one used in the SCR run")
-
-        sigma_nband = sigma_strategy.get_varvalue("nband")
-
-        se_card = SelfEnergyCard(sigma_strategy, comment="Generated from SCR input")
-
-        sigma_cards = scr_input.copy_cards(exclude=["ScreeningCard", "ElectronsCard",])
-
-        sigma_cards.append(ElectronsCard(spin_mode=scr_input.spin_mode, nband=sigma_nband, smearing=smearing))
-
-        sigma_cards.append(se_card)
-
-        sigma_cards.append(ControlCard(*sigma_cards, **kwargs))
-
-        return Input(*sigma_cards)
