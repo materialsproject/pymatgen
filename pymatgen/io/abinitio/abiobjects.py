@@ -194,8 +194,8 @@ class Smearing(AbivarAble, MSONable):
 
 ##########################################################################################
 
-class SCFSolver(dict, AbivarAble):
-    "Variables controlling the SCF algorithm."
+class ElectronsAlgorithm(dict, AbivarAble):
+    "Variables controlling the SCF/NSCF algorithm."
 
     # None indicates that we use abinit defaults.
     _default_vars = {
@@ -216,9 +216,9 @@ class SCFSolver(dict, AbivarAble):
     }
 
     def __init__(self, *args, **kwargs):
-        super(SCFSolver, self).__init__(*args, **kwargs)
+        super(ElectronsAlgorithm, self).__init__(*args, **kwargs)
 
-        for k in self.vars:
+        for k in self:
             if k not in self._default_vars:
                 raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
 
@@ -234,7 +234,7 @@ class Electrons(AbivarAble):
     def __init__(self, 
                  spin_mode = "polarized", 
                  smearing  = "fermi_dirac:0.1 eV",
-                 scf_solver = None,
+                 algorithm = None,
                  nband     = None,
                  fband     = None,
                  charge    = 0.0,
@@ -263,7 +263,7 @@ class Electrons(AbivarAble):
         self.fband = fband
         self.charge = charge
 
-        self.scf_solver = scf_solver
+        self.algorithm = algorithm
 
         # FIXME
         if nband is None:
@@ -281,18 +281,18 @@ class Electrons(AbivarAble):
     def nspden(self): 
         return self.spin_mode.nspden
 
-    @property
-    def to_dict(self):
-        "json friendly dict representation"
-        d = {}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        raise NotImplementedError("")
-        return d
+    #@property
+    #def to_dict(self):
+    #    "json friendly dict representation"
+    #    d = {}
+    #    d["@module"] = self.__class__.__module__
+    #    d["@class"] = self.__class__.__name__
+    #    raise NotImplementedError("")
+    #    return d
 
-    @staticmethod
-    def from_dict(d):
-        raise NotImplementedError("")
+    #@staticmethod
+    #def from_dict(d):
+    #    raise NotImplementedError("")
 
     def to_abivars(self):
         abivars = self.spin_mode.to_abivars()
@@ -306,10 +306,10 @@ class Electrons(AbivarAble):
         if self.smearing:
             abivars.update(self.smearing.to_abivars())
 
-        if self.scf_solver:
-            abivars.update(self.scf_solver.to_abivars())
+        if self.algorithm:
+            abivars.update(self.algorithm.to_abivars())
 
-        abivars["_comment"] = comment
+        abivars["#comment"] = self.comment
         return abivars
 
 #########################################################################################
@@ -349,7 +349,9 @@ def asabistructure(obj):
 class AbiStructure(Structure, AbivarAble):
     "Patches the pymatgen structure adding the method to_abivars"
 
-    asabistructure = asabistructure
+    @staticmethod
+    def asabistructure(obj): 
+        return asabistructure(obj)
 
     def __new__(cls, structure):
         new = structure
@@ -1005,10 +1007,11 @@ class Screening(AbivarAble):
     #w = Screening(w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None)
     #scr_strategy.set_w(w)
 
-    def __init__(self, w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None):
+    def __init__(self, w_type, sc_mode, ecuteps, nband, ecutwfn=None, ppmodel=None, freq_mesh=None):
         self.type = w_type
         self.sc_mode = sc_mode
         self.ecuteps = ecuteps
+        self.nband = nband
         self.ecutwfn = ecutwfn
 
         if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
@@ -1080,8 +1083,8 @@ class SelfEnergy(AbivarAble):
     #se_strategy.learn_data(data)
     #se_strategy.set_self_energy(self_energy)
 
-    def __init__(self, se_type, sc_mode, ecuteps, nband, 
-                 ecutwfn=None, ecutsigx=None, kptgw="all", bdgw=None, ppmodel="noppmodel", freq_int=None):
+    def __init__(self, se_type, sc_mode, ecuteps, nband, ecutwfn=None, ecutsigx=None, 
+                 kptgw="all", bdgw=None, ppmodel="noppmodel", freq_int=None):
         "freq_int: cd for contour deformation"
 
         self.type     = se_type
