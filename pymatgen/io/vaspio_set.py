@@ -582,7 +582,7 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         return Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
 
     @staticmethod
-    def get_structure(vasp_run, outcar=None, refined_structure=False):
+    def get_structure(vasp_run, outcar=None, initial_structure=False, refined_structure=False, ):
         """
         Prepare relaxed structure for static run
         """
@@ -600,7 +600,9 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
                                         [site.frac_coords for site in relaxed_structure.sites],
                                         site_properties= magmom if magmom else None)
         sym_finder = SymmetryFinder(decorated_structure, symprec=0.01)
-        if refined_structure:
+        if initial_structure:
+            return decorated_structure
+        elif refined_structure:
             return (sym_finder.get_primitive_standard_structure(),
                     sym_finder.get_refined_structure())
         else:
