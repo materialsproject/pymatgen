@@ -83,7 +83,7 @@ class Element(object):
 
         Returns the periodic table row of the element.
 
-    ..attribute:: group
+    .. attribute:: group
 
         Returns the periodic table group of the element.
 
@@ -634,13 +634,23 @@ class Element(object):
 class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
-    properties. Note that optional properties are not checked when comparing
-    two Species for equality; only the element and oxidation state is checked.
-    Properties associated with Specie should be "idealized" values, not
-    calculated values. For example, high-spin Fe2+ may be assigned an idealized
-    spin of +5, but an actual Fe2+ site may be calculated to have a magmom of
-    +4.5. Calculated properties should be assigned to Site objects, and not
-    Specie.
+    properties. Properties associated with Specie should be "idealized"
+    values, not calculated values. For example, high-spin Fe2+ may be
+    assigned an idealized spin of +5, but an actual Fe2+ site may be
+    calculated to have a magmom of +4.5. Calculated properties should be
+    assigned to Site objects, and not Specie.
+
+    .. attribute:: oxi_state
+
+        Oxidation state associated with Specie
+
+    .. attribute:: ionic_radius
+
+        Ionic radius of Specie (with specific oxidation state).
+
+    .. versionchanged:: 2.6.7
+
+        Properties are now checked when comparing two Species for equality.
     """
 
     supported_properties = ("spin",)
@@ -683,7 +693,8 @@ class Specie(MSONable):
         if not isinstance(other, Specie):
             return False
         return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+            and self._oxi_state == other._oxi_state \
+                and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -830,6 +841,22 @@ class DummySpecie(MSONable):
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
+
+    .. attribute:: symbol
+
+        Symbol for the DummySpecie.
+
+    .. attribute:: oxi_state
+
+        Oxidation state associated with Specie.
+
+    .. attribute:: Z
+
+        DummySpecie is always assigned an atomic number of 0.
+
+    .. attribute:: X
+
+        DummySpecie is always assigned an electronegativity of 0.
     """
 
     def __init__(self, symbol="X", oxidation_state=0, properties=None):
