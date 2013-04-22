@@ -59,18 +59,22 @@ class FakeProcess(object):
 
 ##########################################################################################
 
-def task_factory(input, workdir, runmode, task_id=1, links=None, **kwargs):
+def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
     "Factory function for Task instances."
 
-    task = AbinitTask(input, workdir, runmode, task_id=task_id, links=links, **kwargs)
+    # Instanciate subclasses depending on the runlevel.
+    classes = {
+       "scf"      : AbinitTask, 
+       "nscf"     : AbinitTask,
+       "relax"    : AbinitTask,
+       "dfpt"     : AbinitTask,
+       "screening": AbinitTask,
+       "sigma"    : AbinitTask,
+       "bse"      : AbinitTask,
+    }
 
-    #if input.is_scf:
-    #elif input.is_nscf:
-    #elif input.is_screening:
-    #elif input.is_sigma:
-    #else:
-    #    raise ValueError("Don't know how to generate task for input %s" % str(input))
-    return task
+    #return AbinitTask(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+    return classes[strategy.runlevel](strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
 ##########################################################################################
 
@@ -267,15 +271,15 @@ class AbinitTask(Task):
     basename = Basename("run.in", "run.out", "run.files", "log", "stderr", "job.sh", "__lock__")
     del Basename
 
-    def __init__(self, input, workdir, runmode, 
+    def __init__(self, strategy, workdir, runmode, 
                  task_id  = 1,
                  links    = None, 
                  **kwargs
                 ):
         """
         Args:
-            input: 
-                AbinitInput instance descring the input file
+            strategy: 
+                Strategy instance descring the calculation.
             workdir:
                 Path to the working directory.
             runmode:
@@ -287,13 +291,13 @@ class AbinitTask(Task):
         """
         super(AbinitTask, self).__init__()
 
+        self.strategy = strategy
+
         self.workdir = os.path.abspath(workdir)
 
         self.runmode = RunMode.asrunmode(runmode)
 
         self.set_id(task_id)
-
-        self.input = input.copy()
 
         # Connect this task to the other tasks 
         # (needed if are creating a Work instance with dependencies
@@ -301,9 +305,7 @@ class AbinitTask(Task):
         if links is not None: 
             self._links = links
             for link in links:
-                abivars = link.get_abivars()
-                #print("abivars", abivars)
-                self.input = self.input.add_vars_to_control(abivars)
+                self.strategy.add_extra_abivars(link.get_abivars())
 
         # Files required for the execution.
         self.input_file  = File(os.path.join(self.workdir, AbinitTask.basename.input))
@@ -376,7 +378,7 @@ class AbinitTask(Task):
     @property
     def pseudos(self):
         "List of pseudos used in the calculation."
-        return self.input.pseudos
+        return self.strategy.pseudos
 
     @property
     def filesfile_string(self):
@@ -403,7 +405,7 @@ class AbinitTask(Task):
         d = {k: v.to_dict for k, v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["input"] = self.input 
+        d["strategy"] = self.strategy 
         d["workdir"] = workdir 
         return d
                                                                     

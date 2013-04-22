@@ -25,9 +25,9 @@ from pymatgen.io.abinitio.task import task_factory, Task
 
 from .utils import abinit_output_iscomplete, File
 from .netcdf import GSR_Reader
-from .abiobjects import Smearing
+from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
-from .input import Input, ElectronsCard, SystemCard, ControlCard, KpointsCard 
+from .strategies import ScfStrategy
 from .task import RunMode
 
 #import logging
@@ -90,20 +90,14 @@ class WorkLink(object):
 
     A  WorkLink is a task that produces a list of products (files) that are 
     reused by the tasks belonging to a Work instance. 
-    One usually instantiates the object by calling work.register_input and produces_exts.
+    One usually instantiates the object by calling work.register_task and produces_exts.
     Example:
 
-        # Generate the input file for the SCF calculation
-        scf_input = ...
+        # Register the SCF task in work and get the link.
+        scf_link = work.register_task(scf_strategy)
 
-        # Register the SCF input in work and get the link.
-        scf_link = work.register_input(scf_input)
-
-        # Generate the input file for NSCF calculation
-        nscf_input = ...
-
-        # Register the NSCF input and its dependency on the SCF run.
-        nscf_link = work.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
+        # Register the NSCF calculation and its dependency on the SCF run.
+        nscf_link = work.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
     """
     def __init__(self, task, exts=None):
         """
@@ -253,13 +247,13 @@ class Work(BaseWork, MSONable):
     """
     Error = WorkError
 
-    @classmethod
-    def from_task(cls, task):
-        "Build a Work instance from a task object"
-        workdir, tail = os.path.dirname(task.workdir)
-        new = cls(workdir, taks.runmode)
-        new.register_input(task.input)
-        return new
+    #@classmethod
+    #def from_task(cls, task):
+    #    "Build a Work instance from a task object"
+    #    workdir, tail = os.path.dirname(task.workdir)
+    #    new = cls(workdir, taks.runmode)
+    #    new.register_task(task.input)
+    #    return new
 
     def __init__(self, workdir, runmode, **kwargs):
         """
@@ -335,26 +329,26 @@ class Work(BaseWork, MSONable):
         The default implementation is empty.
         """
 
-    def show_inputs(self, stream=sys.stdout):
-        lines = []
-        app = lines.append
+    #def show_inputs(self, stream=sys.stdout):
+    #    lines = []
+    #    app = lines.append
 
-        width = 120
-        for task in self:
-            app("\n")
-            app(repr(task))
-            app("\ninput: %s" % task.input_file.path)
-            app("\n")
-            app(str(task.input))
-            app(width*"=" + "\n")
+    #    width = 120
+    #    for task in self:
+    #        app("\n")
+    #        app(repr(task))
+    #        app("\ninput: %s" % task.input_file.path)
+    #        app("\n")
+    #        app(str(task.input))
+    #        app(width*"=" + "\n")
 
-        stream.write("\n".join(lines))
+    #    stream.write("\n".join(lines))
 
-    def register_input(self, input, links=()):
+    def register_task(self, strategy, links=()):
         """
-        Registers a new Input:
+        Registers a new task:
 
-            - creates a new AbinitTask from input.
+            - creates a new AbinitTask from the input strategy.
             - adds the new task to the internal list, taking into account possible dependencies.
 
         Returns: WorkLink object
@@ -369,11 +363,7 @@ class Work(BaseWork, MSONable):
                 links = [links,]
 
         # Create the new task (note the factory so that we create subclasses easily).
-        task = task_factory(input, task_workdir, self.runmode, task_id=task_id, links=links)
-
-        # Add it to the internal list.
-        #if task.id in self._links_dict:
-        #    raise ValueError("task is already registered!")
+        task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
 
         self._tasks.append(task)
                                          
@@ -505,7 +495,7 @@ class IterativeWork(Work):
         except StopIteration:
             raise StopIteration
 
-        self.register_input(next_input)
+        self.register_task(next_input)
         assert len(self) == self.niter
 
         return self[-1]
@@ -724,7 +714,7 @@ class PseudoConvergence(Work):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
-        # Temporary object used to build the input files
+        # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev, 
                                                spin_mode     = spin_mode, 
                                                acell         = acell, 
@@ -736,9 +726,9 @@ class PseudoConvergence(Work):
 
         self.ecut_list = []
         for ecut in ecut_list:
-            input = generator.input_with_ecut(ecut)
+            strategy = generator.strategy_with_ecut(ecut)
             self.ecut_list.append(ecut)
-            self.register_input(input)
+            self.register_task(strategy)
 
     def get_results(self, *args, **kwargs):
 
@@ -795,37 +785,37 @@ class PseudoIterativeConvergence(IterativeWork):
         else:
             self.ecut_iterator = iter(ecut_list_or_slice)
 
-        # Construct a generator that returns AbinitInput objects.
-        def input_generator():
+        # Construct a generator that returns strategy objects.
+        def strategy_generator():
             for ecut in self.ecut_iterator:
-                yield self.input_with_ecut(ecut)
+                yield self.strategy_with_ecut(ecut)
 
-        super(PseudoIterativeConvergence, self).__init__(workdir, runmode, input_generator(), max_niter=max_niter)
+        super(PseudoIterativeConvergence, self).__init__(workdir, runmode, strategy_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
 
-    def input_with_ecut(self, ecut):
-        "Return an Input instance with given cutoff energy ecut"
+    def strategy_with_ecut(self, ecut):
+        "Return a Strategy instance with given cutoff energy ecut"
 
         # Define the system: one atom in a box of lenghts acell. 
-        boxed_atom = SystemCard.boxed_atom(self.pseudo, acell=self.acell)
+        boxed_atom = AbiStructure.boxed_atom(self.pseudo, acell=self.acell)
 
         # Gamma-only sampling.
-        gamma_only = KpointsCard.gamma_only()
+        gamma_only = KSampling.gamma_only()
 
         # Setup electrons.
-        electrons = ElectronsCard(spin_mode=self.spin_mode, smearing=self.smearing)
+        electrons = Electrons(spin_mode=self.spin_mode, smearing=self.smearing)
 
-        # Generate inputs with different values of ecut and register the task.
-        control = ControlCard(boxed_atom, electrons, gamma_only,
-                              ecut        = ecut, 
-                              prtwf       = 0,
-                              want_forces = False,
-                              want_stress = False,
-                             )
+        extra_abivars = {
+            "ecut" : ecut, 
+            "prtwf": 0,
+        }
+        
+        strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only, spin_mode=self.spin_mode, 
+                 smearing=self.smearing, charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars)
 
-        return Input(control, boxed_atom, gamma_only, electrons)
+        return strategy 
 
     @property
     def ecut_list(self):
@@ -862,21 +852,15 @@ class BandStructure(Work):
 
         super(BandStructure, self).__init__(workdir, runmode)
 
-        # Construct the input for the GS-SCF run.
-        scf_input = scf_strategy.make_input()
+        # Register the GS-SCF run.
+        scf_link = self.register_task(scf_strategy)
 
-        scf_link = self.register_input(scf_input)
-
-        # Construct the input for the NSCF run.
-        nscf_input = nscf_strategy.make_input()
-
-        self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
+        # Register the NSCF run and its dependency
+        self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
         if dos_strategy is not None:
-            dos_input = dos_strategy.make_input()
-
-            self.register_input(dos_input, links=scf_link.produces_exts("_DEN"))
+            self.register_task(dos_strategy, links=scf_link.produces_exts("_DEN"))
 
 ##########################################################################################
 
@@ -885,9 +869,7 @@ class Relaxation(Work):
     def __init__(self, workdir, runmode, relax_strategy): 
         super(Relaxation, self).__init__(workdir, runmode)
 
-        relax_input = relax_strategy.make_input()
-
-        link = self.register_input(relax_input)
+        link = self.register_task(relax_strategy)
 
 ##########################################################################################
 
@@ -922,7 +904,7 @@ class DeltaTest(Work):
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
 
-            scf_input = Input.SCF_groundstate(new_structure, pseudos, 
+            scf_strategy = Input.SCF_groundstate(new_structure, pseudos, 
                                               kppa      = kppa,
                                               spin_mode = spin_mode,
                                               smearing  = smearing,
@@ -931,7 +913,7 @@ class DeltaTest(Work):
                                               ecutsm    = ecutsm,
                                               prtwf     = 0,
                                              )
-            self.register_input(scf_input)
+            self.register_task(scf_strategy)
 
     def get_results(self, *args, **kwargs):
 
@@ -987,10 +969,8 @@ class G0W0(Work):
 
         super(G0W0, self).__init__(workdir, runmode)
 
-        # Construct the input for the GS-SCF run.
-        scf_input = scf_strategy.make_input()
-
-        scf_link = self.register_input(scf_input)
+        # Register the GS-SCF run.
+        scf_link = self.register_task(scf_strategy)
 
         #scr_nband = scr_strategy.get_varvalue("nband")
         #sigma_nband = sigma_strategy.get_varvalue("nband")
@@ -999,21 +979,15 @@ class G0W0(Work):
 
         # Construct the input for the NSCF run.
         istwfk = "*1" # FIXME
-        nscf_input = nscf_strategy.make_input()
+        nscf_link = self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
-        nscf_link = self.register_input(nscf_input, links=scf_link.produces_exts("_DEN"))
+        # Register the SCR run.
+        screen_link = self.register_task(scr_strategy, links=nscf_link.produces_exts("_WFK"))
 
-        # Construct the input for the SCR run.
-        screen_input = scr_strategy.make_input()
-
-        screen_link = self.register_input(screen_input, links=nscf_link.produces_exts("_WFK"))
-
-        # Construct the input for the SIGMA run.
-        sigma_input = sigma_strategy.make_input()
-
+        # Register the SIGMA run.
         sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
 
-        self.register_input(sigma_input, links=sigma_links)
+        self.register_task(sigma_strategy, links=sigma_links)
 
 ##########################################################################################
 

@@ -11,10 +11,10 @@ from pprint import pprint, pformat
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.units import any2Ha
-from pymatgen.core.physical_constants import Ang2Bohr 
+from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
 from pymatgen.serializers.json_coders import MSONable 
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 
 ##########################################################################################
 
@@ -360,6 +360,44 @@ class AbiStructure(Structure, AbivarAble):
 
     def __init__(self, structure):
         pass
+
+    @classmethod
+    def boxed_molecule(cls, pseudos, cart_coords, acell=3*(10,)):
+        """
+        Creates a molecule in a periodic box of lengths acell [Bohr]
+
+        Args:
+            pseudos:
+                List of pseudopotentials
+            cart_coords: 
+                Cartesian coordinates
+            acell:
+                Lengths of the box in *Bohr*
+        """
+        cart_coords = np.atleast_2d(cart_coords)
+                                                                                 
+        molecule = Molecule([p.symbol for p in pseudos], cart_coords)
+                                                                                 
+        l = Bohr2Ang(acell)
+                                                                                 
+        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
+                                                                                 
+        return cls(structure)
+
+    @classmethod
+    def boxed_atom(cls, pseudo, cart_coords=3*(0,), acell=3*(10,)):
+        """
+        Creates an atom in a periodic box of lengths acell [Bohr]
+                                                                     
+        Args:
+            pseudo:
+                Pseudopotential object.
+            cart_coords: 
+                Cartesian coordinates
+            acell:
+                Lengths of the box in *Bohr*
+        """
+        return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
 
     def to_abivars(self):
         "Returns a dictionary with the abinit variables."
@@ -1219,3 +1257,57 @@ class ModelDielectricFunction(AbivarAble):
         return {"mdf_epsinf": self.mdf_epsinf}
 
 ##########################################################################################
+
+class BetheSalpeter(AbivarAble):
+    "Parameters for the solution of the Bethe-Salpeter equation."
+    #types = Enum(_types)
+
+    #_modes = {
+    #    "Tamm_Dandcoff" : 0,
+    #    "Coupling"      : 1,
+    #}
+
+    #scmodes = Enum(_scmodes.keys())
+
+    _algo2var = {
+        "direct_diago" : 1, 
+        "haydock"      : 2,
+        "cg"           : 3,
+    }
+
+    #algorithms = Enum(_algo2var)
+
+    _coulomb_mode = {
+        "diago",
+        "full",
+        "model_df"
+    }
+
+    def __init__(self):
+        raise NotImplementedError("")
+
+        super(BSECard, self).__init__()
+
+        self._comment = comment
+
+        self.strategy = strategy
+                               
+        self.update({
+            "bs_exchange_term" : 1 if with_lf else 0,
+            "inclvkb"  : 2,
+            "ecuteps"  : ecuteps,
+            "soenergy" : soenergy,
+            "gwmem"    : gwmem,
+            "fftgw"    : fftgw,
+            "bs_freq_mesh" : freq_mesh
+            #bs_haydock_niter5 60      # No. of iterations for Haydock
+            #bs_hayd_term5      0      # No terminator
+            #bs_haydock_tol5 0.05 0
+            #mdf_epsinf         12.0
+            #loband  = None, 
+            #nband   = None,
+            #with_lf = True,
+            #gwmem   = None,
+            #fftgw   = None,
+            #comment = None
+        })
