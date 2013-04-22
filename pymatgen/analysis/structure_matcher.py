@@ -255,7 +255,8 @@ class StructureMatcher(MSONable):
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
-                 scale=True, attempt_supercell=False, comparator=SpeciesComparator()):
+                 scale=True, attempt_supercell=False,
+                 comparator=SpeciesComparator()):
         """
         Args:
             ltol:
@@ -449,10 +450,10 @@ class StructureMatcher(MSONable):
         vol_tol = fu * nl2.volume / 2
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = \
-            np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
-                      i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) ** (1.0 / 3)
+        frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
+                             for i in struct1.lattice.reciprocal_lattice.abc])
+        frac_tol *= ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) \
+            ** (1 / 3)
 
         #generate structure coordinate lists
         species_list = []
@@ -460,7 +461,8 @@ class StructureMatcher(MSONable):
         for site in struct1:
             found = False
             for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu, species):
+                if self._comparator.are_equal(site.species_and_occu,
+                                              species):
                     found = True
                     s1[i].append(site.frac_coords)
                     break
@@ -483,15 +485,15 @@ class StructureMatcher(MSONable):
 
             s2_cart = [[] for i in s1]
 
-            aligned_m, rotation_matrix, scale_matrix = \
-                nl2.find_mapping(nl, ltol=self.ltol, atol=self.angle_tol)
+            scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
 
-            scm = SupercellMaker(struct2, np.linalg.inv(scale_matrix).astype('int'))
+            scm = SupercellMaker(struct2, scale_matrix.astype('int'))
 
             for site in scm.modified_structure.sites:
                 found = False
                 for i, species in enumerate(species_list):
-                    if self._comparator.are_equal(site.species_and_occu, species):
+                    if self._comparator.are_equal(site.species_and_occu,
+                                                  species):
                         found = True
                         s2_cart[i].append(site.coords)
                         break
@@ -594,8 +596,9 @@ class StructureMatcher(MSONable):
         # Same number of sites
         if struct1.num_sites != struct2.num_sites:
             #if mismatch try to fit a supercell or return None
-            if self._supercell and ((struct1.num_sites % struct2.num_sites == 0)
-                                    or (struct2.num_sites % struct1.num_sites == 0)):
+            if self._supercell and not (
+                    (struct1.num_sites % struct2.num_sites)
+                    and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match)
             else:
                 return None
@@ -703,7 +706,7 @@ class StructureMatcher(MSONable):
         inds = [-1] * len(s_list)
         for j in range(len(s_list)):
             for i in range(len(group_list)):
-                if len(np.where(s_list[j] in group_list[i])[0]):
+                if s_list[j] in group_list[i]:
                     inds[j] = i
                     break
         return inds
