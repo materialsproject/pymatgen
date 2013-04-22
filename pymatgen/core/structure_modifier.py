@@ -425,6 +425,7 @@ class StructureEditor(StructureModifier):
         return Structure(self._lattice, species, coords, False,
                          site_properties=props)
 
+    
 
 class SupercellMaker(StructureModifier):
     """
