@@ -16,6 +16,7 @@ __date__ = "Sep 23, 2011"
 
 import math
 import numpy as np
+import numpy.linalg as npl
 import itertools
 import collections
 
@@ -209,9 +210,9 @@ class VoronoiConnectivity(object):
     """
 
     # Radius in Angstrom cutoff to look for coordinating atoms
-    cutoff = 10
-
-    def __init__(self, structure):
+    
+    def __init__(self, structure,cutoff=10):
+        VoronoiConnectivity.cutoff=cutoff
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
         i = np.ceil(VoronoiConnectivity.cutoff * recp_len / (2 * math.pi))
@@ -274,6 +275,23 @@ class VoronoiConnectivity(object):
         image of site j
         """
         return np.max(self.connectivity_array, axis=2)
+
+    def get_connections(self):
+        """
+        returns the 2d array [sitei, sitej] that represents
+        the maximum connectivity of site i to any periodic
+        image of site j
+        """
+        con=[]
+        max=np.max(self.connectivity_array, axis=2)
+        for ii in range(0,max.shape[0]):
+            for jj in range(0,max.shape[1]):
+                if max[ii][jj]!=0:
+                    dist=self.s.get_distance(ii,jj)
+                    con.append([ii,jj,dist])
+        return con
+        
+        
 
     def get_sitej(self, site_index, image_index):
         """
