@@ -29,7 +29,7 @@ class WorkflowTestCase(unittest.TestCase):
         print(repr(pptest_wf))
         print(pptest_wf)
 
-        pptest_wf.show_inputs()
+        #pptest_wf.show_inputs()
 
         self.assertTrue(isinstance(pptest_wf, collections.Iterable))
         self.assertTrue(pptest_wf.isnc)
