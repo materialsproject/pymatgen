@@ -26,6 +26,11 @@ import re
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.bandstructure import HighSymmKpath
+import itertools
+import numpy as np
 
 
 class AbstractVaspInputSet(MSONable):
@@ -546,6 +551,143 @@ class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
         return MaterialsProjectGGAVaspInputSet(
             user_incar_settings=d["user_incar_settings"],
             constrain_total_magmom=d["constrain_total_magmom"])
+
+class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
+    """
+    VaspInputSet for static runs
+    Suggest to use get_structure method to process structures from previous relax run
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject Static", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+
+        self.user_incar_settings = user_incar_settings
+        self.incar_settings.update({"IBRION": -1,
+                                    "ISMEAR": -5,
+                                    "LAECHG": "TRUE",
+                                    "LCHARG": "TRUE",
+                                    "LORBIT": 11,
+                                    "LVHAR": "TRUE",
+                                    "LWAVE": "FALSE",
+                                    "NSW": 0})
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+    def get_kpoints(self, structure):
+        kpoint_density = 90
+        num_kpoints = kpoint_density * structure.lattice.reciprocal_lattice.volume
+        return Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
+
+    @staticmethod
+    def get_structure(vasp_run, outcar=None, refined_structure=False):
+        """
+        Prepare relaxed structure for static run
+        """
+        #TODO: fix magmom for get_*_structures
+        if vasp_run.is_spin:
+            if outcar and outcar.magnetization:
+                magmom = {"magmom":[i['tot'] for i in outcar.magnetization]}
+            else:
+                magmom = {"magmom": vasp_run.to_dict['input']['parameters']['MAGMOM']}
+        else:
+            magmom = None
+        relaxed_structure = vasp_run.final_structure
+        decorated_structure = Structure(relaxed_structure.lattice,
+                                        [site.species_and_occu for site in relaxed_structure.sites],
+                                        [site.frac_coords for site in relaxed_structure.sites],
+                                        site_properties= magmom if magmom else None)
+        sym_finder = SymmetryFinder(decorated_structure, symprec=0.01)
+        if refined_structure:
+            return (sym_finder.get_primitive_standard_structure(),
+                    sym_finder.get_refined_structure())
+        else:
+            return sym_finder.get_primitive_standard_structure()
+
+class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
+    """
+    VaspInputSet for Non SCF runs
+    """
+    def __init__(self, user_incar_settings, mode="Line", constrain_total_magmom=False):
+        """
+        Args:
+            user_incar_settings:
+                Specify settings for INCAR, must contain NBANDS values
+            mode:
+                Line: Generate k-points along symmetry lines
+                Uniform: Use uniform k-points grids
+        """
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        self.mode=mode
+        if mode not in ["Line", "Uniform"]:
+            raise ValueError("Supported modes for NonSCF runs are 'Line' and 'Uniform'!")
+        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject Static", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+
+        self.user_incar_settings = user_incar_settings
+        self.incar_settings.update({"IBRION": -1,
+                                    "ISMEAR": 0,
+                                    "LAECHG": "TRUE",
+                                    "LCHARG": "FALSE",
+                                    "LORBIT": 11,
+                                    "LVHAR": "TRUE",
+                                    "LWAVE": "FALSE",
+                                    "NSW": 0,
+                                    "ICHARG":11})
+        if mode=="Uniform":
+            self.incar_settings.update({"NEDOS":601})
+        if "NBANDS" not in user_incar_settings:
+            raise KeyError("For NonSCF runs, NBANDS value from SC runs is required!")
+        else:
+            self.incar_settings.update(user_incar_settings)
+
+    def get_kpoints(self, structure):
+        if self.mode == "Line":
+            kpath = HighSymmKpath(structure)
+            cart_k_points, k_points_labels = kpath.get_kpoints()
+            frac_k_points = [kpath._prim_rec.get_fractional_coords(k) for k in cart_k_points]
+            return Kpoints(comment="Non SCF run along symmetry lines",
+                              style="Reciprocal",
+                              num_kpts=len(frac_k_points), kpts=frac_k_points,
+                              labels=k_points_labels,
+                              kpts_weights=[1]*len(cart_k_points))
+        else:
+            kpoint_density = 1000
+            num_kpoints = kpoint_density * structure.lattice.reciprocal_lattice.volume
+            kpoints = Kpoints.automatic_density(structure, num_kpoints*structure.num_sites)
+            mesh = kpoints.kpts[0]
+            x, y, z = np.meshgrid(np.linspace(0, 1, mesh[0], False),
+                                  np.linspace(0, 1, mesh[1], False),
+                                  np.linspace(0, 1, mesh[2], False))
+            k_grid = np.vstack([x.ravel(), y.ravel(), z.ravel()]).transpose()
+            ir_kpts_mapping = SymmetryFinder(structure, symprec=0.01).get_ir_kpoints_mapping(k_grid)
+            kpts_mapping = itertools.groupby(sorted(ir_kpts_mapping))
+            ir_kpts = []
+            weights = []
+            for i in kpts_mapping:
+                ir_kpts.append(k_grid[i[0]])
+                weights.append(len(list(i[1])))
+            return Kpoints(comment="Non SCF run on uniform grid",
+                              style="Reciprocal",
+                              num_kpts=len(ir_kpts), kpts=ir_kpts,
+                              kpts_weights=weights)
+
+    @staticmethod
+    def get_incar_settings(vasp_run, outcar=None):
+        """
+        Get values for user_incar_settings from previous run
+        """
+        if outcar and outcar.magnetization:
+            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
+            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
+        else:
+            ispin = 2
+        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"] * 1.2))
+        return {"ISPIN":ispin, "NBANDS":nbands}
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
