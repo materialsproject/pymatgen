@@ -1,5 +1,5 @@
 """
-Strategy objects used to create Abinit input files for particular types of calculations.
+Strategy objects for creating ABINIT calculations.
 """
 from __future__ import division, print_function
 
@@ -12,8 +12,6 @@ from pprint import pprint, pformat
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from .abiobjects import SpinMode, Smearing, Electrons
 from .pseudos import PseudoTable
-#from .input import SystemCard, ElectronsCard, ControlCard, KpointsCard, Input, select_pseudos
-from .input import select_pseudos
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -41,6 +39,26 @@ __date__ = "$Feb 21, 2013M$"
 #        gs_subclasses = {}
 #        for klass in Scftrategy.__subclasses__():
 #            gs_subclasses[klass.__name__] = klass
+
+def select_pseudos(pseudos, structure):
+    """
+    Given a list of pseudos and a structure, extract the pseudopotetials for the calculation. 
+    
+    needed when we pass an entire periodic table
+    """
+    table = PseudoTable.astable(pseudos)
+
+    pseudos = []
+    for typ in structure.types_of_specie:
+        # Get list of pseudopotentials in table from atom symbol.
+        pseudos_for_type = table.pseudos_with_symbol(typ)
+                                                                             
+        if pseudos_for_type is None or len(pseudos_for_type) != 1:
+            raise ValueError("Cannot find unique pseudo for type %s" % typ)
+                                                                             
+        pseudos.append(pseudos_for_type[0])
+                                                                                 
+    return PseudoTable(pseudos)
 
 ##########################################################################################
 
@@ -85,7 +103,7 @@ class Strategy(object):
     # Tolerances for the different levels of accuracy.
     T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
-        "toldfe": T(1.e-9,  1.e-10, 1.e-11), 
+        "toldfe": T(1.e-7,  1.e-8, 1.e-9), 
         "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
         "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
         "tolrdf": T(0.04,   0.02,   0.01),
@@ -167,6 +185,8 @@ class Strategy(object):
             #ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])
             #ratio = augration_high if high else augratio_norm 
             #pawecutdg = ecut * ratio
+
+    #def get_abivar(self, varname):
 
     @property
     def tolerance(self):
@@ -287,8 +307,6 @@ class ScfStrategy(Strategy):
 
         self.extra_abivars = extra_abivars
 
-        #abivars.update({"nsym": 1 if not self.use_symmetries else None})
-
     @property
     def runlevel(self):
         return "scf"
@@ -299,10 +317,10 @@ class ScfStrategy(Strategy):
                  "pawecutdg": self.pawecutdg,
                 }
         extra.update(self.tolerance)
+        extra.update(self.extra_abivars)
+        #abivars.update({"nsym": 1 if not self.use_symmetries else None})
 
         input = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
-        print(input.get_string())
-
         return input.get_string()
 
 ##########################################################################################
@@ -335,10 +353,8 @@ class NscfStrategy(Strategy):
         self.pseudos    = scf_strategy.pseudos
         self.ksampling  = ksampling
 
-        if nscf_algorithm:
-            self.nscf_algorithm = nscf_algorithm
-        else:
-            self.nscf_algorithm = {"iscf": -3}
+        if nscf_algorithm is None:
+            nscf_algorithm = {"iscf": -2}
 
         # Electrons used in the GS run.
         scf_electrons = scf_strategy.electrons
@@ -368,10 +384,9 @@ class NscfStrategy(Strategy):
                  "pawecutdg": self.pawecutdg,
                 }
         extra.update(self.tolerance)
+        extra.update(self.extra_abivars)
                                                                                      
         input = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
-        print(input.get_string())
-
         return input.get_string()
 
 ##########################################################################################
@@ -442,46 +457,57 @@ class ScreeningStrategy(Strategy):
         """
         super(ScreeningStrategy, self).__init__()
 
+        self.pseudos = scf_strategy.pseudos
+
         self.scf_strategy = scf_strategy
         self.nscf_strategy = nscf_strategy
+
         self.screening = screening
+
+        scr_nband = screening.nband
+
+        scf_electrons  = scf_strategy.electrons
+        nscf_electrons = nscf_strategy.electrons
+
+        if scr_nband > nscf_electrons.nband:
+            raise ValueError("Cannot use more that %d bands for the screening" % nscf_electrons.nband)
+
+        self.ksampling = nscf_strategy.ksampling
+
+        if not self.ksampling.is_homogeneous:
+            raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
+
+        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
+                                   smearing  = scf_electrons.smearing,
+                                   nband     = scr_nband,
+                                   charge    = scf_electrons.charge,
+                                   comment   = None,
+                                   )
 
         self.extra_abivars = extra_abivars
 
-        nscf_electrons = nscf_strategy.electrons
-        nscf_nband = nscf_electrons.nband
-        scr_nband  = nscf_nband 
-
-        self.ksampling  = nscf_strategy.ksampling
-
-        self.electrons  = Electrons(spin_mode = nscf_electrons.spin_mode,
-                                    smearing  = nscf_electrons.smearing,
-                                    algorithm = nscf_algorithm,
-                                    nband     = scr_nband,
-                                    charge    = nscf_electrons.charge,
-                                    comment   = None,
-                                   )
     @property
     def runlevel(self):
         return "screening"
 
     def make_input(self):
-        raise NotImplementedError("")
-        #scr_cards = nscf_input.copy_cards(exclude=["ElectronsCard",])
-        #nscf_electrons = self.nscf_strategy.electrons
-        #nscf_nband = nscf_electrons.nband
-        #nband_screening = nscf_nband 
-        #scr_cards.append(ElectronsCard(spin_mode=nscf_input.spin_mode, nband=nband_screening, smearing=smearing))
-        #raise NotImplementedError("")
-        #scr_cards.append(ScreeningCard(scr_strategy, comment="Generated from NSCF input"))
-        #scr_cards.append(ControlCard(*scr_cards, **kwargs))
-        #return Input(*scr_cards)
+        # FIXME
+        extra = {"optdriver": self.optdriver,
+                 "ecut"     : self.ecut,
+                 "ecutwfn"  : self.ecut,
+                # "pawecutdg": self.pawecutdg,
+                }
+        extra.update(self.tolerance)
+        extra.update(self.extra_abivars)
+                                                                                     
+        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
+        return input.get_string()
 
 ##########################################################################################
 
 class SelfEnergyStrategy(Strategy):
 
-    def __init__(self, scf_strategy, nscf_strategy, scr_strategy, **extra_abivars):
+    def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
         Constructor for screening calculations.
                                                                                                        
@@ -490,39 +516,60 @@ class SelfEnergyStrategy(Strategy):
                 Strategy used for the ground-state calculation
             nscf_strategy:
                 Strategy used for the non-self consistent calculation
-            scr_strategy
+            scr_strategy:
                 Strategy used for the screening calculation
+            sigma:
+                SelfEnergy instance.
             extra_abivars:
                 Extra ABINIT variables added directly to the input file
         """
         # TODO Add consistency check between SCR and SIGMA strategies
 
-        super(ScreeningStrategy, self).__init__()
+        super(SelfEnergyStrategy, self).__init__()
+
+        self.pseudos = scf_strategy.pseudos
 
         self.scf_strategy = scf_strategy
         self.nscf_strategy = nscf_strategy
         self.scr_strategy = scr_strategy
 
+        self.sigma = sigma
+
         self.extra_abivars = extra_abivars
 
+        scf_electrons  = scf_strategy.electrons
+        nscf_electrons = nscf_strategy.electrons
+
+        if sigma.nband > nscf_electrons.nband:
+            raise ValueError("Cannot use more that %d bands for the self-energy" % nscf_electrons.nband)
+
+        self.ksampling = nscf_strategy.ksampling
+
+        if not self.ksampling.is_homogeneous:
+            raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
+
+        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
+                                   smearing  = scf_electrons.smearing,
+                                   nband     = sigma.nband,
+                                   charge    = scf_electrons.charge,
+                                   comment   = None,
+                                  )
     @property
     def runlevel(self):
         return "sigma"
 
     def make_input(self):
-        raise NotImplementedError("")
-        #smearing = Smearing.assmearing(smearing)
-        #if (smearing != scr_input.smearing):
-        #    raise ValueError("Input smearing differs from the one used in the SCR run")
-        #sigma_nband = sigma_strategy.get_varvalue("nband")
-        #raise NotImplementedError("")
-        #se_card = SelfEnergyCard(sigma_strategy, comment="Generated from SCR input")
-        #se_card = SelfEnergyCard(sigma_strategy, comment="Generated from SCR input")
-        #sigma_cards = scr_input.copy_cards(exclude=["ScreeningCard", "ElectronsCard",])
-        #sigma_cards.append(ElectronsCard(spin_mode=scr_input.spin_mode, nband=sigma_nband, smearing=smearing))
-        #sigma_cards.append(se_card)
-        #sigma_cards.append(ControlCard(*sigma_cards, **extra_abivars))
-        #return Input(*sigma_cards)
+        # FIXME
+        extra = {"optdriver": self.optdriver,
+                 "ecut"     : self.ecut,
+                 "ecutwfn"  : self.ecut,
+                # "pawecutdg": self.pawecutdg,
+                }
+        extra.update(self.tolerance)
+        extra.update(self.extra_abivars)
+                                                                                     
+        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
+        return input.get_string()
 
 ##########################################################################################
 
@@ -589,25 +636,25 @@ class InputWriter(object):
 
     @staticmethod
     def _format_kv(key, value):
-        # Use default values if value is None.
-        if value is None: 
-            return []
+        
+        if value is None:  
+            return [] # Use ABINIT default.
                                                                                    
         if isinstance(value, collections.Iterable) and not isinstance(value, str):
             arr = np.array(value)
-                                                                                   
             if len(arr.shape) in [0,1]: # scalar or vector.
                 token = [key, " ".join([str(i) for i in arr])]
                                                                                    
             else: 
                 # array --> matrix 
                 matrix = np.reshape(arr, (-1, arr.shape[-1])) 
+                lines  = []
                 for (idx, row) in enumerate(matrix):
-                    kname = key +"\n" if idx == 0 else ""
-                    token = [kname, " ".join([str(i) for i in row])]
-                                                                                   
+                    lines.append(" ".join([str(i) for i in row]))
+                token = [key +"\n", "\n".join(lines)]
+
         else:
-            token = [key, value]
+            token = [key, str(value)]
 
         return token
 
@@ -622,7 +669,7 @@ class InputWriter(object):
         """
         lines = []
 
-        # Write the Abinit objects.
+        # Write the Abinit objects first.
         for obj in self.abiobjects:
             lines.append([80*"#", ""])
             lines.append(["#", "%s" % obj.__class__.__name__])
@@ -630,6 +677,7 @@ class InputWriter(object):
             for (k, v) in obj.to_abivars().items():
                 lines.append(self._format_kv(k, v))
 
+        # Extra variables.
         if self.extra_abivars:
             lines.append([80*"#", ""])
             lines.append(["#", "Extra_Abivars"])

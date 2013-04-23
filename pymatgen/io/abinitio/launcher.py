@@ -385,6 +385,7 @@ class SimpleResourceManager(object):
         self.work = work
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
+        self.debug = False
 
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
@@ -407,8 +408,9 @@ class SimpleResourceManager(object):
                 time.sleep(self.sleep_time)
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
-                print("work polls %s" % polls)
-                print("work status %s" % self.work.get_status())
+                if self.debug:
+                    print("work polls %s" % polls)
+                    print("work status %s" % self.work.get_status())
 
                 if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
                     print("Starting task %s" % task)

@@ -7,7 +7,6 @@ import collections
 from tempfile import mkdtemp
 
 from pymatgen.io.abinitio import *
-from pymatgen.io.abinitio.workflow import Work
 
 test_dir = os.path.join(os.path.dirname(__file__))
 
@@ -20,7 +19,6 @@ class WorkflowTestCase(unittest.TestCase):
         pass
 
     def test_pseudoconvergence(self):
-
         workdir = "test_pseudoconvergence"
         #workdir = mkdtemp()
 

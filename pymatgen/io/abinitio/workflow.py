@@ -1,5 +1,5 @@
 """
-Classes defining Abinit calculations and workflows
+Abinit workflows
 """
 from __future__ import division, print_function
 
@@ -88,8 +88,8 @@ class WorkLink(object):
     """
     This object describes the dependencies among the tasks contained in a Work instance.
 
-    A  WorkLink is a task that produces a list of products (files) that are 
-    reused by the tasks belonging to a Work instance. 
+    A WorkLink is a task that produces a list of products (files) that are 
+    reused by the other tasks belonging to a Work instance. 
     One usually instantiates the object by calling work.register_task and produces_exts.
     Example:
 
@@ -154,13 +154,13 @@ class WorkLink(object):
 
 ##########################################################################################
 
-class WorkError(Exception):
-    "Base class for the exceptions raised by Work objects"
+class WorkflowError(Exception):
+    "Base class for the exceptions raised by Workflow objects"
 
-class BaseWork(object):
+class BaseWorkflow(object):
     __metaclass__ = abc.ABCMeta
 
-    Error = WorkError
+    Error = WorkflowError
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -241,11 +241,11 @@ class BaseWork(object):
                                                          
 ##########################################################################################
 
-class Work(BaseWork, MSONable):
+class Workflow(BaseWorkflow, MSONable):
     """
-    A work is a list of (possibly connected) tasks.
+    A Workflow is a list of (possibly connected) tasks.
     """
-    Error = WorkError
+    Error = WorkflowError
 
     #@classmethod
     #def from_task(cls, task):
@@ -463,24 +463,24 @@ class Work(BaseWork, MSONable):
 
 ##########################################################################################
 
-class IterativeWork(Work):
+class IterativeWork(Workflow):
     """
     TODO
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, runmode, input_generator, max_niter=25):
+    def __init__(self, workdir, runmode, strategy_generator, max_niter=25):
         """
         Args:
             workdir:
-            input_generator:
+            strategy_generator:
             max_niter:
                 Maximum number of iterations. A negative value or zero value 
                 is equivalent to having an infinite number of iterations.
         """
         super(IterativeWork, self).__init__(workdir, runmode)
 
-        self.input_generator = input_generator
+        self.strategy_generator = strategy_generator
 
         self.max_niter = max_niter
 
@@ -491,11 +491,11 @@ class IterativeWork(Work):
         Return: task object
         """
         try:
-            next_input = next(self.input_generator)
+            next_strategy = next(self.strategy_generator)
         except StopIteration:
             raise StopIteration
 
-        self.register_task(next_input)
+        self.register_task(next_strategy)
         assert len(self) == self.niter
 
         return self[-1]
@@ -619,17 +619,17 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
     aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
 
     data = {
-        "exit"        : ihigh != -1,
-        "etotal"      : list(etotal),
-        "ecut_list"   : ecut_list,
-        "aug_ratios"  : aug_ratios,
-        "low"         : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
-        "normal"      : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
-        "high"        : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
-        "pseudo_name" : pseudo.name,
-        "pseudo_path" : pseudo.path,
-        "atols_mev"   : atols_mev,
-        "dojo_level"  : 0,
+        "exit"       : ihigh != -1,
+        "etotal"     : list(etotal),
+        "ecut_list"  : ecut_list,
+        "aug_ratios" : aug_ratios,
+        "low"        : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
+        "normal"     : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
+        "high"       : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
+        "pseudo_name": pseudo.name,
+        "pseudo_path": pseudo.path,
+        "atols_mev"  : atols_mev,
+        "dojo_level" : 0,
     }
 
     return data
@@ -703,23 +703,19 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     if savefig is not None:
         fig.savefig(savefig)
 
-class PseudoConvergence(Work):
+class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode       = "sequential",
-                 spin_mode     = "polarized", 
-                 acell         = (8, 9, 10), 
-                 smearing      = "fermi_dirac:0.1 eV",
-                ):
+                 runmode="sequential", spin_mode="polarized", acell=(7, 7.5, 8), smearing="fermi_dirac:0.1 eV",):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev, 
-                                               spin_mode     = spin_mode, 
-                                               acell         = acell, 
-                                               smearing      = smearing,
-                                               max_niter     = len(ecut_list),
+                                               spin_mode = spin_mode, 
+                                               acell     = acell, 
+                                               smearing  = smearing,
+                                               max_niter = len(ecut_list),
                                               )
         self.atols_mev = atols_mev
         self.pseudo = Pseudo.aspseudo(pseudo)
@@ -750,12 +746,7 @@ class PseudoConvergence(Work):
 class PseudoIterativeConvergence(IterativeWork):
 
     def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode       = "sequential",
-                 spin_mode     = "polarized", 
-                 acell         = (8, 9, 10), 
-                 smearing      = "fermi_dirac:0.1 eV",
-                 max_niter     = 50,
-                ):
+                 runmode="sequential", spin_mode="polarized", acell=(7, 7.5, 8), smearing="fermi_dirac:0.1 eV", max_niter=50,):
         """
         Args:
             workdir:
@@ -811,7 +802,6 @@ class PseudoIterativeConvergence(IterativeWork):
             "ecut" : ecut, 
             "prtwf": 0,
         }
-        
         strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only, spin_mode=self.spin_mode, 
                  smearing=self.smearing, charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars)
 
@@ -820,7 +810,7 @@ class PseudoIterativeConvergence(IterativeWork):
     @property
     def ecut_list(self):
         "The list of cutoff energies computed so far"
-        return [float(task.input.get_variable("ecut")) for task in self]
+        return [float(task.strategy.ecut) for task in self]
 
     def check_etotal_convergence(self, *args, **kwargs):
         return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
@@ -846,7 +836,7 @@ class PseudoIterativeConvergence(IterativeWork):
 
 ##########################################################################################
 
-class BandStructure(Work):
+class BandStructure(Workflow):
 
     def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, dos_strategy=None):
 
@@ -864,7 +854,7 @@ class BandStructure(Work):
 
 ##########################################################################################
 
-class Relaxation(Work):
+class Relaxation(Workflow):
 
     def __init__(self, workdir, runmode, relax_strategy): 
         super(Relaxation, self).__init__(workdir, runmode)
@@ -873,14 +863,11 @@ class Relaxation(Work):
 
 ##########################################################################################
 
-class DeltaTest(Work):
+class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
-                 spin_mode = "polarized",
-                 smearing  = "fermi_dirac:0.1 eV",
-                 accuracy  = "normal",
-                 ecutsm    = 0.05,
-                ):
+                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV", accuracy="normal", ecutsm=0.05,
+                 chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
 
@@ -904,15 +891,16 @@ class DeltaTest(Work):
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
 
-            scf_strategy = Input.SCF_groundstate(new_structure, pseudos, 
-                                              kppa      = kppa,
-                                              spin_mode = spin_mode,
-                                              smearing  = smearing,
-                                              # **kwargs
-                                              accuracy  = accuracy,
-                                              ecutsm    = ecutsm,
-                                              prtwf     = 0,
-                                             )
+            extra_abivars = {
+                "ecutsm": ecutsm,
+                "prtwf" : 0,
+            }
+
+            ksampling = KSampling.automatic_density(new_structure, kppa, chksymbreak=chksymbreak)
+
+            scf_strategy = ScfStrategy(new_structure, pseudos, ksampling, accuracy=accuracy, 
+                                       spin_mode=spin_mode, smearing=smearing, **extra_abivars)
+
             self.register_task(scf_strategy)
 
     def get_results(self, *args, **kwargs):
@@ -929,13 +917,13 @@ class DeltaTest(Work):
         eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
         results = {
-            "etotal"     : list(etotal),
-            "volumes"    : list(self.volumes),
-            "natom"      : num_sites,
-            "v0"         : eos_fit.v0,
-            "b"          : eos_fit.b,
-            "bp"         : eos_fit.bp,
-            "dojo_level" : 1,
+            "etotal"    : list(etotal),
+            "volumes"   : list(self.volumes),
+            "natom"     : num_sites,
+            "v0"        : eos_fit.v0,
+            "b"         : eos_fit.b,
+            "bp"        : eos_fit.bp,
+            "dojo_level": 1,
         }
 
         if kwargs.get("json_dump", True):
@@ -949,7 +937,7 @@ class DeltaTest(Work):
 
 ##########################################################################################
 
-class G0W0(Work):
+class GW_Workflow(Workflow):
 
     def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy):
         """
@@ -966,19 +954,12 @@ class G0W0(Work):
                 sigma_strategy:
                     Strategy for the self-energy run.
         """
-
-        super(G0W0, self).__init__(workdir, runmode)
+        super(GW_Workflow, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
         scf_link = self.register_task(scf_strategy)
 
-        #scr_nband = scr_strategy.get_varvalue("nband")
-        #sigma_nband = sigma_strategy.get_varvalue("nband")
-        #max_nband = max(scr_nband, sigma_nband) 
-        #nscf_nband = int(max_nband + 0.05 * max_nband)
-
         # Construct the input for the NSCF run.
-        istwfk = "*1" # FIXME
         nscf_link = self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Register the SCR run.
@@ -988,59 +969,5 @@ class G0W0(Work):
         sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
 
         self.register_task(sigma_strategy, links=sigma_links)
-
-##########################################################################################
-
-class PPConvergenceFactory(object):
-    "Factory object"
-
-    def work_for_pseudo(self, workdir, pseudo, ecut_range, 
-                        runmode   = "sequential",
-                        atols_mev = (10, 1, 0.1),
-                        spin_mode = "polarized", 
-                        acell     = (8, 9, 10),
-                        smearing  = "fermi_dirac:0.1 eV",
-                       ):
-        """
-        Return a Work object given the pseudopotential pseudo
-
-        Args:
-            workdir: 
-                Working directory.
-            pseudo: 
-                Pseudo object.
-            ecut_range:
-                range of cutoff energies in Ha units.
-            runmode: 
-            atols_mev:
-                Tolerances in meV for accuracy in ["low", "normal", "high"]
-            spin_mode:
-                Spin polarization.
-            acell: 
-                Length of the real space lattice (Bohr units)
-            smearing: 
-                Defines the smearing technique.
-        """
-        workdir = os.path.abspath(workdir)
-
-        smearing = Smearing.assmearing(smearing)
-
-        if isinstance(ecut_range, slice):
-            work = PseudoIterativeConvergence(workdir, pseudo, ecut_range, atols_mev,
-                                              runmode    = runmode,
-                                              spin_mode  = spin_mode,
-                                              acell      = acell, 
-                                              smearing   = smearing,
-                                             )
-
-        else:
-            work = PseudoConvergence(workdir, pseudo, ecut_range, atols_mev,
-                                     runmode    = runmode,
-                                     spin_mode  = spin_mode,
-                                     acell      = acell, 
-                                     smearing   = smearing,
-                                    )
-
-        return work
 
 ##########################################################################################

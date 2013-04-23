@@ -307,7 +307,7 @@ class Electrons(AbivarAble):
             abivars.update(self.smearing.to_abivars())
 
         if self.algorithm:
-            abivars.update(self.algorithm.to_abivars())
+            abivars.update(self.algorithm)
 
         abivars["#comment"] = self.comment
         return abivars
@@ -508,10 +508,12 @@ class KSampling(AbivarAble):
 
         super(KSampling, self).__init__()
 
+        self.mode = mode
         self.comment = comment
 
         # FIXME
-        abivars = {"chksymbreak": 0}
+        abivars = {}
+        #abivars = {"chksymbreak": 0}
 
         if mode in ("monkhorst",):
             assert num_kpts == 0
@@ -532,16 +534,18 @@ class KSampling(AbivarAble):
             })
 
         elif mode in ("path",):
+
             if num_kpts <= 0:
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1,3,))
+            print("in path with kptbound: %s " % kptbounds)
 
             abivars.update({
-                "kptbounds" : kptbounds,
-                "ndivsm"    : num_kpts,
-                "kptopt"    : -len(kptbounds)+1,
-                #"labels"   : labels,  # TODO
+                "ndivsm"   : num_kpts,
+                "kptbounds": kptbounds,
+                "kptopt"   : -len(kptbounds)+1,
+                #"labels"  : labels,  # TODO
             })
         
         elif mode in ("automatic",):
@@ -564,7 +568,12 @@ class KSampling(AbivarAble):
             raise ValueError("Unknown mode %s" % mode)
 
         self.abivars = abivars
-        self.abivars["_comment"] = comment
+        self.abivars["#comment"] = comment
+        #print(self.abivars)
+
+    @property
+    def is_homogeneous(self):
+        return self.mode not in ["path",]
 
     @classmethod
     def gamma_only(cls):
@@ -712,8 +721,7 @@ class KSampling(AbivarAble):
     def path_from_structure(cls, ndivsm, structure):
         "See _path for the meaning of the variables"
         return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from pymatgen structure")
-                                                                                                   
-                                                                                                   
+
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
         "See _path for the meaning of the variables"
@@ -797,20 +805,8 @@ class KSampling(AbivarAble):
                    comment           = comment, 
                   )
 
-    @property
-    def to_dict(self):
-        """json friendly dict representation of KSampling"""
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        raise NotImplementedError("")
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        raise NotImplementedError("")
-
     def to_abivars(self):
-        return self.abivars.copy()
+        return self.abivars
 
 ##########################################################################################
 
@@ -1015,184 +1011,31 @@ class PPModel(AbivarAble, MSONable):
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
 ##########################################################################################
+
+class HilbertTransform(AbivarAble):
+    "Parameters for the Hilbert-transform method (RPA, Screening code)"
+
+    def __init__(self, nomegasf, spmeth=1):
+        self.spmeth   = spmeth
+        self.nomegasf = nomegasf
+
+    def to_abivars(self):
+        return {"spmeth"  : self.spmeth,
+                "nomegasf": self.nomegasf,}
+
+##########################################################################################
+
+class ModelDielectricFunction(AbivarAble):
+    "Model dielectric function used for BSE calculation"
+
+    def __init__(self, mdf_epsinf):
+        self.mdf_epsinf = mdf_epsinf
+
+    def to_abivars(self):
+        return {"mdf_epsinf": self.mdf_epsinf}
+
+##########################################################################################
 #################################  WORK IN PROGRESS ######################################
-##########################################################################################
-
-class Screening(AbivarAble):
-    # FIXME
-    _types = {
-        "gw"           : 0,
-        "hartree_fock" : 5,
-        "sex"          : 6,
-        "cohsex"       : 7,
-        "model_gw_ppm" : 8,
-        "model_gw_cd"  : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"     : 0,
-        "energy_only"  : 1,
-        "wavefunctions": 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
-
-    # Example
-    #ecuteps = 2
-    #scr_strategy = ScreeningStrategy(fftgw=11)
-    #w = Screening(w_type, sc_mode, ecuteps, ecutwfn=None, ppmodel=None, freq_mesh=None)
-    #scr_strategy.set_w(w)
-
-    def __init__(self, w_type, sc_mode, ecuteps, nband, ecutwfn=None, ppmodel=None, freq_mesh=None):
-        self.type = w_type
-        self.sc_mode = sc_mode
-        self.ecuteps = ecuteps
-        self.nband = nband
-        self.ecutwfn = ecutwfn
-
-        if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
-            raise ValueError("Either ppmodel or freq_mesh can be specified") 
-
-        if ppmodel is not None:
-            self.ppmodel = PPmodel.asppmodel(ppmodel)
-        else:
-            raise NotImplementedError("")
-            self.wmesh = WMesh.aswmesh(wmesh)
-
-    @property
-    def ppmfreq(self):
-        pass
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        abivars = { 
-            "ecuteps"  : vars.ecuteps,
-            "ecutwfn"  : vars.ecutwfn,
-            #"gwpara"   : vars.gwpara,
-            #"awtr"     : vars.awtr,
-            #"symchi"   : vars.symchi,
-            #"gwmem"    : vars.gwmem,
-            #"gwcalctyp": vars.gwcalctyp,
-            #"fftgw"    : vars.fftgw,
-            #"inclvkb"  : vars.inclvkb,
-        }
-
-        if self.has_ppmodel:
-            abivars.update(vars.ppmodel.to_abivars())
-
-        # Variables for the Hilber transform.
-        if self.hilbert_transform:
-            hilbert = {
-                "spmeth"  : vars.spmeth,
-                "nomegasf": vars.nomegasf,
-            }
-            abivars.update(hilbert)
-
-        return abivars                                                                                       
-
-##########################################################################################
-
-class SelfEnergy(AbivarAble):
-    _types = {
-        "gw"          : 0,
-        "hartree_fock": 5,
-        "sex"         : 6,
-        "cohsex"      : 7,
-        "model_gw_ppm": 8,
-        "model_gw_cd" : 9,
-    }
-                                    
-    types = Enum(_types)
-                                     
-    _sc_modes = {
-        "one_shot"     : 0,
-        "energy_only"  : 1,
-        "wavefunctions": 2,
-    }
-                                    
-    scmodes = Enum(_sc_modes.keys())
-
-    # Example
-    #ecuteps, nband = 2, 20
-    #self_energy = SelfEnergy("gw", "one_shot", ppmodel="godby", ecuteps, nband)
-    #se_strategy = SelfEnergyStrategy(fftgw=11)
-    #se_strategy.learn_data(data)
-    #se_strategy.set_self_energy(self_energy)
-
-    def __init__(self, se_type, sc_mode, ecuteps, nband, ecutwfn=None, ecutsigx=None, 
-                 kptgw="all", bdgw=None, ppmodel="noppmodel", freq_int=None):
-        "freq_int: cd for contour deformation"
-
-        self.type     = se_type
-        self.sc_mode  = sc_mode
-        self.ecutwfn  = ecutwfn
-        self.ecutsigx = ecutsigx
-        self.ecuteps  = ecuteps
-        self.nband    = nband
-        #band_mode in ["gap", "full"]
-
-        if isinstance(kptgw, str) and kptgw == "all":
-            self.kptgw = None
-            self.nkptgw = None
-        else:
-            self.kptgw = np.reshape(kptgw, (-1,3))
-            self.nkptgw =  len(self.kptgw)
-
-        if bdgw is None:
-            raise ValueError("bdgw must be specified")
-
-        if isinstance(bdgw, str):
-            # TODO add new variable in Abinit so that we can specify 
-            # an energy interval around the KS gap.
-            homo = float(nele) / 2.0
-            #self.bdgw = 
-
-        else:
-            self.bdgw = np.reshape(bdgw, (-1,2))
-
-        self.freq_int = freq_int
-
-        self.ppmodel = PPModel.asppmodel(ppmodel)
-
-    @property
-    def gwcalctyp(self):
-        "Return the value of the gwcalctyp input variable"
-        dig0 = str(SelfEnergy._types[self.type])
-        dig1 = str(SelfEnergy._sc_modes[self.sc_mode])
-        return dig1.strip() + dig0.strip()
-
-    @property
-    def symsigma(self):
-        return 1 if self.sc_mode == "one_shot" else 0
-
-    def nband_green(self):
-        return self.nband
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-
-        abivars = { 
-            "gwcalctyp": self.gwcalctyp,
-            "ecuteps"  : self.ecuteps,
-            "ecutwfn"  : self.ecutwfn,
-            "ecutsigx" : self.ecutsigx,
-            "symsigma" : self.symsigma,
-            "kptgw"    : self.kptgw, 
-            "nkptgw"   : self.nkptgw,
-            "bdgw"     : self.bdgw,
-        }
-
-        # FIXME: problem with the spin
-        #assert len(self.bdgw) == self.nkptgw
-
-        # ppmodel variables
-        if self.ppmodel:
-            abivars.update(self.ppmodel.to_abivars())
-
-        return abivars                                                                                       
-
 ##########################################################################################
 
 class CDFrequencyMesh(AbivarAble):
@@ -1234,27 +1077,201 @@ class CDFrequencyMesh(AbivarAble):
 
 ##########################################################################################
 
-class HilbertTransform(AbivarAble):
-    "Parameters for the Hilbert-transform method (RPA, Screening code)"
+class Screening(AbivarAble):
 
-    def __init__(self, nomegasf, spmeth=1):
-        self.spmeth = spmeth
-        self.nomegasf = nomegasf
+    # Approximations used for W
+    _WTYPES = {
+        "RPA" : 0,
+    }
+
+    # Self-consistecy modes
+    _SC_MODES = {
+        "one_shot"     : 0,
+        "energy_only"  : 1,
+        "wavefunctions": 2,
+    }
+                                    
+    def __init__(self, ecuteps, nband, w_type="RPA", sc_mode="one_shot", 
+                 freq_mesh=None, hilbert_transform=None, ecutwfn=None, inclvkb=2):
+
+        if w_type not in self._WTYPES:
+            raise ValueError("W_TYPE: %s is not supported" % w_type)
+
+        if sc_mode not in self._SC_MODES:
+            raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
+
+        self.ecuteps = ecuteps
+        self.nband   = nband
+        self.w_type  = w_type
+        self.sc_mode = sc_mode
+
+        self.ecutwfn = ecutwfn
+        self.inclvkb = inclvkb
+
+        #if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
+        #    raise ValueError("Either ppmodel or freq_mesh can be specified") 
+
+        #if ppmodel is not None:
+        #    self.ppmodel = PPModel.asppmodel(ppmodel)
+        
+        if freq_mesh is not None:
+            raise NotImplementedError("")
+            self.wmesh = WMesh.aswmesh(wmesh)
+
+        if hilbert_transform is not None:
+            if not self.has_wmesh:
+                raise ValueError("Hilber transform method requires the specification of the frequency mesh")
+            self.hilbert_transform = hilbert_transform
+
+        # Default values 
+        # TODO Change abinit defaults
+        self.gwpara = 2
+        self.awtr   = 1
+        self.symchi = 1
+
+    @property
+    def has_wmesh(self):
+        return hasattr(self, "wmesh")
+
+    @property
+    def has_hilbert_transform(self):
+        return hasattr(self, "hilbert_transform")
+
+    #@property
+    #def gwcalctyp(self):
+    #    "Return the value of the gwcalctyp input variable"
+    #    dig0 = str(self._SIGMA_TYPES[self.type])
+    #    dig1 = str(self._SC_MODES[self.sc_mode])
+    #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        return {"spmeth"  : self.spmeth,
-                "nomegasf": self.nomegasf,}
+        "Returns a dictionary with the abinit variables"
+        abivars = { 
+            "ecuteps"   : self.ecuteps,
+            "ecutwfn"   : self.ecutwfn,
+            "inclvkb"   : self.inclvkb,
+            "gwpara"    : self.gwpara,
+            "awtr"      : self.awtr,
+            "symchi"    : self.symchi,
+            #"gwcalctyp": self.gwcalctyp,
+            #"fftgw"    : self.fftgw,
+        }
+
+        # Variables for PPmodel.
+        #if self.has_ppmodel:
+        #    abivars.update(self.ppmodel.to_abivars())
+
+        # Variables for the Hilber transform.
+        if self.has_hilbert_transform:
+            abivars.update(self.hilbert_transform.to_abivars())
+
+        # Frequency mesh.
+        if self.has_wmesh:
+            abivars.update(self.wmesh.to_abivars())
+
+        return abivars                                                                                       
 
 ##########################################################################################
 
-class ModelDielectricFunction(AbivarAble):
-    "Model dielectric function used for BSE calculation"
+class SelfEnergy(AbivarAble):
 
-    def __init__(self, mdf_epsinf):
-        self.mdf_epsinf = mdf_epsinf
+    _SIGMA_TYPES = {
+        "gw"          : 0,
+        "hartree_fock": 5,
+        "sex"         : 6,
+        "cohsex"      : 7,
+        "model_gw_ppm": 8,
+        "model_gw_cd" : 9,
+    }
+                                    
+    _SC_MODES = {
+        "one_shot"     : 0,
+        "energy_only"  : 1,
+        "wavefunctions": 2,
+    }
+                                    
+    def __init__(self, se_type, sc_mode, nband, ecutsigx, screening, ppmodel=None, ecuteps=None, ecutwfn=None): 
+        "freq_int: cd for contour deformation"
+
+        if se_type not in self._SIGMA_TYPES:
+            raise ValueError("SIGMA_TYPE: %s is not supported" % se_type)
+                                                                                   
+        if sc_mode not in self._SC_MODES:
+            raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
+
+        self.type      = se_type
+        self.sc_mode   = sc_mode
+        self.nband     = nband
+        self.ecutsigx  = ecutsigx
+        self.screening = screening
+
+        if ppmodel is not None:
+            self.ppmodel = PPModel.asppmodel(ppmodel)
+    
+        self.ecuteps  = ecuteps if ecuteps is not None else screening.ecuteps
+
+        self.ecutwfn  = ecutwfn
+
+        #band_mode in ["gap", "full"]
+
+        #if isinstance(kptgw, str) and kptgw == "all":
+        #    self.kptgw = None
+        #    self.nkptgw = None
+        #else:
+        #    self.kptgw = np.reshape(kptgw, (-1,3))
+        #    self.nkptgw =  len(self.kptgw)
+
+        #if bdgw is None:
+        #    raise ValueError("bdgw must be specified")
+
+        #if isinstance(bdgw, str):
+        #    # TODO add new variable in Abinit so that we can specify 
+        #    # an energy interval around the KS gap.
+        #    homo = float(nele) / 2.0
+        #    #self.bdgw = 
+
+        #else:
+        #    self.bdgw = np.reshape(bdgw, (-1,2))
+
+        #self.freq_int = freq_int
+
+    @property
+    def has_ppmodel(self):
+        return hasattr(self, "ppmodel")
+
+    @property
+    def gwcalctyp(self):
+        "Return the value of the gwcalctyp input variable"
+        dig0 = str(self._SIGMA_TYPES[self.type])
+        dig1 = str(self._SC_MODES[self.sc_mode])
+        return dig1.strip() + dig0.strip()
+
+    @property
+    def symsigma(self):
+        return 1 if self.sc_mode == "one_shot" else 0
 
     def to_abivars(self):
-        return {"mdf_epsinf": self.mdf_epsinf}
+        "Returns a dictionary with the abinit variables"
+
+        abivars = { 
+            "gwcalctyp": self.gwcalctyp,
+            "ecuteps"  : self.ecuteps,
+            "ecutsigx" : self.ecutsigx,
+            "symsigma" : self.symsigma,
+            #"ecutwfn"  : self.ecutwfn,
+            #"kptgw"    : self.kptgw, 
+            #"nkptgw"   : self.nkptgw,
+            #"bdgw"     : self.bdgw,
+        }
+
+        # FIXME: problem with the spin
+        #assert len(self.bdgw) == self.nkptgw
+
+        # ppmodel variables
+        if self.has_ppmodel:
+            abivars.update(self.ppmodel.to_abivars())
+
+        return abivars                                                                                       
 
 ##########################################################################################
 
