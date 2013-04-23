@@ -420,15 +420,12 @@ class SymmetryFinder(object):
                 [a * cos(alpha) / cos(alpha / 2), 0,
                  a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
             new_sites = []
-            for s in conv.sites:
+            latt = Lattice(new_matrix)
+            for s in conv:
                 new_s = PeriodicSite(
-                    s.specie, s.frac_coords, Lattice(new_matrix),
+                    s.specie, s.frac_coords, latt,
                     to_unit_cell=True, properties=s.properties)
-                unique = True
-                for t in new_sites:
-                    if new_s.is_periodic_image(t):
-                        unique = False
-                if unique:
+                if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
 
@@ -449,10 +446,10 @@ class SymmetryFinder(object):
             transf = np.eye(3)
 
         new_sites = []
-        for s in conv.sites:
+        latt = Lattice(np.dot(transf, conv.lattice.matrix))
+        for s in conv:
             new_s = PeriodicSite(
-                s.specie, s.coords,
-                Lattice(np.dot(transf, conv.lattice.matrix)),
+                s.specie, s.coords, latt,
                 to_unit_cell=True, coords_are_cartesian=True,
                 properties=s.properties)
             if not any(map(new_s.is_periodic_image, new_sites)):
@@ -493,12 +490,12 @@ class SymmetryFinder(object):
                                       'length': latt.abc[i],
                                       'orig_index': i} for i in [0, 1]],
                                     key=lambda k: k['length'])
-                for c in range(2):
-                    transf[c][sorted_dic[c]['orig_index']] = 1
+                for i in range(2):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[2]
             else:
-                for c in range(len(sorted_dic)):
-                    transf[c][sorted_dic[c]['orig_index']] = 1
+                for i in range(len(sorted_dic)):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
                 a, b, c = sorted_lengths
             latt = Lattice.orthorhombic(a, b, c)
 
@@ -513,8 +510,6 @@ class SymmetryFinder(object):
             if abs(b - c) < tol:
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
-
-            new_sites = []
             latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             #for the conventional cell representation,
@@ -660,8 +655,8 @@ class SymmetryFinder(object):
 
             if is_all_acute_or_obtuse(test_matrix):
                 transf = [[1.0, 0.0, 0.0],
-                         [0.0, 1.0, 0.0],
-                         [0.0, 0.0, 1.0]]
+                          [0.0, 1.0, 0.0],
+                          [0.0, 0.0, 1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -676,8 +671,8 @@ class SymmetryFinder(object):
 
             if is_all_acute_or_obtuse(test_matrix):
                 transf = [[-1.0, 0.0, 0.0],
-                         [0.0, 1.0, 0.0],
-                         [0.0, 0.0, -1.0]]
+                          [0.0, 1.0, 0.0],
+                          [0.0, 0.0, -1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -692,8 +687,8 @@ class SymmetryFinder(object):
 
             if is_all_acute_or_obtuse(test_matrix):
                 transf = [[-1.0, 0.0, 0.0],
-                         [0.0, -1.0, 0.0],
-                         [0.0, 0.0, 1.0]]
+                          [0.0, -1.0, 0.0],
+                          [0.0, 0.0, 1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[a, 0, 0],
@@ -707,8 +702,8 @@ class SymmetryFinder(object):
                                            * cos(gamma)) / sin(gamma)]]
             if is_all_acute_or_obtuse(test_matrix):
                 transf = [[1.0, 0.0, 0.0],
-                         [0.0, -1.0, 0.0],
-                         [0.0, 0.0, -1.0]]
+                          [0.0, -1.0, 0.0],
+                          [0.0, 0.0, -1.0]]
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
