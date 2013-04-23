@@ -413,7 +413,7 @@ class SimpleResourceManager(object):
                     print("work status %s" % self.work.get_status())
 
                 if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
-                    print("Starting task %s" % task)
+                    if self.debug: print("Starting task %s" % task)
                     task.start()
 
         # Wait until all tasks are completed.
