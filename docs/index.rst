@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+Version 2.6.7
+-------------
+1. Properties are now checked when comparing two Species for equality.
+
 Version 2.6.6
 -------------
 1. Updates to feffio (credit: Alan Dozier)

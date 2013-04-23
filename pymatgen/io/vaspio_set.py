@@ -577,9 +577,9 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
             self.incar_settings.update(user_incar_settings)
 
     def get_kpoints(self, structure):
-        kpoint_density = 90
-        num_kpoints = kpoint_density * structure.lattice.reciprocal_lattice.volume
-        return Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
+        kpoints_density = 90
+        self.kpoints_settings['grid_density'] = kpoints_density * structure.lattice.reciprocal_lattice.volume * structure.num_sites
+        return super(MaterialsProjectStaticVaspInputSet, self).get_kpoints(structure)
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False, refined_structure=False, ):
@@ -686,8 +686,10 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
             ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
-        else:
+        elif vasp_run.is_spin:
             ispin = 2
+        else:
+            ispin = 1
         nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"] * 1.2))
         return {"ISPIN":ispin, "NBANDS":nbands}
 
