@@ -119,21 +119,21 @@ class PhaseDiagram (object):
                 data = []
                 for entry in entries:
                     comp = entry.composition
-                    row = [comp.get_atomic_fraction(el) for el in elements]
+                    row = map(comp.get_atomic_fraction, elements)
                     row.append(entry.energy_per_atom)
                     data.append(row)
-                qhull_data = np.array(data)
-                self.all_entries_hulldata = qhull_data[:, 1:]
+                data = np.array(data)
+                self.all_entries_hulldata = data[:, 1:]
 
                 # Calculate formation energies and remove positive formation
                 # energy entries
                 vec = [el_refs[el].energy_per_atom for el in elements]
                 vec.append(-1)
-                form_e = - np.dot(data, vec)
+                form_e = -np.dot(data, vec)
                 ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
-                ind.extend([entries.index(e) for e in el_refs.values()])
+                ind.extend(map(entries.index, el_refs.values()))
                 qhull_entries = [entries[i] for i in ind]
-                qhull_data = qhull_data[ind][:, 1:]
+                qhull_data = data[ind][:, 1:]
 
                 if len(qhull_data) == dim:
                     self.facets = [range(dim)]
@@ -141,16 +141,14 @@ class PhaseDiagram (object):
                     facets = ConvexHull(qhull_data).vertices
                     finalfacets = []
                     for facet in facets:
-                        facetmatrix = np.zeros((len(facet), len(facet)))
-                        is_element_facet = True
-                        for i, vertex in enumerate(facet):
-                            facetmatrix[i] = np.array(qhull_data[vertex])
-                            facetmatrix[i, dim - 1] = 1
-                            if len(qhull_entries[vertex].composition) > 1:
-                                is_element_facet = False
-                        if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
-                                (not is_element_facet):
-                            finalfacets.append(facet)
+                        is_non_element_facet = any(
+                            (len(qhull_entries[i].composition) > 1
+                             for i in facet))
+                        if is_non_element_facet:
+                            m = qhull_data[facet]
+                            m[:, -1] = 1
+                            if abs(np.linalg.det(m)) > 1e-8:
+                                finalfacets.append(facet)
                     self.facets = finalfacets
                 self.all_entries = entries
                 self.qhull_data = qhull_data
