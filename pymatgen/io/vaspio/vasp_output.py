@@ -296,7 +296,7 @@ class Vasprun(object):
         """
         return True if self.incar.get("ISPIN", 1) == 2 else False
 
-    def get_band_structure(self, kpoints_filename=None, efermi=None):
+    def get_band_structure(self, kpoints_filename=None, efermi=None, line_mode=False):
         """
         Returns the band structure as a BandStructure object
 
@@ -308,10 +308,15 @@ class Vasprun(object):
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
+
             efermi:
                 If you want to specify manually the fermi energy this is where
                 you should do it. By default, the None value means the code
                 will get it from the vasprun.
+
+            line_mode:
+                force the band structure to be considered as a run along
+                symmetry lines
 
         Returns:
             a BandStructure object (or more specifically a
@@ -391,7 +396,7 @@ class Vasprun(object):
                 if l is not None:
                     hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band:
+        if kpoint_file.style == "Line_mode" or hybrid_band or line_mode:
             labels_dict = {}
             if hybrid_band:
                 start_bs_index = 0
