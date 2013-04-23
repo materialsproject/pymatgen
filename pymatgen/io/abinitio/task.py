@@ -73,7 +73,6 @@ def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
        "bse"      : AbinitTask,
     }
 
-    #return AbinitTask(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
     return classes[strategy.runlevel](strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
 ##########################################################################################
@@ -271,11 +270,7 @@ class AbinitTask(Task):
     basename = Basename("run.in", "run.out", "run.files", "log", "stderr", "job.sh", "__lock__")
     del Basename
 
-    def __init__(self, strategy, workdir, runmode, 
-                 task_id  = 1,
-                 links    = None, 
-                 **kwargs
-                ):
+    def __init__(self, strategy, workdir, runmode, task_id=1, links=None, **kwargs):
         """
         Args:
             strategy: 
@@ -305,6 +300,7 @@ class AbinitTask(Task):
         if links is not None: 
             self._links = links
             for link in links:
+                print("Adding ", link.get_abivars())
                 self.strategy.add_extra_abivars(link.get_abivars())
 
         # Files required for the execution.
@@ -427,6 +423,9 @@ class AbinitTask(Task):
         "True if PAW calculation"
         return all(p.ispaw for p in self.pseudos)
 
+    def make_input(self):
+        return self.strategy.make_input()
+
     def outfiles(self):
         "Return all the output data files produced."
         files = list()
@@ -475,7 +474,7 @@ class AbinitTask(Task):
 
         # Write input file and files file.
         if not self.input_file.exists:
-            self.input_file.write(str(self.input))
+            self.input_file.write(self.make_input())
 
         if not self.files_file.exists:
             self.files_file.write(self.filesfile_string)

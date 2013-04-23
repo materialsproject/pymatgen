@@ -11,10 +11,11 @@ import numpy as np
 from pprint import pprint
 
 from pymatgen.util.num_utils import sort_dict
-from pymatgen.io.abinitio.pseudos import Pseudo
-from pymatgen.io.abinitio.workflow import PPConvergenceFactory
-from pymatgen.io.abinitio.deltaworks import DeltaFactory
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
+from pymatgen.io.abinitio.pseudos import Pseudo
+from pymatgen.io.abinitio.launcher import SimpleResourceManager
+from pymatgen.io.abinitio.deltaworks import DeltaFactory
+from pymatgen.io.abinitio.calculations import PPConvergenceFactory
 
 ##########################################################################################
 
@@ -24,7 +25,9 @@ class DojoError(Exception):
 class Dojo(object):
     Error = DojoError
 
-    def __init__(self, max_level=None):
+    def __init__(self, max_ncpus=1, max_level=None):
+
+        self.max_ncpus = max_ncpus
 
         # List of master classes that will be instanciated afterwards.
         # They are ordered according to the master level.
@@ -47,7 +50,7 @@ class Dojo(object):
         workdir = "DOJO_" + pseudo.name
 
         # Build master instances.
-        masters = [cls(runmode=runmode) for cls in self.master_classes]
+        masters = [cls(runmode=runmode, max_ncpus=self.max_ncpus) for cls in self.master_classes]
 
         kwargs = {}
         for master in masters:
@@ -64,8 +67,9 @@ class DojoMaster(object):
 
     Error = DojoError
 
-    def __init__(self, runmode=None):
+    def __init__(self, runmode=None, max_ncpus=1):
         self.runmode = runmode if runmode else RunMode.sequential()
+        self.max_ncpus = max_ncpus
 
         self.reports = []
         self.errors = []
@@ -193,8 +197,9 @@ class HintsMaster(DojoMaster):
                                    )
         print("Finding optimal values for ecut in the interval %.1f %.1f %1.f" % (estart, estop, estep))
 
-        w.start()
-        w.wait()
+        #w.start()
+        #w.wait()
+        print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
 
         wres = w.get_results()
 
@@ -230,8 +235,9 @@ class DeltaFactorMaster(DojoMaster):
 
         w = factory.work_for_pseudo(workdir, runmode, pseudo, kppa=1)
 
-        w.start()
-        w.wait()
+        #w.start()
+        #w.wait()
+        print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
                                                                         
         wres = w.get_results()
                                                                         

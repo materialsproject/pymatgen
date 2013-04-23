@@ -7,7 +7,7 @@ import os.path
 import collections
 import numpy as np
 
-from pymatgen.io.abinitio.input import Smearing
+from pymatgen.io.abinitio.abiobjects import Smearing
 from pymatgen.io.abinitio.workflow import DeltaTest
 
 try:
