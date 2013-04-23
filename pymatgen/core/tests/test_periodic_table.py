@@ -137,8 +137,7 @@ class  SpecieTestCase(unittest.TestCase):
                          "Static and actual constructor gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2,
                             "Fe2+ should not be equal to Fe3+")
-        self.assertEqual(self.specie4, self.specie3,
-                         "Species with same oxi state and el should be equal!")
+        self.assertNotEqual(self.specie4, self.specie3)
         self.assertFalse(self.specie1 == Element("Fe"))
         self.assertFalse(Element("Fe") == self.specie1)
 
