@@ -178,7 +178,7 @@ class HintsMaster(DojoMaster):
         if os.path.exists(w.workdir):
             shutil.rmtree(w.workdir)
 
-        print("Converging %s in iterative mode with eslice %s" % (pseudo.name, eslice))
+        print("Converging %s in iterative mode with eslice %s, ncpus = 1" % (pseudo.name, eslice))
         w.start()
         w.wait()
 
@@ -187,7 +187,11 @@ class HintsMaster(DojoMaster):
 
         estep = max(int(estep/2), 1)
 
-        estart, estop, estep = max(wres["low"]["ecut"] - estep, 5), wres["high"]["ecut"] + estep, 1
+        estart = max(wres["low"]["ecut"] - estep, 5)
+        if estart <= 10:
+            estart = 1 # To be sure we don't overestimate ecut_low
+
+        estop, estep = wres["high"]["ecut"] + estep, 1
 
         erange = list(np.arange(estart, estop, estep))
 
@@ -195,11 +199,9 @@ class HintsMaster(DojoMaster):
                                     runmode   = self.runmode, 
                                     atols_mev = atols_mev,
                                    )
-        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f" % (estart, estop, estep))
+        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = " % (estart, estop, estep, self.max_ncpus))
 
-        #w.start()
-        #w.wait()
-        print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
+        SimpleResourceManager(w, self.max_ncpus).run()
 
         wres = w.get_results()
 
