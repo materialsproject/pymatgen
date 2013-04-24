@@ -567,11 +567,11 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update({"IBRION": -1,
                                     "ISMEAR": -5,
-                                    "LAECHG": "TRUE",
-                                    "LCHARG": "TRUE",
+                                    "LAECHG": True,
+                                    "LCHARG": True,
                                     "LORBIT": 11,
-                                    "LVHAR": "TRUE",
-                                    "LWAVE": "FALSE",
+                                    "LVHAR": True,
+                                    "LWAVE": False,
                                     "NSW": 0})
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
@@ -582,7 +582,8 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         return super(MaterialsProjectStaticVaspInputSet, self).get_kpoints(structure)
 
     @staticmethod
-    def get_structure(vasp_run, outcar=None, initial_structure=False, refined_structure=False, ):
+    def get_structure(vasp_run, outcar=None, initial_structure=False,
+                      refined_structure=False, ):
         """
         Prepare relaxed structure for static run
         """
