@@ -25,11 +25,13 @@ import json
 import re
 
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 import itertools
+import traceback
 import numpy as np
 
 
@@ -554,8 +556,9 @@ class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
 
 class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
     """
-    VaspInputSet for static runs
-    Suggest to use get_structure method to process structures from previous relax run
+    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+    for static calculations that typically follow relaxation runs.
+    Suggest to generate a set of Vasp input files using from_previous_run method.
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -576,16 +579,38 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
 
-    def get_kpoints(self, structure):
-        kpoints_density = 90
-        self.kpoints_settings['grid_density'] = kpoints_density * structure.lattice.reciprocal_lattice.volume * structure.num_sites
+    def get_kpoints(self, structure, kpoints_density=90):
+        """
+        Get a KPOINTS file using the fully automated grid method. Uses
+        Gamma centered meshes for hexagonal cells and Monk grids otherwise.
+
+        Args:
+            kpoints_density:
+                kpoints density for the reciprocal cell of structure.
+                Might need to increase the default value when calculating metallic materials.
+        """
+        kpoints_density = kpoints_density
+        self.kpoints_settings['grid_density'] = kpoints_density * \
+                                                structure.lattice.reciprocal_lattice.volume * structure.num_sites
         return super(MaterialsProjectStaticVaspInputSet, self).get_kpoints(structure)
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
                       refined_structure=False, ):
         """
-        Prepare relaxed structure for static run
+        Process structure for static calculations from previous run.
+        Args:
+            vasp_run:
+                Vasprun object that contains the final structure from previous run.
+            outcar:
+                Outcar object that contains the magnetization info from previous run.
+            initial_structure:
+                Whether to return the structure from previous run. Default is False.
+            refined_structure:
+                Whether to return the refined structure (conventional cell)
+        Return:
+            Default returns the magmom-decorated primitive standard structure that can be passed
+            to get Vasp input files, e.g. get_kpoints
         """
         #TODO: fix magmom for get_*_structures
         if vasp_run.is_spin:
@@ -608,6 +633,35 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
                     sym_finder.get_refined_structure())
         else:
             return sym_finder.get_primitive_standard_structure()
+
+    @staticmethod
+    def from_previous_vasp_run(previous_vasp_dir, output_dir='.', user_incar_settings=None,
+                               make_dir_if_not_present=True):
+        """
+        Generate a set of Vasp input files for static calculations from a directory of
+        previous Vasp run.
+        Args:
+            previous_vasp_dir:
+                The directory contains the outputs(vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir:
+                The directory to write the VASP input files for the static calculations.
+                Default to write in the current directory.
+            make_dir_if_not_present:
+                Set to True if you want the directory (and the whole path) to
+                be created if it is not present.
+        """
+
+        try:
+            vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"), parse_dos=False, parse_eigen=None)
+            outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
+        except:
+            traceback.format_exc()
+            raise RuntimeError("Can't get valid results from previous run")
+
+        structure = MaterialsProjectStaticVaspInputSet.get_structure(vasp_run, outcar)
+        mpsvip = MaterialsProjectStaticVaspInputSet(user_incar_settings=user_incar_settings)
+        mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
+
 
 class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
     """
