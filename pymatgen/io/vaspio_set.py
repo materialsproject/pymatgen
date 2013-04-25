@@ -696,9 +696,8 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
 
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
-            {"IBRION": -1, "ISMEAR": 0, "LAECHG": True, "LCHARG": False,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ISYM":0,
-             "ICHARG": 11})
+            {"IBRION": -1, "ISMEAR": 0, "LCHARG": False, "LORBIT": 11,
+             "LWAVE": False, "NSW": 0, "ISYM":0, "ICHARG": 11})
         if mode == "Uniform":
             self.incar_settings.update({"NEDOS": 601})
         if "NBANDS" not in user_incar_settings:
