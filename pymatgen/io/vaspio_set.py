@@ -697,7 +697,7 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "LAECHG": True, "LCHARG": False,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
+             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ISYM":0,
              "ICHARG": 11})
         if mode == "Uniform":
             self.incar_settings.update({"NEDOS": 601})
@@ -724,22 +724,17 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            x, y, z = np.meshgrid(np.linspace(0, 1, mesh[0], False),
-                                  np.linspace(0, 1, mesh[1], False),
-                                  np.linspace(0, 1, mesh[2], False))
-            k_grid = np.vstack([x.ravel(), y.ravel(), z.ravel()]).T
-            ir_kpts_mapping = \
-                SymmetryFinder(structure, symprec=0.01).get_ir_kpoints_mapping(
-                    k_grid)
-            kpts_mapping = itertools.groupby(sorted(ir_kpts_mapping))
-            ir_kpts = []
-            weights = []
-            for i in kpts_mapping:
-                ir_kpts.append(k_grid[i[0]])
-                weights.append(len(list(i[1])))
+            ir_kpts = SymmetryFinder(structure, symprec=0.01).get_ir_reciprocal_mesh(mesh)
+            kpts=[]
+            weights=[]
+            print len(ir_kpts)
+            for k in ir_kpts:
+                kpts.append(k[0])
+                weights.append(int(k[1]))
             return Kpoints(comment="Non SCF run on uniform grid",
                            style="Reciprocal", num_kpts=len(ir_kpts),
-                           kpts=ir_kpts, kpts_weights=weights)
+                           kpts=kpts, kpts_weights=weights)
+
 
     @staticmethod
     def get_incar_settings(vasp_run, outcar=None):
