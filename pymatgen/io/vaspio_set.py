@@ -32,6 +32,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 import itertools
 import traceback
 import numpy as np
+import shutil
 
 
 class AbstractVaspInputSet(MSONable):
@@ -562,6 +563,11 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
     the input set to inherit most of the functions.
     """
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+        """
+        Args:
+            user_incar_settings:
+                A dict specify customized settings for INCAR
+        """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
@@ -670,19 +676,24 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
 
 
-class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
+class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
     """
-    VaspInputSet for Non SCF runs
+    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+    for non self-consistent field (NonSCF) calculation that follows
+    a static run to calculate bandstructure, density of states(DOS) and etc.
+    It is recommended to use the NonSCF from_previous_run method to construct
+    the input set to inherit most of the functions.
     """
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False):
         """
         Args:
             user_incar_settings:
-                Specify settings for INCAR, must contain NBANDS values
+                A dict specify customized settings for INCAR.
+                Must contain a NBANDS value, suggest to use 1.2*(NBANDS from static run)
             mode:
-                Line: Generate k-points along symmetry lines
-                Uniform: Use uniform k-points grids
+                Line: Generate k-points along symmetry lines for bandstructure
+                Uniform: Generate uniform k-points grids for DOS
         """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self.mode = mode
@@ -693,12 +704,12 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
-
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "LCHARG": False, "LORBIT": 11,
              "LWAVE": False, "NSW": 0, "ISYM":0, "ICHARG": 11})
         if mode == "Uniform":
+            # Set smaller steps for DOS output
             self.incar_settings.update({"NEDOS": 601})
         if "NBANDS" not in user_incar_settings:
             raise KeyError("For NonSCF runs, NBANDS value from SC runs is "
@@ -706,7 +717,19 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
         else:
             self.incar_settings.update(user_incar_settings)
 
-    def get_kpoints(self, structure):
+    def get_kpoints(self, structure, kpoints_density=1000):
+        """
+        Get a KPOINTS file for NonSCF calculation. In "Line" mode, kpoints are
+        generated along high symmetry lines. In "Uniform" mode, kpoints are
+        Gamma-centered mesh grid. Kpoints are written explicitly in both cases.
+
+        Args:
+            kpoints_density:
+                kpoints density for the reciprocal cell of structure.
+                Suggest to use a large kpoints_density.
+                Might need to increase the default value when calculating
+                metallic materials.
+        """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
             cart_k_points, k_points_labels = kpath.get_kpoints()
@@ -717,8 +740,7 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
                            kpts=frac_k_points, labels=k_points_labels,
                            kpts_weights=[1]*len(cart_k_points))
         else:
-            kpoint_density = 1000
-            num_kpoints = kpoint_density * \
+            num_kpoints = kpoints_density * \
                 structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
@@ -726,7 +748,6 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
             ir_kpts = SymmetryFinder(structure, symprec=0.01).get_ir_reciprocal_mesh(mesh)
             kpts=[]
             weights=[]
-            print len(ir_kpts)
             for k in ir_kpts:
                 kpts.append(k[0])
                 weights.append(int(k[1]))
@@ -734,12 +755,12 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
                            style="Reciprocal", num_kpts=len(ir_kpts),
                            kpts=kpts, kpts_weights=weights)
 
-
     @staticmethod
     def get_incar_settings(vasp_run, outcar=None):
         """
-        Get values for user_incar_settings from previous run
+        Helper method to get necessary user_incar_settings from previous run.
         """
+        # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
             site_magmom = np.array([i['tot'] for i in outcar.magnetization])
             ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
@@ -751,6 +772,50 @@ class MaterialsProjectNonSCFInputSet(MaterialsProjectStaticVaspInputSet):
                              * 1.2))
         return {"ISPIN": ispin, "NBANDS": nbands}
 
+    @staticmethod
+    def from_previous_vasp_run(previous_vasp_dir, output_dir='.', mode="Uniform",
+                               user_incar_settings=None, copy_chgcar=True,
+                               make_dir_if_not_present=True):
+        """
+        Generate a set of Vasp input files for NonSCF calculations from a
+        directory of previous static Vasp run.
+
+        Args:
+            previous_vasp_dir:
+                The directory contains the outputs(vasprun.xml and OUTCAR) of
+                previous vasp run.
+            output_dir:
+                The directory to write the VASP input files for the NonSCF
+                calculations. Default to write in the current directory.
+            copy_chgcar:
+                Default to copy CHGCAR from SC run
+            make_dir_if_not_present:
+                Set to True if you want the directory (and the whole path) to
+                be created if it is not present.
+        """
+        try:
+            vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
+                               parse_dos=False, parse_eigen=None)
+            outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
+        except:
+            traceback.format_exc()
+            raise RuntimeError("Can't get valid results from previous run")
+
+        #Get a Magmom-decorated structure
+        structure = MaterialsProjectNonSCFVaspInputSet.get_structure(
+            vasp_run, outcar)
+        user_incar_settings = MaterialsProjectNonSCFVaspInputSet.\
+            get_incar_settings(vasp_run, outcar)
+        mpnscfvip = MaterialsProjectNonSCFVaspInputSet(user_incar_settings, mode)
+        mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
+        if copy_chgcar:
+            try:
+                shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
+                                os.path.join(output_dir,"CHGCAR"))
+            except Exception as e:
+                traceback.format_exc()
+                raise RuntimeError("Can't copy CHGCAR from SC run"+'\n'
+                                   + str(e))
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
