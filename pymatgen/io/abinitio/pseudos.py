@@ -299,7 +299,7 @@ class Pseudo(object):
 
             if start == -1:
                # DOJO_REPORT was not present.
-               lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+               lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
             else:
                stop = lines.index("</DOJO_REPORT>\n")
                lines.insert(stop, jstring)

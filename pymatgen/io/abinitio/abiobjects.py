@@ -427,7 +427,7 @@ class AbiStructure(Structure, AbivarAble):
             lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
         xred = '\n' + "\n".join(lines)
 
-        abivars = {
+        return {
             "acell" : 3 * [1.0],
             "rprim" : rprim,
             "natom" : natom,
@@ -436,8 +436,6 @@ class AbiStructure(Structure, AbivarAble):
             "xred"  : xred,
             "znucl" : znucl_type,
         }
-
-        return abivars
 
 ##########################################################################################
 
