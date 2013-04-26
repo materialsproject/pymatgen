@@ -33,11 +33,7 @@ class DeltaFactory(object):
 
         self.delta_data = DeltaFactorDataset()
 
-    def work_for_pseudo(self, workdir, runmode, pseudo,
-                        accuracy  = "normal",
-                        kppa      = 6750, 
-                        smearing  = "fermi_dirac:0.0005"
-                       ):
+    def work_for_pseudo(self, workdir, runmode, pseudo, accuracy="normal", kppa=6750, smearing="fermi_dirac:0.0005"):
         """
         Returns a Work object from the given pseudopotential.
 
@@ -59,17 +55,14 @@ class DeltaFactory(object):
         if pseudo.symbol in ["Fe", "Co", "Ni"]: spin_mode = "polarized"
         if pseudo.symbol in ["O", "Cr", "Mn"]: spin_mode = "afm"
 
-        smearing = Smearing.assmearing(smearing)
-
         work = DeltaTest(workdir, runmode, cif_path, pseudo, kppa,
-                         accuracy  = accuracy,
-                         spin_mode = spin_mode,
-                         smearing  = smearing,
-                         ecutsm    = 0.05,
-                         )
+                         accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
+                         ecutsm =0.05,
+                        )
         return work
 
 ##########################################################################################
+
 class DeltaDrone(object):
 
     def assimilate(self, top):

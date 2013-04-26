@@ -38,14 +38,12 @@ class Dojo(object):
         if max_level is not None:
             self.master_classes = classes[:max_level+1]
 
+    def __str__(self):
+        return repr_dojo_levels()
+
     def challenge_pseudo(self, pseudo, runmode):
 
-        #if isinstance(pseudos, str) or not isinstance(pseudos, collections.Iterable):
-        #    pseudos = [pseudos,]
-
-        #pseudo = Pseudo.aspseudo(pseudo)
-        if not isinstance(pseudo, Pseudo):
-            pseudo = Pseudo.from_filename(pseudo)
+        pseudo = Pseudo.aspseudo(pseudo)
 
         workdir = "DOJO_" + pseudo.name
 
@@ -185,8 +183,6 @@ class HintsMaster(DojoMaster):
         wres = w.get_results()
         w.move("ITERATIVE")
 
-        estep = max(int(estep/2), 1)
-
         estart = max(wres["low"]["ecut"] - estep, 5)
         if estart <= 10:
             estart = 1 # To be sure we don't overestimate ecut_low
@@ -199,7 +195,8 @@ class HintsMaster(DojoMaster):
                                     runmode   = self.runmode, 
                                     atols_mev = atols_mev,
                                    )
-        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = " % (estart, estop, estep, self.max_ncpus))
+        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = %d" % (
+            estart, estop, estep, self.max_ncpus))
 
         SimpleResourceManager(w, self.max_ncpus).run()
 
@@ -229,16 +226,15 @@ class DeltaFactorMaster(DojoMaster):
     dojo_key = "delta_factor"
 
     def challenge(self, workdir, **kwargs):
-        pseudo = self.pseudo
-
         factory = DeltaFactory()
 
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
-        w = factory.work_for_pseudo(workdir, runmode, pseudo, kppa=1)
+        kppa = kwargs.get("kppa", 6750)
+        print("using kppa %d " % kppa)
 
-        #w.start()
-        #w.wait()
+        w = factory.work_for_pseudo(workdir, self.runmode, self.pseudo, kppa=kppa)
+
         print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
                                                                         
         wres = w.get_results()
@@ -271,13 +267,20 @@ class DeltaFactorMaster(DojoMaster):
 
 ##########################################################################################
 
-_key2lev = {}
+_key2level = {}
 for cls in DojoMaster.__subclasses__():
-    _key2lev[cls.dojo_key] = cls.dojo_level
+    _key2level[cls.dojo_key] = cls.dojo_level
 
 def dojo_key2level(key):
     "Return the trial level from the name found in the pseudo"
-    return _key2lev[key] 
+    return _key2level[key] 
+
+def repr_dojo_levels():
+    level2key = {v:k for k,v in _key2level.items()}
+    lines = ["Dojo level --> Challenge"]
+    for k in sorted(level2key):
+        lines.append("level %d --> %s" % (k, level2key[k]))
+    return "\n".join(lines)
 
 ##########################################################################################
 

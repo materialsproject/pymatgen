@@ -877,6 +877,8 @@ class DeltaTest(Workflow):
             # Assume CIF file
             structure = read_structure(structure_or_cif)
 
+        structure = AbiStructure.asabistructure(structure)
+
         smearing = Smearing.assmearing(smearing)
 
         self._input_structure = structure
@@ -890,6 +892,7 @@ class DeltaTest(Workflow):
             new_lattice = structure.lattice.scale(vol)
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
+            new_structure = AbiStructure.asabistructure(new_structure)
 
             extra_abivars = {
                 "ecutsm": ecutsm,
