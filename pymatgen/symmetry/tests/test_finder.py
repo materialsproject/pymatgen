@@ -142,6 +142,14 @@ class SymmetryFinderTest(unittest.TestCase):
         irr_kpts = finder.get_ir_kpoints(actual_kpts)
         self.assertLess(len(irr_kpts), len(actual_kpts))
         self.assertEqual(len(irr_kpts), len(set(mapping)))
+        
+    def test_get_ir_reciprocal_mesh(self):
+        grid=self.sg.get_ir_reciprocal_mesh()
+        self.assertEquals(len(grid), 216)
+        self.assertAlmostEquals(grid[1][0][0], 0.1)
+        self.assertAlmostEquals(grid[1][0][1], 0.0)
+        self.assertAlmostEquals(grid[1][0][2], 0.0)
+        self.assertEquals(grid[1][1], 2)
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))

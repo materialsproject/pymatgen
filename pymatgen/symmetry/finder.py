@@ -392,6 +392,41 @@ class SymmetryFinder(object):
                 n.append(i)
         return irr_kpts
 
+    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0),
+                               is_time_reversal=True):
+        """
+        k-point mesh of the Brillouin zone generated taken into account
+        symmetry.The method returns the irreducible kpoints of the mesh
+        and their weights
+
+        Args:
+            mesh:
+                The number of kpoint for the mesh needed in each direction
+            shift:
+                A shift of the kpoint grid. For instance, Monkhorst-Pack is
+                [0.5,0.5,0.5]
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            A list of irreducible kpoints and their weights as a list of
+            tuples [(ir_kpoint, weight)], with ir_kpoint given
+            in fractional coordinates
+        """
+        results = []
+        intmap = np.zeros(np.prod(mesh), dtype=int)
+        grid = np.zeros((np.prod(mesh), 3), dtype=int)
+        positions = self._positions.copy()
+        lattice = self._transposed_latt.copy()
+        numbers = self._numbers.copy()
+        spg.ir_reciprocal_mesh(grid, intmap, np.array(mesh), np.array(shift),
+                               is_time_reversal * 1, lattice, positions,
+                               numbers, self._symprec)
+        tmp_map = list(intmap)
+        for i in np.unique(intmap):
+            results.append((grid[i]/mesh, tmp_map.count(i)))
+        return results
+
     def get_primitive_standard_structure(self):
         """
         Gives a structure with a primitive cell according to certain standards
