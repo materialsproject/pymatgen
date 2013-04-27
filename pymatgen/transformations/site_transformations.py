@@ -327,7 +327,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         mod.delete_sites(to_delete)
         self.logger.debug("Minimizing Ewald took {} seconds."
                           .format(time.time() - starttime))
-        return [{"energy":sum(sum(ematrix)),
+        return [{"energy": sum(sum(ematrix)),
                  "structure": mod.modified_structure.get_sorted_structure()}]
 
     def complete_ordering(self, structure, num_remove_dict):
