@@ -14,7 +14,13 @@ from pprint import pprint
 from scipy.interpolate import UnivariateSpline
 from subprocess import Popen, PIPE
 
-from pymatgen.io.abinitio.configurations import configurations as dft_neutral_confs
+try:
+    #from pymatgen.io.abinitio.configurations import configurations as dft_neutral_confs
+    from .configurations import configurations as dft_neutral_confs
+except:
+    head, x = os.path.split(os.path.abspath(__file__))
+    sys.path.insert(0, head)
+    from configurations import configurations as dft_neutral_confs
 
 __version__ = "0.1"
 __status__ = "Development"
@@ -513,7 +519,7 @@ class AeSolver(object):
     def solve(self):
         assert not hasattr(self, "exit_code")
 
-        print("Solving all-electron problem ...")
+        print("Solving the all-electron problem ...")
         start = time.time()
 
         # Write the input file.
@@ -1160,7 +1166,6 @@ def ape_read_dipoles(out_lines):
 ##########################################################################################
 
 if __name__ == "__main__":
-    
     with_plots, show_input = False, False
 
     # AE configuration: neutral silicon + empty 3d-4f states
