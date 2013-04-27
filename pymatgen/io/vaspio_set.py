@@ -479,7 +479,7 @@ class MITHSEVaspInputSet(VaspInputSet):
             constrain_total_magmom=d["constrain_total_magmom"])
 
 
-class MITMDInputSet(VaspInputSet):
+class MITMDVaspInputSet(VaspInputSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
@@ -509,6 +509,13 @@ class MITMDInputSet(VaspInputSet):
         with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MITMD", json.load(f))
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
+        self.time_step = time_step
+        self.prec = prec
+        self.ggau = ggau
+        self.user_incar_settings = user_incar_settings
 
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
@@ -521,8 +528,10 @@ class MITMDInputSet(VaspInputSet):
                           "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
                           "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
 
+        self.incar_settings.update(incar_settings)
+
         if user_incar_settings:
-            incar_settings.update(user_incar_settings)
+            self.incar_settings.update(user_incar_settings)
 
         if not ggau:
             self.incar_settings['LDAU'] = False
@@ -534,6 +543,27 @@ class MITMDInputSet(VaspInputSet):
 
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
+
+    @property
+    def to_dict(self):
+        return {
+            "start_temp": self.start_temp,
+            "end_temp": self.end_temp,
+            "nsteps": self.nsteps,
+            "time_step": self.time_step,
+            "ggau": self.ggau,
+            "prec": self.prec,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MITMDVaspInputSet(
+            start_temp=d["start_temp"], end_temp=d["end_temp"],
+            nsteps=d["nsteps"], time_step=d["time_step"], prec=d["prec"],
+            ggau=d["ggau"], user_incar_settings=d["user_incar_settings"])
 
 
 class MaterialsProjectVaspInputSet(DictVaspInputSet):
