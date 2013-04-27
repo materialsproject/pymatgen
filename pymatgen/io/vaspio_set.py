@@ -11,7 +11,7 @@ runs.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -419,7 +419,7 @@ class MITGGAVaspInputSet(VaspInputSet):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject GGA", json.load(f),
+                self, "MIT GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
         self.user_incar_settings = user_incar_settings
         # INCAR settings to override for GGA runs, since we are basing off a
@@ -477,6 +477,63 @@ class MITHSEVaspInputSet(VaspInputSet):
         return MITHSEVaspInputSet(
             user_incar_settings=d["user_incar_settings"],
             constrain_total_magmom=d["constrain_total_magmom"])
+
+
+class MITMDInputSet(VaspInputSet):
+    """
+    Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+    """
+
+    def __init__(self, start_temp, end_temp, nsteps, time_step=2,
+                 prec="Low", ggau=False, user_incar_settings=None):
+        """
+        Args:
+            start_temp:
+                Starting temperature.
+            end_temp:
+                Final temperature.
+            nsteps:
+                Number of time steps for simulations. The NSW parameter.
+            time_step:
+                The time step for the simulation. The POTIM parameter.
+                Defaults to 2fs.
+            prec:
+                precision - Normal or LOW. Defaults to Low.
+            ggau:
+                whether to use +U or not. Defaults to False.
+            user_incar_settings:
+                dictionary of incar settings to override
+        """
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MITMD", json.load(f))
+
+        #Optimized parameters for MD simulations.
+        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
+                          'NSW': nsteps, 'PREC': prec,
+                          'EDIFF': 0.000001, 'LSCALU': False,
+                          'LCHARG': False, 'LPLANE': False,
+                          'LWAVE': False, "ICHARG": 1, "ISMEAR": 0,
+                          "SIGMA": 0.05, "NELMIN": 4, "LREAL": True,
+                          "BMIX": 1, "MAXMIX": 20, "NELM": 500, "NSIM": 4,
+                          "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
+                          "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
+
+        if user_incar_settings:
+            incar_settings.update(user_incar_settings)
+
+        if not ggau:
+            self.incar_settings['LDAU'] = False
+            if 'LDAUU' in self.incar_settings:
+                # technically not needed, but clarifies INCAR
+                del self.incar_settings['LDAUU']
+                del self.incar_settings['LDAUJ']
+                del self.incar_settings['LDAUL']
+
+    def get_kpoints(self, structure):
+        return Kpoints.gamma_automatic()
 
 
 class MaterialsProjectVaspInputSet(DictVaspInputSet):
