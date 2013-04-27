@@ -5,14 +5,15 @@ import os
 from numpy import array
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
-    MaterialsProjectVaspInputSet, MITGGAVaspInputSet
+    MaterialsProjectVaspInputSet, MITGGAVaspInputSet, MITMDVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
+dec = PMGJSONDecoder()
 
 
 class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
@@ -147,7 +148,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.userparamset = MaterialsProjectVaspInputSet(
             {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
-        dec = PMGJSONDecoder()
+
         d = self.mitparamset.to_dict
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITVaspInputSet)
@@ -169,6 +170,35 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertEqual(type(v), MaterialsProjectVaspInputSet)
         self.assertEqual(v.incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
+
+
+class MITMDVaspInputSetTest(unittest.TestCase):
+
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        self.struct = poscar.structure
+        self.mitmdparam = MITMDVaspInputSet(300, 1200, 10000)
+
+    def test_get_potcar_symbols(self):
+        syms = self.mitmdparam.get_potcar_symbols(self.struct)
+        self.assertEquals(syms, ['Fe', 'P', 'O'])
+
+    def test_get_incar(self):
+        incar = self.mitmdparam.get_incar(self.struct)
+        self.assertNotIn("LDAUU", incar)
+        self.assertAlmostEqual(incar['EDIFF'], 2.4e-5)
+
+    def test_get_kpoints(self):
+        kpoints = self.mitmdparam.get_kpoints(self.struct)
+        self.assertEquals(kpoints.kpts, [(1, 1, 1)])
+        self.assertEquals(kpoints.style, 'Gamma')
+
+    def test_to_from_dict(self):
+        d = self.mitmdparam.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MITMDVaspInputSet)
+        self.assertEqual(v.incar_settings["TEBEG"], 300)
 
 if __name__ == '__main__':
     unittest.main()
