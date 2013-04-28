@@ -908,6 +908,10 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 class MaterialsProjectVaspInputSet(MPVaspInputSet):
     """
     A direct subclass of MPVaspInputSet (for backwards compatibility).
+
+    .. deprecated:: v2.6.7
+
+        Use MPVaspInputSet instead.
     """
     pass
 
@@ -915,6 +919,10 @@ class MaterialsProjectVaspInputSet(MPVaspInputSet):
 class MaterialsProjectGGAVaspInputSet(MPGGAVaspInputSet):
     """
     A direct subclass of MPGGAVaspInputSet (for backwards compatibility).
+
+    .. deprecated:: v2.6.7
+
+        Use MPGGAVaspInputSet instead.
     """
     pass
 
