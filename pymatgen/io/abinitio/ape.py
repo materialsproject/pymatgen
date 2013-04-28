@@ -848,10 +848,11 @@ class PseudoGenerator(object):
         merits = {}
         for (state, pp_ld) in self.pp_logders.items():
             ae_ld = self.ae_logders[state]
-            #merit = np.abs(ae_ld.values - pp_ld.values)
-            m = np.sum(np.abs(np.tan(ae_ld.values) - np.tan(pp_ld.values)))
-            m = m / len(ae_ld.values)
-            merits[state] = m
+            rmesh = ae_ld.rmesh
+            f = np.abs(np.tan(ae_ld.values) - np.tan(pp_ld.values))
+            spline = UnivariateSpline(rmesh, f, s=0)
+            merits[state] = spline.integral(rmesh[0], rmesh[-1])  / (rmesh[-1] - rmesh[0])
+
         return merits
 
     #def quality_control(self):

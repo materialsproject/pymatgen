@@ -230,6 +230,7 @@ class DeltaFactorMaster(DojoMaster):
 
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
+        # FIXME  this is the value used in the deltafactor code.
         kppa = kwargs.get("kppa", 6750)
         print("using kppa %d " % kppa)
 
@@ -245,7 +246,6 @@ class DeltaFactorMaster(DojoMaster):
 
     def make_report(self, results, **kwargs):
         isok = True
-
         d = { 
             #"delta_factor" : ,
             #"e0" :
