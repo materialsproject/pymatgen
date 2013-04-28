@@ -546,16 +546,23 @@ class TaskResults(dict, MSONable):
         "task_status",
         "task_events",
     ]
-    #EXC_KEY = "_exceptions"
+    EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(TaskResults, self).__init__(*args, **kwargs)
+                                                               
+        if self.EXC_KEY not in self:
+            self[self.EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        return self[self.EXC_KEY]
 
     def push_exceptions(self, *exceptions):
-        if not hasattr(self, "_exceptions"):
-            self._exceptions = []
-                                               
         for exc in exceptions:
             newstr = str(exc)
-            if newstr not in self._exceptions:
-                self._exceptions += [newstr,]
+            if newstr not in self.exceptions:
+                self[self.EXC_KEY] += [newstr,]
 
     def assert_valid(self):
         """
@@ -564,16 +571,13 @@ class TaskResults(dict, MSONable):
         The try assert except trick allows one to get a string with info on the exception.
         We use the += operator so that sub-classes can add their own message.
         """
-        if not hasattr(self, "_exceptions"):
-            self._exceptions = []
-
         # TODO Better treatment of events.
         try:
-            assert (self.task_returncode == 0 and self.task_status == Task.S_DONE)
+            assert (self["task_returncode"] == 0 and self["task_status"] == Task.S_DONE)
         except AssertionError as exc:
-            self._exceptions += str(exc)
+            self.push_exceptions(exc)
 
-        return self._exceptions
+        return self.exceptions
 
     @property
     def to_dict(self):
@@ -704,9 +708,7 @@ class RunMode(AttrDict, MSONable):
 
     @classmethod
     def from_filename(cls, filename):
-        """
-        Initialize an instance of RunMode from the configuration file (JSON format)
-        """
+        "Initialize an instance of RunMode from the configuration file (JSON format)"
         defaults = cls._defaults.copy() 
         d = json_load(filename) 
 
@@ -762,4 +764,4 @@ class RunParams(AttrDict):
     parameteres suggested by abinit.
     """
     def __init__(self, *args, **kwargs):
-        super(TaskRunParams, self).__init__(*args, **kwargs)
+        super(RunParams, self).__init__(*args, **kwargs)

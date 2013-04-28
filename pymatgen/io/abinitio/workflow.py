@@ -245,16 +245,23 @@ class WorkFlowResults(dict, MSONable):
     _mandatory_keys = [
         "task_results",
     ]
-    #EXC_KEY = "_exceptions"
+    EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(WorkFlowResults, self).__init__(*args, **kwargs)
+
+        if self.EXC_KEY not in self:
+            self[self.EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        return self[self.EXC_KEY]
 
     def push_exceptions(self, *exceptions):
-        if not hasattr(self, "_exceptions"):
-            self._exceptions = []
-                                               
         for exc in exceptions:
             newstr = str(exc)
-            if newstr not in self._exceptions:
-                self._exceptions += [newstr,]
+            if newstr not in self.exceptions:
+                self[self.EXC_KEY] += [newstr,]
 
     def assert_valid(self):
         """
@@ -263,14 +270,11 @@ class WorkFlowResults(dict, MSONable):
         The try assert except trick allows one to get a string with info on the exception.
         We use the += operator so that sub-classes can add their own message.
         """
-        if not hasattr(self, "_exceptions"):
-            self._exceptions = []
-
         # Validate tasks.
         for tres in self.task_results: 
-            self._exceptions += tres.assert_valid()
+            self[self.EXC_KEY] += tres.assert_valid()
 
-        return self._exceptions
+        return self[self.EXC_KEY] 
 
     @property
     def to_dict(self):
