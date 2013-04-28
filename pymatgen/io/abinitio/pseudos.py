@@ -22,22 +22,6 @@ from pymatgen.core.physical_constants import Ha_eV, Ha2meV
 from pymatgen.util.num_utils import iterator_from_slice 
 #from pymatgen.serializers.json_coders import MSONable 
 
-try:
-    import periodictable 
-    have_periodictable = True
-except ImportError:
-    have_periodictable = False
-
-#FIXME pymatgen periodic table is not complete
-#from pymatgen.core.periodic_table import PeriodicTable
-#periodic_table = PeriodicTable()
-#atomic_numbers = [e.Z for e in periodic_table]
-#for (idx, element) in enumerate(periodic_table):
-#    if idx+1 != element.Z: 
-#        missing.append(element)
-#print missing
-#print atomic_numbers
-
 __all__ = [
 'Pseudo',
 'PseudoDatabase', 
@@ -217,10 +201,7 @@ class Pseudo(object):
     @property
     def symbol(self):                                                                                               
         "Element symbol."
-        if have_periodictable:
-            return str(periodictable.elements[self.Z])
-        else:
-            return self.element.symbol
+        return self.element.symbol
 
     @abc.abstractproperty
     def l_max(self):
