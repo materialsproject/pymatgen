@@ -289,7 +289,7 @@ class AbinitTask(Task):
 
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = RunMode.asrunmode(runmode)
+        self.runmode = RunMode.asrunmode(runmode).copy()
 
         self.set_id(task_id)
 
@@ -314,8 +314,7 @@ class AbinitTask(Task):
         #launcher = self.runmode.make_launcher(runhints)
 
         # Build the launcher and store it.
-        launcher = self.runmode.make_launcher(self)
-        self.set_launcher(launcher)
+        self.set_launcher(self.runmode.make_launcher(self))
 
     #def __str__(self):
 
@@ -658,7 +657,7 @@ class RunHints(collections.OrderedDict):
 
 ##########################################################################################
 
-class RunMode(AttrDict, MSONable):
+class RunMode(dict, MSONable):
     """
     This object contains the user-specified settings controlling the execution 
     of the run (submission, coarse- and fine-grained parallelism ...)
@@ -668,13 +667,19 @@ class RunMode(AttrDict, MSONable):
     # Default values (correspond to the sequential mode).
     _defaults = {
         "launcher_type": "shell",    # ["shell", "slurm", "slurm", "pbs",]
-        #"with_fw"  :                # True if we are using fireworks.
+        #"with_fw"     : False,      # True if we are using fireworks.
         "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
         "mpirun"       : "mpirun",   # Path to the mpi runnner.
-        "max_npcus"    : 1,          # Max number of cpus that can be used. If 0, no maximum limit is enforced.
+        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforces)
         "omp_env"      : {},         # OpenMP environment variables.
         "queue_params" : {},         # Parameters passed to the firework QueueAdapter.
     }
+
+    def __init__(self, *args, **kwargs):
+        super(RunMode, self).__init__(*args, **kwargs)
+
+    def copy(self):
+        return RunMode(**super(RunMode, self).copy())
     
     @classmethod
     def asrunmode(cls, obj):
@@ -725,6 +730,21 @@ class RunMode(AttrDict, MSONable):
             d["launcher_type"] = launcher_type
         return cls(d)
 
+    @classmethod
+    def mpi_parallel(cls, mpi_ncpus, launcher_type=None):
+        d = cls._defaults.copy()
+        if launcher_type is not None:
+            d["launcher_type"] = launcher_type
+        new = cls(d)
+        new.set_mpi_ncpus(mpi_ncpus)
+        return new
+
+    def set_mpi_ncpus(self, mpi_ncpus):
+        self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
+
+    #def set_omp_ncpus(self, omp_ncpus):
+    #     self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
+
     @property
     def to_dict(self):
         d = self.copy()
@@ -742,7 +762,7 @@ class RunMode(AttrDict, MSONable):
         #   raise ValueError("Firework not yet supported")
                                                        
         # Find the subclass to instanciate.
-        cls = TaskLauncher.from_launcher_type(task.runmode.launcher_type)
+        cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
 
         return cls(task.jobfile_path, 
                    stdin  = task.files_file.path, 
@@ -757,11 +777,11 @@ class RunMode(AttrDict, MSONable):
 
 ##########################################################################################
 
-class RunParams(AttrDict):
-    """
-    Dictionary with the parameters governing the execution of the task.
-    In contains the parameters passed by the user via RunMode and the 
-    parameteres suggested by abinit.
-    """
-    def __init__(self, *args, **kwargs):
-        super(RunParams, self).__init__(*args, **kwargs)
+#class RunParams(dict):
+#    """
+#    Dictionary with the parameters governing the execution of the task.
+#    In contains the parameters passed by the user via RunMode and the 
+#    parameteres suggested by abinit.
+#    """
+#    def __init__(self, *args, **kwargs):
+#        super(RunParams, self).__init__(*args, **kwargs)

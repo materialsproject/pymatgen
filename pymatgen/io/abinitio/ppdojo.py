@@ -4,6 +4,7 @@ from __future__ import division, print_function
 import sys
 
 from argparse import ArgumentParser 
+from pprint import pprint
 
 from pymatgen.io.abinitio.task import RunMode
 from pymatgen.io.abinitio.pseudo_dojo import Dojo
@@ -21,11 +22,16 @@ def main():
 
     parser = ArgumentParser()
 
-    parser.add_argument('-j', '--py-nthreads', type=int, default=1,
-                        help="The number of threads used (run PY_NTHREADS calculations simultaneously).")
+    #parser.add_argument('-j', '--py-nthreads', type=int, default=1,
+    #                    help="The number of threads used (run PY_NTHREADS calculations simultaneously).")
 
-    parser.add_argument('-l', '--max-level', type=int, default=0,
-                        help="Maximum DOJO level).")
+    parser.add_argument('-m', '--max_ncpus', type=int, default=1,
+                        help="Maximum number of CPUS that will be used by the DOJO.")
+
+    parser.add_argument('-n', '--mpi-ncpus', type=int, default=1,
+                        help="Number of MPI Cpus per run).")
+
+    parser.add_argument('-l', '--max-level', type=int, default=0, help="Maximum DOJO level).")
 
     #parser.add_argument('-v', '--verbose', default=0, action='count', # -vv --> verbose=2
     #                     help='verbose, can be supplied multiple times to increase verbosity')  
@@ -34,12 +40,21 @@ def main():
 
     options = parser.parse_args()
 
-    runmode = RunMode.sequential()
-    dojo = Dojo(max_level=options.max_level, max_ncpus=options.py_nthreads)
-    print(dojo)
+    max_ncpus = options.max_ncpus 
+    mpi_ncpus = options.mpi_ncpus
+
+    if mpi_ncpus > max_ncpus:
+        raise ValueError("mpi_cpus %(mpi_ncpus)s > max_ncpus %(max_ncpus)s" % locals())
+
+    #runmode = RunMode.sequential()
+    #runmode = RunMode.load_user_configuration()
+    runmode = RunMode.mpi_parallel(mpi_ncpus=mpi_ncpus)
+    pprint(runmode)
+
+    dojo = Dojo(runmode=runmode, max_ncpus=max_ncpus, max_level=options.max_level)
 
     for pseudo in options.pseudos:
-        dojo_masters = dojo.challenge_pseudo(pseudo, runmode)
+        dojo.challenge_pseudo(pseudo)
 
 ##########################################################################################
 

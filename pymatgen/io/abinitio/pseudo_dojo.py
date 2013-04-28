@@ -25,37 +25,37 @@ class DojoError(Exception):
 class Dojo(object):
     Error = DojoError
 
-    def __init__(self, max_ncpus=1, max_level=None):
+    def __init__(self, runmode=None, max_ncpus=1, max_level=None):
 
+        self.runmode = runmode if runmode else RunMode.sequential()
         self.max_ncpus = max_ncpus
 
         # List of master classes that will be instanciated afterwards.
         # They are ordered according to the master level.
         classes = [m for m in DojoMaster.__subclasses__()]
-        classes.sort(key = lambda cls : cls.dojo_level)
+        classes.sort(key=lambda cls : cls.dojo_level)
 
         self.master_classes = classes
         if max_level is not None:
             self.master_classes = classes[:max_level+1]
 
+        #self.masters_of_pseudo = {}
+
     def __str__(self):
         return repr_dojo_levels()
 
-    def challenge_pseudo(self, pseudo, runmode):
-
+    def challenge_pseudo(self, pseudo):
         pseudo = Pseudo.aspseudo(pseudo)
 
         workdir = "DOJO_" + pseudo.name
 
         # Build master instances.
-        masters = [cls(runmode=runmode, max_ncpus=self.max_ncpus) for cls in self.master_classes]
+        masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus) for cls in self.master_classes]
 
         kwargs = {}
         for master in masters:
             if master.accept_pseudo(pseudo):
                 master.start_training(workdir, **kwargs)
-
-        return masters
 
 ##########################################################################################
 
@@ -168,10 +168,7 @@ class HintsMaster(DojoMaster):
 
         eslice = slice(5, None, estep)
 
-        w = factory.work_for_pseudo(workdir, pseudo, eslice, 
-                                    runmode   = self.runmode,
-                                    atols_mev = atols_mev,
-                                   )
+        w = factory.work_for_pseudo(workdir, pseudo, eslice, runmode=self.runmode, atols_mev=atols_mev)
 
         if os.path.exists(w.workdir):
             shutil.rmtree(w.workdir)
@@ -191,10 +188,8 @@ class HintsMaster(DojoMaster):
 
         erange = list(np.arange(estart, estop, estep))
 
-        w = factory.work_for_pseudo(workdir, pseudo, erange, 
-                                    runmode   = self.runmode, 
-                                    atols_mev = atols_mev,
-                                   )
+        w = factory.work_for_pseudo(workdir, pseudo, erange, runmode=self.runmode, atols_mev = atols_mev)
+
         print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = %d" % (
             estart, estop, estep, self.max_ncpus))
 
@@ -232,11 +227,15 @@ class DeltaFactorMaster(DojoMaster):
         workdir = os.path.join(workdir, "LEVEL_" + str(self.dojo_level))
 
         # FIXME  this is the value used in the deltafactor code.
-        kppa = kwargs.get("kppa", 6750)
+        #kppa = kwargs.get("kppa", 6750)
+        kppa = kwargs.get("kppa", 10)
         print("using kppa %d " % kppa)
+
+        pprint(self.runmode)
 
         w = factory.work_for_pseudo(workdir, self.runmode, self.pseudo, kppa=kppa)
 
+        print("Running delta_factor calculation with %d threads" % self.max_ncpus)
         print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
                                                                         
         wres = w.get_results()
