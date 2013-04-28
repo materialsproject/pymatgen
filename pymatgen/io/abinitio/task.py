@@ -39,7 +39,7 @@ __all__ = [
 class FakeProcess(object):
     """
     This object is attached to a Task instance if the task has not beed submitted
-    This trick allows one to simulate a process that is still running so that we can safely poll task.process.
+    This trick allows us to simulate a process that is still running so that we can safely poll task.process.
     """
     def poll(self):
         return None
@@ -62,6 +62,7 @@ class FakeProcess(object):
 def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
     "Factory function for Task instances."
 
+    # TODO
     # Instanciate subclasses depending on the runlevel.
     classes = {
        "scf"      : AbinitTask, 
@@ -78,7 +79,7 @@ def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
 ##########################################################################################
 
 class TaskError(Exception):
-    pass
+    "Base Exception for Task methods"
 
 class Task(object):
     __metaclass__ = abc.ABCMeta

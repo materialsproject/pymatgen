@@ -105,8 +105,6 @@ class Smearing(AbivarAble, MSONable):
         'gaussian'   : 7,
     }
 
-    modes = Enum(k for k in _mode2occopt)
-
     def __init__(self, occopt, tsmear): 
         self.occopt = occopt
         self.tsmear = tsmear
@@ -135,8 +133,7 @@ class Smearing(AbivarAble, MSONable):
     @classmethod
     def assmearing(cls, obj):
         """
-        Constructs an instance of Smearing from obj . 
-        Accepts obj in the form:
+        Constructs an instance of Smearing from obj. Accepts obj in the form:
 
             * Smearing instance
             * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
@@ -316,8 +313,8 @@ class Electrons(AbivarAble):
 
 def asabistructure(obj):
     """
-    Convert obj into an AbiStructure object.
-    Accepts:
+    Convert obj into an AbiStructure object. Accepts:
+
         - AbiStructure instance
         - Subinstances of pymatgen.
         - File paths
@@ -443,7 +440,7 @@ class KSampling(AbivarAble):
     """
     Input variables defining the K-point sampling.
     """
-    #: Modes supported by the constructor.
+    # Modes supported by the constructor.
     modes = Enum(('monkhorst', 'path', 'automatic',))
 
     def __init__(self, 
@@ -509,9 +506,7 @@ class KSampling(AbivarAble):
         self.mode = mode
         self.comment = comment
 
-        # FIXME
         abivars = {}
-        #abivars = {"chksymbreak": 0}
 
         if mode in ("monkhorst",):
             assert num_kpts == 0
@@ -524,11 +519,11 @@ class KSampling(AbivarAble):
             if use_symmetries and not use_time_reversal: kptopt = 4
 
             abivars.update({
-                "ngkpt"       : ngkpt,
-                "shiftk"      : shiftk,
-                "nshiftk"     : len(shiftk),
-                "kptopt"      : kptopt,
-                "chksymbreak" : chksymbreak,
+                "ngkpt"      : ngkpt,
+                "shiftk"     : shiftk,
+                "nshiftk"    : len(shiftk),
+                "kptopt"     : kptopt,
+                "chksymbreak": chksymbreak,
             })
 
         elif mode in ("path",):
@@ -554,12 +549,12 @@ class KSampling(AbivarAble):
             kptnrm = np.ones(num_kpts) 
 
             abivars.update({
-                "kptopt"      : 0,
-                "kpt"         : kpts,
-                "nkpt"        : num_kpts,
-                "kptnrm"      : kptnrm,
-                "wtk"         : kpts_weights,  # for iscf/=-2, wtk.
-                "chksymbreak" : chksymbreak,
+                "kptopt"     : 0,
+                "kpt"        : kpts,
+                "nkpt"       : num_kpts,
+                "kptnrm"     : kptnrm,
+                "wtk"        : kpts_weights,  # for iscf/=-2, wtk.
+                "chksymbreak": chksymbreak,
             })
 
         else:

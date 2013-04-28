@@ -91,13 +91,13 @@ def read_dojo_report(filename):
          return json.loads("".join(l for l in lines[start+1:stop]))
 
 _l2str = {
-    0 : "s",
-    1 : "p",
-    2 : "d",
-    3 : "f",
-    4 : "g",
-    5 : "h",
-    6 : "i",
+    0: "s",
+    1: "p",
+    2: "d",
+    3: "f",
+    4: "g",
+    5: "h",
+    6: "i",
 }
 
 def l2str(l): 
@@ -136,8 +136,8 @@ class Pseudo(object):
     @classmethod
     def aspseudo(cls, obj): 
         """
-        Convert obj into a pseudo 
-        Accepts:
+        Convert obj into a pseudo. Accepts:
+
             * Pseudo object.
             * string defining a path.
         """
@@ -451,10 +451,12 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
         return self._zion
 
     @property
-    def l_max(self): return self._lmax
+    def l_max(self): 
+        return self._lmax
 
     @property
-    def l_local(self): return self._lloc
+    def l_local(self): 
+        return self._lloc
 
     @property
     def nlcc_radius(self):
@@ -713,24 +715,24 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = collections.namedtuple("att", "default astype")  
 
     _vars = {
-        "zatom"              : _attr_desc(None, float), 
-        "zion"               : _attr_desc(None, float),
-        "pspdat"             : _attr_desc(None, float),
-        "pspcod"             : _attr_desc(None, int),
-        "pspxc"              : _attr_desc(None, int),
-        "lmax"               : _attr_desc(None, int),
-        "lloc"               : _attr_desc(None, int),
-        "mmax"               : _attr_desc(None, int),
-        "r2well"             : _attr_desc(None, float),
-        "pspfmt"             : _attr_desc(None, str),
-        "creatorID"          : _attr_desc(None, int), 
-        "basis_size"         : _attr_desc(None, int),
-        "lmn_size"           : _attr_desc(None, int),
-        "orbitals"           : _attr_desc(None, list), 
-        "number_of_meshes"   : _attr_desc(None, int),
-        "r_cut"              : _attr_desc(None, float), # r_cut(PAW) in the header
-        "shape_type"         : _attr_desc(None, int),
-        "rshape"             : _attr_desc(None, float),
+        "zatom"           : _attr_desc(None, float), 
+        "zion"            : _attr_desc(None, float),
+        "pspdat"          : _attr_desc(None, float),
+        "pspcod"          : _attr_desc(None, int),
+        "pspxc"           : _attr_desc(None, int),
+        "lmax"            : _attr_desc(None, int),
+        "lloc"            : _attr_desc(None, int),
+        "mmax"            : _attr_desc(None, int),
+        "r2well"          : _attr_desc(None, float),
+        "pspfmt"          : _attr_desc(None, str),
+        "creatorID"       : _attr_desc(None, int), 
+        "basis_size"      : _attr_desc(None, int),
+        "lmn_size"        : _attr_desc(None, int),
+        "orbitals"        : _attr_desc(None, list), 
+        "number_of_meshes": _attr_desc(None, int),
+        "r_cut"           : _attr_desc(None, float), # r_cut(PAW) in the header
+        "shape_type"      : _attr_desc(None, int),
+        "rshape"          : _attr_desc(None, float),
     }                                      
     del _attr_desc
 
@@ -818,9 +820,8 @@ class PseudoParser(object):
     """
     Responsible for parsing pseudopotential files and returning pseudopotential objects.
 
-    Use::
-        parser = PseudoParser()
-        pseudo_instance = parser.parse("filename")
+    Usage::
+        pseudo = PseudoParser().parse("filename")
     """
     Error = PseudoParserError
 

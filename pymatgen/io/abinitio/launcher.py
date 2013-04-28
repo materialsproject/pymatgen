@@ -11,8 +11,10 @@ from subprocess import Popen, PIPE
 
 from pymatgen.io.abinitio.utils import File
 
-
-__all__ = ['AbinitJobScript',]
+__all__ = [
+"ScriptEditor",
+"ShellLauncher",
+]
 
 # =========================================================================== #
 
@@ -188,11 +190,11 @@ class TaskLauncher(object):
         Args:
             path:
                 Path to the script file.
-            abi_stdin:
+            stdin:
                 The input file to feed in the executable as the standard input. Mandatory.
-            abi_stdout:
+            stdout:
                 The file into which the standard output is redirected. Default is 'log'.
-            abi_stderr:
+            stderr:
                 The file into which the standard error is redirected. Default is 'stderr'.
             bindir:
                 The directory in which to look for binaries. Default is "".
@@ -214,15 +216,15 @@ class TaskLauncher(object):
             vars:
                 Dictionary {varname:varvalue} with variable declaration.
         """
-        self.jobfile      = File(path)
-        self.abi_stdin    = kwargs.pop("abi_stdin",  "abi.files")
-        self.abi_stdout   = kwargs.pop("abi_stdout", "abi.log")
-        self.abi_stderr   = kwargs.pop("abi_stderr", "abi.err")
-        self.bindir       = kwargs.pop("bindir", "")
-        self.exe          = os.path.join(self.bindir, kwargs.pop("exe", "abinit"))
-        self.mpirun       = kwargs.pop("mpirun", "")
-        self.mpi_ncpus    = kwargs.pop("mpi_ncpus", 1)
-        self.omp_env      = kwargs.pop("omp_env", {})
+        self.jobfile    = File(path)
+        self.stdin      = kwargs.pop("stdin",  "abi.files")
+        self.stdout     = kwargs.pop("stdout", "abi.log")
+        self.stderr     = kwargs.pop("stderr", "abi.err")
+        self.bindir     = kwargs.pop("bindir", "")
+        self.exe        = os.path.join(self.bindir, kwargs.pop("exe", "abinit"))
+        self.mpirun     = kwargs.pop("mpirun", "")
+        self.mpi_ncpus  = kwargs.pop("mpi_ncpus", 1)
+        self.omp_env    = kwargs.pop("omp_env", {})
         if self.omp_env:
             self.omp_env = OMPEnv(self.omp_env)
         self.vars         = kwargs.pop("vars", {})
@@ -268,9 +270,9 @@ class TaskLauncher(object):
         vars = self.vars.copy()
         vars.update({
                 "EXECUTABLE": self.exe,
-                "ABI_STDIN" : self.abi_stdin,
-                "ABI_STDOUT": self.abi_stdout,
-                "ABI_STDERR": self.abi_stderr,
+                "STDIN"     : self.stdin,
+                "STDOUT"    : self.stdout,
+                "STDERR"    : self.stderr,
                 "MPIRUN"    : self.mpirun,
                 "MPI_NCPUS" : self.mpi_ncpus,
                })
@@ -292,9 +294,9 @@ class TaskLauncher(object):
         # Execution line
         # TODO: better treatment of mpirun syntax.
         if self.mpirun:
-            se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $ABI_STDIN > $ABI_STDOUT 2> $ABI_STDERR')
+            se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
         else:
-            se.add_line('$EXECUTABLE < $ABI_STDIN > $ABI_STDOUT 2> $ABI_STDERR')
+            se.add_line('$EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
 
         se.add_comment("Commands after execution")
         se.add_lines(self.post_lines)
@@ -428,17 +430,3 @@ class SimpleResourceManager(object):
         return self.work.returncodes
 
 ##########################################################################################
-
-if __name__ == "__main__":
-    se = ScriptEditor()
-    se.shebang()
-    se.declare_var("FOO", "BAR")
-    se.add_emptyline()
-    se.add_comment("This is a comment")
-    se.declare_vars({"FOO1": "BAR1"})
-    se.load_modules(["module1", "module2"])
-    print(se.get_script_str())
-
-    launcher = ShellLauncher("job.sh")
-    print(launcher.get_script_str())
-    #process = job.launch()

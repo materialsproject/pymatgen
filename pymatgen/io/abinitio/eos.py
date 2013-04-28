@@ -17,8 +17,7 @@ def murnaghan(V, E0, B0, BP, V0):
 def birch(V, E0, B0, BP, V0):
     """
     From Intermetallic compounds: Principles and Practice, Vol. I: Principles
-    Chapter 9 pages 195-210 by M. Mehl. B. Klein, D. Papaconstantopoulos
-    paper downloaded from Web
+    Chapter 9 pages 195-210 by M. Mehl. B. Klein, D. Papaconstantopoulos paper downloaded from Web
 
     case where n=0
     """

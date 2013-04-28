@@ -1,6 +1,4 @@
-"""
-Strategy objects for creating ABINIT calculations.
-"""
+"Strategy objects for creating ABINIT calculations."
 from __future__ import division, print_function
 
 import abc
@@ -42,9 +40,10 @@ __date__ = "$Feb 21, 2013M$"
 
 def select_pseudos(pseudos, structure):
     """
-    Given a list of pseudos and a structure, extract the pseudopotetials for the calculation. 
-    
-    needed when we pass an entire periodic table
+    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials for the calculation.
+    (useful when we receive an entire periodic table)
+
+    Raises ValueError if no pseudo or multiple occurrences are found.
     """
     table = PseudoTable.astable(pseudos)
 
@@ -76,6 +75,7 @@ class Strategy(object):
             Accuracy of the calculation used to define basic parameters of the run.
             such as tolerances, basis set truncation ... 
         pseudos:
+            List of pseudopotentials.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -317,8 +317,9 @@ class ScfStrategy(Strategy):
                  "pawecutdg": self.pawecutdg,
                 }
         extra.update(self.tolerance)
+        extra.update({"nsym": 1 if not self.use_symmetries else None})
+
         extra.update(self.extra_abivars)
-        #abivars.update({"nsym": 1 if not self.use_symmetries else None})
 
         input = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
         return input.get_string()
@@ -482,7 +483,7 @@ class ScreeningStrategy(Strategy):
                                    nband     = scr_nband,
                                    charge    = scf_electrons.charge,
                                    comment   = None,
-                                   )
+                                  )
 
         self.extra_abivars = extra_abivars
 
@@ -575,12 +576,8 @@ class SelfEnergyStrategy(Strategy):
 
 class InputWriter(object): 
     """
-    Base class representing a set of Abinit input parameters associated to a particular topic. 
-    Essentially consists of a dictionary with some helper functions.
-
-    The objects are stored in the dictionary as {obj.__class__.__name__: obj}
-
-    str(self) returns a string with the corresponding section of the abinit input file.
+    This object receives a list of AbivarAbles objects, a dictionary with extra ABINIT variables 
+    and produces a (nicely formatted?) string with the input file.
     """
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
@@ -636,7 +633,7 @@ class InputWriter(object):
 
     @staticmethod
     def _format_kv(key, value):
-        
+        "Formatter"
         if value is None:  
             return [] # Use ABINIT default.
                                                                                    
@@ -665,7 +662,7 @@ class InputWriter(object):
 
         Args:
             pretty:
-                Set to True for pretty aligned output. Defaults to False.
+                Set to True for pretty aligned output.
         """
         lines = []
 
