@@ -296,7 +296,8 @@ class Vasprun(object):
         """
         return True if self.incar.get("ISPIN", 1) == 2 else False
 
-    def get_band_structure(self, kpoints_filename=None, efermi=None, line_mode=False):
+    def get_band_structure(self, kpoints_filename=None, efermi=None,
+                           line_mode=False):
         """
         Returns the band structure as a BandStructure object
 
