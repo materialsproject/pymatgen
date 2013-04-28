@@ -104,6 +104,26 @@ Version 2.6.4
 Getting pymatgen
 ================
 
+Guided install
+--------------
+
+For casual users of pymatgen who intend to use it purely as an analysis
+library, an user-friendly script has been written to guide users through the
+installation process for Linux and Mac users. This installation script
+requires only basic Python 2.7+, setuptools, and a working version of gcc as
+prerequisites. Click to download the `pmg_install.py <_static/pmg_install.py>`_
+script and then run::
+
+    python pmg_install.py
+
+Unless you are working in a virtual environment, you will probably need to
+run the above command with admin privileges (e.g., sudo). This will install
+pymatgen with all *basic dependencies*. To include more optional dependencies
+as well as a step-by-step initial setup for POTCARs and Materials API usage,
+run::
+
+    python pmg_install.py -f
+
 Stable version
 --------------
 

@@ -11,7 +11,7 @@ runs.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -29,7 +29,6 @@ from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-import itertools
 import traceback
 import numpy as np
 import shutil
@@ -420,7 +419,7 @@ class MITGGAVaspInputSet(VaspInputSet):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject GGA", json.load(f),
+                self, "MIT GGA", json.load(f),
                 constrain_total_magmom=constrain_total_magmom)
         self.user_incar_settings = user_incar_settings
         # INCAR settings to override for GGA runs, since we are basing off a
@@ -480,7 +479,94 @@ class MITHSEVaspInputSet(VaspInputSet):
             constrain_total_magmom=d["constrain_total_magmom"])
 
 
-class MaterialsProjectVaspInputSet(DictVaspInputSet):
+class MITMDVaspInputSet(VaspInputSet):
+    """
+    Class for writing a vasp md run. This DOES NOT do multiple stage
+    runs.
+    """
+
+    def __init__(self, start_temp, end_temp, nsteps, time_step=2,
+                 prec="Low", ggau=False, user_incar_settings=None):
+        """
+        Args:
+            start_temp:
+                Starting temperature.
+            end_temp:
+                Final temperature.
+            nsteps:
+                Number of time steps for simulations. The NSW parameter.
+            time_step:
+                The time step for the simulation. The POTIM parameter.
+                Defaults to 2fs.
+            prec:
+                precision - Normal or LOW. Defaults to Low.
+            ggau:
+                whether to use +U or not. Defaults to False.
+            user_incar_settings:
+                dictionary of incar settings to override
+        """
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MITMD", json.load(f))
+        self.start_temp = start_temp
+        self.end_temp = end_temp
+        self.nsteps = nsteps
+        self.time_step = time_step
+        self.prec = prec
+        self.ggau = ggau
+        self.user_incar_settings = user_incar_settings
+
+        #Optimized parameters for MD simulations.
+        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
+                          'NSW': nsteps, 'PREC': prec,
+                          'EDIFF': 0.000001, 'LSCALU': False,
+                          'LCHARG': False, 'LPLANE': False,
+                          'LWAVE': False, "ICHARG": 1, "ISMEAR": 0,
+                          "SIGMA": 0.05, "NELMIN": 4, "LREAL": True,
+                          "BMIX": 1, "MAXMIX": 20, "NELM": 500, "NSIM": 4,
+                          "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
+                          "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
+
+        self.incar_settings.update(incar_settings)
+
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+
+        if not ggau:
+            self.incar_settings['LDAU'] = False
+            if 'LDAUU' in self.incar_settings:
+                # technically not needed, but clarifies INCAR
+                del self.incar_settings['LDAUU']
+                del self.incar_settings['LDAUJ']
+                del self.incar_settings['LDAUL']
+
+    def get_kpoints(self, structure):
+        return Kpoints.gamma_automatic()
+
+    @property
+    def to_dict(self):
+        return {
+            "start_temp": self.start_temp,
+            "end_temp": self.end_temp,
+            "nsteps": self.nsteps,
+            "time_step": self.time_step,
+            "ggau": self.ggau,
+            "prec": self.prec,
+            "user_incar_settings": self.user_incar_settings,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @staticmethod
+    def from_dict(d):
+        return MITMDVaspInputSet(
+            start_temp=d["start_temp"], end_temp=d["end_temp"],
+            nsteps=d["nsteps"], time_step=d["time_step"], prec=d["prec"],
+            ggau=d["ggau"], user_incar_settings=d["user_incar_settings"])
+
+
+class MPVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the pseudopotentials chosen contain more
@@ -510,12 +596,12 @@ class MaterialsProjectVaspInputSet(DictVaspInputSet):
 
     @staticmethod
     def from_dict(d):
-        return MaterialsProjectVaspInputSet(
+        return MPVaspInputSet(
             user_incar_settings=d["user_incar_settings"],
             constrain_total_magmom=d["constrain_total_magmom"])
 
 
-class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
+class MPGGAVaspInputSet(DictVaspInputSet):
     """
     Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
     turned off.
@@ -550,12 +636,12 @@ class MaterialsProjectGGAVaspInputSet(DictVaspInputSet):
 
     @staticmethod
     def from_dict(d):
-        return MaterialsProjectGGAVaspInputSet(
+        return MPGGAVaspInputSet(
             user_incar_settings=d["user_incar_settings"],
             constrain_total_magmom=d["constrain_total_magmom"])
 
 
-class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
+class MPStaticVaspInputSet(MPVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations that typically follow relaxation runs.
@@ -595,14 +681,14 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
         kpoints_density = kpoints_density
         self.kpoints_settings['grid_density'] = kpoints_density * \
             structure.lattice.reciprocal_lattice.volume * structure.num_sites
-        return super(MaterialsProjectStaticVaspInputSet, self).get_kpoints(
-            structure)
+        return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
                       refined_structure=False):
         """
         Process structure for static calculations from previous run.
+
         Args:
             vasp_run:
                 Vasprun object that contains the final structure from previous
@@ -617,8 +703,8 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
                 Whether to return the refined structure (conventional cell)
 
         Returns:
-            Default returns the magmom-decorated primitive standard structure
-            that can be passed to get Vasp input files, e.g. get_kpoints
+            Returns the magmom-decorated structure that can be passed to get
+            Vasp input files, e.g. get_kpoints.
         """
         #TODO: fix magmom for get_*_structures
         if vasp_run.is_spin:
@@ -669,14 +755,14 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
 
-        structure = MaterialsProjectStaticVaspInputSet.get_structure(
+        structure = MPStaticVaspInputSet.get_structure(
             vasp_run, outcar)
-        mpsvip = MaterialsProjectStaticVaspInputSet(
+        mpsvip = MPStaticVaspInputSet(
             user_incar_settings=user_incar_settings)
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
 
 
-class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
+class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for non self-consistent field (NonSCF) calculation that follows
@@ -690,7 +776,8 @@ class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
         Args:
             user_incar_settings:
                 A dict specify customized settings for INCAR.
-                Must contain a NBANDS value, suggest to use 1.2*(NBANDS from static run)
+                Must contain a NBANDS value, suggest to use
+                1.2*(NBANDS from static run).
             mode:
                 Line: Generate k-points along symmetry lines for bandstructure
                 Uniform: Generate uniform k-points grids for DOS
@@ -707,7 +794,7 @@ class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "LCHARG": False, "LORBIT": 11,
-             "LWAVE": False, "NSW": 0, "ISYM":0, "ICHARG": 11})
+             "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
         if mode == "Uniform":
             # Set smaller steps for DOS output
             self.incar_settings.update({"NEDOS": 601})
@@ -745,9 +832,10 @@ class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=0.01).get_ir_reciprocal_mesh(mesh)
-            kpts=[]
-            weights=[]
+            ir_kpts = SymmetryFinder(structure, symprec=0.01)\
+                .get_ir_reciprocal_mesh(mesh)
+            kpts = []
+            weights = []
             for k in ir_kpts:
                 kpts.append(k[0])
                 weights.append(int(k[1]))
@@ -773,9 +861,9 @@ class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
         return {"ISPIN": ispin, "NBANDS": nbands}
 
     @staticmethod
-    def from_previous_vasp_run(previous_vasp_dir, output_dir='.', mode="Uniform",
-                               user_incar_settings=None, copy_chgcar=True,
-                               make_dir_if_not_present=True):
+    def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
+                               mode="Uniform", user_incar_settings=None,
+                               copy_chgcar=True, make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -802,20 +890,34 @@ class MaterialsProjectNonSCFVaspInputSet(MaterialsProjectStaticVaspInputSet):
             raise RuntimeError("Can't get valid results from previous run")
 
         #Get a Magmom-decorated structure
-        structure = MaterialsProjectNonSCFVaspInputSet.get_structure(
-            vasp_run, outcar)
-        user_incar_settings = MaterialsProjectNonSCFVaspInputSet.\
-            get_incar_settings(vasp_run, outcar)
-        mpnscfvip = MaterialsProjectNonSCFVaspInputSet(user_incar_settings, mode)
+        structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar)
+        user_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
+                                                                      outcar)
+        mpnscfvip = MPNonSCFVaspInputSet(user_incar_settings, mode)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
-                                os.path.join(output_dir,"CHGCAR"))
+                                os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
                 traceback.format_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run"+'\n'
                                    + str(e))
+
+
+class MaterialsProjectVaspInputSet(MPVaspInputSet):
+    """
+    A direct subclass of MPVaspInputSet (for backwards compatibility).
+    """
+    pass
+
+
+class MaterialsProjectGGAVaspInputSet(MPGGAVaspInputSet):
+    """
+    A direct subclass of MPGGAVaspInputSet (for backwards compatibility).
+    """
+    pass
+
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
