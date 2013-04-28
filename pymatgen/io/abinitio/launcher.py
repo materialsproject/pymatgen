@@ -217,22 +217,22 @@ class TaskLauncher(object):
                 Dictionary {varname:varvalue} with variable declaration.
         """
         self.jobfile    = File(path)
-        self.stdin      = kwargs.pop("stdin",  "abi.files")
-        self.stdout     = kwargs.pop("stdout", "abi.log")
-        self.stderr     = kwargs.pop("stderr", "abi.err")
-        self.bindir     = kwargs.pop("bindir", "")
-        self.exe        = os.path.join(self.bindir, kwargs.pop("exe", "abinit"))
-        self.mpirun     = kwargs.pop("mpirun", "")
-        self.mpi_ncpus  = kwargs.pop("mpi_ncpus", 1)
-        self.omp_env    = kwargs.pop("omp_env", {})
+        self.stdin      = kwargs.get("stdin",  "abi.files")
+        self.stdout     = kwargs.get("stdout", "abi.log")
+        self.stderr     = kwargs.get("stderr", "abi.err")
+        self.bindir     = kwargs.get("bindir", "")
+        self.exe        = os.path.join(self.bindir, kwargs.get("exe", "abinit"))
+        self.mpirun     = kwargs.get("mpirun", "")
+        self.mpi_ncpus  = kwargs.get("mpi_ncpus", 1)
+        self.omp_env    = kwargs.get("omp_env", {})
         if self.omp_env:
             self.omp_env = OMPEnv(self.omp_env)
-        self.vars         = kwargs.pop("vars", {})
-        self.modules      = kwargs.pop("modules", [])
-        self.envars       = kwargs.pop("envars", {})
-        self.pre_lines    = kwargs.pop("pre_lines", [])
-        self.post_lines   = kwargs.pop("post_lines", [])
-        self.queue_params = kwargs.pop("queue_params", {})
+        self.vars         = kwargs.get("vars", {})
+        self.modules      = kwargs.get("modules", [])
+        self.envars       = kwargs.get("envars", {})
+        self.pre_lines    = kwargs.get("pre_lines", [])
+        self.post_lines   = kwargs.get("post_lines", [])
+        self.queue_params = kwargs.get("queue_params", {})
 
     @property
     def tot_ncpus(self):
@@ -247,7 +247,7 @@ class TaskLauncher(object):
     @property
     def has_omp(self):
         "True if we are using OMP threads"
-        return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
+        return hasattr(self,"omp_env") and bool(getattr(self, "omp_env"))
                                                       
     @property
     def omp_ncpus(self):
@@ -268,6 +268,7 @@ class TaskLauncher(object):
 
         se.add_comment("Variable declarations")
         vars = self.vars.copy()
+
         vars.update({
                 "EXECUTABLE": self.exe,
                 "STDIN"     : self.stdin,
@@ -392,7 +393,7 @@ class SimpleResourceManager(object):
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
                 raise ValueError("Task %s requires %s CPUs, but max_ncpus is %d" % (
-                    repr(task), task.tot_cpus, max_ncpus))
+                    repr(task), task.tot_ncpus, max_ncpus))
 
     def run(self, *args, **kwargs):
         "Call the start method of the object contained in work."
