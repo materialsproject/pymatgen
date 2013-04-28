@@ -216,6 +216,7 @@ class HintsMaster(DojoMaster):
 
         isok = True
         #isok = not work_results.has_warnings 
+        #d["_strange"] = 
 
         return {self.dojo_key: d}, isok
 

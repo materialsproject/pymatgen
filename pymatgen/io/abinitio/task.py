@@ -244,14 +244,12 @@ class Task(object):
         if self.status != Task.S_DONE:
             raise self.Error("Task is not completed")
 
-        results = TaskResults({
+        return TaskResults({
             "task_name"      : self.name,
             "task_returncode": self.returncode,
             "task_status"    : self.status,
             "task_events"    : self.events.to_dict
-            })
-
-        return results
+        })
 
 ##########################################################################################
 
@@ -538,9 +536,9 @@ class AbinitTask(Task):
 
 ##########################################################################################
 
-class TaskResults(AttrDict, MSONable):
+class TaskResults(dict, MSONable):
     """
-    Dictionary used to store some of the results produce by a Task object
+    Dictionary used to store the most important results produced by a Task.
     """
     _mandatory_keys = [
         "task_name",
@@ -548,6 +546,34 @@ class TaskResults(AttrDict, MSONable):
         "task_status",
         "task_events",
     ]
+    #EXC_KEY = "_exceptions"
+
+    def push_exceptions(self, *exceptions):
+        if not hasattr(self, "_exceptions"):
+            self._exceptions = []
+                                               
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self._exceptions:
+                self._exceptions += [newstr,]
+
+    def assert_valid(self):
+        """
+        Returns an empty list if results seem valid. 
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        if not hasattr(self, "_exceptions"):
+            self._exceptions = []
+
+        # TODO Better treatment of events.
+        try:
+            assert (self.task_returncode == 0 and self.task_status == Task.S_DONE)
+        except AssertionError as exc:
+            self._exceptions += str(exc)
+
+        return self._exceptions
 
     @property
     def to_dict(self):
@@ -555,7 +581,7 @@ class TaskResults(AttrDict, MSONable):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
-
+                                                                                
     @classmethod
     def from_dict(cls, d):
         mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
@@ -717,9 +743,9 @@ class RunMode(AttrDict, MSONable):
         cls = TaskLauncher.from_launcher_type(task.runmode.launcher_type)
 
         return cls(task.jobfile_path, 
-                   abi_stdin  = task.files_file.path, 
-                   abi_stdout = task.log_file.path,
-                   abi_stderr = task.stderr_file.path,
+                   stdin  = task.files_file.path, 
+                   stdout = task.log_file.path,
+                   stderr = task.stderr_file.path,
                    **task.runmode
                   )
 
