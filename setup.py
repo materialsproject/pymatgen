@@ -1,6 +1,6 @@
 import glob
 import os
-import sys
+import subprocess
 
 from distribute_setup import use_setuptools
 use_setuptools()
@@ -9,10 +9,9 @@ from setuptools import setup, find_packages, Extension
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
-    print("numpy.distutils.misc_util cannot be imported.")
-    print("numpy.distutils.misc_util is needed to build the spglib extension.")
-    print("Please install numpy first before retrying setup.")
-    sys.exit(-1)
+    print("numpy.distutils.misc_util cannot be imported. Attempting to "
+          "install...")
+    subprocess.call(["easy_install", "numpy"])
 
 
 def get_spglib_ext():
