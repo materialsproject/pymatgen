@@ -16,7 +16,7 @@ from pprint import pprint
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.design_patterns import Enum
+from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump 
 from pymatgen.io.smartio import read_structure
@@ -234,10 +234,62 @@ class BaseWorkflow(object):
 
         The base version returns a dictionary task_name : TaskResults for each task in self.
         """
-        work_results = collections.OrderedDict()
-        for task in self:
-            work_results[task.name] = task.results
-        return work_results
+        return WorkFlowResults(task_results={task.name: task.results for task in self})
+
+##########################################################################################
+
+class WorkFlowResults(dict, MSONable):
+    """
+    Dictionary used to store some of the results produce by a Task object
+    """
+    _mandatory_keys = [
+        "task_results",
+    ]
+    #EXC_KEY = "_exceptions"
+
+    def push_exceptions(self, *exceptions):
+        if not hasattr(self, "_exceptions"):
+            self._exceptions = []
+                                               
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self._exceptions:
+                self._exceptions += [newstr,]
+
+    def assert_valid(self):
+        """
+        Returns empty string if results seem valid. 
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        if not hasattr(self, "_exceptions"):
+            self._exceptions = []
+
+        # Validate tasks.
+        for tres in self.task_results: 
+            self._exceptions += tres.assert_valid()
+
+        return self._exceptions
+
+    @property
+    def to_dict(self):
+        d = {k: v for k,v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+                                                                                
+    @classmethod
+    def from_dict(cls, d):
+        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
+        return cls(mydict)
+
+    def json_dump(self, filename):
+        json_pretty_dump(self.to_dict, filename) 
+
+    @classmethod
+    def json_load(cls, filename):
+        return cls.from_dict(json_load(filename))    
                                                          
 ##########################################################################################
 
@@ -332,7 +384,6 @@ class Workflow(BaseWorkflow, MSONable):
     #def show_inputs(self, stream=sys.stdout):
     #    lines = []
     #    app = lines.append
-
     #    width = 120
     #    for task in self:
     #        app("\n")
@@ -341,7 +392,6 @@ class Workflow(BaseWorkflow, MSONable):
     #        app("\n")
     #        app(str(task.input))
     #        app(width*"=" + "\n")
-
     #    stream.write("\n".join(lines))
 
     def register_task(self, strategy, links=()):
@@ -539,6 +589,53 @@ class IterativeWork(Workflow):
 
 ##########################################################################################
 
+def strictly_increasing(values):
+    return all(x<y for x, y in zip(values, values[1:]))
+
+def strictly_decreasing(values):
+    return all(x>y for x, y in zip(values, values[1:]))
+
+def non_increasing(values):
+    return all(x>=y for x, y in zip(values, values[1:]))
+
+def non_decreasing(values):
+    return all(x<=y for x, y in zip(values, values[1:]))
+
+def monotonic(values, mode="<", atol=1.e-8):
+    """
+    Returns False if values are not monotonic (decreasing|increasing). 
+    mode is "<" for a decreasing sequence, ">" for an increasing sequence.
+    Two numbers are considered equal if they differ less that atol.
+
+    .. warning:
+        Not very efficient for large data sets.
+
+    >>> values = [1.2, 1.3, 1.4]
+    >>> monotonic(values, mode="<")
+    False
+    >>> monotonic(values, mode=">")
+    True
+    """
+    if len(values) == 1:
+        return True
+
+    if mode == ">":
+        for i in range(len(values)-1):
+            v, vp = values[i], values[i+1]
+            if abs(vp - v) > atol and vp <= v:
+                return False
+
+    elif mode == "<":
+        for i in range(len(values)-1):
+            v, vp = values[i], values[i+1]
+            if abs(vp - v) > atol and vp >= v:
+                return False
+
+    else:
+        raise ValueError("Wrong mode %s" % mode)
+
+    return True
+
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
     Given a list of values and a tolerance tol, returns the leftmost index for which
@@ -596,9 +693,9 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
     table = []
     app = table.append
                                                                                  
-    app(["step", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
+    app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-        line = "%d %.1f %g %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
         row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
         app(row)
 
@@ -633,6 +730,8 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
     }
 
     return data
+
+##########################################################################################
 
 def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, **kwargs):
     """
@@ -703,10 +802,12 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     if savefig is not None:
         fig.savefig(savefig)
 
+##########################################################################################
+
 class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", spin_mode="polarized", acell=(7, 7.5, 8), smearing="fermi_dirac:0.1 eV",):
+                 runmode="sequential", spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
@@ -729,24 +830,29 @@ class PseudoConvergence(Workflow):
     def get_results(self, *args, **kwargs):
 
         # Get the results of the tasks.
-        work_results = super(PseudoConvergence, self).get_results()
+        wf_results = super(PseudoConvergence, self).get_results()
 
-        data = compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
+        etotal = self.read_etotal()
+        data = compute_hints(self.ecut_list, etotal, self.atols_mev, self.pseudo)
 
         plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
-        work_results.update(data)
+        wf_results.update(data)
+
+        if not monotonic(etotal, mode="<", atol=1.0e-5):
+            print("E(ecut) is not decreasing")
+            wf_results.push_exceptions("E(ecut) is not decreasing")
 
         if kwargs.get("json_dump", True):
-            json_pretty_dump(work_results, self.path_in_workdir("results.json"))
+            wf_results.json_dump(self.path_in_workdir("results.json"))
 
-        return work_results
+        return wf_results
 
 class PseudoIterativeConvergence(IterativeWork):
 
     def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode="sequential", spin_mode="polarized", acell=(7, 7.5, 8), smearing="fermi_dirac:0.1 eV", max_niter=50,):
+                 runmode="sequential", spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
         """
         Args:
             workdir:
@@ -798,6 +904,7 @@ class PseudoIterativeConvergence(IterativeWork):
         # Setup electrons.
         electrons = Electrons(spin_mode=self.spin_mode, smearing=self.smearing)
 
+        # Don't write WFK files.
         extra_abivars = {
             "ecut" : ecut, 
             "prtwf": 0,
@@ -820,19 +927,23 @@ class PseudoIterativeConvergence(IterativeWork):
                                                                                        
     def get_results(self, *args, **kwargs):
         # Get the results of the tasks.
-        work_results = super(PseudoIterativeConvergence, self).get_results()
+        wf_results = super(PseudoIterativeConvergence, self).get_results()
 
         data = self.check_etotal_convergence()
 
         plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
-        work_results.update(data)
+        wf_results.update(data)
+
+        if not monotonic(data["etotal"], mode="<", atol=1.0e-5):
+            print("E(ecut) is not decreasing")
+            wf_results.push_exceptions("E(ecut) is not decreasing")
 
         if kwargs.get("json_dump", True):
-            json_pretty_dump(work_results, self.path_in_workdir("results.json"))
+            wf_results.json_dump(self.path_in_workdir("results.json"))
 
-        return work_results
+        return wf_results
 
 ##########################################################################################
 
@@ -919,7 +1030,9 @@ class DeltaTest(Workflow):
 
         eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
-        results = {
+        wf_results = super(DeltaTest, self).get_results()
+
+        wf_results.update({
             "etotal"    : list(etotal),
             "volumes"   : list(self.volumes),
             "natom"     : num_sites,
@@ -927,16 +1040,22 @@ class DeltaTest(Workflow):
             "b"         : eos_fit.b,
             "bp"        : eos_fit.bp,
             "dojo_level": 1,
-        }
+        })
+
+        # TODO
+        #if eos_fit.exceptions:
+        #    wf_results.push_exceptions(eos_fit.exceptions)
 
         if kwargs.get("json_dump", True):
-            json_pretty_dump(results, self.path_in_workdir("results.json"))
+            wf_results.json_dump(self.path_in_workdir("results.json"))
 
         # Write data for the computation of the delta factor
         with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
             fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
             for (v, e) in zip(self.volumes, etotal):
                 fh.write("%s %s\n" % (v/num_sites, e/num_sites))
+
+        return wf_results
 
 ##########################################################################################
 
