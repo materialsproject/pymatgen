@@ -13,7 +13,7 @@ import numpy.testing.utils as nptu
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
-def netcdf_version():
+def get_netcdf_version():
     """
     Returns the Netcdf version we can read with the available libraries.
     0 if not library is found.
@@ -28,6 +28,7 @@ def netcdf_version():
         except ImportError:
             return 0
 
+NC_VERSION = get_netcdf_version()
 
 def filepath(basename):
     return os.path.join(test_dir, basename)
@@ -41,7 +42,7 @@ class GSR_Reader_TestCase(PymatgenTest):
         for formula in formulas:
             d[formula] = filepath(formula + "_GSR.nc")
 
-    @unittest.skipIf(netcdf_version != 4, "Requires Netcdf IO-library")
+    @unittest.skipIf(NC_VERSION!=4, "Requires Netcdf4")
     def test_read_Si2(self):
         path = self.GSR_paths["Si2"]
 
@@ -61,7 +62,6 @@ class GSR_Reader_TestCase(PymatgenTest):
             self.assertEqual(data.ngroups, 1)
 
             print(data.get_varnames())
-            data.print_tree()
 
             # Test int variables
             for (varname, int_ref) in ref_int_values.items():
@@ -75,6 +75,7 @@ class GSR_Reader_TestCase(PymatgenTest):
 
                 self.assert_almost_equal(value, float_ref)
 
+            data.print_tree()
             for group in data.walk_tree():
                 print("group: " + str(group))
 
