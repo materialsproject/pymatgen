@@ -146,9 +146,8 @@ If you are using a Linux system, it is generally assumed that you will have
 python, numpy and the standard compilers already on your system. Standard
 easy_install or pip install should work automatically. Even if there are some
 minor compilation error messages, I generally assume Linux users are usually
-able to diagnose and solve those. For users of Ubuntu,
-most of the dependencies (including the optional ones) are most easily
-installed using apt-get.
+able to diagnose and solve those. For users of Ubuntu, most of the dependencies
+(including the optional ones) are most easily installed using apt-get.
 
 POTCAR Setup
 ============
