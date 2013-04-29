@@ -164,15 +164,17 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
     Each row must have the same number of columns.
 
     Args:
-        table: 
+        table:
             The table to print. A list of lists.
-        out: 
+        out:
             Output stream (file-like object)
-        rstrip: 
+        rstrip:
             if True, trailing withespaces are removed from the entries.
     """
     def max_width_col(table, col_idx):
-        "Get the maximum width of the given column index"
+        """
+        Get the maximum width of the given column index
+        """
         return max([len(row[col_idx]) for row in table])
 
     if rstrip:
@@ -186,12 +188,13 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
 
     for row in table:
         # left col
-        out.write( row[0].ljust(col_paddings[0] + 1) )
+        out.write(row[0].ljust(col_paddings[0] + 1))
         # rest of the cols
         for i in range(1, len(row)):
             col = row[i].rjust(col_paddings[i] + 2)
             out.write(col)
         out.write("\n")
+
 
 def list_strings(arg):
     """
@@ -210,36 +213,39 @@ def list_strings(arg):
     """
 
     #if isinstance(arg, string):  version for Py3K
-    if isinstance(arg, basestring): 
+    if isinstance(arg, basestring):
         return [arg]
     else:
         return arg
 
 
-#############################################################################################################
+################################################################################
 def stream_has_colours(stream):
-    "True if stream supports colours. Python cookbook, #475186"
+    """
+    True if stream supports colours. Python cookbook, #475186
+    """
     if not hasattr(stream, "isatty"):
         return False
 
     if not stream.isatty():
-        return False # auto color only on TTYs
+        return False  # auto color only on TTYs
     try:
         import curses
         curses.setupterm()
         return curses.tigetnum("colors") > 2
     except:
-        return False # guess false in case of error
+        return False  # guess false in case of error
+
 
 class StringColorizer(object):
-    colours={"default":"",
-             "blue" : "\x1b[01;34m",
-             "cyan" : "\x1b[01;36m",
-             "green": "\x1b[01;32m",
-             "red"  : "\x1b[01;31m",
-             # lighting colours.
-             #"lred":    "\x1b[01;05;37;41m"
-             }
+    colours = {"default": "",
+               "blue": "\x1b[01;34m",
+               "cyan": "\x1b[01;36m",
+               "green": "\x1b[01;32m",
+               "red": "\x1b[01;31m",
+               # lighting colours.
+               #"lred":    "\x1b[01;05;37;41m"
+               }
 
     def __init__(self, stream):
         self.has_colours = stream_has_colours(stream)

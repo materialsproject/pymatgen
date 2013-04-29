@@ -2,16 +2,19 @@ import os
 import time
 import errno
 
-#########################################################################################
+################################################################################
+
 
 class FileLockException(Exception):
     pass
 
+
 class FileLock(object):
-    """ A file locking mechanism that has context-manager support so
-        you can use it in a with statement. This should be relatively cross
-        compatible as it doesn't rely on msvcrt or fcntl for the locking.
-        Taken from http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/
+    """
+    A file locking mechanism that has context-manager support so you can use
+    it in a with statement. This should be relatively cross-compatible as it
+    doesn't rely on msvcrt or fcntl for the locking.
+    Taken from http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/
     """
     Exception = FileLockException
 
@@ -28,7 +31,8 @@ class FileLock(object):
         if ( self.delay > self.timeout or
              self.delay   <= 0 or
              self.timeout <= 0 ):
-            raise ValueError("delay and timeout must be positive with delay <= timeout")
+            raise ValueError("delay and timeout must be positive with delay "
+                             "<= timeout")
 
     def acquire(self):
         """ Acquire the lock, if possible. If the lock is in use, it check again
@@ -80,21 +84,21 @@ class FileLock(object):
         self.release()
 
     #def writelines(self, lines):
-    #    if not self.is_locked: 
+    #    if not self.is_locked:
     #        raise self.Exception("%s is not locked. Cannot write" % self.lockfile)
     #    self.fd.writelines(lines)
 
     #def write(self, string):
-    #    if not self.is_locked: 
+    #    if not self.is_locked:
     #        raise self.Exception("%s is not locked. Cannot write" % self.lockfile)
     #    self.fd.write(string)
 
     #def readlines(self):
-    #    if not self.is_locked: 
+    #    if not self.is_locked:
     #        raise self.Exception("%s is not locked. Cannot read" % self.lockfile)
     #    return self.fd.readlines()
-    #                                                                                    
+    #
     #def read(self):
-    #    if not self.is_locked: 
+    #    if not self.is_locked:
     #        raise self.Exception("%s is not locked. Cannot read" % self.lockfile)
     #    return self.fd.read()
