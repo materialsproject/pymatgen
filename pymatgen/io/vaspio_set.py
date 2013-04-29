@@ -684,6 +684,7 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
                       refined_structure=False):
         """
         Process structure for static calculations from previous run.
+
         Args:
             vasp_run:
                 Vasprun object that contains the final structure from previous
@@ -698,8 +699,8 @@ class MaterialsProjectStaticVaspInputSet(MaterialsProjectVaspInputSet):
                 Whether to return the refined structure (conventional cell)
 
         Returns:
-            Default returns the magmom-decorated primitive standard structure
-            that can be passed to get Vasp input files, e.g. get_kpoints
+            Returns the magmom-decorated structure that can be passed to get
+            Vasp input files, e.g. get_kpoints.
         """
         #TODO: fix magmom for get_*_structures
         if vasp_run.is_spin:
