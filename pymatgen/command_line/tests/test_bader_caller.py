@@ -16,20 +16,14 @@ __date__ = "Jul 22, 2012"
 import unittest
 import os
 
-from nose.exc import SkipTest
-
 from pymatgen.command_line.bader_caller import BaderAnalysis
 from pymatgen.util.io_utils import which
 
 
-bader_present = which('bader')
-
-
+@unittest.skipIf(not which('bader'), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
 
     def test_init(self):
-        if not bader_present:
-            raise SkipTest("bader executable not present. Skipping...")
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
         analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
