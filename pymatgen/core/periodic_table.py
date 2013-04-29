@@ -708,7 +708,7 @@ class Specie(MSONable):
             return False
         return self.symbol == other.symbol \
             and self._oxi_state == other._oxi_state \
-                and self._properties == other._properties
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1019,14 +1019,15 @@ class PeriodicTable(object):
 
     def __iter__(self):
         for sym in _z2symbol:
-            if sym is not None: 
+            if sym is not None:
                 yield self._all_elements[sym]
 
     def __getitem__(self, Z_or_slice):
         #print Z_or_slice, symbol_from_Z(Z_or_slice)
         try:
             if isinstance(Z_or_slice, slice):
-                return [self._all_elements[sym] for sym in symbol_from_Z(Z_or_slice)]
+                return [self._all_elements[sym]
+                        for sym in symbol_from_Z(Z_or_slice)]
             else:
                 return self._all_elements[symbol_from_Z(Z_or_slice)]
         except:
