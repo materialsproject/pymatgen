@@ -29,6 +29,7 @@ from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from pymatgen.util.decorators import deprecated
 import traceback
 import numpy as np
 import shutil
@@ -905,6 +906,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                    + str(e))
 
 
+@deprecated(MPVaspInputSet)
 class MaterialsProjectVaspInputSet(MPVaspInputSet):
     """
     A direct subclass of MPVaspInputSet (for backwards compatibility).
@@ -916,6 +918,7 @@ class MaterialsProjectVaspInputSet(MPVaspInputSet):
     pass
 
 
+@deprecated(MPGGAVaspInputSet)
 class MaterialsProjectGGAVaspInputSet(MPGGAVaspInputSet):
     """
     A direct subclass of MPGGAVaspInputSet (for backwards compatibility).
