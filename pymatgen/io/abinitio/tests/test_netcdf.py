@@ -6,15 +6,16 @@ import collections
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import GSR_Reader 
+from pymatgen.io.abinitio import GSR_Reader
 
 import numpy.testing.utils as nptu
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 def netcdf_version():
     """
-    Returns the Netcdf version we can read with the available libraries. 
+    Returns the Netcdf version we can read with the available libraries.
     0 if not library is found.
     """
     try:
@@ -49,7 +50,8 @@ class GSR_Reader_TestCase(PymatgenTest):
 
         ref_float_values = {
             "etotal" : -8.85911566912484,
-            "primitive_vectors" : np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3,3)),
+            "primitive_vectors" : np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125,
+                                              5.125, 5.125, 0], (3,3)),
         }
 
         with GSR_Reader(path) as data:
@@ -68,7 +70,7 @@ class GSR_Reader_TestCase(PymatgenTest):
             # Test float variables
             for (varname, float_ref) in ref_float_values.items():
                 value = data.get_value(varname)
-                                                                    
+
                 self.assert_almost_equal(value, float_ref)
 
             for group in data.walk_tree():

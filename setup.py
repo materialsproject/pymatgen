@@ -12,6 +12,7 @@ except ImportError:
     print("numpy.distutils.misc_util cannot be imported. Attempting to "
           "install...")
     subprocess.call(["easy_install", "numpy"])
+    from numpy.distutils.misc_util import get_numpy_include_dirs
 
 
 def get_spglib_ext():
