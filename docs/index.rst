@@ -19,11 +19,11 @@ researchers. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive io capabilities to manipulate many VASP input and output files
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
-   file format. This includes generating Structure objects from vasp input and
-   output. There is also support for Gaussian input files and XYZ file for
-   molecules.
+2. Extensive io capabilities to manipulate many VASP
+   (http://cms.mpi.univie.ac.at/vasp/) and ABINIT (http://www.abinit.org/)
+   input and output files and the crystallographic information file format.
+   This includes generating Structure objects from vasp input and output.
+   There is also support for Gaussian input files and XYZ file for molecules.
 3. Comprehensive tool to generate and view compositional and grand canonical
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
@@ -72,9 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-Version 2.6.7
+Version 2.7.0
 -------------
-1. Properties are now checked when comparing two Species for equality.
+1. Support for ABINIT input and output via pymatgen.io.abinitio
+   (courtesy of Matteo Giantomassi).
+2. Properties are now checked when comparing two Species for equality.
 
 Version 2.6.6
 -------------
