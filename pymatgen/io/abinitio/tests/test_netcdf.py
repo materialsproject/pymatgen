@@ -28,8 +28,10 @@ def netcdf_version():
         except ImportError:
             return 0
 
+
 def filepath(basename):
     return os.path.join(test_dir, basename)
+
 
 class GSR_Reader_TestCase(PymatgenTest):
 
