@@ -27,10 +27,10 @@ from pymatgen.transformations.advanced_transformations import \
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
-from nose.exc import SkipTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
 
 def get_table():
     """
@@ -46,17 +46,14 @@ def get_table():
     return lambda_table
 
 
-if which('multienum.x') and which('makestr.x'):
-    enumlib_present = True
-else:
-    enumlib_present = False
+enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 class SuperTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        tl = [SubstitutionTransformation({"Li+":"Na+"}),
-              SubstitutionTransformation({"Li+":"K+"})]
+        tl = [SubstitutionTransformation({"Li+": "Na+"}),
+              SubstitutionTransformation({"Li+": "K+"})]
         t = SuperTransformation(tl)
         coords = list()
         coords.append([0, 0, 0])
@@ -124,12 +121,10 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(s.charge, 0, 5)
 
 
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumerateStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. "
-                           "Skipping EnumerateStructureTransformationTest...")
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
@@ -141,7 +136,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             oxitrans = OxidationStateDecorationTransformation({'Li': 1,
                                                                'Fe': 2,
                                                                'P': 5,
-                                                               'O':-2})
+                                                               'O': -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
             self.assertEquals(len(alls), expected_ans[i])
@@ -159,9 +154,6 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
             self.assertNotIn("energy", s)
 
     def test_to_from_dict(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. Skipping "
-                           "EnumerateStructureTransformationTest...")
         trans = EnumerateStructureTransformation()
         d = trans.to_dict
         trans = EnumerateStructureTransformation.from_dict(d)
@@ -170,7 +162,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha= -5,
+        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5,
                                                 lambda_table=get_table())
         coords = list()
         coords.append([0, 0, 0])
@@ -185,7 +177,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         self.assertEqual(len(outputs), 4, 'incorrect number of structures')
 
     def test_to_dict(self):
-        t = SubstitutionPredictorTransformation(threshold=2, alpha= -2,
+        t = SubstitutionPredictorTransformation(threshold=2, alpha=-2,
                                                 lambda_table=get_table())
         d = t.to_dict
         t = SubstitutionPredictorTransformation.from_dict(d)
