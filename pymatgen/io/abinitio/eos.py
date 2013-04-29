@@ -54,6 +54,8 @@ def vinet(V, E0, B0, BP, V0):
     return E
 
 ##########################################################################################
+class EOSError(Exception):
+    "Exceptions raised by EOS"
 
 class EOS(object):
     """
@@ -85,6 +87,8 @@ class EOS(object):
        fit.plot()
 
     """
+    Error = EOSError
+
     #: Models available.
     functions = {
         "murnaghan"        : murnaghan,
@@ -129,6 +133,7 @@ class EOS(object):
 
 ##########################################################################################
 
+
 class EOS_Fit(object):
     "Performs the fit of E(V) and provides method to access the results of the fit."
 
@@ -142,6 +147,7 @@ class EOS_Fit(object):
         self.volumes  = np.array(volumes) 
         self.energies = np.array(energies)
         self.func     = func
+        self.exceptions = []
 
         # objective function that will be minimized
         def objective(pars, x, y):
@@ -158,7 +164,9 @@ class EOS_Fit(object):
         vmin, vmax = self.volumes.min(), self.volumes.max()
 
         if not (vmin < v0 and v0 < vmax):
-            print('Warning the minimum volume of a fitted parabola is not in your volumes\n. You may not have a minimum in your dataset')
+            exc = EOSError('The minimum volume of a fitted parabola is not in the input volumes\n.')
+            self.exceptions.append(exc)
+            print(str(exc))
 
         # Initial guesses for the parameters
         self.p0 = [e0, b0, bP, v0] 
@@ -167,7 +175,9 @@ class EOS_Fit(object):
         self.eos_params, self.ierr = leastsq(objective, self.p0, args=(volumes, energies)) 
 
         if self.ierr not in [1,2,3,4]:
-            raise RuntimeError("Optimal parameters not found")
+            exc = EOSError("Optimal parameters not found")
+            self.exceptions.append(exc)
+            raise exc
 
         self.e0 = self.eos_params[0]
         self.b  = self.eos_params[1]

@@ -36,6 +36,7 @@ class ScriptEditor(object):
             self._lines.extend([pre + t for t in text])
 
     def reset(self):
+        "Reset the Editor"
         try:
             del self._lines
         except AttributeError:
@@ -51,14 +52,17 @@ class ScriptEditor(object):
         self._add(line)
 
     def declare_vars(self, d):
+        "Declare the variabled defined in d (dict)"
         for k,v in d.items():
             self.declare_var(k, v)
 
     def export_envar(self, key, val):
+        "Export an environment variable"
         line = "export " + key + "=" + str(val)
         self._add(line)
 
     def export_envars(self, env):
+        "Export the environment variables contained in the dict env."
         for k,v in env.items():
             self.export_envar(k, v)
 
@@ -116,8 +120,8 @@ class OMPEnv(dict):
         >>> OMPEnv(OMP_NUM_THREADS=1)
         {'OMP_NUM_THREADS': '1'}
                                                    
-        To create an instance from the INI file fname, use:
-           OMPEnv.from_file(fname)
+        To create an instance from an INI file, use:
+           OMPEnv.from_filename(filename)
         """
         self.update(*args, **kwargs)
 
@@ -131,10 +135,10 @@ class OMPEnv(dict):
             raise ValueError(err_msg)
 
     @staticmethod
-    def from_file(fname, allow_empty=False):
+    def from_filename(filename, allow_empty=False):
         from ConfigParser import SafeConfigParser, NoOptionError
         parser = SafeConfigParser()
-        parser.read(fname)
+        parser.read(filename)
 
         obj = OMPEnv()
 
@@ -142,7 +146,7 @@ class OMPEnv(dict):
         # we do not check whether the value is correct or not.
         if "openmp" not in parser.sections():
             if not allow_empty:
-                raise ValueError("%s does not contain any [openmp] section" % fname) 
+                raise ValueError("%s does not contain any [openmp] section" % filename) 
             return obj
 
         err_msg = ""
@@ -388,7 +392,7 @@ class SimpleResourceManager(object):
         self.work = work
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
-        self.debug = False
+        self.verbose = 0
 
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
@@ -411,12 +415,12 @@ class SimpleResourceManager(object):
                 time.sleep(self.sleep_time)
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
-                if self.debug:
+                if self.verbose:
                     print("work polls %s" % polls)
                     print("work status %s" % self.work.get_status())
 
                 if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
-                    if self.debug: print("Starting task %s" % task)
+                    if self.verbose: print("Starting task %s" % task)
                     task.start()
 
         # Wait until all tasks are completed.
