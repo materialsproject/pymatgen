@@ -30,7 +30,6 @@ class DeltaFactory(object):
     Error = DeltaFactoryError
 
     def __init__(self):
-
         self.delta_data = DeltaFactorDataset()
 
     def work_for_pseudo(self, workdir, runmode, pseudo, accuracy="normal", kppa=6750, smearing="fermi_dirac:0.0005"):
@@ -47,7 +46,7 @@ class DeltaFactory(object):
         if not pseudo.has_hints:
             raise self.Error("%s: no hints found" % pseudo.name)
 
-        workdir = os.path.join(os.path.abspath(workdir), pseudo.name)
+        #workdir = os.path.join(os.path.abspath(workdir), pseudo.name)
 
         # Include spin polarization for O, Cr and Mn (antiferromagnetic) and Fe, Co, and Ni (ferromagnetic). 
         spin_mode = "unpolarized"

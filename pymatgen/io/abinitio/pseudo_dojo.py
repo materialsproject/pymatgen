@@ -25,10 +25,11 @@ class DojoError(Exception):
 class Dojo(object):
     Error = DojoError
 
-    def __init__(self, runmode=None, max_ncpus=1, max_level=None):
+    def __init__(self, runmode=None, max_ncpus=1, max_level=None, verbose=0):
 
         self.runmode = runmode if runmode else RunMode.sequential()
         self.max_ncpus = max_ncpus
+        self.verbose = verbose
 
         # List of master classes that will be instanciated afterwards.
         # They are ordered according to the master level.
@@ -50,7 +51,7 @@ class Dojo(object):
         workdir = "DOJO_" + pseudo.name
 
         # Build master instances.
-        masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus) for cls in self.master_classes]
+        masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus, verbose=verbose) for cls in self.master_classes]
 
         kwargs = {}
         for master in masters:
@@ -65,16 +66,17 @@ class DojoMaster(object):
 
     Error = DojoError
 
-    def __init__(self, runmode=None, max_ncpus=1):
+    def __init__(self, runmode=None, max_ncpus=1, verbose=0):
         self.runmode = runmode if runmode else RunMode.sequential()
         self.max_ncpus = max_ncpus
+        self.verbose = verbose
 
         self.reports = []
         self.errors = []
 
     @staticmethod
     def subclass_from_dojo_level(dojo_level):
-        "Returns the DojoMaster subclass given dojo_level"
+        "Returns the DojoMaster subclass given the dojo_level"
         classes = []
         for cls in DojoMaster.__subclasses__():
             if cls.dojo_level == dojo_level:
@@ -86,8 +88,9 @@ class DojoMaster(object):
 
     def accept_pseudo(self, pseudo):
         """
-        This method is called before testing the pseudo
         Return True if the mast can train the pseudo. 
+        This method is called before testing the pseudo
+
         A master can train the pseudo if his level == pseudo.dojo_level + 1
         """
         if not isinstance(pseudo, Pseudo):
@@ -188,18 +191,18 @@ class HintsMaster(DojoMaster):
 
         erange = list(np.arange(estart, estop, estep))
 
-        w = factory.work_for_pseudo(workdir, pseudo, erange, runmode=self.runmode, atols_mev = atols_mev)
+        work = factory.work_for_pseudo(workdir, pseudo, erange, runmode=self.runmode, atols_mev = atols_mev)
 
         print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = %d" % (
             estart, estop, estep, self.max_ncpus))
 
-        SimpleResourceManager(w, self.max_ncpus).run()
+        SimpleResourceManager(work, self.max_ncpus).run()
 
-        wres = w.get_results()
+        wf_results = work.get_results()
 
-        json_pretty_dump(wres, w.path_in_workdir("dojo_results.json"))
+        wf_results.json_dump(work.path_in_workdir("dojo_results.json"))
 
-        return wres
+        return wf_results
 
     def make_report(self, results, **kwargs):
         d = {}
@@ -229,20 +232,22 @@ class DeltaFactorMaster(DojoMaster):
         # FIXME  this is the value used in the deltafactor code.
         #kppa = kwargs.get("kppa", 6750)
         kppa = kwargs.get("kppa", 10)
-        print("using kppa %d " % kppa)
 
-        pprint(self.runmode)
+        if self.verbose:
+            print("using kppa %d " % kppa)
+            print("Running delta_factor calculation with %d threads" % self.max_ncpus)
+            pprint(self.runmode)
 
-        w = factory.work_for_pseudo(workdir, self.runmode, self.pseudo, kppa=kppa)
+        work = factory.work_for_pseudo(workdir, self.runmode, self.pseudo, kppa=kppa)
 
-        print("Running delta_factor calculation with %d threads" % self.max_ncpus)
-        print("returncodes %s" % SimpleResourceManager(w, self.max_ncpus).run())
+        retcodes = SimpleResourceManager(w, self.max_ncpus).run())
+
+        if self.verbose: print("returncodes %s" % retcodes)
                                                                         
-        wres = w.get_results()
-                                                                        
-        json_pretty_dump(wres, w.path_in_workdir("dojo_results.json"))
+        wf_results = work.get_results()
 
-        return wres
+        wf_results.json.dump(work.path_in_workdir("dojo_results.json")))
+        return wf_results
 
     def make_report(self, results, **kwargs):
         isok = True
@@ -263,7 +268,7 @@ class DeltaFactorMaster(DojoMaster):
         #    except KeyError:
         #        raise KeyError("%s is missing in input results" % key)
 
-        return {self.dojo_key : d}, isok
+        return {self.dojo_key: d}, isok
 
 ##########################################################################################
 
@@ -276,7 +281,7 @@ def dojo_key2level(key):
     return _key2level[key] 
 
 def repr_dojo_levels():
-    level2key = {v:k for k,v in _key2level.items()}
+    level2key = {v: k for k,v in _key2level.items()}
     lines = ["Dojo level --> Challenge"]
     for k in sorted(level2key):
         lines.append("level %d --> %s" % (k, level2key[k]))

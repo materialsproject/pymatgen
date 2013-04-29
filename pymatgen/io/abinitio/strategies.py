@@ -103,7 +103,7 @@ class Strategy(object):
     # Tolerances for the different levels of accuracy.
     T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
-        "toldfe": T(1.e-7,  1.e-8, 1.e-9), 
+        "toldfe": T(1.e-7,  1.e-8,  1.e-9), 
         "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
         "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
         "tolrdf": T(0.04,   0.02,   0.01),
@@ -190,7 +190,7 @@ class Strategy(object):
 
     @property
     def tolerance(self):
-        "Return a dict {varname: varvalue} with the tolerance to be used for the run"
+        "Return a dict {varname: varvalue} with the tolerance used for the calculation."
         # Check user options first.
         for tolname in self._tolerances:
             try:
@@ -201,18 +201,6 @@ class Strategy(object):
         # Use default values depending on the runlevel and the accuracy.
         tolname = self._runl2tolname[self.runlevel]
         return {tolname: getattr(self._tolerances[tolname], self.accuracy)}
-
-    #@property 
-    #def nsppol(self): 
-    #    return self.electrons.spin_mode.nsppol
-    #                                   
-    #@property 
-    #def nspinor(self): 
-    #    return self.electrons.spin_mode.nspinor
-    #                                   
-    #@property 
-    #def nspden(self): 
-    #    return self.electrons.spin_mode.nspden
 
     @property
     def need_forces(self):
@@ -395,7 +383,7 @@ class NscfStrategy(Strategy):
 class RelaxStrategy(ScfStrategy):
 
     def __init__(structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0, scf_algorithm=None, **extra_abivars):
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
             structure:
