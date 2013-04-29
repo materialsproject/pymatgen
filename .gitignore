@@ -6,6 +6,7 @@ dependencies/spglib-1.2.2/build
 *.o
 *.so
 *.pyc
+*.swp
 pymatgen/pymatgen.cfg
 dist
 _build

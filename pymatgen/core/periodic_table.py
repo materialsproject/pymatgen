@@ -28,6 +28,20 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+# List with the correspondence Z --> Symbol
+# We use a list instead of a mapping so that we can select slices easily.
+_z2symbol = 119 * [None]
+for (symbol, data) in _pt_data.items():
+    _z2symbol[data["Atomic no"]] = symbol
+
+def symbol_from_Z(z):
+    """
+    Return the symbol of the element from the atomic number.
+    Args:
+        z:
+            Atomic number or slice object
+    """
+    return _z2symbol[z]
 
 @cached_class
 @total_ordering
@@ -694,7 +708,7 @@ class Specie(MSONable):
             return False
         return self.symbol == other.symbol \
             and self._oxi_state == other._oxi_state \
-                and self._properties == other._properties
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1002,6 +1016,22 @@ class PeriodicTable(object):
 
     def __getattr__(self, name):
         return self._all_elements[name]
+
+    def __iter__(self):
+        for sym in _z2symbol:
+            if sym is not None:
+                yield self._all_elements[sym]
+
+    def __getitem__(self, Z_or_slice):
+        #print Z_or_slice, symbol_from_Z(Z_or_slice)
+        try:
+            if isinstance(Z_or_slice, slice):
+                return [self._all_elements[sym]
+                        for sym in symbol_from_Z(Z_or_slice)]
+            else:
+                return self._all_elements[symbol_from_Z(Z_or_slice)]
+        except:
+            raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
 
     @property
     def all_elements(self):
