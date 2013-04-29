@@ -10,15 +10,15 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.physical_constants import Ha_eV
 from pymatgen.io.abinitio.abiobjects import *
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
+
 
 def cif_paths():
-    import pymatgen
-    dirpath = os.path.join(os.path.dirname(os.path.dirname(pymatgen.__file__)), "test_files")
     cifpaths = []
-    print(dirpath)
-    for fname in os.listdir(dirpath):
-        fname = os.path.join(dirpath, fname)
+    print(test_dir)
+    for fname in os.listdir(test_dir):
+        fname = os.path.join(test_dir, fname)
         if os.path.isfile(fname) and fname.endswith(".cif"):
             cifpaths.append(fname)
 
