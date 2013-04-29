@@ -2,8 +2,8 @@
 from __future__ import division, print_function
 
 import numpy as np
-import os.path 
-import collections 
+import os.path
+import collections
 
 from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
 from pymatgen.core.structure import Structure
@@ -83,7 +83,7 @@ class NetcdfReader(object):
         values = top.groups.values()
         yield values
         for value in top.groups.values():
-            for children in walktree(value):
+            for children in self.walk_tree(value):
                 yield children
 
     def print_tree(self, top=None):
@@ -152,7 +152,7 @@ class GSR_Reader(NetcdfReader):
             labels_dict[str(i)] = kpoint
 
         eigenvals = {}
-        for isp in range(nsppol): 
+        for isp in range(nsppol):
             spin = Spin.up
             if isp == 1: spin = Spin.down
             eigenvals[spin] = np_eigvals[isp,:,:].transpose()
@@ -199,7 +199,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     if site_properties is not None:
         for property in site_properties:
             d[property] = ncdata.get_value(property)
-    
+
     new = Structure(lattice, species, red_coords, site_properties=d)
 
     if open_and_close:

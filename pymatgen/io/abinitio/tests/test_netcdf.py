@@ -41,7 +41,7 @@ class GSR_Reader_TestCase(PymatgenTest):
         for formula in formulas:
             d[formula] = filepath(formula + "_GSR.nc")
 
-    @unittest.skipIf(netcdf_version == 0, "Requires Netcdf IO-library")
+    @unittest.skipIf(netcdf_version != 4, "Requires Netcdf IO-library")
     def test_read_Si2(self):
         path = self.GSR_paths["Si2"]
 
@@ -84,3 +84,8 @@ class GSR_Reader_TestCase(PymatgenTest):
             site_properties = []
 
             structure = data.get_structure(site_properties=site_properties)
+
+
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.testName']
+    unittest.main()

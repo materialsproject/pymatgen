@@ -27,3 +27,5 @@ class EOSTestCase(unittest.TestCase):
             fit = eos.fit(self.volumes, self.energies)
             print(fit)
 
+if __name__ == "__main__":
+    unittest.main()
