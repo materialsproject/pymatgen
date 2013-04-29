@@ -1,5 +1,6 @@
 "Tools to compute equations of states with different models."
 from __future__ import division, print_function
+
 import numpy as np
 
 __all__ = [
@@ -86,11 +87,11 @@ class EOS(object):
     """
     #: Models available.
     functions = {
-        "murnaghan"         : murnaghan,
-        "birch"             : birch,
-        "birch_murnaghan"   : birch_murnaghan,
-        "pourier_tarantola" : pourier_tarantola,
-        "vinet"             : vinet,
+        "murnaghan"        : murnaghan,
+        "birch"            : birch,
+        "birch_murnaghan"  : birch_murnaghan,
+        "pourier_tarantola": pourier_tarantola,
+        "vinet"            : vinet,
     }
 
     def __init__(self, eos_name='murnaghan'):
@@ -240,13 +241,3 @@ class EOS_Fit(object):
             fig.savefig(savefig)
 
 ##########################################################################################
-
-if __name__ == "__main__":
-    v = np.array([13.72, 14.83, 16.0, 17.23, 18.52])
-    e = np.array([-56.29, -56.41, -56.46, -56.46, -56.42])
-
-    for eos_name in EOS.functions:
-        eos = EOS(eos_name=eos_name)
-        fit = eos.fit(v, e)
-        print(fit)
-        fit.plot()
