@@ -43,7 +43,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.6.7b",
+    version="2.7.0b",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
@@ -58,7 +58,7 @@ setup(
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
-    "Vincent L Chevrier, Rickard Armiento",
+    "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
     author_email="shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
     "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
     "dkgunter@lbl.gov, scholia@lbl.gov, vincentchevrier@gmail.com, "
