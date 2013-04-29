@@ -22,7 +22,7 @@ __date__ = "$Feb 21, 2013M$"
 ################################################################################
 
 class PPConvergenceFactory(object):
-    "Factory object"
+    """Factory object"""
 
     def work_for_pseudo(self, workdir, pseudo, ecut_range, runmode="sequential",
                         atols_mev=(10, 1, 0.1), spin_mode="polarized",
