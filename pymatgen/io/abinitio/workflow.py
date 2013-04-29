@@ -981,8 +981,8 @@ class Relaxation(Workflow):
 class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
-                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV", accuracy="normal", ecutsm=0.05,
-                 chksymbreak=0): # FIXME Hack
+                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV", accuracy="normal", 
+                 ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
 
@@ -1013,6 +1013,8 @@ class DeltaTest(Workflow):
                 "ecutsm": ecutsm,
                 "prtwf" : 0,
             }
+            if ecut is not None:
+                extra_abivars.update({"ecut": ecut})
 
             ksampling = KSampling.automatic_density(new_structure, kppa, chksymbreak=chksymbreak)
 
@@ -1027,28 +1029,30 @@ class DeltaTest(Workflow):
 
         etotal = Ha2eV(self.read_etotal())
 
-        from .eos import EOS
-        eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
-
-        print(eos_fit)
-
-        eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
-
         wf_results = super(DeltaTest, self).get_results()
 
         wf_results.update({
             "etotal"    : list(etotal),
             "volumes"   : list(self.volumes),
             "natom"     : num_sites,
-            "v0"        : eos_fit.v0,
-            "b"         : eos_fit.b,
-            "bp"        : eos_fit.bp,
             "dojo_level": 1,
         })
 
-        # TODO
-        #if eos_fit.exceptions:
-        #    wf_results.push_exceptions(eos_fit.exceptions)
+        from .eos import EOS
+        try:
+            eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
+            print(eos_fit)
+
+            eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
+
+            wf_results.update({
+                "v0": eos_fit.v0,
+                "b" : eos_fit.b,
+                "bp": eos_fit.bp,
+            })
+
+        except EOS.Error as exc:
+            wf_results.push_exceptions(exc)
 
         if kwargs.get("json_dump", True):
             wf_results.json_dump(self.path_in_workdir("results.json"))
@@ -1067,6 +1071,7 @@ class GW_Workflow(Workflow):
 
     def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy):
         """
+        Workflow for GW calculations.
             Args:
                 workdir:
                     Working directory of the calculation.

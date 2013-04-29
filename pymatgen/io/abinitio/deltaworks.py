@@ -18,10 +18,10 @@ except ImportError:
 ##########################################################################################
 
 class DeltaFactoryError(Exception):
-    pass
+    "Base Error class"
 
 class CIFNotFoundError(DeltaFactoryError):
-    pass
+    "CIF file not found in CIFs directory"
 
 class DeltaFactory(object):
     """
@@ -32,7 +32,8 @@ class DeltaFactory(object):
     def __init__(self):
         self.delta_data = DeltaFactorDataset()
 
-    def work_for_pseudo(self, workdir, runmode, pseudo, accuracy="normal", kppa=6750, smearing="fermi_dirac:0.0005"):
+    def work_for_pseudo(self, workdir, runmode, pseudo, accuracy="normal", kppa=6750, 
+        ecut=None, smearing="fermi_dirac:0.0005"):
         """
         Returns a Work object from the given pseudopotential.
 
@@ -43,11 +44,6 @@ class DeltaFactory(object):
         except KeyError:
             raise CIFNotFoundError("%s: cannot find CIF file for pseudo" % pseudo.name)
 
-        if not pseudo.has_hints:
-            raise self.Error("%s: no hints found" % pseudo.name)
-
-        #workdir = os.path.join(os.path.abspath(workdir), pseudo.name)
-
         # Include spin polarization for O, Cr and Mn (antiferromagnetic) and Fe, Co, and Ni (ferromagnetic). 
         spin_mode = "unpolarized"
 
@@ -55,8 +51,7 @@ class DeltaFactory(object):
         if pseudo.symbol in ["O", "Cr", "Mn"]: spin_mode = "afm"
 
         work = DeltaTest(workdir, runmode, cif_path, pseudo, kppa,
-                         accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
-                         ecutsm =0.05,
+                         spin_mode=spin_mode, smearing=smearing, accuracy=accuracy, ecut=ecut, ecutsm=0.05,
                         )
         return work
 
