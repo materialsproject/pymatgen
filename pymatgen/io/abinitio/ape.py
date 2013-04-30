@@ -34,13 +34,12 @@ class ApeError(Exception):
 
 def parse_orbital(orbstr):
     import re
-    m = re.match("(\d+)([spdfg]+)(\d+)", orbstr)
+    m = re.match("(\d+)([spdfghi]+)(\d+)", orbstr)
 
     if m:
         return int(m.group(1)), m.group(2), float(m.group(3))
 
     raise ValueError("Don't know how to interpret %s" % orbstr)
-
 
 def ape_read_waves(dirname):
     "Read the APE radial wavefunctions located in directory dirname"
@@ -145,12 +144,40 @@ class QState(collections.namedtuple("QState", "n, l, occ, eig, j, s")):
     #    #if isinstance(obj, str):
     #    raise ValueError("Dont' know how to cast %s: %s" % (obj.__class__.__name__, obj))
 
-    #def __str__(self):
-
     # Rich comparison support. 
     # Note that the ordering is based on the quantum numbers and not on energies!
+
     #def __gt__(self, other):
+    #    if self.has_j:
+    #        raise NotImplementedError("")
+    #    if self.n != other.n: return self.n > other.n
+    #    if self.l != other.l
+
+    #    if self == other:
+    #        return False
+    #    else:
+    #        raise RuntimeError("Don't know how to compare %s with %s" % (self, other))
+
     #def __lt__(self, other):
+
+    #@property
+    #def has_j(self):
+    #    return self.j is not None
+
+    #@property
+    #def has_s(self):
+    #    return self.s is not None
+
+    @property
+    def to_dict(self):
+        d = {k: v for (k,v) in self._asdict().items() if v is not None}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
 
     def to_apeinput(self):
         if self.s is None:
@@ -169,12 +196,34 @@ class QState(collections.namedtuple("QState", "n, l, occ, eig, j, s")):
 class AtomicConfiguration(object):
     "Atomic configuration defining the AE atom."
 
-    def __init__(self, Z, states):
+    def __init__(self, Z, states, energies=None):
         self.Z = Z
         self.states = states
 
+    #@classmethod
+    #def from_string(cls, string, Z, has_s=False, has_j=False):
+
+    #    if not has_s and not has_j:
+    #        # Ex: [He] 2s2 2p3
+    #        tokens = string.strip().split()
+
+    #        states = []
+    #        if tokens[0].startswith("["):
+    #            noble_gas = cls.neutral_from_symbol(tokens.pop(0).[1:-1])
+    #            states = noble_gas.states
+
+    #        for t in tokens:
+    #            t = t.strip()
+    #            n, l, occ = t[0], t[1], t[2:]
+    #            states.append(QState(n=n, l=l, occ=occ))
+    #        
+    #    else:
+    #        raise NotImplementedError("")
+
+    #    return cls(Z, states)
+
     @classmethod
-    def from_symbol(cls, symbol):
+    def neutral_from_symbol(cls, symbol):
         """
         symbol: str or int
             Can be a chemical symbol (str) or an atomic number (int).
@@ -182,7 +231,6 @@ class AtomicConfiguration(object):
         # Table
         # 'element': (atomic number, (n, l, occ, energy))
         # Eg 'Be': (4, [(1, 0, 2, -3.856411), (2, 0, 2, -0.20574400000000001)]),
-
         Z, items = dft_neutral_confs[symbol]
         states = [QState(n=t[0], l=t[1], occ=t[2]) for t in items]
         return cls(Z, states)
@@ -194,6 +242,10 @@ class AtomicConfiguration(object):
 
     def __iter__(self):
         return self.states.__iter__()
+
+    #@property
+    #def symbol(self):
+    #    return symbol_from_Z(self.Z)
 
     @property
     def spin_mode(self):
@@ -223,12 +275,8 @@ class AtomicConfiguration(object):
         "True if neutral configuration"
         return (self.echarge - self.Z) < 1.e-10
 
-    def add_state(self, state):
-        #self._push(asqstate(state))
-        self._push(state)
-
-    #def add_empty_state(self, state):
-    #    self._push(asqstate(state))
+    def add_state(self, **qnumbers):
+        self._push(QState(**qnumbers))
 
     def _push(self, state):
         # TODO check that ordering in the input does not matter!
@@ -241,9 +289,6 @@ class AtomicConfiguration(object):
             self.states.remove(state)
         except ValueError:
             raise
-
-    #def add(self, n, l, df=+1, s=None):
-    #    "Add (remove) electrons."
 
     #@property
     #def num_nodes(self):
@@ -289,8 +334,8 @@ class RadialFunction(object):
         "Iterate over (rpoint, value)"
         return zip(self.rmesh, self.values)
 
-    def __getitem__(self, ridx):
-        return self.rmesh[ridx], self.values[ridx]
+    def __getitem__(self, rslice):
+        return self.rmesh[rslice], self.values[rslice]
 
     def __str__(self):
         return "<%s, name = %s>" % (self.__class__.__name__, self.name)
@@ -1170,10 +1215,10 @@ if __name__ == "__main__":
     with_plots, show_input = False, False
 
     # AE configuration: neutral silicon + empty 3d-4f states
-    aconf = AtomicConfiguration.from_symbol("Si")
+    aconf = AtomicConfiguration.neutral_from_symbol("Si")
 
-    aconf.add_state(QState(n=3, l="d", occ=0.0))
-    aconf.add_state(QState(n=4, l="f", occ=0.0))
+    aconf.add_state(n=3, l="d", occ=0.0)
+    aconf.add_state(n=4, l="f", occ=0.0)
 
     # Solve AE problem.
     ae_solver = AeSolver(aconf)
