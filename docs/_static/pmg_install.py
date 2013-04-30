@@ -132,11 +132,11 @@ enum = False
 bader = False
 
 if "-f" in sys.argv:
-    # for pk in ["matplotlib>1.1", "scipy"]:
-    #     try:
-    #         subprocess.call(["pip", "install", pk])
-    #     except:
-    #         print "Unable to install {}. Skipping...".format(pk)
+    for pk in ["matplotlib>1.1", "scipy"]:
+        try:
+            subprocess.call(["pip", "install", pk])
+        except:
+            print "Unable to install {}. Skipping...".format(pk)
     try:
         subprocess.call([
             "pip", "install", "-Ivq",
