@@ -156,8 +156,10 @@ print "------------ Setup complete --------------"
 print "You still need to perform a few manual changes."
 print
 if enum or bader:
-    print "Please add {} to your PATH.".format(os.path.abspath("."))
-print
+    print("Please add {} to your PATH or move the executables multinum.x, "
+          "makestr.x and bader to a location in your PATH."
+          .format(os.path.abspath(".")))
+    print
 
 print "To use the Materials API, get your Materials API key at " \
       "https://www.materialsproject.org/profile and add it to your " \
