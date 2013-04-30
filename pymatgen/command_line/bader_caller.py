@@ -34,10 +34,6 @@ from pymatgen.util.io_utils import which
 from pymatgen.util.decorators import requires
 
 
-@requires(which("bader"), "BaderAnalysis requires the executable bader to be "
-                          "in the path. Please download the library at "
-                          "http://theory.cm.utexas.edu/vasp/bader/ and follow "
-                          "the instructions to compile the executable.")
 class BaderAnalysis(object):
     """
     Bader analysis for a CHGCAR.
@@ -81,6 +77,10 @@ class BaderAnalysis(object):
         calculating charge transferred).
     """
 
+    @requires(which("bader"),
+              "BaderAnalysis requires the executable bader to be in the path."
+              " Please download the library at http://theory.cm.utexas"
+              ".edu/vasp/bader/ and compile the executable.")
     def __init__(self, chgcar_filename, potcar_filename=None):
         """
         Args:

@@ -54,14 +54,6 @@ from pymatgen.util.decorators import requires
 logger = logging.getLogger(__name__)
 
 
-amount_tol = 1e-5
-
-
-@requires(which('multienum.x') and which('makestr.x'),
-          "EnumlibAdaptor requires the executables 'multienum.x' and "
-          "'makestr.x' to be in the path. Please download the library at"
-          "http://enum.sourceforge.net/ and follow the instructions in the "
-          "README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
@@ -70,8 +62,13 @@ class EnumlibAdaptor(object):
 
         List of all enumerated structures.
     """
+    amount_tol = 1e-5
 
-
+    @requires(which('multienum.x') and which('makestr.x'),
+              "EnumlibAdaptor requires the executables 'multienum.x' and "
+              "'makestr.x' to be in the path. Please download the library at"
+              "http://enum.sourceforge.net/ and follow the instructions in "
+              "the README to compile these two executables accordingly.")
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
                  refine_structure=False):
@@ -195,7 +192,7 @@ class EnumlibAdaptor(object):
                 min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
                 species = {k: v for k, v in sites[0].species_and_occu.items()}
-                if sum(species.values()) < 1 - amount_tol:
+                if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     #Let us first make add a dummy element for every single
                     #site whose total occupancies don't sum to 1.
                     species[DummySpecie("X")] = 1 - sum(species.values())
