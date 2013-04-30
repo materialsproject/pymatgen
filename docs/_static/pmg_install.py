@@ -165,3 +165,4 @@ print "To use the Materials API, get your Materials API key at " \
       "https://www.materialsproject.org/profile and add it to your " \
       "environment"
 print "export MAPI_KEY=YOUR_API_KEY"
+print
