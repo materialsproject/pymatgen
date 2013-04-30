@@ -321,7 +321,7 @@ class BandStructure(object):
                             for i in range(len(self._kpoints))]
                             for j in range(self._nb_bands)]
 
-            for i, j, k in itertools.permutations(
+            for i, j, k in itertools.product(
                     range(self._nb_bands), range(len(self._kpoints)),
                     range(structure.num_sites)):
                 for orb in self._projections[Spin.up][i][j]:
