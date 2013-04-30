@@ -74,8 +74,8 @@ Latest Change Log
 
 Version 2.7.0
 -------------
-1. Support for ABINIT input and output via pymatgen.io.abinitio
-   (courtesy of Matteo Giantomassi).
+1. Beta support for ABINIT input and output via pymatgen.io.abinitio
+   (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.
 
 Version 2.6.6
