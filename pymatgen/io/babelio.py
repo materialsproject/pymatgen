@@ -17,15 +17,14 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 28, 2012"
 
 from pymatgen.core.structure import Molecule
+from pymatgen.util.decorators import requires
 
 try:
     import openbabel as ob
     import pybel as pb
-    babel_loaded = True
 except ImportError:
     pb = None
     ob = None
-    babel_loaded = False
 
 
 class BabelMolAdaptor(object):
@@ -34,6 +33,9 @@ class BabelMolAdaptor(object):
     Molecule.
     """
 
+    @requires(pb and ob,
+              "BabelMolAdaptor requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
