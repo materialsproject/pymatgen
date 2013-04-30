@@ -88,5 +88,4 @@ class GSR_Reader_TestCase(PymatgenTest):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
