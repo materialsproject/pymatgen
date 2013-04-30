@@ -62,7 +62,7 @@ def build_enum():
         shutil.rmtree("enumlib")
         return True
     except Exception as ex:
-        print str(ex)
+        print(str(ex))
         return False
 
 
@@ -80,24 +80,24 @@ def build_bader():
         shutil.move("bader_exe", "bader")
         return True
     except Exception as ex:
-        print str(ex)
+        print(str(ex))
         return False
 
 py_ver = sys.version_info
-print "Detected Python version {}".format(".".join(map(str, py_ver)))
+print("Detected Python version {}".format(".".join(map(str, py_ver))))
 
 
 if py_ver < (2, 7) or py_ver >= (2, 8):
-    print "Python version 2.7+ required. Download and install the necessary " \
-          "python version from http://www.python.org/download/."
+    print("Python version 2.7+ required. Download and install the necessary "
+          "python version from http://www.python.org/download/.")
     sys.exit(-1)
 
 try:
     import setuptools
-    print "Detected setuptools version {}".format(setuptools.__version__)
+    print("Detected setuptools version {}".format(setuptools.__version__))
 except ImportError:
-    print "setuptools not detected. Get it from https://pypi.python" \
-          ".org/pypi/setuptools and follow the instructions to install first."
+    print("setuptools not detected. Get it from https://pypi.python"
+          ".org/pypi/setuptools and follow the instructions to install first.")
     sys.exit(-1)
 
 
@@ -105,16 +105,16 @@ try:
     gcc_ver = subprocess.Popen(["gcc", "--version"], stdout=subprocess.PIPE)\
         .communicate()[0]
 except:
-    print "gcc not found in PATH. gcc is needed for installation of numpy " \
-          "and C extensions. For Mac users, please install Xcode and its " \
-          "corresponding command-line tools first."
+    print("gcc not found in PATH. gcc is needed for installation of numpy "
+          "and C extensions. For Mac users, please install Xcode and its "
+          "corresponding command-line tools first.")
     sys.exit(-1)
 
 try:
     import pip
-    print "Detected pip version {}".format(pip.__version__)
+    print("Detected pip version {}".format(pip.__version__))
 except ImportError:
-    print "pip not detected. Installing..."
+    print("pip not detected. Installing...")
     subprocess.call(["easy_install", "pip"])
 
 try:
@@ -136,13 +136,13 @@ if "-f" in sys.argv:
         try:
             subprocess.call(["pip", "install", pk])
         except:
-            print "Unable to install {}. Skipping...".format(pk)
+            print("Unable to install {}. Skipping...".format(pk))
     try:
         subprocess.call([
             "pip", "install", "-Ivq",
             "https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz"])
     except:
-        print "Unable to install ASE. Skipping..."
+        print("Unable to install ASE. Skipping...")
 
     enum = build_enum()
     bader = build_bader()
@@ -150,19 +150,19 @@ if "-f" in sys.argv:
     try:
         subprocess.call(["potcar_setup.py"])
     except:
-        print "Skipping POTCAR setup."
+        print("Skipping POTCAR setup.")
 
-print "------------ Setup complete --------------"
-print "You still need to perform a few manual changes."
-print
+print("------------ Setup complete --------------")
+print("You still need to perform a few manual changes.")
+print()
 if enum or bader:
     print("Please add {} to your PATH or move the executables multinum.x, "
           "makestr.x and bader to a location in your PATH."
           .format(os.path.abspath(".")))
     print
 
-print "To use the Materials API, get your Materials API key at " \
-      "https://www.materialsproject.org/profile and add it to your " \
-      "environment"
-print "export MAPI_KEY=YOUR_API_KEY"
-print
+print("To use the Materials API, get your Materials API key at "
+      "https://www.materialsproject.org/profile and add it to your "
+      "environment")
+print("export MAPI_KEY=YOUR_API_KEY")
+print()
