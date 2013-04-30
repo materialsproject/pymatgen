@@ -599,8 +599,8 @@ class Incar(dict):
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
-        int_keys = ("NSW", "NELMIN", "ISIF", "IBRION", "ISPIN", "ICHARG",
-                    "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
+        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
+                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
 
         def smart_int_or_float(numstr):
