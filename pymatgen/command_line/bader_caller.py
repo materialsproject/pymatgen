@@ -30,7 +30,14 @@ import shutil
 
 from pymatgen.io.vaspio.vasp_output import Chgcar
 from pymatgen.io.vaspio.vasp_input import Potcar
+from pymatgen.util.io_utils import which
+from pymatgen.util.decorators import requires
 
+
+@requires(which("bader"), "BaderAnalysis requires the executable bader to be "
+                          "in the path. Please download the library at "
+                          "http://theory.cm.utexas.edu/vasp/bader/ and follow "
+                          "the instructions to compile the executable.")
 class BaderAnalysis(object):
     """
     Bader analysis for a CHGCAR.
@@ -158,4 +165,3 @@ class BaderAnalysis(object):
             potcar_indices += [i] * v
         nelect = self.potcar[potcar_indices[atom_index]].nelectrons
         return self.data[atom_index]["charge"] - nelect
-
