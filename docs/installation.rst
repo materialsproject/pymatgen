@@ -84,7 +84,7 @@ pymatgen usage.
    “/Library/Frameworks/Python.framework/Versions/2.7/bin/python”. If you don’t
    get this (e.g., if you get /usr/bin/python), you may need to change your
    PATH.
-   
+
 4. Python setuptools make it easier to install subsequent programs via
    “easy_install”. If you want to, you can install pip as well using “sudo
    easy_install pip”. Pip has several advantages over easy_install. In a
