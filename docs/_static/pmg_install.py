@@ -42,6 +42,8 @@ import shutil
 
 def build_enum():
     enumlib_url = "http://downloads.sourceforge.net/project/enum/enum/enum.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fenum%2Ffiles%2Fenum%2F&ts=1367333150&use_mirror=iweb"
+    currdir = os.getcwd()
+    state = True
     try:
         os.makedirs("enumlib")
         os.chdir("enumlib")
@@ -57,31 +59,37 @@ def build_enum():
         subprocess.call(["make"])
         for f in ["multienum.x", "makestr.x"]:
             subprocess.call(["make", f])
-            shutil.move(f, os.path.join("..", "..", ".."))
-        os.chdir(os.path.join("..", "..", ".."))
-        shutil.rmtree("enumlib")
-        return True
+            shutil.copy(f, os.path.join("..", "..", ".."))
     except Exception as ex:
         print(str(ex))
-        return False
+        state = False
+    finally:
+        os.chdir(currdir)
+        shutil.rmtree("enumlib")
+    return state
 
 
 def build_bader():
     bader_url = "http://theory.cm.utexas.edu/bader/download/bader.tar.gz"
+    currdir = os.getcwd()
+    state = True
     try:
         urllib.urlretrieve(bader_url, "bader.tar.gz")
         subprocess.call(["tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
         subprocess.call(["cp", "makefile.osx_gfortran", "makefile"])
         subprocess.call(["make"])
-        shutil.move("bader", os.path.join("..", "bader_exe"))
+        shutil.copy("bader", os.path.join("..", "bader_exe"))
         os.chdir("..")
         shutil.rmtree("bader")
+        os.remove("bader.tar.gz")
         shutil.move("bader_exe", "bader")
-        return True
     except Exception as ex:
         print(str(ex))
-        return False
+        state = False
+    finally:
+        os.chdir(currdir)
+    return state
 
 py_ver = sys.version_info
 print("Detected Python version {}".format(".".join(map(str, py_ver))))
@@ -100,7 +108,6 @@ except ImportError:
           ".org/pypi/setuptools and follow the instructions to install first.")
     sys.exit(-1)
 
-
 try:
     gcc_ver = subprocess.Popen(["gcc", "--version"], stdout=subprocess.PIPE)\
         .communicate()[0]
@@ -118,43 +125,59 @@ except ImportError:
     subprocess.call(["easy_install", "pip"])
 
 try:
+    import numpy
     from numpy.distutils.misc_util import get_numpy_include_dirs
+    print("Detected numpy version {}".format(numpy.__version__))
 except ImportError:
     print("numpy.distutils.misc_util cannot be imported. Installing...")
-    subprocess.call(["pip", "install", "numpy>=1.6.0"])
+    subprocess.call(["pip", "install", "-q", "numpy>=1.6.0"])
+    from numpy.distutils.misc_util import get_numpy_include_dirs
 
 for pk in ["pyhull>=1.3.6", "PyCifRW>=3.3", "requests>=1.0", "pybtex>=0.16"]:
-    subprocess.call(["pip", "install", pk])
+    print("Installing {}".format(pk))
+    if subprocess.call(["pip", "install", "-q", pk]) != 0:
+        print("Error installing required dependency {}".format(pk))
+        sys.exit(-1)
+    print
 
-subprocess.call(["pip", "install", "pymatgen"])
+if subprocess.call(["pip", "install", "pymatgen"]) != 0:
+    print("Error installing pymatgen")
+    sys.exit(-1)
+print
 
 enum = False
 bader = False
 
 if "-f" in sys.argv:
-    for pk in ["matplotlib>1.1", "scipy"]:
-        try:
-            subprocess.call(["pip", "install", pk])
-        except:
-            print("Unable to install {}. Skipping...".format(pk))
-    try:
-        subprocess.call([
+    # for pk in ["matplotlib>1.1", "scipy"]:
+    #     if subprocess.call(["pip", "install", pk]) != 0:
+    #         print("Unable to install {}. Skipping...".format(pk))
+
+    if subprocess.call([
             "pip", "install", "-Ivq",
-            "https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz"])
-    except:
+            "https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz"]
+    ) != 0:
         print("Unable to install ASE. Skipping...")
+    print
 
+    print("Building enumlib")
     enum = build_enum()
+    print
+    print("Building bader")
     bader = build_bader()
+    print
 
+    print("Performing POTCAR setup. Press Ctrl-C at any prompt to skip this "
+          "step.")
     try:
         subprocess.call(["potcar_setup.py"])
     except:
         print("Skipping POTCAR setup.")
+    print
 
 print("------------ Setup complete --------------")
 print("You still need to perform a few manual changes.")
-print()
+print
 if enum or bader:
     print("Please add {} to your PATH or move the executables multinum.x, "
           "makestr.x and bader to a location in your PATH."
@@ -165,4 +188,4 @@ print("To use the Materials API, get your Materials API key at "
       "https://www.materialsproject.org/profile and add it to your "
       "environment")
 print("export MAPI_KEY=YOUR_API_KEY")
-print()
+print
