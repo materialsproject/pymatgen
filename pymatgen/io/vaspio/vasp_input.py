@@ -1187,11 +1187,8 @@ class Potcar(list):
             functional:
                 Functional used.
             sym_potcar_map:
-                Allows a user to specify a specific element symbol to POTCAR
-                symbol mapping. For example, you can have {"Fe":"Fe_pv"} to
-                specify that the Fe_pv psuedopotential should be used for Fe.
-                Default is None, which uses a pre-determined mapping used in
-                the Materials Project.
+                Allows a user to specify a specific element symbol to raw
+                POTCAR mapping.
         """
         super(Potcar, self).__init__()
         self.functional = functional
