@@ -20,7 +20,7 @@ try:
 except:
     head, x = os.path.split(os.path.abspath(__file__))
     sys.path.insert(0, head)
-    from configurations import configurations as dft_neutral_confs
+    #from configurations import configurations as dft_neutral_confs
 
 __version__ = "0.1"
 __status__ = "Development"
@@ -29,8 +29,11 @@ __date__ = "$April 26, 2013M$"
 ##########################################################################################
 # Helper functions
 
+
 class ApeError(Exception):
-    "Base class for APE Exceptions"
+    """Base class for APE Exceptions"""
+    pass
+
 
 def parse_orbital(orbstr):
     import re
@@ -46,7 +49,7 @@ def ape_read_waves(dirname):
     "Read the APE radial wavefunctions located in directory dirname"
     waves = {}
     for filename in os.listdir(dirname):
-        if not filename.startswith("wf-"): 
+        if not filename.startswith("wf-"):
             continue
 
         path = os.path.join(dirname, filename)
@@ -59,7 +62,8 @@ def ape_read_waves(dirname):
 
         waves[state] = RadialWaveFunction(state, state, data[:,0], data[:,1])
     return waves
-                                                                          
+
+
 def ape_read_potentials(dirname):
     "Read the APE radial potentials located in directory dirname."
     pots = {}
@@ -67,15 +71,16 @@ def ape_read_potentials(dirname):
         if not filename.startswith("v_"):
             continue
         path = os.path.join(dirname, filename)
-                                                                          
+
         #TODO check spin and spinor
-        # Load [r, v(r)] in data 
+        # Load [r, v(r)] in data
         data = np.loadtxt(path)
-                                                                       
+
         pots[filename] = RadialFunction(filename, data[:,0], data[:,1])
 
     return pots
-                                                                          
+
+
 def ape_read_densities(dirname):
     "Read APE AE densities and tau located in directory dirname."
     dens = {}
@@ -85,7 +90,7 @@ def ape_read_densities(dirname):
         path = os.path.join(dirname, filename)
 
         #TODO check spin and spinor
-        # Load [r, v(r)] in data 
+        # Load [r, v(r)] in data
         data = np.loadtxt(path)
         dens[filename] = RadialFunction(filename, data[:,0], data[:,1])
 
@@ -104,7 +109,7 @@ def ape_read_logders(dirname):
         l_name = tokens[1]
 
         #TODO check spin and spinor
-        # Load [r, v(r)] in data 
+        # Load [r, v(r)] in data
         data = np.loadtxt(path)
         ae_logders[l_name] = RadialFunction(l_name, data[:,0], data[:,1])
         pp_logders[l_name] = RadialFunction(l_name, data[:,0], data[:,2])
@@ -123,11 +128,13 @@ _char2l = {
     "i": 6,
 }
 
+
 def _asl(obj):
     try:
         return _char2l[obj]
     except KeyError:
         return int(obj)
+
 
 class QState(collections.namedtuple("QState", "n, l, occ, eig, j, s")):
     "Quantum numbers, occupancies and eigenvalue of the atomic orbital."
@@ -147,7 +154,7 @@ class QState(collections.namedtuple("QState", "n, l, occ, eig, j, s")):
 
     #def __str__(self):
 
-    # Rich comparison support. 
+    # Rich comparison support.
     # Note that the ordering is based on the quantum numbers and not on energies!
     #def __gt__(self, other):
     #def __lt__(self, other):
@@ -164,7 +171,8 @@ class QState(collections.namedtuple("QState", "n, l, occ, eig, j, s")):
 
         return [string,]
 
-##########################################################################################
+################################################################################
+
 
 class AtomicConfiguration(object):
     "Atomic configuration defining the AE atom."
@@ -261,7 +269,8 @@ class AtomicConfiguration(object):
 #class SpinPolarizedConfiguration(AeAtom):
 #class DiracConfiguration(AeAtom):
 
-##########################################################################################
+################################################################################
+
 
 class RadialFunction(object):
     "A RadialFunction has a radial mesh and values defined on this mesh."
@@ -276,7 +285,7 @@ class RadialFunction(object):
             values:
                 Values of the function on the radial mesh
         """
-        self.name = name 
+        self.name = name
         self.rmesh = np.ascontiguousarray(rmesh)
         self.values = np.ascontiguousarray(values)
 
@@ -310,12 +319,12 @@ class RadialFunction(object):
         return len(self.rmesh)
 
     @property
-    def minmax_ridx(self): 
+    def minmax_ridx(self):
         """
         Returns the indices of the values in a list with the maximum and minimum value.
         """
-        minimum = min(enumerate(self.values), key=lambda s: s[1]) 
-        maximum = max(enumerate(self.values), key=lambda s: s[1]) 
+        minimum = min(enumerate(self.values), key=lambda s: s[1])
+        maximum = max(enumerate(self.values), key=lambda s: s[1])
         return minimum[0], maximum[0]
 
     @property
@@ -361,7 +370,7 @@ class RadialFunction(object):
 
     def ir_small(self, abs_tol=0.01):
         """
-        Returns the rightmost index where the abs value of the wf becomes greater than abs_tol 
+        Returns the rightmost index where the abs value of the wf becomes greater than abs_tol
 
         .. warning:
             Assumes that self.values are tending to zero for r --> infinity.
@@ -399,7 +408,7 @@ class ApeRadialMesh(dict):
         "MeshType",
         "MeshStartingPoint",
         "MeshOutmostPoint",
-        "MeshNumberOfPoints", 
+        "MeshNumberOfPoints",
         "MeshDerivMethod",
         "MeshFiniteDiffOrder",
     ]
@@ -423,14 +432,14 @@ class AeSolver(object):
     """
     ape_exe = "ape"
 
-    def __init__(self, ae_conf, workdir=None, xcfunctional='lda_x+lda_c_pw', 
+    def __init__(self, ae_conf, workdir=None, xcfunctional='lda_x+lda_c_pw',
                  wave_equation="scalar_rel", ape_radmesh=None, ape_control=None, ape_verbose=30):
         """
         XCFunctional (integer, lda_x+lda_c_pw)
 
         WaveEquation (integer, schrodinger)
 
-        When performing atomic calculations APE can solve either the Kohn-Sham equations, 
+        When performing atomic calculations APE can solve either the Kohn-Sham equations,
         the Dirac-Kohn-Sham equations or the scalar-relativistic Khon-Sham equations. Valid options are:
 
         - schrodinger: Kohn-Sham equations.
@@ -462,7 +471,7 @@ class AeSolver(object):
 
     @property
     def aedir(self):
-        "Absolute path to the ae directory containing the all-electron results." 
+        "Absolute path to the ae directory containing the all-electron results."
         return os.path.join(self.workdir, "ae")
 
     # Lazy properties.
@@ -548,20 +557,20 @@ class AeSolver(object):
         # TODO Analize the output for possible warnings.
         #self.validate()
 
-    def plot_waves(self, show=True, savefig=None): 
+    def plot_waves(self, show=True, savefig=None):
         _plot_waves(self.ae_waves, show=show, savefig=savefig)
 
 ##########################################################################################
 
 class ApeControl(dict):
     """
-    The self consistent field procedure will stop when one of the convergence criteria is fulfilled. 
+    The self consistent field procedure will stop when one of the convergence criteria is fulfilled.
     At each iteration the new guess potential is built mixing the input and output potentials.
     """
     # Supported variables
     _KEYS = [
         # SCF
-        "MaximumIter", 
+        "MaximumIter",
         "ConvAbsDens",
         "ConvRelDens",
         "ConvAbsEnergy",
@@ -581,11 +590,11 @@ class ApeControl(dict):
 
     def __init__(self, **kwargs):
         super(ApeControl, self).__init__(**kwargs)
-                                                                   
+
         for k in self:
             if k not in self._KEYS:
                 raise ValueError("%s is not a registered key" % k)
-                                                                   
+
     def to_apeinput(self):
         return["%s = %s" % kv for kv in self.items()]
 
@@ -596,7 +605,7 @@ class ApePPComponents(object):
     @classmethod
     def from_strings(cls, *strings):
         """
-        Instanciate the object from a list of strings 
+        Instanciate the object from a list of strings
         Example: "3s:1.2:tm"
         """
         states, core_radii, schemes = [], [], []
@@ -638,7 +647,7 @@ class ApePPComponents(object):
 
 class PseudoGenerator(object):
     """
-    A PseudoGenerator uses the data produced by the AeSolver to construct 
+    A PseudoGenerator uses the data produced by the AeSolver to construct
     a pseudopotential using the parameters passed to the constructor.
     """
     ape_exe = "ape"
@@ -649,7 +658,7 @@ class PseudoGenerator(object):
         self.ae_solver = ae_solver
         self.pp_components = pp_components
 
-        self.core_correction = core_correction 
+        self.core_correction = core_correction
         self.llocal = llocal
         self.pptest_orbitals = pptest_orbitals
         self.ppformat = ppformat
@@ -665,7 +674,7 @@ class PseudoGenerator(object):
     @property
     def ape_output(self):
         return os.path.join(self.workdir, "ape.out")
-                                                        
+
     @property
     def ape_stderr(self):
         return os.path.join(self.workdir, "ape.stderr")
@@ -680,12 +689,12 @@ class PseudoGenerator(object):
 
     @property
     def ppdir(self):
-        "Absolute path to the ae directory containing the all-electron results." 
+        "Absolute path to the ae directory containing the all-electron results."
         return os.path.join(self.workdir, "pp")
 
     @property
     def testsdir(self):
-        "Absolute path to the directory containing test results." 
+        "Absolute path to the directory containing test results."
         return os.path.join(self.workdir, "tests")
 
     @property
@@ -700,7 +709,7 @@ class PseudoGenerator(object):
         except AttributeError:
             self._pp_waves = ape_read_waves(self.ppdir)
             return self._pp_waves
-                                                       
+
     @property
     def pp_potentials(self):
         try:
@@ -708,7 +717,7 @@ class PseudoGenerator(object):
         except AttributeError:
             self._pp_potentials = ape_read_potentials(self.ppdir)
             return self._pp_potentials
-                                                       
+
     @property
     def pp_densities(self):
         try:
@@ -780,7 +789,7 @@ class PseudoGenerator(object):
         #for l in lines: print(l)
         # FIXME This seems not to work!
         #lines += ["PPTestAEDir = '%s'" % self.ae_solver.aedir]
-        return lines 
+        return lines
 
     def show_input(self, stream=sys.stdout):
         lines  = ["PP INPUT".center(80,"*")]
@@ -824,11 +833,11 @@ class PseudoGenerator(object):
 
         # TODO Analize the output for possible warnings.
 
-        # Check ghost-states 
+        # Check ghost-states
         self._check_ghosts()
 
         # Check PP eigenvalues
-        self._check_ppeigen()                                                
+        self._check_ppeigen()
 
         # Check logarithmic derivative.
 
@@ -862,10 +871,10 @@ class PseudoGenerator(object):
     #        "logder_quality": self.check_logders(),
     #    }
 
-    def plot_waves(self, show=True, savefig=None): 
+    def plot_waves(self, show=True, savefig=None):
         _plot_waves(self.ae_waves, pp_waves=self.pp_waves, show=show, savefig=savefig)
 
-    def plot_logders(self, show=True, savefig=None): 
+    def plot_logders(self, show=True, savefig=None):
         _plot_logders(self.ae_logders, self.pp_logders, show=show, savefig=savefig)
 
     #def plot_potentials(self, vname):
@@ -881,9 +890,9 @@ class PseudoCandidate(object):
 
     # Rich comparison support.
     # This part is not trivial since we want to order pseudos
-    # according to their quality factor. Pseudos with ghosts are obviously 
-    # very bad but then we have to compare the error in the logder and in 
-    # the eigvalues and we have to assign some priority. 
+    # according to their quality factor. Pseudos with ghosts are obviously
+    # very bad but then we have to compare the error in the logder and in
+    # the eigvalues and we have to assign some priority.
     # For the time-being, we give precedence to logder since a good logder
     # implies good eigens
     def __eq__(self, other):
@@ -908,7 +917,7 @@ class PseudoCandidate(object):
 
 ##########################################################################################
 
-def _plot_waves(ae_waves, pp_waves=None, show=True, savefig=None): 
+def _plot_waves(ae_waves, pp_waves=None, show=True, savefig=None):
     """
     Uses Matplotlib to plot the radial wavefunction (AE vs PP)
 
@@ -931,7 +940,7 @@ def _plot_waves(ae_waves, pp_waves=None, show=True, savefig=None):
 
         if pp_waves is not None and state not in pp_waves:
             continue
-        
+
         spl_idx += 1
         ax = fig.add_subplot(num_waves, 1, spl_idx)
 
@@ -964,16 +973,16 @@ def _plot_waves(ae_waves, pp_waves=None, show=True, savefig=None):
 
     if show:
         plt.show()
-                             
+
     if savefig is not None:
         fig.savefig(os.path.abspath(savefig))
 
 ##########################################################################################
 
-def _plot_logders(ae_logders, pp_logders, show=True, savefig=None): 
+def _plot_logders(ae_logders, pp_logders, show=True, savefig=None):
     """
     Uses Matplotlib to plot the logarithmic derivatives.
-                                                                                         
+
     Args:
         show:
             True to show the figure
@@ -981,27 +990,27 @@ def _plot_logders(ae_logders, pp_logders, show=True, savefig=None):
             'abc.png' or 'abc.eps'* to save the figure to a file.
     """
     import matplotlib.pyplot as plt
-    assert len(ae_logders) == len(pp_logders) 
+    assert len(ae_logders) == len(pp_logders)
     fig = plt.figure()
-                                                                                         
+
     num_logds, spl_idx = len(ae_logders), 0
 
     for (state, pp_logd) in pp_logders.items():
         spl_idx += 1
         ax = fig.add_subplot(num_logds, 1, spl_idx)
-                                                                                         
+
         lines, legends = [], []
-                                                                                         
+
         ae_logd = ae_logders[state]
 
         line, = ax.plot(ae_logd.rmesh, ae_logd.values, "-b", linewidth=2.0, markersize=1)
         lines.append(line)
         legends.append("AE logder %s" % state)
-                                                                                         
+
         line, = ax.plot(pp_logd.rmesh, pp_logd.values, "^r", linewidth=2.0, markersize=4)
         lines.append(line)
         legends.append("PP logder %s" % state)
-                                                                                         
+
         ax.legend(lines, legends, 'lower left', shadow=True)
 
         # Set ticks and labels.
@@ -1015,7 +1024,7 @@ def _plot_logders(ae_logders, pp_logders, show=True, savefig=None):
 
     if show:
         plt.show()
-                             
+
     if savefig is not None:
         fig.savefig(os.path.abspath(savefig))
 
@@ -1055,7 +1064,7 @@ def ape_check_ghosts(out_lines):
     ghosts = {}
     while True:
         line = out_lines.pop(0).strip()
-        if not line: 
+        if not line:
             break
 
         if line.startswith("State:"):
@@ -1107,7 +1116,7 @@ def ape_check_ppeigen(out_lines):
     scf_tests = {}
     while True:
         line = out_lines.pop(0).strip()
-        if not line: 
+        if not line:
             break
 
         state, eig, norm, slope = line.split()
@@ -1142,7 +1151,7 @@ def ape_read_dipoles(out_lines):
     #     3d -- 4f       98.7760    98.7760
 
     out_lines = out_lines[:]
-                                                                           
+
     SENTINEL = "Dipole Matrix Elements:"
     for (i, line) in enumerate(out_lines):
         if line.strip() == SENTINEL:
@@ -1154,7 +1163,7 @@ def ape_read_dipoles(out_lines):
     dipoles = {}
     while True:
         line = out_lines.pop(0).strip()
-        if not line: 
+        if not line:
             break
         tokens = line.split()
 
@@ -1188,7 +1197,7 @@ if __name__ == "__main__":
     #for (state, wave) in ae_solver.ae_waves.items():
         #print("state %s, nroots %s inodes %s" % (state, len(wave.roots), len(wave.inodes)))
         #print("state %s, integral %s" %(state, wave.integral()))
-        #if state == "1s": 
+        #if state == "1s":
         #   for (r, v) in wave:
         #       print(v, wave.spline(r))
 

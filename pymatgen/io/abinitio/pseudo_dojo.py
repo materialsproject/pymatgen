@@ -17,10 +17,11 @@ from pymatgen.io.abinitio.launcher import SimpleResourceManager
 from pymatgen.io.abinitio.deltaworks import DeltaFactory
 from pymatgen.io.abinitio.calculations import PPConvergenceFactory
 
-##########################################################################################
+################################################################################
 
 class DojoError(Exception):
     "Base Error class for DOJO calculations."
+
 
 class Dojo(object):
     Error = DojoError
@@ -51,14 +52,15 @@ class Dojo(object):
         workdir = "DOJO_" + pseudo.name
 
         # Build master instances.
-        masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus, verbose=verbose) for cls in self.master_classes]
+        masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus,
+                       verbose=verbose) for cls in self.master_classes]
 
         kwargs = {}
         for master in masters:
             if master.accept_pseudo(pseudo):
                 master.start_training(workdir, **kwargs)
 
-##########################################################################################
+################################################################################
 
 class DojoMaster(object):
     "Subclasses must define the class attribute level"
@@ -83,12 +85,12 @@ class DojoMaster(object):
                 classes.append(cls)
         if len(classes) != 1:
             raise self.Error("Found %d masters with dojo_level %d" % (len(classes), dojo_level))
-                                                                                              
+
         return classes[0]
 
     def accept_pseudo(self, pseudo):
         """
-        Return True if the mast can train the pseudo. 
+        Return True if the mast can train the pseudo.
         This method is called before testing the pseudo
 
         A master can train the pseudo if his level == pseudo.dojo_level + 1
@@ -153,7 +155,7 @@ class DojoMaster(object):
         else:
             raise self.Error("isok: %s" % isok)
 
-##########################################################################################
+################################################################################
 
 class HintsMaster(DojoMaster):
     dojo_level = 0
@@ -171,12 +173,14 @@ class HintsMaster(DojoMaster):
 
         eslice = slice(5, None, estep)
 
-        w = factory.work_for_pseudo(workdir, pseudo, eslice, runmode=self.runmode, atols_mev=atols_mev)
+        w = factory.work_for_pseudo(workdir, pseudo, eslice,
+                                    runmode=self.runmode, atols_mev=atols_mev)
 
         if os.path.exists(w.workdir):
             shutil.rmtree(w.workdir)
 
-        print("Converging %s in iterative mode with eslice %s, ncpus = 1" % (pseudo.name, eslice))
+        print("Converging %s in iterative mode with eslice %s, ncpus = 1" %
+              (pseudo.name, eslice))
         w.start()
         w.wait()
 
@@ -191,10 +195,12 @@ class HintsMaster(DojoMaster):
 
         erange = list(np.arange(estart, estop, estep))
 
-        work = factory.work_for_pseudo(workdir, pseudo, erange, runmode=self.runmode, atols_mev = atols_mev)
+        work = factory.work_for_pseudo(workdir, pseudo, erange,
+                                       runmode=self.runmode,
+                                       atols_mev=atols_mev)
 
-        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f, ncpus = %d" % (
-            estart, estop, estep, self.max_ncpus))
+        print("Finding optimal values for ecut in the interval %.1f %.1f %1.f,"
+              "ncpus = %d" % (estart, estop, estep, self.max_ncpus))
 
         SimpleResourceManager(work, self.max_ncpus).run()
 
@@ -213,12 +219,12 @@ class HintsMaster(DojoMaster):
                 raise KeyError("%s is missing in input results" % key)
 
         isok = True
-        #isok = not work_results.has_warnings 
-        #d["_strange"] = 
+        #isok = not work_results.has_warnings
+        #d["_strange"] =
 
         return {self.dojo_key: d}, isok
 
-##########################################################################################
+################################################################################
 
 class DeltaFactorMaster(DojoMaster):
     dojo_level = 1
@@ -235,23 +241,24 @@ class DeltaFactorMaster(DojoMaster):
 
         if self.verbose:
             print("using kppa %d " % kppa)
-            print("Running delta_factor calculation with %d threads" % self.max_ncpus)
+            print("Running delta_factor calculation with %d threads" %
+                  self.max_ncpus)
             pprint(self.runmode)
 
         work = factory.work_for_pseudo(workdir, self.runmode, self.pseudo, kppa=kppa)
 
-        retcodes = SimpleResourceManager(w, self.max_ncpus).run())
+        retcodes = SimpleResourceManager(w, self.max_ncpus).run()
 
         if self.verbose: print("returncodes %s" % retcodes)
-                                                                        
+
         wf_results = work.get_results()
 
-        wf_results.json.dump(work.path_in_workdir("dojo_results.json")))
+        wf_results.json.dump(work.path_in_workdir("dojo_results.json"))
         return wf_results
 
     def make_report(self, results, **kwargs):
         isok = True
-        d = { 
+        d = {
             #"delta_factor" : ,
             #"e0" :
             #"v0" :
@@ -270,7 +277,7 @@ class DeltaFactorMaster(DojoMaster):
 
         return {self.dojo_key: d}, isok
 
-##########################################################################################
+################################################################################
 
 _key2level = {}
 for cls in DojoMaster.__subclasses__():
@@ -278,7 +285,7 @@ for cls in DojoMaster.__subclasses__():
 
 def dojo_key2level(key):
     "Return the trial level from the name found in the pseudo"
-    return _key2level[key] 
+    return _key2level[key]
 
 def repr_dojo_levels():
     level2key = {v: k for k,v in _key2level.items()}
@@ -287,5 +294,5 @@ def repr_dojo_levels():
         lines.append("level %d --> %s" % (k, level2key[k]))
     return "\n".join(lines)
 
-##########################################################################################
+################################################################################
 
