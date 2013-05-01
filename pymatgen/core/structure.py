@@ -103,20 +103,22 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        types = [] # Cannot use sets since we want a determinitic algorithm.
+        types = []  # Cannot use sets since we want a deterministic algorithm.
         for site in self:
-            if site.specie not in types: types.append(site.specie)
+            if site.specie not in types:
+                types.append(site.specie)
         return types
 
     def group_by_types(self):
-        "Iterate over species grouped by type"
-        for type in self.types_of_specie:
+        """Iterate over species grouped by type"""
+        for t in self.types_of_specie:
             for site in self:
-                if site.specie == type: yield site
+                if site.specie == t:
+                    yield site
 
     @property
     def atomic_numbers(self):
-        "List of atomic numbers."
+        """List of atomic numbers."""
         return [site.specie.number for site in self]
 
     @property
@@ -335,7 +337,6 @@ class Structure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
-
 
     @staticmethod
     def from_sites(sites):

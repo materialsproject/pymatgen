@@ -345,10 +345,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.keys()
 
     def __str__(self):
-        return " ".join(["{}{}".format(k,
-                                       formula_double_format(v,
-                                                             ignore_ones=False))
-                         for k, v in self.to_dict.items()])
+        return " ".join([
+            "{}{}".format(k, formula_double_format(v, ignore_ones=False))
+            for k, v in self.to_dict.items()])
 
     @property
     def num_atoms(self):
