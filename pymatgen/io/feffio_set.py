@@ -179,13 +179,12 @@ class AbstractFeffInputSet(object):
                                  "POTENTIALS", "ATOMS"])
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
-                'feff.inp':feff_input}
+                'feff.inp': feff_input}
 
     @staticmethod
     def from_dict(d):
         """Return feff.inp from a dictionary string representation"""
         return d['feff.inp']
-
 
 
 class FeffInputSet(AbstractFeffInputSet):
