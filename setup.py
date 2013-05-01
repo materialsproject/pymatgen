@@ -62,8 +62,8 @@ setup(
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
     author_email="shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
     "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
-    "dkgunter@lbl.gov, scholia@lbl.gov, vincentchevrier@gmail.com, "
-    "armiento@mit.edu",
+    "dkgunter@lbl.gov, scholia@lbl.gov, gmatteo@gmail.com, "
+    "vincentchevrier@gmail.com, armiento@mit.edu",
     maintainer="Shyue Ping Ong",
     url="https://github.com/materialsproject/pymatgen/",
     license="MIT",

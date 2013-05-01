@@ -5,7 +5,8 @@ import os
 from numpy import array
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
-    MaterialsProjectVaspInputSet, MITGGAVaspInputSet, MITMDVaspInputSet
+    MPVaspInputSet, MITGGAVaspInputSet, \
+    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -16,7 +17,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 dec = PMGJSONDecoder()
 
 
-class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
+class MITMPVaspInputSetTest(unittest.TestCase):
 
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -25,11 +26,16 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
-        self.paramset = MaterialsProjectVaspInputSet()
-        self.userparamset = MaterialsProjectVaspInputSet(
+        self.paramset = MPVaspInputSet()
+        self.userparamset = MPVaspInputSet(
             {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
         self.mitggaparam = MITGGAVaspInputSet()
+        self.mpstaticparamset = MPStaticVaspInputSet()
+        self.mpnscfparamsetu = MPNonSCFVaspInputSet(
+            {"NBANDS":50}, mode="Uniform")
+        self.mpnscfparamsetl = MPNonSCFVaspInputSet(
+            {"NBANDS":60}, mode="Line")
 
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
@@ -47,6 +53,15 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         incar_gga = self.mitggaparam.get_incar(self.struct)
         self.assertNotIn("LDAU", incar_gga)
+
+        incar_static = self.mpstaticparamset.get_incar(self.struct)
+        self.assertEqual(incar_static["NSW"], 0)
+
+        incar_nscfl = self.mpnscfparamsetl.get_incar(self.struct)
+        self.assertEqual(incar_nscfl["NBANDS"], 60)
+
+        incar_nscfu = self.mpnscfparamsetu.get_incar(self.struct)
+        self.assertEqual(incar_nscfu["ISYM"], 0)
 
         si = 14
         coords = list()
@@ -94,14 +109,20 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
                            site_properties={'magmom': (5.2, -4.5)})
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
+        incar = self.mpstaticparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
         struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"],
                            coords)
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
+        incar = self.mpnscfparamsetl.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [4.1, 5])
 
         struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
         incar = self.mitparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [4, 3])
+        incar = self.mpnscfparamsetu.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4, 3])
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
@@ -120,6 +141,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfides are ok.
         self.assertNotIn('LDAUU', self.paramset.get_incar(struct))
+        self.assertNotIn('LDAUU', self.mpstaticparamset.get_incar(struct))
 
         struct = Structure(lattice, ["Fe", "S", "O"], coords)
         incar = self.mitparamset.get_incar(struct)
@@ -127,6 +149,7 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfates are ok.
         self.assertEqual(self.paramset.get_incar(struct)['LDAUU'], [5.3, 0, 0])
+        self.assertEqual(self.mpnscfparamsetl.get_incar(struct)['LDAUU'], [5.3, 0, 0])
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
@@ -141,11 +164,22 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
+        kpoints = self.mpstaticparamset.get_kpoints(self.struct)
+        self.assertEquals(kpoints.kpts, [[4, 6, 6]])
+        self.assertEquals(kpoints.style, 'Monkhorst')
+
+        kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
+        self.assertEquals(kpoints.num_kpts, 140)
+        self.assertEquals(kpoints.style, 'Reciprocal')
+
+        kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
+        self.assertEquals(kpoints.num_kpts, 192)
+
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
-        self.paramset = MaterialsProjectVaspInputSet()
-        self.userparamset = MaterialsProjectVaspInputSet(
+        self.paramset = MPVaspInputSet()
+        self.userparamset = MPVaspInputSet(
             {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
 
@@ -163,11 +197,11 @@ class MITMaterialsProjectVaspInputSetTest(unittest.TestCase):
 
         d = self.paramset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MaterialsProjectVaspInputSet)
+        self.assertEqual(type(v), MPVaspInputSet)
 
         d = self.userparamset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MaterialsProjectVaspInputSet)
+        self.assertEqual(type(v), MPVaspInputSet)
         self.assertEqual(v.incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
 

@@ -599,8 +599,8 @@ class Incar(dict):
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
-        int_keys = ("NSW", "NELMIN", "ISIF", "IBRION", "ISPIN", "ICHARG",
-                    "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
+        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
+                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
 
         def smart_int_or_float(numstr):
@@ -725,7 +725,7 @@ class Kpoints(MSONable):
             kpts_shift:
                 Shift for Kpoints.
             kpts_weights:
-                Optional weights for kpoints.  For explicit kpoints.
+                Optional weights for kpoints.  Weights should be integers. For explicit kpoints.
             coord_type:
                 In line-mode, this variable specifies whether the Kpoints were
                 given in Cartesian or Reciprocal coordinates.
@@ -1004,9 +1004,9 @@ class Kpoints(MSONable):
                 lines[-1] += " ! " + self.labels[i]
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += " %f %s" % (self.kpts_weights[i], self.labels[i])
+                    lines[-1] += " %i %s" % (self.kpts_weights[i], self.labels[i])
                 else:
-                    lines[-1] += " %f" % (self.kpts_weights[i])
+                    lines[-1] += " %i" % (self.kpts_weights[i])
 
 
         #Print tetrahedorn parameters if the number of tetrahedrons > 0
