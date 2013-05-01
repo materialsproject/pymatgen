@@ -28,7 +28,7 @@ class PPConvergenceFactory(object):
                         atols_mev=(10, 1, 0.1), spin_mode="polarized",
                         acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
-        Return a Work object given the pseudopotential pseudo
+        Return a Work object given the pseudopotential pseudo.
 
         Args:
             workdir:
@@ -38,6 +38,7 @@ class PPConvergenceFactory(object):
             ecut_range:
                 range of cutoff energies in Ha units.
             runmode:
+                Run mode.
             atols_mev:
                 Tolerances in meV for accuracy in ["low", "normal", "high"]
             spin_mode:

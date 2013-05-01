@@ -102,5 +102,6 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.io.abinitio
     pymatgen.io.vaspio
 

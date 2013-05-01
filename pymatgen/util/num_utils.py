@@ -29,8 +29,7 @@ def iterator_from_slice(s):
 
 def sort_dict(d, key=None, reverse=False):
     """
-    Returns an OrderedDict object whose keys are ordered according to their
-    value.
+    Sorts a dict by value.
 
     Args:
         d:
@@ -38,9 +37,12 @@ def sort_dict(d, key=None, reverse=False):
         key:
             function which takes an tuple (key, object) and returns a value to
             compare and sort by. By default, the function compares the values
-             of the dict i.e. key = lambda t : t[1]
+            of the dict i.e. key = lambda t : t[1]
         reverse:
             allows to reverse sort order.
+
+    Returns:
+        OrderedDict object whose keys are ordered according to their value.
     """
     kv_items = [kv for kv in d.items()]
 
