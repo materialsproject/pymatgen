@@ -713,7 +713,8 @@ class MPStaticVaspInputSet(MPVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.to_dict['input']['parameters']['MAGMOM']}
+                    "magmom": vasp_run.to_dict['input']['parameters']
+                    ['MAGMOM']}
         else:
             magmom = None
         structure = vasp_run.final_structure
