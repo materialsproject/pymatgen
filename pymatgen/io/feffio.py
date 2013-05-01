@@ -229,7 +229,8 @@ class Header(MSONable):
                         feff_header_str.append(line)
             else:
 
-                #Reads header from header from feff.inp file from unknown source
+                # Reads header from header from feff.inp file from unknown
+                # source
 
                 end = 0
                 for line in f:
@@ -316,7 +317,8 @@ class Header(MSONable):
                   ''.join(["TITLE comment: ", self._comment]),
                   ''.join(["TITLE Source:  ", self.source]),
                   "TITLE Structure Summary:  {}"
-                  .format(self.struct.composition), "TITLE Reduced formula:  {}"
+                  .format(self.struct.composition),
+                  "TITLE Reduced formula:  {}"
                   .format(self.struct.composition.reduced_formula),
                   "TITLE space group: ({}), space number:  ({})"
                   .format(self.space_group, self.space_number), "TITLE abc:{}"
@@ -551,13 +553,13 @@ VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
                    "REAL", "MARKER", "LATTICE", "TITLE", "RMULTIPLIER",
                    "SGROUP", "COORDINATES", "EQUIVALENCE", "CIF", "CGRID",
                    "CFAVERAGE", "OVERLAP", "EXAFS", "XANES", "ELNES", "EXELFS",
-                   "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION", "RHOZZP",
-                   "DANES", "FPRIME", "NRIXS", "XES", "XNCD", "XMCD", "XNCD"
-                                                                      "CONTROL",
-                   "END", "KMESH", "PRINT", "EGRID", "DIMS",
-                   "AFLOP", "EDGE", "COMPTON", "DANES", "FPRIME" "MDFF",
-                   "HOLE", "COREHOLE", "S02", "CHBROAD", "EXCHANGE", "FOLP",
-                   "NOHOLE", "RGRID", "SCF", "UNFREEZEF", "CHSHIFT", "DEBYE",
+                   "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION",
+                   "RHOZZP", "DANES", "FPRIME", "NRIXS", "XES", "XNCD",
+                   "XMCD", "XNCDCONTROL", "END", "KMESH", "PRINT", "EGRID",
+                   "DIMS", "AFLOP", "EDGE", "COMPTON", "DANES",
+                   "FPRIME" "MDFF", "HOLE", "COREHOLE", "S02", "CHBROAD",
+                   "EXCHANGE", "FOLP", "NOHOLE", "RGRID", "SCF",
+                   "UNFREEZEF", "CHSHIFT", "DEBYE",
                    "INTERSTITIAL", "CHWIDTH", "EGAP", "EPS0", "EXTPOT",
                    "ION", "JUMPRM", "EXPOT", "SPIN", "LJMAX", "LDEC", "MPSE",
                    "PLASMON", "RPHASES", "RSIGMA", "PMBSE", "TDLDA", "FMS",

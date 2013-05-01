@@ -198,7 +198,8 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
 
 def list_strings(arg):
     """
-    Always return a list of strings, given a string or list of strings as input.
+    Always return a list of strings, given a string or list of strings as
+    input.
 
     :Examples:
 
@@ -219,7 +220,7 @@ def list_strings(arg):
         return arg
 
 
-################################################################################
+###############################################################################
 def stream_has_colours(stream):
     """
     True if stream supports colours. Python cookbook, #475186
