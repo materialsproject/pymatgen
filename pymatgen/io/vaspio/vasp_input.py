@@ -1183,7 +1183,8 @@ class Potcar(list):
         """
         Args:
             symbols:
-                Element symbols for POTCAR
+                Element symbols for POTCAR. This should correspond to the
+                symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
             functional:
                 Functional used.
             sym_potcar_map:
