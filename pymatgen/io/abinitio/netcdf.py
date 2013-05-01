@@ -24,6 +24,8 @@ __all__ = [
     "structure_from_etsf_file",
 ]
 
+import netCDF4
+
 ##########################################################################################
 
 class NetcdfReader(object):
@@ -33,25 +35,11 @@ class NetcdfReader(object):
         self.path = os.path.abspath(filename)
 
         try:
-            #raise ImportError
-            import netCDF4
-            try:
-                self.rootgrp = netCDF4.Dataset(self.path, mode="r")
-            except Exception as exc:
-                raise RuntimeError("%s : %s" % (self.path, str(exc)))
+            self.rootgrp = netCDF4.Dataset(self.path, mode="r")
+        except Exception as exc:
+            raise RuntimeError("%s : %s" % (self.path, str(exc)))
 
-            self.ngroups = len( list(self.walk_tree()) )
-            self._have_netcdf4 = True
-
-        except ImportError:
-            from scipy.io import netcdf
-            try:
-                self.rootgrp = netcdf.netcdf_file(self.path, mode="r")
-            except Exception as exc:
-                raise RuntimeError("%s : %s" % (self.path, str(exc)))
-
-            self.ngroups = 1
-            self._have_netcdf4 = False
+        self.ngroups = len( list(self.walk_tree()) )
 
         #self.path2group = collections.OrderedDict()
         #for children in self.walk_tree():
