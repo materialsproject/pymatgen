@@ -74,8 +74,8 @@ Latest Change Log
 
 Version 2.7.0
 -------------
-1. Support for ABINIT input and output via pymatgen.io.abinitio
-   (courtesy of Matteo Giantomassi).
+1. Beta support for ABINIT input and output via pymatgen.io.abinitio
+   (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.
 
 Version 2.6.6
@@ -120,11 +120,15 @@ script and then run::
 
 Unless you are working in a virtual environment, you will probably need to
 run the above command with admin privileges (e.g., sudo). This will install
-pymatgen with all *basic dependencies*. To include more optional dependencies
-as well as a step-by-step initial setup for POTCARs and Materials API usage,
-run::
+pymatgen with all *basic dependencies*.
+
+To include more optional dependencies, build the enumlib and bader
+executables as well as a step-by-step initial setup for POTCARs and Materials
+API usage, run::
 
     python pmg_install.py -f
+
+The full installation requires gfortran to be in the PATH.
 
 Stable version
 --------------

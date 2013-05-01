@@ -46,7 +46,7 @@ the moment) required only for certain features:
    completely enumerate all symmetrically distinct ordered structures of
    disordered structures via the EnumerateStructureTransformation. The
    multienum.x and makestr.x executables must be in the path. Get it at
-   http://enum.sourceforge.org and follow the instructions to compile
+   http://enum.sourceforge.net and follow the instructions to compile
    multienum.x and makestr.x.
 3. bader: For the use of the BaderAnalysis class in pymatgen.command_line.bader
    module. This library by Henkelmann et al. provides a robust way to
@@ -84,6 +84,7 @@ pymatgen usage.
    “/Library/Frameworks/Python.framework/Versions/2.7/bin/python”. If you don’t
    get this (e.g., if you get /usr/bin/python), you may need to change your
    PATH.
+
 4. Python setuptools make it easier to install subsequent programs via
    “easy_install”. If you want to, you can install pip as well using “sudo
    easy_install pip”. Pip has several advantages over easy_install. In a
@@ -92,6 +93,7 @@ pymatgen usage.
     curl -o setuptools-0.6c11-py2.7.egg http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
     sudo sh setuptools-0.6c11-py2.7.egg
     sudo easy_install pip #optional
+
 5. Install numpy and a few other dependencies::
 
     sudo pip install numpy
