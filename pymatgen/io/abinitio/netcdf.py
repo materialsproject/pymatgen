@@ -1,14 +1,13 @@
 """Wrapper for netCDF readers."""
 from __future__ import division, print_function
 
-import numpy as np
 import os.path
-import collections
 
 from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.util.decorators import requires
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -24,10 +23,15 @@ __all__ = [
     "structure_from_etsf_file",
 ]
 
-import netCDF4
+try:
+    import netCDF4
+except:
+    netCDF4 = None
 
-##########################################################################################
+################################################################################
 
+@requires(netCDF4 is not None, "netCDF4 library must be installed to use this"
+                               " class")
 class NetcdfReader(object):
     "Wraps and extends netCDF4.Dataset. Read only mode"
 
@@ -111,8 +115,7 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return [group.variables[vname] for vname in varnames]
 
-##########################################################################################
-
+################################################################################
 class GSR_Reader(NetcdfReader):
     "Netcdf reader for the Ground-State Results file."
 
@@ -149,17 +152,20 @@ class GSR_Reader(NetcdfReader):
 
         #bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi, labels_dict=None, structure=structure)
 
-        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice, efermi, labels_dict, structure=structure)
+        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice,
+                                      efermi, labels_dict, structure=structure)
         return bands
 
 ##########################################################################################
 
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
-    Return a new instance from a NetCDF file containing crystallographic data in the ETSF-IO format.
+    Return a new instance from a NetCDF file containing crystallographic data
+    in the ETSF-IO format.
 
     Args:
-        ncdata: filename or NetcdfReader instance.
+        ncdata:
+            filename or NetcdfReader instance.
     """
     open_and_close = isinstance(ncdata, str)
     if open_and_close:

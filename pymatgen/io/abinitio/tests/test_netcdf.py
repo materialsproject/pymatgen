@@ -13,22 +13,11 @@ import numpy.testing.utils as nptu
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
-def get_netcdf_version():
-    """
-    Returns the Netcdf version we can read with the available libraries.
-    0 if not library is found.
-    """
-    try:
-        import netCDF4
-        return 4
-    except ImportError:
-        try:
-            from scipy.io import netcdf
-            return 3
-        except ImportError:
-            return 0
+try:
+    import netCDF4
+except ImportError:
+    netCDF4 = None
 
-NC_VERSION = get_netcdf_version()
 
 def filepath(basename):
     return os.path.join(test_dir, basename)
@@ -42,7 +31,7 @@ class GSR_Reader_TestCase(PymatgenTest):
         for formula in formulas:
             d[formula] = filepath(formula + "_GSR.nc")
 
-    @unittest.skipIf(NC_VERSION!=4, "Requires Netcdf4")
+    @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):
         path = self.GSR_paths["Si2"]
 
