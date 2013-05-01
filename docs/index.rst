@@ -111,10 +111,10 @@ Guided install
 
 For casual users of pymatgen who intend to use it purely as an analysis
 library, an user-friendly script has been written to guide users through the
-installation process for Linux and Mac users. This installation script
+installation process for 64-bit Linux and Mac users. This installation script
 requires only basic Python 2.7+, setuptools, and a working version of gcc as
 prerequisites. Click to download the `pmg_install.py <_static/pmg_install.py>`_
-script and then run::
+script. Move the script to an empty directory and then run::
 
     python pmg_install.py
 
@@ -128,7 +128,9 @@ API usage, run::
 
     python pmg_install.py -f
 
-The full installation requires gfortran to be in the PATH.
+The full installation requires a Fortran compiler (ifort or gfortran) to be in
+the PATH, as well as X11 (`XQuartz <http://xquartz.macosforge.org/>`_ on Mac)
+to be installed for matplotlib.
 
 Stable version
 --------------

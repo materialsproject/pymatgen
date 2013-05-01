@@ -3,7 +3,7 @@ from __future__ import division, print_function
 
 import sys
 
-from argparse import ArgumentParser 
+from argparse import ArgumentParser
 from pprint import pprint
 
 from pymatgen.io.abinitio.task import RunMode
@@ -16,7 +16,7 @@ __maintainer__ = "Matteo Giantomassi"
 __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
-##########################################################################################
+################################################################################
 
 def main():
 
@@ -34,13 +34,13 @@ def main():
     parser.add_argument('-l', '--max-level', type=int, default=0, help="Maximum DOJO level).")
 
     #parser.add_argument('-v', '--verbose', default=0, action='count', # -vv --> verbose=2
-    #                     help='verbose, can be supplied multiple times to increase verbosity')  
+    #                     help='verbose, can be supplied multiple times to increase verbosity')
 
     parser.add_argument('pseudos', nargs='+', help='List of pseudopotential files')
 
     options = parser.parse_args()
 
-    max_ncpus = options.max_ncpus 
+    max_ncpus = options.max_ncpus
     mpi_ncpus = options.mpi_ncpus
 
     if mpi_ncpus > max_ncpus:
@@ -56,7 +56,7 @@ def main():
     for pseudo in options.pseudos:
         dojo.challenge_pseudo(pseudo)
 
-##########################################################################################
+################################################################################
 
 if __name__ == "__main__":
     sys.exit(main())

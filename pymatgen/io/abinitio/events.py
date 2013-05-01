@@ -1,33 +1,35 @@
 """
-This module defines the events signaled by abinit during the execution. It also provides 
-a parser to extract these events form the main output file and the log file.
+This module defines the events signaled by abinit during the execution. It also
+provides a parser to extract these events form the main output file and the
+log file.
 """
 from __future__ import division, print_function
 
 import os.path
-import collections 
+import collections
 import json
 #import abc
 
 from pymatgen.serializers.json_coders import MSONable
 
-##########################################################################################
+################################################################################
 
 class AbinitEvent(MSONable):
     """
     Example (JSON)
-    <Event> 
+
+    <Event>
         class: "ScfConvergenceWarning",
         tolname: tolwfr,
         actual_tol: 1.0e-8,
-        required_tol: 1.0e-10, 
+        required_tol: 1.0e-10,
         nstep: 50,
         message: "The human-readable message goes here!"
     </Event>
     """
     @staticmethod
     def from_string(string, lineno):
-        "Constructs an event given a string and the line number."
+        """Constructs an event given a string and the line number."""
         d = json.loads(string)
         cls = d.pop["class"]
         assert "lineno" not in d
@@ -52,7 +54,8 @@ class AbinitEvent(MSONable):
         for cls in _BASE_CLASSES:
             if isinstance(self, cls):
                 return cls
-        raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
+        raise ValueError("Cannot determine the base class of %s" %
+                         self.__class__.__name__)
 
     @property
     def to_dict(self):
@@ -67,7 +70,7 @@ class AbinitEvent(MSONable):
 
     def iscritical(self):
         """
-        True if event is critical namely that if this event should be analyzed in 
+        True if event is critical namely that if this event should be analyzed in
         more detail to understand what action should be performed
         """
         return False
@@ -103,7 +106,7 @@ class Bug(AbinitEvent):
 class Warning(AbinitEvent):
     """
     Base class for Warning events (the most important class).
-    Developers should subclass inherit from this class to define the different exceptions 
+    Developers should subclass inherit from this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
 
@@ -200,7 +203,7 @@ class EventList(collections.Iterable, MSONable):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
-                                                                         
+
     @classmethod
     def from_dict(cls, d):
         events = [Event.from_dict(ed) for ed in d["events"]]
@@ -226,9 +229,9 @@ class EventParser(object):
         Args:
             filename:
                 path to the file.
-            nafter: 
-                Save nafter lines of trailing context after matching lines.  
-                                                                                      
+            nafter:
+                Save nafter lines of trailing context after matching lines.
+
         Returns:
             EventList instance.
         """
@@ -256,7 +259,7 @@ class EventParser(object):
             else:
                 return None
 
-        with open(filename, "r") as fh:      
+        with open(filename, "r") as fh:
             lines = fh.readlines()
             nlines = len(lines)
             for (lineno, line) in enumerate(lines):

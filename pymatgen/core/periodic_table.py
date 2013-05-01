@@ -34,14 +34,17 @@ _z2symbol = 119 * [None]
 for (symbol, data) in _pt_data.items():
     _z2symbol[data["Atomic no"]] = symbol
 
+
 def symbol_from_Z(z):
     """
     Return the symbol of the element from the atomic number.
+
     Args:
         z:
             Atomic number or slice object
     """
     return _z2symbol[z]
+
 
 @cached_class
 @total_ordering

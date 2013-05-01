@@ -40,8 +40,8 @@ import os
 import shutil
 
 
-def build_enum():
-    enumlib_url = "http://downloads.sourceforge.net/project/enum/enum/enum.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fenum%2Ffiles%2Fenum%2F&ts=1367333150&use_mirror=iweb"
+def build_enum(fortran_command="gfortran"):
+    enumlib_url = "http://downloads.sourceforge.net/project/enum/enum/enum.tar.gz"
     currdir = os.getcwd()
     state = True
     try:
@@ -51,7 +51,7 @@ def build_enum():
         subprocess.call(["tar", "-zxf", "enum.tar.gz"])
         os.chdir("celib")
         os.chdir("trunk")
-        os.environ["F90"] = "gfortran"
+        os.environ["F90"] = fortran_command
         subprocess.call(["make"])
         os.chdir(os.path.join("..", ".."))
         enumpath = os.path.join("enumlib", "trunk")
@@ -69,7 +69,7 @@ def build_enum():
     return state
 
 
-def build_bader():
+def build_bader(fortran_command="gfortran"):
     bader_url = "http://theory.cm.utexas.edu/bader/download/bader.tar.gz"
     currdir = os.getcwd()
     state = True
@@ -77,7 +77,7 @@ def build_bader():
         urllib.urlretrieve(bader_url, "bader.tar.gz")
         subprocess.call(["tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
-        subprocess.call(["cp", "makefile.osx_gfortran", "makefile"])
+        subprocess.call(["cp", "makefile.osx_"+fortran_command, "makefile"])
         subprocess.call(["make"])
         shutil.copy("bader", os.path.join("..", "bader_exe"))
         os.chdir("..")
@@ -149,9 +149,9 @@ enum = False
 bader = False
 
 if "-f" in sys.argv:
-    # for pk in ["matplotlib>1.1", "scipy"]:
-    #     if subprocess.call(["pip", "install", pk]) != 0:
-    #         print("Unable to install {}. Skipping...".format(pk))
+    for pk in ["scipy", "matplotlib>1.1"]:
+        if subprocess.call(["pip", "install", pk]) != 0:
+            print("Unable to install {}. Skipping...".format(pk))
 
     if subprocess.call([
             "pip", "install", "-Ivq",
@@ -160,12 +160,23 @@ if "-f" in sys.argv:
         print("Unable to install ASE. Skipping...")
     print
 
-    print("Building enumlib")
-    enum = build_enum()
-    print
-    print("Building bader")
-    bader = build_bader()
-    print
+    fortran_command = None
+    if subprocess.call(["ifort", "--version"]) == 0:
+        print("Found ifort")
+        fortran_command = "ifort"
+    elif subprocess.call(["gfortran", "--version"]) == 0:
+        print("Found gfortran")
+        fortran_command = "gfortran"
+
+    if fortran_command is not None:
+        print("Building enumlib")
+        enum = build_enum(fortran_command)
+        print
+        print("Building bader")
+        bader = build_bader(fortran_command)
+        print
+    else:
+        print("No fortran compiler found. Skipping enumlib and bader build.")
 
     print("Performing POTCAR setup. Press Ctrl-C at any prompt to skip this "
           "step.")
