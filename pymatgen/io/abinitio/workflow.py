@@ -18,7 +18,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump 
+from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.io.abinitio.task import task_factory, Task
@@ -44,16 +44,19 @@ __date__ = "$Feb 21, 2013M$"
 #__all__ = [
 #]
 
-##########################################################################################
+################################################################################
+
 
 def map_method(method):
     "Decorator that calls item.method for all items in a iterable object."
     @functools.wraps(method)
     def wrapped(iter_obj, *args, **kwargs):
-        return [getattr(item, method.__name__)(*args, **kwargs) for item in iter_obj]
+        return [getattr(item, method.__name__)(*args, **kwargs)
+                for item in iter_obj]
     return wrapped
 
-##########################################################################################
+
+################################################################################
 
 class Product(object):
     """
@@ -84,12 +87,13 @@ class Product(object):
     def get_abivars(self):
         return self._ext2abivars[self.ext].copy()
 
+
 class WorkLink(object):
     """
     This object describes the dependencies among the tasks contained in a Work instance.
 
-    A WorkLink is a task that produces a list of products (files) that are 
-    reused by the other tasks belonging to a Work instance. 
+    A WorkLink is a task that produces a list of products (files) that are
+    reused by the other tasks belonging to a Work instance.
     One usually instantiates the object by calling work.register_task and produces_exts.
     Example:
 
@@ -102,7 +106,7 @@ class WorkLink(object):
     def __init__(self, task, exts=None):
         """
         Args:
-            task: 
+            task:
                 The task associated to the link.
             exts:
                 Extensions of the output files that are needed for running the other tasks.
@@ -152,7 +156,7 @@ class WorkLink(object):
         "The status of the link, equivalent to the task status"
         return self._task.status
 
-##########################################################################################
+################################################################################
 
 class WorkflowError(Exception):
     "Base class for the exceptions raised by Workflow objects"
@@ -168,18 +172,26 @@ class BaseWorkflow(object):
         "Return a list of objects that support the subprocess.Popen protocol."
 
     def poll(self):
-        "Check if all child processes have terminated. Set and return returncode attribute."
+        """
+        Check if all child processes have terminated. Set and return
+        returncode attribute.
+        """
         return [task.poll() for task in self]
 
     def wait(self):
-        "Wait for child processed to terminate. Set and return returncode attributes."
+        """
+        Wait for child processed to terminate. Set and return returncode
+        attributes.
+        """
         return [task.wait() for task in self]
 
     def communicate(self, input=None):
         """
-        Interact with processes: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. 
-        Wait for process to terminate. The optional input argument should be a string to be sent to the 
-        child processed, or None, if no data should be sent to the children
+        Interact with processes: Send data to stdin. Read data from stdout and
+        stderr, until end-of-file is reached.
+        Wait for process to terminate. The optional input argument should be a
+        string to be sent to the child processed, or None, if no data should be
+        sent to the children.
 
         communicate() returns a list of tuples (stdoutdata, stderrdata).
         """
@@ -188,7 +200,7 @@ class BaseWorkflow(object):
     @property
     def returncodes(self):
         """
-        The children return codes, set by poll() and wait() (and indirectly by communicate()). 
+        The children return codes, set by poll() and wait() (and indirectly by communicate()).
         A None value indicates that the process hasn't terminated yet.
         A negative value -N indicates that the child was terminated by signal N (Unix only).
         """
@@ -205,9 +217,9 @@ class BaseWorkflow(object):
 
     def fetch_task_to_run(self):
         """
-        Returns the first task that is ready to run or None if no task can be submitted at present" 
+        Returns the first task that is ready to run or None if no task can be submitted at present"
 
-        Raises StopIteration if all tasks are done. 
+        Raises StopIteration if all tasks are done.
         """
         for task in self:
             # The task is ready to run if its status is S_READY and all the other links (if any) are done!
@@ -215,7 +227,7 @@ class BaseWorkflow(object):
                 return task
 
         # All the tasks are done so raise an exception that will be handled by the client code.
-        if all([task.status == task.S_DONE for task in self]): 
+        if all([task.status == task.S_DONE for task in self]):
             raise StopIteration
 
         # No task found, this usually happens when we have dependencies. Beware of possible deadlocks here!
@@ -224,7 +236,7 @@ class BaseWorkflow(object):
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
         "Method called before submitting the calculations."
-                                                         
+
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
 
@@ -265,16 +277,16 @@ class WorkFlowResults(dict, MSONable):
 
     def assert_valid(self):
         """
-        Returns empty string if results seem valid. 
+        Returns empty string if results seem valid.
 
         The try assert except trick allows one to get a string with info on the exception.
         We use the += operator so that sub-classes can add their own message.
         """
         # Validate tasks.
-        for tres in self.task_results: 
+        for tres in self.task_results:
             self[self.EXC_KEY] += tres.assert_valid()
 
-        return self[self.EXC_KEY] 
+        return self[self.EXC_KEY]
 
     @property
     def to_dict(self):
@@ -282,19 +294,19 @@ class WorkFlowResults(dict, MSONable):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
-                                                                                
+
     @classmethod
     def from_dict(cls, d):
         mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
         return cls(mydict)
 
     def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename) 
+        json_pretty_dump(self.to_dict, filename)
 
     @classmethod
     def json_load(cls, filename):
-        return cls.from_dict(json_load(filename))    
-                                                         
+        return cls.from_dict(json_load(filename))
+
 ##########################################################################################
 
 class Workflow(BaseWorkflow, MSONable):
@@ -369,7 +381,7 @@ class Workflow(BaseWorkflow, MSONable):
     def isnc(self):
         "True if norm-conserving calculation"
         return all(task.isnc for task in self)
-                                                
+
     @property
     def ispaw(self):
         "True if PAW calculation"
@@ -381,7 +393,7 @@ class Workflow(BaseWorkflow, MSONable):
 
     def setup(self, *args, **kwargs):
         """
-        Method called before running the calculations. 
+        Method called before running the calculations.
         The default implementation is empty.
         """
 
@@ -410,17 +422,17 @@ class Workflow(BaseWorkflow, MSONable):
         task_id = len(self) + 1
 
         task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
-        
+
         # Handle possible dependencies.
         if links:
-            if not isinstance(links, collections.Iterable): 
+            if not isinstance(links, collections.Iterable):
                 links = [links,]
 
         # Create the new task (note the factory so that we create subclasses easily).
         task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
 
         self._tasks.append(task)
-                                         
+
         if links:
             self._links_dict[task_id].extend(links)
             print("task_id %s neeeds\n %s" % (task_id, [str(l) for l in links]))
@@ -448,7 +460,7 @@ class Workflow(BaseWorkflow, MSONable):
     def rmtree(self, *args, **kwargs):
         """
         Remove all calculation files and directories.
-                                                                                   
+
         Keyword arguments:
             force: (False)
                 Do not ask confirmation.
@@ -457,13 +469,13 @@ class Workflow(BaseWorkflow, MSONable):
         """
         if kwargs.pop('verbose', 0):
             print('Removing directory tree: %s' % self.workdir)
-                                                                                    
+
         shutil.rmtree(self.workdir)
 
     def move(self, dst, isabspath=False):
         """
         Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
-        The destination path must not already exist. If the destination already exists 
+        The destination path must not already exist. If the destination already exists
         but is not a directory, it may be overwritten depending on os.rename() semantics.
 
         Be default, dst is located in the parent directory of self.workdir, use isabspath=True
@@ -501,7 +513,7 @@ class Workflow(BaseWorkflow, MSONable):
         """
         Reads the total energy from the GSR file produced by the task.
 
-        Return a numpy array with the total energies in Hartree 
+        Return a numpy array with the total energies in Hartree
         The array element is set to np.inf if an exception is raised while reading the GSR file.
         """
         if not self.alldone:
@@ -512,10 +524,10 @@ class Workflow(BaseWorkflow, MSONable):
             # Open the GSR file and read etotal (Hartree)
             with GSR_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
                 etotal.append(ncdata.get_value("etotal"))
-                                                            
+
         return etotal
 
-##########################################################################################
+################################################################################
 
 class IterativeWork(Workflow):
     """
@@ -527,9 +539,11 @@ class IterativeWork(Workflow):
         """
         Args:
             workdir:
+                Working directory.
             strategy_generator:
+                Strategy generator.
             max_niter:
-                Maximum number of iterations. A negative value or zero value 
+                Maximum number of iterations. A negative value or zero value
                 is equivalent to having an infinite number of iterations.
         """
         super(IterativeWork, self).__init__(workdir, runmode)
@@ -563,9 +577,9 @@ class IterativeWork(Workflow):
         self.niter = 1
 
         while True:
-            if self.max_niter > 0 and self.niter > self.max_niter: 
+            if self.max_niter > 0 and self.niter > self.max_niter:
                 print("niter %d > max_niter %d" % (self.niter, self.max_niter))
-                break 
+                break
 
             try:
                 task = self.next_task()
@@ -587,7 +601,7 @@ class IterativeWork(Workflow):
     def exit_iteration(self, *args, **kwargs):
         """
         Return a dictionary with the results produced at the given iteration.
-        The dictionary must contains an entry "converged" that evaluates to 
+        The dictionary must contains an entry "converged" that evaluates to
         True if the iteration should be stopped.
         """
 
@@ -607,7 +621,7 @@ def non_decreasing(values):
 
 def monotonic(values, mode="<", atol=1.e-8):
     """
-    Returns False if values are not monotonic (decreasing|increasing). 
+    Returns False if values are not monotonic (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
     Two numbers are considered equal if they differ less that atol.
 
@@ -646,7 +660,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
 
         abs(value[i] - vinf) < tol if mode == "abs"
 
-    or 
+    or
 
         abs(value[i] - vinf) / vinf < tol if mode == "rel"
 
@@ -656,7 +670,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
         tol:
             Tolerance
         min_numpts:
-            Minimum number of points that must be converged. 
+            Minimum number of points that must be converged.
         mode:
             "abs" for absolute convergence, "rel" for relative convergence.
         vinf:
@@ -679,7 +693,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
             if vdiff[i] > tol:
                 break
         if (numpts - i -1) < min_numpts: i = -2
- 
+
     return i + 1
 
 def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
@@ -696,7 +710,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     table = []
     app = table.append
-                                                                                 
+
     app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
         line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
@@ -712,9 +726,9 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
     exit = (ihigh != -1)
 
     if exit:
-        ecut_low    = ecut_list[ilow] 
-        ecut_normal = ecut_list[inormal] 
-        ecut_high   = ecut_list[ihigh] 
+        ecut_low    = ecut_list[ilow]
+        ecut_normal = ecut_list[inormal]
+        ecut_high   = ecut_list[ihigh]
 
     aug_ratios = [1,]
     aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
@@ -764,7 +778,7 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
 
-    npts = len(ecut_list) 
+    npts = len(ecut_list)
 
     if len(aug_ratios) != 1 and len(aug_ratios) != len(etotals):
         raise ValueError("The number of sublists in etotal must equal the number of aug_ratios")
@@ -802,7 +816,7 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
 
     if show:
         plt.show()
-                             
+
     if savefig is not None:
         fig.savefig(savefig)
 
@@ -816,9 +830,9 @@ class PseudoConvergence(Workflow):
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
         # Temporary object used to build the strategy.
-        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev, 
-                                               spin_mode = spin_mode, 
-                                               acell     = acell, 
+        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev,
+                                               spin_mode = spin_mode,
+                                               acell     = acell,
                                                smearing  = smearing,
                                                max_niter = len(ecut_list),
                                               )
@@ -839,7 +853,7 @@ class PseudoConvergence(Workflow):
         etotal = self.read_etotal()
         data = compute_hints(self.ecut_list, etotal, self.atols_mev, self.pseudo)
 
-        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
+        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
@@ -864,7 +878,7 @@ class PseudoIterativeConvergence(IterativeWork):
             pseudo:
                 string or Pseudo instance
             ecut_list_or_slice:
-                List of cutoff energies or slice object (mainly used for infinite iterations). 
+                List of cutoff energies or slice object (mainly used for infinite iterations).
             atols_mev:
                 List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
             spin_mode:
@@ -878,8 +892,8 @@ class PseudoIterativeConvergence(IterativeWork):
 
         self.atols_mev = atols_mev
         self.spin_mode = spin_mode
-        self.smearing  = Smearing.assmearing(smearing)
-        self.acell     = acell
+        self.smearing = Smearing.assmearing(smearing)
+        self.acell = acell
 
         if isinstance(ecut_list_or_slice, slice):
             self.ecut_iterator = iterator_from_slice(ecut_list_or_slice)
@@ -891,7 +905,8 @@ class PseudoIterativeConvergence(IterativeWork):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
-        super(PseudoIterativeConvergence, self).__init__(workdir, runmode, strategy_generator(), max_niter=max_niter)
+        super(PseudoIterativeConvergence, self).__init__(
+            workdir, runmode, strategy_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -899,7 +914,7 @@ class PseudoIterativeConvergence(IterativeWork):
     def strategy_with_ecut(self, ecut):
         "Return a Strategy instance with given cutoff energy ecut"
 
-        # Define the system: one atom in a box of lenghts acell. 
+        # Define the system: one atom in a box of lenghts acell.
         boxed_atom = AbiStructure.boxed_atom(self.pseudo, acell=self.acell)
 
         # Gamma-only sampling.
@@ -910,32 +925,35 @@ class PseudoIterativeConvergence(IterativeWork):
 
         # Don't write WFK files.
         extra_abivars = {
-            "ecut" : ecut, 
+            "ecut" : ecut,
             "prtwf": 0,
         }
-        strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only, spin_mode=self.spin_mode, 
-                 smearing=self.smearing, charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars)
+        strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only,
+                               spin_mode=self.spin_mode, smearing=self.smearing,
+                               charge=0.0, scf_algorithm=None,
+                               use_symmetries=True, **extra_abivars)
 
-        return strategy 
+        return strategy
 
     @property
     def ecut_list(self):
-        "The list of cutoff energies computed so far"
+        """The list of cutoff energies computed so far"""
         return [float(task.strategy.ecut) for task in self]
 
     def check_etotal_convergence(self, *args, **kwargs):
-        return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
+        return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev,
+                             self.pseudo)
 
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
-                                                                                       
+
     def get_results(self, *args, **kwargs):
         # Get the results of the tasks.
         wf_results = super(PseudoIterativeConvergence, self).get_results()
 
         data = self.check_etotal_convergence()
 
-        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"], 
+        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
@@ -949,11 +967,12 @@ class PseudoIterativeConvergence(IterativeWork):
 
         return wf_results
 
-##########################################################################################
+################################################################################
 
 class BandStructure(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, dos_strategy=None):
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
+                 dos_strategy=None):
 
         super(BandStructure, self).__init__(workdir, runmode)
 
@@ -965,23 +984,25 @@ class BandStructure(Workflow):
 
         # Add DOS computation
         if dos_strategy is not None:
-            self.register_task(dos_strategy, links=scf_link.produces_exts("_DEN"))
+            self.register_task(dos_strategy,
+                               links=scf_link.produces_exts("_DEN"))
 
-##########################################################################################
+################################################################################
 
 class Relaxation(Workflow):
 
-    def __init__(self, workdir, runmode, relax_strategy): 
+    def __init__(self, workdir, runmode, relax_strategy):
         super(Relaxation, self).__init__(workdir, runmode)
 
         link = self.register_task(relax_strategy)
 
-##########################################################################################
+################################################################################
 
 class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
-                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV", accuracy="normal", 
+                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                 accuracy="normal",
                  ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
@@ -1006,7 +1027,8 @@ class DeltaTest(Workflow):
 
             new_lattice = structure.lattice.scale(vol)
 
-            new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
+            new_structure = Structure(new_lattice, structure.species,
+                                      structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
             extra_abivars = {
@@ -1016,10 +1038,12 @@ class DeltaTest(Workflow):
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})
 
-            ksampling = KSampling.automatic_density(new_structure, kppa, chksymbreak=chksymbreak)
+            ksampling = KSampling.automatic_density(new_structure, kppa,
+                                                    chksymbreak=chksymbreak)
 
-            scf_strategy = ScfStrategy(new_structure, pseudos, ksampling, accuracy=accuracy, 
-                                       spin_mode=spin_mode, smearing=smearing, **extra_abivars)
+            scf_strategy = ScfStrategy(new_structure, pseudos, ksampling,
+                                       accuracy=accuracy, spin_mode=spin_mode,
+                                       smearing=smearing, **extra_abivars)
 
             self.register_task(scf_strategy)
 
@@ -1065,25 +1089,28 @@ class DeltaTest(Workflow):
 
         return wf_results
 
-##########################################################################################
+################################################################################
 
 class GW_Workflow(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy):
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
+                 scr_strategy, sigma_strategy):
         """
         Workflow for GW calculations.
-            Args:
-                workdir:
-                    Working directory of the calculation.
-                runmode:
-                scf_strategy:
-                    SCFStrategy instance
-                nscf_strategy:
-                    NSCFStrategy instance
-                scr_strategy: 
-                    Strategy for the screening run.
-                sigma_strategy:
-                    Strategy for the self-energy run.
+
+        Args:
+            workdir:
+                Working directory of the calculation.
+            runmode:
+                Run mode.
+            scf_strategy:
+                SCFStrategy instance
+            nscf_strategy:
+                NSCFStrategy instance
+            scr_strategy:
+                Strategy for the screening run.
+            sigma_strategy:
+                Strategy for the self-energy run.
         """
         super(GW_Workflow, self).__init__(workdir, runmode)
 
@@ -1091,14 +1118,17 @@ class GW_Workflow(Workflow):
         scf_link = self.register_task(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register_task(nscf_strategy,
+                                       links=scf_link.produces_exts("_DEN"))
 
         # Register the SCR run.
-        screen_link = self.register_task(scr_strategy, links=nscf_link.produces_exts("_WFK"))
+        screen_link = self.register_task(scr_strategy,
+                                         links=nscf_link.produces_exts("_WFK"))
 
         # Register the SIGMA run.
-        sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
+        sigma_links = [nscf_link.produces_exts("_WFK"),
+                       screen_link.produces_exts("_SCR"),]
 
         self.register_task(sigma_strategy, links=sigma_links)
 
-##########################################################################################
+################################################################################

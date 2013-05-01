@@ -916,7 +916,8 @@ class RelaxationMethod(AbivarAble):
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
-    The common way to instanciate a PPModel object is via the class method PPModel.asppmodel(string)
+    The common way to instanciate a PPModel object is via the class method
+    PPModel.asppmodel(string)
     """
     _mode2ppmodel = {
         "noppmodel": 0,
@@ -932,6 +933,7 @@ class PPModel(AbivarAble, MSONable):
     def asppmodel(cls, obj):
         """
         Constructs an instance of PPModel from obj.
+
         Accepts obj in the form:
             * PPmodel instance
             * string. e.g "godby:12.3 eV", "linden".
@@ -980,7 +982,8 @@ class PPModel(AbivarAble, MSONable):
     __nonzero__ = __bool__
 
     def __repr__(self):
-        return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self), str(self.mode))
+        return "<%s at %s, mode = %s>" % (self.__class__.__name__, id(self),
+                                          str(self.mode))
 
     def to_abivars(self):
         if self:
@@ -995,10 +998,9 @@ class PPModel(AbivarAble, MSONable):
 
     @property
     def to_dict(self):
-        d = {"mode": self.mode, "plasmon_freq": self.plasmon_freq}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"mode": self.mode, "plasmon_freq": self.plasmon_freq,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):

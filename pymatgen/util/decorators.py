@@ -153,16 +153,16 @@ def requires(condition, message):
     to be true. This can be used to present useful error messages for
     optional dependencies. For example, decorating the following code will
     check if scipy is present and if not, a runtime error will be raised if
-    someone attempts to call the use_scipy function.
+    someone attempts to call the use_scipy function::
 
-    try:
-        import scipy
-    except ImportError:
-        scipy = None
+        try:
+            import scipy
+        except ImportError:
+            scipy = None
 
-    @requires(scipy is not None, "scipy is not present.")
-    def use_scipy():
-        print scipy.majver
+        @requires(scipy is not None, "scipy is not present.")
+        def use_scipy():
+            print scipy.majver
     """
     def wrap(f):
         def wrapped(*args, **kwargs):

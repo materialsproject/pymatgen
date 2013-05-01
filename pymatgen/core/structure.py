@@ -104,10 +104,10 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         Disordered structures will raise an AttributeError.
         """
         types = [] # Cannot use sets since we want a determinitic algorithm.
-        for site in self: 
+        for site in self:
             if site.specie not in types: types.append(site.specie)
         return types
-                                                                        
+
     def group_by_types(self):
         "Iterate over species grouped by type"
         for type in self.types_of_specie:
@@ -377,12 +377,17 @@ class Structure(SiteCollection, MSONable):
     def lattice_vectors(self, space="r"):
         """
         Returns the vectors of the unit cell in Angstrom.
+
         Args:
-            space: "r" for real space vectors, "g" for reciprocal space basis vectors.
+            space:
+                "r" for real space vectors, "g" for reciprocal space basis
+                vectors.
         """
-        if space.lower() == "r": return self.lattice.matrix
-        if space.lower() == "g": return self.lattice.reciprocal_lattice.matrix
-        raise ValueError("Wrong value for space: %s " % space )
+        if space.lower() == "r":
+            return self.lattice.matrix
+        if space.lower() == "g":
+            return self.lattice.reciprocal_lattice.matrix
+        raise ValueError("Wrong value for space: %s " % space)
 
     @property
     def density(self):
