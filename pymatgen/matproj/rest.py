@@ -341,8 +341,7 @@ class MPRester(object):
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
-                    return DictVaspInputSet("MaterialsProjectVaspInputSet",
-                                            data["response"])
+                    return DictVaspInputSet("MPVaspInputSet", data["response"])
                 else:
                     raise MPRestError(data["error"])
 

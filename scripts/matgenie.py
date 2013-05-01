@@ -30,7 +30,7 @@ from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
+from pymatgen.io.vaspio_set import MPVaspInputSet
 from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -233,7 +233,7 @@ def convert_fmt(args):
             c = Cssr(structure)
             c.write_file(out_filename)
         elif oformat == "VASP":
-            input_set = MaterialsProjectVaspInputSet()
+            input_set = MPVaspInputSet()
             transmuter = StandardTransmuter.from_structures([structure], [])
             transmuter.write_vasp_input(input_set, output_dir=out_filename)
 
