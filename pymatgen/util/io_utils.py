@@ -4,7 +4,7 @@
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
