@@ -2003,15 +2003,9 @@ class Oszicar(object):
 
 class VaspParserError(Exception):
     """
-    Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Exception class for VASP parsing.
     """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "VaspParserError : " + self.msg
+    pass
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
