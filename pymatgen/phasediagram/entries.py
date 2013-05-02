@@ -215,7 +215,7 @@ class PDEntryIO(object):
             filename - Filename to import from.
 
         Returns:
-            List of PDEntries
+            List of Elements, List of PDEntries
         """
         import csv
         reader = csv.reader(open(filename, "rb"), delimiter=",",

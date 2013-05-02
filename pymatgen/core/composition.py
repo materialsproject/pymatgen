@@ -163,7 +163,17 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12
         """
-        if not (isinstance(other, int) or isinstance(other, float)):
+        if not isinstance(other, (int, float)):
+            raise ValueError("Multiplication can only be done for int/floats!")
+        return Composition({el: self[el] * other for el in self})
+
+    def __rmul__(self, other):
+        """
+        Multiply a Composition by an integer or a float. This provides for
+        the reflected multiplication, e.g.,
+        4 * Fe2O3 -> Fe8O12
+        """
+        if not isinstance(other, (int, float)):
             raise ValueError("Multiplication can only be done for int/floats!")
         return Composition({el: self[el] * other for el in self})
 
@@ -335,10 +345,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.keys()
 
     def __str__(self):
-        return " ".join(["{}{}".format(k,
-                                       formula_double_format(v,
-                                                             ignore_ones=False))
-                         for k, v in self.to_dict.items()])
+        return " ".join([
+            "{}{}".format(k, formula_double_format(v, ignore_ones=False))
+            for k, v in self.to_dict.items()])
 
     @property
     def num_atoms(self):

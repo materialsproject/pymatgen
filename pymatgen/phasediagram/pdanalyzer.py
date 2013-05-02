@@ -71,13 +71,14 @@ class PDAnalyzer(object):
             comp:
                 Composition to test.
         """
-        dim = len(self._pd.elements)
+        els = self._pd.elements
+        dim = len(els)
         if dim > 1:
             coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1])
                       for i in xrange(len(facet))]
             simplex = Simplex(coords)
-            comp_point = [comp.get_atomic_fraction(self._pd.elements[i])
-                          for i in xrange(1, len(self._pd.elements))]
+            comp_point = [comp.get_atomic_fraction(els[i])
+                          for i in xrange(1, len(els))]
             return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
         else:
             return True
@@ -106,7 +107,7 @@ class PDAnalyzer(object):
                 A composition
 
         Returns:
-            Decomposition as a dict of {PDEntry: amount}
+            Decomposition as a dict of {Entry: amount}
         """
         facet = self._get_facet(comp)
         comp_list = [self._pd.qhull_entries[i].composition for i in facet]
@@ -117,26 +118,42 @@ class PDAnalyzer(object):
                 for i in xrange(len(decomp_amts))
                 if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
 
-    def get_decomp_and_e_above_hull(self, entry):
+    def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
         Provides the decomposition and energy above convex hull for an entry
 
         Args:
             entry:
                 A PDEntry like object
+            allow_negative:
+                Whether to allow negative e_above_hulls. Used to calculate
+                equilibrium reaction energies. Default False.
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
-            energy above hull of 0.
+            energy above hull of 0. The decomposition is provided as a dict of
+            {Entry: amount}.
         """
         if entry in self._pd.stable_entries:
             return {entry: 1}, 0
-        comp = entry.composition
-        ehull = entry.energy_per_atom
-        decomp = self.get_decomposition(comp)
-        ehull -= sum([entry.energy_per_atom * amt
-                      for entry, amt in decomp.items()])
-        return decomp, ehull
+
+        # Hackish fix to deal with problem of -ve ehulls in very high
+        # dimensional convex hulls (typically 8D and above).
+        # TODO: find a better fix.
+        for facet in self._get_facets(entry.composition):
+            comp_list = [self._pd.qhull_entries[i].composition for i in facet]
+            m = self._make_comp_matrix(comp_list)
+            compm = self._make_comp_matrix([entry.composition])
+            decomp_amts = np.linalg.solve(m.T, compm.T)
+            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
+                      for i in xrange(len(decomp_amts))
+                      if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
+            ehull = entry.energy_per_atom
+            for e, amt in decomp.items():
+                ehull -= e.energy_per_atom * amt
+            if allow_negative or ehull >= 0:
+                return decomp, ehull
+        raise ValueError("No valid decomp found!")
 
     def get_e_above_hull(self, entry):
         """
@@ -173,7 +190,8 @@ class PDAnalyzer(object):
         entries = [e for e in self._pd.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self._pd.elements)
         analyzer = PDAnalyzer(modpd)
-        return analyzer.get_decomp_and_e_above_hull(entry)[1]
+        return analyzer.get_decomp_and_e_above_hull(entry,
+                                                    allow_negative=True)[1]
 
     def get_facet_chempots(self, facet):
         """
