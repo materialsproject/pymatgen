@@ -713,7 +713,8 @@ class MPStaticVaspInputSet(MPVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.to_dict['input']['parameters']['MAGMOM']}
+                    "magmom": vasp_run.to_dict['input']['parameters']
+                    ['MAGMOM']}
         else:
             magmom = None
         structure = vasp_run.final_structure
@@ -794,8 +795,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 constrain_total_magmom=constrain_total_magmom)
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
-            {"IBRION": -1, "ISMEAR": 0, "LCHARG": False, "LORBIT": 11,
-             "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+            {"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
+             "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
         if mode == "Uniform":
             # Set smaller steps for DOS output
             self.incar_settings.update({"NEDOS": 601})

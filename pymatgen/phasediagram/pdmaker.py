@@ -377,15 +377,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
 class PhaseDiagramError(Exception):
     """
-    An exception class for Phase Diagram.
+    An exception class for Phase Diagram generation.
     """
-    def __init__(self, msg):
-        """
-        Args:
-            msg:
-                The error message.
-        """
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass

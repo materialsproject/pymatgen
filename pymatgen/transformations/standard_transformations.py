@@ -17,19 +17,18 @@ __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
 
-from operator import itemgetter
 import logging
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import smart_element_or_specie
-from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure import Structure
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
+from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.structure import Structure
+from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 logger = logging.getLogger(__name__)
 
@@ -514,7 +513,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, algo=ALGO_FAST):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False):
         """
         Args:
             num_structures:
@@ -522,9 +521,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             mev_cutoff:
                 maximum mev per atom above the minimum energy ordering for a
                 structure to be returned
+            symmetrized_structures:
+                Boolean stating whether the input structures are instances of
+                SymmetrizedStructure, and that their symmetry should be used
+                for the grouping of sites.
         """
         self._algo = algo
         self._all_structures = []
+        self._symmetrized = symmetrized_structures
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -554,8 +558,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-        ordered_sites = []
-        sites_to_order = {}
 
         try:
             num_to_return = int(return_ranked_list)
@@ -564,80 +566,59 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         num_to_return = max(1, num_to_return)
 
-        sites = list(structure.sites)
-        for i in range(len(structure)):
-            site = sites[i]
-            if sum(site.species_and_occu.values()) == 1 and \
-                    len(site.species_and_occu) == 1:
-                ordered_sites.append(site)
-            else:
-                species = tuple([sp for sp, occu
-                                 in site.species_and_occu.items()])
-                #group the sites by the list of species on that site
-                for sp, occu in site.species_and_occu.items():
-                    if species not in sites_to_order:
-                        sites_to_order[species] = {}
-                    if sp not in sites_to_order[species]:
-                        sites_to_order[species][sp] = [[occu, i]]
-                    else:
-                        sites_to_order[species][sp].append([occu, i])
-
-                total_occu = sum(site.species_and_occu.values())
-                #if the total occupancy on a site is less than one, add
-                #a list with None as the species (for removal)
-                if total_occu < 1:
-                    if None not in sites_to_order[species]:
-                        sites_to_order[species][None] = [[1 - total_occu, i]]
-                    else:
-                        sites_to_order[species][None].append([1 - total_occu,
-                                                              i])
-
-        # Create a list of [multiplication fraction, number of replacements,
-        # [indices], replacement species]
-        m_list = []
-        se = StructureEditor(structure)
-
-        for species in sites_to_order.values():
-            initial_sp = None
-            sorted_keys = sorted(species.keys(),
-                                 key=lambda x: x is not None and
-                                 -abs(x.oxi_state) or 1000)
-            for sp in sorted_keys:
-                if initial_sp is None:
-                    initial_sp = sp
-                    for site in species[sp]:
-                        se.replace_site(site[1], initial_sp)
+        equivalent_sites = []
+        exemplars = []
+        #generate list of equivalent sites to order
+        #equivalency is determined by sp_and_occu and symmetry
+        #if symmetrized structure is true
+        for i, site in enumerate(structure):
+            if site.is_ordered:
+                continue
+            found = False
+            for j, ex in enumerate(exemplars):
+                sp = ex.species_and_occu
+                if not site.species_and_occu.almost_equals(sp):
+                    continue
+                if self._symmetrized:
+                    sym_equiv = structure.find_equivalent_sites(ex)
+                    sym_test = site in sym_equiv
                 else:
-                    if sp is None:
-                        oxi = 0
-                    else:
-                        oxi = float(sp.oxi_state)
+                    sym_test = True
+                if sym_test:
+                    equivalent_sites[j].append(i)
+                    found = True
+            if not found:
+                equivalent_sites.append([i])
+                exemplars.append(site)
 
-                    manipulation = [oxi / initial_sp.oxi_state, 0, [], sp]
-                    site_list = species[sp]
-                    site_list.sort(key=itemgetter(0))
-
-                    prev_fraction = site_list[0][0]
-                    for site in site_list:
-                        if site[0] - prev_fraction > .1:
-                            # Ttolerance for creating a new group of sites.
-                            # if site occupancies are similar, they will be put
-                            # in a group where the fraction has to be
-                            # consistent over the whole.
-                            manipulation[1] = int(round(manipulation[1]))
-                            m_list.append(manipulation)
-                            manipulation = [oxi / initial_sp.oxi_state, 0, [],
-                                            sp]
-                        prev_fraction = site[0]
-                        manipulation[1] += site[0]
-                        manipulation[2].append(site[1])
-                    #if the # of atoms to remove isn"t within .25 of an integer
-                    if abs(manipulation[1] - round(manipulation[1])) > .25:
-                        raise ValueError("Occupancy fractions not consistent "
-                                         "with size of unit cell")
-
-                    manipulation[1] = int(round(manipulation[1]))
-                    m_list.append(manipulation)
+        #generate the list of manipulations and input structure
+        se = StructureEditor(structure)
+        m_list = []
+        for g in equivalent_sites:
+            total_occupancy = sum([structure[i].species_and_occu for i in g],
+                                  Composition())
+            total_occupancy = dict(total_occupancy.items())
+            #round total occupancy to possible values
+            for k, v in total_occupancy.items():
+                if abs(v - round(v)) > 0.25:
+                    raise ValueError("Occupancy fractions not consistent "
+                                     "with size of unit cell")
+                total_occupancy[k] = int(round(v))
+            #start with an ordered structure
+            initial_sp = max(total_occupancy.keys(),
+                             key=lambda x: abs(x.oxi_state))
+            for i in g:
+                se.replace_site(i, initial_sp)
+            #determine the manipulations
+            for k, v in total_occupancy.items():
+                if k == initial_sp:
+                    continue
+                m = [k.oxi_state / initial_sp.oxi_state, v, list(g), k]
+                m_list.append(m)
+            #determine the number of empty sites
+            empty = len(g) - sum(total_occupancy.values())
+            if empty > 0.5:
+                m_list.append([0, empty, list(g), None])
 
         structure = se.modified_structure
         matrix = EwaldSummation(structure).total_energy_matrix
@@ -653,7 +634,6 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
-
             for manipulation in output[1]:
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
