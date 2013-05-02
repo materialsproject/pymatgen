@@ -1140,7 +1140,7 @@ class Molecule(SiteCollection, MSONable):
     def __repr__(self):
         outs = ["Molecule Summary"]
         for s in self:
-            outs.append(repr(s))
+            outs.append(s.__repr__())
         return "\n".join(outs)
 
     def __str__(self):
@@ -1316,14 +1316,4 @@ class StructureError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
-    def __init__(self, msg):
-        """
-        Args:
-            msg:
-                The error message.
-        """
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass

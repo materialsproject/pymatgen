@@ -523,8 +523,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 structure to be returned
             symmetrized_structures:
                 Boolean stating whether the input structures are instances of
-                SymmetrizedStructure, and that their symmetry should be used for
-                the grouping of sites.
+                SymmetrizedStructure, and that their symmetry should be used
+                for the grouping of sites.
         """
         self._algo = algo
         self._all_structures = []
@@ -558,14 +558,14 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-        
+
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
 
         num_to_return = max(1, num_to_return)
-        
+
         equivalent_sites = []
         exemplars = []
         #generate list of equivalent sites to order
@@ -590,12 +590,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if not found:
                 equivalent_sites.append([i])
                 exemplars.append(site)
-        
+
         #generate the list of manipulations and input structure
         se = StructureEditor(structure)
         m_list = []
         for g in equivalent_sites:
-            total_occupancy = sum([structure[i].species_and_occu for i in g], 
+            total_occupancy = sum([structure[i].species_and_occu for i in g],
                                   Composition())
             total_occupancy = dict(total_occupancy.items())
             #round total occupancy to possible values
@@ -605,7 +605,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                                      "with size of unit cell")
                 total_occupancy[k] = int(round(v))
             #start with an ordered structure
-            initial_sp = max(total_occupancy.keys(), 
+            initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
                 se.replace_site(i, initial_sp)
@@ -619,7 +619,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             empty = len(g) - sum(total_occupancy.values())
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
-            
+
         structure = se.modified_structure
         matrix = EwaldSummation(structure).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)

@@ -52,11 +52,12 @@ class MPRester(object):
 
     supported_properties = ("energy", "energy_per_atom", "volume",
                             "formation_energy_per_atom", "nsites",
-                            "unit_cell_formula", "pretty_formula", "is_hubbard",
-                            "elements", "nelements", "e_above_hull", "hubbards",
-                            "is_compatible", "spacegroup", "task_ids",
-                            "band_gap", "density", "icsd_id", "cif",
-                            "total_magnetization", "material_id")
+                            "unit_cell_formula", "pretty_formula",
+                            "is_hubbard", "elements", "nelements",
+                            "e_above_hull", "hubbards", "is_compatible",
+                            "spacegroup", "task_ids", "band_gap", "density",
+                            "icsd_id", "cif", "total_magnetization",
+                            "material_id")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         """
@@ -644,9 +645,4 @@ class MPRestError(Exception):
     Exception class for MPRestAdaptor.
     Raised when the query has problems, e.g., bad query format.
     """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "Materials Project REST Error : " + self.msg
+    pass
