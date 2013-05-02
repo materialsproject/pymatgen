@@ -1,6 +1,6 @@
 import glob
 import os
-import sys
+import subprocess
 
 from distribute_setup import use_setuptools
 use_setuptools()
@@ -9,10 +9,10 @@ from setuptools import setup, find_packages, Extension
 try:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 except ImportError:
-    print("numpy.distutils.misc_util cannot be imported.")
-    print("numpy.distutils.misc_util is needed to build the spglib extension.")
-    print("Please install numpy first before retrying setup.")
-    sys.exit(-1)
+    print("numpy.distutils.misc_util cannot be imported. Attempting to "
+          "install...")
+    subprocess.call(["easy_install", "numpy"])
+    from numpy.distutils.misc_util import get_numpy_include_dirs
 
 
 def get_spglib_ext():
@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.6.3b",
+    version="2.7.0b",
     install_requires=["numpy>=1.5", "pyhull>=1.3.6", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
@@ -59,11 +59,11 @@ setup(
                   "pymatgen.vis": ["ElementColorSchemes.cfg"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
-    "Vincent L Chevrier, Rickard Armiento",
+    "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
     author_email="shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
     "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
-    "dkgunter@lbl.gov, scholia@lbl.gov, vincentchevrier@gmail.com, "
-    "armiento@mit.edu",
+    "dkgunter@lbl.gov, scholia@lbl.gov, gmatteo@gmail.com, "
+    "vincentchevrier@gmail.com, armiento@mit.edu",
     maintainer="Shyue Ping Ong",
     url="https://github.com/materialsproject/pymatgen/",
     license="MIT",

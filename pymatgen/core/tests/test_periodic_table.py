@@ -3,6 +3,7 @@
 from __future__ import division
 import unittest
 import pickle
+import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     PeriodicTable, _pt_data
@@ -136,8 +137,7 @@ class  SpecieTestCase(unittest.TestCase):
                          "Static and actual constructor gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2,
                             "Fe2+ should not be equal to Fe3+")
-        self.assertEqual(self.specie4, self.specie3,
-                         "Species with same oxi state and el should be equal!")
+        self.assertNotEqual(self.specie4, self.specie3)
         self.assertFalse(self.specie1 == Element("Fe"))
         self.assertFalse(Element("Fe") == self.specie1)
 
@@ -244,6 +244,17 @@ class  PeriodicTableTestCase(unittest.TestCase):
     def test_print_periodic_table(self):
         PeriodicTable().print_periodic_table()
 
+    def test_iterable(self):
+        "Test whether PeriodicTable supports the iteration protocol"
+        table = PeriodicTable()
+
+        self.assertTrue(isinstance(table, collections.Iterable))
+
+        self.assertEqual(table[14].Z, 14)
+        self.assertEqual([e.Z for e in table[1:4:2]], [1,3])
+
+        for (idx, element) in enumerate(table):
+            self.assertEqual(idx+1, element.Z)
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,11 +19,11 @@ researchers. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive io capabilities to manipulate many VASP input and output files
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
-   file format. This includes generating Structure objects from vasp input and
-   output. There is also support for Gaussian input files and XYZ file for
-   molecules.
+2. Extensive io capabilities to manipulate many VASP
+   (http://cms.mpi.univie.ac.at/vasp/) and ABINIT (http://www.abinit.org/)
+   input and output files and the crystallographic information file format.
+   This includes generating Structure objects from vasp input and output.
+   There is also support for Gaussian input files and XYZ file for molecules.
 3. Comprehensive tool to generate and view compositional and grand canonical
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
@@ -52,7 +52,9 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly.
+   day. Bugs tend to be found and corrected quickly. Furthermore,
+   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
+   integration, which ensures that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
    efficient research.
@@ -70,28 +72,70 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-Version 2.6.2
+Version 2.7.0
 -------------
+1. Beta support for ABINIT input and output via pymatgen.io.abinitio
+   (courtesy of the excellent work of Matteo Giantomassi).
+2. Properties are now checked when comparing two Species for equality.
+3. MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
+   typing and deprecated.
+4. New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
+   grid, bandstructure and molecular dynamics calculations. The MD input set
+   uses MIT parameters for speed.
 
-1. Site and PeriodicSite now uses a Composition mapping type to represent
-   the species and occupancy, instead of a standard dict.
-2. Bug fix for reading and re-writing out of Potcars.
-3. VaspInputSet now supports MSONable framework.
-4. Strain cell option in StructureEditor.
-5. Miscellaneous bug fixes and speedups.
-
-Version 2.6.1
+Version 2.6.6
 -------------
-1. Use requests.Session in MPRester for connection pooling and code simplicity.
-2. Support for "with" context manager in MPRester.
-3. Updated periodic table data to correct errors in Ru, Tc and other elements.
-4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
-5. Miscellaneous bug fixes and speedups.
+1. Updates to feffio (credit: Alan Dozier)
+2. Added detailed installation instructions for various platforms.
+3. Support for charge and spin multiplicity in Molecule. Expanded methods
+   available in Molecule.
+4. Added supercell matching capabilities to StructureMatcher.
+5. More robust creation of PhaseDiagrams to take into account potential qhull
+   precision errors.
+
+Version 2.6.5
+-------------
+1. Added a command_line caller to do Bader charge analysis using Henkelmann
+   et al.'s algorithm.
+2. Bug fix for POSCAR parsing when title line is an empty string.
+3. Added __rmul__ operator for Composition.
+4. Vastly expanded available aliases.
+
+Version 2.6.4
+-------------
+1. Bug fixes for selective dynamics in Poscar.
+2. Improved Procar parsing to support both simple and detailed PROCARs.
 
 :doc:`Older versions </changelog>`
 
 Getting pymatgen
 ================
+
+Guided install
+--------------
+
+For casual users of pymatgen who intend to use it purely as an analysis
+library, an user-friendly script has been written to guide users through the
+installation process for 64-bit Linux and Mac users. This installation script
+requires only basic Python 2.7+, setuptools, and a working version of gcc as
+prerequisites. Click to download the `pmg_install.py <_static/pmg_install.py>`_
+script. Move the script to an empty directory and then run::
+
+    python pmg_install.py
+
+Unless you are working in a virtual environment, you will probably need to
+run the above command with admin privileges (e.g., sudo). This will install
+pymatgen with all *basic dependencies*.
+
+To include more optional dependencies, build the enumlib and bader
+executables as well as a step-by-step initial setup for POTCARs and Materials
+API usage, run::
+
+    python pmg_install.py -f
+
+The full installation requires a Fortran compiler (ifort or gfortran) to be in
+the PATH, as well as X11 (`XQuartz <http://xquartz.macosforge.org/>`_ on Mac)
+to be installed for matplotlib.
 
 Stable version
 --------------
@@ -106,12 +150,13 @@ or::
 
     pip install pymatgen
 
-**Note**: You may need to install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib and pyhull dependencies.
+Detailed installation instructions for various platforms (Mac and Windows)
+are given on this :doc:`page </installation>`.
 
-**Note for Windows users**: Given that pymatgen requires several Python C
-extensions, it is generally recommended that you install it in a cygwin or
-equivalent environment with the necessary compilers.
+.. note:: Install numpy first.
+
+    You may need to install numpy before installing pymatgen as numpy's
+    distutils is needed to compile the spglib and pyhull dependencies.
 
 Developmental version
 ---------------------
@@ -132,8 +177,8 @@ Some extra functionality (e.g., generation of POTCARs) do require additional
 setup.Please see the following sections for further details on the
 dependencies needed, where to get them and how to install them.
 
-Detailed installation help
---------------------------
+Installation help
+-----------------
 
 .. toctree::
    :maxdepth: 1
@@ -157,8 +202,68 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Command line - matgenie.py
---------------------------
+Basic usage
+-----------
+
+Useful aliases for commonly used objects are now provided. Supported objects
+include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
+some quick examples of the core capabilities and objects:
+
+.. code-block:: pycon
+
+    >>> import pymatgen as mg
+    >>>
+    >>> si = mg.Element("Si")
+    >>> si.atomic_mass
+    28.0855
+    >>> si.melting_point
+    u'1687 K'
+    >>>
+    >>> comp = mg.Composition("Fe2O3")
+    >>> comp.weight
+    159.6882
+    >>> #Note that Composition conveniently allows strings to be treated just
+    >>> #like an Element object.
+    >>> comp["Fe"]
+    2.0
+    >>> comp.get_atomic_fraction("Fe")
+    0.4
+    >>> lattice = mg.Lattice.cubic(4.2)
+    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
+    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
+    >>> structure.volume
+    74.088000000000008
+    >>> structure[0]
+    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
+    >>>
+    >>> #Integrated symmetry tools from spglib.
+    >>> from pymatgen.symmetry.finder import SymmetryFinder
+    >>> finder = SymmetryFinder(structure)
+    >>> finder.get_spacegroup_symbol()
+    'Pm-3m'
+    >>>
+    >>> # Convenient IO to various formats. Format is intelligently determined
+    >>> # from file name and extension.
+    >>> mg.write_structure(structure, "POSCAR")
+    >>> mg.write_structure(structure, "CsCl.cif")
+    >>>
+    >>> #Reading a structure from a file.
+    >>> structure = mg.read_structure("POSCAR")
+
+The above illustrates only the most basic capabilities of pymatgen.
+
+More examples
+-------------
+
+A good way to explore the functionality of pymatgen is to look at examples.
+We have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists (essentially mini git repos of scripts) performing
+various kinds of functions with pymatgen. Please feel free to check them out
+and we welcome your contributions as well!
+
+matgenie.py - Command line tool
+-------------------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -166,8 +271,8 @@ that utilize the library to perform all kinds of analyses. You can find these
 scripts in `scripts directory of pymatgen's github repo
 <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
-Here, we will discuss the most versatile of these scripts,
-known as matgenie.py. The typical usage of matgenie.py is::
+Here, we will discuss the most versatile of these scripts, known as matgenie.py.
+The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
@@ -208,64 +313,14 @@ Here are a few examples of typical usages::
 
     matgenie.py generate --potcar Li_sv O --functional PBE
 
-ipmg - Custom ipython shell
----------------------------
+ipmg - A Custom ipython shell
+-----------------------------
 
 From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
 Upon installing pymatgen in the usual manner, the "ipmg" script will be
 installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
-
-Aliases
--------
-
-From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
-now provided, similar in style to numpy. Supported objects include Element,
-Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects:
-
-.. code-block:: pycon
-
-    >>> import pymatgen as mg
-    >>>
-    >>> si = mg.Element("Si")
-    >>> si.atomic_mass
-    28.0855
-    >>> si.melting_point
-    u'1687 K'
-    >>>
-    >>> comp = mg.Composition("Fe2O3")
-    >>> comp.weight
-    159.6882
-    >>> #Note that Composition conveniently allows strings to be treated just
-    >>> #like an Element object.
-    >>> comp["Fe"]
-    2.0
-    >>> comp.get_atomic_fraction("Fe")
-    0.4
-    >>> lattice = mg.Lattice.cubic(4.2)
-    >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
-    ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
-    >>> structure.volume
-    74.088000000000008
-    >>> structure[0]
-    PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
-    >>>
-    >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
-    >>> finder.get_spacegroup_symbol()
-    'Pm-3m'
-    >>>
-    >>> #Writing out a POSCAR file for VASP calculations.
-    >>> poscar = Poscar(structure)
-    >>> mg.write_structure(structure, "POSCAR")
-    >>>
-    >>> #Reading a structure from a file.
-    >>> structure = mg.read_structure("POSCAR")
-
-The above illustrates only the most basic capabilities of pymatgen.
 
 Advanced Usage
 --------------
@@ -283,7 +338,7 @@ Add-ons
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly

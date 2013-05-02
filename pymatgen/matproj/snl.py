@@ -83,7 +83,8 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
 
     @staticmethod
     def from_dict(h_node):
-        return HistoryNode(h_node['name'], h_node['url'], h_node['description'])
+        return HistoryNode(h_node['name'], h_node['url'],
+                           h_node['description'])
 
     @staticmethod
     def parse_history_node(h_node):
@@ -233,7 +234,8 @@ class StructureNL(object):
 
         # turn remarks into list of Strings
         remarks = remarks if remarks else []
-        self.remarks = [remarks] if isinstance(remarks, basestring) else remarks
+        self.remarks = [remarks] if isinstance(remarks, basestring) \
+            else remarks
 
         # check data limit
         self.data = data if data else {}
@@ -282,8 +284,7 @@ class StructureNL(object):
         a = d["about"]
         dec = PMGJSONDecoder()
 
-        created_at = dec.process_decoded(a["created_at"]) if "created_at" in a \
-            else None
+        created_at = dec.process_decoded(a.get("created_at"))
         data = {k: v for k, v in d["about"].items()
                 if k.startswith("_")}
         data = dec.process_decoded(data)

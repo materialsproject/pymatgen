@@ -28,6 +28,23 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+# List with the correspondence Z --> Symbol
+# We use a list instead of a mapping so that we can select slices easily.
+_z2symbol = 119 * [None]
+for (symbol, data) in _pt_data.items():
+    _z2symbol[data["Atomic no"]] = symbol
+
+
+def symbol_from_Z(z):
+    """
+    Return the symbol of the element from the atomic number.
+
+    Args:
+        z:
+            Atomic number or slice object
+    """
+    return _z2symbol[z]
+
 
 @cached_class
 @total_ordering
@@ -83,7 +100,7 @@ class Element(object):
 
         Returns the periodic table row of the element.
 
-    ..attribute:: group
+    .. attribute:: group
 
         Returns the periodic table group of the element.
 
@@ -634,13 +651,23 @@ class Element(object):
 class Specie(MSONable):
     """
     An extension of Element with an oxidation state and other optional
-    properties. Note that optional properties are not checked when comparing
-    two Species for equality; only the element and oxidation state is checked.
-    Properties associated with Specie should be "idealized" values, not
-    calculated values. For example, high-spin Fe2+ may be assigned an idealized
-    spin of +5, but an actual Fe2+ site may be calculated to have a magmom of
-    +4.5. Calculated properties should be assigned to Site objects, and not
-    Specie.
+    properties. Properties associated with Specie should be "idealized"
+    values, not calculated values. For example, high-spin Fe2+ may be
+    assigned an idealized spin of +5, but an actual Fe2+ site may be
+    calculated to have a magmom of +4.5. Calculated properties should be
+    assigned to Site objects, and not Specie.
+
+    .. attribute:: oxi_state
+
+        Oxidation state associated with Specie
+
+    .. attribute:: ionic_radius
+
+        Ionic radius of Specie (with specific oxidation state).
+
+    .. versionchanged:: 2.6.7
+
+        Properties are now checked when comparing two Species for equality.
     """
 
     supported_properties = ("spin",)
@@ -683,7 +710,8 @@ class Specie(MSONable):
         if not isinstance(other, Specie):
             return False
         return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+            and self._oxi_state == other._oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -830,6 +858,22 @@ class DummySpecie(MSONable):
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
+
+    .. attribute:: symbol
+
+        Symbol for the DummySpecie.
+
+    .. attribute:: oxi_state
+
+        Oxidation state associated with Specie.
+
+    .. attribute:: Z
+
+        DummySpecie is always assigned an atomic number of 0.
+
+    .. attribute:: X
+
+        DummySpecie is always assigned an electronegativity of 0.
     """
 
     def __init__(self, symbol="X", oxidation_state=0, properties=None):
@@ -976,6 +1020,22 @@ class PeriodicTable(object):
     def __getattr__(self, name):
         return self._all_elements[name]
 
+    def __iter__(self):
+        for sym in _z2symbol:
+            if sym is not None:
+                yield self._all_elements[sym]
+
+    def __getitem__(self, Z_or_slice):
+        #print Z_or_slice, symbol_from_Z(Z_or_slice)
+        try:
+            if isinstance(Z_or_slice, slice):
+                return [self._all_elements[sym]
+                        for sym in symbol_from_Z(Z_or_slice)]
+            else:
+                return self._all_elements[symbol_from_Z(Z_or_slice)]
+        except:
+            raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
+
     @property
     def all_elements(self):
         """
@@ -1029,16 +1089,21 @@ def smart_element_or_specie(obj):
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    if isinstance(obj, (Element, Specie, DummySpecie)):
+    t = type(obj)
+    if t in (Element, Specie, DummySpecie):
         return obj
-    elif isinstance(obj, int):
+    elif t == int:
         return Element.from_Z(obj)
-    elif isinstance(obj, basestring):
+    else:
+        obj = str(obj)
         try:
             return Specie.from_string(obj)
         except (ValueError, KeyError):
             try:
                 return Element(obj)
             except (ValueError, KeyError):
-                return DummySpecie.from_string(obj)
-    raise ValueError("Can't parse Element or String from " + str(obj))
+                try:
+                    return DummySpecie.from_string(obj)
+                except:
+                    raise ValueError("Can't parse Element or String from " +
+                                     str(obj))
