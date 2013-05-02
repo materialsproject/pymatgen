@@ -103,20 +103,22 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        types = [] # Cannot use sets since we want a determinitic algorithm.
+        types = []  # Cannot use sets since we want a deterministic algorithm.
         for site in self:
-            if site.specie not in types: types.append(site.specie)
+            if site.specie not in types:
+                types.append(site.specie)
         return types
 
     def group_by_types(self):
-        "Iterate over species grouped by type"
-        for type in self.types_of_specie:
+        """Iterate over species grouped by type"""
+        for t in self.types_of_specie:
             for site in self:
-                if site.specie == type: yield site
+                if site.specie == t:
+                    yield site
 
     @property
     def atomic_numbers(self):
-        "List of atomic numbers."
+        """List of atomic numbers."""
         return [site.specie.number for site in self]
 
     @property
@@ -335,7 +337,6 @@ class Structure(SiteCollection, MSONable):
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
-
 
     @staticmethod
     def from_sites(sites):
@@ -956,7 +957,6 @@ class Molecule(SiteCollection, MSONable):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        #TODO: support charged molecules.
         if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
                                   " same length as the list of fractional ",
@@ -1139,7 +1139,7 @@ class Molecule(SiteCollection, MSONable):
     def __repr__(self):
         outs = ["Molecule Summary"]
         for s in self:
-            outs.append(repr(s))
+            outs.append(s.__repr__())
         return "\n".join(outs)
 
     def __str__(self):
@@ -1315,14 +1315,4 @@ class StructureError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
-    def __init__(self, msg):
-        """
-        Args:
-            msg:
-                The error message.
-        """
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass

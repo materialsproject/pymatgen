@@ -78,56 +78,79 @@ Ha_eV = 27.21138386
 #: 1 Bohr, in Angstrom
 Bohr_Ang = 0.52917720859
 
-#########################################################################################
-#                                   Conversion tools.
-#########################################################################################
+###############################################################################
+# Conversion tools.
+###############################################################################
+
 
 def Ha2eV(Ha):
     """
     Convert Hartree to eV
 
-    :arg Ha: array_like with Hartree energies(s) to be converted.
-    :return: array of floats with equivalent eV energies.
+    Args:
+        Ha:
+            array_like with Hartree energies(s) to be converted.
+
+    Returns:
+        Array of floats with equivalent eV energies.
 
     >>> Ha2eV([1, 2])
     array([ 27.21138386,  54.42276772])
     """
     return _np.asanyarray(Ha) * Ha_eV
 
+
 def Ha2meV(Ha):
-    "Convert Hartree to meV"
+    """
+    Convert Hartree to meV
+    """
     return Ha2eV(Ha) * 1000
+
 
 def eV2Ha(eV):
     """
     Convert eV to Hartree
 
-    :arg eV: array_like with eV energies to be converted.
-    :return: array of floats with equivalent Hartree energies.
+    Args:
+        eV:
+            array_like with eV energies to be converted.
+
+    Returns:
+        Array of floats with equivalent Hartree energies.
 
     >>> eV2Ha([ 27.21138386, 1])
     array([ 1.        ,  0.03674933])
     """
     return _np.asanyarray(eV) / Ha_eV
 
+
 def Bohr2Ang(Bohr):
     """
     Convert Bohr to Angstrom
 
-    :arg Bohr: array_like with Bohr lengths to be converted.
-    :return: array of floats with equivalent Angstrom lengths.
+    Args:
+        Bohr:
+            array_like with Bohr lengths to be converted.
+
+    Returns:
+        array of floats with equivalent Angstrom lengths.
 
     >>> Bohr2Ang([1, 2])
     array([ 0.52917721,  1.05835442])
     """
     return _np.asanyarray(Bohr) * Bohr_Ang
 
+
 def Ang2Bohr(Ang):
     """
     Convert Angstrom to Bohr.
 
-    :arg Ang: array_like with Angstrom lengths to be converted.
-    :return: array of floats with equivalent Bohr lengths.
+    Args
+        Ang:
+            Array_like with Angstrom lengths to be converted.
+
+    Returns:
+        Array of floats with equivalent Bohr lengths.
 
     >>> Ang2Bohr(Bohr2Ang([1, 2]))
     array([ 1.,  2.])

@@ -725,13 +725,15 @@ class Kpoints(MSONable):
             kpts_shift:
                 Shift for Kpoints.
             kpts_weights:
-                Optional weights for kpoints.  Weights should be integers. For explicit kpoints.
+                Optional weights for kpoints.  Weights should be integers. For
+                explicit kpoints.
             coord_type:
                 In line-mode, this variable specifies whether the Kpoints were
                 given in Cartesian or Reciprocal coordinates.
             labels:
                 In line-mode, this should provide a list of labels for each
-                kpt. It is optional in explicit kpoint mode as comments for k-points.
+                kpt. It is optional in explicit kpoint mode as comments for
+                k-points.
             tet_number:
                 For explicit kpoints, specifies the number of tetrahedrons for
                 the tetrahedron method.
@@ -1004,7 +1006,8 @@ class Kpoints(MSONable):
                 lines[-1] += " ! " + self.labels[i]
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += " %i %s" % (self.kpts_weights[i], self.labels[i])
+                    lines[-1] += " %i %s" % (self.kpts_weights[i],
+                                             self.labels[i])
                 else:
                     lines[-1] += " %i" % (self.kpts_weights[i])
 
@@ -1183,15 +1186,13 @@ class Potcar(list):
         """
         Args:
             symbols:
-                Element symbols for POTCAR
+                Element symbols for POTCAR. This should correspond to the
+                symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
             functional:
                 Functional used.
             sym_potcar_map:
-                Allows a user to specify a specific element symbol to POTCAR
-                symbol mapping. For example, you can have {"Fe":"Fe_pv"} to
-                specify that the Fe_pv psuedopotential should be used for Fe.
-                Default is None, which uses a pre-determined mapping used in
-                the Materials Project.
+                Allows a user to specify a specific element symbol to raw
+                POTCAR mapping.
         """
         super(Potcar, self).__init__()
         self.functional = functional

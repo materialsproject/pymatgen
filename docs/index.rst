@@ -77,6 +77,11 @@ Version 2.7.0
 1. Beta support for ABINIT input and output via pymatgen.io.abinitio
    (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.
+3. MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
+   typing and deprecated.
+4. New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
+   grid, bandstructure and molecular dynamics calculations. The MD input set
+   uses MIT parameters for speed.
 
 Version 2.6.6
 -------------
