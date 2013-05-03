@@ -872,10 +872,12 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        style = Kpoints.supported_modes.Gamma
-        if not is_hexagonal:
-            num_div = [i + i % 2 for i in num_div]
-            style = Kpoints.supported_modes.Monkhorst
+        all_odd = all([i % 2 == 1 for i in num_div])
+
+        style = Kpoints.supported_modes.Monkhorst
+        if all_odd or is_hexagonal:
+            style = Kpoints.supported_modes.Gamma
+
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)
         num_kpts = 0
