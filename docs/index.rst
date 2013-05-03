@@ -78,33 +78,12 @@ Version 2.7.0
    (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.
 3. MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
-   typing and deprecated.
+   typing. The old input sets have been deprecated.
 4. New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
    grid, bandstructure and molecular dynamics calculations. The MD input set
    uses MIT parameters for speed.
-
-Version 2.6.6
--------------
-1. Updates to feffio (credit: Alan Dozier)
-2. Added detailed installation instructions for various platforms.
-3. Support for charge and spin multiplicity in Molecule. Expanded methods
-   available in Molecule.
-4. Added supercell matching capabilities to StructureMatcher.
-5. More robust creation of PhaseDiagrams to take into account potential qhull
-   precision errors.
-
-Version 2.6.5
--------------
-1. Added a command_line caller to do Bader charge analysis using Henkelmann
-   et al.'s algorithm.
-2. Bug fix for POSCAR parsing when title line is an empty string.
-3. Added __rmul__ operator for Composition.
-4. Vastly expanded available aliases.
-
-Version 2.6.4
--------------
-1. Bug fixes for selective dynamics in Poscar.
-2. Improved Procar parsing to support both simple and detailed PROCARs.
+5. A revised KPOINT grid algorithm that generates more reasonable meshes.
+6. A guided install script is now provided for Mac and Linux users.
 
 :doc:`Older versions </changelog>`
 
@@ -114,12 +93,13 @@ Getting pymatgen
 Guided install
 --------------
 
-For casual users of pymatgen who intend to use it purely as an analysis
-library, an user-friendly script has been written to guide users through the
-installation process for 64-bit Linux and Mac users. This installation script
-requires only basic Python 2.7+, setuptools, and a working version of gcc as
-prerequisites. Click to download the `pmg_install.py <_static/pmg_install.py>`_
-script. Move the script to an empty directory and then run::
+For users who intend to use pymatgen purely as an analysis library (without
+developing on it), a user-friendly script has been written to guide users
+through the installation process for 64-bit Linux and Mac users. This
+installation script requires only basic *Python 2.7+, setuptools,
+and a working version of gcc* as prerequisites. Click to download the
+`pmg_install.py <_static/pmg_install.py>`_ script. Move the script to an
+empty directory and then run::
 
     python pmg_install.py
 
@@ -252,16 +232,6 @@ some quick examples of the core capabilities and objects:
 
 The above illustrates only the most basic capabilities of pymatgen.
 
-More examples
--------------
-
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists (essentially mini git repos of scripts) performing
-various kinds of functions with pymatgen. Please feel free to check them out
-and we welcome your contributions as well!
-
 matgenie.py - Command line tool
 -------------------------------
 
@@ -322,16 +292,25 @@ installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
 
-Advanced Usage
---------------
+Tutorials, Examples and API docs
+--------------------------------
 
 Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below), and :doc:`the API docs </modules>`.
+</usage>` (toc given below).
 
 .. toctree::
    :maxdepth: 2
 
    usage
+
+A good way to explore the functionality of pymatgen is to look at examples.
+We have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists performing various kinds of functions with pymatgen.
+Please feel free to check them out and we welcome your contributions as well!
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`pymatgen API docs </modules>`.
 
 Add-ons
 -------
@@ -380,15 +359,6 @@ Github workflow (see section below).
 
    contributing
 
-API/Reference Docs
-==================
-
-The API docs are generated using Sphinx auto-doc and outlines the purpose of all
-modules and classes, and the expected argument and returned objects for most
-methods. They are available at the link below.
-
-:doc:`pymatgen API docs </modules>`
-
 How to cite pymatgen
 ====================
 
@@ -403,73 +373,8 @@ work:
     <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
-/ principles developed by the computational materials scientists in our team.
-If you use some of these functionality in your research, you may wish to
-consider citing the following works:
-
-pymatgen.io.vaspio_set
-----------------------
-
-The MIT parameter sets, which are optimized for high-throughput computing, are
-outlined the following work:
-
-    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
-    K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
-    functional theory calculations.* Computational Materials Science, 2011,
-    50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
-    <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
-
-pymatgen.phasediagram
----------------------
-
-The phase diagram code, in particular the grand canonical phase diagram
-analysis, is based on the work of Ong et al. and are used in following works:
-
-    S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
-    First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
-    1798-1807. `doi:10.1021/cm702327g <http://dx.doi.org/10.1021/cm702327g>`_
-
-    S. P. Ong, A. Jain, G. Hautier, B. Kang, and G. Ceder. *Thermal stabilities
-    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-    principles calculations.* Electrochemistry Communications, 2010, 12(3),
-    427-430. `doi:10.1016/j.elecom.2010.01.010
-    <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
-
-pymatgen.entries.compatibility
-------------------------------
-
-The compatibility processing, which allows mixing of GGA and GGA+U runs that
-have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
-is based on the following work:
-
-    A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
-    G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
-    Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
-    <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
-
-pymatgen.matproj
-----------------
-
-The matproj package contains an interface to the `Materials Project REST API
-<http://www.materialsproject.org/open>`_ (Materials API). If you use data
-from the Materials Project, please cite the following works:
-
-    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
-    K. Persson, G. Ceder. *A high-throughput infrastructure for density
-    functional theory calculations.* Computational Materials Science, 2011,
-    50(8), 2295–2310. `doi:10 .1016/j.commatsci.2011.02.023
-    <http://dx.doi.org/10 .1016/j.commatsci.2011.02.023>`_
-
-    S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
-    D. Skinner, K. Persson, G. Ceder. *The Materials Project.*
-    http://materialsproject.org/
-
-pymatgen.symmetry
------------------
-
-The symmetry package is based on the excellent spglib developed by Atz Togo. For
-more information, please refer to Atz Togo's site at
-http://spglib.sourceforge.net/.
+/ principles developed by various scientists. Please refer to the
+:doc:`references page </references>` for citation info.
 
 License
 =======
