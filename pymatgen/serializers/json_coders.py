@@ -179,3 +179,14 @@ class PMGJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         d = json.JSONDecoder.decode(self, s)
         return self.process_decoded(d)
+
+
+def json_pretty_dump(obj, filename):
+    "Serialize obj as a JSON formatted stream to the given filename (pretty printing version)"
+    with open(filename, "w") as fh:
+        json.dump(obj, fh, indent=4, sort_keys=4)
+
+def json_load(filename):
+    "Deserialize a file containing a JSON document to a Python object."
+    with open(filename, "r") as fh:
+       return json.load(fh)

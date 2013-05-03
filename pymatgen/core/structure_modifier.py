@@ -100,25 +100,16 @@ class StructureEditor(StructureModifier):
                 have .375 Ge and .125 C.
         """
         def mod_site(site):
-            new_atom_occu = dict()
+            new_atom_occu = collections.defaultdict(int)
             for sp, amt in site.species_and_occu.items():
                 if sp in species_mapping:
                     if isinstance(species_mapping[sp], (Element, Specie)):
-                        if species_mapping[sp] in new_atom_occu:
-                            new_atom_occu[species_mapping[sp]] += amt
-                        else:
-                            new_atom_occu[species_mapping[sp]] = amt
+                        new_atom_occu[species_mapping[sp]] += amt
                     elif isinstance(species_mapping[sp], dict):
                         for new_sp, new_amt in species_mapping[sp].items():
-                            if new_sp in new_atom_occu:
-                                new_atom_occu[new_sp] += amt * new_amt
-                            else:
-                                new_atom_occu[new_sp] = amt * new_amt
+                            new_atom_occu[new_sp] += amt * new_amt
                 else:
-                    if sp in new_atom_occu:
-                        new_atom_occu[sp] += amt
-                    else:
-                        new_atom_occu[sp] = amt
+                    new_atom_occu[sp] += amt
             return PeriodicSite(new_atom_occu, site.frac_coords, self._lattice,
                                 properties=site.properties)
 

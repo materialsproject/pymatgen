@@ -17,6 +17,14 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bader_caller` Module
+--------------------------
+
+.. automodule:: pymatgen.command_line.bader_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`enumlib_caller` Module
 ----------------------------
 

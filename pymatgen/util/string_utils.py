@@ -13,6 +13,7 @@ __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
 import re
+import sys
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):
@@ -155,6 +156,110 @@ def latexify_spacegroup(spacegroup_symbol):
     """
     sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
     return re.sub(r"-(\d)", r"$\overline{\1}$", sym)
+
+
+def pprint_table(table, out=sys.stdout, rstrip=False):
+    """
+    Prints out a table of data, padded for alignment
+    Each row must have the same number of columns.
+
+    Args:
+        table:
+            The table to print. A list of lists.
+        out:
+            Output stream (file-like object)
+        rstrip:
+            if True, trailing withespaces are removed from the entries.
+    """
+    def max_width_col(table, col_idx):
+        """
+        Get the maximum width of the given column index
+        """
+        return max([len(row[col_idx]) for row in table])
+
+    if rstrip:
+        for row_idx, row in enumerate(table):
+            table[row_idx] = [c.rstrip() for c in row]
+
+    col_paddings = []
+    ncols = len(table[0])
+    for i in range(ncols):
+        col_paddings.append(max_width_col(table, i))
+
+    for row in table:
+        # left col
+        out.write(row[0].ljust(col_paddings[0] + 1))
+        # rest of the cols
+        for i in range(1, len(row)):
+            col = row[i].rjust(col_paddings[i] + 2)
+            out.write(col)
+        out.write("\n")
+
+
+def list_strings(arg):
+    """
+    Always return a list of strings, given a string or list of strings as
+    input.
+
+    :Examples:
+
+    >>> list_strings('A single string')
+    ['A single string']
+
+    >>> list_strings(['A single string in a list'])
+    ['A single string in a list']
+
+    >>> list_strings(['A','list','of','strings'])
+    ['A', 'list', 'of', 'strings']
+    """
+
+    #if isinstance(arg, string):  version for Py3K
+    if isinstance(arg, basestring):
+        return [arg]
+    else:
+        return arg
+
+
+###############################################################################
+def stream_has_colours(stream):
+    """
+    True if stream supports colours. Python cookbook, #475186
+    """
+    if not hasattr(stream, "isatty"):
+        return False
+
+    if not stream.isatty():
+        return False  # auto color only on TTYs
+    try:
+        import curses
+        curses.setupterm()
+        return curses.tigetnum("colors") > 2
+    except:
+        return False  # guess false in case of error
+
+
+class StringColorizer(object):
+    colours = {"default": "",
+               "blue": "\x1b[01;34m",
+               "cyan": "\x1b[01;36m",
+               "green": "\x1b[01;32m",
+               "red": "\x1b[01;31m",
+               # lighting colours.
+               #"lred":    "\x1b[01;05;37;41m"
+               }
+
+    def __init__(self, stream):
+        self.has_colours = stream_has_colours(stream)
+
+    def __call__(self, string, colour):
+        if self.has_colours:
+            code = self.colours.get(colour, "")
+            if code:
+                return code + string + "\x1b[00m"
+            else:
+                return string
+        else:
+            return string
 
 
 if __name__ == "__main__":

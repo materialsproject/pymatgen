@@ -27,8 +27,9 @@ class  PDAnalyzerTest(unittest.TestCase):
 
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:
-            self.assertLessEqual(self.analyzer.get_equilibrium_reaction_energy(entry), 0,
-                                 "Stable entries should have negative equilibrium reaction energy!")
+            self.assertLessEqual(
+                self.analyzer.get_equilibrium_reaction_energy(entry), 0,
+                "Stable entries should have negative equilibrium reaction energy!")
 
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:

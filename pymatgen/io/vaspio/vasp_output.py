@@ -296,7 +296,8 @@ class Vasprun(object):
         """
         return True if self.incar.get("ISPIN", 1) == 2 else False
 
-    def get_band_structure(self, kpoints_filename=None, efermi=None):
+    def get_band_structure(self, kpoints_filename=None, efermi=None,
+                           line_mode=False):
         """
         Returns the band structure as a BandStructure object
 
@@ -308,10 +309,15 @@ class Vasprun(object):
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
+
             efermi:
                 If you want to specify manually the fermi energy this is where
                 you should do it. By default, the None value means the code
                 will get it from the vasprun.
+
+            line_mode:
+                force the band structure to be considered as a run along
+                symmetry lines
 
         Returns:
             a BandStructure object (or more specifically a
@@ -391,7 +397,7 @@ class Vasprun(object):
                 if l is not None:
                     hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band:
+        if kpoint_file.style == "Line_mode" or hybrid_band or line_mode:
             labels_dict = {}
             if hybrid_band:
                 start_bs_index = 0
@@ -1585,7 +1591,7 @@ class VolumetricData(object):
                         data_count = 0
                         all_dataset.append(dataset)
                 elif not poscar_read:
-                    if line != "":
+                    if line != "" or len(poscar_string) == 0:
                         poscar_string.append(line)
                     elif line == "":
                         poscar = Poscar.from_string("\n".join(poscar_string))
@@ -1707,7 +1713,7 @@ class VolumetricData(object):
         """
         Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
-        fike.
+        file.
 
         Args:
             ind : Index of axis.
@@ -1716,22 +1722,14 @@ class VolumetricData(object):
             Average total along axis
         """
         m = self.data["total"]
-
         ng = self.dim
-        avg = []
-        for i in xrange(ng[ind]):
-            subtotal = 0
-            for j in xrange(ng[(ind + 1) % 3]):
-                for k in xrange(ng[(ind + 2) % 3]):
-                    if ind == 0:
-                        subtotal += m[i, j, k]
-                    if ind == 1:
-                        subtotal += m[k, i, j]
-                    if ind == 2:
-                        subtotal += m[j, k, i]
-            avg.append(subtotal)
-        avg = np.array(avg) / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
-        return avg
+        if ind == 0:
+            total = np.sum(np.sum(m, axis=1), 1)
+        elif ind == 1:
+            total = np.sum(np.sum(m, axis=0), 1)
+        else:
+            total = np.sum(np.sum(m, axis=0), 0)
+        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
 
 class Locpot(VolumetricData):
@@ -2005,15 +2003,9 @@ class Oszicar(object):
 
 class VaspParserError(Exception):
     """
-    Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Exception class for VASP parsing.
     """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "VaspParserError : " + self.msg
+    pass
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,

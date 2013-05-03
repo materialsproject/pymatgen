@@ -46,8 +46,110 @@ the moment) required only for certain features:
    completely enumerate all symmetrically distinct ordered structures of
    disordered structures via the EnumerateStructureTransformation. The
    multienum.x and makestr.x executables must be in the path. Get it at
-   http://enum.sourceforge.org and follow the instructions to compile
+   http://enum.sourceforge.net and follow the instructions to compile
    multienum.x and makestr.x.
+3. bader: For the use of the BaderAnalysis class in pymatgen.command_line.bader
+   module. This library by Henkelmann et al. provides a robust way to
+   calculate the Bader analysis from a CHGCAR. The bader executable must be
+   in the path. Get it at http://theory.cm.utexas.edu/bader.
+
+Detailed installation instructions
+==================================
+
+Mac OSX (tested on 10.6-10.7)
+-----------------------------
+
+For Macs, the initial installation steps can be a bit complicated because
+pymatgen does require a number of extensions to be built. Here are some
+recommended step-by-step instructions for a minimal setup necessary for
+pymatgen usage.
+
+1. Download and install the basic compilers needed:
+    a. Xcode - This provides the gcc compiler. Get it from the App Store.
+       Afer installation, start XCode, go to Preferences->Downloads and install
+       the Command Line Tools. Note that this download and install takes a long
+       time. You may need to quit Xcode and reopen if the Command Line Tools
+       option does not appear.
+    b. Gfortran 4.6.2+ - Get an installer at
+       http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
+2. It is recommended that you install the latest copy of Python 2.7+ (not 3+),
+   even though your Mac should already have a compatible version. This makes it
+   easier for future upgrades and minimizes issues. Get it from the `Python
+   home page <http://www.python.org>`_ and install.
+3. Ensure that your terminal is running the correct version by typing::
+
+    which python
+
+   You should see something like
+   “/Library/Frameworks/Python.framework/Versions/2.7/bin/python”. If you don’t
+   get this (e.g., if you get /usr/bin/python), you may need to change your
+   PATH.
+
+4. Python setuptools make it easier to install subsequent programs via
+   “easy_install”. If you want to, you can install pip as well using “sudo
+   easy_install pip”. Pip has several advantages over easy_install. In a
+   terminal, run::
+
+    curl -o setuptools-0.6c11-py2.7.egg http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
+    sudo sh setuptools-0.6c11-py2.7.egg
+    sudo easy_install pip #optional
+
+5. Install numpy and a few other dependencies::
+
+    sudo pip install numpy
+    sudo pip install pycifrw
+    sudo pip install pyyaml
+
+6. Install pymatgen, either in development mode or via pip.
+
+Windows (tested on Win7 64-bit)
+-------------------------------
+
+The installation of pymatgen on Windows machines is particularly tricky,
+especially for the non-developer, because many of the tools that come bundled
+with Unix-based systems (such as gcc and python itself!) are not part of a
+standard Windows installation.
+
+The instructions below is a tested installation procedure for getting python
+and pymatgen working on a Windows system via `Cygwin
+<http://www.cygwin.com>`_, which is the easiest procedure I know. If anyone
+has a step-by-step guide for a native installation without cygwin,
+please send me the details.
+
+1. Download and install `Cygwin`_. When you get to the part that asks for the
+   packages to install, make sure that the following are selected:
+
+    a. Devel - gcc4 (not gcc, which is gcc 3.*), git
+    b. Libs - libmpfr4
+    c. Python - python, python-numpy, python-setuptools
+    d. Net - openssh
+
+   In all cases, make sure that both binary and src is selected.
+2. Start the Cygwin terminal.
+3. easy_install pip (this makes it much easier to manage packages)::
+
+    easy_install pip
+
+4. Install some required packages which seem to have issues when installed as
+   part of the pymatgen setup.py process::
+
+    pip install pycifrw
+    pip install pyyaml
+
+5. Install pymatgen either using pip or the Github developer procedures
+   below.
+6. Test your installation by entering the python interactive prompt and doing
+   a "import pymatgen as mg".
+
+Linux
+-----
+
+If you are using a Linux system, it is generally assumed that you will have
+python, numpy and the standard compilers already on your system. Standard
+easy_install or pip install should work automatically. Even if there are some
+minor compilation error messages, I generally assume Linux users are usually
+able to diagnose and solve those. For users of Ubuntu, most of the dependencies
+(including the optional ones) are most easily installed using apt-get.
 
 POTCAR Setup
 ============

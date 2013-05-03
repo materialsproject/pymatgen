@@ -58,6 +58,9 @@ H -0.513360 0.889165 -0.363000"""
         sp = ["C", "H", "H", "H", "H"]
         for i, site in enumerate(mol):
             self.assertEqual(site.species_string, sp[i])
+            self.assertEqual(len(site.coords), 3)
+            if i == 0:
+                self.assertTrue(all([c == 0 for c in site.coords]))
 
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')
