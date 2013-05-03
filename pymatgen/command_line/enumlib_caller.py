@@ -48,11 +48,17 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.core.periodic_table import DummySpecie
-
+from pymatgen.util.io_utils import which
+from pymatgen.util.decorators import requires
 
 logger = logging.getLogger(__name__)
 
 
+@requires(which('multienum.x') and which('makestr.x'),
+          "EnumlibAdaptor requires the executables 'multienum.x' and "
+          "'makestr.x' to be in the path. Please download the library at"
+          "http://enum.sourceforge.net/ and follow the instructions in "
+          "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.

@@ -19,7 +19,9 @@ import numpy as np
 import itertools
 import collections
 
+from warnings import warn
 from pyhull.voronoi import VoronoiTess
+from pymatgen import PeriodicSite
 
 
 class VoronoiCoordFinder(object):
@@ -28,7 +30,7 @@ class VoronoiCoordFinder(object):
     structure.
     """
 
-    """Radius in Angstrom cutoff to look for coordinating atoms"""
+    # Radius in Angstrom cutoff to look for coordinating atoms
     default_cutoff = 10.0
 
     def __init__(self, structure, target=None):
@@ -198,6 +200,97 @@ class RelaxationAnalyzer(object):
                 final_dist = self.final[i].distance(self.final[j])
                 data[i][j] = final_dist / initial_dist - 1
         return data
+
+
+class VoronoiConnectivity(object):
+    """
+    Computes the solid angles swept out by the shared face of the voronoi
+    polyhedron between two sites
+    """
+
+    # Radius in Angstrom cutoff to look for coordinating atoms
+    cutoff = 10
+
+    def __init__(self, structure):
+        self.s = structure
+        recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
+        i = np.ceil(VoronoiConnectivity.cutoff * recp_len / (2 * math.pi))
+        offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
+        self.offsets = np.reshape(offsets, (-1, 3))
+        #shape = [image, axis]
+        self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)
+
+    @property
+    def connectivity_array(self):
+        """
+        Returns:
+            connectivity:
+                an array of shape [atomi, atomj, imagej]. atomi is the
+                index of the atom in the input structure. Since the second
+                atom can be outside of the unit cell, it must be described
+                by both an atom index and an image index. Array data is the
+                solid angle of polygon between atomi and imagej of atomj
+        """
+        #shape = [site, axis]
+        cart_coords = np.array(self.s.cart_coords)
+        #shape = [site, image, axis]
+        all_sites = cart_coords[:, None, :] + self.cart_offsets[None, :, :]
+        vt = VoronoiTess(all_sites.reshape((-1, 3)))
+        n_images = all_sites.shape[1]
+        cs = (len(self.s), len(self.s), len(self.cart_offsets))
+        connectivity = np.zeros(cs)
+        vts = np.array(vt.vertices)
+        for (ki, kj), v in vt.ridges.items():
+            atomi = ki // n_images
+            atomj = kj // n_images
+
+            imagei = ki % n_images
+            imagej = kj % n_images
+
+            if imagei != n_images // 2 and imagej != n_images // 2:
+                continue
+
+            if imagei == n_images // 2:
+                #atomi is in original cell
+                val = solid_angle(vt.points[ki], vts[v])
+                connectivity[atomi, atomj, imagej] = val
+
+            if imagej == n_images // 2:
+                #atomj is in original cell
+                val = solid_angle(vt.points[kj], vts[v])
+                connectivity[atomj, atomi, imagei] = val
+
+            if -10.101 in vts[v]:
+                warn('Found connectivity with infinite vertex. '
+                     'Cutoff is too low, and results may be '
+                     'incorrect')
+        return connectivity
+
+    @property
+    def max_connectivity(self):
+        """
+        returns the 2d array [sitei, sitej] that represents
+        the maximum connectivity of site i to any periodic
+        image of site j
+        """
+        return np.max(self.connectivity_array, axis=2)
+
+    def get_sitej(self, site_index, image_index):
+        """
+        Assuming there is some value in the connectivity array at indices
+        (1, 3, 12). sitei can be obtained directly from the input structure
+        (structure[1]). sitej can be obtained by passing 3, 12 to this function
+
+        Args:
+            site_index:
+                index of the site (3 in the example)
+            image_index:
+                index of the image (12 in the example)
+        """
+        atoms_n_occu = self.s[site_index].species_and_occu
+        lattice = self.s.lattice
+        coords = self.s[site_index].frac_coords + self.offsets[image_index]
+        return PeriodicSite(atoms_n_occu, coords, lattice)
 
 
 def solid_angle(center, coords):

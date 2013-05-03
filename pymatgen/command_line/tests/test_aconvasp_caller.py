@@ -1,7 +1,5 @@
 import unittest
 
-from nose.exc import SkipTest
-
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
     get_minkowski_red, get_vasp_kpoint_file_sym
 from pymatgen.core.composition import Composition
@@ -13,11 +11,10 @@ from pymatgen.util.io_utils import which
 aconvasp_present = which('aconvasp')
 
 
+@unittest.skipIf(not aconvasp_present, "aconvasp not present.")
 class AconvaspCallerTest(unittest.TestCase):
 
     def setUp(self):
-        if not aconvasp_present:
-            raise SkipTest("aconvasp not present. Skipping...")
         self.si = Element("Si")
         coords = list()
         coords.append([0, 0, 0])

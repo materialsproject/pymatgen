@@ -16,8 +16,6 @@ __date__ = "Jul 22, 2012"
 import unittest
 import os
 
-from nose.exc import SkipTest
-
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import Element, Structure
 from pymatgen.io.cifio import CifParser
@@ -31,11 +29,10 @@ from pymatgen.transformations.site_transformations import \
 enumlib_present = which('multienum.x') and which('makestr.x')
 
 
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumlibAdaptorTest(unittest.TestCase):
 
     def test_init(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. Skipping...")
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
         parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
@@ -67,7 +64,7 @@ class EnumlibAdaptorTest(unittest.TestCase):
                                    0.25 / 6.25)
 
         #Make sure it works for completely disordered structures.
-        struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{'Fe':0.5}],
+        struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{'Fe': 0.5}],
                            [[0, 0, 0]])
         adaptor = EnumlibAdaptor(struct, 1, 2)
         adaptor.run()
