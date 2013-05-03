@@ -163,6 +163,12 @@ def requires(condition, message):
         @requires(scipy is not None, "scipy is not present.")
         def use_scipy():
             print scipy.majver
+
+    Args:
+        condition:
+            Condition necessary to use the class or function.
+        message:
+            A message to be displayed if the condition is not True.
     """
     def wrap(f):
         def wrapped(*args, **kwargs):
