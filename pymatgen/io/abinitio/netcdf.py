@@ -28,14 +28,14 @@ try:
 except ImportError:
     netCDF4 = None
 
-################################################################################
+###############################################################################
 
 
 class NetcdfReader(object):
     "Wraps and extends netCDF4.Dataset. Read only mode"
 
-    @requires(netCDF4 is not None, "netCDF4 library must be installed to use this"
-                                   " class")
+    @requires(netCDF4 is not None,
+              "netCDF4 library must be installed to use this class")
     def __init__(self, filename):
         self.path = os.path.abspath(filename)
 

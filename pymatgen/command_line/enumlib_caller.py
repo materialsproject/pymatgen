@@ -54,6 +54,11 @@ from pymatgen.util.decorators import requires
 logger = logging.getLogger(__name__)
 
 
+@requires(which('multienum.x') and which('makestr.x'),
+          "EnumlibAdaptor requires the executables 'multienum.x' and "
+          "'makestr.x' to be in the path. Please download the library at"
+          "http://enum.sourceforge.net/ and follow the instructions in "
+          "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
@@ -64,11 +69,6 @@ class EnumlibAdaptor(object):
     """
     amount_tol = 1e-5
 
-    @requires(which('multienum.x') and which('makestr.x'),
-              "EnumlibAdaptor requires the executables 'multienum.x' and "
-              "'makestr.x' to be in the path. Please download the library at"
-              "http://enum.sourceforge.net/ and follow the instructions in "
-              "the README to compile these two executables accordingly.")
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
                  refine_structure=False):
