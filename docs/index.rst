@@ -82,8 +82,9 @@ Version 2.7.0
 4. New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
    grid, bandstructure and molecular dynamics calculations. The MD input set
    uses MIT parameters for speed.
-5. A revised KPOINT grid algorithm that generates more reasonable meshes.
-6. A guided install script is now provided for Mac and Linux users.
+5. A beta DiffusionAnalysis class in the apps package.
+6. A revised KPOINT grid algorithm that generates more reasonable meshes.
+7. A guided install script is now provided for Mac and Linux users.
 
 :doc:`Older versions </changelog>`
 
