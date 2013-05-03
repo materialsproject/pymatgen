@@ -147,7 +147,7 @@ def deprecated(replacement=None):
     return wrap
 
 
-def requires(condition, message):
+class requires(object):
     """
     Decorator to mark classes or functions as requiring a specified condition
     to be true. This can be used to present useful error messages for
@@ -170,10 +170,15 @@ def requires(condition, message):
         message:
             A message to be displayed if the condition is not True.
     """
-    def wrap(f):
-        def wrapped(*args, **kwargs):
-            if not condition:
-                raise RuntimeError(message)
-            return f(*args, **kwargs)
-        return wrapped
-    return wrap
+
+    def __init__(self, condition, message):
+        self.condition = condition
+        self.message = message
+
+    def __call__(self, callable):
+        @wraps(callable)
+        def decorated(*args, **kwargs):
+            if not self.condition:
+                raise RuntimeError(self.message)
+            return callable(*args, **kwargs)
+        return decorated
