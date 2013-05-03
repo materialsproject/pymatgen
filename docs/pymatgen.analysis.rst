@@ -17,6 +17,14 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`diffusion_analyzer` Module
+--------------------------------
+
+.. automodule:: pymatgen.analysis.diffusion_analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`ewald` Module
 -------------------
 

@@ -65,14 +65,6 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`io_abc` Module
---------------------
-
-.. automodule:: pymatgen.io.io_abc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`smartio` Module
 ---------------------
 

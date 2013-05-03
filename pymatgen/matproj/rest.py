@@ -35,8 +35,10 @@ from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.serializers.json_coders import PMGJSONEncoder
+from pymatgen.util.decorators import cached_class
 
 
+@cached_class
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST

@@ -25,14 +25,6 @@ util Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`filelock` Module
-----------------------
-
-.. automodule:: pymatgen.util.filelock
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`io_utils` Module
 ----------------------
 
