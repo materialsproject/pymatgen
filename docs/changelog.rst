@@ -1,6 +1,29 @@
 Change log
 ==========
 
+Version 2.6.6
+-------------
+1. Updates to feffio (credit: Alan Dozier)
+2. Added detailed installation instructions for various platforms.
+3. Support for charge and spin multiplicity in Molecule. Expanded methods
+   available in Molecule.
+4. Added supercell matching capabilities to StructureMatcher.
+5. More robust creation of PhaseDiagrams to take into account potential qhull
+   precision errors.
+
+Version 2.6.5
+-------------
+1. Added a command_line caller to do Bader charge analysis using Henkelmann
+   et al.'s algorithm.
+2. Bug fix for POSCAR parsing when title line is an empty string.
+3. Added __rmul__ operator for Composition.
+4. Vastly expanded available aliases.
+
+Version 2.6.4
+-------------
+1. Bug fixes for selective dynamics in Poscar.
+2. Improved Procar parsing to support both simple and detailed PROCARs.
+
 Version 2.6.3
 -------------
 1. Added new MaterialsProject REST interfaces for submit/query/delete_snl

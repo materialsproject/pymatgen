@@ -17,14 +17,6 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`ape` Module
------------------
-
-.. automodule:: pymatgen.io.abinitio.ape
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`calculations` Module
 --------------------------
 
