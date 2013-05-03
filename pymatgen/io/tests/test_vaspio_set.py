@@ -149,7 +149,8 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         #Make sure Matproject sulfates are ok.
         self.assertEqual(self.paramset.get_incar(struct)['LDAUU'], [5.3, 0, 0])
-        self.assertEqual(self.mpnscfparamsetl.get_incar(struct)['LDAUU'], [5.3, 0, 0])
+        self.assertEqual(self.mpnscfparamsetl.get_incar(struct)['LDAUU'],
+                         [5.3, 0, 0])
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
@@ -157,15 +158,15 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mitparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[4, 6, 6]])
+        self.assertEquals(kpoints.kpts, [[3, 5, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
@@ -173,7 +174,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.style, 'Reciprocal')
 
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
-        self.assertEquals(kpoints.num_kpts, 192)
+        self.assertEquals(kpoints.num_kpts, 168)
 
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
