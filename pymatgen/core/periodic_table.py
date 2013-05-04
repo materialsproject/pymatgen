@@ -765,7 +765,7 @@ class Specie(MSONable):
         m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-])", species_string)
         if m:
             num = 1 if m.group(2) == "" else float(m.group(2))
-            return Specie(m.group(1), num if m.group(3) == "+" else -num)
+            return Specie(m.group(1), -num if m.group(3) == "-" else num)
         else:
             raise ValueError("Invalid Species String")
 
@@ -985,7 +985,7 @@ class DummySpecie(MSONable):
                 return DummySpecie(m.group(1))
             else:
                 num = 1 if m.group(2) == "" else float(m.group(2))
-                oxi = num if m.group(3) == "+" else -num
+                oxi = -num if m.group(3) == "-" else num
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
@@ -1002,6 +1002,16 @@ class DummySpecie(MSONable):
         return DummySpecie(d["element"], d["oxidation_state"],
                            d.get("properties", None))
 
+    def __repr__(self):
+        return "DummySpecie " + self.__str__()
+
+    def __str__(self):
+        output = self.symbol
+        if self._oxi_state >= 0:
+            output += formula_double_format(self._oxi_state) + "+"
+        else:
+            output += formula_double_format(-self._oxi_state) + "-"
+        return output
 
 @singleton
 class PeriodicTable(object):
@@ -1071,7 +1081,7 @@ def smart_element_or_specie(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
-    If obj is an int or a string representing an integer, the Element 
+    If obj is an int or a string representing an integer, the Element
     with the atomic number obj is returned.
     If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
     which Element parsing will be attempted (e.g., Mn), failing which
@@ -1094,7 +1104,7 @@ def smart_element_or_specie(obj):
         return obj
 
     def string_is_int(s):
-        "True is string s represents an integer (with sign)"
+        """True is string s represents an integer (with sign)"""
         if s[0] in ('-', '+'):
             return s[1:].isdigit()
         return s.isdigit()
