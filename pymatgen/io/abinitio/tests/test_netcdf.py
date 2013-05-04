@@ -8,8 +8,6 @@ import numpy as np
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import GSR_Reader
 
-import numpy.testing.utils as nptu
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
