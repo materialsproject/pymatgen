@@ -370,7 +370,7 @@ class TransformedStructure(MSONable):
                              "strings with proper VASP5 element symbols.")
         raw_string = re.sub("'", "\"", poscar_string)
         s = p.structure
-        source_info = {"source": "uploaded POSCAR",
+        source_info = {"source": "POSCAR",
                        "datetime": str(datetime.datetime.now()),
                        "original_file": raw_string}
         return TransformedStructure(s, transformations, [source_info])
