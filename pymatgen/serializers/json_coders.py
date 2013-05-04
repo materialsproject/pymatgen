@@ -182,11 +182,17 @@ class PMGJSONDecoder(json.JSONDecoder):
 
 
 def json_pretty_dump(obj, filename):
-    "Serialize obj as a JSON formatted stream to the given filename (pretty printing version)"
+    """
+    Serialize obj as a JSON formatted stream to the given filename (
+    pretty printing version)
+    """
     with open(filename, "w") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
 
+
 def json_load(filename):
-    "Deserialize a file containing a JSON document to a Python object."
+    """
+    Deserialize a file containing a JSON document to a Python object.
+    """
     with open(filename, "r") as fh:
-       return json.load(fh)
+        return json.load(fh)
