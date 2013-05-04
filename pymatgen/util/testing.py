@@ -23,5 +23,5 @@ class PymatgenTest(unittest.TestCase):
 
     @staticmethod
     def assert_equal(actual, desired, err_msg='', verbose=True):
-      return nptu.assert_equal(actual, desired, err_msg=err_msg,
+        return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                verbose=verbose)

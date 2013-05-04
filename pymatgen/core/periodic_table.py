@@ -1071,7 +1071,8 @@ def smart_element_or_specie(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
-    If obj is an int, the Element with the atomic number obj is returned.
+    If obj is an int or a string representing an integer, the Element 
+    with the atomic number obj is returned.
     If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
     which Element parsing will be attempted (e.g., Mn), failing which
     DummyElement parsing will be attempted.
@@ -1089,21 +1090,28 @@ def smart_element_or_specie(obj):
     Raises:
         ValueError if obj cannot be converted into an Element or Specie.
     """
-    t = type(obj)
-    if t in (Element, Specie, DummySpecie):
+    if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
-    elif t == int:
-        return Element.from_Z(obj)
-    else:
-        obj = str(obj)
+
+    def string_is_int(s):
+        "True is string s represents an integer (with sign)"
+        if s[0] in ('-', '+'):
+            return s[1:].isdigit()
+        return s.isdigit()
+
+    obj = str(obj)
+
+    if string_is_int(obj):
+        return Element.from_Z(int(obj))
+
+    try:
+        return Specie.from_string(obj)
+    except (ValueError, KeyError):
         try:
-            return Specie.from_string(obj)
+            return Element(obj)
         except (ValueError, KeyError):
             try:
-                return Element(obj)
-            except (ValueError, KeyError):
-                try:
-                    return DummySpecie.from_string(obj)
-                except:
-                    raise ValueError("Can't parse Element or String from " +
-                                     str(obj))
+                return DummySpecie.from_string(obj)
+            except:
+                raise ValueError("Can't parse Element or String from " +
+                                 str(obj))
