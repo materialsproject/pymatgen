@@ -15,6 +15,9 @@ __date__ = "5/2/13"
 
 import unittest
 import os
+import json
+
+import numpy as np
 
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
     get_conversion_factor
@@ -32,7 +35,24 @@ class FuncTest(unittest.TestCase):
         self.assertAlmostEqual(41370704.1173,
                                get_conversion_factor(s, "Li", 600), 4)
 
-#TODO: Write unittest for DiffusionAnalyzer
+
+class DiffusionAnalyzerTest(unittest.TestCase):
+
+    def test_init(self):
+        # Diffusion vasprun.xmls are rather large. We are only going to use a
+        # very small preprocessed run for testing. Note that the results are
+        # unreliable for short runs.
+        with open(os.path.join(test_dir, "DiffusionAnalyzer.json")) as f:
+            d = DiffusionAnalyzer.from_dict(json.load(f))
+            self.assertAlmostEqual(d.conductivity, 66.5376433577, 7)
+            self.assertAlmostEqual(d.diffusivity, 1.04185688594e-06, 7)
+            self.assertTrue(np.allclose(
+                d.conductivity_components,
+                [63.08957759, 36.83734991, 100.08896311]))
+            self.assertTrue(np.allclose(
+                d.diffusivity_components,
+                [9.87866530e-07, 5.76805019e-07, 1.56720873e-06]))
+
 
 if __name__ == '__main__':
     unittest.main()

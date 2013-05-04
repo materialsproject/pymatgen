@@ -27,12 +27,14 @@ __date__ = "5/2/13"
 
 
 import numpy as np
-from pymatgen.core.periodic_table import smart_element_or_specie
+
+from pymatgen.core import Structure, smart_element_or_specie
 from pymatgen.core.physical_constants import AVOGADROS_CONST, BOLTZMANN_CONST,\
     ELECTRON_CHARGE
+from pymatgen.serializers.json_coders import MSONable
 
 
-class DiffusionAnalyzer(object):
+class DiffusionAnalyzer(MSONable):
     """
     Class for performing diffusion analyses.
 
@@ -120,8 +122,8 @@ class DiffusionAnalyzer(object):
             for i in range(3):
                 a = np.ones((len(x), 2))
                 a[:, 0] = x
-                (m, c), res, rank, s = np.linalg.lstsq(a,
-                                                       s_msd_components[:, i])
+                (m, c), res, rank, s = \
+                    np.linalg.lstsq(a, s_msd_components[:, i])
                 m_components[i] = max(m, 1e-15)
 
             a = np.ones((len(x), 2))
@@ -176,6 +178,27 @@ class DiffusionAnalyzer(object):
 
         return DiffusionAnalyzer(structure, disp, specie, temperature,
                                  time_step, step_skip=step_skip)
+
+    @property
+    def to_dict(self):
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "structure": self.s.to_dict,
+            "displacements": self.disp.tolist(),
+            "specie": self.sp,
+            "temperature": self.temperature,
+            "time_step": self.time_step,
+            "step_skip": self.step_skip
+        }
+
+    @staticmethod
+    def from_dict(d):
+        structure = Structure.from_dict(d["structure"])
+        return DiffusionAnalyzer(
+            structure, np.array(d["displacements"]), specie=d["specie"],
+            temperature=d["temperature"], time_step=d["time_step"],
+            step_skip=d["step_skip"])
 
 
 def get_conversion_factor(structure, species, temperature):
