@@ -4,7 +4,8 @@ import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure, Molecule, StructureError
+from pymatgen.core.structure import Structure, Molecule, StructureError,\
+    MutableStructure, MutableMolecule
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random
@@ -13,14 +14,13 @@ import random
 class StructureTest(unittest.TestCase):
 
     def setUp(self):
-        self.si = Element("Si")
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
                                 [1.9200989668, 3.3257101909, 0.00],
                                 [0.00, -2.2171384943, 3.1355090603]])
-        self.struct = Structure(self.lattice, [self.si, self.si], coords)
+        self.struct = Structure(self.lattice, ["Si"] * 2, coords)
         self.assertEqual(len(self.struct), 2,
                          "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
@@ -28,8 +28,8 @@ class StructureTest(unittest.TestCase):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
         self.assertRaises(StructureError, Structure, self.lattice,
-                          [self.si, self.si], coords, True)
-        self.propertied_structure = Structure(self.lattice, [self.si, self.si],
+                          ["Si"] * 2, coords, True)
+        self.propertied_structure = Structure(self.lattice, ["Si"] * 2,
                                               coords,
                                               site_properties={'magmom':
                                                                [5, -5]})
@@ -170,25 +170,24 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        struct = Structure(self.lattice, [self.si, self.si], coords)
+        struct = Structure(self.lattice, ["Si"] * 2, coords)
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        struct2 = Structure(self.struct.lattice, [self.si, self.si], coords2)
+        struct2 = Structure(self.struct.lattice, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 10)
         for s in int_s:
             self.assertIsNotNone(s, "Interpolation Failed!")
         self.assertTrue((int_s[1][1].frac_coords == [0.725, 0.5, 0.725]).all())
 
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
-        struct2 = Structure(badlattice, [self.si, self.si], coords2)
+        struct2 = Structure(badlattice, ["Si"] * 2, coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        struct2 = Structure(self.struct.lattice, [self.si, Element("Fe")],
-                            coords2)
+        struct2 = Structure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
     def test_get_primitive_structure(self):
@@ -220,13 +219,24 @@ class StructureTest(unittest.TestCase):
                [2.3516318, 0.]]
         self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
 
-    def test_append_insert_remove(self):
-        s = self.struct.insert(1, "O", [0.5, 0.5, 0.5])
+
+class MutableStructureTest(unittest.TestCase):
+
+    def test_init(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        s = MutableStructure(lattice, ["Si", "Si"], coords)
+        s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
-        s = s.remove(2)
+        s.remove(2)
         self.assertEqual(s.formula, "Si1 O1")
-        s = s.append("N", [0.25, 0.25, 0.25])
+        s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
+        self.assertRaises(TypeError, dict, [(s, 1)])
 
 
 class MoleculeTest(unittest.TestCase):
@@ -377,13 +387,25 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
                                     atol=1e-7))
 
-    def test_append_insert_remove(self):
-        s = self.mol.insert(1, "O", [0.5, 0.5, 0.5])
-        self.assertEqual(s.formula, "H4 C1 O1")
-        s = s.remove(2)
-        self.assertEqual(s.formula, "H3 C1 O1")
-        s = s.append("N", [0.25, 0.25, 0.25])
-        self.assertEqual(s.formula, "H3 C1 N1 O1")
+
+class MutableMoleculeTest(unittest.TestCase):
+
+    def test_init(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        mol = MutableMolecule(["C", "H", "H", "H", "H"], coords)
+        mol.insert(1, "O", [0.5, 0.5, 0.5])
+        self.assertEqual(mol.formula, "H4 C1 O1")
+        mol.remove(2)
+        self.assertEqual(mol.formula, "H3 C1 O1")
+        mol.set_charge_and_spin(0)
+        self.assertEqual(mol.spin_multiplicity, 2)
+        mol.append("N", [0.25, 0.25, 0.25])
+        self.assertEqual(mol.formula, "H3 C1 N1 O1")
+        self.assertRaises(TypeError, dict, [(mol, 1)])
 
 if __name__ == '__main__':
     unittest.main()
