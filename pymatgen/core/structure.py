@@ -33,7 +33,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
 
 
-class SiteCollection(collections.Sequence, collections.Hashable):
+class SiteCollection(collections.Sequence):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -67,20 +67,6 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             Distance between sites at index i and index j.
         """
         return
-
-    @abstractmethod
-    def insert(self, i, species, coords):
-        """
-        Return a new SiteCollection with the inserted site.
-        """
-        pass
-
-    @abstractmethod
-    def remove(self, i):
-        """
-        Return a new SiteCollection with site at index i removed.
-        """
-        pass
 
     @property
     def distance_matrix(self):
@@ -388,94 +374,6 @@ class Structure(SiteCollection, MSONable):
         Lattice of the structure.
         """
         return self._lattice
-
-    def append(self, species, coords, coords_are_cartesian=False,
-               validate_proximity=False, properties=None):
-        """
-        Append a site to the structure. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
-
-        Args:
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            coords_are_cartesian:
-                Whether coordinates are cartesian. Defaults to False.
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to False.
-
-        Returns:
-            New structure with inserted site.
-        """
-        return self.insert(len(self), species, coords,
-                           coords_are_cartesian=coords_are_cartesian,
-                           validate_proximity=validate_proximity,
-                           properties=properties)
-
-    def insert(self, i, species, coords, coords_are_cartesian=False,
-               validate_proximity=False, properties=None):
-        """
-        Insert a site to the structure. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
-
-        Args:
-            i:
-                index to insert site
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            coords_are_cartesian:
-                Whether coordinates are cartesian. Defaults to False.
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to False.
-
-        Returns:
-            New structure with inserted site.
-        """
-        if not coords_are_cartesian:
-            new_site = PeriodicSite(species, coords, self._lattice,
-                                    properties=properties)
-        else:
-            frac_coords = self._lattice.get_fractional_coords(coords)
-            new_site = PeriodicSite(species, frac_coords, self._lattice,
-                                    properties=properties)
-
-        if validate_proximity:
-            for site in self:
-                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
-                    raise ValueError("New site is too close to an existing "
-                                     "site!")
-
-        sites = list(self._sites[:])
-        sites.insert(i, new_site)
-        return Structure.from_sites(sites,
-                                    validate_proximity=validate_proximity)
-
-    def remove(self, i):
-        """
-        Remove site at index i. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
-
-        Args:
-            i:
-                index of site to remove.
-
-        Returns:
-            New structure with site removed.
-        """
-        sites = list(self.sites[:])
-        del(sites[i])
-        return Structure.from_sites(sites)
 
     def lattice_vectors(self, space="r"):
         """
@@ -1154,79 +1052,6 @@ class Molecule(SiteCollection, MSONable):
                         validate_proximity=validate_proximity,
                         site_properties=props)
 
-    def append(self, species, coords, validate_proximity=True,
-               properties=None):
-        """
-        Appends a site to the molecule. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently, it is better
-        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
-
-        Args:
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to True.
-            properties:
-                A dict of properties for the Site.
-
-        Returns:
-            New molecule with inserted site.
-        """
-        return self.insert(len(self), species, coords,
-                           validate_proximity=validate_proximity,
-                           properties=properties)
-
-    def insert(self, i, species, coords, validate_proximity=True,
-               properties=None):
-        """
-        Insert a site to the molecule. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently, it is better
-        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
-
-        Args:
-            i:
-                index to insert site
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to True.
-            properties:
-                A dict of properties for the Site.
-
-        Returns:
-            New molecule with inserted site.
-        """
-        new_site = Site(species, coords, properties=properties)
-        sites = list(self._sites)
-        sites.insert(i, new_site)
-        return Molecule.from_sites(sites, charge=self.charge,
-                                   spin_multiplicity=None,
-                                   validate_proximity=validate_proximity)
-
-    def remove(self, i):
-        """
-        Delete site at index i. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently, it is better
-        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
-
-        Args:
-            i:
-                index of site to remove.
-
-        Returns:
-            New structure with site removed.
-        """
-        sites = list(self._sites)
-        del(sites[i])
-        return Molecule.from_sites(sites, charge=self.charge,
-                                   spin_multiplicity=None)
-
     def break_bond(self, ind1, ind2, tol=0.2):
         """
         Returns two molecules based on breaking the bond between atoms at index
@@ -1488,6 +1313,281 @@ class Molecule(SiteCollection, MSONable):
                         charge=self._charge,
                         spin_multiplicity=self._spin_multiplicity,
                         site_properties=self.site_properties)
+
+
+class MutableStructure(Structure):
+    """
+    Mutable version of structure. Much easier to use for editing,
+    but cannot be used as keys in dictionary.
+    """
+    __hash__ = None
+
+    def __init__(self, lattice, species, coords, validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False,
+                 site_properties=None):
+        """
+        Create a periodic structure.
+
+        Args:
+            lattice:
+                The lattice, either as a pymatgen.core.lattice.Lattice or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species:
+                List of species on each site. Can take in flexible input,
+                including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            fractional_coords:
+                list of fractional coordinates of each species.
+            validate_proximity:
+                Whether to check if there are sites that are less than 0.01 Ang
+                apart. Defaults to False.
+            coords_are_cartesian:
+                Set to True if you are providing coordinates in cartesian
+                coordinates. Defaults to False.
+            site_properties:
+                Properties associated with the sites as a dict of sequences,
+                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
+                length as the atomic species and fractional_coords.
+                Defaults to None for no properties.
+        """
+        Structure.__init__(
+            self, lattice, species, coords,
+            validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
+            coords_are_cartesian=coords_are_cartesian,
+            site_properties=site_properties)
+
+        self._sites = list(self._sites)
+
+    def append(self, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Append a site to the structure. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           coords_are_cartesian=coords_are_cartesian,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def insert(self, i, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Insert a site to the structure. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        if not coords_are_cartesian:
+            new_site = PeriodicSite(species, coords, self._lattice,
+                                    properties=properties)
+        else:
+            frac_coords = self._lattice.get_fractional_coords(coords)
+            new_site = PeriodicSite(species, frac_coords, self._lattice,
+                                    properties=properties)
+
+        if validate_proximity:
+            for site in self:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing "
+                                     "site!")
+
+        self._sites.insert(i, new_site)
+
+    def remove(self, i):
+        """
+        Remove site at index i. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            i:
+                index of site to remove.
+
+        Returns:
+            New structure with site removed.
+        """
+        del(self._sites[i])
+
+
+class MutableMolecule(Molecule):
+    """
+    Mutable version of structure
+    """
+    __hash__ = None
+
+    def __init__(self, species, coords, charge=0,
+                 spin_multiplicity=None, validate_proximity=False,
+                 site_properties=None):
+        """
+        Creates a MutableMolecule.
+
+        Args:
+            species:
+                list of atomic species. Possible kinds of input include a list
+                of dict of elements/species and occupancies, a List of
+                elements/specie specified as actual Element/Specie, Strings
+                ("Fe", "Fe2+") or atomic numbers (1,56).
+            coords:
+                list of cartesian coordinates of each species.
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
+            validate_proximity:
+                Whether to check if there are sites that are less than 1 Ang
+                apart. Defaults to False.
+            site_properties:
+                Properties associated with the sites as a dict of sequences,
+                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
+                length as the atomic species and fractional_coords.
+                Defaults to None for no properties.
+        """
+        Molecule.__init__(
+            self, species, coords, charge=charge,
+            spin_multiplicity=spin_multiplicity,
+            validate_proximity=validate_proximity,
+            site_properties=site_properties)
+        self._sites = list(self._sites)
+
+    def append(self, species, coords, validate_proximity=True,
+               properties=None):
+        """
+        Appends a site to the molecule.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def set_charge_and_spin(self, charge, spin_multiplicity=None):
+        """
+        Set the charge and spin multiplicity.
+
+        Args:
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
+        """
+        self._charge = charge
+        nelectrons = 0
+        for site in self._sites:
+            for sp, amt in site.species_and_occu.items():
+                nelectrons += sp.Z * amt
+        nelectrons -= charge
+        self._nelectrons = nelectrons
+        if spin_multiplicity:
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                    self._charge, spin_multiplicity))
+            self._spin_multiplicity = spin_multiplicity
+        else:
+            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    def insert(self, i, species, coords, validate_proximity=False,
+               properties=None):
+        """
+        Insert a site to the molecule.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        new_site = Site(species, coords, properties=properties)
+        if validate_proximity:
+            for site in self:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing "
+                                     "site!")
+        self._sites.insert(i, new_site)
+
+    def remove(self, i):
+        """
+        Delete site at index i.
+
+        Args:
+            i:
+                index of site to remove.
+
+        Returns:
+            New structure with site removed.
+        """
+        del(self._sites[i])
 
 
 class StructureError(Exception):
