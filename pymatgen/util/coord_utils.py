@@ -369,4 +369,9 @@ def get_angle(v1, v2, units="degrees"):
     d = min(d, 1)
     d = max(d, -1)
     angle = math.acos(d)
-    return angle * 180 / math.pi if units == "degrees" else angle
+    if units == "degrees":
+        return math.degrees(angle)
+    elif units == "radians":
+        return angle
+    else:
+        raise ValueError("Invalid units {}".format(units))
