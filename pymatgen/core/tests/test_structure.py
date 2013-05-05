@@ -222,22 +222,58 @@ class StructureTest(unittest.TestCase):
 
 class MutableStructureTest(unittest.TestCase):
 
-    def test_init(self):
+    def setUp(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice([[3.8401979337, 0.00, 0.00],
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
-        s = MutableStructure(lattice, ["Si", "Si"], coords)
+        self.structure = MutableStructure(lattice, ["Si", "Si"], coords)
+
+    def test_non_hash(self):
+        self.assertRaises(TypeError, dict, [(self.structure, 1)])
+
+    def test_append_insert_remove_replace(self):
+        s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
         s.remove(2)
         self.assertEqual(s.formula, "Si1 O1")
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
-        self.assertRaises(TypeError, dict, [(s, 1)])
+        s.replace_site(0, "Ge")
+        self.assertEqual(s.formula, "Ge1 N1 O1")
+        s.replace_species({"Ge": "Si"})
+        self.assertEqual(s.formula, "Si1 N1 O1")
 
+        s.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
+        self.assertEqual(s.formula, "Si0.5 Ge0.5 N1 O1")
+        #this should change the .5Si .5Ge sites to .75Si .25Ge
+        s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
+        self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
+
+        s.remove_species("Si")
+        self.assertEqual(s.formula, "Ge0.25 N1 O1")
+
+    def test_add_site_property(self):
+        s = self.structure
+        s.add_site_property("charge", [4.1, -5])
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[1].charge, -5)
+        s.add_site_property("magmom", [3, 2])
+        self.assertEqual(s[0].charge, 4.1)
+        self.assertEqual(s[0].magmom, 3)
+
+    # def test_modified_structure(self):
+    #     d = 0.1
+    #     pre_perturbation_sites = self.modifier.modified_structure.sites
+    #     self.modifier.perturb_structure(distance=d)
+    #     post_perturbation_sites = self.modifier.modified_structure.sites
+    #
+    #     for i, x in enumerate(pre_perturbation_sites):
+    #         self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
+    #                                3, "Bad perturbation distance")
 
 class MoleculeTest(unittest.TestCase):
 

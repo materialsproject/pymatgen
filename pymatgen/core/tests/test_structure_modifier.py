@@ -30,7 +30,7 @@ class StructureEditorTest(unittest.TestCase):
         self.assertEqual(self.modifier.modified_structure.formula, "Fe1 Si1",
                          "Wrong formula!")
 
-    def test_to_unit_cell(self):
+    def test_apply_strain(self):
         self.modifier.apply_strain(0.01)
         self.assertEqual(self.modifier.modified_structure.lattice.abc,
                          (10.1, 10.1, 10.1))

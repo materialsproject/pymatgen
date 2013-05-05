@@ -24,7 +24,8 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Specie, \
+    smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
@@ -1449,6 +1450,110 @@ class MutableStructure(Structure):
             New structure with site removed.
         """
         del(self._sites[i])
+
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to all sites.
+
+        Args:
+            property_name:
+                The name of the property to add.
+            values:
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = PeriodicSite(site.species_and_occu,
+                                          site.frac_coords, self._lattice,
+                                          properties=props)
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species in a structure.
+
+        Args:
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na
+                substitution. The second species can be a sp_and_occu dict.
+                For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
+        """
+        latt = self._lattice
+        species_mapping = {smart_element_or_specie(k): v
+                           for k, v in species_mapping.items()}
+        def mod_site(site):
+            new_atom_occu = collections.defaultdict(int)
+            for sp, amt in site.species_and_occu.items():
+                if sp in species_mapping:
+                    if isinstance(species_mapping[sp], dict):
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            new_atom_occu[smart_element_or_specie(new_sp)] \
+                                += amt * new_amt
+                    else:
+                        new_atom_occu[smart_element_or_specie(
+                            species_mapping[sp])] += amt
+                else:
+                    new_atom_occu[sp] += amt
+            return PeriodicSite(new_atom_occu, site.frac_coords, latt,
+                                properties=site.properties)
+
+        self._sites = map(mod_site, self._sites)
+
+    def replace_site(self, index, species_n_occu):
+        """
+        Replace a single site. Takes either a species or a dict of species and
+        occupations.
+
+        Args:
+            index:
+                The index of the site in the _sites list.
+            species:
+                A species object.
+        """
+        self._sites[index] = PeriodicSite(species_n_occu,
+                                          self._sites[index].frac_coords,
+                                          self._lattice,
+                                          properties=self._sites[index].
+                                          properties)
+
+    def remove_species(self, species):
+        """
+        Remove all occurrences of a species from a structure.
+
+        Args:
+            species:
+                species to remove.
+        """
+        new_sites = []
+        species = map(smart_element_or_specie, species)
+
+        for site in self._sites:
+            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+                           if sp not in species}
+            if len(new_sp_occu) > 0:
+                new_sites.append(PeriodicSite(
+                    new_sp_occu, site.frac_coords, self._lattice,
+                    properties=site.properties))
+        self._sites = new_sites
+
+    def delete_sites(self, indices):
+        """
+        Delete sites with at indices.
+
+        Args:
+            indices:
+                sequence of indices of sites to delete.
+        """
+        self._sites = [self._sites[i] for i in range(len(self._sites))
+                       if i not in indices]
 
 
 class MutableMolecule(Molecule):
