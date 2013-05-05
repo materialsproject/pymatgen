@@ -220,6 +220,14 @@ class StructureTest(unittest.TestCase):
                [2.3516318, 0.]]
         self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
 
+    def test_append_insert_remove(self):
+        s = self.struct.insert(1, "O", [0.5, 0.5, 0.5])
+        self.assertEqual(s.formula, "Si2 O1")
+        s = s.remove(2)
+        self.assertEqual(s.formula, "Si1 O1")
+        s = s.append("N", [0.25, 0.25, 0.25])
+        self.assertEqual(s.formula, "Si1 N1 O1")
+
 
 class MoleculeTest(unittest.TestCase):
 
@@ -268,6 +276,7 @@ class MoleculeTest(unittest.TestCase):
     def test_repr_str(self):
         ans = """Molecule Summary (H4 C1)
 Reduced Formula: H4C
+Charge = 0, Spin Mult = 1
 Sites (5)
 1 C     0.000000     0.000000     0.000000
 2 H     0.000000     0.000000     1.089000
@@ -367,6 +376,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
                                      atol=1e-7))
         self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
                                     atol=1e-7))
+
+    def test_append_insert_remove(self):
+        s = self.mol.insert(1, "O", [0.5, 0.5, 0.5])
+        self.assertEqual(s.formula, "H4 C1 O1")
+        s = s.remove(2)
+        self.assertEqual(s.formula, "H3 C1 O1")
+        s = s.append("N", [0.25, 0.25, 0.25])
+        self.assertEqual(s.formula, "H3 C1 N1 O1")
 
 if __name__ == '__main__':
     unittest.main()

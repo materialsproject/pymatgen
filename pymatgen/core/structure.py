@@ -15,10 +15,11 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import abc
+
 import math
 import collections
 import itertools
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 import numpy as np
 
@@ -29,7 +30,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
 
 
 class SiteCollection(collections.Sequence, collections.Hashable):
@@ -39,19 +40,19 @@ class SiteCollection(collections.Sequence, collections.Hashable):
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
 
     #Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.01
 
-    @abc.abstractproperty
+    @abstractproperty
     def sites(self):
         """
-        Returns a tuple of sites in the Structure.
+        Returns a tuple of sites.
         """
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_distance(self, i, j):
         """
         Returns distance between sites at index i and j.
@@ -66,6 +67,20 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             Distance between sites at index i and index j.
         """
         return
+
+    @abstractmethod
+    def insert(self, i, species, coords):
+        """
+        Return a new SiteCollection with the inserted site.
+        """
+        pass
+
+    @abstractmethod
+    def remove(self, i):
+        """
+        Return a new SiteCollection with site at index i removed.
+        """
+        pass
 
     @property
     def distance_matrix(self):
@@ -218,13 +233,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
-        ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-
-        #Correct for stupid numerical error which may result in acos being
-        #operated on a number with absolute value larger than 1
-        ans = min(ans, 1)
-        ans = max(-1, ans)
-        return math.acos(ans) * 180 / math.pi
+        return get_angle(v1, v2, units="degrees")
 
     def get_dihedral(self, i, j, k, l):
         """
@@ -248,8 +257,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v3 = self[i].coords - self[j].coords
         v23 = np.cross(v2, v3)
         v12 = np.cross(v1, v2)
-        return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
-                          np.dot(v12, v23)) * 180 / math.pi
+        return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
+                            np.dot(v12, v23)))
 
     def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
@@ -260,7 +269,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             tol:
                 Distance tolerance. Default is 0.01A.
         """
-        for (s1, s2) in itertools.combinations(self.sites, 2):
+        for s1, s2 in itertools.combinations(self.sites, 2):
             if s1.distance(s2) < tol:
                 return False
         return True
@@ -339,13 +348,17 @@ class Structure(SiteCollection, MSONable):
                                   "less than 0.01 Angstrom apart!"))
 
     @staticmethod
-    def from_sites(sites):
+    def from_sites(sites, validate_proximity=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
         Args:
             sites:
                 Sequence of PeriodicSites. Sites must have the same lattice.
+            validate_proximity:
+                Whether to check if there are sites that are less than 0.01 Ang
+                apart. Defaults to False.
+
         """
         props = collections.defaultdict(list)
         lattice = None
@@ -359,7 +372,8 @@ class Structure(SiteCollection, MSONable):
         return Structure(lattice,
                          [site.species_and_occu for site in sites],
                          [site.frac_coords for site in sites],
-                         site_properties=props)
+                         site_properties=props,
+                         validate_proximity=validate_proximity)
 
     @property
     def sites(self):
@@ -374,6 +388,94 @@ class Structure(SiteCollection, MSONable):
         Lattice of the structure.
         """
         return self._lattice
+
+    def append(self, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Append a site to the structure. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           coords_are_cartesian=coords_are_cartesian,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def insert(self, i, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Insert a site to the structure. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        if not coords_are_cartesian:
+            new_site = PeriodicSite(species, coords, self._lattice,
+                                    properties=properties)
+        else:
+            frac_coords = self._lattice.get_fractional_coords(coords)
+            new_site = PeriodicSite(species, frac_coords, self._lattice,
+                                    properties=properties)
+
+        if validate_proximity:
+            for site in self:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing "
+                                     "site!")
+
+        sites = list(self._sites[:])
+        sites.insert(i, new_site)
+        return Structure.from_sites(sites,
+                                    validate_proximity=validate_proximity)
+
+    def remove(self, i):
+        """
+        Remove site at index i. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently,
+        it is better to use
+        :class:pymatgen.structure_modifier.StructureEditor.
+
+        Args:
+            i:
+                index of site to remove.
+
+        Returns:
+            New structure with site removed.
+        """
+        sites = list(self.sites[:])
+        del(sites[i])
+        return Structure.from_sites(sites)
 
     def lattice_vectors(self, space="r"):
         """
@@ -1033,7 +1135,8 @@ class Molecule(SiteCollection, MSONable):
         return self._sites
 
     @staticmethod
-    def from_sites(sites):
+    def from_sites(sites, charge=0, spin_multiplicity=None,
+                   validate_proximity=False):
         """
         Convenience static constructor to make a Molecule from a list of sites.
 
@@ -1047,7 +1150,82 @@ class Molecule(SiteCollection, MSONable):
                 props[k].append(v)
         return Molecule([site.species_and_occu for site in sites],
                         [site.coords for site in sites],
+                        charge=charge, spin_multiplicity=spin_multiplicity,
+                        validate_proximity=validate_proximity,
                         site_properties=props)
+
+    def append(self, species, coords, validate_proximity=True,
+               properties=None):
+        """
+        Appends a site to the molecule. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently, it is better
+        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def insert(self, i, species, coords, validate_proximity=True,
+               properties=None):
+        """
+        Insert a site to the molecule. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently, it is better
+        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        new_site = Site(species, coords, properties=properties)
+        sites = list(self._sites)
+        sites.insert(i, new_site)
+        return Molecule.from_sites(sites, charge=self.charge,
+                                   spin_multiplicity=None,
+                                   validate_proximity=validate_proximity)
+
+    def remove(self, i):
+        """
+        Delete site at index i. Note that this is efficient only for
+        one time changes. To make multiple changes efficiently, it is better
+        to use :class:pymatgen.core.structure_modifier.MoleculeEditor.
+
+        Args:
+            i:
+                index of site to remove.
+
+        Returns:
+            New structure with site removed.
+        """
+        sites = list(self._sites)
+        del(sites[i])
+        return Molecule.from_sites(sites, charge=self.charge,
+                                   spin_multiplicity=None)
 
     def break_bond(self, ind1, ind2, tol=0.2):
         """
@@ -1144,7 +1322,9 @@ class Molecule(SiteCollection, MSONable):
 
     def __str__(self):
         outs = ["Molecule Summary ({s})".format(s=str(self.composition)),
-                "Reduced Formula: " + self.composition.reduced_formula]
+                "Reduced Formula: " + self.composition.reduced_formula,
+                "Charge = {}, Spin Mult = {}".format(
+                    self._charge, self._spin_multiplicity)]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
