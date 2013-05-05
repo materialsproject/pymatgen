@@ -102,7 +102,6 @@ class PhaseDiagram (object):
         # code permutes the element sequence until one that works is found.
         for elements in itertools.permutations(elements):
             try:
-                elements = tuple(elements)
                 dim = len(elements)
                 el_refs = {}
                 for el in elements:
@@ -122,15 +121,16 @@ class PhaseDiagram (object):
                     row = map(comp.get_atomic_fraction, elements)
                     row.append(entry.energy_per_atom)
                     data.append(row)
+
                 data = np.array(data)
                 self.all_entries_hulldata = data[:, 1:]
 
                 # Calculate formation energies and remove positive formation
                 # energy entries
-                vec = [el_refs[el].energy_per_atom for el in elements]
-                vec.append(-1)
+                vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
                 form_e = -np.dot(data, vec)
-                ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+                ind = np.where(form_e <= -self.formation_energy_tol)[0]\
+                    .tolist()
                 ind.extend(map(entries.index, el_refs.values()))
                 qhull_entries = [entries[i] for i in ind]
                 qhull_data = data[ind][:, 1:]
@@ -158,7 +158,7 @@ class PhaseDiagram (object):
                 self.qhull_entries = qhull_entries
                 error = False
                 break
-            except:
+            except Exception as ex:
                 pass
         if error:
             raise PhaseDiagramError("Unable to construct PD")
