@@ -253,7 +253,7 @@ class MutableStructureTest(unittest.TestCase):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        s.remove_species("Si")
+        s.remove_species(["Si"])
         self.assertEqual(s.formula, "Ge0.25 N1 O1")
 
     def test_add_site_property(self):
