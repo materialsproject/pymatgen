@@ -98,6 +98,7 @@ EPS=12
                 mol = gau.molecule
         ans = """Molecule Summary (H4 O2)
 Reduced Formula: H2O
+Charge = 0, Spin Mult = 1
 Sites (6)
 1 O     0.000000     0.000000     0.000000
 2 O     0.000000     0.000000     2.912902
