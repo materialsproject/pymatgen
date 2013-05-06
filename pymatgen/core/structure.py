@@ -23,6 +23,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 
 import numpy as np
 
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
@@ -2050,9 +2051,51 @@ class Molecule(IMolecule):
         self._sites = map(operate_site, self._sites)
 
 
+    def substitute(self, index, sub, bond_length=None):
+        """
+        Substitute atom at index with a functional group.
+
+        Args:
+            index:
+                Index of atom to substitute.
+            sub:
+                Substituent molecule. The first atom must contain a
+                DummySpecie X, indicating the position of nearest neighbor.
+                The second atom must be the next nearest atom.
+
+        """
+        non_terminal_nn = None
+        for nn, dist in self.get_neighbors(self[index], 5):
+            if nn.specie.symbol not in ["F", "H"]:
+                non_terminal_nn = nn
+                break
+
+        origin = non_terminal_nn.coords
+        x = filter(lambda s: s.specie.symbol == "X", sub)[0]
+        sub.translate_sites(range(len(sub)), origin - x.coords)
+
+        v1 = sub[1].coords - origin
+        v2 = self[index].coords - origin
+        angle = get_angle(v1, v2)
+        if abs(angle % 180) > 1:
+            axis = np.cross(v1, v2)
+            op = SymmOp.from_origin_axis_angle(nn.coords, axis, angle)
+            sub.apply_operation(op)
+        elif abs(angle - 180) < 1:
+            axis = np.cross(v1, v1 + [0.1, 0.1, 0.1])
+            op = SymmOp.from_origin_axis_angle(nn.coords, axis, 180)
+            sub.apply_operation(op)
+        self.remove(index)
+        for site in sub:
+            if site.specie.symbol != "X":
+                self._sites.append(site)
+
+
 class StructureError(Exception):
     """
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
+

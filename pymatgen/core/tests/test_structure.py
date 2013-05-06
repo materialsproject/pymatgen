@@ -579,5 +579,19 @@ class MoleculeTest(unittest.TestCase):
         self.assertTrue(np.allclose(self.mol[2].coords,
                                     [0.000000, 1.026719, -0.363000]))
 
+
+    def test_substitute(self):
+        coords = [[0.000000, 0.000000, 1.54],
+                  [0.000000, 0.000000, 0.000000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        sub = Molecule(["X", "C", "H", "H", "H"], coords)
+        self.mol.substitute(1, sub)
+        self.assertAlmostEqual(self.mol.get_distance(0, 4), 1.54)
+        sub = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.35]])
+        self.mol.substitute(2, sub)
+        self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.34)
+
 if __name__ == '__main__':
     unittest.main()
