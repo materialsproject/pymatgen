@@ -20,7 +20,6 @@ import abc
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.structure import Structure
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
@@ -309,7 +308,8 @@ class StructureMatcher(MSONable):
         nv = []
         for l in s1_lengths:
             nvi = all_nn[np.where((all_nn[:, 1] < (1 + self.ltol) * l)
-                                  & (all_nn[:, 1] > (1 - self.ltol) * l))][:, 0]
+                                  &
+                                  (all_nn[:, 1] > (1 - self.ltol) * l))][:, 0]
             if not len(nvi):
                 return
             nvi = [np.array(site) for site in nvi]
@@ -430,6 +430,8 @@ class StructureMatcher(MSONable):
             rms displacement normalized by (Vol / nsites) ** (1/3) and
             maximum distance found between two paired sites
         """
+        struct1 = Structure.from_sites(struct1)
+        struct2 = Structure.from_sites(struct2)
 
         stored_rms = None
 
@@ -452,8 +454,8 @@ class StructureMatcher(MSONable):
         #fractional tolerance of atomic positions (2x for initial fitting)
         frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
                              for i in struct1.lattice.reciprocal_lattice.abc])
-        frac_tol *= ((nl1.volume + fu * nl2.volume) / (2 * struct1.num_sites)) \
-            ** (1 / 3)
+        frac_tol *= ((nl1.volume + fu * nl2.volume)
+                     / (2 * struct1.num_sites)) ** (1 / 3)
 
         #generate structure coordinate lists
         species_list = []
@@ -487,9 +489,10 @@ class StructureMatcher(MSONable):
 
             scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
 
-            scm = SupercellMaker(struct2, scale_matrix.astype('int'))
+            supercell = struct2.copy()
+            supercell.make_supercell(scale_matrix.astype('int'))
 
-            for site in scm.modified_structure.sites:
+            for site in supercell:
                 found = False
                 for i, species in enumerate(species_list):
                     if self._comparator.are_equal(site.species_and_occu,
@@ -579,6 +582,9 @@ class StructureMatcher(MSONable):
             rms displacement normalized by (Vol / nsites) ** (1/3) and
             maximum distance found between two paired sites
         """
+        struct1 = Structure.from_sites(struct1)
+        struct2 = Structure.from_sites(struct2)
+
         stol = self.stol
         comparator = self._comparator
         #initial stored rms
@@ -615,14 +621,10 @@ class StructureMatcher(MSONable):
         #rescale lattice to same volume
         if self._scale:
             scale_vol = (nl2.volume / nl1.volume) ** (1 / 6)
-            se1 = StructureEditor(struct1)
             nl1 = Lattice(nl1.matrix * scale_vol)
-            se1.modify_lattice(nl1)
-            struct1 = se1.modified_structure
-            se2 = StructureEditor(struct2)
+            struct1.modify_lattice(nl1)
             nl2 = Lattice(nl2.matrix / scale_vol)
-            se2.modify_lattice(nl2)
-            struct2 = se2.modified_structure
+            struct2.modify_lattice(nl2)
 
         #Volume to determine invalid lattices
         vol_tol = nl2.volume / 2
