@@ -72,8 +72,24 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-Version 2.7.0
--------------
+v2.7.1
+------
+1. **Major backwards-incompatible change.** With effect from v2.7.1,
+   the default Structure and Molecule classes are now *mutable* objects. All
+   functionality in the :mod:`pymatgen.core.structure_modifier` has been
+   ported over to the new mutable classes. This change was implemented
+   because the immutability of Structure and Molecule has resulted in very
+   awkward code to make changes to them. The main cost of this change is that
+   Structure and Molecule can no longer be used as dict keys (__hash__ has
+   been set to None). However, we believe this is a minor cost given that we
+   have rarely seen the use of Structure or Molecule as dict keys in any case.
+   For the rare instances where such functionality is needed,
+   we have provided the IStructure and IMolecule classes (where I indicates
+   immutability) which will perform exactly the same way as the previous
+   classes.
+
+v2.7.0
+------
 1. Beta support for ABINIT input and output via pymatgen.io.abinitio
    (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.

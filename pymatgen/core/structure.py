@@ -1729,11 +1729,13 @@ class Structure(IStructure):
                    2a + b, b' = 3b, c' = c where a, b, and c are the lattice
                    vectors of the original structure.
                 b. An sequence of three scaling factors. E.g., [2, 1, 1]
-                specifies that the supercell should have dimensions 2a x b x c.
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
+
         """
-        scale_matrix = np.array(scaling_matrix)
+        scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
             scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
         old_lattice = self._lattice
