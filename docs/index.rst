@@ -86,7 +86,8 @@ v2.7.1
    For the rare instances where such functionality is needed,
    we have provided the IStructure and IMolecule classes (where I indicates
    immutability) which will perform exactly the same way as the previous
-   classes.
+   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
+   module is now deprecated and will be removed in a future version.
 
 v2.7.0
 ------
