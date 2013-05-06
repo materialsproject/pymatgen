@@ -25,7 +25,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.core.structure import Structure
-from pymatgen.core.structure_modifier import SupercellMaker, StructureEditor
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -267,8 +266,9 @@ class SupercellTransformation(AbstractTransformation):
                                         [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
-        maker = SupercellMaker(structure, self._matrix)
-        return maker.modified_structure
+        s = Structure.from_sites(structure)
+        s.make_supercell(self._matrix)
+        return s
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
@@ -592,7 +592,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 exemplars.append(site)
 
         #generate the list of manipulations and input structure
-        se = StructureEditor(structure)
+        s = Structure.from_sites(structure)
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
@@ -608,7 +608,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
-                se.replace_site(i, initial_sp)
+                s.replace(i, initial_sp)
             #determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
@@ -620,8 +620,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
 
-        structure = se.modified_structure
-        matrix = EwaldSummation(structure).total_energy_matrix
+        matrix = EwaldSummation(s).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
 
         self._all_structures = []
@@ -630,7 +629,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
-            se = StructureEditor(structure)
+            s_copy = s.copy()
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
@@ -638,13 +637,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    se.replace_site(manipulation[0], manipulation[1])
-            se.delete_sites(del_indices)
+                    s_copy.replace(manipulation[0], manipulation[1])
+            s_copy.remove_sites(del_indices)
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
                  (output[0] - lowest_energy) / num_atoms,
-                 "structure": se.modified_structure.get_sorted_structure()})
+                 "structure": s_copy.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures

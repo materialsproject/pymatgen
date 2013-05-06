@@ -23,7 +23,6 @@ import time
 
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-#from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
 
