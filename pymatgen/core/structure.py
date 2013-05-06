@@ -325,10 +325,11 @@ class IStructure(SiteCollection, MSONable):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(PeriodicSite(species[i], coords[i],
-                                      self._lattice, to_unit_cell,
-                                      coords_are_cartesian,
-                                      properties=prop))
+            sites.append(
+                PeriodicSite(species[i], coords[i], self._lattice,
+                             to_unit_cell,
+                             coords_are_cartesian=coords_are_cartesian,
+                             properties=prop))
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
@@ -356,8 +357,7 @@ class IStructure(SiteCollection, MSONable):
                 raise ValueError("Sites must belong to the same lattice")
             for k, v in site.properties.items():
                 props[k].append(v)
-        return cls(lattice,
-                   [site.species_and_occu for site in sites],
+        return cls(lattice, [site.species_and_occu for site in sites],
                    [site.frac_coords for site in sites],
                    site_properties=props,
                    validate_proximity=validate_proximity)
@@ -1440,9 +1440,6 @@ class Structure(IStructure):
         Args:
             i:
                 index of site to remove.
-
-        Returns:
-            New structure with site removed.
         """
         del(self._sites[i])
 
@@ -2037,6 +2034,20 @@ class Molecule(IMolecule):
             vector = np.random.rand(3)
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector)
+
+    def apply_operation(self, symmop):
+        """
+        Apply a symmetry operation to the molecule.
+
+        Args:
+            symmop:
+                Symmetry operation to apply.
+        """
+        def operate_site(site):
+            new_cart = symmop.operate(site.coords)
+            return Site(site.species_and_occu, new_cart,
+                        properties=site.properties)
+        self._sites = map(operate_site, self._sites)
 
 
 class StructureError(Exception):
