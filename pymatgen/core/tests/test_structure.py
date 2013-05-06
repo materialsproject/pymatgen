@@ -4,6 +4,7 @@ import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
@@ -257,6 +258,9 @@ class StructureTest(unittest.TestCase):
         s.remove_species(["Si"])
         self.assertEqual(s.formula, "Ge0.25 N1 O1")
 
+        s.remove_sites([1, 2])
+        self.assertEqual(s.formula, "Ge0.25")
+
     def test_add_site_property(self):
         s = self.structure
         s.add_site_property("charge", [4.1, -5])
@@ -307,6 +311,14 @@ class StructureTest(unittest.TestCase):
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
+
+    def test_apply_operation(self):
+        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
+        self.structure.apply_operation(op)
+        self.assertTrue(np.allclose(
+            [[0.000000, 3.840198, 0.000000],
+             [-3.325710, 1.920099, 0.000000],
+             [2.217138, -0.000000, 3.135509]], self.structure.lattice.matrix))
 
     def test_apply_strain(self):
         self.structure.apply_strain(0.01)
@@ -516,6 +528,8 @@ class MoleculeTest(unittest.TestCase):
         mol.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(mol.formula, "H3 C1 N1 O1")
         self.assertRaises(TypeError, dict, [(mol, 1)])
+        mol.remove_sites([0, 1])
+        self.assertEqual(mol.formula, "H3 N1")
 
     def test_translate_sites(self):
         self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
@@ -557,6 +571,12 @@ class MoleculeTest(unittest.TestCase):
         d = self.mol.to_dict
         mol2 = Molecule.from_dict(d)
         self.assertEqual(type(mol2), Molecule)
+
+    def test_apply_operation(self):
+        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
+        self.mol.apply_operation(op)
+        self.assertTrue(np.allclose(self.mol[2].coords,
+                                    [0.000000, 1.026719, -0.363000]))
 
 if __name__ == '__main__':
     unittest.main()
