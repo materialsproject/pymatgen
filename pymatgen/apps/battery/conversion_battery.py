@@ -242,13 +242,12 @@ class ConversionElectrode(AbstractElectrode):
                           self.get_energy_density())]
         return "\n".join(output)
 
-    @staticmethod
-    def from_dict(d):
-
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
-        return ConversionElectrode(dec.process_decoded(d["voltage_pairs"]),
-                                   dec.process_decoded(d["working_ion_entry"]),
-                                   Composition(d["initial_comp"]))
+        return cls(dec.process_decoded(d["voltage_pairs"]),
+                   dec.process_decoded(d["working_ion_entry"]),
+                   Composition(d["initial_comp"]))
 
     @property
     def to_dict(self):
@@ -512,8 +511,8 @@ class ConversionVoltagePair(AbstractVoltagePair):
     def __str__(self):
         return self.__repr__()
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
         working_ion_entry = dec.process_decoded(d["working_ion_entry"])
         balanced_rxn = dec.process_decoded(d["balanced_rxn"])
