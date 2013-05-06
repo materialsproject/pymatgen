@@ -310,10 +310,9 @@ class EnumlibAdaptor(object):
                     transformation = [[int(round(cell)) for cell in row]
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
-                    ordered_structure = Structure.from_sites(ordered_structure)
-                    ordered_structure.make_supercell(transformation)
-                    sites.extend([site.to_unit_cell
-                                  for site in ordered_structure])
+                    s = Structure.from_sites(ordered_structure)
+                    s.make_supercell(transformation)
+                    sites.extend([site.to_unit_cell for site in s])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt
