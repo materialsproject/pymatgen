@@ -329,11 +329,10 @@ class MutableStructureTest(unittest.TestCase):
         self.assertEqual(self.structure.formula, "Si4")
         self.structure.make_supercell([[1, 0, 0], [2, 1, 0], [0, 0, 1]])
         self.assertEqual(self.structure.formula, "Si4")
-
         self.structure.make_supercell(2)
         self.assertEqual(self.structure.formula, "Si32")
         self.assertTrue(np.allclose(self.structure.lattice.abc,
-                                    [15.360792, 7.680398, 7.680396]))
+                                    [15.360792, 35.195996, 7.680396]))
 
 
 class MoleculeTest(unittest.TestCase):

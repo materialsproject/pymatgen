@@ -1733,7 +1733,9 @@ class Structure(IStructure):
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
         """
-        scale_matrix = np.array(scaling_matrix * np.eye(3), np.int16)
+        scale_matrix = np.array(scaling_matrix)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
         old_lattice = self._lattice
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
         new_sites = []
