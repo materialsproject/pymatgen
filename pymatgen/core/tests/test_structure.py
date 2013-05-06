@@ -265,15 +265,66 @@ class MutableStructureTest(unittest.TestCase):
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
 
-    # def test_modified_structure(self):
-    #     d = 0.1
-    #     pre_perturbation_sites = self.modifier.modified_structure.sites
-    #     self.modifier.perturb_structure(distance=d)
-    #     post_perturbation_sites = self.modifier.modified_structure.sites
-    #
-    #     for i, x in enumerate(pre_perturbation_sites):
-    #         self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
-    #                                3, "Bad perturbation distance")
+    def test_perturb(self):
+        d = 0.1
+        pre_perturbation_sites = self.structure.sites[:]
+        self.structure.perturb(distance=d)
+        post_perturbation_sites = self.structure.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
+                                   3, "Bad perturbation distance")
+
+
+    def test_add_oxidation_states(self):
+        oxidation_states = {"Si": -4}
+        self.structure.add_oxidation_state_by_element(oxidation_states)
+        for site in self.structure:
+            for k in site.species_and_occu.keys():
+                self.assertEqual(k.oxi_state, oxidation_states[k.symbol],
+                                 "Wrong oxidation state assigned!")
+        oxidation_states = {"Fe": 2}
+        self.assertRaises(ValueError,
+                          self.structure.add_oxidation_state_by_element,
+                          oxidation_states)
+        self.structure.add_oxidation_state_by_site([2, -4])
+        self.assertEqual(self.structure[0].specie.oxi_state, 2)
+        self.assertRaises(ValueError,
+                          self.structure.add_oxidation_state_by_site,
+                          [1])
+
+    def test_remove_oxidation_states(self):
+        co_elem = Element("Co")
+        o_elem = Element("O")
+        co_specie = Specie("Co", 2)
+        o_specie = Specie("O", -2)
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = Lattice.cubic(10)
+        s_elem = Structure(lattice, [co_elem, o_elem], coords)
+        s_specie = MutableStructure(lattice, [co_specie, o_specie], coords)
+        s_specie.remove_oxidation_states()
+        self.assertEqual(s_elem, s_specie, "Oxidation state remover "
+                                           "failed")
+
+    def test_apply_strain(self):
+        self.structure.apply_strain(0.01)
+        self.assertAlmostEqual(
+            self.structure.lattice.abc,
+            (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
+
+    def test_translate_sites(self):
+        self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
+                                       frac_coords=True)
+        self.assertTrue(np.array_equal(self.structure.frac_coords[0],
+                                       np.array([0.5, 0.5, 0.5])))
+
+        self.structure.translate_sites([0], [0.5, 0.5, 0.5],
+                                       frac_coords=False)
+        self.assertTrue(np.allclose(self.structure.cart_coords[0],
+                                    [3.38014845, 1.05428585, 2.06775453]))
+
 
 class MoleculeTest(unittest.TestCase):
 

@@ -1555,6 +1555,169 @@ class MutableStructure(Structure):
         self._sites = [self._sites[i] for i in range(len(self._sites))
                        if i not in indices]
 
+    def apply_operation(self, symmop):
+        """
+        Apply a symmetry operation to the structure and return the new
+        structure. The lattice is operated by the rotation matrix only.
+        Coords are operated in full and then transformed to the new lattice.
+
+        Args:
+            symmop:
+                Symmetry operation to apply.
+        """
+        self._lattice = Lattice([symmop.apply_rotation_only(row)
+                                 for row in self._lattice.matrix])
+
+        def operate_site(site):
+            new_cart = symmop.operate(site.coords)
+            new_frac = self._lattice.get_fractional_coords(new_cart)
+            return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
+                                properties=site.properties)
+        self._sites = map(operate_site, self._sites)
+
+    def modify_lattice(self, new_lattice):
+        """
+        Modify the lattice of the structure.  Mainly used for changing the
+        basis.
+
+        Args:
+            new_lattice:
+                New lattice
+        """
+        self._lattice = new_lattice
+        new_sites = []
+        for site in self._sites:
+            new_sites.append(PeriodicSite(site.species_and_occu,
+                                          site.frac_coords,
+                                          self._lattice,
+                                          properties=site.properties))
+        self._sites = new_sites
+
+    def apply_strain(self, strain):
+        """
+        Apply an isotropic strain to the lattice.
+
+        Args:
+            strain:
+                Amount of strain to apply. E.g., 0.01 means all lattice
+                vectors are increased by 1%. This is equivalent to
+                calling modify_lattice with a lattice with lattice parameters
+                that are 1% larger.
+        """
+        self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
+
+    def translate_sites(self, indices, vector, frac_coords=True):
+        """
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
+
+        Args:
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+        """
+        for i in indices:
+            site = self._sites[i]
+            if frac_coords:
+                fcoords = site.frac_coords + vector
+            else:
+                fcoords = self._lattice.get_fractional_coords(site.coords
+                                                              + vector)
+            new_site = PeriodicSite(site.species_and_occu, fcoords,
+                                    self._lattice, to_unit_cell=True,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
+    def perturb(self, distance=0.1):
+        """
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
+
+        Args:
+            distance:
+                distance in angstroms by which to perturb each site.
+        """
+        def get_rand_vec():
+            #deals with zero vectors.
+            vector = np.random.randn(3)
+            vnorm = np.linalg.norm(vector)
+            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+
+        for i in range(len(self._sites)):
+            self.translate_sites([i], get_rand_vec(), frac_coords=False)
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            structure:
+                pymatgen.core.structure Structure object.
+            oxidation_states:
+                dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
+
+    def add_oxidation_state_by_site(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site.
+
+        Args:
+            oxidation_states:
+                List of oxidation states.
+                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[i])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the dictionary.")
+
+    def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = collections.defaultdict(float)
+            for el, occu in site.species_and_occu.items():
+                sym = el.symbol
+                new_sp[Element(sym)] += occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
 
 class MutableMolecule(Molecule):
     """
