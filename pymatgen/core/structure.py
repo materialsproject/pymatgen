@@ -264,12 +264,12 @@ class SiteCollection(collections.Sequence):
 
 class IStructure(SiteCollection, MSONable):
     """
-    Basic Structure object with periodicity. Essentially a sequence of
-    PeriodicSites having a common lattice. Structure is made to be immutable
-    so that they can function as keys in a dict. Modifications should be done
-    by making a new Structure using the structure_modifier module or your own
-    methods. Structure extends Sequence and Hashable, which means that in many
-    cases, it can be used like any Python sequence. Iterating through a
+    Basic immutable Structure object with periodicity. Essentially a sequence
+    of PeriodicSites having a common lattice. IStructure is made to be
+    immutable so that they can function as keys in a dict. To make
+    modifications, use the standard Structure object instead. Structure
+    extends Sequence and Hashable, which means that in many cases,
+    it can be used like any Python sequence. Iterating through a
     structure is equivalent to going through the sites in sequence.
     """
 
@@ -1323,7 +1323,7 @@ class IMolecule(SiteCollection, MSONable):
 class Structure(IStructure):
     """
     Mutable version of structure. Much easier to use for editing,
-    but cannot be used as keys in dictionary.
+    but cannot be used as a key in a dict.
     """
     __hash__ = None
 
@@ -1766,7 +1766,8 @@ class Structure(IStructure):
 
 class Molecule(IMolecule):
     """
-    Mutable version of structure
+    Mutable Molecule. It has all the methods in IMolecule, but in addition,
+    it allows a user to perform edits on the molecule.
     """
     __hash__ = None
 
@@ -2021,7 +2022,7 @@ class Molecule(IMolecule):
                             properties=site.properties)
             self._sites[i] = new_site
 
-    def perturb(self, distance=0.1):
+    def perturb(self, distance):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
