@@ -1757,6 +1757,51 @@ class MutableStructure(Structure):
         self._sites = new_sites
         self._lattice = new_lattice
 
+    @staticmethod
+    def from_sites(sites, validate_proximity=False):
+        """
+        Convenience constructor to make a Structure from a list of sites.
+
+        Args:
+            sites:
+                Sequence of PeriodicSites. Sites must have the same lattice.
+            validate_proximity:
+                Whether to check if there are sites that are less than 0.01 Ang
+                apart. Defaults to False.
+
+        """
+        props = collections.defaultdict(list)
+        lattice = None
+        for site in sites:
+            if not lattice:
+                lattice = site.lattice
+            elif site.lattice != lattice:
+                raise ValueError("Sites must belong to the same lattice")
+            for k, v in site.properties.items():
+                props[k].append(v)
+        return MutableStructure(lattice,
+                                [site.species_and_occu for site in sites],
+                                [site.frac_coords for site in sites],
+                                site_properties=props,
+                                validate_proximity=validate_proximity)
+
+    @staticmethod
+    def from_dict(d):
+        """
+        Reconstitute a Structure object from a dict representation of Structure
+        created using to_dict.
+
+        Args:
+            d:
+                dict representation of structure.
+
+        Returns:
+            Structure object
+        """
+        lattice = Lattice.from_dict(d["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        return MutableStructure.from_sites(sites)
+
 
 class MutableMolecule(Molecule):
     """
@@ -2029,6 +2074,34 @@ class MutableMolecule(Molecule):
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector)
 
+    @staticmethod
+    def from_dict(d):
+        """
+        Reconstitute a MutableMolecule object from a dict representation
+        created using to_dict.
+
+        Args:
+            d:
+                dict representation of MutableMolecule.
+
+        Returns:
+            Molecule object
+        """
+        species = []
+        coords = []
+        props = collections.defaultdict(list)
+
+        for site_dict in d["sites"]:
+            species.append({Specie(sp["element"], sp["oxidation_state"])
+                            if "oxidation_state" in sp else
+                            Element(sp["element"]): sp["occu"]
+                            for sp in site_dict["species"]})
+            coords.append(site_dict["xyz"])
+            siteprops = site_dict.get("properties", {})
+            for k, v in siteprops.items():
+                props[k].append(v)
+
+        return MutableMolecule(species, coords, site_properties=props)
 
 class StructureError(Exception):
     """
