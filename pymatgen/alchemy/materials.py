@@ -280,14 +280,13 @@ class TransformedStructure(MSONable):
         """
         return self._structures[-1]
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return TransformedStructure(s, [], d["history"],
-                                    d.get("other_parameters", None))
+        return cls(s, [], d["history"], d.get("other_parameters", None))
 
     @property
     def history(self):

@@ -300,6 +300,6 @@ class SymmOp(MSONable):
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
         return d
 
-    @staticmethod
-    def from_dict(d):
-        return SymmOp(d["matrix"], d["tolerance"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["matrix"], d["tolerance"])

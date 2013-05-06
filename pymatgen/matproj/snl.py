@@ -279,8 +279,8 @@ class StructureNL(object):
                                                 cls=PMGJSONEncoder)))
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         a = d["about"]
         dec = PMGJSONDecoder()
 
@@ -291,12 +291,10 @@ class StructureNL(object):
 
         structure = Structure.from_dict(d) if "lattice" in d \
             else Molecule.from_dict(d)
-        return StructureNL(structure, a["authors"],
-                           projects=a.get("projects", None),
-                           references=a.get("references", ""),
-                           remarks=a.get("remarks", None), data=data,
-                           history=a.get("history", None),
-                           created_at=created_at)
+        return cls(structure, a["authors"], projects=a.get("projects", None),
+                   references=a.get("references", ""),
+                   remarks=a.get("remarks", None), data=data,
+                   history=a.get("history", None), created_at=created_at)
 
     def __str__(self):
         return "\n".join(["{}\n{}".format(k, getattr(self, k))

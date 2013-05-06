@@ -35,8 +35,8 @@ class AbstractStructureFilter(MSONable):
         """
         return
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         for trans_modules in ['filters']:
             mod = __import__('pymatgen.alchemy.' + trans_modules,
                              globals(), locals(), [d['@class']], -1)

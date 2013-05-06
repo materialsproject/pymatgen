@@ -579,7 +579,7 @@ class IStructure(SiteCollection, MSONable):
                 fcoords = fcoord + image
                 coords = frac_2_cart(fcoords)
                 submat = np.tile(coords, (n, 1))
-                dists = (site_coords - submat) ** 2
+                dists = np.power(site_coords - submat, 2)
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 sp = self[j].species_and_occu
