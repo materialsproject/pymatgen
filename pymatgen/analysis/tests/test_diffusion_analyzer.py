@@ -52,6 +52,7 @@ class DiffusionAnalyzerTest(unittest.TestCase):
             self.assertTrue(np.allclose(
                 d.diffusivity_components,
                 [9.87866530e-07, 5.76805019e-07, 1.56720873e-06]))
+            self.assertAlmostEqual(d.max_framework_displacement, 1.1865683960)
 
 
 if __name__ == '__main__':

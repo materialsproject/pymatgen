@@ -53,6 +53,12 @@ class DiffusionAnalyzer(MSONable):
     .. attribute: conductivity components
 
         A vector with conductivity in the a, b and c directions in mS / cm
+        
+    .. attribute: max_framework_displacement
+    
+        The maximum (drift adjusted) distance of any framework atom from its 
+        starting location in A
+        
     """
 
     def __init__(self, structure, displacements, specie, temperature,
@@ -96,11 +102,15 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity = 0.
             self.diffusivity_components = np.array([0., 0., 0.])
             self.conductivity_components = np.array([0., 0., 0.])
+            self.max_framework_displacement = 0
         else:
             framework_disp = self.disp[self.framework_indices]
             drift = np.average(framework_disp, axis=0)
             #drift corrected position
             dc_x = self.disp[self.indices] - drift[None, :, :]
+            dc_framework = self.disp[self.framework_indices] - drift[None, :, :]
+            self.max_framework_displacement = \
+                np.max(np.sum(dc_framework ** 2, axis = -1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
             timesteps = np.arange(10, dc_x.shape[1],
                                   min(dc_x.shape[1] / 100, 1))
