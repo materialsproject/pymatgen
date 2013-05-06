@@ -738,7 +738,6 @@ class StructureMatcher(MSONable):
             group_list = [[g[0]]]
             for i, j in itertools.combinations(range(len(g)), 2):
                 s1_ind, s2_ind = self.find_indexes([g[i], g[j]], group_list)
-                print g[i]
                 if s2_ind == -1 and self.fit(g[i], g[j]):
                     group_list[s1_ind].append(g[j])
                 elif (j - i) == 1 and s2_ind == -1:
