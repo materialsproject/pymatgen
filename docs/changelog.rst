@@ -1,8 +1,8 @@
 Change log
 ==========
 
-Version 2.6.6
--------------
+v2.6.6
+------
 1. Updates to feffio (credit: Alan Dozier)
 2. Added detailed installation instructions for various platforms.
 3. Support for charge and spin multiplicity in Molecule. Expanded methods
@@ -11,21 +11,21 @@ Version 2.6.6
 5. More robust creation of PhaseDiagrams to take into account potential qhull
    precision errors.
 
-Version 2.6.5
--------------
+v2.6.5
+------
 1. Added a command_line caller to do Bader charge analysis using Henkelmann
    et al.'s algorithm.
 2. Bug fix for POSCAR parsing when title line is an empty string.
 3. Added __rmul__ operator for Composition.
 4. Vastly expanded available aliases.
 
-Version 2.6.4
--------------
+v2.6.4
+------
 1. Bug fixes for selective dynamics in Poscar.
 2. Improved Procar parsing to support both simple and detailed PROCARs.
 
-Version 2.6.3
--------------
+v2.6.3
+------
 1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
    (currently open in beta for collaborators only).
 2. Added support for new MaterialsProject REST method get_stability.
@@ -36,8 +36,8 @@ Version 2.6.3
    space are now also matched in cartesian space and a rms displacement
    normalized by length per atom can be returned using the rms_dist method.
 
-Version 2.6.2
--------------
+v2.6.2
+------
 
 1. Site and PeriodicSite now uses a Composition mapping type to represent
    the species and occupancy, instead of a standard dict.
@@ -46,30 +46,30 @@ Version 2.6.2
 4. Strain cell option in StructureEditor.
 5. Miscellaneous bug fixes and speedups.
 
-Version 2.6.1
--------------
+v2.6.1
+------
 1. Use requests.Session in MPRester for connection pooling and code simplicity.
 2. Support for "with" context manager in MPRester.
 3. Updated periodic table data to correct errors in Ru, Tc and other elements.
 4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
 5. Miscellaneous bug fixes and speedups.
 
-Version 2.5.5
--------------
+v2.5.5
+------
 
 1. Bug fix release for cifio for rhombohedral structures.
 2. Miscellaneous bug fixes and speedups.
 
-Version 2.5.4
--------------
+v2.5.4
+------
 1. Vastly improved Gaussian input file parsing that supports more varieties
    of input specifications.
 2. StructureNL now supports molecules as well as structures.
 3. Updated atomic and vdw radius for Elements.
 4. Miscellaneous bug fixes and speedups.
 
-Version 2.5.3
--------------
+v2.5.3
+------
 1. Bug fix for StructureNotationalLanguage.
 2. Support for LDA US potential. matgenie.py script option to generate POTCARs.
 3. Beta version of StructureNotationLanguage, a markup format for Structure
@@ -79,14 +79,14 @@ Version 2.5.3
 5. New custom ipython shell script for pymatgen.
 6. Miscellaneous bug fixes and speedups.
 
-Version 2.5.1
--------------
+v2.5.1
+------
 1. Bug fixes for primitive cell finder.
 2. Remove deprecated use_external_qhull option in PhaseDiagram classes.
 3. Miscellaneous bug fixes and speedups.
 
-Version 2.5.0
--------------
+v2.5.0
+------
 1. Added optimization package with linear assignment class.
 2. Improved robustness of StructureMatcher using linear assignment.
 3. Improved primitive cell search (faster and more robust).
@@ -96,13 +96,13 @@ Version 2.5.0
    StructureFitter and tests.
 5. Miscellaneous bug fixes and speedups.
 
-Version 2.4.3
--------------
+v2.4.3
+------
 1. Bug fix for StructureMatcher.
 2. Miscellaneous speedups.
 
-Version 2.4.0
--------------
+v2.4.0
+------
 1. New StructureMatcher that effectively replaces StructureFitter. Orders of
    magnitude faster and more robust. StructureFitter is now deprecated.
 2. Vastly improved PrimitiveCellTransformation.
@@ -110,8 +110,8 @@ Version 2.4.0
    in numpy, resulting in orders of magnitude improvement in speed.
 4. Miscellaneous bug fixes and speedups.
 
-Version 2.3.2
--------------
+v2.3.2
+------
 1. More utilities for working with Periodic Boundary Conditions.
 2. Improved MPRester that supports more data and a new method of specifying
    the API key for heavy users via a MAPI_KEY environment variable. Please
@@ -120,8 +120,8 @@ Version 2.3.2
    installed as part of a default pymatgen installation.
 4. Miscellaneous bug fixes and speedups.
 
-Version 2.3.1
--------------
+v2.3.1
+------
 1. Significant improvements to the high-level interface to the Materials API.
    New interface provides more options to make it easier to get structures and
    entries, better warnings and error handling. It uses the *requests*
@@ -136,8 +136,8 @@ Version 2.3.1
    instead of just the element symbols.
 5. Miscellaneous bug fixes.
 
-Version 2.3.0
--------------
+v2.3.0
+------
 1. Remove usage of scipy and external qhull callers. Now uses pyhull package.
    Please note that this change implies that the pyhull package is now a
    required dependency. If you install pymatgen through the usual
@@ -146,8 +146,8 @@ Version 2.3.0
    PyPI to download and install it.
 2. Miscellaneous bug fixes.
 
-Version 2.2.6
--------------
+v2.2.6
+------
 1. Brand new *beta* bond valence analyzer based on a Maximum A Posteriori
    algo using data-mined ICSD data.
 2. Speed up and improvements to core classes.
@@ -157,29 +157,29 @@ Version 2.2.6
    reading of OUTCAR files by orders of magnitude.
 6. Miscellaneous bug fixes.
 
-Version 2.2.4
--------------
+v2.2.4
+------
 
 1. Fixed bug in hexagonal cell KPOINTS file generation.
 2. New RelaxationAnalyzer to compare structures.
 3. New *beta* bond valence analyzer.
 4. Miscellaneous bug fixes.
 
-Version 2.2.3
--------------
+v2.2.3
+------
 
 1. New filter framework for filtering structures in pymatgen.alchemy.
 2. Updated feff io classes to support FEFF 9.6 and other code improvements.
 3. Miscellaneous bug fixes.
 
-Version 2.2.2
--------------
+v2.2.2
+------
 
 1. Bug fix release for REST interface.
 2. Improvements to unittests.
 
-Version 2.2.1
--------------
+v2.2.1
+------
 
 1. Improvements to feffio.
 2. Master matgenie.py script which replaces many analysis scripts.
@@ -188,8 +188,8 @@ Version 2.2.1
 5. Changes to MPRester to work with v1 release of the Materials API.
 6. Miscellaneous bug fixes and speed improvements.
 
-Version 2.2.0
--------------
+v2.2.0
+------
 
 1. Beta modules (pymatgen.io.feffio) for io for FEFF, courtesy of Alan Dozier.
 2. New smartio module that intelligently reads structure input files based on
@@ -201,8 +201,8 @@ Version 2.2.0
 6. Cssr module now supports reading of input files.
 7. Miscellaneous bug fixes and speed improvements.
 
-Version 2.1.2
--------------
+v2.1.2
+------
 
 1. Brand new CompoundPD class that allows the plotting of phase diagrams that
    do not have elements as their terminal points.
@@ -218,8 +218,8 @@ Version 2.1.2
    to speed up fitting.
 8. Miscellaneous bug fixes and speed improvements.
 
-Version 2.0.0
--------------
+v2.0.0
+------
 
 1. Brand new module (pymatgen.matproj.rest) for interfacing with the
    MaterialsProject REST interface.
@@ -246,8 +246,8 @@ Version 2.0.0
    bandstructure and eigenvalues in vaspio and electronic_structure.
 6. Miscellaneous bug fixes and speed improvements.
 
-Version 1.9.0
--------------
+v1.9.0
+------
 
 1. Completely new json encoder and decoder that support serialization of almost
    all pymatgen objects.
@@ -255,8 +255,8 @@ Version 1.9.0
 3. Bandstructure classes now support spin-polarized runs.
 4. Beta classes for battery (insertion and conversion) analysis.
 
-Version 1.8.3
--------------
+v1.8.3
+------
 
 1. spglib_adaptor now supports disordered structures.
 2. Update to support new spglib with angle_tolerance.
@@ -264,35 +264,35 @@ Version 1.8.3
 4. Speed up for COMPLETE_ORDERING algo for PartialRemoveSpecieTransformation.
 
 
-Version 1.8.1
--------------
+v1.8.1
+------
 
 1. Revamped transmuter classes for better readability and long term support.
 2. Much improved speed for PartialRemoveSpecieTransformations.
 3. Misc bug fixes.
 
-Version 1.8.0
--------------
+v1.8.0
+------
 
 1. Support for additional properties on Specie (Spin) and Site (magmom, charge).
 2. Molecule class to support molecules without periodicity.
 3. Beta io class for XYZ and GaussianInput.
 
-Version 1.7.2
--------------
+v1.7.2
+------
 
 1. Bug fixes for vaspio_set and compatibility classes.
 
-Version 1.7.0
--------------
+v1.7.0
+------
 
 1. Complete reorganization of modules for electronic structure.
 2. Beta of band structure classes.
 3. Misc improvements to vaspio classes.
 4. Bug fixes.
 
-Version 1.6.0
--------------
+v1.6.0
+------
 
 1. Beta of pymatgen.borg package implemented for high-throughput data assimilation.
 2. Added ComputedEntry classes for handling calculated data.
