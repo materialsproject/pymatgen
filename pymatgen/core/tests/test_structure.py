@@ -136,6 +136,7 @@ class IStructureTest(unittest.TestCase):
         s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
         self.assertEqual(s[0].specie.spin, 3)
+        self.assertEqual(type(s), IStructure)
 
     def test_site_properties(self):
         site_props = self.propertied_structure.site_properties
@@ -220,7 +221,7 @@ class IStructureTest(unittest.TestCase):
         self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
 
 
-class MutableStructureTest(unittest.TestCase):
+class StructureTest(unittest.TestCase):
 
     def setUp(self):
         coords = list()
@@ -334,8 +335,13 @@ class MutableStructureTest(unittest.TestCase):
         self.assertTrue(np.allclose(self.structure.lattice.abc,
                                     [15.360792, 35.195996, 7.680396]))
 
+    def test_to_from_dict(self):
+        d = self.structure.to_dict
+        s2 = Structure.from_dict(d)
+        self.assertEqual(type(s2), Structure)
 
-class MoleculeTest(unittest.TestCase):
+
+class IMoleculeTest(unittest.TestCase):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
@@ -483,6 +489,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
                                     atol=1e-7))
 
+    def test_to_from_dict(self):
+        d = self.mol.to_dict
+        mol2 = IMolecule.from_dict(d)
+        self.assertEqual(type(mol2), IMolecule)
+
 
 class MoleculeTest(unittest.TestCase):
 
@@ -542,6 +553,10 @@ class MoleculeTest(unittest.TestCase):
         self.assertEqual(self.mol[0].charge, 4.1)
         self.assertEqual(self.mol[0].magmom, 3)
 
+    def test_to_from_dict(self):
+        d = self.mol.to_dict
+        mol2 = Molecule.from_dict(d)
+        self.assertEqual(type(mol2), Molecule)
 
 if __name__ == '__main__':
     unittest.main()
