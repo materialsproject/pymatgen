@@ -257,8 +257,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Create Site from dict representation
         """
@@ -268,7 +268,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 else Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
-        return Site(atoms_n_occu, d["xyz"], properties=props)
+        return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
 class PeriodicSite(Site, MSONable):
@@ -514,8 +514,8 @@ class PeriodicSite(Site, MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d, lattice=None):
+    @classmethod
+    def from_dict(cls, d, lattice=None):
         """
         Create PeriodicSite from dict representation.
 
@@ -533,4 +533,4 @@ class PeriodicSite(Site, MSONable):
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
-        return PeriodicSite(atoms_n_occu, d["abc"], lattice, properties=props)
+        return cls(atoms_n_occu, d["abc"], lattice, properties=props)

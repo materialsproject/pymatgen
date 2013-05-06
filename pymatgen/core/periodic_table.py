@@ -845,10 +845,10 @@ class Specie(MSONable):
                 "oxidation_state": self._oxi_state,
                 "properties": self._properties}
 
-    @staticmethod
-    def from_dict(d):
-        return Specie(d["element"], d["oxidation_state"],
-                      d.get("properties", None))
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["element"], d["oxidation_state"],
+                   d.get("properties", None))
 
 
 @cached_class
@@ -997,10 +997,10 @@ class DummySpecie(MSONable):
                 "oxidation_state": self._oxi_state,
                 "properties": self._properties}
 
-    @staticmethod
-    def from_dict(d):
-        return DummySpecie(d["element"], d["oxidation_state"],
-                           d.get("properties", None))
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["element"], d["oxidation_state"],
+                   d.get("properties", None))
 
     def __repr__(self):
         return "DummySpecie " + self.__str__()
@@ -1012,6 +1012,7 @@ class DummySpecie(MSONable):
         else:
             output += formula_double_format(-self._oxi_state) + "-"
         return output
+
 
 @singleton
 class PeriodicTable(object):

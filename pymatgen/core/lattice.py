@@ -260,17 +260,17 @@ class Lattice(MSONable):
         vector_c = [0.0, 0.0, float(c)]
         return Lattice([vector_a, vector_b, vector_c])
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
         if "matrix" in d:
-            return Lattice(d["matrix"])
+            return cls(d["matrix"])
         else:
-            return Lattice.from_parameters(d["a"], d["b"], d["c"],
-                                           d["alpha"], d["beta"], d["gamma"])
+            return cls.from_parameters(d["a"], d["b"], d["c"],
+                                       d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
@@ -711,7 +711,7 @@ class Lattice(MSONable):
 
     def scale(self, new_volume):
         """
-        Return a new Lattice with volume new_volume by performing a 
+        Return a new Lattice with volume new_volume by performing a
         scaling of the lattice vectors so that length proportions and angles are preserved.
         """
         versors = self.matrix / self.abc
