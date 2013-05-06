@@ -25,7 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.core.structure import Structure
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
+from pymatgen.core.structure_modifier import SupercellMaker, StructureEditor
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -90,9 +90,9 @@ class RotationTransformation(AbstractTransformation):
             self._axis, self._angle, self._angle_in_radians)
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.apply_operation(self._symmop)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.apply_operation(self._symmop)
+        return s
 
     def __str__(self):
         return "Rotation Transformation about axis " + \
@@ -135,9 +135,9 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         self.oxi_states = oxidation_states
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.add_oxidation_state_by_element(self.oxi_states)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.add_oxidation_state_by_element(self.oxi_states)
+        return s
 
     @property
     def inverse(self):
@@ -211,9 +211,9 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     This transformation removes oxidation states from a structure
     """
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.remove_oxidation_states()
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.remove_oxidation_states()
+        return s
 
     @property
     def inverse(self):
@@ -318,9 +318,9 @@ class SubstitutionTransformation(AbstractTransformation):
             else:
                 value = smart_element_or_specie(v)
             species_map[smart_element_or_specie(k)] = value
-        editor = StructureEditor(structure)
-        editor.replace_species(species_map)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.replace_species(species_map)
+        return s
 
     def __str__(self):
         return "Substitution Transformation :" + \
@@ -360,10 +360,10 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         self._species = species_to_remove
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        map(editor.remove_species, [[smart_element_or_specie(sp)]
-                                    for sp in self._species])
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        map(s.remove_species, [[smart_element_or_specie(sp)]
+                               for sp in self._species])
+        return s
 
     def __str__(self):
         return "Remove Species Transformation :" + ", ".join(self._species)
@@ -746,9 +746,9 @@ class PerturbStructureTransformation(AbstractTransformation):
         self._amp = amplitude
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.perturb_structure(self._amp)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.perturb(self._amp)
+        return s
 
     def __str__(self):
         return "PerturbStructureTransformation : " + \
