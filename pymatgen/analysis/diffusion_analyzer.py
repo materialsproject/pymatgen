@@ -192,13 +192,12 @@ class DiffusionAnalyzer(MSONable):
             "step_skip": self.step_skip
         }
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         structure = Structure.from_dict(d["structure"])
-        return DiffusionAnalyzer(
-            structure, np.array(d["displacements"]), specie=d["specie"],
-            temperature=d["temperature"], time_step=d["time_step"],
-            step_skip=d["step_skip"])
+        return cls(structure, np.array(d["displacements"]), specie=d["specie"],
+                   temperature=d["temperature"], time_step=d["time_step"],
+                   step_skip=d["step_skip"])
 
 
 def get_conversion_factor(structure, species, temperature):

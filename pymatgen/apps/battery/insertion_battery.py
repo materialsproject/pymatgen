@@ -339,12 +339,12 @@ class InsertionElectrode(AbstractElectrode):
         output.append("Vol. cap. = {}".format(self.get_capacity_vol()))
         return  "\n".join(output)
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         from pymatgen.serializers.json_coders import PMGJSONDecoder
         dec = PMGJSONDecoder()
-        return InsertionElectrode(dec.process_decoded(d["entries"]),
-                                  dec.process_decoded(d["working_ion_entry"]))
+        return cls(dec.process_decoded(d["entries"]),
+                   dec.process_decoded(d["working_ion_entry"]))
 
     @property
     def to_dict(self):
