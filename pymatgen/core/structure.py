@@ -1371,10 +1371,7 @@ class MutableStructure(Structure):
     def append(self, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
         """
-        Append a site to the structure. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
+        Append a site to the structure.
 
         Args:
             species:
@@ -1398,10 +1395,7 @@ class MutableStructure(Structure):
     def insert(self, i, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
         """
-        Insert a site to the structure. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
+        Insert a site to the structure.
 
         Args:
             i:
@@ -1437,10 +1431,7 @@ class MutableStructure(Structure):
 
     def remove(self, i):
         """
-        Remove site at index i. Note that this is efficient only for
-        one time changes. To make multiple changes efficiently,
-        it is better to use
-        :class:pymatgen.structure_modifier.StructureEditor.
+        Remove site at index i.
 
         Args:
             i:
@@ -1489,6 +1480,7 @@ class MutableStructure(Structure):
         latt = self._lattice
         species_mapping = {smart_element_or_specie(k): v
                            for k, v in species_mapping.items()}
+
         def mod_site(site):
             new_atom_occu = collections.defaultdict(int)
             for sp, amt in site.species_and_occu.items():
@@ -1507,7 +1499,7 @@ class MutableStructure(Structure):
 
         self._sites = map(mod_site, self._sites)
 
-    def replace_site(self, index, species_n_occu):
+    def replace(self, index, species_n_occu):
         """
         Replace a single site. Takes either a species or a dict of species and
         occupations.
@@ -1544,7 +1536,7 @@ class MutableStructure(Structure):
                     properties=site.properties))
         self._sites = new_sites
 
-    def delete_sites(self, indices):
+    def remove_sites(self, indices):
         """
         Delete sites with at indices.
 
@@ -1633,7 +1625,7 @@ class MutableStructure(Structure):
                                     properties=site.properties)
             self._sites[i] = new_site
 
-    def perturb(self, distance=0.1):
+    def perturb(self, distance):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -1717,6 +1709,53 @@ class MutableStructure(Structure):
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
+
+    def make_supercell(self, scaling_matrix):
+        """
+        Create a supercell.
+
+        Args:
+            scaling_matrix:
+                A scaling matrix for transforming the lattice vectors.
+                Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                specifies that the supercell should have dimensions 2a x b x c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+        """
+        scale_matrix = np.array(scaling_matrix * np.eye(3), np.int16)
+        old_lattice = self._lattice
+        new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
+        new_sites = []
+
+        def range_vec(i):
+            return range(max(scale_matrix[:][:, i])
+                         - min(scale_matrix[:][:, i]) + 1)
+
+        for site in self:
+            for (i, j, k) in itertools.product(range_vec(0), range_vec(1),
+                                               range_vec(2)):
+                fcoords = site.frac_coords + np.array([i, j, k])
+                coords = old_lattice.get_cartesian_coords(fcoords)
+                new_coords = new_lattice.get_fractional_coords(coords)
+                new_site = PeriodicSite(site.species_and_occu, new_coords,
+                                        new_lattice,
+                                        properties=site.properties)
+                contains_site = False
+                for s in new_sites:
+                    if s.is_periodic_image(new_site):
+                        contains_site = True
+                        break
+                if not contains_site:
+                    new_sites.append(new_site)
+        self._sites = new_sites
+        self._lattice = new_lattice
 
 
 class MutableMolecule(Molecule):
@@ -1844,6 +1883,27 @@ class MutableMolecule(Molecule):
                                      "site!")
         self._sites.insert(i, new_site)
 
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name:
+                The name of the property to add.
+            values:
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords,
+                                  properties=props)
+
     def remove(self, i):
         """
         Delete site at index i.
@@ -1856,6 +1916,118 @@ class MutableMolecule(Molecule):
             New structure with site removed.
         """
         del(self._sites[i])
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species in a molecule.
+
+        Args:
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na
+                substitution. The second species can be a sp_and_occu dict.
+                For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
+        """
+        species_mapping = {smart_element_or_specie(k): v
+                           for k, v in species_mapping.items()}
+
+        def mod_site(site):
+            new_atom_occu = dict()
+            for sp, amt in site.species_and_occu.items():
+                if sp in species_mapping:
+                    if isinstance(species_mapping[sp], (Element, Specie)):
+                        if species_mapping[sp] in new_atom_occu:
+                            new_atom_occu[species_mapping[sp]] += amt
+                        else:
+                            new_atom_occu[species_mapping[sp]] = amt
+                    elif isinstance(species_mapping[sp], dict):
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            if new_sp in new_atom_occu:
+                                new_atom_occu[new_sp] += amt * new_amt
+                            else:
+                                new_atom_occu[new_sp] = amt * new_amt
+                else:
+                    if sp in new_atom_occu:
+                        new_atom_occu[sp] += amt
+                    else:
+                        new_atom_occu[sp] = amt
+            return Site(new_atom_occu, site.coords, properties=site.properties)
+        self._sites = map(mod_site, self._sites)
+
+    def replace(self, index, species_n_occu):
+        """
+        Replace a single site. Takes either a species or a dict of occus.
+
+        Args:
+            index:
+                The index of the site in the _sites list
+            species:
+                A species object.
+        """
+        self._sites[index] = Site(species_n_occu, self._sites[index].coords,
+                                  properties=self._sites[index].properties)
+
+    def remove_species(self, species):
+        """
+        Remove all occurrences of a species from a molecule.
+
+        Args:
+            species:
+                Species to remove.
+        """
+        new_sites = []
+        species = map(smart_element_or_specie, species)
+        for site in self._sites:
+            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+                           if sp not in species}
+            if len(new_sp_occu) > 0:
+                new_sites.append(Site(new_sp_occu, site.coords,
+                                      properties=site.properties))
+        self._sites = new_sites
+
+    def remove_sites(self, indices):
+        """
+        Delete sites with at indices.
+
+        Args:
+            indices:
+                sequence of indices of sites to delete.
+        """
+        self._sites = [self._sites[i] for i in range(len(self._sites))
+                       if i not in indices]
+
+    def translate_sites(self, indices, vector):
+        """
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
+
+        Args:
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+        """
+        for i in indices:
+            site = self._sites[i]
+            new_site = Site(site.species_and_occu, site.coords + vector,
+                            properties=site.properties)
+            self._sites[i] = new_site
+
+    def perturb(self, distance=0.1):
+        """
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
+
+        Args:
+            distance:
+                distance in angstroms by which to perturb each site.
+        """
+        for i in range(len(self._sites)):
+            vector = np.random.rand(3)
+            vector /= np.linalg.norm(vector) / distance
+            self.translate_sites([i], vector)
 
 
 class StructureError(Exception):

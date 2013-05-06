@@ -242,7 +242,7 @@ class MutableStructureTest(unittest.TestCase):
         self.assertEqual(s.formula, "Si1 O1")
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
-        s.replace_site(0, "Ge")
+        s.replace(0, "Ge")
         self.assertEqual(s.formula, "Ge1 N1 O1")
         s.replace_species({"Ge": "Si"})
         self.assertEqual(s.formula, "Si1 N1 O1")
@@ -324,6 +324,17 @@ class MutableStructureTest(unittest.TestCase):
                                        frac_coords=False)
         self.assertTrue(np.allclose(self.structure.cart_coords[0],
                                     [3.38014845, 1.05428585, 2.06775453]))
+
+    def test_make_supercell(self):
+        self.structure.make_supercell([2, 1, 1])
+        self.assertEqual(self.structure.formula, "Si4")
+        self.structure.make_supercell([[1, 0, 0], [2, 1, 0], [0, 0, 1]])
+        self.assertEqual(self.structure.formula, "Si4")
+
+        self.structure.make_supercell(2)
+        self.assertEqual(self.structure.formula, "Si32")
+        self.assertTrue(np.allclose(self.structure.lattice.abc,
+                                    [15.360792, 7.680398, 7.680396]))
 
 
 class MoleculeTest(unittest.TestCase):
@@ -477,13 +488,16 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
 class MutableMoleculeTest(unittest.TestCase):
 
-    def test_init(self):
+    def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-        mol = MutableMolecule(["C", "H", "H", "H", "H"], coords)
+        self.mol = MutableMolecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_insert_remove_append(self):
+        mol = self.mol
         mol.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(mol.formula, "H4 C1 O1")
         mol.remove(2)
@@ -493,6 +507,43 @@ class MutableMoleculeTest(unittest.TestCase):
         mol.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(mol.formula, "H3 C1 N1 O1")
         self.assertRaises(TypeError, dict, [(mol, 1)])
+
+    def test_translate_sites(self):
+        self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
+        self.assertTrue(np.array_equal(self.mol.cart_coords[0],
+                                       np.array([0.5, 0.5, 0.5])))
+
+    def test_replace(self):
+        self.mol.replace(0, "Ge")
+        self.assertEqual(self.mol.formula, "Ge1 H4")
+
+        self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5,
+                                                  Element("Si"): 0.5}})
+        self.assertEqual(self.mol.formula, "Si0.5 Ge0.5 H4")
+
+        #this should change the .5Si .5Ge sites to .75Si .25Ge
+        self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5,
+                                                  Element("Si"): 0.5}})
+        self.assertEqual(self.mol.formula, "Si0.75 Ge0.25 H4")
+
+        d = 0.1
+        pre_perturbation_sites = self.mol.sites[:]
+        self.mol.perturb(distance=d)
+        post_perturbation_sites = self.mol.sites
+
+        for i, x in enumerate(pre_perturbation_sites):
+            self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
+                                   3, "Bad perturbation distance")
+
+    def test_add_site_property(self):
+        self.mol.add_site_property("charge", [4.1, -2, -2, -2, -2])
+        self.assertEqual(self.mol[0].charge, 4.1)
+        self.assertEqual(self.mol[1].charge, -2)
+
+        self.mol.add_site_property("magmom", [3, 2, 2, 2, 2])
+        self.assertEqual(self.mol[0].charge, 4.1)
+        self.assertEqual(self.mol[0].magmom, 3)
+
 
 if __name__ == '__main__':
     unittest.main()
