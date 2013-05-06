@@ -262,7 +262,7 @@ class SiteCollection(collections.Sequence):
         return True
 
 
-class Structure(SiteCollection, MSONable):
+class IStructure(SiteCollection, MSONable):
     """
     Basic Structure object with periodicity. Essentially a sequence of
     PeriodicSites having a common lattice. Structure is made to be immutable
@@ -334,8 +334,8 @@ class Structure(SiteCollection, MSONable):
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
 
-    @staticmethod
-    def from_sites(sites, validate_proximity=False):
+    @classmethod
+    def from_sites(cls, sites, validate_proximity=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -356,11 +356,11 @@ class Structure(SiteCollection, MSONable):
                 raise ValueError("Sites must belong to the same lattice")
             for k, v in site.properties.items():
                 props[k].append(v)
-        return Structure(lattice,
-                         [site.species_and_occu for site in sites],
-                         [site.frac_coords for site in sites],
-                         site_properties=props,
-                         validate_proximity=validate_proximity)
+        return cls(lattice,
+                   [site.species_and_occu for site in sites],
+                   [site.frac_coords for site in sites],
+                   site_properties=props,
+                   validate_proximity=validate_proximity)
 
     @property
     def sites(self):
@@ -619,7 +619,7 @@ class Structure(SiteCollection, MSONable):
         Sites are sorted by the electronegativity of the species.
         """
         sites = sorted(self)
-        return Structure.from_sites(sites)
+        return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
         """
@@ -638,8 +638,9 @@ class Structure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return Structure(reduced_latt, self.species_and_occu, self.cart_coords,
-                         coords_are_cartesian=True, to_unit_cell=True)
+        return self.__class__(reduced_latt, self.species_and_occu,
+                              self.cart_coords,
+                              coords_are_cartesian=True, to_unit_cell=True)
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -667,10 +668,10 @@ class Structure(SiteCollection, MSONable):
         if site_properties:
             props.update(site_properties)
         if not sanitize:
-            return Structure(self._lattice,
-                             [site.species_and_occu for site in self],
-                             [site.frac_coords for site in self],
-                             site_properties=props)
+            return self.__class__(self._lattice,
+                                  self.species_and_occu,
+                                  self.frac_coords,
+                                  site_properties=props)
         else:
             reduced_latt = self._lattice.get_lll_reduced_lattice()
             new_sites = []
@@ -684,7 +685,7 @@ class Structure(SiteCollection, MSONable):
                                               to_unit_cell=True,
                                               properties=site_props))
             new_sites = sorted(new_sites)
-            return Structure.from_sites(new_sites)
+            return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10):
         """
@@ -721,10 +722,10 @@ class Structure(SiteCollection, MSONable):
         end_coords = np.array(end_structure.frac_coords)
 
         vec = end_coords - start_coords
-        structs = [Structure(self.lattice,
-                             [site.species_and_occu for site in self._sites],
-                             start_coords + float(x) / float(nimages) * vec,
-                             site_properties=self.site_properties)
+        sp = self.species_and_occu
+        structs = [self.__class__(self.lattice,
+                   sp, start_coords + float(x) / float(nimages) * vec,
+                   site_properties=self.site_properties)
                    for x in range(0, nimages + 1)]
         return structs
 
@@ -851,8 +852,8 @@ class Structure(SiteCollection, MSONable):
                 new_frac.append(all_frac[i0])
 
             if correct:
-                new_structure = Structure(latt, new_sp, new_frac,
-                                          to_unit_cell=True)
+                new_structure = self.__class__(
+                    latt, new_sp, new_frac, to_unit_cell=True)
                 break
 
         if new_structure and len(new_structure) != len(self):
@@ -900,8 +901,8 @@ class Structure(SiteCollection, MSONable):
             d["sites"].append(site_dict)
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using to_dict.
@@ -915,14 +916,16 @@ class Structure(SiteCollection, MSONable):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        return Structure.from_sites(sites)
+        return cls.from_sites(sites)
 
 
-class Molecule(SiteCollection, MSONable):
+class IMolecule(SiteCollection, MSONable):
     """
-    Basic Molecule object without periodicity. Essentially a sequence of sites.
-    Molecule is made to be immutable so that they can function as keys in a
-    dict. Modifications should be done by making a new Molecule.
+    Basic immutable Molecule object without periodicity. Essentially a
+    sequence of sites. IMolecule is made to be immutable so that they can
+    function as keys in a dict. For a mutable molecule,
+    use the :class:Molecule.
+
     Molecule extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a molecule is
     equivalent to going through the sites in sequence.
@@ -1033,11 +1036,11 @@ class Molecule(SiteCollection, MSONable):
         """
         return self._sites
 
-    @staticmethod
-    def from_sites(sites, charge=0, spin_multiplicity=None,
+    @classmethod
+    def from_sites(cls, sites, charge=0, spin_multiplicity=None,
                    validate_proximity=False):
         """
-        Convenience static constructor to make a Molecule from a list of sites.
+        Convenience constructor to make a Molecule from a list of sites.
 
         Args:
             sites:
@@ -1047,11 +1050,11 @@ class Molecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
-        return Molecule([site.species_and_occu for site in sites],
-                        [site.coords for site in sites],
-                        charge=charge, spin_multiplicity=spin_multiplicity,
-                        validate_proximity=validate_proximity,
-                        site_properties=props)
+        return cls([site.species_and_occu for site in sites],
+                   [site.coords for site in sites],
+                   charge=charge, spin_multiplicity=spin_multiplicity,
+                   validate_proximity=validate_proximity,
+                   site_properties=props)
 
     def break_bond(self, ind1, ind2, tol=0.2):
         """
@@ -1099,7 +1102,8 @@ class Molecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return (Molecule.from_sites(cluster) for cluster in clusters)
+        return (self.__class__.from_sites(cluster)
+                for cluster in clusters)
 
     def get_covalent_bonds(self, tol=0.2):
         """
@@ -1169,8 +1173,8 @@ class Molecule(SiteCollection, MSONable):
              "sites": [site.to_dict for site in self]}
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Reconstitute a Molecule object from a dict representation created using
         to_dict.
@@ -1196,7 +1200,7 @@ class Molecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return Molecule(species, coords, site_properties=props)
+        return cls(species, coords, site_properties=props)
 
     def get_distance(self, i, j):
         """
@@ -1310,13 +1314,13 @@ class Molecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return Molecule(self.species_and_occu, new_coords,
-                        charge=self._charge,
-                        spin_multiplicity=self._spin_multiplicity,
-                        site_properties=self.site_properties)
+        return self.__class__(self.species_and_occu, new_coords,
+                              charge=self._charge,
+                              spin_multiplicity=self._spin_multiplicity,
+                              site_properties=self.site_properties)
 
 
-class MutableStructure(Structure):
+class Structure(IStructure):
     """
     Mutable version of structure. Much easier to use for editing,
     but cannot be used as keys in dictionary.
@@ -1360,7 +1364,7 @@ class MutableStructure(Structure):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        Structure.__init__(
+        IStructure.__init__(
             self, lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
@@ -1757,53 +1761,8 @@ class MutableStructure(Structure):
         self._sites = new_sites
         self._lattice = new_lattice
 
-    @staticmethod
-    def from_sites(sites, validate_proximity=False):
-        """
-        Convenience constructor to make a Structure from a list of sites.
 
-        Args:
-            sites:
-                Sequence of PeriodicSites. Sites must have the same lattice.
-            validate_proximity:
-                Whether to check if there are sites that are less than 0.01 Ang
-                apart. Defaults to False.
-
-        """
-        props = collections.defaultdict(list)
-        lattice = None
-        for site in sites:
-            if not lattice:
-                lattice = site.lattice
-            elif site.lattice != lattice:
-                raise ValueError("Sites must belong to the same lattice")
-            for k, v in site.properties.items():
-                props[k].append(v)
-        return MutableStructure(lattice,
-                                [site.species_and_occu for site in sites],
-                                [site.frac_coords for site in sites],
-                                site_properties=props,
-                                validate_proximity=validate_proximity)
-
-    @staticmethod
-    def from_dict(d):
-        """
-        Reconstitute a Structure object from a dict representation of Structure
-        created using to_dict.
-
-        Args:
-            d:
-                dict representation of structure.
-
-        Returns:
-            Structure object
-        """
-        lattice = Lattice.from_dict(d["lattice"])
-        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        return MutableStructure.from_sites(sites)
-
-
-class MutableMolecule(Molecule):
+class Molecule(IMolecule):
     """
     Mutable version of structure
     """
@@ -1839,7 +1798,7 @@ class MutableMolecule(Molecule):
                 length as the atomic species and fractional_coords.
                 Defaults to None for no properties.
         """
-        Molecule.__init__(
+        IMolecule.__init__(
             self, species, coords, charge=charge,
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
@@ -2074,34 +2033,6 @@ class MutableMolecule(Molecule):
             vector /= np.linalg.norm(vector) / distance
             self.translate_sites([i], vector)
 
-    @staticmethod
-    def from_dict(d):
-        """
-        Reconstitute a MutableMolecule object from a dict representation
-        created using to_dict.
-
-        Args:
-            d:
-                dict representation of MutableMolecule.
-
-        Returns:
-            Molecule object
-        """
-        species = []
-        coords = []
-        props = collections.defaultdict(list)
-
-        for site_dict in d["sites"]:
-            species.append({Specie(sp["element"], sp["oxidation_state"])
-                            if "oxidation_state" in sp else
-                            Element(sp["element"]): sp["occu"]
-                            for sp in site_dict["species"]})
-            coords.append(site_dict["xyz"])
-            siteprops = site_dict.get("properties", {})
-            for k, v in siteprops.items():
-                props[k].append(v)
-
-        return MutableMolecule(species, coords, site_properties=props)
 
 class StructureError(Exception):
     """

@@ -4,14 +4,14 @@ import unittest
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure, Molecule, StructureError,\
-    MutableStructure, MutableMolecule
+from pymatgen.core.structure import IStructure, Structure, IMolecule, \
+    StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 import numpy as np
 import random
 
 
-class StructureTest(unittest.TestCase):
+class IStructureTest(unittest.TestCase):
 
     def setUp(self):
         coords = list()
@@ -20,28 +20,26 @@ class StructureTest(unittest.TestCase):
         self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
                                 [1.9200989668, 3.3257101909, 0.00],
                                 [0.00, -2.2171384943, 3.1355090603]])
-        self.struct = Structure(self.lattice, ["Si"] * 2, coords)
+        self.struct = IStructure(self.lattice, ["Si"] * 2, coords)
         self.assertEqual(len(self.struct), 2,
                          "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
-        self.assertRaises(StructureError, Structure, self.lattice,
+        self.assertRaises(StructureError, IStructure, self.lattice,
                           ["Si"] * 2, coords, True)
-        self.propertied_structure = Structure(self.lattice, ["Si"] * 2,
-                                              coords,
-                                              site_properties={'magmom':
-                                                               [5, -5]})
+        self.propertied_structure = IStructure(
+            self.lattice, ["Si"] * 2, coords,
+            site_properties={'magmom': [5, -5]})
 
     def test_bad_structure(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
         coords.append([0.75, 0.5, 0.75])
-        self.assertRaises(StructureError, Structure, self.lattice, ["Si"] * 3,
-                          coords, validate_proximity=True)
-
+        self.assertRaises(StructureError, IStructure, self.lattice,
+                          ["Si"] * 3, coords, validate_proximity=True)
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
@@ -52,16 +50,16 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, [{Specie('O', -2):1.0},
-                                     {Specie('Mg', 2):0.8}], coords)
+        s = IStructure(self.lattice, [{Specie('O', -2): 1.0},
+                                      {Specie('Mg', 2): 0.8}], coords)
         self.assertEqual(str(s.composition), 'Mg2+0.8 O2-1')
 
     def test_get_sorted_structure(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, ["O", "Li"], coords,
-                      site_properties={'charge': [-2, 1]})
+        s = IStructure(self.lattice, ["O", "Li"], coords,
+                       site_properties={'charge': [-2, 1]})
         sorted_s = s.get_sorted_structure()
         self.assertEqual(sorted_s[0].species_and_occu, Composition("Li"))
         self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
@@ -72,8 +70,8 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, [{Element('O'):1.0}, {Element('Mg'):0.8}],
-                      coords)
+        s = IStructure(self.lattice, [{'O': 1.0}, {'Mg': 0.8}],
+                       coords)
         self.assertEqual(str(s.composition), 'Mg0.8 O1')
         self.assertFalse(s.is_ordered)
 
@@ -91,7 +89,8 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        struct = Structure(self.lattice, [{si:0.5, mn:0.5}, {si:0.5}], coords)
+        struct = IStructure(self.lattice, [{si: 0.5, mn: 0.5}, {si: 0.5}],
+                            coords)
         self.assertIn("lattice", struct.to_dict)
         self.assertIn("sites", struct.to_dict)
         d = self.propertied_structure.to_dict
@@ -99,18 +98,18 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = Structure(self.lattice, [{Specie('O', -2,
-                                             properties={"spin":3}):1.0},
-                                     {Specie('Mg', 2,
-                                             properties={"spin":2}):0.8}],
-                      coords, site_properties={'magmom': [5, -5]})
+        s = IStructure(self.lattice, [{Specie('O', -2,
+                                              properties={"spin": 3}): 1.0},
+                                      {Specie('Mg', 2,
+                                              properties={"spin": 2}): 0.8}],
+                       coords, site_properties={'magmom': [5, -5]})
         d = s.to_dict
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
     def test_from_dict(self):
         d = self.propertied_structure.to_dict
-        s = Structure.from_dict(d)
+        s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
         d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596,
                          'c': 3.8401979337177736, 'b': 3.840198994344244,
@@ -121,11 +120,12 @@ class StructureTest(unittest.TestCase):
                          'gamma': 60.000009137322195},
              'sites': [{'properties': {'magmom': 5}, 'abc': [0.0, 0.0, 0.0],
                         'occu': 1.0, 'species': [{'occu': 1.0,
-                                                  'oxidation_state':-2,
+                                                  'oxidation_state': -2,
                                                   'properties': {'spin': 3},
                                                   'element': 'O'}],
                         'label': 'O2-', 'xyz': [0.0, 0.0, 0.0]},
-                       {'properties': {'magmom':-5}, 'abc': [0.75, 0.5, 0.75],
+                       {'properties': {'magmom': -5},
+                        'abc': [0.75, 0.5, 0.75],
                         'occu': 0.8, 'species': [{'occu': 0.8,
                                                   'oxidation_state': 2,
                                                   'properties': {'spin': 2},
@@ -133,7 +133,7 @@ class StructureTest(unittest.TestCase):
                         'label': 'Mg2+:0.800',
                         'xyz': [3.8401979336749994, 1.2247250003039056e-06,
                                 2.351631795225]}]}
-        s = Structure.from_dict(d)
+        s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
         self.assertEqual(s[0].specie.spin, 3)
 
@@ -155,8 +155,8 @@ class StructureTest(unittest.TestCase):
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
 
-        structure = Structure(self.lattice, ["O", "Si"], coords,
-                              site_properties={'magmom': [5, -5]})
+        structure = IStructure(self.lattice, ["O", "Si"], coords,
+                               site_properties={'magmom': [5, -5]})
 
         new_struct = structure.copy(site_properties={'charge': [2, 3]},
                                     sanitize=True)
@@ -170,32 +170,32 @@ class StructureTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        struct = Structure(self.lattice, ["Si"] * 2, coords)
+        struct = IStructure(self.lattice, ["Si"] * 2, coords)
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        struct2 = Structure(self.struct.lattice, ["Si"] * 2, coords2)
+        struct2 = IStructure(self.struct.lattice, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 10)
         for s in int_s:
             self.assertIsNotNone(s, "Interpolation Failed!")
         self.assertTrue((int_s[1][1].frac_coords == [0.725, 0.5, 0.725]).all())
 
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
-        struct2 = Structure(badlattice, ["Si"] * 2, coords2)
+        struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
         coords2 = list()
         coords2.append([0, 0, 0])
         coords2.append([0.5, 0.5, 0.5])
-        struct2 = Structure(self.struct.lattice, ["Si", "Fe"], coords2)
+        struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
-        fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        fcc_ag = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
         self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        bcc_li = Structure(Lattice.cubic(4.09), ["Li"] * 2, coords)
+        bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords)
         self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
 
     def test_primitive_structure_volume_check(self):
@@ -203,7 +203,7 @@ class StructureTest(unittest.TestCase):
         coords = [[0.5, 0.8, 0], [0.5, 0.2, 0],
                   [0.5, 0.8, 0.333], [0.5, 0.5, 0.333],
                   [0.5, 0.5, 0.666], [0.5, 0.2, 0.666]]
-        s = Structure(l, ["Ag"] * 6, coords)
+        s = IStructure(l, ["Ag"] * 6, coords)
         sprim = s.get_primitive_structure(tolerance=0.1)
         self.assertEqual(len(sprim), 6)
 
@@ -229,7 +229,7 @@ class MutableStructureTest(unittest.TestCase):
         lattice = Lattice([[3.8401979337, 0.00, 0.00],
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
-        self.structure = MutableStructure(lattice, ["Si", "Si"], coords)
+        self.structure = Structure(lattice, ["Si", "Si"], coords)
 
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
@@ -275,7 +275,6 @@ class MutableStructureTest(unittest.TestCase):
             self.assertAlmostEqual(x.distance(post_perturbation_sites[i]), d,
                                    3, "Bad perturbation distance")
 
-
     def test_add_oxidation_states(self):
         oxidation_states = {"Si": -4}
         self.structure.add_oxidation_state_by_element(oxidation_states)
@@ -303,7 +302,7 @@ class MutableStructureTest(unittest.TestCase):
         coords.append([0.75, 0.5, 0.75])
         lattice = Lattice.cubic(10)
         s_elem = Structure(lattice, [co_elem, o_elem], coords)
-        s_specie = MutableStructure(lattice, [co_specie, o_specie], coords)
+        s_specie = Structure(lattice, [co_specie, o_specie], coords)
         s_specie.remove_oxidation_states()
         self.assertEqual(s_elem, s_specie, "Oxidation state remover "
                                            "failed")
@@ -468,17 +467,17 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.nelectrons, 9)
 
         #Triplet O2
-        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
-                       spin_multiplicity=3)
+        mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                        spin_multiplicity=3)
         self.assertEqual(mol.spin_multiplicity, 3)
 
     def test_equal(self):
-        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
+        mol = IMolecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
         self.assertNotEqual(mol, self.mol)
 
     def test_get_centered_molecule(self):
-        mol = Molecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
-                       spin_multiplicity=3)
+        mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
+                        spin_multiplicity=3)
         centered = mol.get_centered_molecule()
         self.assertFalse(np.allclose(mol.center_of_mass, np.zeros(3),
                                      atol=1e-7))
@@ -486,7 +485,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
                                     atol=1e-7))
 
 
-class MutableMoleculeTest(unittest.TestCase):
+class MoleculeTest(unittest.TestCase):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
@@ -494,7 +493,7 @@ class MutableMoleculeTest(unittest.TestCase):
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-        self.mol = MutableMolecule(["C", "H", "H", "H", "H"], coords)
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
     def test_insert_remove_append(self):
         mol = self.mol

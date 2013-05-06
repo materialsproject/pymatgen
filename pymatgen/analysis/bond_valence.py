@@ -22,7 +22,7 @@ from math import exp, sqrt
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.core.structure import Structure
 
 #Let's initialize some module level properties.
 
@@ -257,6 +257,6 @@ class BVAnalyzer(object):
             A ValueError is the valences cannot be determined.
         """
         valences = self.get_valences(structure)
-        editor = StructureEditor(structure)
-        editor.add_oxidation_state_by_site(valences)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.add_oxidation_state_by_site(valences)
+        return s
