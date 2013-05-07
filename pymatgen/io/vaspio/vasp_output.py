@@ -208,13 +208,15 @@ class Vasprun(object):
     @property
     def converged(self):
         """
-        True if a relaxation run is converged.  Always True for a static run.
+        True if a relaxation run is converged. Checking is performed on both
+        the final electronic convergence as well as whether the number of
+        ionic steps is equal to the NSW setting.
         """
         if len(self.ionic_steps[-1]["electronic_steps"]) == \
                 self.parameters["NELM"]:
             return False
-        return len(self.structures) - 2 < self.parameters["NSW"] or \
-            self.parameters["NSW"] == 0
+        nsw = self.parameters.get("NSW", 0)
+        return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
     def final_energy(self):
