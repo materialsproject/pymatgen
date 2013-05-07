@@ -18,6 +18,7 @@ __date__ = "Apr 28, 2012"
 
 from pymatgen.core.structure import Molecule
 from pymatgen.util.decorators import requires
+from pymatgen.io.xyzio import XYZ
 
 try:
     import openbabel as ob
@@ -48,35 +49,66 @@ class BabelMolAdaptor(object):
             if not mol.is_ordered:
                 raise ValueError("OpenBabel Molecule only supports ordered "
                                  "molecules.")
+
+            # For some reason, manually adding atoms does not seem to create
+            # the correct OBMol representation to do things like force field
+            # optimization. So we go through the indirect route of creating
+            # an XYZ file and reading in that file.
             obmol = ob.OBMol()
-            for site in mol:
-                a = obmol.NewAtom()
-                a.SetAtomicNum(site.specie.Z)
-                a.SetVector(site.x, site.y, site.z)
-            self._mol = mol
+            obconversion = ob.OBConversion()
+
+            xyz = XYZ(mol)
+            xyz_str = str(xyz)
+            obconversion.SetInFormat("xyz")
+            success = obconversion.ReadString(obmol, xyz_str)
+            if not success:
+                raise IOError("Failed to convert '%s' to format '%s'" % (
+                              xyz_str, format))
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
-            sp = []
-            coords = []
-            for atom in ob.OBMolAtomIter(mol):
-                sp.append(atom.GetAtomicNum())
-                coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
-            self._mol = Molecule(sp, coords)
+
             self._obmol = mol
 
     @property
     def pymatgen_mol(self):
         """
-        Returns pymatgen"s Molecule representation.
+        Returns pymatgen Molecule object.
         """
-        return self._mol
+        sp = []
+        coords = []
+        for atom in ob.OBMolAtomIter(self._obmol):
+            sp.append(atom.GetAtomicNum())
+            coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
+        return Molecule(sp, coords)
 
     @property
     def openbabel_mol(self):
         """
-        Returns OpenBabel's OBMol representation.
+        Returns OpenBabel's OBMol.
         """
         return self._obmol
+
+    def localopt(self, forcefield='mmff94', steps=500):
+        """
+        A wrapper to pybel's localopt method to optimize a Molecule.
+
+        Args:
+            forcefield:
+                Default is mmff94. Options are 'gaff', 'ghemical', 'mmff94',
+                'mmff94s', and 'uff'.
+            steps:
+                Default is 500.
+        """
+        pbmol = pb.Molecule(self._obmol)
+        pbmol.localopt(forcefield=forcefield, steps=steps)
+        self._obmol = pbmol.OBMol
+
+    @property
+    def pybel_mol(self):
+        """
+        Returns Pybel's Molecule object.
+        """
+        return pb.Molecule(self._obmol)
 
     def write_file(self, filename, file_format="xyz"):
         """

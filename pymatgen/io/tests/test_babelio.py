@@ -62,5 +62,13 @@ class BabelMolAdaptorTest(unittest.TestCase):
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H4 C1")
 
+    def test_localopt(self):
+        self.mol.replace(1, "H", [0, 0, 1.05])
+        adaptor = BabelMolAdaptor(self.mol)
+        adaptor.localopt()
+        optmol = adaptor.pymatgen_mol
+        for site in optmol[1:]:
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 3)
+
 if __name__ == "__main__":
     unittest.main()
