@@ -29,7 +29,7 @@ from pymatgen.core.periodic_table import Element, Specie, \
     smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.bonds import CovalentBond
+from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
@@ -1963,7 +1963,7 @@ class Molecule(IMolecule):
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = map(mod_site, self._sites)
 
-    def replace(self, index, species_n_occu):
+    def replace(self, index, species_n_occu, coords=None):
         """
         Replace a single site. Takes either a species or a dict of occus.
 
@@ -1972,8 +1972,12 @@ class Molecule(IMolecule):
                 The index of the site in the _sites list
             species:
                 A species object.
+            coords:
+                If supplied, the new coords are used. Otherwise,
+                the old coordinates are retained.
         """
-        self._sites[index] = Site(species_n_occu, self._sites[index].coords,
+        coords = coords if coords is not None else self._sites[index].coords
+        self._sites[index] = Site(species_n_occu, coords,
                                   properties=self._sites[index].properties)
 
     def remove_species(self, species):
@@ -2050,8 +2054,16 @@ class Molecule(IMolecule):
                         properties=site.properties)
         self._sites = map(operate_site, self._sites)
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the molecule.
 
-    def substitute(self, index, sub, bond_length=None):
+        Returns:
+            A copy of the Molecule.
+        """
+        return self.__class__.from_sites(self)
+
+    def substitute(self, index, sub, bond_order=1):
         """
         Substitute atom at index with a functional group.
 
@@ -2059,10 +2071,18 @@ class Molecule(IMolecule):
             index:
                 Index of atom to substitute.
             sub:
-                Substituent molecule. The first atom must contain a
-                DummySpecie X, indicating the position of nearest neighbor.
-                The second atom must be the next nearest atom.
-
+                Substituent molecule. The first atom must be a DummySpecie
+                X, indicating the position of nearest neighbor. The second
+                atom must be the next nearest atom. For example,
+                for a methyl group substitution, sub should be X-CH3,
+                where X is the first site and C is the second site. What the
+                code will do is to remove the index site, and connect the
+                nearest neighbor to the C atom in CH3. The X-C bond
+                indicates the directionality to connect the atoms.
+            bond_order:
+                A specified bond order to calculate the bond length between
+                the attached functional group and the nearest neighbor site.
+                Defaults to 1.
         """
         non_terminal_nn = None
         for nn, dist in self.get_neighbors(self[index], 5):
@@ -2071,7 +2091,16 @@ class Molecule(IMolecule):
                 break
 
         origin = non_terminal_nn.coords
-        x = filter(lambda s: s.specie.symbol == "X", sub)[0]
+
+        bl = get_bond_length(non_terminal_nn.specie, sub[1].specie,
+                             bond_order=bond_order)
+        if bl is not None:
+            sub = sub.copy()
+            vec = sub[0].coords - sub[1].coords
+            sub.replace(0, "X",
+                        sub[1].coords + bl / np.linalg.norm(vec) * vec)
+
+        x = sub[0]
         sub.translate_sites(range(len(sub)), origin - x.coords)
 
         v1 = sub[1].coords - origin
