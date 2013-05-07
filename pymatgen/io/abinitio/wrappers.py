@@ -4,7 +4,6 @@ from subprocess import Popen, PIPE
 
 from pymatgen.util.io_utils import which
 from pymatgen.util.string_utils import list_strings
-#from ..profile import abipy_env
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
