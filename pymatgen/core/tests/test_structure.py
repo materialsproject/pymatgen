@@ -592,6 +592,11 @@ class MoleculeTest(unittest.TestCase):
         sub = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
         self.mol.substitute(2, sub)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.35)
+        oh = Molecule(["X", "O", "H"],
+                      [[0, 0.780362, -.456316], [0, 0, .114079],
+                       [0, -.780362, -.456316]])
+        self.mol.substitute(1, oh)
+        self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
 
 if __name__ == '__main__':
     unittest.main()

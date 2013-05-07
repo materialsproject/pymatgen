@@ -2106,14 +2106,16 @@ class Molecule(IMolecule):
         v1 = sub[1].coords - origin
         v2 = self[index].coords - origin
         angle = get_angle(v1, v2)
-        if abs(angle % 180) > 1:
+        if 1 < abs(angle % 180) < 179:
             axis = np.cross(v1, v2)
-            op = SymmOp.from_origin_axis_angle(nn.coords, axis, angle)
+            op = SymmOp.from_origin_axis_angle(origin, axis, angle)
             sub.apply_operation(op)
-        elif abs(angle - 180) < 1:
-            axis = np.cross(v1, v1 + [0.1, 0.1, 0.1])
-            op = SymmOp.from_origin_axis_angle(nn.coords, axis, 180)
-            sub.apply_operation(op)
+        elif abs(abs(angle) - 180) < 1:
+            # We have a 180 degree angle. Simply do an inversion about the
+            # origin
+            for i in range(len(sub)):
+                sub.replace(i, sub[i].species_and_occu,
+                            origin - (sub[i].coords - origin))
         self.remove(index)
         for site in sub:
             if site.specie.symbol != "X":
