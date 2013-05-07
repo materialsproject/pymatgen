@@ -18,7 +18,6 @@ __date__ = "Apr 28, 2012"
 
 from pymatgen.core.structure import Molecule
 from pymatgen.util.decorators import requires
-from pymatgen.io.xyzio import XYZ
 
 try:
     import openbabel as ob
@@ -55,15 +54,19 @@ class BabelMolAdaptor(object):
             # optimization. So we go through the indirect route of creating
             # an XYZ file and reading in that file.
             obmol = ob.OBMol()
-            obconversion = ob.OBConversion()
 
-            xyz = XYZ(mol)
-            xyz_str = str(xyz)
-            obconversion.SetInFormat("xyz")
-            success = obconversion.ReadString(obmol, xyz_str)
-            if not success:
-                raise IOError("Failed to convert '%s' to format '%s'" % (
-                              xyz_str, format))
+            obmol = ob.OBMol()
+            for site in mol:
+                coords = [c for c in site.coords]
+                atomno = site.specie.Z
+                obatom = ob.OBAtom()
+                obatom.SetAtomicNum(atomno)
+                obatom.SetVector(*coords)
+                obmol.AddAtom(obatom)
+            obmol.ConnectTheDots()
+            obmol.PerceiveBondOrders()
+            obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
+            obmol.SetTotalCharge(mol.charge)
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
 
