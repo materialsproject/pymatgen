@@ -2084,14 +2084,24 @@ class Molecule(IMolecule):
                 the attached functional group and the nearest neighbor site.
                 Defaults to 1.
         """
+
+        # Find the nearest neighbor that is not a terminal atom.
         non_terminal_nn = None
         for nn, dist in self.get_neighbors(self[index], 5):
-            if nn.specie.symbol not in ["F", "H"]:
+            if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
                 non_terminal_nn = nn
                 break
 
+        if non_terminal_nn is None:
+            raise RuntimeError("Can't find a non-terminal neighbor to attach"
+                               " functional group to.")
+
+        # Set the origin point to be the coordinates of the nearest
+        # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
+        # If a bond length can be found, modify sub so that the X-group bond
+        # length is equal to the bond length.
         bl = get_bond_length(non_terminal_nn.specie, sub[1].specie,
                              bond_order=bond_order)
         if bl is not None:
@@ -2105,8 +2115,12 @@ class Molecule(IMolecule):
 
         v1 = sub[1].coords - origin
         v2 = self[index].coords - origin
+        #Find angle between the attaching bond and the bond to be replaced.
         angle = get_angle(v1, v2)
         if 1 < abs(angle % 180) < 179:
+            # For angles which are not 0 or 180, we perform a rotation about
+            # the origin along an axis perpendicular to both bonds to align
+            # bonds.
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
             sub.apply_operation(op)
