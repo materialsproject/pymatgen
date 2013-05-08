@@ -2063,18 +2063,18 @@ class Molecule(IMolecule):
         """
         return self.__class__.from_sites(self)
 
-    def substitute(self, index, sub, bond_order=1):
+    def substitute(self, index, func_grp, bond_order=1):
         """
         Substitute atom at index with a functional group.
 
         Args:
             index:
                 Index of atom to substitute.
-            sub:
+            func_grp:
                 Substituent molecule. The first atom must be a DummySpecie
                 X, indicating the position of nearest neighbor. The second
                 atom must be the next nearest atom. For example,
-                for a methyl group substitution, sub should be X-CH3,
+                for a methyl group substitution, func_grp should be X-CH3,
                 where X is the first site and C is the second site. What the
                 code will do is to remove the index site, and connect the
                 nearest neighbor to the C atom in CH3. The X-C bond
@@ -2100,20 +2100,20 @@ class Molecule(IMolecule):
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
-        # If a bond length can be found, modify sub so that the X-group bond
+        # If a bond length can be found, modify func_grp so that the X-group bond
         # length is equal to the bond length.
-        bl = get_bond_length(non_terminal_nn.specie, sub[1].specie,
+        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
                              bond_order=bond_order)
         if bl is not None:
-            sub = sub.copy()
-            vec = sub[0].coords - sub[1].coords
-            sub.replace(0, "X",
-                        sub[1].coords + bl / np.linalg.norm(vec) * vec)
+            func_grp = func_grp.copy()
+            vec = func_grp[0].coords - func_grp[1].coords
+            func_grp.replace(0, "X",
+                        func_grp[1].coords + bl / np.linalg.norm(vec) * vec)
 
-        x = sub[0]
-        sub.translate_sites(range(len(sub)), origin - x.coords)
+        x = func_grp[0]
+        func_grp.translate_sites(range(len(func_grp)), origin - x.coords)
 
-        v1 = sub[1].coords - origin
+        v1 = func_grp[1].coords - origin
         v2 = self[index].coords - origin
         #Find angle between the attaching bond and the bond to be replaced.
         angle = get_angle(v1, v2)
@@ -2123,15 +2123,15 @@ class Molecule(IMolecule):
             # bonds.
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
-            sub.apply_operation(op)
+            func_grp.apply_operation(op)
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i in range(len(sub)):
-                sub.replace(i, sub[i].species_and_occu,
-                            origin - (sub[i].coords - origin))
+            for i in range(len(func_grp)):
+                func_grp.replace(i, func_grp[i].species_and_occu,
+                            origin - (func_grp[i].coords - origin))
         self.remove(index)
-        for site in sub:
+        for site in func_grp:
             if site.specie.symbol != "X":
                 self._sites.append(site)
 
