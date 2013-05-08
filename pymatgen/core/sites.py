@@ -34,6 +34,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     """
 
     supported_properties = ("magmom", "charge", "coordination_no", "forces")
+    position_atol = 1e-5
 
     def __init__(self, atoms_n_occu, coords, properties=None):
         """
@@ -194,7 +195,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if other is None:
             return False
         return self._species == other._species and \
-            np.allclose(self._coords, other._coords) and \
+            np.allclose(self._coords, other._coords, 
+                        atol=Site.position_atol) and \
             self._properties == other._properties
 
     def __ne__(self, other):
@@ -386,7 +388,8 @@ class PeriodicSite(Site, MSONable):
     def __eq__(self, other):
         return self._species == other._species and \
             self._lattice == other._lattice and \
-            np.allclose(self._coords, other._coords) and \
+            np.allclose(self._coords, other._coords, 
+                        atol=Site.position_atol) and \
             self._properties == other._properties
 
     def __ne__(self, other):
