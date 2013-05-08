@@ -17,7 +17,7 @@ __date__ = "Nov 10, 2012"
 import re
 import collections
 from fractions import gcd
-
+from itertools import chain
 from pymatgen.core.periodic_table import smart_element_or_specie, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
@@ -113,7 +113,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.get(smart_element_or_specie(el), 0)
 
     def __eq__(self, other):
-        for el in self.elements + other.elements:
+        for el in chain(self.elements, other.elements):
             if abs(self[el] - other[el]) > Composition.amount_tolerance:
                 return False
         return True
