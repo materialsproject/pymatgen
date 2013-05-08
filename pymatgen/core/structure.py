@@ -101,6 +101,11 @@ class SiteCollection(collections.Sequence):
         return [site.species_and_occu for site in self]
 
     @property
+    def ntypat(self):
+        """Number of types of atoms."""
+        return len(self.types_of_specie)
+
+    @property
     def types_of_specie(self):
         """
         List of types of specie. Only works for ordered structures.
