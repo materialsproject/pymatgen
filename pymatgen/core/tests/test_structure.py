@@ -242,17 +242,17 @@ class StructureTest(unittest.TestCase):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
-        self.assertTrue(s.ntypat==2)
+        self.assertTrue(s.ntypat == 2)
         s.remove(2)
         self.assertEqual(s.formula, "Si1 O1")
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
-        self.assertTrue(s.ntypat==3)
+        self.assertTrue(s.ntypat == 3)
         s.replace(0, "Ge")
         self.assertEqual(s.formula, "Ge1 N1 O1")
         s.replace_species({"Ge": "Si"})
         self.assertEqual(s.formula, "Si1 N1 O1")
-        self.assertTrue(s.ntypat==3)
+        self.assertTrue(s.ntypat == 3)
 
         s.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.5 Ge0.5 N1 O1")
@@ -587,7 +587,6 @@ class MoleculeTest(unittest.TestCase):
         self.mol.apply_operation(op)
         self.assertTrue(np.allclose(self.mol[2].coords,
                                     [0.000000, 1.026719, -0.363000]))
-
 
     def test_substitute(self):
         coords = [[0.000000, 0.000000, 1.08],
