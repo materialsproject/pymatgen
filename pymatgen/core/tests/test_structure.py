@@ -25,6 +25,7 @@ class IStructureTest(unittest.TestCase):
         self.assertEqual(len(self.struct), 2,
                          "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
+        self.assertTrue(self.struct.ntypat==1)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
@@ -241,20 +242,28 @@ class StructureTest(unittest.TestCase):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
+        self.assertTrue(s.ntypat==2)
         s.remove(2)
         self.assertEqual(s.formula, "Si1 O1")
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
+        self.assertTrue(s.ntypat==3)
         s.replace(0, "Ge")
         self.assertEqual(s.formula, "Ge1 N1 O1")
         s.replace_species({"Ge": "Si"})
         self.assertEqual(s.formula, "Si1 N1 O1")
+        self.assertTrue(s.ntypat==3)
 
         s.replace_species({"Si": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.5 Ge0.5 N1 O1")
         #this should change the .5Si .5Ge sites to .75Si .25Ge
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
+
+        # In this case, s.ntypat is ambiguous. 
+        # for the time being, we raise AttributeError.
+        with self.assertRaises(AttributeError):
+            s.ntypat
 
         s.remove_species(["Si"])
         self.assertEqual(s.formula, "Ge0.25 N1 O1")
