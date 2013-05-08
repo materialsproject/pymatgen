@@ -260,7 +260,7 @@ class StructureTest(unittest.TestCase):
         s.replace_species({"Ge": {"Ge": 0.5, "Si": 0.5}})
         self.assertEqual(s.formula, "Si0.75 Ge0.25 N1 O1")
 
-        # In this case, s.ntypat is ambiguous. 
+        # In this case, s.ntypat is ambiguous.
         # for the time being, we raise AttributeError.
         with self.assertRaises(AttributeError):
             s.ntypat
