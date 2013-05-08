@@ -587,6 +587,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if sym_test:
                     equivalent_sites[j].append(i)
                     found = True
+                    break
             if not found:
                 equivalent_sites.append([i])
                 exemplars.append(site)
