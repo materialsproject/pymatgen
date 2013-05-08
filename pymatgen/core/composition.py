@@ -113,11 +113,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._elmap.get(smart_element_or_specie(el), 0)
 
     def __eq__(self, other):
-        for el in self.elements:
-            if self[el] != other[el]:
-                return False
-        for el in other.elements:
-            if self[el] != other[el]:
+        for el in self.elements + other.elements:
+            if abs(self[el] - other[el]) > Composition.amount_tolerance:
                 return False
         return True
 
