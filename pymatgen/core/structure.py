@@ -2119,7 +2119,7 @@ class Molecule(IMolecule):
         v1 = func_grp[1].coords - origin
         v2 = self[index].coords - origin
         angle = get_angle(v1, v2)
-        
+
         if 1 < abs(angle % 180) < 179:
             # For angles which are not 0 or 180, we perform a rotation about
             # the origin along an axis perpendicular to both bonds to align
