@@ -2100,8 +2100,8 @@ class Molecule(IMolecule):
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
-        # If a bond length can be found, modify func_grp so that the X-group bond
-        # length is equal to the bond length.
+        # If a bond length can be found, modify func_grp so that the X-group
+        # bond length is equal to the bond length.
         bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
                              bond_order=bond_order)
         if bl is not None:
