@@ -2108,15 +2108,18 @@ class Molecule(IMolecule):
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
             func_grp.replace(0, "X",
-                        func_grp[1].coords + bl / np.linalg.norm(vec) * vec)
+                             func_grp[1].coords
+                             + bl / np.linalg.norm(vec) * vec)
 
+        # Align X to the origin.
         x = func_grp[0]
         func_grp.translate_sites(range(len(func_grp)), origin - x.coords)
 
+        #Find angle between the attaching bond and the bond to be replaced.
         v1 = func_grp[1].coords - origin
         v2 = self[index].coords - origin
-        #Find angle between the attaching bond and the bond to be replaced.
         angle = get_angle(v1, v2)
+        
         if 1 < abs(angle % 180) < 179:
             # For angles which are not 0 or 180, we perform a rotation about
             # the origin along an axis perpendicular to both bonds to align
@@ -2129,11 +2132,13 @@ class Molecule(IMolecule):
             # origin
             for i in range(len(func_grp)):
                 func_grp.replace(i, func_grp[i].species_and_occu,
-                            origin - (func_grp[i].coords - origin))
+                                 origin - (func_grp[i].coords - origin))
+
+        # Remove the atom to be replaced, and add the rest of the functional
+        # group.
         self.remove(index)
-        for site in func_grp:
-            if site.specie.symbol != "X":
-                self._sites.append(site)
+        for site in func_grp[1:]:
+            self._sites.append(site)
 
 
 class StructureError(Exception):
