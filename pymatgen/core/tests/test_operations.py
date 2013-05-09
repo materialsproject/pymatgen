@@ -32,6 +32,17 @@ class SymmOpTestCase(unittest.TestCase):
         self.assertTrue((abs(self.op.inverse.operate(newcoord) - point) < 0.01)
                         .all())
 
+    def test_reflection(self):
+        normal = np.random.rand(3)
+        origin = np.random.rand(3)
+        refl = SymmOp.reflection(normal, origin)
+        point = np.random.rand(3)
+        newcoord = refl.operate(point)
+        #Distance to the plane should be negatives of each other.
+        self.assertAlmostEqual(np.dot(newcoord - origin, normal),
+                               -np.dot(point - origin, normal))
+
+
     def test_apply_rotation_only(self):
         point = np.random.rand(3)
         newcoord = self.op.operate(point)

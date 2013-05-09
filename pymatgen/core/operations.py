@@ -293,6 +293,43 @@ class SymmOp(MSONable):
         return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
                        [m31, m32, m33, m34], [0, 0, 0, 1]])
 
+    @staticmethod
+    def reflection(normal, origin=(0, 0, 0)):
+        """
+        Returns reflection symmetry operation.
+
+        Args:
+            normal:
+                Vector of the normal to the plane of reflection.
+            origin:
+             A point in which the mirror plane passes through.
+
+        Returns:
+            SymmOp for the reflection about the plane
+        """
+        #Normalize the normal vector first.
+        n = np.array(normal) / np.linalg.norm(normal)
+
+        u, v, w = n
+
+        translation = np.eye(4)
+        translation[0:3, 3] = -np.array(origin)
+
+        xx = 1 - 2 * u ** 2
+        yy = 1 - 2 * v ** 2
+        zz = 1 - 2 * w ** 2
+        xy = -2 * u * v
+        xz = -2 * u * w
+        yz = -2 * v * w
+        mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0],
+                      [0,0, 0, 1]]
+
+        if np.linalg.norm(origin) > 1e-6:
+            mirror_mat = np.dot(np.linalg.inv(translation),
+                                np.dot(mirror_mat, translation))
+        return SymmOp(mirror_mat)
+
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
