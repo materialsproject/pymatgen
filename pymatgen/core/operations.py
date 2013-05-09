@@ -298,10 +298,8 @@ class SymmOp(MSONable):
         """
         Inversion symmetry operation about axis.
         """
-        mat = np.eye(4)
-        mat[0, 0] = -1
-        mat[1, 1] = -1
-        mat[2, 2] = -1
+        mat = -np.eye(4)
+        mat[3, 3] = 1
         mat[0:3, 3] = 2 * np.array(origin)
         return SymmOp(mat)
 
