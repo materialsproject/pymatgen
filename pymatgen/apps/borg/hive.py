@@ -186,9 +186,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        return VaspToComputedEntryDrone(**d["init_args"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])
 
 
 class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
@@ -302,9 +302,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 "version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        return SimpleVaspToComputedEntryDrone(**d["init_args"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])
 
 
 class GaussianToComputedEntryDrone(AbstractDrone):
@@ -394,6 +394,6 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 "version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        return GaussianToComputedEntryDrone(**d["init_args"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d["init_args"])

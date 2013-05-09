@@ -11,4 +11,4 @@ test:
     - mv pymatgen pmg
     - nosetests:
         environment:
-            PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit
+            PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit

@@ -15,8 +15,7 @@ __status__ = "Production"
 __date__ = "Nov 25, 2012"
 
 import collections
-import logging
-
+import itertools
 import numpy as np
 
 from pyhull.convex_hull import ConvexHull
@@ -26,9 +25,6 @@ from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-
-
-logger = logging.getLogger(__name__)
 
 
 class PhaseDiagram (object):
@@ -100,37 +96,72 @@ class PhaseDiagram (object):
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-        self.all_entries = entries
-        self.elements = tuple(elements)
-        dim = len(self.elements)
-        self.el_refs = self._get_el_refs()
-        (self.qhull_entries, qhull_data) = self._create_convhull_data()
-        if len(qhull_data) == dim:
-            self.facets = [range(dim)]
-        else:
-            facets = ConvexHull(qhull_data).vertices
-            logger.debug("Final facets are\n{}".format(facets))
+        error = True
+        # Qhull seems to be sensitive to choice of independent composition
+        # components due to numerical issues in higher dimensions. The
+        # code permutes the element sequence until one that works is found.
+        for elements in itertools.permutations(elements):
+            try:
+                dim = len(elements)
+                el_refs = {}
+                for el in elements:
+                    el_entries = filter(lambda e: e.composition.is_element and
+                                        e.composition.elements[0] == el,
+                                        entries)
+                    if len(el_entries) == 0:
+                        raise PhaseDiagramError(
+                            "There are no entries associated with terminal {}."
+                            .format(el))
+                    el_refs[el] = min(el_entries,
+                                      key=lambda e: e.energy_per_atom)
 
-            logger.debug("Removing vertical facets...")
-            finalfacets = []
-            for facet in facets:
-                facetmatrix = np.zeros((len(facet), len(facet)))
-                count = 0
-                is_element_facet = True
-                for vertex in facet:
-                    facetmatrix[count] = np.array(qhull_data[vertex])
-                    facetmatrix[count, dim - 1] = 1
-                    count += 1
-                    if len(self.qhull_entries[vertex].composition) > 1:
-                        is_element_facet = False
-                if abs(np.linalg.det(facetmatrix)) > 1e-8 and\
-                        (not is_element_facet):
-                    finalfacets.append(facet)
+                data = []
+                for entry in entries:
+                    comp = entry.composition
+                    row = map(comp.get_atomic_fraction, elements)
+                    row.append(entry.energy_per_atom)
+                    data.append(row)
+
+                data = np.array(data)
+                self.all_entries_hulldata = data[:, 1:]
+
+                # Calculate formation energies and remove positive formation
+                # energy entries
+                vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
+                form_e = -np.dot(data, vec)
+                ind = np.where(form_e <= -self.formation_energy_tol)[0]\
+                    .tolist()
+                ind.extend(map(entries.index, el_refs.values()))
+                qhull_entries = [entries[i] for i in ind]
+                qhull_data = data[ind][:, 1:]
+
+                if len(qhull_data) == dim:
+                    self.facets = [range(dim)]
                 else:
-                    logger.debug("Removing vertical facet : {}".format(facet))
-            self.facets = finalfacets
-        self.qhull_data = qhull_data
-        self.dim = dim
+                    facets = ConvexHull(qhull_data).vertices
+                    finalfacets = []
+                    for facet in facets:
+                        is_non_element_facet = any(
+                            (len(qhull_entries[i].composition) > 1
+                             for i in facet))
+                        if is_non_element_facet:
+                            m = qhull_data[facet]
+                            m[:, -1] = 1
+                            if abs(np.linalg.det(m)) > 1e-8:
+                                finalfacets.append(facet)
+                    self.facets = finalfacets
+                self.all_entries = entries
+                self.qhull_data = qhull_data
+                self.dim = dim
+                self.el_refs = el_refs
+                self.elements = elements
+                self.qhull_entries = qhull_entries
+                error = False
+                break
+            except Exception as ex:
+                pass
+        if error:
+            raise PhaseDiagramError("Unable to construct PD")
 
     @property
     def unstable_entries(self):
@@ -150,14 +181,6 @@ class PhaseDiagram (object):
             for vertex in facet:
                 stable_entries.add(self.qhull_entries[vertex])
         return stable_entries
-
-    @property
-    def all_entries_hulldata(self):
-        """
-        Same as qhull_data, but for all entries rather than just negative
-        formation energy ones.
-        """
-        return self._process_entries_qhulldata(self.all_entries)
 
     def get_form_energy(self, entry):
         """
@@ -191,66 +214,6 @@ class PhaseDiagram (object):
         """
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
-
-    def _process_entries_qhulldata(self, entries_to_process):
-        """
-        From a sequence of entries, generate the necessary for the convex hull.
-        Using the Li-Fe-O phase diagram as an example, this is of the form:
-        [[ Fe_fraction_entry_1, O_fraction_entry_1, Energy_per_atom_entry_1],
-         [ Fe_fraction_entry_2, O_fraction_entry_2, Energy_per_atom_entry_2],
-         ...]]
-
-        Note that there are only two independent variables, since the third
-        elemental fraction is fixed by the constraint that all compositions sum
-        to 1. The choice of the elements is arbitrary.
-        """
-        def make_row(entry):
-            comp = entry.composition
-            row = [comp.get_atomic_fraction(self.elements[i])
-                   for i in xrange(1, len(self.elements))]
-            row.append(entry.energy_per_atom)
-            return row
-
-        return map(make_row, entries_to_process)
-
-    def _get_el_refs(self):
-        el_refs = {}
-        for el in self.elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el,
-                                self.all_entries)
-            if len(el_entries) == 0:
-                raise PhaseDiagramError("There are no entries associated with"
-                                        " terminal {}.".format(el))
-            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
-        return el_refs
-
-    def _create_convhull_data(self):
-        """
-        Make data suitable for convex hull procedure from the list of entries.
-        The procedure is as follows:
-
-        1. First find the elemental references, i.e., the lowest energy entry
-           for the vertices of the phase diagram. Using the Li-Fe-O phase
-           diagram as an example, this means the lowest energy Li, Fe, and O
-           phases.
-        2. Calculate the formation energies from these elemental references for
-           all entries. Exclude all positive formation energy ones from the
-           data for convex hull.
-        3. Generate the convex hull data.
-        """
-        logger.debug("Creating convex hull data...")
-        # Remove positive formation energy entries
-        qhull_entries = []
-        for entry in self.all_entries:
-            if self.get_form_energy(entry) <= -self.formation_energy_tol:
-                qhull_entries.append(entry)
-            else:
-                logger.debug("Removing positive formation energy entry " +
-                             "{}".format(entry))
-        qhull_entries.extend(self.el_refs.values())
-
-        return qhull_entries, self._process_entries_qhulldata(qhull_entries)
 
     def __repr__(self):
         return self.__str__()
@@ -414,15 +377,6 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
 class PhaseDiagramError(Exception):
     """
-    An exception class for Phase Diagram.
+    An exception class for Phase Diagram generation.
     """
-    def __init__(self, msg):
-        """
-        Args:
-            msg:
-                The error message.
-        """
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    pass

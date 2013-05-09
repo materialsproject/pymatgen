@@ -21,8 +21,8 @@ import itertools
 import logging
 import time
 
+from pymatgen.core.structure import Structure
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
 
@@ -54,12 +54,12 @@ class InsertSitesTransformation(AbstractTransformation):
         self._validate_proximity = validate_proximity
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
+        s = Structure.from_sites(structure.sites)
         for i, sp in enumerate(self._species):
-            editor.insert_site(i, sp, self._coords[i],
-                               coords_are_cartesian=self._cartesian,
-                               validate_proximity=self._validate_proximity)
-        return editor.modified_structure.get_sorted_structure()
+            s.insert(i, sp, self._coords[i],
+                     coords_are_cartesian=self._cartesian,
+                     validate_proximity=self._validate_proximity)
+        return s.get_sorted_structure()
 
     def __str__(self):
         return "InsertSiteTransformation : " + \
@@ -104,10 +104,10 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         self._indices_species_map = indices_species_map
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
+        s = Structure.from_sites(structure.sites)
         for i, sp in self._indices_species_map.items():
-            editor.replace_site(int(i), sp)
-        return editor.modified_structure
+            s.replace(int(i), sp)
+        return s
 
     def __str__(self):
         return "ReplaceSiteSpeciesTransformation :" + \
@@ -127,10 +127,11 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"indices_species_map": self._indices_species_map},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "name": self.__class__.__name__, "version": __version__,
+            "init_args": {"indices_species_map": self._indices_species_map},
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__}
 
 
 class RemoveSitesTransformation(AbstractTransformation):
@@ -146,9 +147,9 @@ class RemoveSitesTransformation(AbstractTransformation):
         self._indices = indices_to_remove
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.delete_sites(self._indices)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.remove_sites(self._indices)
+        return s
 
     def __str__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str,
@@ -195,9 +196,9 @@ class TranslateSitesTransformation(AbstractTransformation):
         self._frac = vector_in_frac_coords
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.translate_sites(self._indices, self._vector, self._frac)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.translate_sites(self._indices, self._vector, self._frac)
+        return s
 
     def __str__(self):
         return "TranslateSitesTransformation for indices " + \
@@ -323,12 +324,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             to_delete.append(maxindex)
             ematrix[:, maxindex] = 0
             ematrix[maxindex, :] = 0
-        mod = StructureEditor(structure)
-        mod.delete_sites(to_delete)
+        s = Structure.from_sites(structure.sites)
+        s.remove_sites(to_delete)
         self.logger.debug("Minimizing Ewald took {} seconds."
                           .format(time.time() - starttime))
-        return [{"energy":sum(sum(ematrix)),
-                 "structure": mod.modified_structure.get_sorted_structure()}]
+        return [{"energy": sum(sum(ematrix)),
+                 "structure": s.get_sorted_structure()}]
 
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
@@ -358,16 +359,15 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for indices in allindices:
                 sites_to_remove.extend([structure[i] for i in indices])
                 indices_list.extend(indices)
-
-            mod = StructureEditor(structure)
-            mod.delete_sites(indices_list)
-            s_new = mod.modified_structure
+            s_new = Structure.from_sites(structure.sites)
+            s_new.remove_sites(indices_list)
             energy = ewaldsum.compute_partial_energy(indices_list)
             already_tested = False
             for i, tsites in enumerate(tested_sites):
                 tenergy = all_structures[i]["energy"]
                 if abs((energy - tenergy) / len(s_new)) < 1e-5 and \
-                        sg.are_symmetrically_equivalent(sites_to_remove, tsites,
+                        sg.are_symmetrically_equivalent(sites_to_remove,
+                                                        tsites,
                                                         symm_prec=symprec):
                     already_tested = True
 
@@ -423,39 +423,38 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in minimizer.output_lists:
-            se = StructureEditor(structure)
+            s = Structure.from_sites(structure.sites)
             del_indices = []
 
             for manipulation in output[1]:
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    se.replace_site(manipulation[0], manipulation[1])
-            se.delete_sites(del_indices)
-            struct = se.modified_structure.get_sorted_structure()
-            all_structures.append({"energy": output[0],
-                                   "energy_above_minimum": (output[0]
-                                                            - lowest_energy)
-                                   / num_atoms,
-                                   "structure": struct})
+                    s.replace(manipulation[0], manipulation[1])
+            s.remove_sites(del_indices)
+            struct = s.get_sorted_structure()
+            all_structures.append(
+                {"energy": output[0],
+                 "energy_above_minimum": (output[0] - lowest_energy)
+                    / num_atoms,
+                 "structure": struct})
 
         return all_structures
 
     def enumerate_ordering(self, structure):
         # Generate the disordered structure first.
-        editor = StructureEditor(structure)
+        s = Structure.from_sites(structure.sites)
         for indices, fraction in zip(self._indices, self._fractions):
             for ind in indices:
                 new_sp = {sp: occu * fraction
                           for sp, occu
                           in structure[ind].species_and_occu.items()}
-                editor.replace_site(ind, new_sp)
-        mod_s = editor.modified_structure
+                s.replace(ind, new_sp)
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import \
             EnumerateStructureTransformation
         trans = EnumerateStructureTransformation()
-        return trans.apply_transformation(mod_s, 10000)
+        return trans.apply_transformation(s, 10000)
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -543,6 +542,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices": self._indices,
-                              "fractions": self._fractions, "algo": self._algo},
+                              "fractions": self._fractions,
+                              "algo": self._algo},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

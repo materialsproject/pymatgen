@@ -140,13 +140,12 @@ class SubstitutionProbability(object):
 
     @property
     def to_dict(self):
-        d = {"name": self.__class__.__name__, "version": __version__}
-        d["init_args"] = {"lambda_table": self._lambda_table,
-                          "alpha": self._alpha}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"lambda_table": self._lambda_table,
+                              "alpha": self._alpha},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        return SubstitutionProbability(**d['init_args'])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d['init_args'])

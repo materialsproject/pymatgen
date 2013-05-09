@@ -26,17 +26,15 @@ from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.phasediagram import PhaseDiagram, PDAnalyzer
 
 
-from nose.exc import SkipTest
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+@unittest.skipIf("MAPI_KEY" not in os.environ,
+                 "MAPI_KEY environment variable not set.")
 class MPResterTest(unittest.TestCase):
 
     def setUp(self):
-        if "MAPI_KEY" not in os.environ:
-            raise SkipTest("MAPI_KEY environment variable not set. Skipping...")
         self.rester = MPRester()
 
     def test_get_data(self):
@@ -58,11 +56,11 @@ class MPResterTest(unittest.TestCase):
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
                                  set(self.rester.get_data(540081,
-                                                           prop=prop)[0][prop]))
+                                                          prop=prop)[0][prop]))
             else:
                 self.assertEqual(expected_vals[i],
                                  self.rester.get_data(540081,
-                                                       prop=prop)[0][prop])
+                                                      prop=prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
@@ -136,12 +134,17 @@ class MPResterTest(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
+        entries = self.rester.get_entries("TiO2", inc_structure="final")
+        self.assertTrue(len(entries) > 1)
+        for e in entries:
+            self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
 
     def test_submit_query_delete_snl(self):
-        s = Structure([[5, 0, 0], [0, 5, 0], [0,0,5]], ["Fe"], [[0,0,0]])
+        s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
         d = self.rester.submit_snl(
             [s, s], remarks=["unittest"],
             authors="Test User <test@materialsproject.com>")

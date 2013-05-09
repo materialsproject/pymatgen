@@ -20,6 +20,7 @@ import itertools
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
+from pyhull.voronoi import VoronoiTess
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc
@@ -52,16 +53,16 @@ class Lattice(MSONable):
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
-        lengths = np.sum(m ** 2, axis=1) ** 0.5
-        angles = np.zeros(3, float)
+        lengths = np.sqrt(np.sum(m ** 2, axis=1))
+        angles = np.zeros(3)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[i] = dot(m[j], m[k]) / (lengths[j] * lengths[k])
+
         angles = np.arccos(angles) * 180. / pi
-        angles = np.around(angles, 9)
-        self._angles = tuple(angles)
-        self._lengths = tuple(lengths)
+        self._angles = angles
+        self._lengths = lengths
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
@@ -259,24 +260,24 @@ class Lattice(MSONable):
         vector_c = [0.0, 0.0, float(c)]
         return Lattice([vector_a, vector_b, vector_c])
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters.
         """
         if "matrix" in d:
-            return Lattice(d["matrix"])
+            return cls(d["matrix"])
         else:
-            return Lattice.from_parameters(d["a"], d["b"], d["c"],
-                                           d["alpha"], d["beta"], d["gamma"])
+            return cls.from_parameters(d["a"], d["b"], d["c"],
+                                       d["alpha"], d["beta"], d["gamma"])
 
     @property
     def angles(self):
         """
         Returns the angles (alpha, beta, gamma) of the lattice.
         """
-        return self._angles
+        return tuple(self._angles)
 
     @property
     def a(self):
@@ -304,7 +305,7 @@ class Lattice(MSONable):
         """
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
-        return self._lengths
+        return tuple(self._lengths)
 
     @property
     def alpha(self):
@@ -340,7 +341,7 @@ class Lattice(MSONable):
         """
         Returns (lattice lengths, lattice angles).
         """
-        return self._lengths, self._angles
+        return tuple(self._lengths), tuple(self._angles)
 
     @property
     def reciprocal_lattice(self):
@@ -353,8 +354,8 @@ class Lattice(MSONable):
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
-        outs = ["Lattice", "    abc : " + " ".join(map(f, self.abc)),
-                " angles : " + " ".join(map(f, self.angles)),
+        outs = ["Lattice", "    abc : " + " ".join(map(f, self._lengths)),
+                " angles : " + " ".join(map(f, self._angles)),
                 " volume : %0.4f" % self.volume,
                 "      A : " + " ".join(map(f, self._matrix[0])),
                 "      B : " + " ".join(map(f, self._matrix[1])),
@@ -442,7 +443,6 @@ class Lattice(MSONable):
             x = min(1, x)
             x = max(-1, x)
             angle = np.arccos(x) * 180. / pi
-            angle = np.around(angle, 9)
             return angle
 
         for m1, m2, m3 in itertools.product(*candidates):
@@ -709,6 +709,21 @@ class Lattice(MSONable):
             return mapped[0]
         raise ValueError("can't find niggli")
 
+    def scale(self, new_volume):
+        """
+        Return a new Lattice with volume new_volume by performing a
+        scaling of the lattice vectors so that length proportions and angles are preserved.
+        """
+        versors = self.matrix / self.abc
+
+        geo_factor = abs(np.dot(np.cross(versors[0], versors[1]), versors[2]))
+
+        ratios = self.abc / self.c
+
+        new_c = (new_volume / ( geo_factor * np.prod(ratios))) ** (1/3.)
+
+        return Lattice(versors * (new_c * ratios))
+
     def get_wigner_seitz_cell(self):
         """
         Returns the Wigner-Seitz cell for the given lattice.
@@ -719,7 +734,7 @@ class Lattice(MSONable):
             Wigner Seitz cell. For instance, a list of four coordinates will
             represent a square facet.
         """
-        from pyhull.voronoi import VoronoiTess
+
         vec1 = self.matrix[0]
         vec2 = self.matrix[1]
         vec3 = self.matrix[2]

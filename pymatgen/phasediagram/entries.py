@@ -91,9 +91,9 @@ class PDEntry(MSONable):
                 "energy": self._energy,
                 "name": self.name}
 
-    @staticmethod
-    def from_dict(d):
-        return PDEntry(Composition(d["composition"]), d["energy"], d["name"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(Composition(d["composition"]), d["energy"], d["name"])
 
 
 class GrandPotPDEntry(PDEntry):
@@ -158,11 +158,11 @@ class GrandPotPDEntry(PDEntry):
                 "chempots": {el.symbol: u for el, u in self.chempots.items()},
                 "name": self.name}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
         entry = PMGJSONDecoder().process_decoded(d["entry"])
-        return GrandPotPDEntry(entry, chempots, d["name"])
+        return cls(entry, chempots, d["name"])
 
     def __getattr__(self, a):
         """
@@ -215,7 +215,7 @@ class PDEntryIO(object):
             filename - Filename to import from.
 
         Returns:
-            List of PDEntries
+            List of Elements, List of PDEntries
         """
         import csv
         reader = csv.reader(open(filename, "rb"), delimiter=",",
@@ -292,7 +292,7 @@ class TransformedPDEntry(PDEntry):
                 "entry": self._original_entry.to_dict,
                 "composition": self.composition}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         entry = PMGJSONDecoder().process_decoded(d["entry"])
-        return TransformedPDEntry(d["composition"], entry)
+        return cls(d["composition"], entry)

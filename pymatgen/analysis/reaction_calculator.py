@@ -345,11 +345,11 @@ class Reaction(MSONable):
                 "reactants": [comp.to_dict for comp in self._input_reactants],
                 "products": [comp.to_dict for comp in self._input_products]}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
-        return Reaction(reactants, products)
+        return cls(reactants, products)
 
 
 def smart_float_gcd(list_of_floats):
@@ -449,13 +449,13 @@ class BalancedReaction(Reaction):
                 "products": {str(comp): coeff
                              for comp, coeff in self._input_prd.items()}}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         reactants = {Composition(comp): coeff
                      for comp, coeff in d["reactants"].items()}
         products = {Composition(comp): coeff
                     for comp, coeff in d["products"].items()}
-        return BalancedReaction(reactants, products)
+        return cls(reactants, products)
 
     @staticmethod
     def from_string(rxn_string):
@@ -525,10 +525,10 @@ class ComputedReaction(Reaction):
                 "reactants": [e.to_dict for e in self._reactant_entries],
                 "products": [e.to_dict for e in self._product_entries]}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         from pymatgen.serializers.json_coders import PMGJSONDecoder
         dec = PMGJSONDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]
-        return ComputedReaction(reactants, products)
+        return cls(reactants, products)

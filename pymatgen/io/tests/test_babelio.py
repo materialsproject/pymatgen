@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 28, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -16,16 +16,22 @@ __date__ = "Apr 28, 2012"
 import unittest
 import os
 
-from nose.exc import SkipTest
-
 from pymatgen.core.structure import Molecule
-import pymatgen.io.babelio as babelio
 from pymatgen.io.xyzio import XYZ
 from pymatgen.io.babelio import BabelMolAdaptor
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+try:
+    import openbabel as ob
+    import pybel as pb
+except ImportError:
+    pb = None
+    ob = None
+
+
+@unittest.skipIf(not (pb and ob), "OpenBabel not present. Skipping...")
 class BabelMolAdaptorTest(unittest.TestCase):
 
     def setUp(self):
@@ -37,9 +43,6 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
     def test_init(self):
-        if not babelio.babel_loaded:
-            raise SkipTest("OpenBabel not present. Skipping...")
-
         adaptor = BabelMolAdaptor(self.mol)
         obmol = adaptor.openbabel_mol
         self.assertEqual(obmol.NumAtoms(), 5)
@@ -48,24 +51,24 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
-        if not babelio.babel_loaded:
-            raise SkipTest("OpenBabel not present. Skipping...")
-        adaptor = BabelMolAdaptor.from_file(os.path.join(test_dir,
-                                                         "Ethane_e.pdb"),
-                                            "pdb")
+        adaptor = BabelMolAdaptor.from_file(
+            os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
 
     def test_from_string(self):
-        if not babelio.babel_loaded:
-            raise SkipTest("OpenBabel not present. Skipping...")
         xyz = XYZ(self.mol)
         adaptor = BabelMolAdaptor.from_string(str(xyz), "xyz")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H4 C1")
 
+    def test_localopt(self):
+        self.mol.replace(1, "H", [0, 0, 1.05])
+        adaptor = BabelMolAdaptor(self.mol)
+        adaptor.localopt()
+        optmol = adaptor.pymatgen_mol
+        for site in optmol[1:]:
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+
 if __name__ == "__main__":
-    if babelio.babel_loaded:
-        unittest.main()
-    else:
-        print "openbabel not installed. Skipping test."
+    unittest.main()

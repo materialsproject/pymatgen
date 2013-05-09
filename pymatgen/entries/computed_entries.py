@@ -91,13 +91,13 @@ class ComputedEntry(PDEntry, MSONable):
     def __str__(self):
         return self.__repr__()
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
-        return ComputedEntry(d["composition"], d["energy"], d["correction"],
-                             dec.process_decoded(d.get("parameters", {})),
-                             dec.process_decoded(d.get("data", {})),
-                             entry_id=d.get("entry_id", None))
+        return cls(d["composition"], d["energy"], d["correction"],
+                   dec.process_decoded(d.get("parameters", {})),
+                   dec.process_decoded(d.get("data", {})),
+                   entry_id=d.get("entry_id", None))
 
     @property
     def to_dict(self):
@@ -166,12 +166,11 @@ class ComputedStructureEntry(ComputedEntry):
         d["structure"] = self.structure.to_dict
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
-        return ComputedStructureEntry(dec.process_decoded(d["structure"]),
-                                      d["energy"], d["correction"],
-                                      dec.process_decoded(d.get("parameters",
-                                                                {})),
-                                      dec.process_decoded(d.get("data", {})),
-                                      entry_id=d.get("entry_id", None))
+        return cls(dec.process_decoded(d["structure"]),
+                   d["energy"], d["correction"],
+                   dec.process_decoded(d.get("parameters", {})),
+                   dec.process_decoded(d.get("data", {})),
+                   entry_id=d.get("entry_id", None))

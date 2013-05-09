@@ -26,6 +26,7 @@ from pymatgen import Composition, Structure, zopen
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+
 class PoscarTest(unittest.TestCase):
 
     def test_init(self):
@@ -45,7 +46,7 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.structure.composition, Composition.from_formula("SiF"))
+        self.assertEqual(poscar.structure.composition, Composition("SiF"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
@@ -58,7 +59,7 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.structure.composition, Composition.from_formula("HHe"))
+        self.assertEqual(poscar.structure.composition, Composition("HHe"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
@@ -72,7 +73,8 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O"""
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
+        self.assertEqual(poscar.selective_dynamics, [[True, True, True],
+                                                     [False, False, False]])
         self.selective_poscar = poscar
 
     def test_to_from_dict(self):
@@ -100,7 +102,9 @@ direct
         coords.append([0.75, 0.5, 0.75])
 
         #Silicon structure for testing.
-        latt = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
+        latt = [[3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(latt, [si, si], coords)
         poscar = Poscar(struct)
         expected_str = '''Si2
@@ -118,7 +122,8 @@ direct
 
     def test_from_md_run(self):
         #Parsing from an MD type run with velocities
-        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"), check_for_POTCAR=False)
+        p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
+                             check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
         self.assertEqual(p.predictor_corrector[0][0], 1)
         self.assertEqual(p.predictor_corrector[1][0], 2)
@@ -126,7 +131,9 @@ direct
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        self.assertRaises(ValueError, setattr, poscar, 'velocities', [[0, 0, 0]])
+        self.assertRaises(ValueError, setattr, poscar, 'velocities',
+                          [[0, 0, 0]])
+        poscar.selective_dynamics = np.array([[True, False, False]] * 24)
 
     def test_velocities(self):
         si = 14
@@ -135,7 +142,9 @@ direct
         coords.append([0.75, 0.5, 0.75])
 
         #Silicon structure for testing.
-        latt = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
+        latt = [[3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(latt, [si, si], coords)
         poscar = Poscar(struct)
         poscar.set_temperature(900)
@@ -143,10 +152,13 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(x, 0, 7, 'Velocities initialized with a net momentum')
+            self.assertAlmostEqual(x, 0, 7,
+                                   'Velocities initialized with a net momentum')
 
-        temperature = struct[0].specie.atomic_mass * AMU_TO_KG * np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
-        self.assertAlmostEqual(temperature, 900, 4, 'Temperature instantiated incorrectly')
+        temperature = struct[0].specie.atomic_mass * AMU_TO_KG * \
+            np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
+        self.assertAlmostEqual(temperature, 900, 4,
+                               'Temperature instantiated incorrectly')
 
 
 class IncarTest(unittest.TestCase):
@@ -163,7 +175,40 @@ class IncarTest(unittest.TestCase):
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
         incar2 = Incar.from_file(filepath2)
-        self.assertEqual(incar1.diff(incar2), {'Different': {'NELM': {'INCAR1': 'Default', 'INCAR2': 100}, 'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'}, 'LWAVE': {'INCAR1': True, 'INCAR2': False}, 'LDAUPRINT': {'INCAR1': 'Default', 'INCAR2': 1}, 'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], 'INCAR2': 'Default'}, 'NELMIN': {'INCAR1': 'Default', 'INCAR2': 3}, 'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'}, 'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'}, 'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'}, 'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'}, 'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'}, 'ICHARG': {'INCAR1': 'Default', 'INCAR2': 1}, 'NSW': {'INCAR1': 99, 'INCAR2': 51}, 'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'}, 'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'}, 'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'}, 'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'}, 'ISMEAR': {'INCAR1': 0, 'INCAR2':-5}, 'NPAR': {'INCAR1': 8, 'INCAR2': 1}, 'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]', 'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'}, 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'}, 'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'}, 'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}}, 'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4, 'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001, 'LORBIT': '11', 'SIGMA': 0.05}})
+        self.assertEqual(
+            incar1.diff(incar2),
+            {'Different': {'NELM': {'INCAR1': 'Default', 'INCAR2': 100},
+                           'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'},
+                           'LWAVE': {'INCAR1': True, 'INCAR2': False},
+                           'LDAUPRINT': {'INCAR1': 'Default', 'INCAR2': 1},
+                           'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6,
+                                                 0.6, 0.6, 0.6, 0.6, 0.6,
+                                                 0.6, 0.6, 0.6, 0.6, 0.6,
+                                                 0.6, 0.6, 0.6, 0.6, 0.6,
+                                                 0.6, 0.6],
+                                      'INCAR2': 'Default'},
+                           'NELMIN': {'INCAR1': 'Default', 'INCAR2': 3},
+                           'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'},
+                           'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'},
+                           'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'},
+                           'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'},
+                           'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'},
+                           'ICHARG': {'INCAR1': 'Default', 'INCAR2': 1},
+                           'NSW': {'INCAR1': 99, 'INCAR2': 51},
+                           'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'},
+                           'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'},
+                           'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'},
+                           'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'},
+                           'ISMEAR': {'INCAR1': 0, 'INCAR2':-5},
+                           'NPAR': {'INCAR1': 8, 'INCAR2': 1},
+                           'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                                      'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                           'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
+                           'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'},
+                           'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}},
+             'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
+                      'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
+                      'LORBIT': '11', 'SIGMA': 0.05}})
 
     def test_to_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'INCAR')
@@ -181,8 +226,11 @@ class KpointsTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[10]], "Wrong kpoint lattice read")
         filepath = os.path.join(test_dir, 'KPOINTS.cartesian')
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.kpts, [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]], "Wrong kpoint lattice read")
-        self.assertEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5], "Wrong kpoint shift read")
+        self.assertEqual(kpoints.kpts,
+                         [[0.25, 0, 0], [0, 0.25, 0], [0, 0, 0.25]],
+                         "Wrong kpoint lattice read")
+        self.assertEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5],
+                         "Wrong kpoint shift read")
 
         filepath = os.path.join(test_dir, 'KPOINTS')
         kpoints = Kpoints.from_file(filepath)
@@ -214,7 +262,7 @@ class KpointsTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
-        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
+        self.assertEqual(kpoints.kpts, [[2, 3, 4]])
 
     def test_to_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -269,27 +317,27 @@ class PotcarSingleTest(unittest.TestCase):
 
     def test_attributes(self):
         for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
-                         'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
-                         'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
+                  'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
+                  'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
 
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__),
-                "..", "..", "..", "..", "test_files"))
+                             "..", "..", "..", "..", "test_files"))
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
+
 
 class PotcarTest(unittest.TestCase):
 
     def setUp(self):
         if "VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                           "..", "..", "..",
-                                                           "..",
-                                                           "test_files"))
+            test_potcar_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                             "test_files"))
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
         self.potcar = Potcar.from_file(filepath)
@@ -324,10 +372,9 @@ class VaspInputTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         if "VASP_PSP_DIR" not in os.environ:
-            test_potcar_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                           "..", "..", "..",
-                                                           "..",
-                                                           "test_files"))
+            test_potcar_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                             "test_files"))
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         filepath = os.path.join(test_dir, 'POTCAR')
         potcar = Potcar.from_file(filepath)
@@ -343,7 +390,7 @@ class VaspInputTest(unittest.TestCase):
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,
-            optional_files={"CONTCAR.Li2O": Poscar})
+                                      optional_files={"CONTCAR.Li2O": Poscar})
         self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
         self.assertIn("CONTCAR.Li2O", vi)
         d = vi.to_dict
