@@ -70,6 +70,8 @@ class PointGroupAnalyzer(object):
     def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
                  matrix_tol=0.1):
         """
+        The default settings are usually sufficient.
+
         Args:
             mol:
                 Molecule
@@ -97,18 +99,15 @@ class PointGroupAnalyzer(object):
             inertia_tensor = np.zeros((3, 3))
             total_inertia = 0
             for site in self.mol:
-                x, y, z = site.coords
+                c = site.coords
                 wt = site.specie.atomic_mass
-                inertia_tensor[0, 0] += wt * (y ** 2 + z ** 2)
-                inertia_tensor[1, 1] += wt * (x ** 2 + z ** 2)
-                inertia_tensor[2, 2] += wt * (x ** 2 + y ** 2)
-                inertia_tensor[0, 1] += -wt * x * y
-                inertia_tensor[1, 0] += -wt * x * y
-                inertia_tensor[1, 2] += -wt * y * z
-                inertia_tensor[2, 1] += -wt * y * z
-                inertia_tensor[0, 2] += -wt * x * z
-                inertia_tensor[2, 0] += -wt * x * z
-                total_inertia += wt * (x ** 2 + y ** 2 + z ** 2)
+                for i in xrange(3):
+                    inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 +
+                                                  c[(i + 2) % 3] ** 2)
+                for i, j in itertools.combinations(xrange(3), 2):
+                    inertia_tensor[i, j] += -wt * c[i] * c[j]
+                    inertia_tensor[j, i] += -wt * c[j] * c[i]
+                total_inertia += wt * np.dot(c, c)
 
         # Normalize the inertia tensor so that it does not scale with size of
         # the system.  This mitigates the problem of choosing a proper
@@ -150,12 +149,6 @@ class PointGroupAnalyzer(object):
         else:
             logger.debug("Symmetric top molecule detected")
             self._proc_sym_top()
-
-        #     assignedPointGroup = new PointGroup(schSymbol,
-        # generateFullSymmetrySet(detectedSymmetries));
-        #     log.info("Number of symmetry operations : " +
-        #  assignedPointGroup.getOperations().size());
-        # }
 
     def _proc_linear(self):
         if is_valid_op(inversion_op, self.processed_mol, self.tol):
