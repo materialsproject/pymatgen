@@ -308,7 +308,7 @@ class SymmOp(MSONable):
             SymmOp for the reflection about the plane
         """
         #Normalize the normal vector first.
-        n = np.array(normal) / np.linalg.norm(normal)
+        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         u, v, w = n
 
@@ -356,7 +356,7 @@ class SymmOp(MSONable):
             Roto-reflection operation
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
-        refl = SymmOp.reflection(origin, axis)
+        refl = SymmOp.reflection(axis, origin)
         m = np.dot(rot.affine_matrix, refl.affine_matrix)
         return SymmOp(m)
 
