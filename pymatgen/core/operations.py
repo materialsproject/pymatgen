@@ -293,6 +293,18 @@ class SymmOp(MSONable):
         return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
                        [m31, m32, m33, m34], [0, 0, 0, 1]])
 
+    @staticmethod
+    def inversion(origin=(0, 0, 0)):
+        """
+        Inversion symmetry operation about axis.
+        """
+        mat = np.eye(4)
+        mat[0, 0] = -1
+        mat[1, 1] = -1
+        mat[2, 2] = -1
+        mat[0:3, 3] = 2 * np.array(origin)
+        return SymmOp(mat)
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
