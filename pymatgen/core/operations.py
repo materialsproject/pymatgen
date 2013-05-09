@@ -322,13 +322,22 @@ class SymmOp(MSONable):
         xz = -2 * u * w
         yz = -2 * v * w
         mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0],
-                      [0,0, 0, 1]]
+                      [0, 0, 0, 1]]
 
         if np.linalg.norm(origin) > 1e-6:
             mirror_mat = np.dot(np.linalg.inv(translation),
                                 np.dot(mirror_mat, translation))
         return SymmOp(mirror_mat)
 
+    @staticmethod
+    def inversion(origin=(0, 0, 0)):
+        """
+        Inversion symmetry operation about axis.
+        """
+        mat = -np.eye(4)
+        mat[3, 3] = 1
+        mat[0:3, 3] = 2 * np.array(origin)
+        return SymmOp(mat)
 
     @property
     def to_dict(self):
