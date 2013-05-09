@@ -101,7 +101,7 @@ class SiteCollection(collections.Sequence):
         return [site.species_and_occu for site in self]
 
     @property
-    def ntypat(self):
+    def ntypesp(self):
         """Number of types of atoms."""
         return len(self.types_of_specie)
 
