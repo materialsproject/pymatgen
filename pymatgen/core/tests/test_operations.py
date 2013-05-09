@@ -63,6 +63,12 @@ class SymmOpTestCase(unittest.TestCase):
         newcoord = self.op.operate(point)
         self.assertTrue(op.are_symmetrically_related(point, newcoord))
 
+    def test_inversion(self):
+        origin = np.random.rand(3)
+        op = SymmOp.inversion(origin)
+        pt = np.random.rand(3)
+        inv_pt = op.operate(pt)
+        self.assertTrue(np.allclose(pt - origin, origin - inv_pt))
 
 if __name__ == '__main__':
     unittest.main()
