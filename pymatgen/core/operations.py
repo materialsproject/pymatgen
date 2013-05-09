@@ -339,6 +339,27 @@ class SymmOp(MSONable):
         mat[0:3, 3] = 2 * np.array(origin)
         return SymmOp(mat)
 
+    @staticmethod
+    def rotoreflection(axis, angle, origin=(0, 0, 0)):
+        """
+        Returns a roto-reflection symmetry operation
+
+        Args:
+            axis:
+                Axis of rotation / mirror normal
+            angle:
+                Angle in degrees
+            origin:
+                Point left invariant by roto-reflection
+
+        Return:
+            Roto-reflection operation
+        """
+        rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
+        refl = SymmOp.reflection(origin, axis)
+        m = np.dot(rot.affine_matrix, refl.affine_matrix)
+        return SymmOp(m)
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
