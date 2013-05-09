@@ -207,8 +207,8 @@ class CompositionTest(unittest.TestCase):
                          "Li3 P3 O9")
 
     def test_mul(self):
-        self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48",
-                         "Incorrect composition after addition!")
+        self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
+        self.assertEqual((3 * self.comp[1]).formula, "Li9 Fe3 P3 O15")
 
     def test_equals(self):
         random_z = random.randint(1, 92)

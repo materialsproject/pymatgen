@@ -39,7 +39,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 30, 2012"
 
 import json
-import abc
+from abc import ABCMeta, abstractproperty, abstractmethod
 import datetime
 
 from pymatgen.util.io_utils import zopen
@@ -51,17 +51,18 @@ class MSONable(object):
     is Materials JSON. Essentially, MSONable objects must implement a to_dict
     property and a from_dict static method.
     """
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
 
-    @abc.abstractproperty
+    @abstractproperty
     def to_dict(self):
         """
         A JSON serializable dict representation of an object.
         """
         pass
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, d):
         """
         This simply raises a NotImplementedError to force subclasses to
         implement this static method. Abstract static methods are not
@@ -179,3 +180,20 @@ class PMGJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         d = json.JSONDecoder.decode(self, s)
         return self.process_decoded(d)
+
+
+def json_pretty_dump(obj, filename):
+    """
+    Serialize obj as a JSON formatted stream to the given filename (
+    pretty printing version)
+    """
+    with open(filename, "w") as fh:
+        json.dump(obj, fh, indent=4, sort_keys=4)
+
+
+def json_load(filename):
+    """
+    Deserialize a file containing a JSON document to a Python object.
+    """
+    with open(filename, "r") as fh:
+        return json.load(fh)

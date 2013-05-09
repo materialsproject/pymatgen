@@ -23,3 +23,13 @@ class Enum(set):
         if name in self:
             return name
         raise AttributeError
+
+
+class AttrDict(dict):
+    """
+    Allows to access dict keys as obj.foo in addition to the traditional way
+    obj['foo']"
+    """
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self

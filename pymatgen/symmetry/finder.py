@@ -306,12 +306,8 @@ class SymmetryFinder(object):
 
         numbers = np.zeros(num_atom * 4, dtype=int)
         numbers[:num_atom] = self._numbers.copy()
-        num_atom_bravais = spg.refine_cell(lattice,
-                                           pos,
-                                           numbers,
-                                           num_atom,
-                                           self._symprec,
-                                           self._angle_tol)
+        num_atom_bravais = spg.refine_cell(
+            lattice, pos, numbers, num_atom, self._symprec, self._angle_tol)
         zs = numbers[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(), species, pos[:num_atom_bravais])
@@ -338,11 +334,12 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim])
+            return Structure(lattice.T, species, positions[:num_atom_prim])\
+                .get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
             #structure.
-            return self._structure
+            return self._structure.get_reduced_structure()
 
     def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
         """
@@ -395,6 +392,41 @@ class SymmetryFinder(object):
                 n.append(i)
         return irr_kpts
 
+    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0),
+                               is_time_reversal=True):
+        """
+        k-point mesh of the Brillouin zone generated taken into account
+        symmetry.The method returns the irreducible kpoints of the mesh
+        and their weights
+
+        Args:
+            mesh:
+                The number of kpoint for the mesh needed in each direction
+            shift:
+                A shift of the kpoint grid. For instance, Monkhorst-Pack is
+                [0.5,0.5,0.5]
+            is_time_reversal:
+                Set to True to impose time reversal symmetry.
+
+        Returns:
+            A list of irreducible kpoints and their weights as a list of
+            tuples [(ir_kpoint, weight)], with ir_kpoint given
+            in fractional coordinates
+        """
+        results = []
+        intmap = np.zeros(np.prod(mesh), dtype=int)
+        grid = np.zeros((np.prod(mesh), 3), dtype=int)
+        positions = self._positions.copy()
+        lattice = self._transposed_latt.copy()
+        numbers = self._numbers.copy()
+        spg.ir_reciprocal_mesh(grid, intmap, np.array(mesh), np.array(shift),
+                               is_time_reversal * 1, lattice, positions,
+                               numbers, self._symprec)
+        tmp_map = list(intmap)
+        for i in np.unique(intmap):
+            results.append((grid[i]/mesh, tmp_map.count(i)))
+        return results
+
     def get_primitive_standard_structure(self):
         """
         Gives a structure with a primitive cell according to certain standards
@@ -423,19 +455,15 @@ class SymmetryFinder(object):
                 [a * cos(alpha) / cos(alpha / 2), 0,
                  a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
             new_sites = []
-            for s in conv.sites:
+            latt = Lattice(new_matrix)
+            for s in conv:
                 new_s = PeriodicSite(
-                    s.specie, s.frac_coords, Lattice(new_matrix),
+                    s.specie, s.frac_coords, latt,
                     to_unit_cell=True, properties=s.properties)
-                unique = True
-                for t in new_sites:
-                    if new_s.is_periodic_image(t):
-                        unique = False
-                if unique:
+                if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
 
-        transf = np.eye(3)
         if "I" in self.get_spacegroup_symbol():
             transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
                               dtype=np.float) / 2
@@ -449,18 +477,17 @@ class SymmetryFinder(object):
             else:
                 transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]],
                                   dtype=np.float) / 2
+        else:
+            transf = np.eye(3)
+
         new_sites = []
-        for s in conv.sites:
+        latt = Lattice(np.dot(transf, conv.lattice.matrix))
+        for s in conv:
             new_s = PeriodicSite(
-                s.specie, s.coords,
-                Lattice(np.dot(transf, conv.lattice.matrix)),
+                s.specie, s.coords, latt,
                 to_unit_cell=True, coords_are_cartesian=True,
                 properties=s.properties)
-            unique = True
-            for t in new_sites:
-                if new_s.is_periodic_image(t):
-                    unique = False
-            if unique:
+            if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
         return Structure.from_sites(new_sites)
 
@@ -486,37 +513,26 @@ class SymmetryFinder(object):
                               'length': latt.abc[i],
                               'orig_index': i} for i in [0, 1, 2]],
                             key=lambda k: k['length'])
-        new_struct = None
+
         if latt_type in ("orthorhombic", "cubic"):
             #you want to keep the c axis where it is
             #to keep the C- settings
+            transf = np.zeros(shape=(3, 3))
             if self.get_spacegroup_symbol().startswith("C"):
-                transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
-                sorted_lengths = sorted(latt.abc[:2])
+                a, b = sorted(latt.abc[:2])
                 sorted_dic = sorted([{'vec': latt.matrix[i],
                                       'length': latt.abc[i],
                                       'orig_index': i} for i in [0, 1]],
                                     key=lambda k: k['length'])
-                for c in range(2):
-                    transf[c][sorted_dic[c]['orig_index']] = 1
-                    new_matrix = [[sorted_lengths[0], 0, 0],
-                                  [0, sorted_lengths[1], 0],
-                                  [0, 0, latt.abc[2]]]
+                for i in range(2):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
+                c = latt.abc[2]
             else:
-                transf = np.zeros(shape=(3, 3))
-                for c in range(len(sorted_dic)):
-                    transf[c][sorted_dic[c]['orig_index']] = 1
-                new_matrix = [[sorted_lengths[0], 0, 0],
-                              [0, sorted_lengths[1], 0],
-                              [0, 0, sorted_lengths[2]]]
-            new_sites = []
-            for s in struct.sites:
-                new_sites.append(
-                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
-                                 Lattice(new_matrix), to_unit_cell=True,
-                                 properties=s.properties))
-            new_struct = Structure.from_sites(new_sites)
+                for i in range(len(sorted_dic)):
+                    transf[i][sorted_dic[i]['orig_index']] = 1
+                a, b, c = sorted_lengths
+            latt = Lattice.orthorhombic(a, b, c)
 
         elif latt_type == "tetragonal":
             #find the "a" vectors
@@ -529,18 +545,7 @@ class SymmetryFinder(object):
             if abs(b - c) < tol:
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
-
-            new_matrix = [[a, 0, 0],
-                          [0, a, 0],
-                          [0, 0, c]]
-            new_sites = []
-            for s in struct.sites:
-                new_sites.append(
-                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
-                                 Lattice(new_matrix), to_unit_cell=True,
-                                 properties=s.properties))
-            new_struct = Structure.from_sites(new_sites)
-
+            latt = Lattice.tetragonal(a, c)
         elif latt_type in ("hexagonal", "rhombohedral"):
             #for the conventional cell representation,
             #we allways show the rhombohedral lattices as hexagonal
@@ -552,23 +557,15 @@ class SymmetryFinder(object):
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
                 struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
                                                  (1, 1, 1))).modified_structure
-                sorted_lengths = sorted(struct.lattice.abc)
-
-            a, b, c = sorted_lengths
+                a, b, c = sorted(struct.lattice.abc)
 
             if abs(b - c) < 0.001:
                 a, c = c, a
             new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
                           [a / 2, a * math.sqrt(3) / 2, 0],
                           [0, 0, c]]
-
-            new_sites = []
-            for s in struct.sites:
-                new_sites.append(
-                    PeriodicSite(s.specie, s.coords, Lattice(new_matrix),
-                                 to_unit_cell=True, coords_are_cartesian=True,
-                                 properties=s.properties))
-            new_struct = Structure.from_sites(new_sites)
+            latt = Lattice(new_matrix)
+            transf = np.eye(3, 3)
 
         elif latt_type == "monoclinic":
             #you want to keep the c axis where it is
@@ -667,14 +664,7 @@ class SymmetryFinder(object):
                     transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
-
-            new_sites = []
-            for s in struct.sites:
-                new_sites.append(
-                    PeriodicSite(s.specie, np.dot(transf, s.frac_coords),
-                                 Lattice(new_matrix), to_unit_cell=True,
-                                 properties=s.properties))
-            new_struct = Structure.from_sites(new_sites)
+            latt = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
             #we use a LLL Minkowski-like reduction for the triclinic cells
@@ -699,9 +689,9 @@ class SymmetryFinder(object):
                 return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                trans = [[1.0, 0.0, 0.0],
-                         [0.0, 1.0, 0.0],
-                         [0.0, 0.0, 1.0]]
+                transf = [[1.0, 0.0, 0.0],
+                          [0.0, 1.0, 0.0],
+                          [0.0, 0.0, 1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -715,9 +705,9 @@ class SymmetryFinder(object):
                                            * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                trans = [[-1.0, 0.0, 0.0],
-                         [0.0, 1.0, 0.0],
-                         [0.0, 0.0, -1.0]]
+                transf = [[-1.0, 0.0, 0.0],
+                          [0.0, 1.0, 0.0],
+                          [0.0, 0.0, -1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -731,9 +721,9 @@ class SymmetryFinder(object):
                                           * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                trans = [[-1.0, 0.0, 0.0],
-                         [0.0, -1.0, 0.0],
-                         [0.0, 0.0, 1.0]]
+                transf = [[-1.0, 0.0, 0.0],
+                          [0.0, -1.0, 0.0],
+                          [0.0, 0.0, 1.0]]
                 new_matrix = test_matrix
 
             test_matrix = [[a, 0, 0],
@@ -746,19 +736,16 @@ class SymmetryFinder(object):
                                            + 2 * cos(alpha) * cos(beta)
                                            * cos(gamma)) / sin(gamma)]]
             if is_all_acute_or_obtuse(test_matrix):
-                trans = [[1.0, 0.0, 0.0],
-                         [0.0, -1.0, 0.0],
-                         [0.0, 0.0, -1.0]]
+                transf = [[1.0, 0.0, 0.0],
+                          [0.0, -1.0, 0.0],
+                          [0.0, 0.0, -1.0]]
                 new_matrix = test_matrix
 
-            new_sites = []
-            for s in struct.sites:
-                new_sites.append(
-                    PeriodicSite(s.specie, np.dot(trans, s.frac_coords),
-                                 Lattice(new_matrix),
-                                 to_unit_cell=False, properties=s.properties))
-            new_struct = Structure.from_sites(new_sites)
+            latt = Lattice(new_matrix)
 
+        new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
+        new_struct = Structure(latt, struct.species_and_occu, new_coords,
+                               site_properties=struct.site_properties)
         return new_struct.get_sorted_structure()
 
 

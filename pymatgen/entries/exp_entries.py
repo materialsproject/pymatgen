@@ -64,10 +64,10 @@ class ExpEntry(PDEntry, MSONable):
     def __str__(self):
         return self.__repr__()
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
-        return ExpEntry(d["composition"], thermodata, d["temperature"])
+        return cls(d["composition"], thermodata, d["temperature"])
 
     @property
     def to_dict(self):
@@ -76,4 +76,3 @@ class ExpEntry(PDEntry, MSONable):
                 "thermodata": [td.to_dict for td in self._thermodata],
                 "composition": self.composition.to_dict,
                 "temperature": self.temperature}
-        

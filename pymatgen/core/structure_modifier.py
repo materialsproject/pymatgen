@@ -20,6 +20,8 @@ import warnings
 import collections
 
 import numpy as np
+
+from pymatgen.util.decorators import deprecated
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
@@ -48,6 +50,7 @@ class StructureModifier(object):
         return
 
 
+@deprecated(replacement=Structure)
 class StructureEditor(StructureModifier):
     """
     Editor for adding, removing and changing sites from a structure
@@ -100,25 +103,16 @@ class StructureEditor(StructureModifier):
                 have .375 Ge and .125 C.
         """
         def mod_site(site):
-            new_atom_occu = dict()
+            new_atom_occu = collections.defaultdict(int)
             for sp, amt in site.species_and_occu.items():
                 if sp in species_mapping:
                     if isinstance(species_mapping[sp], (Element, Specie)):
-                        if species_mapping[sp] in new_atom_occu:
-                            new_atom_occu[species_mapping[sp]] += amt
-                        else:
-                            new_atom_occu[species_mapping[sp]] = amt
+                        new_atom_occu[species_mapping[sp]] += amt
                     elif isinstance(species_mapping[sp], dict):
                         for new_sp, new_amt in species_mapping[sp].items():
-                            if new_sp in new_atom_occu:
-                                new_atom_occu[new_sp] += amt * new_amt
-                            else:
-                                new_atom_occu[new_sp] = amt * new_amt
+                            new_atom_occu[new_sp] += amt * new_amt
                 else:
-                    if sp in new_atom_occu:
-                        new_atom_occu[sp] += amt
-                    else:
-                        new_atom_occu[sp] = amt
+                    new_atom_occu[sp] += amt
             return PeriodicSite(new_atom_occu, site.frac_coords, self._lattice,
                                 properties=site.properties)
 
@@ -435,6 +429,7 @@ class StructureEditor(StructureModifier):
                          site_properties=props)
 
 
+@deprecated(replacement=Structure)
 class SupercellMaker(StructureModifier):
     """
     Makes a supercell.
@@ -493,6 +488,7 @@ class SupercellMaker(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class OxidationStateDecorator(StructureModifier):
     """
     .. deprecated:: v2.1.3
@@ -531,6 +527,7 @@ class OxidationStateDecorator(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class OxidationStateRemover(StructureModifier):
     """
     .. deprecated:: v2.1.3
@@ -567,6 +564,7 @@ class OxidationStateRemover(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class BasisChange(StructureModifier):
     """
     Given a new basis, we express the structure in this new basis.
@@ -599,6 +597,7 @@ class BasisChange(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Molecule)
 class MoleculeEditor(StructureModifier):
     """
     Editor for adding, removing and changing sites from a molecule.

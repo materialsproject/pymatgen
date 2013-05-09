@@ -66,12 +66,12 @@ class ThermoData(object):
         self.ref = ref
         self.uncertainty = uncertainty
 
-    @staticmethod
-    def from_dict(data):
-        return ThermoData(data["type"], data["compound_name"],
-                          data["phaseinfo"], data["formula"],
-                          data["value"], data["ref"], data["method"],
-                          data["temp_range"], data.get("uncertainty", None))
+    @classmethod
+    def from_dict(cls, d):
+        return ThermoData(d["type"], d["compound_name"],
+                          d["phaseinfo"], d["formula"],
+                          d["value"], d["ref"], d["method"],
+                          d["temp_range"], d.get("uncertainty", None))
 
     @property
     def to_dict(self):

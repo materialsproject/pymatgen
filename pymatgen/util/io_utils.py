@@ -4,7 +4,7 @@
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -15,6 +15,8 @@ __date__ = "Sep 23, 2011"
 import re
 import numpy
 import os
+import time
+import errno
 from bz2 import BZ2File
 from gzip import GzipFile
 
@@ -67,7 +69,7 @@ def zpath(filename):
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
-    Strips whitespace, \n and \r and empty lines from a list.
+    Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
         string_list:
@@ -205,7 +207,8 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
 
     Based on code by Peter Astrand <astrand@cendio.se>, using modifications by
     Raymond Hettinger and Kevin German.
-    http://code.activestate.com/recipes/439045-read-a-text-file-backwards-yet-another-implementat/
+    http://code.activestate.com/recipes/439045-read-a-text-file-backwards
+    -yet-another-implementat/
 
     Reads file forwards and reverses in memory for files smaller than the
     max_mem parameter, or for gzip files where reverse seeks are not supported.
@@ -269,3 +272,97 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
             else:
                 # Start-of-file
                 return
+
+
+class FileLockException(Exception):
+    pass
+
+
+class FileLock(object):
+    """
+    A file locking mechanism that has context-manager support so you can use
+    it in a with statement. This should be relatively cross-compatible as it
+    doesn't rely on msvcrt or fcntl for the locking.
+    Taken from http://www.evanfosmark.com/2009/01/cross-platform-file-locking
+    -support-in-python/
+    """
+
+    def __init__(self, file_name, timeout=10, delay=.05):
+        """
+        Prepare the file locker. Specify the file to lock and optionally
+        the maximum timeout and the delay between each attempt to lock.
+
+        Args:
+            file_name:
+                Name of file to lock.
+            timeout:
+                Maximum timeout for locking. Defaults to 10.
+            delay:
+                Delay between each attempt to lock. Defaults to 0.05.
+        """
+        self.file_name = os.path.abspath(file_name)
+        self.lockfile = os.path.abspath(file_name) + ".lock"
+        self.timeout = float(timeout)
+        self.delay = float(delay)
+        self.is_locked = False
+
+        if self.delay > self.timeout or self.delay <= 0 or self.timeout <= 0:
+            raise ValueError("delay and timeout must be positive with delay "
+                             "<= timeout")
+
+    def acquire(self):
+        """
+        Acquire the lock, if possible. If the lock is in use, it check again
+        every `delay` seconds. It does this until it either gets the lock or
+        exceeds `timeout` number of seconds, in which case it throws
+        an exception.
+        """
+        start_time = time.time()
+        while True:
+            try:
+                self.fd = os.open(self.lockfile,
+                                  os.O_CREAT | os.O_EXCL | os.O_RDWR)
+                break
+            except (OSError,) as e:
+                if e.errno != errno.EEXIST:
+                    raise
+                if (time.time() - start_time) >= self.timeout:
+                    raise FileLockException("%s: Timeout occured." %
+                                            self.lockfile)
+                time.sleep(self.delay)
+
+        self.is_locked = True
+
+    def release(self):
+        """ Get rid of the lock by deleting the lockfile.
+            When working in a `with` statement, this gets automatically
+            called at the end.
+        """
+        if self.is_locked:
+            os.close(self.fd)
+            os.unlink(self.lockfile)
+            self.is_locked = False
+
+    def __enter__(self):
+        """
+        Activated when used in the with statement. Should automatically
+        acquire a lock to be used in the with block.
+        """
+        if not self.is_locked:
+            self.acquire()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """
+        Activated at the end of the with statement. It automatically releases
+        the lock if it isn't locked.
+        """
+        if self.is_locked:
+            self.release()
+
+    def __del__(self):
+        """
+        Make sure that the FileLock instance doesn't leave a lockfile
+        lying around.
+        """
+        self.release()

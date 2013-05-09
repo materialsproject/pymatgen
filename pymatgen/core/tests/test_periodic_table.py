@@ -3,13 +3,14 @@
 from __future__ import division
 import unittest
 import pickle
+import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable, _pt_data
+    PeriodicTable, smart_element_or_specie
 from copy import deepcopy
 
 
-class  ElementTestCase(unittest.TestCase):
+class ElementTestCase(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual("Fe", Element("Fe").symbol, "Fe test failed")
@@ -112,7 +113,7 @@ class  ElementTestCase(unittest.TestCase):
         self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
 
 
-class  SpecieTestCase(unittest.TestCase):
+class SpecieTestCase(unittest.TestCase):
 
     def setUp(self):
         self.specie1 = Specie.from_string("Fe2+")
@@ -136,8 +137,7 @@ class  SpecieTestCase(unittest.TestCase):
                          "Static and actual constructor gives unequal result!")
         self.assertNotEqual(self.specie1, self.specie2,
                             "Fe2+ should not be equal to Fe3+")
-        self.assertEqual(self.specie4, self.specie3,
-                         "Species with same oxi state and el should be equal!")
+        self.assertNotEqual(self.specie4, self.specie3)
         self.assertFalse(self.specie1 == Element("Fe"))
         self.assertFalse(Element("Fe") == self.specie1)
 
@@ -181,7 +181,7 @@ class  SpecieTestCase(unittest.TestCase):
                           "hex")
 
 
-class  DummySpecieTestCase(unittest.TestCase):
+class DummySpecieTestCase(unittest.TestCase):
 
     def test_init(self):
         self.specie1 = DummySpecie("X")
@@ -208,7 +208,7 @@ class  DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(el1, pickle.loads(o))
 
 
-class  PeriodicTableTestCase(unittest.TestCase):
+class PeriodicTableTestCase(unittest.TestCase):
 
     def test_element(self):
         symbols = list()
@@ -244,6 +244,27 @@ class  PeriodicTableTestCase(unittest.TestCase):
     def test_print_periodic_table(self):
         PeriodicTable().print_periodic_table()
 
+    def test_iterable(self):
+        """Test whether PeriodicTable supports the iteration protocol"""
+        table = PeriodicTable()
+
+        self.assertTrue(isinstance(table, collections.Iterable))
+
+        self.assertEqual(table[14].Z, 14)
+        self.assertEqual([e.Z for e in table[1:4:2]], [1, 3])
+
+        for (idx, element) in enumerate(table):
+            self.assertEqual(idx+1, element.Z)
+
+
+class FuncTest(unittest.TestCase):
+
+    def test_smart_element_or_specie(self):
+        self.assertEqual(smart_element_or_specie("Fe2+"), Specie("Fe", 2))
+        self.assertEqual(smart_element_or_specie("3"), Element("Li"))
+        self.assertEqual(smart_element_or_specie("U"), Element("U"))
+        self.assertEqual(smart_element_or_specie("X2+"), DummySpecie("X", 2))
+        self.assertEqual(smart_element_or_specie("Mn3+"), Specie("Mn", 3))
 
 if __name__ == "__main__":
     unittest.main()

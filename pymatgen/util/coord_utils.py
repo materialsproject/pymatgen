@@ -77,19 +77,16 @@ def get_linear_interpolated_value(x_values, y_values, x):
     Returns:
         Value at x.
     """
-    val_dict = dict(zip(x_values, y_values))
-    if x < min(x_values) or x > max(x_values):
+    a = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+
+    ind = np.where(a[:, 0] >= x)[0]
+
+    if len(ind) == 0 or ind[0] == 0:
         raise ValueError("x is out of range of provided x_values")
 
-    for val in sorted(x_values):
-        if val < x:
-            x1 = val
-        else:
-            x2 = val
-            break
-
-    y1 = val_dict[x1]
-    y2 = val_dict[x2]
+    i = ind[0]
+    x1, x2 = a[i - 1][0], a[i][0]
+    y1, y2 = a[i - 1][1], a[i][1]
 
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
@@ -170,6 +167,7 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
 
     return distances
 
+
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
     Returns the shortest vectors between two lists of coordinates taking into
@@ -216,6 +214,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     d_2 = np.sum(vectors ** 2, axis=3)
     a, b = np.indices([len(fcoords1), len(fcoords1)])
     return vectors[a, b, np.argmin(d_2, axis=2)]
+
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     """
@@ -299,7 +298,6 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
 
     n = len(frac_points)
     fcoords = np.array(frac_points)
-    frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
     indices = np.array(range(n))
 
@@ -318,8 +316,9 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
         crange[None, None, :]
 
     shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
-    coords = frac_2_cart(shifted_coords)
-    dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2, axis=4))
+    coords = lattice.get_cartesian_coords(shifted_coords)
+    dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+                           axis=4))
     within_r = np.where(dists <= r)
 
     d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
@@ -370,4 +369,9 @@ def get_angle(v1, v2, units="degrees"):
     d = min(d, 1)
     d = max(d, -1)
     angle = math.acos(d)
-    return angle * 180 / math.pi if units == "degrees" else angle
+    if units == "degrees":
+        return math.degrees(angle)
+    elif units == "radians":
+        return angle
+    else:
+        raise ValueError("Invalid units {}".format(units))

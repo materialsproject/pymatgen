@@ -89,3 +89,11 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`units` Module
+-------------------
+
+.. automodule:: pymatgen.core.units
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
