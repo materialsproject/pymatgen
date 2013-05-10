@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module implements a point group assigner for a collection of atoms.
+This module implements a point group assigner for a molecule.
 """
 
 from __future__ import division
@@ -28,9 +28,6 @@ from pymatgen.util.coord_utils import find_in_coord_list
 from pymatgen.util.decorators import requires
 
 logger = logging.getLogger(__name__)
-
-identity_op = SymmOp(np.eye(4))
-inversion_op = SymmOp.inversion()
 
 
 class PointGroup(list):
@@ -69,12 +66,28 @@ class PointGroup(list):
                                  "requires scipy.cluster")
 class PointGroupAnalyzer(object):
     """
-    A class to analyzer the point group of a molecule.
+    A class to analyze the point group of a molecule. The general outline of
+    the algorithm is as follows:
 
+    1. Center the molecule around its center of mass.
+    2. Compute the inertia tensor and the eigenvalues and eigenvectors.
+    3. Handle the symmetry detection based on eigenvalues.
+
+        a. Linear molecules have one zero eigenvalue. Possible symmetry
+           operations are C*v or D*v
+        b. Asymetric top molecules have all different eigenvalues. The
+           maximum rotational symmetry in such molecules is 2
+        c. Symmetric top molecules have 1 unique eigenvalue, which gives a
+           unique rotation axis.  All axial point groups are possible
+           except the cubic groups (T & O) and I.
+        d. Spherical top molecules have all three eigenvalues equal. They
+           have the rare T, O or I point groups.
+    
     .. attribute:: sch_symbol
 
         Schoenflies symbol of the detected point group.
     """
+    inversion_op = SymmOp.inversion()
 
     def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
                  matrix_tol=0.1):
@@ -133,19 +146,8 @@ class PointGroupAnalyzer(object):
             v1 - v2) > self.eig_tol and abs(v2 - v3) > self.eig_tol
 
         self.rot_sym = []
-        self.symmops = [identity_op]
-        # Separates the Molecule based on the form of its eigenvalues and
-        # process accordingly.
-        # - Linear molecules have one zero eigenvalue. Possible
-        #   symmetry operations are C*v or D*v
-        # - Asymetric top molecules have all different eigenvalues. The
-        #   maximum rotational symmetry in such molecules is 2
-        # - Symmetric top molecules have 1 unique eigenvalue, which gives a
-        #   unique rotation axis.  All axial point groups are possible
-        #   except the cubic groups (T & O) and I.
-        # - Spherical top molecules have all three eigenvalues equal.  They
-        #   have the rare T, O or I point groups.  Very difficult to handle,
-        #   but rare.
+        self.symmops = [SymmOp(np.eye(4))]
+
         if eig_zero:
             logger.debug("Linear molecule detected")
             self._proc_linear()
@@ -160,9 +162,9 @@ class PointGroupAnalyzer(object):
             self._proc_sym_top()
 
     def _proc_linear(self):
-        if self.is_valid_op(inversion_op):
+        if self.is_valid_op(PointGroupAnalyzer.inversion_op):
             self.sch_symbol = "D*h"
-            self.symmops.append(inversion_op)
+            self.symmops.append(PointGroupAnalyzer.inversion_op)
         else:
             self.sch_symbol = "C*v"
 
@@ -210,9 +212,9 @@ class PointGroupAnalyzer(object):
         groups are C1, Cs and Ci.
         """
         self.sch_symbol = "C1"
-        if self.is_valid_op(inversion_op):
+        if self.is_valid_op(PointGroupAnalyzer.inversion_op):
             self.sch_symbol = "Ci"
-            self.symmops.append(inversion_op)
+            self.symmops.append(PointGroupAnalyzer.inversion_op)
         else:
             for v in self.principal_axes:
                 mirror_type = self._find_mirror(v)
@@ -369,22 +371,22 @@ class PointGroupAnalyzer(object):
         elif rot == 3:
             mirror_type = self._find_mirror(main_axis)
             if mirror_type != "":
-                if self.is_valid_op(inversion_op):
-                    self.symmops.append(inversion_op)
+                if self.is_valid_op(PointGroupAnalyzer.inversion_op):
+                    self.symmops.append(PointGroupAnalyzer.inversion_op)
                     self.sch_symbol = "Th"
                 else:
                     self.sch_symbol = "Td"
             else:
                 self.sch_symbol = "T"
         elif rot == 4:
-            if self.is_valid_op(inversion_op):
-                self.symmops.append(inversion_op)
+            if self.is_valid_op(PointGroupAnalyzer.inversion_op):
+                self.symmops.append(PointGroupAnalyzer.inversion_op)
                 self.sch_symbol = "Oh"
             else:
                 self.sch_symbol = "O"
         elif rot == 5:
-            if self.is_valid_op(inversion_op):
-                self.symmops.append(inversion_op)
+            if self.is_valid_op(PointGroupAnalyzer.inversion_op):
+                self.symmops.append(PointGroupAnalyzer.inversion_op)
                 self.sch_symbol = "Ih"
             else:
                 self.sch_symbol = "I"
