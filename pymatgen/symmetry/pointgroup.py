@@ -307,7 +307,6 @@ class PointGroupAnalyzer(object):
         since atoms lying on a test axis is irrelevant in testing rotational
         symmetryOperations.
         """
-
         def not_on_axis(site):
             v = np.cross(site.coords, axis)
             return np.linalg.norm(v) > self.tol
@@ -503,7 +502,6 @@ def generate_full_symmops(symmops, tol):
     Returns:
         Full set of symmetry operations.
     """
-    new_set = list(symmops)
 
     def in_set(op_set, mat):
         for o in op_set:
@@ -511,22 +509,14 @@ def generate_full_symmops(symmops, tol):
                 return True
         return False
 
-    complete = True
-
-    for op1, op2 in itertools.product(symmops, symmops):
-        test_sym = np.dot(op1.affine_matrix, op2.affine_matrix)
-        if not in_set(symmops, test_sym):
-            new_set.append(SymmOp(test_sym))
-            complete = False
-            break
-
-    if len(new_set) > 200:
+    if len(symmops) > 300:
         logger.debug("Generation of symmetry operations in infinite loop.  " +
                      "Possible error in initial operations or tolerance too "
                      "low.")
-        return new_set
-
-    if not complete:
-        return generate_full_symmops(new_set, tol)
     else:
-        return new_set
+        for op1, op2 in itertools.product(symmops, symmops):
+            test_sym = np.dot(op1.affine_matrix, op2.affine_matrix)
+            if not in_set(symmops, test_sym):
+                return generate_full_symmops(symmops + [SymmOp(test_sym)], tol)
+
+    return symmops
