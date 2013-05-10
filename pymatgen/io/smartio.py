@@ -16,10 +16,13 @@ __date__ = "Jul 29, 2012"
 
 import re
 import os
+import json
 
 from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.cssrio import Cssr
+from pymatgen.util.io_utils import zopen
+from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 
 
 def read_structure(filename):
@@ -50,6 +53,9 @@ def read_structure(filename):
     elif re.search("\.cssr", lower_filename):
         cssr = Cssr.from_file(filename)
         return cssr.structure
+    elif re.search("\.[mj]son", lower_filename):
+        with zopen(lower_filename) as f:
+            return json.load(f, cls=PMGJSONDecoder)
 
     raise ValueError("Unrecognized file extension!")
 
@@ -74,6 +80,9 @@ def write_structure(structure, filename):
         writer = Poscar(structure)
     elif re.search("\.cssr", lower_filename):
         writer = Cssr(structure)
+    elif re.search("\.[mj]son", lower_filename):
+        with zopen(lower_filename, "w") as f:
+            return json.dump(structure, f, cls=PMGJSONEncoder)
     else:
         raise ValueError("Unrecognized file extension!")
 
