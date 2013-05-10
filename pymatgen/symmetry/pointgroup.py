@@ -258,7 +258,7 @@ class PointGroupAnalyzer(object):
         asymetric top molecules.
         """
         for v in self.principal_axes:
-            op = SymmOp.from_origin_axis_angle((0, 0, 0), v, 180)
+            op = SymmOp.from_axis_angle_and_translation(v, 180)
             if self.is_valid_op(op):
                 self.symmops.append(op)
                 self.rot_sym.append((v, 2))
@@ -334,8 +334,7 @@ class PointGroupAnalyzer(object):
         for i in xrange(max_sym, 0, -1):
             if max_sym % i != 0:
                 continue
-            op = SymmOp.from_origin_axis_angle(
-                (0, 0, 0), axis, 360 / i)
+            op = SymmOp.from_axis_angle_and_translation(axis, 360 / i)
             rotvalid = self.is_valid_op(op)
             if rotvalid:
                 self.symmops.append(op)
@@ -352,7 +351,7 @@ class PointGroupAnalyzer(object):
         for s1, s2 in itertools.combinations(min_set, 2):
             test_axis = np.cross(s1.coords - s2.coords, axis)
             if np.linalg.norm(test_axis) > self.tol:
-                op = SymmOp.from_origin_axis_angle((0, 0, 0), test_axis, 180)
+                op = SymmOp.from_axis_angle_and_translation(test_axis, 180)
                 r2present = self.is_valid_op(op)
                 if r2present:
                     self.symmops.append(op)
@@ -407,8 +406,8 @@ class PointGroupAnalyzer(object):
                 if not rot_present[2]:
                     test_axis = ss1.coords + ss2.coords
                     if np.linalg.norm(test_axis) > self.tol:
-                        op = SymmOp.from_origin_axis_angle(
-                            (0, 0, 0), test_axis, 180)
+                        op = SymmOp.from_axis_angle_and_translation(test_axis,
+                                                                    180)
                         rot_present[2] = self.is_valid_op(op)
                         if rot_present[2]:
                             self.symmops.append(op)
@@ -418,8 +417,8 @@ class PointGroupAnalyzer(object):
             if np.linalg.norm(test_axis) > self.tol:
                 for r in (3, 4, 5):
                     if not rot_present[r]:
-                        op = SymmOp.from_origin_axis_angle(
-                            (0, 0, 0), test_axis, 360/r)
+                        op = SymmOp.from_axis_angle_and_translation(test_axis,
+                                                                    360/r)
                         rot_present[r] = self.is_valid_op(op)
                         if rot_present[r]:
                             self.symmops.append(op)
