@@ -333,6 +333,13 @@ class SymmOp(MSONable):
     def inversion(origin=(0, 0, 0)):
         """
         Inversion symmetry operation about axis.
+
+        Args:
+            origin:
+                The origin of the inversion operation. Defaults to [0, 0, 0].
+
+        Returns:
+            SymmOp representing an inversion operation about the origin.
         """
         mat = -np.eye(4)
         mat[3, 3] = 1
@@ -350,7 +357,8 @@ class SymmOp(MSONable):
             angle:
                 Angle in degrees
             origin:
-                Point left invariant by roto-reflection
+                Point left invariant by roto-reflection. Defaults to
+                (0, 0, 0).
 
         Return:
             Roto-reflection operation
