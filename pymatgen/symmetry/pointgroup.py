@@ -82,7 +82,7 @@ class PointGroupAnalyzer(object):
            except the cubic groups (T & O) and I.
         d. Spherical top molecules have all three eigenvalues equal. They
            have the rare T, O or I point groups.
-    
+
     .. attribute:: sch_symbol
 
         Schoenflies symbol of the detected point group.
@@ -188,7 +188,8 @@ class PointGroupAnalyzer(object):
         """
         Handles symetric top molecules which has one unique eigenvalue whose
         corresponding principal axis is a unique rotational axis.  More complex
-        handling required to look for R2 axes perpendiarul to this unique axis.
+        handling required to look for R2 axes perpendicular to this unique
+        axis.
         """
         for i, j in itertools.combinations(xrange(3), 2):
             if abs(self.eigvals[i] - self.eigvals[j]) < self.eig_tol:
