@@ -18,8 +18,7 @@ import unittest
 import os
 
 from pymatgen.core.structure import Molecule
-from pymatgen.symmetry.pointgroup import PointGroupAnalyzer, is_valid_op, \
-    cluster_sites
+from pymatgen.symmetry.pointgroup import PointGroupAnalyzer, cluster_sites
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.xyzio import XYZ
 
@@ -84,7 +83,7 @@ class PointGroupAnalyzerTest(unittest.TestCase):
         self.assertEqual(len(a.get_pointgroup()), 24)
         a = PointGroupAnalyzer(PF6)
         self.assertEqual(a.sch_symbol, "Oh")
-        self.assertEqual(len(a.get_pointgroup()), 16)
+        self.assertEqual(len(a.get_pointgroup()), 48)
         xyz = XYZ.from_file(os.path.join(test_dir, "c60.xyz"))
         a = PointGroupAnalyzer(xyz.molecule)
         self.assertEqual(a.sch_symbol, "Ih")
@@ -143,11 +142,6 @@ class PointGroupAnalyzerTest(unittest.TestCase):
 
 
 class FuncTest(unittest.TestCase):
-
-    def test_is_valid_op(self):
-        self.assertFalse(is_valid_op(SymmOp.inversion(), CH4, 0.1))
-        rot = SymmOp.from_origin_axis_angle((0, 0, 0), (0, 0, 1), 120)
-        self.assertTrue(is_valid_op(rot, CH4, 0.1))
 
     def test_cluster_sites(self):
         o, c = cluster_sites(CH4, 0.1)
