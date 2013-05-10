@@ -35,7 +35,12 @@ inversion_op = SymmOp.inversion()
 
 class PointGroup(list):
     """
-    Defines a point group.
+    Defines a point group, which is essentially a sequence of symmetry
+    operations.
+
+    .. attribute:: sch_symbol
+
+        Schoenflies symbol of the point group.
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         """
@@ -65,6 +70,10 @@ class PointGroup(list):
 class PointGroupAnalyzer(object):
     """
     A class to analyzer the point group of a molecule.
+
+    .. attribute:: sch_symbol
+
+        Schoenflies symbol of the detected point group.
     """
 
     def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
@@ -86,21 +95,21 @@ class PointGroupAnalyzer(object):
                 operations of the point group.
         """
         self.mol = mol
-        self.processed_mol = mol.get_centered_molecule()
+        self.centered_mol = mol.get_centered_molecule()
         self.tol = tolerance
         self.eig_tol = eigen_tolerance
         self.mat_tol = matrix_tol
         self._analyze()
 
     def _analyze(self):
-        if len(self.processed_mol) == 1:
+        if len(self.centered_mol) == 1:
             self.sch_symbol = "Kh"
         else:
             inertia_tensor = np.zeros((3, 3))
             total_inertia = 0
             for site in self.mol:
                 c = site.coords
-                wt = site.specie.atomic_mass
+                wt = site.species_and_occu.weight
                 for i in xrange(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 +
                                                   c[(i + 2) % 3] ** 2)
@@ -151,12 +160,11 @@ class PointGroupAnalyzer(object):
             self._proc_sym_top()
 
     def _proc_linear(self):
-        if is_valid_op(inversion_op, self.processed_mol, self.tol):
+        if self.is_valid_op(inversion_op):
             self.sch_symbol = "D*h"
-            self.symmops = [identity_op, inversion_op]
+            self.symmops.append(inversion_op)
         else:
             self.sch_symbol = "C*v"
-            self.symmops = [identity_op]
 
     def _proc_asym_top(self):
         """
@@ -202,7 +210,7 @@ class PointGroupAnalyzer(object):
         groups are C1, Cs and Ci.
         """
         self.sch_symbol = "C1"
-        if is_valid_op(inversion_op, self.processed_mol, self.tol):
+        if self.is_valid_op(inversion_op):
             self.sch_symbol = "Ci"
             self.symmops.append(inversion_op)
         else:
@@ -224,9 +232,8 @@ class PointGroupAnalyzer(object):
         elif mirror_type == "v":
             self.sch_symbol += "v"
         elif mirror_type == "":
-            if is_valid_op(SymmOp.rotoreflection(main_axis,
-                                                 angle=180.0 / rot),
-                           self.processed_mol, self.tol):
+            if self.is_valid_op(SymmOp.rotoreflection(main_axis,
+                                                      angle=180 / rot)):
                 self.sch_symbol = "S{}".format(2 * rot)
 
     def _proc_dihedral(self):
@@ -249,7 +256,7 @@ class PointGroupAnalyzer(object):
         """
         for v in self.principal_axes:
             op = SymmOp.from_origin_axis_angle((0, 0, 0), v, 180)
-            if is_valid_op(op, self.processed_mol, self.tol):
+            if self.is_valid_op(op):
                 self.symmops.append(op)
                 self.rot_sym.append((v, 2))
 
@@ -265,17 +272,17 @@ class PointGroupAnalyzer(object):
         mirror_type = ""
 
         #First test whether the axis itself is the normal to a mirror plane.
-        if is_valid_op(SymmOp.reflection(axis), self.processed_mol, self.tol):
+        if self.is_valid_op(SymmOp.reflection(axis)):
             self.symmops.append(SymmOp.reflection(axis))
             mirror_type = "h"
         else:
             # Iterate through all pairs of atoms to find mirror
-            for s1, s2 in itertools.combinations(self.processed_mol, 2):
-                if s1.specie == s2.specie:
+            for s1, s2 in itertools.combinations(self.centered_mol, 2):
+                if s1.species_and_occu == s2.species_and_occu:
                     normal = s1.coords - s2.coords
                     if np.dot(normal, axis) < self.tol:
                         op = SymmOp.reflection(normal)
-                        if is_valid_op(op, self.processed_mol, self.tol):
+                        if self.is_valid_op(op):
                             self.symmops.append(op)
                             mirror_exists = True
                             break
@@ -306,7 +313,7 @@ class PointGroupAnalyzer(object):
             return np.linalg.norm(v) > self.tol
 
         valid_sets = []
-        origin_site, dist_el_sites = cluster_sites(self.processed_mol, self.tol)
+        origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         for test_set in dist_el_sites.values():
             valid_set = filter(not_on_axis, test_set)
             if len(valid_set) > 0:
@@ -327,7 +334,7 @@ class PointGroupAnalyzer(object):
                 continue
             op = SymmOp.from_origin_axis_angle(
                 (0, 0, 0), axis, 360 / i)
-            rotvalid = is_valid_op(op, self.processed_mol, self.tol)
+            rotvalid = self.is_valid_op(op)
             if rotvalid:
                 self.symmops.append(op)
                 self.rot_sym.append((axis, i))
@@ -344,7 +351,7 @@ class PointGroupAnalyzer(object):
             test_axis = np.cross(s1.coords - s2.coords, axis)
             if np.linalg.norm(test_axis) > self.tol:
                 op = SymmOp.from_origin_axis_angle((0, 0, 0), test_axis, 180)
-                r2present = is_valid_op(op, self.processed_mol, self.tol)
+                r2present = self.is_valid_op(op)
                 if r2present:
                     self.symmops.append(op)
                     self.rot_sym.append((test_axis, 2))
@@ -363,7 +370,7 @@ class PointGroupAnalyzer(object):
         elif rot == 3:
             mirror_type = self._find_mirror(main_axis)
             if mirror_type != "":
-                if is_valid_op(inversion_op, self.processed_mol, self.tol):
+                if self.is_valid_op(inversion_op):
                     self.symmops.append(inversion_op)
                     self.sch_symbol = "Th"
                 else:
@@ -371,21 +378,17 @@ class PointGroupAnalyzer(object):
             else:
                 self.sch_symbol = "T"
         elif rot == 4:
-            if is_valid_op(inversion_op, self.processed_mol, self.tol):
+            if self.is_valid_op(inversion_op):
                 self.symmops.append(inversion_op)
                 self.sch_symbol = "Oh"
             else:
                 self.sch_symbol = "O"
         elif rot == 5:
-            if is_valid_op(inversion_op, self.processed_mol, self.tol):
+            if self.is_valid_op(inversion_op):
                 self.symmops.append(inversion_op)
                 self.sch_symbol = "Ih"
             else:
                 self.sch_symbol = "I"
-
-    def _get_smallest_sym_set(self):
-        origin_site, dist_el_sites = cluster_sites(self.processed_mol, self.tol)
-        return min(dist_el_sites.values(), key=lambda s: len(s))
 
     def _find_spherical_axes(self):
         """
@@ -395,29 +398,19 @@ class PointGroupAnalyzer(object):
         have a unique 5-fold axis.
         """
         rot_present = defaultdict(bool)
-
-        test_set = self._get_smallest_sym_set()
+        origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
+        test_set = min(dist_el_sites.values(), key=lambda s: len(s))
         for s1, s2, s3 in itertools.combinations(test_set, 3):
-            if not rot_present[2]:
-                test_axis = s1.coords + s2.coords
-                if np.linalg.norm(test_axis) > self.tol:
-                    op = SymmOp.from_origin_axis_angle((0, 0, 0), test_axis,
-                                                       180)
-                    rot_present[2] = is_valid_op(op, self.processed_mol,
-                                                 self.tol)
-                    if rot_present[2]:
-                        self.symmops.append(op)
-                        self.rot_sym.append((test_axis, 2))
-            if not rot_present[2]:
-                test_axis = s1.coords + s3.coords
-                if np.linalg.norm(test_axis) > self.tol:
-                    op = SymmOp.from_origin_axis_angle((0, 0, 0), test_axis,
-                                                       180)
-                    rot_present[2] = is_valid_op(op, self.processed_mol,
-                                                 self.tol)
-                    if rot_present[2]:
-                        self.symmops.append(op)
-                        self.rot_sym.append((test_axis, 2))
+            for ss1, ss2 in itertools.combinations([s1, s2, s3], 2):
+                if not rot_present[2]:
+                    test_axis = ss1.coords + ss2.coords
+                    if np.linalg.norm(test_axis) > self.tol:
+                        op = SymmOp.from_origin_axis_angle(
+                            (0, 0, 0), test_axis, 180)
+                        rot_present[2] = self.is_valid_op(op)
+                        if rot_present[2]:
+                            self.symmops.append(op)
+                            self.rot_sym.append((test_axis, 2))
 
             test_axis = np.cross(s2.coords - s1.coords, s3.coords - s1.coords)
             if np.linalg.norm(test_axis) > self.tol:
@@ -425,13 +418,12 @@ class PointGroupAnalyzer(object):
                     if not rot_present[r]:
                         op = SymmOp.from_origin_axis_angle(
                             (0, 0, 0), test_axis, 360/r)
-                        rot_present[r] = is_valid_op(
-                            op, self.processed_mol, self.tol)
+                        rot_present[r] = self.is_valid_op(op)
                         if rot_present[r]:
                             self.symmops.append(op)
                             self.rot_sym.append((test_axis, r))
                             break
-            if rot_present[2] and rot_present[2] and (
+            if rot_present[2] and rot_present[3] and (
                     rot_present[4] or rot_present[5]):
                 break
 
@@ -441,30 +433,25 @@ class PointGroupAnalyzer(object):
         """
         return PointGroup(self.sch_symbol, self.symmops, self.mat_tol)
 
+    def is_valid_op(self, symmop):
+        """
+        Check if a particular symmetry operation is a valid symmetry operation
+        for a molecule, i.e., the operation maps all atoms to another
+        equivalent atom.
 
-def is_valid_op(symmop, mol, tol):
-    """
-    Check if a particular symmetry operation is a valid symmetry operation
-    for a molecule, i.e., the operation maps all atoms to another equivalent
-    atom.
-
-    Args:
-        symmop:
-            Symmetry op to test.
-        mol:
-            Molecule to test. This molecule should be centered with the
-            origin at the center of mass.
-        tol:
-            Absolute tolerance for distance between mapped and actual sites.
-    """
-    coords = mol.cart_coords
-    for site in mol:
-        coord = symmop.operate(site.coords)
-        ind = find_in_coord_list(coords, coord, tol)
-        if not (len(ind) == 1 and
-                mol[ind[0]].species_and_occu == site.species_and_occu):
-            return False
-    return True
+        Args:
+            symmop:
+                Symmetry op to test.
+        """
+        coords = self.centered_mol.cart_coords
+        for site in self.centered_mol:
+            coord = symmop.operate(site.coords)
+            ind = find_in_coord_list(coords, coord, self.tol)
+            if not (len(ind) == 1 and
+                    self.centered_mol[ind[0]].species_and_occu
+                    == site.species_and_occu):
+                return False
+        return True
 
 
 def cluster_sites(mol, tol):
@@ -473,9 +460,14 @@ def cluster_sites(mol, tol):
 
     Args:
         mol:
-            Molecule
+            Molecule (should be centered at center of mass).
         tol:
             Tolerance to use.
+
+    Returns:
+        (origin_site, clustered_sites). origin_site is a site at the center
+        of mass (None if there are no origin atoms). clustered_sites is a
+        dict of {(avg_dist, species_and_occu): [list of sites]}
     """
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.
@@ -486,23 +478,14 @@ def cluster_sites(mol, tol):
         clustered_dists[f[i]].append(dists[i])
     avg_dist = {label: np.mean(val) for label, val in clustered_dists.items()}
     clustered_sites = defaultdict(list)
-    for i, site in enumerate(mol):
-        clustered_sites[avg_dist[f[i]]].append(site)
-
     origin_site = None
-    dist_el_sites = {}
-    for d, sites in clustered_sites.items():
-        if d < tol:
-            if len(sites) > 1:
-                raise RuntimeError("Bad molecule with more than one atom at "
-                                   "origin!")
-            else:
-                origin_site = sites[0]
+    for i, site in enumerate(mol):
+        if avg_dist[f[i]] < tol:
+            origin_site = site
         else:
-            sites = sorted(sites, key=lambda s: s.specie)
-            for sp, g in itertools.groupby(sites, key=lambda s: s.specie):
-                dist_el_sites[(d, sp)] = list(g)
-    return origin_site, dist_el_sites
+            clustered_sites[(avg_dist[f[i]],
+                             site.species_and_occu)].append(site)
+    return origin_site, clustered_sites
 
 
 def generate_full_symmops(symmops, tol):
