@@ -90,6 +90,8 @@ v2.7.1
    module is now deprecated and will be removed in a future version.
 2. read_structure and write_structure now supports pymatgen's json
    serialized structures.
+3. read_mol and write_mol functions now available (analogues of
+   read_structure and write_structure for molecules)
 
 v2.7.0
 ------
