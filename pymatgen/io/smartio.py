@@ -119,9 +119,6 @@ def read_mol(filename):
     lower_filename = os.path.basename(filename).lower()
     if re.search("\.xyz", lower_filename):
         return XYZ.from_file(filename).molecule
-    elif re.search("vasprun", lower_filename) \
-            and re.search("xml", lower_filename):
-        return Vasprun(filename).final_structure
     elif re.search("\.(gjf|g03|g09|com|inp)", lower_filename):
         return GaussianInput.from_file(filename).molecule
     elif re.search("\.(out|lis|log)", lower_filename):
