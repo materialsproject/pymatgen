@@ -352,6 +352,10 @@ class GaussianInput(object):
         output.append("")
         return "\n".join(output)
 
+    def write_file(self, filename):
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
+
 
 class GaussianOutput(object):
     """
