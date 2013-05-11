@@ -249,8 +249,14 @@ some quick examples of the core capabilities and objects:
     >>> mg.write_structure(structure, "POSCAR")
     >>> mg.write_structure(structure, "CsCl.cif")
     >>>
-    >>> #Reading a structure from a file.
+    >>> # Reading a structure from a file.
     >>> structure = mg.read_structure("POSCAR")
+    >>>
+    >>> # Reading and writing a molecule from a file. Supports XYZ and
+    >>> # Gaussian input and output by default. Support for many other
+    >>> # formats via the optional openbabel dependency (if installed).
+    >>> methane = mg.read_mol("methane.xyz")
+    >>> mg.write_mol(mol, "methane.gjf")
 
 The above illustrates only the most basic capabilities of pymatgen.
 
