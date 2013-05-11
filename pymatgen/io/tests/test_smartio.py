@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Jul 30, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -16,8 +16,13 @@ __date__ = "Jul 30, 2012"
 import unittest
 import os
 
-from pymatgen.io.smartio import read_structure
-from pymatgen.core.structure import Structure
+from pymatgen.io.smartio import read_structure, read_mol
+from pymatgen.core.structure import Structure, Molecule
+
+try:
+    import openbabel as ob
+except ImportError:
+    ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -31,7 +36,19 @@ class MethodsTest(unittest.TestCase):
             filename = os.path.join(test_dir, fname)
             struct = read_structure(filename)
             self.assertIsInstance(struct, Structure)
-            print struct
+
+    def test_read_mol(self):
+        for fname in ("methane.log", "c60.xyz", "ethane.gjf"):
+            filename = os.path.join(test_dir, fname)
+            mol = read_mol(filename)
+            self.assertIsInstance(mol, Molecule)
+
+    @unittest.skipIf(ob is None, "No openbabel")
+    def test_read_mol_babel(self):
+        for fname in ("ethane.mol", ):
+            filename = os.path.join(test_dir, fname)
+            mol = read_mol(filename)
+            self.assertIsInstance(mol, Molecule)
 
 
 if __name__ == "__main__":

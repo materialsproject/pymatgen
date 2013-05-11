@@ -157,10 +157,15 @@ def write_mol(mol, filename):
     if re.search("\.xyz", lower_filename):
         return XYZ(mol).write_file(filename)
     elif re.search("\.(gjf|g03|g09|com|inp)", lower_filename):
-        return GaussianInput.from_file(filename).molecule
+        return GaussianInput(mol).write_file(filename)
     elif re.search("\.[mj]son", lower_filename):
         with zopen(lower_filename, "w") as f:
             return json.dump(mol, f, cls=PMGJSONEncoder)
+    else:
+        m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+                      lower_filename)
+        if m:
+            return BabelMolAdaptor(mol).write_file(filename, m.group(1))
 
     raise ValueError("Unrecognized file extension!")
 
