@@ -88,6 +88,8 @@ v2.7.1
    immutability) which will perform exactly the same way as the previous
    classes. With this change, the :mod:`pymatgen.core.structure_modifier`
    module is now deprecated and will be removed in a future version.
+2. read_structure and write_structure now supports pymatgen's json
+   serialized structures.
 
 v2.7.0
 ------
