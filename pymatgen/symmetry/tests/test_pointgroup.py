@@ -19,7 +19,6 @@ import os
 
 from pymatgen.core.structure import Molecule
 from pymatgen.symmetry.pointgroup import PointGroupAnalyzer, cluster_sites
-from pymatgen.core.operations import SymmOp
 from pymatgen.io.xyzio import XYZ
 
 try:
