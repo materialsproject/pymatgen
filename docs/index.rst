@@ -269,8 +269,8 @@ that utilize the library to perform all kinds of analyses. You can find these
 scripts in `scripts directory of pymatgen's github repo
 <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
-Here, we will discuss the most versatile of these scripts, known as matgenie.py.
-The typical usage of matgenie.py is::
+Here, we will discuss the most versatile of these scripts, known as
+matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 

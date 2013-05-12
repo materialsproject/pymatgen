@@ -13,29 +13,33 @@ The core modules are in the (yes, you guess it) pymatgen.core package. Given the
 importance of this package for the overall functioning of the code, we have
 provided a quick summary of the various modules here:
 
-1. pymatgen.core.periodic_table : Everything begins here, where the Element and
-   Specie (Element with an oxidation state) objects are defined.  Unlike typical
-   implementations, pymatgen's Element object is rich, which means that each
-   Element contains many useful properties associated with it, including atomic
-   numbers, atomic masses, melting points, boiling points, just to name a few.
+1. :mod:`pymatgen.core.periodic_table`: Everything begins here, where the
+   Element and Specie (Element with an oxidation state) objects are defined.
+   Unlike typical implementations, pymatgen's Element object is rich,
+   which means that each Element contains many useful properties associated
+   with it, including atomic numbers, atomic masses, melting points,
+   boiling points, just to name a few.
 
-2. pymatgen.core.lattice : This module defines a Lattice object, which
+2. :mod:`pymatgen.core.lattice`: This module defines a Lattice object, which
    essentially defines the lattice vectors in three dimensions. The Lattice
    object provides convenience methods for performing fractional to cartesian
-   coordinates and vice version, lattice parameter and angles computations, etc.
+   coordinates and vice versa, lattice parameter and angles computations, etc.
 
-3. pymatgen.core.sites : Defines the Site and PeriodicSite objects. A Site is
-   essentially a coordinate point containing an Element or Specie. A
+3. :mod:`pymatgen.core.sites`: Defines the Site and PeriodicSite objects. A
+   Site is essentially a coordinate point containing an Element or Specie. A
    PeriodicSite contains a Lattice as well.
 
-4. pymatgen.core.structure : Defines the Structure, Molecule, and Composition
-   objects. A Structure and Molecule are simply a list of PeriodicSites and Site
-   respectively. A Composition is mapping of Element/Specie to amounts.
+4. :mod:`pymatgen.core.structure`: Defines the Structure and Molecule objects.
+   A Structure and Molecule are simply a list of PeriodicSites and Site
+   respectively.
+
+5. :mod:`pymatgen.core.composition`: A Composition is simply a mapping of
+   Element/Specie to amounts.
 
 All units in pymatgen are typically assumed to be in atomic units, i.e.,
-angstroms for lengths, eV for energies, etc. However, most objects do not assume
-any units per se and it should be perfectly fine for the most part no matter
-what units are being used, as long as they are used consistently.
+angstroms for lengths, eV for energies, etc. However, most objects do not
+assume any units per se and it should be perfectly fine for the most part no
+matter what units are being used, as long as they are used consistently.
 
 Side-note : to_dict / from_dict
 ===============================
@@ -44,10 +48,11 @@ As you explore the code, you may notice that many of the objects have a to_dict
 property and a from_dict static method implemented.  For most of the non-basic
 objects, we have designed pymatgen such that it is easy to save objects for
 subsequent use. While python does provide pickling functionality, pickle tends
-to be extremely fragile with respect to code changes. Pymatgen's to_dict provide
-a means to save your work in a more robust manner, which also has the added
-benefit of being more readable. The dict representation is also particularly
-useful for entering such objects into certain databases, such as MongoDb.
+to be extremely fragile with respect to code changes. Pymatgen's to_dict
+provide a means to save your work in a more robust manner, which also has the
+added benefit of being more readable. The dict representation is also
+particularly useful for entering such objects into certain databases,
+such as MongoDb.
 
 The output from a to_dict method is always json/yaml serializable. So if you
 want to save a structure, you may do the following::
@@ -65,24 +70,18 @@ follows::
 
 You may replace any of the above json commands with yaml in the PyYAML package
 to create a yaml file instead. There are certain tradeoffs between the two
-choices. JSON is much more efficient as a format, with extremely fast read/write
-speed, but is much less readable. YAML is an order of magnitude or more slower
-in terms of parsing, but is more human readable.
+choices. JSON is much more efficient as a format, with extremely fast
+read/write speed, but is much less readable. YAML is an order of magnitude
+or more slower in terms of parsing, but is more human readable.
 
 PMG JSON encoder/decoder
 ------------------------
 
-.. versionadded:: 1.9.0
-
-In version 1.9.0 of pymatgen, a brand new serialization framework is
-implemented. Extensions of the standard Python JSONEncoder and JSONDecoder is
-introduced to support pymatgen objects. Given that these coders depend on
-certain new dict keys, they will only support pymatgen objects coming from
-version >= 1.9.0.
-
-The PMGJSONEncoder uses the to_dict API of pymatgen to generate the necessary
-dict for converting into json. To use the PMGJSONEncoder, simply add it as the
-*cls* kwarg when using json. For example,::
+Extensions of the standard Python JSONEncoder and JSONDecoder has been
+implemented to support pymatgen objects. The PMGJSONEncoder uses the to_dict
+API of pymatgen to generate the necessary dict for converting into json. To
+use the PMGJSONEncoder, simply add it as the *cls* kwarg when using json.
+For example,::
 
     json.dumps(object, cls=PMGJSONEncoder)
 
@@ -322,8 +321,8 @@ Another example of a cool thing you can do with the loaded entries is to
 calculate reaction energies. For example, reusing the Li-O data we have saved
 in the above step::
 
-   from pymatgen.borg.hive import VaspToComputedEntryDrone
-   from pymatgen.borg.queen import BorgQueen
+   from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
+   from pymatgen.apps.borg.queen import BorgQueen
    from pymatgen.analysis.reaction_calculator import ComputedReaction
 
    # These three lines assimilate the data into ComputedEntries.
