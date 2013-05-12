@@ -138,7 +138,9 @@ class PointGroupAnalyzerTest(unittest.TestCase):
         a = PointGroupAnalyzer(BF3)
         self.assertEqual(a.sch_symbol, "D3h")
         self.assertEqual(len(a.get_pointgroup()), 12)
-
+        xyz = XYZ.from_file(os.path.join(test_dir, "b12h12.xyz"))
+        a = PointGroupAnalyzer(xyz.molecule)
+        self.assertEqual(a.sch_symbol, "D5d")
 
 class FuncTest(unittest.TestCase):
 
