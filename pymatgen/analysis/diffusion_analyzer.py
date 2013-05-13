@@ -214,7 +214,9 @@ def get_conversion_factor(structure, species, temperature):
     """
     Conversion factor to convert between cm^2/s diffusivity measurements and
     mS/cm conductivity measurements based on number of atoms of diffusing
-    species and .
+    species. Note that the charge is based on the oxidation state of the
+    species (where available), or else the number of valence electrons
+    (usually a good guess, esp for main group ions).
 
     Args:
         structure:
@@ -229,10 +231,10 @@ def get_conversion_factor(structure, species, temperature):
         Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)
     """
     df_sp = smart_element_or_specie(species)
-    if df_sp.Z in [1, 3, 11, 19, 37, 55]:
-        z = 1
-    else:
+    if hasattr(df_sp, "oxi_state"):
         z = df_sp.oxi_state
+    else:
+        z = df_sp.full_electronic_structure[-1][2]
 
     n = structure.composition[species]
 
