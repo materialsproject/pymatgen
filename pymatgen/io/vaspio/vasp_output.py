@@ -1948,9 +1948,14 @@ class Oszicar(object):
         electronic_pattern = re.compile("\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
-            if header == "N" or header == "ncg":
-                return int(num)
-            return float(num)
+            try:
+                if header == "N" or header == "ncg":
+                    v = int(num)
+                    return v
+                v = float(num)
+                return v
+            except ValueError:
+                return "--"
 
         header = []
         with zopen(filename, "r") as fid:
