@@ -155,7 +155,7 @@ class DiffusionAnalyzer(MSONable):
                 conv_factor
 
     @staticmethod
-    def from_vaspruns(vaspruns, specie, step_skip):
+    def from_vaspruns(vaspruns, specie):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -167,14 +167,12 @@ class DiffusionAnalyzer(MSONable):
                  sufficient statistics.
             specie:
                 Specie to calculate diffusivity for as a String. E.g., "Li".
-            step_skip:
-                Sampling frequency of the displacements (time_step is
-                multiplied by this number to get the real time between
-                measurements)
         """
         structure = vaspruns[0].initial_structure
+        step_skip = vaspruns[0].ionic_step_skip
         p = []
         for vr in vaspruns:
+            assert vr.ionic_step_skip == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None, :]
                       for s in vr.ionic_steps])
         p = np.concatenate(p, axis=1)
@@ -186,7 +184,7 @@ class DiffusionAnalyzer(MSONable):
 
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
-
+        
         return DiffusionAnalyzer(structure, disp, specie, temperature,
                                  time_step, step_skip=step_skip)
 

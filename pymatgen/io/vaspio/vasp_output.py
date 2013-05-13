@@ -182,7 +182,8 @@ class Vasprun(object):
                 wisely.
         """
         self.filename = filename
-
+        self.ionic_step_skip = ionic_step_skip
+        
         with zopen(filename) as f:
             self._handler = VasprunHandler(
                 filename, parse_dos=parse_dos,
