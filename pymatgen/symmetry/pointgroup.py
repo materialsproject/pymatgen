@@ -131,35 +131,35 @@ class PointGroupAnalyzer(object):
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
 
-        # Normalize the inertia tensor so that it does not scale with size of
-        # the system.  This mitigates the problem of choosing a proper
-        # comparison tolerance for the eigenvalues.
-        inertia_tensor /= total_inertia
-        eigvals, eigvecs = np.linalg.eig(inertia_tensor)
-        self.principal_axes = eigvecs.T
-        self.eigvals = eigvals
-        v1, v2, v3 = eigvals
-        eig_zero = abs(v1 * v2 * v3) < self.eig_tol ** 3
-        eig_all_same = abs(v1 - v2) < self.eig_tol and \
-                       abs(v1 - v3) < self.eig_tol
-        eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
-            v1 - v2) > self.eig_tol and abs(v2 - v3) > self.eig_tol
+            # Normalize the inertia tensor so that it does not scale with size
+            # of the system.  This mitigates the problem of choosing a proper
+            # comparison tolerance for the eigenvalues.
+            inertia_tensor /= total_inertia
+            eigvals, eigvecs = np.linalg.eig(inertia_tensor)
+            self.principal_axes = eigvecs.T
+            self.eigvals = eigvals
+            v1, v2, v3 = eigvals
+            eig_zero = abs(v1 * v2 * v3) < self.eig_tol ** 3
+            eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
+                v1 - v3) < self.eig_tol
+            eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
+                v1 - v2) > self.eig_tol and abs(v2 - v3) > self.eig_tol
 
-        self.rot_sym = []
-        self.symmops = [SymmOp(np.eye(4))]
+            self.rot_sym = []
+            self.symmops = [SymmOp(np.eye(4))]
 
-        if eig_zero:
-            logger.debug("Linear molecule detected")
-            self._proc_linear()
-        elif eig_all_same:
-            logger.debug("Spherical top molecule detected")
-            self._proc_sph_top()
-        elif eig_all_diff:
-            logger.debug("Asymmetric top molecule detected")
-            self._proc_asym_top()
-        else:
-            logger.debug("Symmetric top molecule detected")
-            self._proc_sym_top()
+            if eig_zero:
+                logger.debug("Linear molecule detected")
+                self._proc_linear()
+            elif eig_all_same:
+                logger.debug("Spherical top molecule detected")
+                self._proc_sph_top()
+            elif eig_all_diff:
+                logger.debug("Asymmetric top molecule detected")
+                self._proc_asym_top()
+            else:
+                logger.debug("Symmetric top molecule detected")
+                self._proc_sym_top()
 
     def _proc_linear(self):
         if self.is_valid_op(PointGroupAnalyzer.inversion_op):
@@ -191,11 +191,14 @@ class PointGroupAnalyzer(object):
         handling required to look for R2 axes perpendicular to this unique
         axis.
         """
-        for i, j in itertools.combinations(xrange(3), 2):
-            if abs(self.eigvals[i] - self.eigvals[j]) < self.eig_tol:
-                ind = [k for k in xrange(3) if k not in (i, j)][0]
-                unique_axis = self.principal_axes[ind]
-                break
+        if abs(self.eigvals[0] - self.eigvals[1]) < self.eig_tol:
+            ind = 2
+        elif abs(self.eigvals[1] - self.eigvals[2]) < self.eig_tol:
+            ind = 0
+        else:
+            ind = 1
+
+        unique_axis = self.principal_axes[ind]
         self._check_rot_sym(unique_axis)
         if len(self.rot_sym) > 0:
             self._check_perpendicular_r2_axis(unique_axis)
@@ -271,7 +274,6 @@ class PointGroupAnalyzer(object):
         mirrors has atoms lying on the mirror plane while d mirrors do
         not.
         """
-        mirror_exists = False
         mirror_type = ""
 
         #First test whether the axis itself is the normal to a mirror plane.
@@ -287,18 +289,16 @@ class PointGroupAnalyzer(object):
                         op = SymmOp.reflection(normal)
                         if self.is_valid_op(op):
                             self.symmops.append(op)
-                            mirror_exists = True
-                            break
-            if mirror_exists:
-                if len(self.rot_sym) > 1:
-                    mirror_type = "d"
-                    for v, r in self.rot_sym:
-                        if not np.linalg.norm(v - axis) < self.tol:
-                            if np.dot(v, normal) < self.tol:
+                            if len(self.rot_sym) > 1:
+                                mirror_type = "d"
+                                for v, r in self.rot_sym:
+                                    if not np.linalg.norm(v - axis) < self.tol:
+                                        if np.dot(v, normal) < self.tol:
+                                            mirror_type = "v"
+                                            break
+                            else:
                                 mirror_type = "v"
-                                break
-                else:
-                    mirror_type = "v"
+                            break
 
         return mirror_type
 
