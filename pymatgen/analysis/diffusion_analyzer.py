@@ -105,10 +105,10 @@ class DiffusionAnalyzer(MSONable):
             self.max_framework_displacement = 0
         else:
             framework_disp = self.disp[self.framework_indices]
-            drift = np.average(framework_disp, axis=0)
+            drift = np.average(framework_disp, axis=0)[None, :, :]
             #drift corrected position
-            dc_x = self.disp[self.indices] - drift[None, :, :]
-            dc_framework = self.disp[self.framework_indices] - drift[None, :, :]
+            dc_x = self.disp[self.indices] - drift
+            dc_framework = self.disp[self.framework_indices] - drift
             self.max_framework_displacement = \
                 np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
@@ -170,7 +170,7 @@ class DiffusionAnalyzer(MSONable):
         """
         structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip
-        
+
         p = []
         for vr in vaspruns:
             assert vr.ionic_step_skip == step_skip
