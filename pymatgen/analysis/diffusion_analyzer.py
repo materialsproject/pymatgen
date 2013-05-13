@@ -112,8 +112,9 @@ class DiffusionAnalyzer(MSONable):
             self.max_framework_displacement = \
                 np.max(np.sum(dc_framework ** 2, axis = -1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
+            #limit the number of sampled timesteps to 200
             timesteps = np.arange(10, dc_x.shape[1],
-                                  min(dc_x.shape[1] / 100, 1))
+                                  max(dc_x.shape[1] / 200, 1))
             x = timesteps * self.time_step * self.step_skip
 
             #calculate the smoothed msd values
