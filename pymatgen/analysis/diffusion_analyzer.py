@@ -170,6 +170,9 @@ class DiffusionAnalyzer(MSONable):
         """
         structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip
+        if not all([v.ionic_step_skip == step_skip for v in vaspruns]):
+            raise ValueError("Inconsistent step_skip in vaspruns!")
+
         p = []
         for vr in vaspruns:
             assert vr.ionic_step_skip == step_skip
@@ -184,7 +187,7 @@ class DiffusionAnalyzer(MSONable):
 
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
-        
+
         return DiffusionAnalyzer(structure, disp, specie, temperature,
                                  time_step, step_skip=step_skip)
 
