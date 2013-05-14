@@ -123,7 +123,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         incar = self.mitparamset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4, 3])
         incar = self.mpnscfparamsetu.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [4, 3])
+        self.assertEqual(incar.get('MAGMOM', None), None)
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [100, 0.6])
