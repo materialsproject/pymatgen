@@ -60,7 +60,7 @@ static int get_international(char symbol[11],
 			     const int num_atom,
 			     const double symprec);
 
-static int get_schoenflies(char symbol[7],
+static int get_schoenflies(char symbol[10],
 			   SPGCONST double lattice[3][3],
 			   SPGCONST double position[][3],
 			   const int types[], const int num_atom,
@@ -101,14 +101,12 @@ static int get_stabilized_reciprocal_mesh(int grid_point[][3],
 					  const int num_rot,
 					  SPGCONST int rotations[][3][3],
 					  const int num_q,
-					  SPGCONST double qpoints[][3],
-					  const double symprec);
+					  SPGCONST double qpoints[][3]);
 
 static SpglibTriplets * get_triplets_reciprocal_mesh(const int mesh[3],
 						     const int is_time_reversal,
 						     const int num_rot,
-						     SPGCONST int rotations[][3][3],
-						     const double symprec);
+						     SPGCONST int rotations[][3][3]);
 
 static int get_triplets_reciprocal_mesh_at_q(int weights[],
 					     int grid_points[][3],
@@ -117,8 +115,7 @@ static int get_triplets_reciprocal_mesh_at_q(int weights[],
 					     const int mesh[3],
 					     const int is_time_reversal,
 					     const int num_rot,
-					     SPGCONST int rotations[][3][3],
-					     const double symprec);
+					     SPGCONST int rotations[][3][3]);
 
 static int extract_triplets_reciprocal_mesh_at_q(int triplets_at_q[][3],
 						 int weight_triplets_at_q[],
@@ -379,7 +376,7 @@ int spgat_get_international(char symbol[11],
 			   symprec);
 }
 
-int spg_get_schoenflies(char symbol[7],
+int spg_get_schoenflies(char symbol[10],
 			SPGCONST double lattice[3][3],
 			SPGCONST double position[][3],
 			const int types[],
@@ -396,7 +393,7 @@ int spg_get_schoenflies(char symbol[7],
 			 symprec);
 }
 
-int spgat_get_schoenflies(char symbol[7],
+int spgat_get_schoenflies(char symbol[10],
 			  SPGCONST double lattice[3][3],
 			  SPGCONST double position[][3],
 			  const int types[],
@@ -521,8 +518,7 @@ int spg_get_stabilized_reciprocal_mesh(int grid_point[][3],
 				       const int num_rot,
 				       SPGCONST int rotations[][3][3],
 				       const int num_q,
-				       SPGCONST double qpoints[][3],
-				       const double symprec)
+				       SPGCONST double qpoints[][3])
 {
   return get_stabilized_reciprocal_mesh(grid_point,
 					map,
@@ -532,21 +528,18 @@ int spg_get_stabilized_reciprocal_mesh(int grid_point[][3],
 					num_rot,
 					rotations,
 					num_q,
-					qpoints,
-					symprec);
+					qpoints);
 }
 
 SpglibTriplets * spg_get_triplets_reciprocal_mesh(const int mesh[3],
 						  const int is_time_reversal,
 						  const int num_rot,
-						  SPGCONST int rotations[][3][3],
-						  const double symprec)
+						  SPGCONST int rotations[][3][3])
 {
   return get_triplets_reciprocal_mesh(mesh,
 				      is_time_reversal,
 				      num_rot,
-				      rotations,
-				      symprec);
+				      rotations);
 }
 
 void spg_free_triplets(SpglibTriplets * spg_triplets)
@@ -568,8 +561,7 @@ int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
 					  const int mesh[3],
 					  const int is_time_reversal,
 					  const int num_rot,
-					  SPGCONST int rotations[][3][3],
-					  const double symprec)
+					  SPGCONST int rotations[][3][3])
 {
   return get_triplets_reciprocal_mesh_at_q(weights,
 					   grid_points,
@@ -578,8 +570,7 @@ int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
 					   mesh,
 					   is_time_reversal,
 					   num_rot,
-					   rotations,
-					   symprec);
+					   rotations);
 }
 
 int spg_extract_triplets_reciprocal_mesh_at_q(int triplets_at_q[][3],
@@ -883,7 +874,7 @@ static int get_international(char symbol[11],
   return spacegroup.number;
 }
 
-static int get_schoenflies(char symbol[7],
+static int get_schoenflies(char symbol[10],
 			   SPGCONST double lattice[3][3],
 			   SPGCONST double position[][3],
 			   const int types[],
@@ -1010,8 +1001,7 @@ static int get_stabilized_reciprocal_mesh(int grid_point[][3],
 					  const int num_rot,
 					  SPGCONST int rotations[][3][3],
 					  const int num_q,
-					  SPGCONST double qpoints[][3],
-					  const double symprec)
+					  SPGCONST double qpoints[][3])
 {
   MatINT *rot_real;
   int i, num_ir;
@@ -1028,8 +1018,7 @@ static int get_stabilized_reciprocal_mesh(int grid_point[][3],
 					      is_time_reversal,
 					      rot_real,
 					      num_q,
-					      qpoints,
-					      symprec);
+					      qpoints);
 
   mat_free_MatINT(rot_real);
 
@@ -1039,8 +1028,7 @@ static int get_stabilized_reciprocal_mesh(int grid_point[][3],
 static SpglibTriplets * get_triplets_reciprocal_mesh(const int mesh[3],
 						     const int is_time_reversal,
 						     const int num_rot,
-						     SPGCONST int rotations[][3][3],
-						     const double symprec)
+						     SPGCONST int rotations[][3][3])
 {
   int i, j, num_grid;
   MatINT *rot_real;
@@ -1055,8 +1043,7 @@ static SpglibTriplets * get_triplets_reciprocal_mesh(const int mesh[3],
 
   tps = kpt_get_triplets_reciprocal_mesh(mesh,
 					 is_time_reversal,
-					 rot_real,
-					 symprec);
+					 rot_real);
   mat_free_MatINT(rot_real);
 
   spg_triplets = (SpglibTriplets*) malloc(sizeof(SpglibTriplets));
@@ -1092,8 +1079,7 @@ static int get_triplets_reciprocal_mesh_at_q(int weights[],
 					     const int mesh[3],
 					     const int is_time_reversal,
 					     const int num_rot,
-					     SPGCONST int rotations[][3][3],
-					     const double symprec)
+					     SPGCONST int rotations[][3][3])
 {
   MatINT *rot_real;
   int i, num_ir;
@@ -1109,8 +1095,7 @@ static int get_triplets_reciprocal_mesh_at_q(int weights[],
 				    grid_point,
 				    mesh,
 				    is_time_reversal,
-				    rot_real,
-				    symprec);
+				    rot_real);
 
   mat_free_MatINT(rot_real);
 
