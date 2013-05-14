@@ -63,10 +63,10 @@ class DiffusionAnalyzer(MSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip=10):
+                 time_step, step_skip=10, max_dt=0.7):
         """
         This constructor is meant to be used with pre-processed data.
-        Other convenient constructors are provded as static methods, e.g.,
+        Other convenient constructors are provided as static methods, e.g.,
         see from_vaspruns.
 
         Args:
@@ -84,6 +84,12 @@ class DiffusionAnalyzer(MSONable):
                 Sampling frequency of the displacements (time_step is
                 multiplied by this number to get the real time between
                 measurements)
+            max_dt:
+                maximum fraction of the total run time to use when 
+                calculating MSD vs dt. Typical values are between 0.1-1. 
+                If 0.1, the highest time interval will have 10 uncorrelated 
+                samplings. If 1, there will only be one sampling at this 
+                maximum dt.
         """
         self.s = structure
         self.disp = displacements
@@ -91,6 +97,7 @@ class DiffusionAnalyzer(MSONable):
         self.temperature = temperature
         self.time_step = time_step
         self.step_skip = step_skip
+        self.max_dt = max_dt
         self.indices = []
         self.framework_indices = []
         for i, site in enumerate(structure):
@@ -114,7 +121,7 @@ class DiffusionAnalyzer(MSONable):
                 np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
             #limit the number of sampled timesteps to 200
-            timesteps = np.arange(10, dc_x.shape[1],
+            timesteps = np.arange(10, int(max_dt * dc_x.shape[1]),
                                   max(dc_x.shape[1] / 200, 1))
             x = timesteps * self.time_step * self.step_skip
 
@@ -156,7 +163,7 @@ class DiffusionAnalyzer(MSONable):
                 conv_factor
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie):
+    def from_vaspruns(cls, vaspruns, specie, max_dt=0.7):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -168,6 +175,12 @@ class DiffusionAnalyzer(MSONable):
                  sufficient statistics.
             specie:
                 Specie to calculate diffusivity for as a String. E.g., "Li".
+            max_dt:
+                maximum fraction of the total run time to use when 
+                calculating MSD vs dt. Typical values are between 0.1-1. 
+                If 0.1, the highest time interval will have 10 uncorrelated 
+                samplings. If 1, there will only be one sampling at this 
+                maximum dt.
         """
         structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip
@@ -188,7 +201,7 @@ class DiffusionAnalyzer(MSONable):
         time_step = vaspruns[0].parameters['POTIM']
 
         return cls(structure, disp, specie, temperature,
-                   time_step, step_skip=step_skip)
+                   time_step, step_skip=step_skip, max_dt=max_dt)
 
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, ncores=None):
@@ -233,7 +246,8 @@ class DiffusionAnalyzer(MSONable):
             "specie": self.sp,
             "temperature": self.temperature,
             "time_step": self.time_step,
-            "step_skip": self.step_skip
+            "step_skip": self.step_skip,
+            "max_dt": self.max_dt
         }
 
     @classmethod
@@ -241,7 +255,7 @@ class DiffusionAnalyzer(MSONable):
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
-                   step_skip=d["step_skip"])
+                   step_skip=d["step_skip"], max_dt=d["max_dt"])
 
 
 def get_conversion_factor(structure, species, temperature):
