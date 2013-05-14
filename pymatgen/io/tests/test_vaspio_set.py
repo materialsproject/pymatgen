@@ -117,7 +117,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [4.1, 5])
         incar = self.mpnscfparamsetl.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [4.1, 5])
+        self.assertEqual(incar.get('MAGMOM', None), None)
 
         struct = Structure(lattice, ["Mn3+", "Mn4+"], coords)
         incar = self.mitparamset.get_incar(struct)
