@@ -32,6 +32,7 @@ from pymatgen.core import Structure, smart_element_or_specie
 from pymatgen.core.physical_constants import AVOGADROS_CONST, BOLTZMANN_CONST,\
     ELECTRON_CHARGE
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.io.vaspio.vasp_output import Vasprun
 
 
 class DiffusionAnalyzer(MSONable):
@@ -154,8 +155,8 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
-    @staticmethod
-    def from_vaspruns(vaspruns, specie):
+    @classmethod
+    def from_vaspruns(cls, vaspruns, specie):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -186,8 +187,41 @@ class DiffusionAnalyzer(MSONable):
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
 
-        return DiffusionAnalyzer(structure, disp, specie, temperature,
-                                 time_step, step_skip=step_skip)
+        return cls(structure, disp, specie, temperature,
+                   time_step, step_skip=step_skip)
+
+    @classmethod
+    def from_files(cls, filepaths, specie, step_skip=10, ncores=None):
+        """
+        Convenient constructor that takes in a list of vasprun.xml paths to
+        perform diffusion analysis.
+
+        Args:
+            filepaths:
+                List of paths to vasprun.xml files of runs. (must be
+                ordered in sequence of run). For example,
+                you may have done sequential VASP runs and they are in run1,
+                run2, run3, etc. You should then pass in
+                ["run1/vasprun.xml", "run2/vasprun.xml", ...].
+            specie:
+                Specie to calculate diffusivity for as a String. E.g., "Li".
+            step_skip:
+                Sampling frequency of the displacements (time_step is
+                multiplied by this number to get the real time between
+                measurements). E.g., you may not want to sample every single
+                time step.
+            ncores:
+                Numbers of cores to use for multiprocessing. Can speed up
+                vasprun parsing considerable. Defaults to None,
+                which means serial.
+        """
+        func = map
+        if ncores is not None:
+            import multiprocessing
+            p = multiprocessing.Pool(ncores)
+            func = p.map
+        vaspruns = func(_get_vasprun, [(p, step_skip) for p in filepaths])
+        return cls.from_vaspruns(vaspruns, specie=specie)
 
     @property
     def to_dict(self):
@@ -242,3 +276,7 @@ def get_conversion_factor(structure, species, temperature):
     F = ELECTRON_CHARGE * AVOGADROS_CONST  # sA/mol
     return 1000 * n / (V * AVOGADROS_CONST) * z ** 2 * F ** 2\
         / (BOLTZMANN_CONST * AVOGADROS_CONST * temperature)
+
+
+def _get_vasprun(args):
+    return Vasprun(args[0], ionic_step_skip=args[1])
