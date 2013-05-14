@@ -862,6 +862,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                              * 1.2))
         return {"ISPIN": ispin, "NBANDS": nbands}
 
+    def get_incar(self, structure):
+        incar = super(MPNonSCFVaspInputSet, self).get_incar(structure)
+        if incar.get("ISPIN", 1) == 1:
+            incar.pop("MAGMOM", None)
+        return incar
+
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
