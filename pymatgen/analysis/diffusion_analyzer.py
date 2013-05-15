@@ -29,8 +29,7 @@ __date__ = "5/2/13"
 import numpy as np
 
 from pymatgen.core import Structure, smart_element_or_specie
-from pymatgen.core.physical_constants import AVOGADROS_CONST, BOLTZMANN_CONST,\
-    ELECTRON_CHARGE
+import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
 
@@ -287,9 +286,8 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     V = structure.volume * 1e-24  # units cm^3
-    F = ELECTRON_CHARGE * AVOGADROS_CONST  # sA/mol
-    return 1000 * n / (V * AVOGADROS_CONST) * z ** 2 * F ** 2\
-        / (BOLTZMANN_CONST * AVOGADROS_CONST * temperature)
+    return 1000 * n / (V * phyc.N_a) * z ** 2 * phyc.F ** 2\
+        / (phyc.R * temperature)
 
 
 def _get_vasprun(args):
