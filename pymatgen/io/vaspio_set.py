@@ -869,8 +869,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     def get_incar(self, structure):
         incar = super(MPNonSCFVaspInputSet, self).get_incar(structure)
-        if incar.get("ISPIN", 1) == 1:
-            incar.pop("MAGMOM", None)
+        incar.pop("MAGMOM", None)
         return incar
 
     @staticmethod
