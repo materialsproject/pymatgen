@@ -45,7 +45,7 @@ class DiffusionAnalyzerTest(unittest.TestCase):
         with open(os.path.join(test_dir, "DiffusionAnalyzer.json")) as f:
             d = DiffusionAnalyzer.from_dict(json.load(f))
             self.assertAlmostEqual(d.conductivity, 74.1362195972, 7)
-            self.assertAlmostEqual(d.diffusivity,  1.16083658794e-06, 7)            
+            self.assertAlmostEqual(d.diffusivity,  1.16083658794e-06, 7)
             self.assertTrue(np.allclose(
                 d.conductivity_components,
                 [47.8728896, 31.3098319, 143.47106767]))
@@ -53,7 +53,8 @@ class DiffusionAnalyzerTest(unittest.TestCase):
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06]))
             self.assertAlmostEqual(d.max_framework_displacement, 1.1865683960)
-
+            d = DiffusionAnalyzer.from_dict(d.to_dict)
+            self.assertIsInstance(d, DiffusionAnalyzer)
 
 if __name__ == '__main__':
     unittest.main()

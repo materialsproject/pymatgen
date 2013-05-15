@@ -92,8 +92,8 @@ class DiffusionAnalyzer(MSONable):
             weighted:
                 Uses a weighted least squares to fit the MSD vs dt. Weights are
                 proportional to 1/dt, since the number of observations are
-                also proportional to 1/dt (and hence the variance is proportional
-                to dt)
+                also proportional to 1/dt (and hence the variance is
+                proportional to dt)
         """
         self.s = structure
         self.disp = displacements
@@ -102,8 +102,11 @@ class DiffusionAnalyzer(MSONable):
         self.time_step = time_step
         self.step_skip = step_skip
         self.min_obs = min_obs
+        self.weighted = weighted
+
         self.indices = []
         self.framework_indices = []
+
         for i, site in enumerate(structure):
             if site.specie.symbol == specie:
                 self.indices.append(i)
@@ -118,14 +121,14 @@ class DiffusionAnalyzer(MSONable):
         else:
             framework_disp = self.disp[self.framework_indices]
             drift = np.average(framework_disp, axis=0)[None, :, :]
-            
+
             #drift corrected position
             dc_x = self.disp[self.indices] - drift
             dc_framework = self.disp[self.framework_indices] - drift
             self.max_framework_displacement = \
                 np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
-            
+
             #limit the number of sampled timesteps to 200
             min_dt = int(1000 / (self.step_skip * self.time_step))
             max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
@@ -133,7 +136,7 @@ class DiffusionAnalyzer(MSONable):
             timesteps = np.arange(min_dt, max_dt,
                                   max(int((max_dt - min_dt) / 200), 1))
             self.dt = timesteps * self.time_step * self.step_skip
-            
+
             #calculate the smoothed msd values
             self.s_msd = np.zeros_like(self.dt, dtype=np.double)
             self.s_msd_components = np.zeros(self.dt.shape + (3,))
@@ -142,25 +145,27 @@ class DiffusionAnalyzer(MSONable):
                 dx = dc_x[:, n:, :] - dc_x[:, :-n, :]
                 self.s_msd[i] = 3 * np.average(dx ** 2)
                 dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :]) * lengths
-                self.s_msd_components[i] = np.average(np.average(dcomponents ** 2,
-                                                                 axis=1), axis=0)
-                
+                self.s_msd_components[i] = np.average(
+                    np.average(dcomponents ** 2, axis=1), axis=0)
+
             #run the regression on the msd components
             if weighted:
-                w = 1/self.dt
+                w = 1 / self.dt
             else:
                 w = np.ones_like(self.dt)
+
             #weighted least squares
             def weighted_lstsq(a, b, w):
                 w_root = w ** 0.5
-                x, res, rank, s = np.linalg.lstsq(a * w_root[:, None], 
+                x, res, rank, s = np.linalg.lstsq(a * w_root[:, None],
                                                   b * w_root)
                 return x
+
             m_components = np.zeros(3)
             for i in range(3):
                 a = np.ones((len(self.dt), 2))
                 a[:, 0] = self.dt
-                (m, c)= weighted_lstsq(a, self.s_msd_components[:, i], w)
+                (m, c) = weighted_lstsq(a, self.s_msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
 
             a = np.ones((len(self.dt), 2))
@@ -178,12 +183,12 @@ class DiffusionAnalyzer(MSONable):
             self.diffusivity_components = m_components / 20
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
-    
+
     def plot_smoothed_msd(self):
         import matplotlib.pylab as plt
         plt.plt.scatter(self.dt, self.s_msd)
         plt.show()
-        
+
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
@@ -276,7 +281,8 @@ class DiffusionAnalyzer(MSONable):
             "temperature": self.temperature,
             "time_step": self.time_step,
             "step_skip": self.step_skip,
-            "max_dt": self.max_dt
+            "min_obs": self.min_obs,
+            "weighted": self.weighted
         }
 
     @classmethod
