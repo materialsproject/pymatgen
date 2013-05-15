@@ -63,7 +63,7 @@ class DiffusionAnalyzer(MSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip=10, max_dt=0.7):
+                 time_step, step_skip=10, min_obs=30, weighted=True):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as static methods, e.g.,
@@ -84,12 +84,17 @@ class DiffusionAnalyzer(MSONable):
                 Sampling frequency of the displacements (time_step is
                 multiplied by this number to get the real time between
                 measurements)
-            max_dt:
-                maximum fraction of the total run time to use when 
-                calculating MSD vs dt. Typical values are between 0.1-1. 
-                If 0.1, the highest time interval will have 10 uncorrelated 
-                samplings. If 1, there will only be one sampling at this 
-                maximum dt.
+            min_obs:
+                Minimum number of observations to have before including in
+                the MSD vs dt calculation. E.g. If a structure has 10
+                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+            weighted:
+                Uses a weighted least squares to fit the MSD vs dt. Weights are
+                proportional to 1/dt, since the number of observations are
+                also proportional to 1/dt (and hence the variance is proportional
+                to dt)
         """
         self.s = structure
         self.disp = displacements
@@ -97,7 +102,7 @@ class DiffusionAnalyzer(MSONable):
         self.temperature = temperature
         self.time_step = time_step
         self.step_skip = step_skip
-        self.max_dt = max_dt
+        self.min_obs = min_obs
         self.indices = []
         self.framework_indices = []
         for i, site in enumerate(structure):
@@ -114,43 +119,56 @@ class DiffusionAnalyzer(MSONable):
         else:
             framework_disp = self.disp[self.framework_indices]
             drift = np.average(framework_disp, axis=0)[None, :, :]
+            
             #drift corrected position
             dc_x = self.disp[self.indices] - drift
             dc_framework = self.disp[self.framework_indices] - drift
             self.max_framework_displacement = \
                 np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
             df_x = self.s.lattice.get_fractional_coords(dc_x)
+            
             #limit the number of sampled timesteps to 200
-            timesteps = np.arange(10, int(max_dt * dc_x.shape[1]),
-                                  max(dc_x.shape[1] / 200, 1))
-            x = timesteps * self.time_step * self.step_skip
-
+            min_dt = int(1000 / (self.step_skip * self.time_step))
+            max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
+                         dc_x.shape[1])
+            timesteps = np.arange(min_dt, max_dt,
+                                  max(int((max_dt - min_dt) / 200), 1))
+            self.dt = timesteps * self.time_step * self.step_skip
+            
             #calculate the smoothed msd values
-            s_msd = np.zeros_like(x, dtype=np.double)
-            s_msd_components = np.zeros(x.shape + (3,))
+            self.s_msd = np.zeros_like(self.dt, dtype=np.double)
+            self.s_msd_components = np.zeros(self.dt.shape + (3,))
             lengths = np.array(self.s.lattice.abc)[None, None, :]
             for i, n in enumerate(timesteps):
                 dx = dc_x[:, n:, :] - dc_x[:, :-n, :]
-                s_msd[i] = 3 * np.average(dx ** 2)
+                self.s_msd[i] = 3 * np.average(dx ** 2)
                 dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :]) * lengths
-                s_msd_components[i] = np.average(np.average(dcomponents ** 2,
-                                                            axis=1), axis=0)
-
+                self.s_msd_components[i] = np.average(np.average(dcomponents ** 2,
+                                                                 axis=1), axis=0)
+                
             #run the regression on the msd components
+            if weighted:
+                w = 1/self.dt
+            else:
+                w = np.ones_like(self.dt)
+            #weighted least squares
+            def weighted_lstsq(a, b, w):
+                w_root = w ** 0.5
+                x, res, rank, s = np.linalg.lstsq(a * w_root[:, None], 
+                                                  b * w_root)
+                return x
             m_components = np.zeros(3)
             for i in range(3):
-                a = np.ones((len(x), 2))
-                a[:, 0] = x
-                (m, c), res, rank, s = \
-                    np.linalg.lstsq(a, s_msd_components[:, i])
+                a = np.ones((len(self.dt), 2))
+                a[:, 0] = self.dt
+                (m, c)= weighted_lstsq(a, self.s_msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
 
-            a = np.ones((len(x), 2))
-            a[:, 0] = x
-            (m, c), res, rank, s = np.linalg.lstsq(a, s_msd)
+            a = np.ones((len(self.dt), 2))
+            a[:, 0] = self.dt
+            (m, c) = weighted_lstsq(a, self.s_msd, w)
             #m shouldn't be negative
             m = max(m, 1e-20)
-
             #factor of 10 is to convert from A^2/fs to cm^2/s
             #factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.s, self.sp,
@@ -161,9 +179,15 @@ class DiffusionAnalyzer(MSONable):
             self.diffusivity_components = m_components / 20
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
+    
+    def plot_smoothed_msd(self):
+        import matplotlib.pylab as plt
+        plt.plt.scatter(self.dt, self.s_msd)
+        plt.show()
+        
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie, max_dt=0.7):
+    def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -175,12 +199,17 @@ class DiffusionAnalyzer(MSONable):
                  sufficient statistics.
             specie:
                 Specie to calculate diffusivity for as a String. E.g., "Li".
-            max_dt:
-                maximum fraction of the total run time to use when 
-                calculating MSD vs dt. Typical values are between 0.1-1. 
-                If 0.1, the highest time interval will have 10 uncorrelated 
-                samplings. If 1, there will only be one sampling at this 
-                maximum dt.
+            min_obs:
+                Minimum number of observations to have before including in
+                the MSD vs dt calculation. E.g. If a structure has 10
+                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+            weighted:
+                Uses a weighted least squares to fit the MSD vs dt. Weights are
+                proportional to 1/dt, since the number of observations are
+                also proportional to 1/dt (and hence the variance is proportional
+                to dt)
         """
         structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip
@@ -201,7 +230,8 @@ class DiffusionAnalyzer(MSONable):
         time_step = vaspruns[0].parameters['POTIM']
 
         return cls(structure, disp, specie, temperature,
-                   time_step, step_skip=step_skip, max_dt=max_dt)
+                   time_step, step_skip=step_skip, min_obs=min_obs,
+                   weighted=weighted)
 
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, ncores=None):
@@ -255,7 +285,8 @@ class DiffusionAnalyzer(MSONable):
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
-                   step_skip=d["step_skip"], max_dt=d["max_dt"])
+                   step_skip=d["step_skip"], min_obs=d["min_obs"],
+                   weighted=d["weighted"])
 
 
 def get_conversion_factor(structure, species, temperature):
