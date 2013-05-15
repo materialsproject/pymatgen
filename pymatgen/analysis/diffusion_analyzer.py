@@ -37,7 +37,7 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 
 class DiffusionAnalyzer(MSONable):
     """
-    Class for performing diffusion analyses.
+    Class for performing diffusion analysis.
 
     .. attribute: diffusivity
 
@@ -66,8 +66,8 @@ class DiffusionAnalyzer(MSONable):
                  time_step, step_skip=10, max_dt=0.7):
         """
         This constructor is meant to be used with pre-processed data.
-        Other convenient constructors are provided as static methods, e.g.,
-        see from_vaspruns.
+        Other convenient constructors are provided as class methods (see
+        from_vaspruns and from_files).
 
         Args:
             structure:
