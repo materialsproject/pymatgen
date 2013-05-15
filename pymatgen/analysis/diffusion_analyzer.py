@@ -189,7 +189,6 @@ class DiffusionAnalyzer(MSONable):
         plt.plt.scatter(self.dt, self.s_msd)
         plt.show()
 
-
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
         """
@@ -212,8 +211,8 @@ class DiffusionAnalyzer(MSONable):
             weighted:
                 Uses a weighted least squares to fit the MSD vs dt. Weights are
                 proportional to 1/dt, since the number of observations are
-                also proportional to 1/dt (and hence the variance is proportional
-                to dt)
+                also proportional to 1/dt (and hence the variance is
+                proportional to dt)
         """
         structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip
@@ -238,7 +237,8 @@ class DiffusionAnalyzer(MSONable):
                    weighted=weighted)
 
     @classmethod
-    def from_files(cls, filepaths, specie, step_skip=10, ncores=None):
+    def from_files(cls, filepaths, specie, step_skip=10, min_obs=30,
+                   weighted=True, ncores=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
@@ -257,6 +257,17 @@ class DiffusionAnalyzer(MSONable):
                 multiplied by this number to get the real time between
                 measurements). E.g., you may not want to sample every single
                 time step.
+            min_obs:
+                Minimum number of observations to have before including in
+                the MSD vs dt calculation. E.g. If a structure has 10
+                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+            weighted:
+                Uses a weighted least squares to fit the MSD vs dt. Weights are
+                proportional to 1/dt, since the number of observations are
+                also proportional to 1/dt (and hence the variance is
+                proportional to dt)
             ncores:
                 Numbers of cores to use for multiprocessing. Can speed up
                 vasprun parsing considerable. Defaults to None,
@@ -268,7 +279,8 @@ class DiffusionAnalyzer(MSONable):
             p = multiprocessing.Pool(ncores)
             func = p.map
         vaspruns = func(_get_vasprun, [(p, step_skip) for p in filepaths])
-        return cls.from_vaspruns(vaspruns, specie=specie)
+        return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+                                 weighted=weighted, specie=specie)
 
     @property
     def to_dict(self):
