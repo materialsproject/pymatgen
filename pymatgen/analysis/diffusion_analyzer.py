@@ -29,15 +29,14 @@ __date__ = "5/2/13"
 import numpy as np
 
 from pymatgen.core import Structure, smart_element_or_specie
-from pymatgen.core.physical_constants import AVOGADROS_CONST, BOLTZMANN_CONST,\
-    ELECTRON_CHARGE
+import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
 
 
 class DiffusionAnalyzer(MSONable):
     """
-    Class for performing diffusion analyses.
+    Class for performing diffusion analysis.
 
     .. attribute: diffusivity
 
@@ -66,8 +65,8 @@ class DiffusionAnalyzer(MSONable):
                  time_step, step_skip=10, min_obs=30, weighted=True):
         """
         This constructor is meant to be used with pre-processed data.
-        Other convenient constructors are provided as static methods, e.g.,
-        see from_vaspruns.
+        Other convenient constructors are provided as class methods (see
+        from_vaspruns and from_files).
 
         Args:
             structure:
@@ -217,11 +216,11 @@ class DiffusionAnalyzer(MSONable):
         p = []
         for vr in vaspruns:
             assert vr.ionic_step_skip == step_skip
-            p.extend([np.array(s['structure'].frac_coords)[:, None, :]
+            p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
         p = np.concatenate(p, axis=1)
-        dp = p[:, 1:, :] - p[:, :-1, :]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,), :]), dp], axis=1)
+        dp = p[:, 1:] - p[:, :-1]
+        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
         disp = structure.lattice.get_cartesian_coords(f_disp)
@@ -318,9 +317,8 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     V = structure.volume * 1e-24  # units cm^3
-    F = ELECTRON_CHARGE * AVOGADROS_CONST  # sA/mol
-    return 1000 * n / (V * AVOGADROS_CONST) * z ** 2 * F ** 2\
-        / (BOLTZMANN_CONST * AVOGADROS_CONST * temperature)
+    return 1000 * n / (V * phyc.N_a) * z ** 2 * phyc.F ** 2\
+        / (phyc.R * temperature)
 
 
 def _get_vasprun(args):
