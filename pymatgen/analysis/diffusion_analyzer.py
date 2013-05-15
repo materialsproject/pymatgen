@@ -85,10 +85,10 @@ class DiffusionAnalyzer(MSONable):
                 multiplied by this number to get the real time between
                 measurements)
             max_dt:
-                maximum fraction of the total run time to use when 
-                calculating MSD vs dt. Typical values are between 0.1-1. 
-                If 0.1, the highest time interval will have 10 uncorrelated 
-                samplings. If 1, there will only be one sampling at this 
+                maximum fraction of the total run time to use when
+                calculating MSD vs dt. Typical values are between 0.1-1.
+                If 0.1, the highest time interval will have 10 uncorrelated
+                samplings. If 1, there will only be one sampling at this
                 maximum dt.
         """
         self.s = structure
@@ -176,10 +176,10 @@ class DiffusionAnalyzer(MSONable):
             specie:
                 Specie to calculate diffusivity for as a String. E.g., "Li".
             max_dt:
-                maximum fraction of the total run time to use when 
-                calculating MSD vs dt. Typical values are between 0.1-1. 
-                If 0.1, the highest time interval will have 10 uncorrelated 
-                samplings. If 1, there will only be one sampling at this 
+                maximum fraction of the total run time to use when
+                calculating MSD vs dt. Typical values are between 0.1-1.
+                If 0.1, the highest time interval will have 10 uncorrelated
+                samplings. If 1, there will only be one sampling at this
                 maximum dt.
         """
         structure = vaspruns[0].initial_structure
@@ -188,11 +188,11 @@ class DiffusionAnalyzer(MSONable):
         p = []
         for vr in vaspruns:
             assert vr.ionic_step_skip == step_skip
-            p.extend([np.array(s['structure'].frac_coords)[:, None, :]
+            p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
         p = np.concatenate(p, axis=1)
-        dp = p[:, 1:, :] - p[:, :-1, :]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,), :]), dp], axis=1)
+        dp = p[:, 1:] - p[:, :-1]
+        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
         disp = structure.lattice.get_cartesian_coords(f_disp)
