@@ -20,7 +20,7 @@ import unittest
 
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
+from pymatgen.core.composition import Composition, CompositionError
 import random
 
 
@@ -67,7 +67,7 @@ class CompositionTest(unittest.TestCase):
             Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
     def test_init_(self):
-        self.assertRaises(ValueError, Composition, {Element("H"):-0.1})
+        self.assertRaises(CompositionError, Composition, {Element("H"):-0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
@@ -89,7 +89,8 @@ class CompositionTest(unittest.TestCase):
                             'Li1.5 Si0.5', 'Zn1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(ValueError, Composition.from_formula, "(co2)(po4)2")
+        self.assertRaises(CompositionError, Composition.from_formula,
+                          "(co2)(po4)2")
 
     def test_mixed_valence(self):
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8})
