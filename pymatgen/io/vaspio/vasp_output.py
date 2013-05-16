@@ -289,7 +289,7 @@ class Vasprun(object):
         """
         if len(self.hubbards) == 0:
             return False
-        return sum(self.hubbards.values()) > 0
+        return sum(self.hubbards.values()) > 1e-8
 
     @property
     def is_spin(self):
