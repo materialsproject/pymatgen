@@ -185,11 +185,16 @@ class DiffusionAnalyzer(MSONable):
                 conv_factor
 
     def plot_smoothed_msd(self):
-        import matplotlib.pylab as plt
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        plt = get_publication_quality_plot(12, 8)
         plt.plot(self.dt, self.s_msd, 'k')
         plt.plot(self.dt, self.s_msd_components[:, 0], 'r')
         plt.plot(self.dt, self.s_msd_components[:, 1], 'g')
         plt.plot(self.dt, self.s_msd_components[:, 2], 'b')
+        plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
+        plt.xlabel("Timestep")
+        plt.ylabel("MSD")
+        plt.tight_layout()
         plt.show()
 
     @classmethod
