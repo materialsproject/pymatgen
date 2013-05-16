@@ -2,4 +2,4 @@
 The defects package implements defect generation tools
 """
 
-from .defects import *
+from .point_defects import *
