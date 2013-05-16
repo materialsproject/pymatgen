@@ -22,14 +22,14 @@ class Defect:
     __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
-    def enumerate(self):
+    def enumerate_uniq_defectsites(self):
         """
         Enumerates all the unique defects
         """
         print 'Not implemented'
     
     @abc.abstractmethod
-    def supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix):
         """
         Generate the supercell with input multipliers and create the defect
         """ 
@@ -52,9 +52,13 @@ class Vacancy(Defect):
         self._structure = inp_structure
         symm_finder = SymmetryFinder(self._structure)
         symm_structure = symm_finder.get_symmetrized_structure()
-        self._equiv_sites = symm_structure.equivalent_sites
+        equiv_site_seq = symm_structure.equivalent_sites
+        self._uniq_vac_sites = []
+        for equiv_sites in equiv_site_seq:
+            self._uniq_vac_sites.append(equiv_sites[0])
         
-    def enumerate(self):
+        
+    def enumerate_uniq_defectsites(self):
         """
         Enumerate the unique defect sites
         
@@ -62,10 +66,7 @@ class Vacancy(Defect):
             List of unique defect sites
 
         """
-        uniq_defect_sites = []
-        for equiv_site in self._equiv_sites:
-            uniq_defect_sites.append(equiv_site[0])
-        return uniq_defect_sites
+        return self._uniq_vac_sites
     
     def _supercell_with_defect(self, scaling_matrix, defect_site):
         sc = self._structure.copy()
@@ -81,7 +82,7 @@ class Vacancy(Defect):
                 sc.remove(i)
                 return sc
         
-    def supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix):
         """
         Returns sequence of supercells containing unique defects
         """
@@ -92,9 +93,28 @@ class Vacancy(Defect):
         return sc_with_vac
              
         
-
 class Interstitial(Defect):
     """
     Subclass of Defect to generate interstitials
     """
-    pass
+    def __init__(self, inp_structure ):
+        """
+        Given a structure, generate unique interstitial sites
+        
+        Args:
+            inp_structure:
+                pymatgen.core.Structure
+        """
+        
+        self._structure = inp_structure
+        self._uniq_interstitial_sites = []
+        #symm_finder = SymmetryFinder(self._structure)
+        #Use Zeo++ to analyze the void space and identify the void space
+    
+    def enumerate_uniq_defectsites(self):
+        return self._uniq_interstitial_sites
+
+    def add_interstitial(self, site, rad
+
+    def make_supercells_with_defects(self, scaling_matrix, element):
+        pass

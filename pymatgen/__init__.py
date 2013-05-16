@@ -13,3 +13,4 @@ from .electronic_structure.core import Spin, Orbital
 from .util.io_utils import zopen
 from .io.smartio import read_structure, write_structure
 from .matproj.rest import MPRester
+from .defects import Vacancy
