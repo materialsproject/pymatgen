@@ -163,14 +163,12 @@ class DiffusionAnalyzer(MSONable):
                 return x
 
             m_components = np.zeros(3)
+            a = np.ones((len(self.dt), 2))
+            a[:, 0] = self.dt
             for i in range(3):
-                a = np.ones((len(self.dt), 2))
-                a[:, 0] = self.dt
                 (m, c) = weighted_lstsq(a, self.s_msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
 
-            a = np.ones((len(self.dt), 2))
-            a[:, 0] = self.dt
             (m, c) = weighted_lstsq(a, self.s_msd, w)
             #m shouldn't be negative
             m = max(m, 1e-20)
