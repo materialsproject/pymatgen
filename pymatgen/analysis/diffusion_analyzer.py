@@ -186,7 +186,10 @@ class DiffusionAnalyzer(MSONable):
 
     def plot_smoothed_msd(self):
         import matplotlib.pylab as plt
-        plt.plt.scatter(self.dt, self.s_msd)
+        plt.plot(self.dt, self.s_msd, 'k')
+        plt.plot(self.dt, self.s_msd_components[:, 0], 'r')
+        plt.plot(self.dt, self.s_msd_components[:, 1], 'g')
+        plt.plot(self.dt, self.s_msd_components[:, 2], 'b')
         plt.show()
 
     @classmethod
