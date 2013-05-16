@@ -381,10 +381,10 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
     plt.plot(t_1, logd, 'ko', t_1, np.dot(A, w), 'k--', markersize=10,
              **kwargs)
     # Calculate the activation energy in meV = negative of the slope,
-    # multiplied by kB (/ electron charge to convert to eV), x 1000
-    # (inv. temperature scale), x 1000 (eV -> meV), x math.log(10) (the
-    # regression is carried out in base 10 for easier reading of the
-    # diffusivity scale, but the Arrhenius relationship is in base e).
+    # * kB (/ electron charge to convert to eV), * 1000 (inv. temperature
+    # scale), * 1000 (eV -> meV), * math.log(10) (the regression is carried
+    # out in base 10 for easier reading of the diffusivity scale,
+    # but the Arrhenius relationship is in base e).
     actv_energy = - w[0] * phyc.k_b / phyc.e * 1000 * 1000 * math.log(10)
     plt.annotate("E$_a$ = {:.0f} meV".format(actv_energy),
                  (1000/temps[-1], w[0] * 1000 / temps[-1] + w[1]),
