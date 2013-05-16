@@ -27,14 +27,18 @@ def pmg_load(filename, **kwargs):
             Any of the keyword arguments supported by the json.load method.
 
     Returns:
-        Deserialized pymatgen object.
+        Deserialized pymatgen object. Note that these objects can be lists,
+        dicts or otherwise nested pymatgen objects that support the to_dict
+        and from_dict MSONAble protocol.
     """
     return json.load(zopen(filename), cls=PMGJSONDecoder, **kwargs)
 
 
 def pmg_dump(obj, filename, **kwargs):
     """
-    Dump an object to a json file using PMGJSONEncoder.
+    Dump an object to a json file using PMGJSONEncoder. Note that these
+    objects can be lists, dicts or otherwise nested pymatgen objects that
+    support the to_dict and from_dict MSONAble protocol.
 
     Args:
         obj:
