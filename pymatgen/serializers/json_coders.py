@@ -197,3 +197,38 @@ def json_load(filename):
     """
     with open(filename, "r") as fh:
         return json.load(fh)
+
+
+def pmg_load(filename, **kwargs):
+    """
+    Loads a json file and deserialize it with PMGJSONDecoder.
+
+    Args:
+        filename:
+            Filename of file to open. Can be gzipped or bzipped.
+        **kwargs:
+            Any of the keyword arguments supported by the json.load method.
+
+    Returns:
+        Deserialized pymatgen object. Note that these objects can be lists,
+        dicts or otherwise nested pymatgen objects that support the to_dict
+        and from_dict MSONAble protocol.
+    """
+    return json.load(zopen(filename), cls=PMGJSONDecoder, **kwargs)
+
+
+def pmg_dump(obj, filename, **kwargs):
+    """
+    Dump an object to a json file using PMGJSONEncoder. Note that these
+    objects can be lists, dicts or otherwise nested pymatgen objects that
+    support the to_dict and from_dict MSONAble protocol.
+
+    Args:
+        obj:
+            Object to dump.
+        filename:
+            Filename of file to open. Can be gzipped or bzipped.
+        **kwargs:
+            Any of the keyword arguments supported by the json.load method.
+    """
+    return json.dump(obj, zopen(filename, "w"), cls=PMGJSONEncoder, **kwargs)
