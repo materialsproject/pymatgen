@@ -25,6 +25,7 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
 
+import math
 
 import numpy as np
 
@@ -352,3 +353,39 @@ def get_conversion_factor(structure, species, temperature):
 
 def _get_vasprun(args):
     return Vasprun(args[0], ionic_step_skip=args[1])
+
+
+def get_arrhenius_plot(temps, diffusivites, **kwargs):
+    """
+    Returns an Arrhenius plot.
+
+    Args:
+        temps:
+            A sequence of temperatures.
+        diffusivities:
+            A sequence of diffusivities (e.g., from DiffusionAnalyzer
+            .diffusivity).
+        **kwargs:
+            Any keyword args supported by matplotlib.pyplot.plot.
+
+    Returns:
+        A matplotlib.pyplot object. Do plt.show() to show the plot.
+    """
+    t_1 = 1000/np.array(temps)
+    logd = np.log10(diffusivites)
+    #Do a least square regression of log(D) vs 1000/T
+    A = np.array([t_1, np.ones(len(temps))]).T
+    w = np.array(np.linalg.lstsq(A, logd)[0])
+    from pymatgen.util.plotting_utils import get_publication_quality_plot
+    plt = get_publication_quality_plot(12, 8)
+    plt.plot(t_1, logd, 'ko', t_1, np.dot(A, w), 'k--', markersize=10,
+             **kwargs)
+    actv_energy = - w[0] * phyc.k_b / phyc.e * 1000 * 1000 * math.log(10)
+    plt.annotate("E$_a$ = {:.0f} meV".format(actv_energy),
+                 (1000/temps[-1], w[0] * 1000 / temps[-1] + w[1]),
+                 xytext=(100, 0),
+                 xycoords='data', textcoords='offset points', fontsize=30)
+    plt.ylabel("log(D (cm$^2$/s))")
+    plt.xlabel("1000/T (K$^{-1}$)")
+    plt.tight_layout()
+    return plt
