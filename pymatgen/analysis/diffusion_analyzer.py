@@ -185,6 +185,9 @@ class DiffusionAnalyzer(MSONable):
                 conv_factor
 
     def plot_smoothed_msd(self):
+        """
+        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         plt.plot(self.dt, self.s_msd, 'k')
