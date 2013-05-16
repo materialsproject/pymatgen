@@ -171,7 +171,8 @@ class DiffusionAnalyzer(MSONable):
 
             (m, c) = weighted_lstsq(a, self.s_msd, w)
             #m shouldn't be negative
-            m = max(m, 1e-20)
+            m = max(m, 1e-15)
+
             #factor of 10 is to convert from A^2/fs to cm^2/s
             #factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.s, self.sp,
@@ -383,10 +384,9 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
     # scale), * 1000 (eV -> meV), * math.log(10) (the regression is carried
     # out in base 10 for easier reading of the diffusivity scale,
     # but the Arrhenius relationship is in base e).
-    actv_energy = - w[0] * phyc.k_b / phyc.e * 1000 * 1000 * math.log(10)
+    actv_energy = - w[0] * phyc.k_b / phyc.e * 1e6 * math.log(10)
     plt.annotate("E$_a$ = {:.0f} meV".format(actv_energy),
-                 (1000/temps[-1], w[0] * 1000 / temps[-1] + w[1]),
-                 xytext=(100, 0),
+                 (t_1[-1], w[0] * t_1[-1] + w[1]), xytext=(100, 0),
                  xycoords='data', textcoords='offset points', fontsize=30)
     plt.ylabel("log(D (cm$^2$/s))")
     plt.xlabel("1000/T (K$^{-1}$)")
