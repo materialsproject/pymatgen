@@ -401,10 +401,11 @@ class PointGroupAnalyzer(object):
         rot_present = defaultdict(bool)
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         test_set = min(dist_el_sites.values(), key=lambda s: len(s))
-        for s1, s2, s3 in itertools.combinations(test_set, 3):
-            for ss1, ss2 in itertools.combinations([s1, s2, s3], 2):
+        coords = [s.coords for s in test_set]
+        for c1, c2, c3 in itertools.combinations(coords, 3):
+            for cc1, cc2 in itertools.combinations([c1, c2, c3], 2):
                 if not rot_present[2]:
-                    test_axis = ss1.coords + ss2.coords
+                    test_axis = cc1 + cc2
                     if np.linalg.norm(test_axis) > self.tol:
                         op = SymmOp.from_axis_angle_and_translation(test_axis,
                                                                     180)
@@ -413,12 +414,12 @@ class PointGroupAnalyzer(object):
                             self.symmops.append(op)
                             self.rot_sym.append((test_axis, 2))
 
-            test_axis = np.cross(s2.coords - s1.coords, s3.coords - s1.coords)
+            test_axis = np.cross(c2 - c1, c3 - c1)
             if np.linalg.norm(test_axis) > self.tol:
                 for r in (3, 4, 5):
                     if not rot_present[r]:
-                        op = SymmOp.from_axis_angle_and_translation(test_axis,
-                                                                    360/r)
+                        op = SymmOp.from_axis_angle_and_translation(
+                            test_axis, 360/r)
                         rot_present[r] = self.is_valid_op(op)
                         if rot_present[r]:
                             self.symmops.append(op)
@@ -505,11 +506,7 @@ def generate_full_symmops(symmops, tol):
         Full set of symmetry operations.
     """
 
-    def in_set(op_set, mat):
-        for o in op_set:
-            if np.allclose(o.affine_matrix, mat, atol=tol):
-                return True
-        return False
+    a = [o.affine_matrix for o in symmops]
 
     if len(symmops) > 300:
         logger.debug("Generation of symmetry operations in infinite loop.  " +
@@ -517,8 +514,9 @@ def generate_full_symmops(symmops, tol):
                      "low.")
     else:
         for op1, op2 in itertools.product(symmops, symmops):
-            test_sym = np.dot(op1.affine_matrix, op2.affine_matrix)
-            if not in_set(symmops, test_sym):
-                return generate_full_symmops(symmops + [SymmOp(test_sym)], tol)
+            m = np.dot(op1.affine_matrix, op2.affine_matrix)
+            d = np.abs(a - m) < tol
+            if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                return generate_full_symmops(symmops + [SymmOp(m)], tol)
 
     return symmops
