@@ -182,15 +182,16 @@ class Vasprun(object):
                 wisely.
         """
         self.filename = filename
+        self.ionic_step_skip = ionic_step_skip
 
         with zopen(filename) as f:
-            self._handler = VasprunHandler(
+            handler = VasprunHandler(
                 filename, parse_dos=parse_dos,
                 parse_eigen=parse_eigen,
                 parse_projected_eigen=parse_projected_eigen
             )
             if ionic_step_skip is None:
-                self._parser = xml.sax.parse(f, self._handler)
+                parser = xml.sax.parse(f, handler)
             else:
                 #remove parts of the xml file and parse the string
                 run = f.read()
@@ -199,11 +200,10 @@ class Vasprun(object):
                 #add the last step from the run
                 if steps[-1] != new_steps[-1]:
                     new_steps.append(steps[-1])
-                self._parser = xml.sax.parseString("<calculation>"
-                                                   .join(new_steps),
-                                                   self._handler)
+                parser = xml.sax.parseString("<calculation>".join(new_steps),
+                                             handler)
             for k in Vasprun.supported_properties:
-                setattr(self, k, getattr(self._handler, k))
+                setattr(self, k, getattr(handler, k))
 
     @property
     def converged(self):
@@ -289,7 +289,7 @@ class Vasprun(object):
         """
         if len(self.hubbards) == 0:
             return False
-        return sum(self.hubbards.values()) > 0
+        return sum(self.hubbards.values()) > 1e-8
 
     @property
     def is_spin(self):

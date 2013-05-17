@@ -34,12 +34,10 @@ int kpt_get_stabilized_reciprocal_mesh(int grid_points[][3],
 				       const int is_time_reversal,
 				       const MatINT * pointgroup_real,
 				       const int num_q,
-				       SPGCONST double qpoints[][3],
-				       const double symprec);
+				       SPGCONST double qpoints[][3]);
 Triplets * kpt_get_triplets_reciprocal_mesh(const int mesh[3],
 					    const int is_time_reversal,
-					    const MatINT * pointgroup_real,
-					    const double symprec);
+					    const MatINT * pointgroup_real);
 void kpt_free_triplets(Triplets * t);
 int kpt_get_ir_triplets_at_q(int weights[],
 			     int grid_points[][3],
@@ -47,8 +45,7 @@ int kpt_get_ir_triplets_at_q(int weights[],
 			     const int grid_point,
 			     const int mesh[3],
 			     const int is_time_reversal,
-			     const MatINT * rotations,
-			     const double symprec);
+			     const MatINT * rotations);
 int kpt_extract_triplets_reciprocal_mesh_at_q(int triplets_at_q[][3],
 					      int weight_at_q[],
 					      const int fixed_grid_number,

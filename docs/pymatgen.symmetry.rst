@@ -25,6 +25,14 @@ symmetry Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`pointgroup` Module
+------------------------
+
+.. automodule:: pymatgen.symmetry.pointgroup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`spacegroup` Module
 ------------------------
 
