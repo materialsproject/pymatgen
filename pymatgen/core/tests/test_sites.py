@@ -32,10 +32,6 @@ class SiteTest(unittest.TestCase):
         self.propertied_site = Site(Specie("Fe", 2), [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
 
-    def test_init(self):
-        self.assertRaises(ValueError, Site, Specie("Fe", 2),
-                          [0.25, 0.35, 0.45], {'mag': 5.1})
-
     def test_properties(self):
         self.assertRaises(AttributeError, getattr, self.disordered_site,
                           'specie')
