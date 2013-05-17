@@ -2,8 +2,8 @@
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
-mean square displacements etc.). If you use this module,
-please consider citing the following papers::
+mean square displacements etc.). If you use this module, please consider
+citing the following papers::
 
     Ong, S. P., Mo, Y., Richards, W. D., Miara, L., Lee, H. S., & Ceder, G.
     (2013). Phase stability, electrochemical stability and ionic conductivity
@@ -68,6 +68,15 @@ class DiffusionAnalyzer(MSONable):
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
         from_vaspruns and from_files).
+
+        Given a matrix of displacements (see arguments below for expected
+        format), the diffusivity is given by:
+
+        D = 1 / 2dt * <mean square displacement>
+
+        where d is the dimensionality, t is the time. To obtain a reliable
+        diffusion estimate, a least squares regression of the MSD against
+        time to obtain the slope, which is then related to the diffusivity.
 
         Args:
             structure:
