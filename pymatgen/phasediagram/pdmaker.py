@@ -137,8 +137,7 @@ class PhaseDiagram (object):
             finalfacets = []
             for facet in facets:
                 is_non_element_facet = any(
-                    (len(qhull_entries[i].composition) > 1
-                    for i in facet))
+                    (len(qhull_entries[i].composition) > 1 for i in facet))
                 if is_non_element_facet:
                     m = qhull_data[facet]
                     m[:, -1] = 1
