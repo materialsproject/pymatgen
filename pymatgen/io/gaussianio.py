@@ -470,7 +470,7 @@ class GaussianOutput(object):
         num_basis_found = False
         terminated = False
 
-        with zopen(filename, "r") as f:
+        with zopen(filename) as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):
