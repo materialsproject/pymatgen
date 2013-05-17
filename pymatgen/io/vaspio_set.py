@@ -686,7 +686,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
-                      refined_structure=False):
+                      additional_info=False):
         """
         Process structure for static calculations from previous run.
 
@@ -700,8 +700,11 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             initial_structure:
                 Whether to return the structure from previous run. Default is
                 False.
-            refined_structure:
-                Whether to return the refined structure (conventional cell)
+            additional_info:
+                Whether to return additional symmetry info related to the structure.
+                If True, return a list of the refined structure (conventional cell),
+                the conventional standard structure, the symmetry dataset
+                and symmetry operations of the structure (see SymmetryFinder doc for details)
 
         Returns:
             Returns the magmom-decorated structure that can be passed to get
@@ -723,9 +726,11 @@ class MPStaticVaspInputSet(MPVaspInputSet):
         sym_finder = SymmetryFinder(structure, symprec=0.01)
         if initial_structure:
             return structure
-        elif refined_structure:
-            return (sym_finder.get_primitive_standard_structure(),
-                    sym_finder.get_refined_structure())
+        elif additional_info:
+            info = [sym_finder.get_refined_structure(), sym_finder.get_conventional_standard_structure(),
+                    sym_finder.get_symmetry_dataset(), sym_finder.get_symmetry_operations()]
+            return [sym_finder.get_primitive_standard_structure(),
+                    info]
         else:
             return sym_finder.get_primitive_standard_structure()
 
@@ -861,6 +866,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
                              * 1.2))
         return {"ISPIN": ispin, "NBANDS": nbands}
+
+    def get_incar(self, structure):
+        incar = super(MPNonSCFVaspInputSet, self).get_incar(structure)
+        incar.pop("MAGMOM", None)
+        return incar
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',

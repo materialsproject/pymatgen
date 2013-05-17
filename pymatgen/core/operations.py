@@ -308,7 +308,7 @@ class SymmOp(MSONable):
             SymmOp for the reflection about the plane
         """
         #Normalize the normal vector first.
-        n = np.array(normal) / np.linalg.norm(normal)
+        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
         u, v, w = n
 
@@ -333,6 +333,13 @@ class SymmOp(MSONable):
     def inversion(origin=(0, 0, 0)):
         """
         Inversion symmetry operation about axis.
+
+        Args:
+            origin:
+                The origin of the inversion operation. Defaults to [0, 0, 0].
+
+        Returns:
+            SymmOp representing an inversion operation about the origin.
         """
         mat = -np.eye(4)
         mat[3, 3] = 1
@@ -350,13 +357,14 @@ class SymmOp(MSONable):
             angle:
                 Angle in degrees
             origin:
-                Point left invariant by roto-reflection
+                Point left invariant by roto-reflection. Defaults to
+                (0, 0, 0).
 
         Return:
             Roto-reflection operation
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
-        refl = SymmOp.reflection(origin, axis)
+        refl = SymmOp.reflection(axis, origin)
         m = np.dot(rot.affine_matrix, refl.affine_matrix)
         return SymmOp(m)
 
