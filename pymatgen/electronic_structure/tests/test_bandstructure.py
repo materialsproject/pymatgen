@@ -17,7 +17,7 @@ class KpointTest(unittest.TestCase):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
-        self.kpoint = Kpoint(self.lattice, [0.1, 0.4, -0.5], label="X")
+        self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
     def test_properties(self):
         self.assertEquals(self.kpoint.frac_coords[0], 0.1)
