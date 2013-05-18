@@ -78,15 +78,3 @@ class AbstractTransformation(MSONable):
         transformations that the transmuter can parallelize.
         """
         return False
-
-    @classmethod
-    def from_dict(cls, d):
-        for trans_modules in ['standard_transformations',
-                              'site_transformations',
-                              'advanced_transformations']:
-            mod = __import__('pymatgen.transformations.' + trans_modules,
-                             globals(), locals(), [d['name']], -1)
-            if hasattr(mod, d['name']):
-                trans = getattr(mod, d['name'])
-                return trans(**d['init_args'])
-        raise ValueError("Invalid Transformations dict")
