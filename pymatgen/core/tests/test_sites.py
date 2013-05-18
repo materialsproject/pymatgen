@@ -26,10 +26,10 @@ from pymatgen.core.composition import Composition
 class SiteTest(unittest.TestCase):
 
     def setUp(self):
-        self.ordered_site = Site(Element("Fe"), [0.25, 0.35, 0.45])
-        self.disordered_site = Site({Element("Fe"): 0.5, Element("Mn"): 0.5},
+        self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
+        self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5},
                                     [0.25, 0.35, 0.45])
-        self.propertied_site = Site(Specie("Fe", 2), [0.25, 0.35, 0.45],
+        self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
 
     def test_properties(self):
@@ -216,10 +216,10 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     if jimage is None:
         #Old algorithm
         jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords),
-            int)
+                           int)
     mapped_vec = site1.lattice.get_cartesian_coords(jimage
-                                                   + site2.frac_coords
-                                                   - site1.frac_coords)
+                                                    + site2.frac_coords
+                                                    - site1.frac_coords)
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
 
