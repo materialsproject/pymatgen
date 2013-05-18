@@ -25,7 +25,7 @@ class IStructureTest(unittest.TestCase):
         self.assertEqual(len(self.struct), 2,
                          "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
-        self.assertTrue(self.struct.ntypesp==1)
+        self.assertTrue(self.struct.ntypesp == 1)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])

@@ -231,8 +231,11 @@ class TransformedStructure(MSONable):
 
     def __str__(self):
         output = ["Current structure", "------------",
-                  str(self._structures[-1]), "\nSource", "------------",
-                  str(self._source), "\nTransformation history", "------------"]
+                  str(self._structures[-1]),
+                  "\nSource", "------------",
+                  str(self._source),
+                  "\nTransformation history",
+                  "------------"]
         for i, t in enumerate(self._changes):
             output.append("{} {}".format(t.to_dict,
                                          self._change_parameters[i]))

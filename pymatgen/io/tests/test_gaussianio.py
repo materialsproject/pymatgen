@@ -20,7 +20,7 @@ from pymatgen import Molecule
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        'test_files', "molecules")
 
 
 class GaussianInputTest(unittest.TestCase):

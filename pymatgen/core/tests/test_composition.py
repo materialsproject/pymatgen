@@ -67,7 +67,7 @@ class CompositionTest(unittest.TestCase):
             Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
     def test_init_(self):
-        self.assertRaises(CompositionError, Composition, {Element("H"):-0.1})
+        self.assertRaises(CompositionError, Composition, {"H": -0.1})
         f = {'Fe': 4, 'Li': 4, 'O': 16, 'P': 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, 'Li': 4, 'O': 16, 'P': 4}
@@ -180,7 +180,6 @@ class CompositionTest(unittest.TestCase):
         comp2 = Composition.from_dict(comp.to_dict)
         self.assertEqual(comp, comp2)
 
-
     def test_to_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
         d = c.to_dict
@@ -234,10 +233,10 @@ class CompositionTest(unittest.TestCase):
         c2 = Composition({'O': 3.2, 'Fe': 1.9, 'Zn': 0})
         c3 = Composition({'Ag': 2.0, 'O': 3.0})
         c4 = Composition({'Fe': 2.0, 'O': 3.0, 'Ag': 2.0})
-        self.assertTrue(c1.almost_equals(c2, rtol = 0.1))
-        self.assertFalse(c1.almost_equals(c2, rtol = 0.01))
-        self.assertFalse(c1.almost_equals(c3, rtol = 0.1))
-        self.assertFalse(c1.almost_equals(c4, rtol = 0.1))
+        self.assertTrue(c1.almost_equals(c2, rtol=0.1))
+        self.assertFalse(c1.almost_equals(c2, rtol=0.01))
+        self.assertFalse(c1.almost_equals(c3, rtol=0.1))
+        self.assertFalse(c1.almost_equals(c4, rtol=0.1))
 
     def test_equality(self):
         self.assertTrue(self.comp[0].__eq__(self.comp[0]))
