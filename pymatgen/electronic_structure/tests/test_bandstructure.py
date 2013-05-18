@@ -17,7 +17,7 @@ class KpointTest(unittest.TestCase):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
-        self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
+        self.kpoint = Kpoint(self.lattice, [0.1, 0.4, -0.5], label="X")
 
     def test_properties(self):
         self.assertEquals(self.kpoint.frac_coords[0], 0.1)
@@ -45,7 +45,7 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][22][25]['Cu'], 0.8327)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
-            
+
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             #print d.keys()

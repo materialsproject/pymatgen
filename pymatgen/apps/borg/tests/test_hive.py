@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 18, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -16,9 +16,11 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
+from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, \
+    SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MITCompatibility
+
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
 
