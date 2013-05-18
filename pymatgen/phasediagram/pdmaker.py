@@ -15,7 +15,6 @@ __status__ = "Production"
 __date__ = "Nov 25, 2012"
 
 import collections
-import itertools
 import numpy as np
 
 from pyhull.convex_hull import ConvexHull
