@@ -61,15 +61,16 @@ class MSONable(object):
         pass
 
     @classmethod
-    @abstractmethod
     def from_dict(cls, d):
         """
-        This simply raises a NotImplementedError to force subclasses to
-        implement this static method. Abstract static methods are not
-        implemented until Python 3+.
+        This implements a default from_dict method which supports all
+        classes that simply saves all init arguments in a "init_args"
+        key. Otherwise, the MSONAble class must override this class method.
         """
-        raise NotImplementedError("MSONable objects must implement a from_dict"
-                                  " static method.")
+        if "init_args" in d:
+            return cls(**d['init_args'])
+        raise MSONError("Invalid dict for default from_dict. Please "
+                        "override from_dict for ".format(cls))
 
     @property
     def to_json(self):
@@ -165,12 +166,12 @@ class PMGJSONDecoder(json.JSONDecoder):
                                                       "%Y-%m-%d %H:%M:%S.%f")
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
-                    cls = getattr(mod, classname)
+                    cls_ = getattr(mod, classname)
                     data = {k: v for k, v in d.items()
                             if k not in ["module", "class",
                                          "@module", "@class"]}
-                    if hasattr(cls, "from_dict"):
-                        return cls.from_dict(data)
+                    if hasattr(cls_, "from_dict"):
+                        return cls_.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         elif isinstance(d, list):
@@ -180,6 +181,13 @@ class PMGJSONDecoder(json.JSONDecoder):
     def decode(self, s):
         d = json.JSONDecoder.decode(self, s)
         return self.process_decoded(d)
+
+
+class MSONError(Exception):
+    """
+    Exception class for serialization errors.
+    """
+    pass
 
 
 def json_pretty_dump(obj, filename):
