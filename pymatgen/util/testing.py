@@ -25,3 +25,14 @@ class PymatgenTest(unittest.TestCase):
     def assert_equal(actual, desired, err_msg='', verbose=True):
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                verbose=verbose)
+
+    @staticmethod
+    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg='',
+                               verbose=True):
+        return nptu.assert_almost_equal(actual, desired, decimal, err_msg,
+                                        verbose)
+
+    @staticmethod
+    def assertArrayEqual(actual, desired, err_msg='', verbose=True):
+        return nptu.assert_equal(actual, desired, err_msg=err_msg,
+                                 verbose=verbose)
