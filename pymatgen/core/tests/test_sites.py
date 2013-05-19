@@ -13,17 +13,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 17, 2012"
 
-import unittest
 import numpy as np
 import pickle
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 
-class SiteTest(unittest.TestCase):
+class SiteTest(PymatgenTest):
 
     def setUp(self):
         self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
@@ -67,7 +67,7 @@ class SiteTest(unittest.TestCase):
         self.assertEqual(pickle.loads(o), self.propertied_site)
 
 
-class PeriodicSiteTest(unittest.TestCase):
+class PeriodicSiteTest(PymatgenTest):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
@@ -182,7 +182,7 @@ class PeriodicSiteTest(unittest.TestCase):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site = site.to_unit_cell
         val = [0.25, 0.35, 0.46]
-        self.assertTrue(np.allclose(site.frac_coords, val))
+        self.assertArrayAlmostEqual(site.frac_coords, val)
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):
@@ -225,4 +225,5 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
+    import unittest
     unittest.main()
