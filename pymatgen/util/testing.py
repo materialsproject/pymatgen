@@ -12,27 +12,41 @@ import numpy.testing.utils as nptu
 class PymatgenTest(unittest.TestCase):
     """
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
-    that support the comparison of ndarrays.
+    that support the comparison of arrays.
     """
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
                             verbose=True):
-        return nptu.assert_almost_equal(actual, desired, decimal, err_msg,
-                                        verbose)
+        """
+        Alternative naming for assertArrayAlmostEqual.
+        """
+        return PymatgenTest.assertArrayAlmostEqual(
+            actual, desired, decimal, err_msg, verbose)
 
     @staticmethod
     def assert_equal(actual, desired, err_msg='', verbose=True):
-        return nptu.assert_equal(actual, desired, err_msg=err_msg,
-                               verbose=verbose)
+        """
+        Alternative naming for assertArrayEqual.
+        """
+        return PymatgenTest.assertArrayEqual(actual, desired,
+                                             err_msg=err_msg, verbose=verbose)
 
     @staticmethod
     def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg='',
                                verbose=True):
+        """
+        Tests if two arrays are almost equal to a tolerance. The CamelCase
+        naming is so that it is consistent with standard unittest methods.
+        """
         return nptu.assert_almost_equal(actual, desired, decimal, err_msg,
                                         verbose)
 
     @staticmethod
     def assertArrayEqual(actual, desired, err_msg='', verbose=True):
+        """
+        Tests if two arrays are equal. The CamelCase naming is so that it is
+         consistent with standard unittest methods.
+        """
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                  verbose=verbose)
