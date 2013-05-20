@@ -124,7 +124,7 @@ class Reaction(MSONable):
                                 coeffs.insert(m, 1)
                                 #Check if final coeffs are valid
                                 overall_mat = np.dot(perm_matrix, coeffs)
-                                if (abs(overall_mat) < 1e-8).all():
+                                if np.allclose(overall_mat, 0, atol=1e-8):
                                     ans_found = True
                                     break
                     if not ans_found:
