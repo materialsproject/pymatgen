@@ -114,7 +114,8 @@ class Interstitial(Defect):
     def enumerate_uniq_defectsites(self):
         return self._uniq_interstitial_sites
 
-    def add_interstitial(self, site, rad
+    def add_interstitial(self, site, element):
+        pass
 
     def make_supercells_with_defects(self, scaling_matrix, element):
         pass
