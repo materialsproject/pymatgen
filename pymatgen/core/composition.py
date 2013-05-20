@@ -102,7 +102,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         else:
             elmap = dict(*args, **kwargs)
         if any([e < 0 for e in elmap.values()]):
-            raise ValueError("Amounts in Composition cannot be negative!")
+            raise CompositionError("Amounts in Composition cannot be "
+                                   "negative!")
         self._elmap = {smart_element_or_specie(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
 
@@ -141,7 +142,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         composition gives an FeO2 composition.
 
         Raises:
-            ValueError if the subtracted composition is greater than the
+            CompositionError if the subtracted composition is greater than the
             original composition in any of its elements.
         """
         new_el_map = {el: self[el] for el in self}
@@ -150,9 +151,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             if el in self and other[k] <= self[el]:
                 new_el_map[el] -= other[k]
             else:
-                raise ValueError(("All elements in subtracted composition "
-                                  "must exist in original composition in "
-                                  "equal or lesser amount!"))
+                raise CompositionError(
+                    "All elements in subtracted composition must exist in "
+                    "original composition in equal or lesser amount!")
         return Composition(new_el_map)
 
     def __mul__(self, other):
@@ -405,7 +406,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     sym_dict[el] = amt * factor
                 f = f.replace(m.group(), "", 1)
             if f.strip():
-                raise ValueError("{} is an invalid formula!".format(f))
+                raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
@@ -550,7 +551,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             try:
                 comp = Composition.from_formula(fuzzy_formula)
                 return [comp]
-            except:
+            except (CompositionError, ValueError):
                 pass
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
@@ -624,7 +625,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             #get element and amount from regex match
             el = m.group(1)
             if len(el) > 2 or len(el) < 1:
-                raise ValueError("Invalid element symbol entered!")
+                raise CompositionError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
             #convert the element string to proper [uppercase,lowercase] format
@@ -765,6 +766,11 @@ def reduce_formula(sym_amt):
     reduced_form = "".join(reduced_form)
 
     return reduced_form, factor
+
+
+class CompositionError(Exception):
+    """Exception class for composition errors"""
+    pass
 
 
 if __name__ == "__main__":

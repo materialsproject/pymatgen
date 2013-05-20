@@ -58,10 +58,8 @@ static VecDBL * get_translation(SPGCONST int rot[3][3],
 				SPGCONST Cell *cell,
 				const double symprec,
 				const int is_identity);
-static int get_operation(int rot[][3][3],
-			 double trans[][3],
-			 SPGCONST Cell * cell,
-			 const double symprec);
+static Symmetry * get_operations(SPGCONST Cell * cell,
+				 const double symprec);
 static Symmetry * reduce_operation(SPGCONST Cell * cell,
 				   SPGCONST Symmetry * symmetry,
 				   const double symprec);
@@ -81,17 +79,14 @@ static PointSymmetry
 transform_pointsymmetry(SPGCONST PointSymmetry * point_sym_prim,
 			SPGCONST double new_lattice[3][3],
 			SPGCONST double original_lattice[3][3]);
-static int get_space_group_operation(int rot[][3][3],
-				     double trans[][3],
-				     SPGCONST PointSymmetry *lattice_sym,
-				     SPGCONST Cell *primitive,
-				     const double symprec);
-static int recover_operations_supercell(int rot[][3][3],
-				   double trans[][3],
-				   const int num_sym, 
-				   const VecDBL * pure_trans,
-				   SPGCONST Cell *cell,
-				   SPGCONST Cell *primitive);
+static Symmetry *
+get_space_group_operations(SPGCONST PointSymmetry *lattice_sym,
+			   SPGCONST Cell *primitive,
+			   const double symprec);
+static Symmetry * recover_operations_original(SPGCONST Symmetry *symmetry,
+					      const VecDBL * pure_trans,
+					      SPGCONST Cell *cell,
+					      SPGCONST Cell *primitive);
 static void set_axes(int axes[3][3],
 		     const int a1, const int a2, const int a3);
 static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,
@@ -140,26 +135,9 @@ void sym_free_symmetry(Symmetry *symmetry)
 
 Symmetry * sym_get_operation(SPGCONST Cell *cell,
 			     const double symprec) {
-  int i, j, num_sym;
-  MatINT *rot;
-  VecDBL *trans;
   Symmetry *symmetry;
   
-  rot = mat_alloc_MatINT(cell->size * 48);
-  trans = mat_alloc_VecDBL(cell->size * 48);
-
-  num_sym = get_operation(rot->mat, trans->vec, cell, symprec);
-
-  symmetry = sym_alloc_symmetry(num_sym);
-  for (i = 0; i < num_sym; i++) {
-    mat_copy_matrix_i3(symmetry->rot[i], rot->mat[i]);
-    for (j = 0; j < 3; j++) {
-      symmetry->trans[i][j] = trans->vec[i][j] - mat_Nint(trans->vec[i][j]);
-    }
-  }
-
-  mat_free_MatINT(rot);
-  mat_free_VecDBL(trans);
+  symmetry = get_operations(cell, symprec);
 
   return symmetry;
 }
@@ -253,18 +231,18 @@ double sym_get_angle_tolerance(void)
 /* 4) The spacegroup operations for the primitive cell are */
 /*    transformed to those of original input cells, if the input cell */
 /*    was not a primitive cell. */
-static int get_operation(int rot[][3][3],
-			 double trans[][3],
-			 SPGCONST Cell *cell,
-			 const double symprec)
+static Symmetry * get_operations(SPGCONST Cell *cell,
+				 const double symprec)
 {
-  int num_sym;
+  int i, j, attempt;
+  double tolerance;
   PointSymmetry lattice_sym;
+  Symmetry *symmetry, *symmetry_orig, *symmetry_reduced;
   Primitive primitive;
 
-  debug_print("get_operation:\n");
+  debug_print("get_operations:\n");
 
-  num_sym = 0;
+  symmetry_orig = NULL;
 
   lattice_sym = get_lattice_symmetry(cell, symprec);
   if (lattice_sym.size == 0) {
@@ -273,29 +251,61 @@ static int get_operation(int rot[][3][3],
   }
 
   primitive = prm_get_primitive_and_pure_translations(cell, symprec);
-  if (primitive.cell->size == 0) {goto deallocate_and_end;}
+  if (primitive.cell->size == 0) {
+    goto deallocate_and_end;
+  }
 
   lattice_sym = transform_pointsymmetry(&lattice_sym,
 					primitive.cell->lattice,
 					cell->lattice);
-  if (lattice_sym.size == 0) {goto deallocate_and_end;}
+  if (lattice_sym.size == 0) {
+    goto deallocate_and_end;
+  }
 
-  num_sym = get_space_group_operation(rot, trans, &lattice_sym,
-				      primitive.cell, symprec);
+  
+  symmetry = get_space_group_operations(&lattice_sym,
+					primitive.cell,
+					symprec);
+  if (symmetry->size > 48) {
+    tolerance = symprec;
+    for (attempt = 0; attempt < 100; attempt++) {
+      tolerance *= REDUCE_RATE;
+      warning_print("spglib: number of symmetry operations for primitive cell > 48 was found. (line %d, %s).\n", __LINE__, __FILE__);
+      warning_print("tolerance is reduced to %f\n", tolerance);
+      symmetry_reduced = reduce_operation(primitive.cell,
+					  symmetry,
+					  tolerance);
+      sym_free_symmetry(symmetry);
+      symmetry = symmetry_reduced;
+      if (symmetry_reduced->size > 48) {
+	;
+      } else {
+	break;
+      }
+    }
+  }
 
-  num_sym = recover_operations_supercell(rot,
-					 trans,
-					 num_sym,
-					 primitive.pure_trans,
-					 cell,
-					 primitive.cell);
+  symmetry_orig = recover_operations_original(symmetry,
+					      primitive.pure_trans,
+					      cell,
+					      primitive.cell);
+  sym_free_symmetry(symmetry);
+
+  for (i = 0; i < symmetry_orig->size; i++) {
+    for (j = 0; j < 3; j++) {
+      symmetry_orig->trans[i][j] -= mat_Nint(symmetry_orig->trans[i][j]);
+    }
+  }
 
  deallocate_and_end:
   cel_free_cell(primitive.cell);
   mat_free_VecDBL(primitive.pure_trans);
 
  end:
-  return num_sym;
+  if (! symmetry_orig) {
+    symmetry_orig = sym_alloc_symmetry(0);
+  }
+  return symmetry_orig;
 }
 
 static Symmetry * reduce_operation(SPGCONST Cell * cell,
@@ -559,99 +569,91 @@ static int get_index_with_least_atoms(const Cell *cell)
   return min_index;
 }
 
-static int get_space_group_operation(int rot[][3][3],
-				     double trans[][3],
-				     SPGCONST PointSymmetry *lattice_sym,
-				     SPGCONST Cell *cell,
-				     const double symprec)
+static Symmetry *
+get_space_group_operations(SPGCONST PointSymmetry *lattice_sym,
+			   SPGCONST Cell *cell,
+			   const double symprec)
 {
-  int i, j, k, num_sym;
-  VecDBL **tmp_trans;
+  int i, j, k, num_sym, total_num_sym;
+  VecDBL **trans;
+  Symmetry *symmetry;
 
-  debug_print("get_space_group_operation:\n");
+  debug_print("get_space_group_operations:\n");
   
+  trans = (VecDBL**) malloc(sizeof(VecDBL*) * lattice_sym->size);
+  total_num_sym = 0;
+  for (i = 0; i < lattice_sym->size; i++) {
+    trans[i] = get_translation(lattice_sym->rot[i], cell, symprec, 0);
+    total_num_sym += trans[i]->size;
+  }
+
+  symmetry = sym_alloc_symmetry(total_num_sym);
   num_sym = 0;
-  tmp_trans = (VecDBL**) malloc(sizeof(VecDBL*) * lattice_sym->size);
-
   for (i = 0; i < lattice_sym->size; i++) {
-    /* get translation corresponding to a rotation */
-    tmp_trans[i] = get_translation(lattice_sym->rot[i], cell, symprec, 0);
-  }
-
-
-  for (i = 0; i < lattice_sym->size; i++) {
-    for (j = 0; j < tmp_trans[i]->size; j++) {
-      for (k = 0; k < 3; k++) {
-	trans[num_sym + j][k] = tmp_trans[i]->vec[j][k];
-      }
-      mat_copy_matrix_i3(rot[num_sym + j], lattice_sym->rot[i]);
+    for (j = 0; j < trans[i]->size; j++) {
+      mat_copy_vector_d3(symmetry->trans[num_sym + j], trans[i]->vec[j]);
+      mat_copy_matrix_i3(symmetry->rot[num_sym + j], lattice_sym->rot[i]);
     }
-    num_sym += tmp_trans[i]->size;
-    mat_free_VecDBL(tmp_trans[i]);
+    num_sym += trans[i]->size;
   }
 
-  free(tmp_trans);
-  tmp_trans = NULL;
+  for (i = 0; i < lattice_sym->size; i++) {
+    mat_free_VecDBL(trans[i]);
+  }
+  free(trans);
+  trans = NULL;
 
-  return num_sym;
+  return symmetry;
 }
 
-static int recover_operations_supercell(int rot[][3][3],
-					double trans[][3],
-					const int num_sym, 
-					const VecDBL * pure_trans,
-					SPGCONST Cell *cell,
-					SPGCONST Cell *primitive)
+static Symmetry * recover_operations_original(SPGCONST Symmetry *symmetry,
+					      const VecDBL * pure_trans,
+					      SPGCONST Cell *cell,
+					      SPGCONST Cell *primitive)
 {
   int i, j, k, multi;
   double inv_prim_lat[3][3], drot[3][3], trans_mat[3][3], trans_mat_inv[3][3];
-  MatINT *rot_prim;
-  VecDBL *trans_prim;
+  Symmetry *symmetry_orig, *sym_tmp;
 
-  rot_prim = mat_alloc_MatINT(num_sym);
-  trans_prim = mat_alloc_VecDBL(num_sym);
+  debug_print("recover_operations_original:\n");
+
   multi = pure_trans->size;
-
-  debug_print("recover_operations_supercell:\n");
+  sym_tmp = sym_alloc_symmetry(symmetry->size);
+  symmetry_orig = sym_alloc_symmetry(symmetry->size * multi);
 
   mat_inverse_matrix_d3(inv_prim_lat, primitive->lattice, 0);
   mat_multiply_matrix_d3(trans_mat, inv_prim_lat, cell->lattice);
   mat_inverse_matrix_d3(trans_mat_inv, trans_mat, 0);
 
-  for(i = 0; i < num_sym; i++) {
+  for(i = 0; i < symmetry->size; i++) {
+    mat_copy_matrix_i3(sym_tmp->rot[i], symmetry->rot[i]);
+    mat_copy_vector_d3(sym_tmp->trans[i], symmetry->trans[i]);
+  }
 
-    /* Translations  */
-    mat_multiply_matrix_vector_d3(trans[i], trans_mat_inv, trans[i]);
-
-    /* Rotations */
-    mat_cast_matrix_3i_to_3d(drot, rot[i]);
+  for(i = 0; i < symmetry->size; i++) {
+    mat_cast_matrix_3i_to_3d(drot, sym_tmp->rot[i]);
     mat_get_similar_matrix_d3(drot, drot, trans_mat, 0);
-    mat_cast_matrix_3d_to_3i(rot[i], drot);
+    mat_cast_matrix_3d_to_3i(sym_tmp->rot[i], drot);
+
+    mat_multiply_matrix_vector_d3(sym_tmp->trans[i],
+				  trans_mat_inv,
+				  sym_tmp->trans[i]);
   }
 
-  for(i = 0; i < num_sym; i++) {
-    mat_copy_matrix_i3(rot_prim->mat[i], rot[i]);
-    for(j = 0; j < 3; j++)
-      trans_prim->vec[i][j] = trans[i][j];
-  }
 
-  /* Rotations and translations are copied with the set of */
-  /* pure translations. */
-  for(i = 0; i < num_sym; i++) {
+  for(i = 0; i < symmetry->size; i++) {
     for(j = 0; j < multi; j++) {
-      mat_copy_matrix_i3(rot[ i * multi + j ], rot_prim->mat[i]);
+      mat_copy_matrix_i3(symmetry_orig->rot[i * multi + j], sym_tmp->rot[i]);
       for (k = 0; k < 3; k++) {
-	trans[i * multi + j][k] =
-	  mat_Dmod1(trans_prim->vec[i][k] + pure_trans->vec[j][k]);
+	symmetry_orig->trans[i * multi + j][k] =
+	  sym_tmp->trans[i][k] + pure_trans->vec[j][k];
       }
     }
   }
 
-  mat_free_MatINT(rot_prim);
-  mat_free_VecDBL(trans_prim);
+  sym_free_symmetry(sym_tmp);
 
-  /* return number of symmetry operation of supercell */
-  return num_sym * multi;
+  return symmetry_orig;
 }
 
 static PointSymmetry get_lattice_symmetry(SPGCONST Cell *cell,

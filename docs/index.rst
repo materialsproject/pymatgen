@@ -88,6 +88,10 @@ v2.7.1
    immutability) which will perform exactly the same way as the previous
    classes. With this change, the :mod:`pymatgen.core.structure_modifier`
    module is now deprecated and will be removed in a future version.
+2. read_structure and write_structure now supports pymatgen's json
+   serialized structures.
+3. read_mol and write_mol functions now available (analogues of
+   read_structure and write_structure for molecules)
 
 v2.7.0
 ------
@@ -245,8 +249,14 @@ some quick examples of the core capabilities and objects:
     >>> mg.write_structure(structure, "POSCAR")
     >>> mg.write_structure(structure, "CsCl.cif")
     >>>
-    >>> #Reading a structure from a file.
+    >>> # Reading a structure from a file.
     >>> structure = mg.read_structure("POSCAR")
+    >>>
+    >>> # Reading and writing a molecule from a file. Supports XYZ and
+    >>> # Gaussian input and output by default. Support for many other
+    >>> # formats via the optional openbabel dependency (if installed).
+    >>> methane = mg.read_mol("methane.xyz")
+    >>> mg.write_mol(mol, "methane.gjf")
 
 The above illustrates only the most basic capabilities of pymatgen.
 
@@ -259,8 +269,8 @@ that utilize the library to perform all kinds of analyses. You can find these
 scripts in `scripts directory of pymatgen's github repo
 <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
-Here, we will discuss the most versatile of these scripts, known as matgenie.py.
-The typical usage of matgenie.py is::
+Here, we will discuss the most versatile of these scripts, known as
+matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 

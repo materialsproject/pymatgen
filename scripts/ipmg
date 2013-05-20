@@ -28,8 +28,8 @@ from IPython.frontend.terminal.embed import InteractiveShellEmbed
 banner = """
 Custom ipython environment for pymatgen. Useful aliases such as Element,
 Specie, Composition, Structure, Molecule, Lattice, PMGJSONEncoder,
-PMGJSONDecoder, Spin, Orbital, zopen, read_structure and write_structure
-have been loaded.
+PMGJSONDecoder, Spin, Orbital, zopen, read_structure, write_structure,
+read_mol, write_mol, pmg_load and pmg_dump have been loaded.
 """
 ipshell = InteractiveShellEmbed(
     config=cfg,

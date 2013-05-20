@@ -161,7 +161,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"],
                                       [[0.1, 0, 0], [0.1, 0.2, 0.2]]).to_dict
-        t = RemoveSitesTransformation.from_dict(d)
+        t = InsertSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
 
