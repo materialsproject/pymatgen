@@ -16,10 +16,11 @@
 
 static PointSymmetry get_point_group_reciprocal(const MatINT * rotations,
 						const int is_time_reversal);
-static PointSymmetry get_point_group_reciprocal_with_q(SPGCONST PointSymmetry * pointgroup,
-						       const double symprec,
-						       const int num_q,
-						       SPGCONST double qpoints[][3]);
+static PointSymmetry
+get_point_group_reciprocal_with_q(SPGCONST PointSymmetry * pointgroup,
+				  const double symprec,
+				  const int num_q,
+				  SPGCONST double qpoints[][3]);
 static int get_ir_kpoints(int map[],
 			  SPGCONST double kpoints[][3],
 			  const int num_kpoint,
@@ -32,15 +33,13 @@ static int get_ir_reciprocal_mesh(int grid_point[][3],
 				  SPGCONST PointSymmetry * point_symmetry);
 static Triplets * get_ir_triplets(const int mesh[3],
 				  const int is_time_reversal,
-				  const MatINT * rotations,
-				  const double symprec);
-static int get_ir_triplets_with_q(int weights[],
-				  int grid_points[][3],
-				  int third_q[],
-				  const int grid_point,
-				  const int mesh[3],
-				  PointSymmetry * pointgroup,
-				  const double symprec);
+				  const MatINT * rotations);
+static int get_ir_triplets_at_q(int weights[],
+				int grid_points[][3],
+				int third_q[],
+				const int grid_point,
+				const int mesh[3],
+				PointSymmetry * pointgroup);
 static int extract_ir_triplets_with_q(int triplets_with_q[][3], 
 				      int weight_with_q[],
 				      const int fixed_grid_number,
@@ -154,16 +153,17 @@ int kpt_get_stabilized_reciprocal_mesh(int grid_points[][3],
 				       const int is_time_reversal,
 				       const MatINT * rotations,
 				       const int num_q,
-				       SPGCONST double qpoints[][3],
-				       const double symprec)
+				       SPGCONST double qpoints[][3])
 {
   PointSymmetry pointgroup, pointgroup_q;
+  double tolerance;
   
   pointgroup = get_point_group_reciprocal(rotations,
 					  is_time_reversal);
 
+  tolerance = 0.1 / (mesh[0] + mesh[1] + mesh[2]);
   pointgroup_q = get_point_group_reciprocal_with_q(&pointgroup,
-						   symprec,
+						   tolerance,
 						   num_q,
 						   qpoints);
 
@@ -176,13 +176,11 @@ int kpt_get_stabilized_reciprocal_mesh(int grid_points[][3],
 
 Triplets * kpt_get_triplets_reciprocal_mesh(const int mesh[3],
 					    const int is_time_reversal,
-					    const MatINT * rotations,
-					    const double symprec)
+					    const MatINT * rotations)
 {
   return get_ir_triplets(mesh,
 			 is_time_reversal,
-			 rotations,
-			 symprec);
+			 rotations);
 }
 
 int kpt_get_ir_triplets_at_q(int weights[],
@@ -191,20 +189,18 @@ int kpt_get_ir_triplets_at_q(int weights[],
 			     const int grid_point,
 			     const int mesh[3],
 			     const int is_time_reversal,
-			     const MatINT * rotations,
-			     const double symprec)
+			     const MatINT * rotations)
 {
   PointSymmetry pointgroup;
 
   pointgroup = get_point_group_reciprocal(rotations,
 					  is_time_reversal);
-  return get_ir_triplets_with_q(weights,
-				grid_points,
-				third_q,
-				grid_point,
-				mesh,
-				&pointgroup,
-				symprec);
+  return get_ir_triplets_at_q(weights,
+			      grid_points,
+			      third_q,
+			      grid_point,
+			      mesh,
+			      &pointgroup);
 }
 
 int kpt_extract_triplets_reciprocal_mesh_at_q(int triplets_with_q[][3],
@@ -283,10 +279,11 @@ static PointSymmetry get_point_group_reciprocal(const MatINT * rotations,
   return point_symmetry;
 }
 
-static PointSymmetry get_point_group_reciprocal_with_q(SPGCONST PointSymmetry * pointgroup,
-						       const double symprec,
-						       const int num_q,
-						       SPGCONST double qpoints[][3])
+static PointSymmetry
+get_point_group_reciprocal_with_q(SPGCONST PointSymmetry * pointgroup,
+				  const double symprec,
+				  const int num_q,
+				  SPGCONST double qpoints[][3])
 {
   int i, j, k, l, is_all_ok=0, num_ptq = 0;
   double q_rot[3], diff[3];
@@ -500,8 +497,7 @@ static int get_ir_reciprocal_mesh(int grid[][3],
 /* here q, q', and q'' can be exchanged one another.    */
 static Triplets * get_ir_triplets(const int mesh[3],
 				  const int is_time_reversal,
-				  const MatINT * rotations,
-				  const double symprec)
+				  const MatINT * rotations)
 {
   int i, j, k, l, num_ir, num_grid, weight, weight_q, count, q_2;
   int num_triplets, num_unique_q;
@@ -511,6 +507,7 @@ static Triplets * get_ir_triplets(const int mesh[3],
   int *map, *map_q, *unique_q;
   int **map_sym = NULL;
   int **weight_counts;
+  double tolerance;
   double stabilizer_q[1][3];
   PointSymmetry point_symmetry, point_symmetry_q;
   Triplets * tps;
@@ -521,7 +518,8 @@ static Triplets * get_ir_triplets(const int mesh[3],
 				    { 2, 1, 0 },
 				    { 0, 2, 1 },
 				    { 1, 0, 2 }};
-  
+
+  tolerance = 0.1 / (mesh[0] + mesh[1] + mesh[2]);
   num_grid = mesh[0] * mesh[1] * mesh[2];
   map = (int*) malloc(num_grid * sizeof(int));
   unique_q = (int*) malloc(num_grid * sizeof(int));
@@ -593,7 +591,7 @@ static Triplets * get_ir_triplets(const int mesh[3],
     }
 
     point_symmetry_q = get_point_group_reciprocal_with_q(&point_symmetry,
-							 symprec,
+							 tolerance,
 							 1,
 							 stabilizer_q);
 
@@ -714,28 +712,22 @@ static Triplets * get_ir_triplets(const int mesh[3],
   return tps;
 }
 
-static int get_ir_triplets_with_q(int weights[],
-				  int grid_points[][3],
-				  int third_q[],
-				  const int grid_point,
-				  const int mesh[3],
-				  PointSymmetry * pointgroup,
-				  const double symprec)
+ static int get_ir_triplets_at_q(int weights[],
+				 int grid_points[][3],
+				 int third_q[],
+				 const int grid_point,
+				 const int mesh[3],
+				 PointSymmetry * pointgroup)
 {
   int i, j, k, num_grid, weight_q, q_2, num_ir;
   int mesh_double[3], address[3], is_shift[3];
   int grid_double[3][3];
   int *map_q;
-  int **map_sym = NULL;
+  double tolerance;
   double stabilizer_q[1][3];
   PointSymmetry pointgroup_q;
 
-  const int index_exchange[6][3] = {{ 0, 1, 2 },
-				    { 2, 0, 1 },
-				    { 1, 2, 0 },
-				    { 2, 1, 0 },
-				    { 0, 2, 1 },
-				    { 1, 0, 2 }};
+  tolerance = 0.1 / (mesh[0] + mesh[1] + mesh[2]);
 
   num_grid = mesh[0] * mesh[1] * mesh[2];
 
@@ -752,16 +744,9 @@ static int get_ir_triplets_with_q(int weights[],
   }
 
   pointgroup_q = get_point_group_reciprocal_with_q(pointgroup,
-						   symprec,
+						   tolerance,
 						   1,
 						   stabilizer_q);
-
-  map_sym = allocate_array2d_int(pointgroup->size, num_grid);
-  get_grid_mapping_table(map_sym,
-			 pointgroup,
-			 mesh,
-			 is_shift);
-
   map_q = (int*) malloc(sizeof(int) * num_grid);
   get_ir_reciprocal_mesh(grid_points,
 			 map_q,
@@ -776,7 +761,7 @@ static int get_ir_triplets_with_q(int weights[],
   num_ir = 0;
 
   for (i = 0; i < num_grid; i++) {
-    if (! (i == map_q[i])) {
+    if (i != map_q[i]) { /* pass only ir-q'-point */
       continue;
     }
 
@@ -795,37 +780,16 @@ static int get_ir_triplets_with_q(int weights[],
     q_2 = grid_to_address(grid_double[2], mesh, is_shift);
     third_q[i] = q_2;
 
-    /* Look for irreducible triplets exchanging three q-points */
-    /* and equivalent by symmetry rotations */
-    for (j = 0; j < pointgroup->size; j++) {
-      /* Index exchange */
-      for (k = 0; k < 6; k++) {
-	/* Rotated grid point addresses with index exchange */
-	address[index_exchange[k][0]] = map_sym[j][grid_point];
-	address[index_exchange[k][1]] = map_sym[j][i];
-	address[index_exchange[k][2]] = map_sym[j][q_2];
-
-	if (address[0] == grid_point) {
-	  /* Is the set of ddress[0] and address[1] already found? */
-	  if (weights[address[1]]) {
-	    weights[address[1]] += weight_q;
-	    goto escape;
-	  }
-	}
-      }
+    if (weights[map_q[q_2]]) {
+      weights[map_q[q_2]] += weight_q;
+    } else {
+      weights[i] = weight_q;
+      num_ir++;
     }
-
-    /* Not found, then this is an irreducible triplet. */
-    weights[i] = weight_q;
-    num_ir++;
-
-  escape:
-    ;
   }
 
   free(map_q);
   map_q = NULL;
-  free_array2D_int(map_sym, pointgroup->size);
 
   return num_ir;
 }

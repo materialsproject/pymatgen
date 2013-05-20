@@ -16,6 +16,7 @@ __date__ = "Apr 17, 2012"
 import re
 
 from pymatgen.core.structure import Molecule
+from pymatgen.util.io_utils import zopen
 
 
 class XYZ(object):
@@ -83,7 +84,7 @@ class XYZ(object):
         Returns:
             XYZ object
         """
-        with open(filename, "r") as f:
+        with zopen(filename) as f:
             return XYZ.from_string(f.read())
 
     def __str__(self):
@@ -101,5 +102,5 @@ class XYZ(object):
             filename:
                 File name of output file.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "w") as f:
             f.write(self.__str__())

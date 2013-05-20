@@ -1,18 +1,16 @@
 #!/usr/bin/python
 
-import unittest
-
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
-import numpy as np
 import random
 
 
-class IStructureTest(unittest.TestCase):
+class IStructureTest(PymatgenTest):
 
     def setUp(self):
         coords = list()
@@ -25,7 +23,7 @@ class IStructureTest(unittest.TestCase):
         self.assertEqual(len(self.struct), 2,
                          "Wrong number of sites in structure!")
         self.assertTrue(self.struct.is_ordered)
-        self.assertTrue(self.struct.ntypesp==1)
+        self.assertTrue(self.struct.ntypesp == 1)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0., 0, 0.0000001])
@@ -181,8 +179,7 @@ class IStructureTest(unittest.TestCase):
         int_s = struct.interpolate(struct2, 10)
         for s in int_s:
             self.assertIsNotNone(s, "Interpolation Failed!")
-        self.assertTrue(np.array_equal(int_s[1][1].frac_coords,
-                                       [0.725, 0.5, 0.725]))
+        self.assertArrayEqual(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
         struct2 = IStructure(badlattice, ["Si"] * 2, coords2)
@@ -221,10 +218,10 @@ class IStructureTest(unittest.TestCase):
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
                [2.3516318, 0.]]
-        self.assertTrue(np.allclose(self.struct.distance_matrix, ans))
+        self.assertArrayAlmostEqual(self.struct.distance_matrix, ans)
 
 
-class StructureTest(unittest.TestCase):
+class StructureTest(PymatgenTest):
 
     def setUp(self):
         coords = list()
@@ -325,10 +322,11 @@ class StructureTest(unittest.TestCase):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         self.structure.apply_operation(op)
-        self.assertTrue(np.allclose(
+        self.assertArrayAlmostEqual(
+            self.structure.lattice.matrix,
             [[0.000000, 3.840198, 0.000000],
              [-3.325710, 1.920099, 0.000000],
-             [2.217138, -0.000000, 3.135509]], self.structure.lattice.matrix))
+             [2.217138, -0.000000, 3.135509]], 5)
 
     def test_apply_strain(self):
         self.structure.apply_strain(0.01)
@@ -339,13 +337,13 @@ class StructureTest(unittest.TestCase):
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)
-        self.assertTrue(np.array_equal(self.structure.frac_coords[0],
-                                       np.array([0.5, 0.5, 0.5])))
+        self.assertArrayEqual(self.structure.frac_coords[0],
+                              [0.5, 0.5, 0.5])
 
         self.structure.translate_sites([0], [0.5, 0.5, 0.5],
                                        frac_coords=False)
-        self.assertTrue(np.allclose(self.structure.cart_coords[0],
-                                    [3.38014845, 1.05428585, 2.06775453]))
+        self.assertArrayAlmostEqual(self.structure.cart_coords[0],
+                                    [3.38014845, 1.05428585, 2.06775453])
 
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
@@ -354,8 +352,8 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(self.structure.formula, "Si4")
         self.structure.make_supercell(2)
         self.assertEqual(self.structure.formula, "Si32")
-        self.assertTrue(np.allclose(self.structure.lattice.abc,
-                                    [15.360792, 35.195996, 7.680396]))
+        self.assertArrayAlmostEqual(self.structure.lattice.abc,
+                                    [15.360792, 35.195996, 7.680396], 5)
 
     def test_to_from_dict(self):
         d = self.structure.to_dict
@@ -363,7 +361,7 @@ class StructureTest(unittest.TestCase):
         self.assertEqual(type(s2), Structure)
 
 
-class IMoleculeTest(unittest.TestCase):
+class IMoleculeTest(PymatgenTest):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
@@ -446,8 +444,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
-        self.assertTrue(np.allclose(s[1].frac_coords, [0.000000, 0.000000,
-                                                       0.121000]))
+        self.assertArrayAlmostEqual(s[1].frac_coords, [0.0, 0.0, 0.121])
         self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
 
     def test_get_distance(self):
@@ -474,7 +471,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
                 1.77833003783],
                [1.08900040717, 1.7783298026, 1.77833003783, 0.0, 1.77833],
                [1.08900040717, 1.7783298026, 1.77833003783, 1.77833, 0.0]]
-        self.assertTrue(np.allclose(self.mol.distance_matrix, ans))
+        self.assertArrayAlmostEqual(self.mol.distance_matrix, ans)
 
     def test_break_bond(self):
         (mol1, mol2) = self.mol.break_bond(0, 1)
@@ -485,8 +482,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(self.mol.charge, 0)
         self.assertEqual(self.mol.spin_multiplicity, 1)
         self.assertEqual(self.mol.nelectrons, 10)
-        self.assertTrue(np.allclose(self.mol.center_of_mass, np.zeros(3),
-                                    atol=1e-7))
+        self.assertArrayAlmostEqual(self.mol.center_of_mass, [0, 0, 0])
         self.assertRaises(ValueError, Molecule, ["C", "H", "H", "H", "H"],
                           self.coords, charge=1, spin_multiplicity=1)
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
@@ -506,10 +502,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
                         spin_multiplicity=3)
         centered = mol.get_centered_molecule()
-        self.assertFalse(np.allclose(mol.center_of_mass, np.zeros(3),
-                                     atol=1e-7))
-        self.assertTrue(np.allclose(centered.center_of_mass, np.zeros(3),
-                                    atol=1e-7))
+        self.assertArrayAlmostEqual(centered.center_of_mass, [0, 0, 0])
 
     def test_to_from_dict(self):
         d = self.mol.to_dict
@@ -517,7 +510,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(type(mol2), IMolecule)
 
 
-class MoleculeTest(unittest.TestCase):
+class MoleculeTest(PymatgenTest):
 
     def setUp(self):
         coords = [[0.000000, 0.000000, 0.000000],
@@ -543,8 +536,8 @@ class MoleculeTest(unittest.TestCase):
 
     def test_translate_sites(self):
         self.mol.translate_sites([0, 1], [0.5, 0.5, 0.5])
-        self.assertTrue(np.array_equal(self.mol.cart_coords[0],
-                                       np.array([0.5, 0.5, 0.5])))
+        self.assertArrayEqual(self.mol.cart_coords[0],
+                              [0.5, 0.5, 0.5])
 
     def test_replace(self):
         self.mol.replace(0, "Ge")
@@ -585,8 +578,8 @@ class MoleculeTest(unittest.TestCase):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         self.mol.apply_operation(op)
-        self.assertTrue(np.allclose(self.mol[2].coords,
-                                    [0.000000, 1.026719, -0.363000]))
+        self.assertArrayAlmostEqual(self.mol[2].coords,
+                                    [0.000000, 1.026719, -0.363000])
 
     def test_substitute(self):
         coords = [[0.000000, 0.000000, 1.08],
@@ -607,4 +600,5 @@ class MoleculeTest(unittest.TestCase):
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
 
 if __name__ == '__main__':
+    import unittest
     unittest.main()

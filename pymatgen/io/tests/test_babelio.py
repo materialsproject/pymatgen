@@ -21,7 +21,7 @@ from pymatgen.io.xyzio import XYZ
 from pymatgen.io.babelio import BabelMolAdaptor
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        "test_files", "molecules")
 
 try:
     import openbabel as ob
