@@ -310,7 +310,8 @@ class BalancedReaction(MSONable):
 
 class Reaction(BalancedReaction):
     """
-    A class representing a Reaction.
+    A more flexible class representing a Reaction. The reaction amounts will
+    be automatically balanced.
     """
 
     # Tolerance for determining if a particular component fraction is > 0.
