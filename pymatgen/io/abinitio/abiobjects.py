@@ -18,6 +18,7 @@ from pymatgen.core.structure import Structure, Molecule
 
 ##########################################################################################
 
+
 class AbivarAble(object):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary
@@ -49,6 +50,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT   = DefaultVariable()
 
 ##########################################################################################
+
 
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
     """
@@ -90,6 +92,7 @@ _mode2spinvars = {
 }
 
 ##########################################################################################
+
 
 class Smearing(AbivarAble, MSONable):
     """
@@ -180,8 +183,7 @@ class Smearing(AbivarAble, MSONable):
     @property
     def to_dict(self):
         """json friendly dict representation of Smearing"""
-        d = {"occopt": self.occopt,
-             "tsmear": self.tsmear,}
+        d = {"occopt": self.occopt, "tsmear": self.tsmear}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -191,6 +193,7 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(d["occopt"], d["tsmear"])
 
 ##########################################################################################
+
 
 class ElectronsAlgorithm(dict, AbivarAble):
     "Variables controlling the SCF/NSCF algorithm."
@@ -224,6 +227,7 @@ class ElectronsAlgorithm(dict, AbivarAble):
         return self.copy()
 
 ##########################################################################################
+
 
 class Electrons(AbivarAble):
     """
@@ -312,6 +316,7 @@ class Electrons(AbivarAble):
 
 #########################################################################################
 
+
 def asabistructure(obj):
     """
     Convert obj into an AbiStructure object. Accepts:
@@ -344,8 +349,9 @@ def asabistructure(obj):
 
     raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
 
+
 class AbiStructure(Structure, AbivarAble):
-    "Patches the pymatgen structure adding the method to_abivars"
+    """Patches the pymatgen structure adding the method to_abivars."""
 
     @staticmethod
     def asabistructure(obj):
@@ -436,6 +442,7 @@ class AbiStructure(Structure, AbivarAble):
         }
 
 ##########################################################################################
+
 
 class KSampling(AbivarAble):
     """
@@ -804,11 +811,13 @@ class KSampling(AbivarAble):
 
 ##########################################################################################
 
+
 class Constraints(AbivarAble):
     "Object defining the constraints for structural relaxation"
 
     def to_abivars(self):
         raise NotImplementedError("")
+
 
 class RelaxationMethod(AbivarAble):
     """
@@ -913,6 +922,7 @@ class RelaxationMethod(AbivarAble):
 
 ##########################################################################################
 
+
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
@@ -1008,6 +1018,7 @@ class PPModel(AbivarAble, MSONable):
 
 ##########################################################################################
 
+
 class HilbertTransform(AbivarAble):
     "Parameters for the Hilbert-transform method (RPA, Screening code)"
 
@@ -1021,6 +1032,7 @@ class HilbertTransform(AbivarAble):
 
 ##########################################################################################
 
+
 class ModelDielectricFunction(AbivarAble):
     "Model dielectric function used for BSE calculation"
 
@@ -1033,6 +1045,7 @@ class ModelDielectricFunction(AbivarAble):
 ##########################################################################################
 #################################  WORK IN PROGRESS ######################################
 ##########################################################################################
+
 
 class CDFrequencyMesh(AbivarAble):
     "Mesh for the contour-deformation method used for the integration of the self-energy"
@@ -1073,8 +1086,8 @@ class CDFrequencyMesh(AbivarAble):
 
 ##########################################################################################
 
-class Screening(AbivarAble):
 
+class Screening(AbivarAble):
     # Approximations used for W
     _WTYPES = {
         "RPA" : 0,
@@ -1170,6 +1183,7 @@ class Screening(AbivarAble):
 
 ##########################################################################################
 
+
 class SelfEnergy(AbivarAble):
 
     _SIGMA_TYPES = {
@@ -1187,8 +1201,9 @@ class SelfEnergy(AbivarAble):
         "wavefunctions": 2,
     }
 
-    def __init__(self, se_type, sc_mode, nband, ecutsigx, screening, ppmodel=None, ecuteps=None, ecutwfn=None):
-        "freq_int: cd for contour deformation"
+    def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
+                 ppmodel=None, ecuteps=None, ecutwfn=None):
+        """freq_int: cd for contour deformation."""
 
         if se_type not in self._SIGMA_TYPES:
             raise ValueError("SIGMA_TYPE: %s is not supported" % se_type)
@@ -1272,6 +1287,7 @@ class SelfEnergy(AbivarAble):
 
 ##########################################################################################
 
+
 class BetheSalpeter(AbivarAble):
     "Parameters for the solution of the Bethe-Salpeter equation."
     #types = Enum(_types)
@@ -1291,17 +1307,14 @@ class BetheSalpeter(AbivarAble):
 
     #algorithms = Enum(_algo2var)
 
-    _coulomb_mode = {
+    _coulomb_mode = [
         "diago",
         "full",
         "model_df"
-    }
+        ]
 
     def __init__(self):
         raise NotImplementedError("")
-
-        super(BSECard, self).__init__()
-
         self._comment = comment
 
         self.strategy = strategy
@@ -1325,3 +1338,108 @@ class BetheSalpeter(AbivarAble):
             #fftgw   = None,
             #comment = None
         })
+
+
+class IFC(AbivarAble):
+    """
+    This object controls the calculation and the Fourier interpolation
+    of the interatomic force constants.
+    """
+    def __init__(self, ddb_filename, ngqpt, q1shft=(0.,0.,0.), ifcflag=1, brav=1):
+        """
+        For the complete description of the meaning of the variables see anaddb_help.html
+
+        Args:
+            ddb_filename:
+                Path to the DDB file.
+            ngqpt:
+                Monkhorst-Pack divisions
+            q1shft:
+                Monkhorst-Pack shift
+            ifcflag:
+                Interatomic force constant flag
+            brav:
+                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex
+        """
+        self.ddb_filename = os.path.abspath(ddb_filename)
+        if not os.path.exists(self.ddb_filename):
+            raise self.Error("%s: no such file" % self.ddb_filename)
+
+        self.ifcflag = ifcflag
+        self.brav = brav
+        self.ngqpt = ngqpt
+
+        self.q1shft = np.reshape(q1shft, (-1,3))
+        self.nqshft = len(self.q1shft)
+
+    def to_abivars(self):
+        d = {
+            "ifcflag": self.ifcflag,
+            "brav"   : self.brav,
+            "ngqpt"  : "%d %d %d" % tuple(q for q in self.ngqpt),
+            "nqshft" : self.nqshft,
+        }
+
+        s = ""
+        for shift in self.q1shft:
+            s += "%f %f %f\n" % tuple(c for c in shift)
+        d["q1shft"] = s
+
+        return d
+
+    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
+                        executable=None, verbose=0):
+        """
+        Args:
+            asr:
+                Acoustic Sum Rule. 1 => imposed asymetrically
+            chneut:
+                Charge neutrality requirement for effective charges.
+            dipdip:
+                Dipole-dipole interaction treatment
+            symdinmat:
+
+            !Wavevector list number 1 (Reduced coordinates and normalization factor)
+            nph1l    71      ! number of phonons in list 1
+            qph1l   0.0000  0.0000  0.0000   1.0    !(gamma point)
+
+            !Wavevector list number 2 (Cartesian directions for non-analytic gamma phonons)
+            !The output for this calculation must be cut-and-pasted into the
+            ! t59_out.freq file to be used as band2eps input to get proper LO-TO
+            ! splitting at gamma.  Note that gamma occurrs twice.
+
+            nph2l    1       ! number of directions in list 2
+            qph2l   1.0  0.0  0.0    0.0
+            # This line added when defaults were changed (v5.3) to keep the previous, old behaviour
+            symdynmat 0
+        """
+        # Build input for anaddb. Variables are stored in the dict d.
+        d = {
+            "symdynmat": symdynmat,
+            "asr"      : asr,
+            "chneut"   : chneut,
+            "dipdip"   : dipdip,
+        }
+
+        # Phonon band structure.
+        if qpath is not None:
+            qpath = np.reshape(qpath, (-1,3))
+            d.update({
+                "nqpath": len(qpath),
+                "qpath" : "\n".join(["%f %f %f" % tuple(q) for q in qpath]),
+            })
+
+        # Phonon DOS calculations.
+        # TODO
+        #if qmesh is not None:
+        #    d.update({
+        #        "nph1l": 1,
+        #        "qph1l": 1,
+        #    })
+
+        d.update(self.to_abivars())
+
+        from .wrappers import Anaddb
+        anaddb = Anaddb(executable=executable, verbose=verbose)
+        #anaddb.set_input(d)
+        #phband, phdos, events = anaddb.fourier_interpolation()

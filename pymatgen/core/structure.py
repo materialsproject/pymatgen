@@ -111,7 +111,8 @@ class SiteCollection(collections.Sequence):
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        types = []  # Cannot use sets since we want a deterministic algorithm.
+        # Cannot use set since we want a deterministic algorithm.
+        types = []
         for site in self:
             if site.specie not in types:
                 types.append(site.specie)
@@ -123,6 +124,25 @@ class SiteCollection(collections.Sequence):
             for site in self:
                 if site.specie == t:
                     yield site
+
+    def indices_from_symbol(self, symbol):
+        """
+        Returns a tuple with the sequential indices of the sites
+        that contain an element with the given chemical symbol.
+        """
+        indices = []
+        for i, specie in enumerate(self.species):
+            if specie.symbol == symbol:
+                indices.append(i)
+        return tuple(indices)
+
+    @property
+    def symbol_set(self):
+        """
+        Tuple with the set of chemical symbols.
+        Note that len(symbol_set) == len(types_of_specie)
+        """
+        return tuple([specie.symbol for specie in self.types_of_specie])
 
     @property
     def atomic_numbers(self):
@@ -381,6 +401,13 @@ class IStructure(SiteCollection, MSONable):
         Lattice of the structure.
         """
         return self._lattice
+
+    @property
+    def reciprocal_lattice(self):
+        """
+        Reciprocal lattice of the structure.
+        """
+        return self._lattice.reciprocal_lattice
 
     def lattice_vectors(self, space="r"):
         """

@@ -37,6 +37,11 @@ class LatticeTestCase(PymatgenTest):
                                        lattice2.matrix[i][j], 5,
                                        "Inconsistent matrix from two inits!")
 
+    def test_copy(self):
+        cubic_copy = self.cubic.copy()
+        self.assertTrue(cubic_copy == self.cubic)
+        self.assertFalse(cubic_copy._matrix is self.cubic._matrix)
+
     def test_get_cartesian_or_frac_coord(self):
         coord = self.lattice.get_cartesian_coords([0.15, 0.3, 0.4])
         self.assertArrayAlmostEqual(coord, [1.5, 3., 4.])
