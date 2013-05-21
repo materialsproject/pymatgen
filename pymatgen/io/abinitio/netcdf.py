@@ -188,6 +188,25 @@ class NetcdfReader(object):
 
         return od, missing
 
+
+    # This quantities are Abinit specific.
+    # We assume that the netcdf file contains the crystallographic section.
+
+    @property
+    def chemical_symbols(self):
+        """Chemical symbols char [number of atom species][symbol length]."""
+        if not hasattr(self, "_chemical_symbols"):
+            symbols = self.get_value("chemical_symbols")
+            self._chemical_symbols = []
+            for s in symbols:
+                self._chemical_symbols.append("".join(c for c in s))
+
+        return self._chemical_symbols
+
+    def typeidx_from_symbol(self, symbol):
+        """Returns the type index from the chemical symbol. Note python convention."""
+        return self._chemical_symbols.index(symbol)
+
     def get_structure(self, site_properties=None):
         """
         Returns the crystalline structure.
@@ -268,13 +287,14 @@ def structure_from_etsf_file(ncdata, site_properties=None):
 
     znucl_type = ncdata.get_value("atomic_numbers")
 
-    typat = ncdata.get_value("atom_species")
+    # type_atom[0:natom] --> index Between 1 and number of atom species
+    type_atom = ncdata.get_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
     species = natom * [None]
     for atom in range(natom):
-        type_idx = typat[atom] - 1
-        species[atom] = int(znucl_type[type_idx-1])
+        type_idx = type_atom[atom] - 1
+        species[atom] = int(znucl_type[type_idx])
 
     d = {}
     if site_properties is not None:
