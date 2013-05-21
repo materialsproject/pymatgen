@@ -934,7 +934,7 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
-                              "\s*!\s*(.*)")
+                              "\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
