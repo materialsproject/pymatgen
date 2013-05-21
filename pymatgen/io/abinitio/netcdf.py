@@ -95,12 +95,12 @@ class NetcdfReader(object):
             for child in children:
                 print(child)
 
-    def get_dimvalue(self, dimname, path="/"):
+    def read_dimvalue(self, dimname, path="/"):
         """Returns the value of a dimension."""
-        dim = self._get_dimensions(dimname, path=path)[0]
+        dim = self._read_dimensions(dimname, path=path)[0]
         return len(dim)
 
-    def get_varnames(self, path="/"):
+    def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
             return self.rootgrp.variables.keys()
@@ -108,23 +108,23 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return group.variables.keys()
 
-    def get_value(self, varname, path="/"):
+    def read_value(self, varname, path="/"):
         """
         Returns the values of variable with name varname in the group specified by path.
         """
-        var = self.get_variable(varname, path=path)
+        var = self.read_variable(varname, path=path)
         # scalar or array
         return var[0] if not var.shape else var[:]
 
-    def get_variable(self, varname, path="/"):
+    def read_variable(self, varname, path="/"):
         """
         Returns the variable with name varname in the group specified by path.
         """
-        return self._get_variables(varname, path=path)[0]
+        return self._read_variables(varname, path=path)[0]
 
-    def get_values(self, *varnames, **kwargs):
+    def read_values(self, *varnames, **kwargs):
         """Retunrs a list with the values of the variables."""
-        vars = self._get_variables(*varnames, **kwargs)
+        vars = self._read_variables(*varnames, **kwargs)
         values = []
         # scalar or array
         for var in vars:
@@ -132,7 +132,7 @@ class NetcdfReader(object):
             values.append(v)
         return values
 
-    def _get_dimensions(self, *dimnames, **kwargs):
+    def _read_dimensions(self, *dimnames, **kwargs):
         path = kwargs.get("path", "/")
         if path == "/":
             return [self.rootgrp.dimensions[dname] for dname in dimnames]
@@ -140,7 +140,7 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return [group.dimensions[dname] for dname in dimnames]
 
-    def _get_variables(self, *varnames, **kwargs):
+    def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
         if path == "/":
             return [self.rootgrp.variables[vname] for vname in varnames]
@@ -148,7 +148,7 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return [group.variables[vname] for vname in varnames]
 
-    def get_values_with_map(self, names, map_names=None, path="/"):
+    def read_values_with_map(self, names, map_names=None, path="/"):
         """
         Read (dimensions, variables) with a mapping.
 
@@ -177,11 +177,11 @@ class NetcdfReader(object):
 
             try:
                 # Try to read a variable.
-                od[k] = self.get_value(key, path=path)
+                od[k] = self.read_value(key, path=path)
             except KeyError:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.get_dimvalue(key, path=path)
+                    od[k] = self.read_dimvalue(key, path=path)
                 except KeyError:
                     # key is missing!
                     missing.append((k, key))
@@ -196,7 +196,7 @@ class NetcdfReader(object):
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
         if not hasattr(self, "_chemical_symbols"):
-            symbols = self.get_value("chemical_symbols")
+            symbols = self.read_value("chemical_symbols")
             self._chemical_symbols = []
             for s in symbols:
                 self._chemical_symbols.append("".join(c for c in s))
@@ -207,7 +207,7 @@ class NetcdfReader(object):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self._chemical_symbols.index(symbol)
 
-    def get_structure(self, site_properties=None):
+    def read_structure(self, site_properties=None):
         """
         Returns the crystalline structure.
 
@@ -230,14 +230,14 @@ class GSR_Reader(NetcdfReader):
     important quantities.
     """
 
-    def get_band_structure(self):
+    def read_band_structure(self):
         raise NotImplementedError("")
-        structure = self.get_structure()
+        structure = self.read_structure()
         from pprint import pprint
 
-        kpoints = self.get_value("reduced_coordinates_of_kpoints")
-        efermi = Ha2eV(self.get_value("fermie"))
-        np_eigvals = Ha2eV(self.get_value("eigenvalues"))
+        kpoints = self.read_value("reduced_coordinates_of_kpoints")
+        efermi = Ha2eV(self.read_value("fermie"))
+        np_eigvals = Ha2eV(self.read_value("eigenvalues"))
         # TODO
         #assert np_eigvals.units == "atomic units"
         nsppol = np_eigvals.shape[0]
@@ -280,15 +280,15 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         ncdata = NetcdfReader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = Bohr2Ang(ncdata.get_value("primitive_vectors"))
+    lattice = Bohr2Ang(ncdata.read_value("primitive_vectors"))
 
-    red_coords = ncdata.get_value("reduced_atom_positions")
+    red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)
 
-    znucl_type = ncdata.get_value("atomic_numbers")
+    znucl_type = ncdata.read_value("atomic_numbers")
 
     # type_atom[0:natom] --> index Between 1 and number of atom species
-    type_atom = ncdata.get_value("atom_species")
+    type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
     species = natom * [None]
@@ -299,7 +299,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     d = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[property] = ncdata.get_value(prop)
+            d[property] = ncdata.read_value(prop)
 
     structure = Structure(lattice, species, red_coords, site_properties=d)
 
