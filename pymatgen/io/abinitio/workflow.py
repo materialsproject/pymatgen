@@ -523,7 +523,7 @@ class Workflow(BaseWorkflow, MSONable):
         for task in self:
             # Open the GSR file and read etotal (Hartree)
             with GSR_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
-                etotal.append(ncdata.get_value("etotal"))
+                etotal.append(ncdata.read_value("etotal"))
 
         return etotal
 
