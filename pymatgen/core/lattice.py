@@ -67,6 +67,10 @@ class Lattice(MSONable):
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
 
+    def copy(self):
+        """Deep copy of self."""
+        return self.__class__(self.matrix.copy())
+
     @property
     def matrix(self):
         """Copy of matrix representing the Lattice"""
