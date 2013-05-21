@@ -45,7 +45,7 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][22][25]['Cu'], 0.8327)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
-            
+
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
             d = json.loads(f.read())
             #print d.keys()

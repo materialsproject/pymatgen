@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 18, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -21,6 +21,7 @@ from pymatgen.apps.borg.queen import BorgQueen
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
 
 class BorgQueenTest(unittest.TestCase):
 

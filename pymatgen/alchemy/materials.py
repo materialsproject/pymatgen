@@ -22,11 +22,12 @@ import datetime
 from copy import deepcopy
 
 from pymatgen.core.structure import Structure
-from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+
+dec = PMGJSONDecoder()
 
 
 class TransformedStructure(MSONable):
@@ -70,7 +71,7 @@ class TransformedStructure(MSONable):
             self._source = history[0]
             for i in xrange(1, len(history)):
                 struct = Structure.from_dict(history[i]["input_structure"])
-                trans = AbstractTransformation.from_dict(history[i])
+                trans = dec.process_decoded(history[i])
                 param = history[i].get("output_parameters", {})
                 self._structures.append(struct)
                 self._changes.append(trans)
@@ -231,8 +232,11 @@ class TransformedStructure(MSONable):
 
     def __str__(self):
         output = ["Current structure", "------------",
-                  str(self._structures[-1]), "\nSource", "------------",
-                  str(self._source), "\nTransformation history", "------------"]
+                  str(self._structures[-1]),
+                  "\nSource", "------------",
+                  str(self._source),
+                  "\nTransformation history",
+                  "------------"]
         for i, t in enumerate(self._changes):
             output.append("{} {}".format(t.to_dict,
                                          self._change_parameters[i]))
