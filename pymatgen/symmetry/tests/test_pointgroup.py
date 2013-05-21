@@ -27,7 +27,7 @@ except ImportError:
     scipy = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        'test_files', "molecules")
 
 
 H2O2 = Molecule(["O", "O", "H", "H"],

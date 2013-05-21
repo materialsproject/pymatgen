@@ -24,13 +24,12 @@ try:
 except ImportError:
     ob = None
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
-
 
 class MethodsTest(unittest.TestCase):
 
     def test_read_structure(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files')
         for fname in ("Li2O.cif", "Li2O2.cif", "vasprun.xml",
                       "vasprun_Si_bands.xml", "Si.cssr"):
             filename = os.path.join(test_dir, fname)
@@ -38,6 +37,8 @@ class MethodsTest(unittest.TestCase):
             self.assertIsInstance(struct, Structure)
 
     def test_read_mol(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files', "molecules")
         for fname in ("methane.log", "c60.xyz", "ethane.gjf"):
             filename = os.path.join(test_dir, fname)
             mol = read_mol(filename)
@@ -45,6 +46,8 @@ class MethodsTest(unittest.TestCase):
 
     @unittest.skipIf(ob is None, "No openbabel")
     def test_read_mol_babel(self):
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files', "molecules")
         for fname in ("ethane.mol", ):
             filename = os.path.join(test_dir, fname)
             mol = read_mol(filename)

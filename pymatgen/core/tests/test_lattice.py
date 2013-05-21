@@ -2,24 +2,25 @@
 
 from __future__ import division
 
-import unittest
 from pymatgen.core.lattice import Lattice
 import numpy as np
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.operations import SymmOp
 
 
-class  LatticeTestCase(unittest.TestCase):
+class LatticeTestCase(PymatgenTest):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
-
-        self.cubic      = self.lattice
+        self.cubic = self.lattice
         self.tetragonal = Lattice.tetragonal(10, 20)
         self.orthorhombic = Lattice.orthorhombic(10, 20, 30)
-        self.monoclinic  = Lattice.monoclinic(10, 20 ,30, 66)
+        self.monoclinic = Lattice.monoclinic(10, 20, 30, 66)
         self.hexagonal = Lattice.hexagonal(10, 20)
         self.rhombohedral = Lattice.rhombohedral(10, 77)
 
-        family_names = ["cubic", "tetragonal", "orthorhombic", "monoclinic", "hexagonal", "rhombohedral"]
+        family_names = ["cubic", "tetragonal", "orthorhombic", "monoclinic",
+                        "hexagonal", "rhombohedral"]
 
         self.families = {}
         for name in family_names:
@@ -42,25 +43,25 @@ class  LatticeTestCase(unittest.TestCase):
         self.assertFalse(cubic_copy._matrix is self.cubic._matrix)
 
     def test_get_cartesian_or_frac_coord(self):
-        coord = self.lattice.get_cartesian_coords(np.array([0.15, 0.3, 0.4]))
-        self.assertTrue(np.allclose(coord, [1.5, 3., 4.]))
-        self.assertTrue(np.allclose(self.tetragonal
-                                    .get_fractional_coords([12.12312, 45.2134,
-                                                            1.3434]),
-                                    [1.212312, 4.52134, 0.06717]))
+        coord = self.lattice.get_cartesian_coords([0.15, 0.3, 0.4])
+        self.assertArrayAlmostEqual(coord, [1.5, 3., 4.])
+        self.assertArrayAlmostEqual(
+            self.tetragonal.get_fractional_coords([12.12312, 45.2134,
+                                                   1.3434]),
+            [1.212312, 4.52134, 0.06717])
 
         #Random testing that get_cart and get_frac coords reverses each other.
         rand_coord = np.random.random_sample(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         fcoord = self.tetragonal.get_fractional_coords(coord)
-        self.assertTrue(np.allclose(fcoord, rand_coord))
+        self.assertArrayAlmostEqual(fcoord, rand_coord)
 
     def test_reciprocal_lattice(self):
-        self.assertTrue(np.allclose(self.lattice.reciprocal_lattice.matrix,
-                                    0.628319 * np.eye(3)))
-        self.assertTrue(np.allclose(self.tetragonal.reciprocal_lattice.matrix,
+        self.assertArrayAlmostEqual(self.lattice.reciprocal_lattice.matrix,
+                                    0.628319 * np.eye(3), 5)
+        self.assertArrayAlmostEqual(self.tetragonal.reciprocal_lattice.matrix,
                                     [[0.628319, 0., 0.], [0., 0.628319, 0],
-                                     [0., 0., 0.3141590]]))
+                                     [0., 0., 0.3141590]], 5)
 
     def test_static_methods(self):
         lengths_c = [3.840198, 3.84019885, 3.8401976]
@@ -119,7 +120,7 @@ class  LatticeTestCase(unittest.TestCase):
         expected_ans = np.array([0.0, 1.0, 0.0,
                                  1.0, 0.0, 1.0,
                                  - 2.0, 0.0, 1.0]).reshape((3, 3))
-        self.assertTrue(np.allclose(reduced_latt.matrix, expected_ans))
+        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
         latt = [7.164750, 2.481942, 0.000000,
                 - 4.298850, 2.481942, 0.000000,
@@ -129,8 +130,7 @@ class  LatticeTestCase(unittest.TestCase):
                                  0.000000, 0.000000, 14.253000])
         expected_ans = expected_ans.reshape((3, 3))
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
-        self.assertTrue(np.allclose(reduced_latt.matrix,
-                                    expected_ans))
+        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
         self.assertAlmostEqual(reduced_latt.volume, Lattice(latt).volume)
 
         expected_ans = np.array([0.0, 10.0, 10.0,
@@ -141,7 +141,7 @@ class  LatticeTestCase(unittest.TestCase):
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        self.assertTrue(np.allclose(reduced_latt.matrix, expected_ans))
+        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
 
         random_latt = Lattice(np.random.random((3, 3)))
@@ -177,21 +177,21 @@ class  LatticeTestCase(unittest.TestCase):
         ans = [[-1.432950, -2.481942, 0.0],
                [-2.8659, 0.0, 0.0],
                [-1.432950, -0.827314, -4.751000]]
-        self.assertTrue(np.allclose(latt.get_niggli_reduced_lattice().matrix,
-                                    ans))
+        self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
+                                    ans)
 
         latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878,
                                        75.542191, 81.181757, 156.396627)
         ans = [[-2.578932, -0.826965, 0.000000],
                [0.831059, -2.067413, -1.547813],
                [0.458407, 2.480895, -1.129126]]
-        self.assertTrue(np.allclose(latt.get_niggli_reduced_lattice().matrix,
-                                    ans, atol=1e-5))
+        self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
+                                    ans, 5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
         latt = Lattice(m)
-        from pymatgen.core.operations import SymmOp
+
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, 3, 3], 35)
         rot = op.rotation_matrix
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
@@ -217,8 +217,6 @@ class  LatticeTestCase(unittest.TestCase):
 
     def test_scale(self):
         new_volume = 10
-        lattices = [self.lattice, self.tetragonal]
-
         for (family_name, lattice) in self.families.items():
             new_lattice = lattice.scale(new_volume)
             self.assertAlmostEqual(new_lattice.volume, new_volume)
@@ -226,9 +224,11 @@ class  LatticeTestCase(unittest.TestCase):
 
     def test_get_wigner_seitz_cell(self):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
-                                        .get_wigner_seitz_cell()
+            .get_wigner_seitz_cell()
         self.assertEqual(6, len(ws_cell))
         self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
-                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+                                      [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+
 if __name__ == '__main__':
+    import unittest
     unittest.main()

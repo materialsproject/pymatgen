@@ -2067,10 +2067,14 @@ class Molecule(IMolecule):
             distance:
                 distance in angstroms by which to perturb each site.
         """
+        def get_rand_vec():
+            #deals with zero vectors.
+            vector = np.random.randn(3)
+            vnorm = np.linalg.norm(vector)
+            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+
         for i in range(len(self._sites)):
-            vector = np.random.rand(3)
-            vector /= np.linalg.norm(vector) / distance
-            self.translate_sites([i], vector)
+            self.translate_sites([i], get_rand_vec())
 
     def apply_operation(self, symmop):
         """
@@ -2179,5 +2183,3 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
-
-

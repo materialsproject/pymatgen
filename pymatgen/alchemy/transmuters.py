@@ -139,7 +139,8 @@ class StandardTransmuter(object):
         else:
             new_structures = []
             for x in self.transformed_structures:
-                new = x.append_transformation(transformation, extend_collection,
+                new = x.append_transformation(transformation,
+                                              extend_collection,
                                               clear_redo=clear_redo)
                 if new is not None:
                     new_structures.extend(new)
