@@ -265,8 +265,8 @@ class Dos(MSONable):
                                    .format(energy, self.densities[Spin.up][i]))
         return "\n".join(stringarray)
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Returns Dos object from dict representation of Dos.
         """
@@ -411,8 +411,8 @@ class CompleteDos(Dos):
         return {el: Dos(self.efermi, self.energies, densities)
                 for el, densities in el_dos.items()}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Returns CompleteDos object from dict representation.
         """

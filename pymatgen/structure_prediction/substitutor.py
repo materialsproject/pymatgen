@@ -97,13 +97,13 @@ class Substitutor(MSONable):
                 #and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
                 if len(els) == len(permut) and \
-                   len(list(set(els) & set(self.get_allowed_species()))) == \
+                    len(list(set(els) & set(self.get_allowed_species()))) == \
                         len(els) and self._sp.cond_prob_list(permut, els) > \
                         self._threshold:
 
                     clean_subst = {els[i]: permut[i]
-                         for i in xrange(0, len(els))
-                         if els[i] != permut[i]}
+                                   for i in xrange(0, len(els))
+                                   if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
                         continue
@@ -120,9 +120,10 @@ class Substitutor(MSONable):
                         )
                         result.append(ts)
                         transmuter.append_transformed_structures([ts])
+
         if remove_duplicates:
-            transmuter.apply_filter(RemoveDuplicatesFilter(symprec=\
-                                                           self._symprec))
+            transmuter.apply_filter(RemoveDuplicatesFilter(
+                symprec=self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod
@@ -215,8 +216,8 @@ class Substitutor(MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         t = d['threshold']
         kwargs = d['kwargs']
-        return Substitutor(threshold=t, **kwargs)
+        return cls(threshold=t, **kwargs)

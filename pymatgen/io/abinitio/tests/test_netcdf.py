@@ -8,8 +8,6 @@ import numpy as np
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import GSR_Reader
 
-import numpy.testing.utils as nptu
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
@@ -50,17 +48,17 @@ class GSR_Reader_TestCase(PymatgenTest):
 
             self.assertEqual(data.ngroups, 1)
 
-            print(data.get_varnames())
+            print(data.read_varnames())
 
             # Test int variables
             for (varname, int_ref) in ref_int_values.items():
-                value = data.get_value(varname)
+                value = data.read_value(varname)
 
                 self.assert_equal(value, int_ref)
 
             # Test float variables
             for (varname, float_ref) in ref_float_values.items():
-                value = data.get_value(varname)
+                value = data.read_value(varname)
 
                 self.assert_almost_equal(value, float_ref)
 
@@ -73,7 +71,7 @@ class GSR_Reader_TestCase(PymatgenTest):
             #site_properties = ["forces",]
             site_properties = []
 
-            structure = data.get_structure(site_properties=site_properties)
+            structure = data.read_structure(site_properties=site_properties)
 
 
 if __name__ == "__main__":

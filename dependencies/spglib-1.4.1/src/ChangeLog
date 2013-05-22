@@ -1,3 +1,30 @@
+2013-04-16  Atsushi Togo  <atz.togo@gmail.com>
+
+	* symmetry.c (get_operation):
+
+	In some case, get_space_group_operation returns more than 48
+	symmetry operations for a primitive cell. To avoid this, an
+	iterative approach, which is just reducing tolerance gradually to
+	achieve number of symmetry operations <= 48, is implemented.
+
+	* symmetry.c:
+	In the symmetry operation search, rot[] and trans[] were used. Now
+	they are replaced by Symmetry *symmetry in symmetry.c.
+
+
+2013-04-14  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Fortran interface given by Dimitar Pashov:
+
+	The new fortran interface is given by Dimitar Pashov, which is
+	much safer than the previous one. The new fortran interface, its
+	example, and makefile are found in the example directory as
+	spglib_f08.f90, example_f08.f90 and Makefile_f08.
+
+	* spglib.h, spglib.c, kpoint.h, kpoint,c:
+
+	Symprec parameter was removed from spg_get_stabilized_reciprocal_mesh.
+
 2013-01-28  Atsushi Togo  <atz.togo@gmail.com>
 
 	* spglib.c, spglib_f.c:

@@ -414,8 +414,8 @@ class Poscar(MSONable):
                 "predictor_corrector": self.predictor_corrector,
                 "comment": self.comment}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         return Poscar(Structure.from_dict(d["structure"]),
                       comment=d["comment"],
                       selective_dynamics=d["selective_dynamics"],
@@ -506,13 +506,10 @@ class Incar(dict):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
-        i = Incar()
-        for k, v in d.items():
-            if k not in ("@module", "@class"):
-                i[k] = v
-        return i
+    @classmethod
+    def from_dict(cls, d):
+        return Incar({k: v for k, v in d.items() if k not in ("@module",
+                                                              "@class")})
 
     def get_string(self, sort_keys=False, pretty=False):
         """
@@ -572,7 +569,7 @@ class Incar(dict):
         Returns:
             Incar object
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename) as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         for line in lines:
@@ -937,7 +934,7 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
-                              "\s*!\s*(.*)")
+                              "\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1042,16 +1039,16 @@ class Kpoints(MSONable):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)
         #coord_type = d.get("coord_type", None)
-        return Kpoints(comment=comment, kpts=kpts, style=generation_style,
-                       kpts_shift=kpts_shift, num_kpts=num_kpts)
+        return cls(comment=comment, kpts=kpts, style=generation_style,
+                   kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
 def get_potcar_dir():
@@ -1207,11 +1204,9 @@ class Potcar(list):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        functional = d["functional"]
-        symbols = d["symbols"]
-        return Potcar(symbols=symbols, functional=functional)
+    @classmethod
+    def from_dict(cls, d):
+        return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
     def from_file(filename):
@@ -1330,8 +1325,8 @@ class VaspInput(dict, MSONable):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
         sub_d = {"optional_files": {}}
         for k, v in d.items():
@@ -1339,7 +1334,7 @@ class VaspInput(dict, MSONable):
                 sub_d[k.lower()] = dec.process_decoded(v)
             elif k not in ["@module", "@class"]:
                 sub_d["optional_files"][k] = dec.process_decoded(v)
-        return VaspInput(**sub_d)
+        return cls(**sub_d)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """

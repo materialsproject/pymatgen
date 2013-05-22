@@ -19,6 +19,7 @@ import re
 import logging
 import multiprocessing
 import sys
+import datetime
 
 from collections import OrderedDict
 
@@ -34,7 +35,7 @@ from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
 from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.alchemy.materials import TransformedStructure
 
 save_file = "vasp_data.gz"
 
@@ -234,12 +235,20 @@ def convert_fmt(args):
             c.write_file(out_filename)
         elif oformat == "VASP":
             input_set = MPVaspInputSet()
-            transmuter = StandardTransmuter.from_structures([structure], [])
-            transmuter.write_vasp_input(input_set, output_dir=out_filename)
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
         elif oformat == "MITVASP":
             input_set = MITVaspInputSet()
-            transmuter = StandardTransmuter.from_structures([structure], [])
-            transmuter.write_vasp_input(input_set, output_dir=out_filename)
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
 
     except Exception as ex:
         print "Error converting file. Are they in the right format?"

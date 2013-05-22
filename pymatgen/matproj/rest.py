@@ -445,6 +445,9 @@ class MPRester(object):
                 same as the list of structures if not None.
             created_at:
                 A datetime object
+
+        Returns:
+            A list of inserted submission ids.
         """
         try:
             data = [{}] * len(structures) if data is None else data
@@ -468,7 +471,7 @@ class MPRester(object):
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
-                    return resp
+                    return resp['inserted_ids']
                 else:
                     raise MPRestError(resp["error"])
 

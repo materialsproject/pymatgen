@@ -13,28 +13,24 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 17, 2012"
 
-import unittest
 import numpy as np
 import pickle
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 
 
-class SiteTest(unittest.TestCase):
+class SiteTest(PymatgenTest):
 
     def setUp(self):
-        self.ordered_site = Site(Element("Fe"), [0.25, 0.35, 0.45])
-        self.disordered_site = Site({Element("Fe"): 0.5, Element("Mn"): 0.5},
+        self.ordered_site = Site("Fe", [0.25, 0.35, 0.45])
+        self.disordered_site = Site({"Fe": 0.5, "Mn": 0.5},
                                     [0.25, 0.35, 0.45])
-        self.propertied_site = Site(Specie("Fe", 2), [0.25, 0.35, 0.45],
+        self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
-
-    def test_init(self):
-        self.assertRaises(ValueError, Site, Specie("Fe", 2),
-                          [0.25, 0.35, 0.45], {'mag': 5.1})
 
     def test_properties(self):
         self.assertRaises(AttributeError, getattr, self.disordered_site,
@@ -71,7 +67,7 @@ class SiteTest(unittest.TestCase):
         self.assertEqual(pickle.loads(o), self.propertied_site)
 
 
-class PeriodicSiteTest(unittest.TestCase):
+class PeriodicSiteTest(PymatgenTest):
 
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
@@ -186,7 +182,7 @@ class PeriodicSiteTest(unittest.TestCase):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
         site = site.to_unit_cell
         val = [0.25, 0.35, 0.46]
-        self.assertTrue(np.allclose(site.frac_coords, val))
+        self.assertArrayAlmostEqual(site.frac_coords, val)
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):
@@ -220,13 +216,14 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     if jimage is None:
         #Old algorithm
         jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords),
-            int)
+                           int)
     mapped_vec = site1.lattice.get_cartesian_coords(jimage
-                                                   + site2.frac_coords
-                                                   - site1.frac_coords)
+                                                    + site2.frac_coords
+                                                    - site1.frac_coords)
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
+    import unittest
     unittest.main()
