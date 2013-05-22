@@ -595,7 +595,8 @@ class Incar(dict):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
+        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
+                      "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
@@ -634,7 +635,28 @@ class Incar(dict):
                 return int(val)
 
         except ValueError:
-            return val.capitalize()
+            pass
+
+        #Not in standard keys. We will try a hirerachy of conversions.
+        try:
+            val = int(val)
+            return val
+        except ValueError:
+            if key == "LORBIT":
+               print val
+            pass
+
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+        if "true" in val.lower():
+            return True
+
+        if "false" in val.lower():
+            return False
 
         return val.capitalize()
 
