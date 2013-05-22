@@ -433,7 +433,12 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return self._x < other._x
+        if self._x != other._x:
+            return self._x < other._x
+        else:
+            # There are cases where the electronegativity are exactly equal.
+            # We then sort by symbol.
+            return self._symbol < other._symbol
 
     @staticmethod
     def from_Z(z):

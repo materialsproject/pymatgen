@@ -112,6 +112,10 @@ class ElementTestCase(unittest.TestCase):
     def test_data(self):
         self.assertEqual(Element("Pd").data["Atomic radius"], 1.4)
 
+    def test_sort(self):
+        els = [Element("Se"), Element("C")]
+        self.assertEqual(sorted(els), [Element("C"), Element("Se")])
+        
 
 class SpecieTestCase(unittest.TestCase):
 
