@@ -169,6 +169,7 @@ class IncarTest(unittest.TestCase):
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
+        self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
         filepath1 = os.path.join(test_dir, 'INCAR')
@@ -208,7 +209,7 @@ class IncarTest(unittest.TestCase):
                            'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}},
              'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
                       'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
-                      'LORBIT': '11', 'SIGMA': 0.05}})
+                      'LORBIT': 11, 'SIGMA': 0.05}})
 
     def test_to_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'INCAR')
