@@ -115,7 +115,7 @@ class ElementTestCase(unittest.TestCase):
     def test_sort(self):
         els = [Element("Se"), Element("C")]
         self.assertEqual(sorted(els), [Element("C"), Element("Se")])
-        
+
 
 class SpecieTestCase(unittest.TestCase):
 
@@ -146,7 +146,8 @@ class SpecieTestCase(unittest.TestCase):
         self.assertFalse(Element("Fe") == self.specie1)
 
     def test_cmp(self):
-        self.assertTrue(self.specie1 < self.specie2, "Fe2+ should be < Fe3+")
+        self.assertLess(self.specie1, self.specie2, "Fe2+ should be < Fe3+")
+        self.assertLess(Specie("C", 1), Specie("Se", 1))
 
     def test_attr(self):
         self.assertEqual(self.specie1.Z, 26,
