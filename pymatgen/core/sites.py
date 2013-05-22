@@ -234,6 +234,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
             return 1
+        if self.species_string < other.species_string:
+            return -1
+        if self.species_string > other.species_string:
+            return 1
         return 0
 
     def __str__(self):
