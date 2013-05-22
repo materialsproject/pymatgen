@@ -21,7 +21,7 @@ from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure_modifier import SupercellMaker
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.structure_prediction.substitutor import Substitutor
 
@@ -328,8 +328,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
                                     for row in transformation])
             if contains_oxidation_state:
                 if transformation not in ewald_matrices:
-                    maker = SupercellMaker(structure, transformation)
-                    ewald = EwaldSummation(maker.modified_structure)
+                    s = Structure.from_sites(structure.sites)
+                    s.make_supercell(transformation)
+                    ewald = EwaldSummation(s)
                     ewald_matrices[transformation] = ewald
                 else:
                     ewald = ewald_matrices[transformation]

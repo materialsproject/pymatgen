@@ -72,8 +72,29 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-Version 2.7.0
--------------
+v2.7.1
+------
+1. **Major backwards-incompatible change.** With effect from v2.7.1,
+   the default Structure and Molecule classes are now *mutable* objects. All
+   functionality in the :mod:`pymatgen.core.structure_modifier` has been
+   ported over to the new mutable classes. This change was implemented
+   because the immutability of Structure and Molecule has resulted in very
+   awkward code to make changes to them. The main cost of this change is that
+   Structure and Molecule can no longer be used as dict keys (__hash__ has
+   been set to None). However, we believe this is a minor cost given that we
+   have rarely seen the use of Structure or Molecule as dict keys in any case.
+   For the rare instances where such functionality is needed,
+   we have provided the IStructure and IMolecule classes (where I indicates
+   immutability) which will perform exactly the same way as the previous
+   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
+   module is now deprecated and will be removed in a future version.
+2. read_structure and write_structure now supports pymatgen's json
+   serialized structures.
+3. read_mol and write_mol functions now available (analogues of
+   read_structure and write_structure for molecules)
+
+v2.7.0
+------
 1. Beta support for ABINIT input and output via pymatgen.io.abinitio
    (courtesy of the excellent work of Matteo Giantomassi).
 2. Properties are now checked when comparing two Species for equality.
@@ -228,8 +249,14 @@ some quick examples of the core capabilities and objects:
     >>> mg.write_structure(structure, "POSCAR")
     >>> mg.write_structure(structure, "CsCl.cif")
     >>>
-    >>> #Reading a structure from a file.
+    >>> # Reading a structure from a file.
     >>> structure = mg.read_structure("POSCAR")
+    >>>
+    >>> # Reading and writing a molecule from a file. Supports XYZ and
+    >>> # Gaussian input and output by default. Support for many other
+    >>> # formats via the optional openbabel dependency (if installed).
+    >>> methane = mg.read_mol("methane.xyz")
+    >>> mg.write_mol(mol, "methane.gjf")
 
 The above illustrates only the most basic capabilities of pymatgen.
 
@@ -242,8 +269,8 @@ that utilize the library to perform all kinds of analyses. You can find these
 scripts in `scripts directory of pymatgen's github repo
 <https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
 
-Here, we will discuss the most versatile of these scripts, known as matgenie.py.
-The typical usage of matgenie.py is::
+Here, we will discuss the most versatile of these scripts, known as
+matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
