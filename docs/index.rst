@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.2
+------
+1. Minor bug fix release to fix some rare errors in very high dimensional
+   phase diagrams. **Requires new pyhull version (1.3.8).**
+
 v2.7.1
 ------
 1. **Major backwards-incompatible change.** With effect from v2.7.1,
