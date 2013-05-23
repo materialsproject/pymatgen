@@ -36,8 +36,6 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     if not height:
         height = int(width * golden_ratio)
     import matplotlib as mpl
-    mpl.rcParams["font.serif"] = "Times New Roman"
-    mpl.rcParams["font.sans-serif"] = "Arial"
     mpl.rcParams["axes.titlesize"] = width * 4
     mpl.rcParams["axes.labelsize"] = width * 3
 
