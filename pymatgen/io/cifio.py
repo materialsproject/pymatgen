@@ -178,7 +178,7 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError:
+            except KeyError as ex:
                 pass
         return structures
 
