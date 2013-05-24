@@ -278,9 +278,8 @@ class VoronoiConnectivity(object):
 
     def get_connections(self):
         """
-        returns the 2d array [sitei, sitej] that represents
-        the maximum connectivity of site i to any periodic
-        image of site j
+        Returns a list of site pairs that are Voronoi Neighbors, along 
+        with their real-space distances. 
         """
         con=[]
         max=np.max(self.connectivity_array, axis=2)
