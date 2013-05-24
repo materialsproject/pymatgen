@@ -19,6 +19,8 @@ import os
 import json
 import collections
 
+from pymatgen.core.periodic_table import smart_element_or_specie
+
 
 def _load_bond_length_data():
     """Loads bond length data from json file"""
@@ -97,3 +99,33 @@ class CovalentBond(object):
 
     def __str__(self):
         return self.__repr__()
+
+
+def get_bond_length(sp1, sp2, bond_order=1):
+    """
+    Get the bond length between two species.
+
+    Args:
+        sp1:
+            First specie.
+        sp2:
+            Second specie.
+        bond_order:
+            For species with different possible bond orders,
+            this allows one to obtain the bond length for a particular bond
+            order. For example, to get the C=C bond length instead of the
+            C-C bond length, this should be set to 2. Defaults to 1.
+
+    Returns:
+        Bond length in Angstrom. None if no data is available.
+    """
+
+    syms = tuple(sorted([smart_element_or_specie(sp1).symbol,
+                         smart_element_or_specie(sp2).symbol]))
+    if syms in bond_lengths:
+        all_lengths = bond_lengths[syms]
+        if bond_order:
+            return all_lengths.get(bond_order)
+        else:
+            return all_lengths.get(1)
+    return None

@@ -19,6 +19,7 @@ import re
 import logging
 import multiprocessing
 import sys
+import datetime
 
 from collections import OrderedDict
 
@@ -30,11 +31,11 @@ from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.io.vaspio_set import MaterialsProjectVaspInputSet
+from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
 from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.alchemy.materials import TransformedStructure
 
 save_file = "vasp_data.gz"
 
@@ -79,10 +80,10 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
                 e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
-                     re.sub("\s+", "", e.composition.formula),
-                     "{:.5f}".format(e.energy),
-                     "{:.5f}".format(e.energy_per_atom),
-                     delta_vol))
+                         re.sub("\s+", "", e.composition.formula),
+                         "{:.5f}".format(e.energy),
+                         "{:.5f}".format(e.energy_per_atom),
+                         delta_vol))
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
         if pretty:
@@ -157,7 +158,10 @@ def plot_dos(args):
 
     plotter = DosPlotter()
     plotter.add_dos_dict(all_dos)
-    plotter.show()
+    if args.file:
+        plotter.get_plot().savefig(args.file[0])
+    else:
+        plotter.show()
 
 
 def plot_chgint(args):
@@ -176,7 +180,7 @@ def plot_chgint(args):
     plt = get_publication_quality_plot(12, 8)
     for i in atom_ind:
         d = chgcar.get_integrated_diff(i, args.radius, 30)
-        plt.plot(d[:, 0], d[:,1],
+        plt.plot(d[:, 0], d[:, 1],
                  label="Atom {} - {}".format(i, s[i].species_string))
     plt.legend(loc="upper left")
     plt.xlabel("Radius (A)")
@@ -233,9 +237,21 @@ def convert_fmt(args):
             c = Cssr(structure)
             c.write_file(out_filename)
         elif oformat == "VASP":
-            input_set = MaterialsProjectVaspInputSet()
-            transmuter = StandardTransmuter.from_structures([structure], [])
-            transmuter.write_vasp_input(input_set, output_dir=out_filename)
+            input_set = MPVaspInputSet()
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
+        elif oformat == "MITVASP":
+            input_set = MITVaspInputSet()
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
 
     except Exception as ex:
         print "Error converting file. Are they in the right format?"
@@ -283,7 +299,7 @@ def compare_structures(args):
     from pymatgen.analysis.structure_matcher import StructureMatcher, \
         ElementComparator
     m = StructureMatcher() if args.oxi \
-            else StructureMatcher(comparator=ElementComparator())
+        else StructureMatcher(comparator=ElementComparator())
     for i, grp in enumerate(m.group_structures(structures)):
         print "Group {}: ".format(i)
         for s in grp:
@@ -311,7 +327,7 @@ if __name__ == "__main__":
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
     sub-commands, type "matgenie.py sub-command -h".""",
-    epilog="""
+                                     epilog="""
     Author: Shyue Ping Ong
     Version: {}
     Last updated: {}""".format(__version__, __date__))
@@ -355,21 +371,23 @@ if __name__ == "__main__":
     parser_plot.add_argument("filename", metavar="filename", type=str, nargs=1,
                              help="vasprun.xml file to plot")
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
-                        const=True, help="plot site projected DOS")
+                             const=True, help="Plot site projected DOS")
     parser_plot.add_argument("-e", "--element", dest="element", type=str,
                              nargs=1,
                              help="List of elements to plot as comma-separated"
                              " values e.g., Fe,Mn")
     parser_plot.add_argument("-o", "--orbital", dest="orbital",
                              action="store_const", const=True,
-                             help="plot orbital projected DOS")
+                             help="Plot orbital projected DOS")
+    parser_plot.add_argument("-f", "--file", dest="file", type=str, nargs=1,
+                             help="Save to file.")
     parser_plot.set_defaults(func=plot_dos)
 
     parser_plotchg = subparsers.add_parser("plotchgint",
                                            help="Plotting for the charge "
                                                 "integration.")
-    parser_plotchg.add_argument("filename", metavar="filename", type=str, nargs=1,
-                                help="CHGCAR file to plot")
+    parser_plotchg.add_argument("filename", metavar="filename", type=str,
+                                nargs=1, help="CHGCAR file to plot")
     parser_plotchg.add_argument("-i", "--indices", dest="inds", type=str,
                                 nargs=1,
                                 help="Comma-separated list of indices to plot"
@@ -401,6 +419,7 @@ if __name__ == "__main__":
     parser_convert.add_argument("-o", "--output", dest="output_format",
                                 type=str, nargs=1,
                                 choices=["POSCAR", "CIF", "CSSR", "VASP",
+                                         "MITVASP"
                                          "smart"],
                                 default=["smart"],
                                 help="Output file format. By default, smart is"
@@ -408,7 +427,9 @@ if __name__ == "__main__":
                                 "filename. Other formats can be enforced as "
                                 "needed. VASP is a special output form, which "
                                 "outputs a set of VASP input files to a "
-                                "directory.")
+                                "directory. MITVASP uses the MIT input set "
+                                "instead of the default Materials project "
+                                "input set.")
     parser_convert.set_defaults(func=convert_fmt)
 
     parser_symm = subparsers.add_parser("symm", help="Symmetry tools.")

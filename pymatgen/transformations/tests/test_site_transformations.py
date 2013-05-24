@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 15, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -25,7 +25,6 @@ from pymatgen.transformations.site_transformations import \
 
 from pymatgen.util.io_utils import which
 
-from nose.exc import SkipTest
 
 enumlib_present = which('multienum.x') and which('makestr.x')
 
@@ -64,6 +63,7 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
         str(t)
+
 
 class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
 
@@ -161,7 +161,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"],
                                       [[0.1, 0, 0], [0.1, 0.2, 0.2]]).to_dict
-        t = RemoveSitesTransformation.from_dict(d)
+        t = InsertSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
 
@@ -196,11 +196,8 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         s = t.apply_transformation(self.struct, 12)
         self.assertEqual(len(s), 12)
 
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_enumerate(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. "
-                           "Skipping ALGO.ENUMERATE "
-                           "PartialRemoveSitesTransformationTest...")
         t = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],

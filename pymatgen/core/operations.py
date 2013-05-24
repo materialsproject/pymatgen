@@ -293,6 +293,81 @@ class SymmOp(MSONable):
         return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
                        [m31, m32, m33, m34], [0, 0, 0, 1]])
 
+    @staticmethod
+    def reflection(normal, origin=(0, 0, 0)):
+        """
+        Returns reflection symmetry operation.
+
+        Args:
+            normal:
+                Vector of the normal to the plane of reflection.
+            origin:
+             A point in which the mirror plane passes through.
+
+        Returns:
+            SymmOp for the reflection about the plane
+        """
+        #Normalize the normal vector first.
+        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
+
+        u, v, w = n
+
+        translation = np.eye(4)
+        translation[0:3, 3] = -np.array(origin)
+
+        xx = 1 - 2 * u ** 2
+        yy = 1 - 2 * v ** 2
+        zz = 1 - 2 * w ** 2
+        xy = -2 * u * v
+        xz = -2 * u * w
+        yz = -2 * v * w
+        mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0],
+                      [0, 0, 0, 1]]
+
+        if np.linalg.norm(origin) > 1e-6:
+            mirror_mat = np.dot(np.linalg.inv(translation),
+                                np.dot(mirror_mat, translation))
+        return SymmOp(mirror_mat)
+
+    @staticmethod
+    def inversion(origin=(0, 0, 0)):
+        """
+        Inversion symmetry operation about axis.
+
+        Args:
+            origin:
+                The origin of the inversion operation. Defaults to [0, 0, 0].
+
+        Returns:
+            SymmOp representing an inversion operation about the origin.
+        """
+        mat = -np.eye(4)
+        mat[3, 3] = 1
+        mat[0:3, 3] = 2 * np.array(origin)
+        return SymmOp(mat)
+
+    @staticmethod
+    def rotoreflection(axis, angle, origin=(0, 0, 0)):
+        """
+        Returns a roto-reflection symmetry operation
+
+        Args:
+            axis:
+                Axis of rotation / mirror normal
+            angle:
+                Angle in degrees
+            origin:
+                Point left invariant by roto-reflection. Defaults to
+                (0, 0, 0).
+
+        Return:
+            Roto-reflection operation
+        """
+        rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
+        refl = SymmOp.reflection(axis, origin)
+        m = np.dot(rot.affine_matrix, refl.affine_matrix)
+        return SymmOp(m)
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
@@ -300,6 +375,6 @@ class SymmOp(MSONable):
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
         return d
 
-    @staticmethod
-    def from_dict(d):
-        return SymmOp(d["matrix"], d["tolerance"])
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["matrix"], d["tolerance"])

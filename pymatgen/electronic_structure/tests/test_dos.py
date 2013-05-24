@@ -4,12 +4,17 @@ import unittest
 import os
 import json
 
-from nose.exc import SkipTest
 from pymatgen import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
+try:
+    import scipy
+    has_scipy = True
+except ImportError:
+    has_scipy = False
 
 
 class DosTest(unittest.TestCase):
@@ -34,11 +39,8 @@ class DosTest(unittest.TestCase):
                                1.756888888888886, 7)
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
+    @unittest.skipIf(not has_scipy, "scipy not present")
     def test_get_smeared_densities(self):
-        try:
-            import scipy
-        except ImportError:
-            raise SkipTest("scipy not present. Skipping...")
         dos = self.dos
         smeared = dos.get_smeared_densities(0.2)
         dens = dos.densities
@@ -67,7 +69,7 @@ class CompleteDosTest(unittest.TestCase):
         sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
         sum_element = None
         for pdos in el_dos.values():
-            if sum_element == None:
+            if sum_element is None:
                 sum_element = pdos
             else:
                 sum_element += pdos
@@ -84,10 +86,10 @@ class CompleteDosTest(unittest.TestCase):
 
         site = dos.structure[0]
         self.assertIsNotNone(dos.get_site_dos(site))
-        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(Spin
-        .up)), 2.0391)
-        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(Spin
-        .down)), 2.0331999999999995)
+        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(
+            Spin.up)), 2.0391)
+        self.assertAlmostEqual(sum(dos.get_site_dos(site).get_densities(
+            Spin.down)), 2.0331999999999995)
         self.assertIsNotNone(dos.get_site_orbital_dos(site, Orbital.s))
         egt2g = dos.get_site_t2g_eg_resolved_dos(site)
         self.assertAlmostEqual(sum(egt2g["e_g"].get_densities(Spin.up)),
@@ -116,7 +118,7 @@ class CompleteDosTest(unittest.TestCase):
         sum_spd = spd_dos['S'] + spd_dos['P'] + spd_dos['D']
         sum_element = None
         for pdos in el_dos.values():
-            if sum_element == None:
+            if sum_element is None:
                 sum_element = pdos
             else:
                 sum_element += pdos

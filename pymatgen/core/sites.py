@@ -33,7 +33,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     coordinates.
     """
 
-    supported_properties = ("magmom", "charge", "coordination_no", "forces")
+    position_atol = 1e-5
 
     def __init__(self, atoms_n_occu, coords, properties=None):
         """
@@ -69,9 +69,6 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
         self._coords = coords
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
-            if k not in Site.supported_properties:
-                raise ValueError("{} is not a supported property".format(k))
 
     @property
     def properties(self):
@@ -194,7 +191,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if other is None:
             return False
         return self._species == other._species and \
-            np.allclose(self._coords, other._coords) and \
+            np.allclose(self._coords, other._coords,
+                        atol=Site.position_atol) and \
             self._properties == other._properties
 
     def __ne__(self, other):
@@ -236,6 +234,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
             return 1
+        if self.species_string < other.species_string:
+            return -1
+        if self.species_string > other.species_string:
+            return 1
         return 0
 
     def __str__(self):
@@ -257,8 +259,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Create Site from dict representation
         """
@@ -268,7 +270,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 else Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
-        return Site(atoms_n_occu, d["xyz"], properties=props)
+        return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
 class PeriodicSite(Site, MSONable):
@@ -386,7 +388,8 @@ class PeriodicSite(Site, MSONable):
     def __eq__(self, other):
         return self._species == other._species and \
             self._lattice == other._lattice and \
-            np.allclose(self._coords, other._coords) and \
+            np.allclose(self._coords, other._coords,
+                        atol=Site.position_atol) and \
             self._properties == other._properties
 
     def __ne__(self, other):
@@ -514,8 +517,8 @@ class PeriodicSite(Site, MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d, lattice=None):
+    @classmethod
+    def from_dict(cls, d, lattice=None):
         """
         Create PeriodicSite from dict representation.
 
@@ -533,4 +536,4 @@ class PeriodicSite(Site, MSONable):
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
-        return PeriodicSite(atoms_n_occu, d["abc"], lattice, properties=props)
+        return cls(atoms_n_occu, d["abc"], lattice, properties=props)

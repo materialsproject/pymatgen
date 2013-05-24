@@ -182,15 +182,16 @@ class Vasprun(object):
                 wisely.
         """
         self.filename = filename
+        self.ionic_step_skip = ionic_step_skip
 
         with zopen(filename) as f:
-            self._handler = VasprunHandler(
+            handler = VasprunHandler(
                 filename, parse_dos=parse_dos,
                 parse_eigen=parse_eigen,
                 parse_projected_eigen=parse_projected_eigen
             )
             if ionic_step_skip is None:
-                self._parser = xml.sax.parse(f, self._handler)
+                parser = xml.sax.parse(f, handler)
             else:
                 #remove parts of the xml file and parse the string
                 run = f.read()
@@ -199,22 +200,23 @@ class Vasprun(object):
                 #add the last step from the run
                 if steps[-1] != new_steps[-1]:
                     new_steps.append(steps[-1])
-                self._parser = xml.sax.parseString("<calculation>"
-                                                   .join(new_steps),
-                                                   self._handler)
+                parser = xml.sax.parseString("<calculation>".join(new_steps),
+                                             handler)
             for k in Vasprun.supported_properties:
-                setattr(self, k, getattr(self._handler, k))
+                setattr(self, k, getattr(handler, k))
 
     @property
     def converged(self):
         """
-        True if a relaxation run is converged.  Always True for a static run.
+        True if a relaxation run is converged. Checking is performed on both
+        the final electronic convergence as well as whether the number of
+        ionic steps is equal to the NSW setting.
         """
         if len(self.ionic_steps[-1]["electronic_steps"]) == \
                 self.parameters["NELM"]:
             return False
-        return len(self.structures) - 2 < self.parameters["NSW"] or \
-            self.parameters["NSW"] == 0
+        nsw = self.parameters.get("NSW", 0)
+        return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
     def final_energy(self):
@@ -287,7 +289,7 @@ class Vasprun(object):
         """
         if len(self.hubbards) == 0:
             return False
-        return sum(self.hubbards.values()) > 0
+        return sum(self.hubbards.values()) > 1e-8
 
     @property
     def is_spin(self):
@@ -296,7 +298,8 @@ class Vasprun(object):
         """
         return True if self.incar.get("ISPIN", 1) == 2 else False
 
-    def get_band_structure(self, kpoints_filename=None, efermi=None):
+    def get_band_structure(self, kpoints_filename=None, efermi=None,
+                           line_mode=False):
         """
         Returns the band structure as a BandStructure object
 
@@ -308,10 +311,15 @@ class Vasprun(object):
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
+
             efermi:
                 If you want to specify manually the fermi energy this is where
                 you should do it. By default, the None value means the code
                 will get it from the vasprun.
+
+            line_mode:
+                force the band structure to be considered as a run along
+                symmetry lines
 
         Returns:
             a BandStructure object (or more specifically a
@@ -391,7 +399,7 @@ class Vasprun(object):
                 if l is not None:
                     hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band:
+        if kpoint_file.style == "Line_mode" or hybrid_band or line_mode:
             labels_dict = {}
             if hybrid_band:
                 start_bs_index = 0
@@ -515,7 +523,7 @@ class Vasprun(object):
         if len(self.projected_eigenvalues) != 0:
             for i in range(len(eigen)):
                 peigen.append({})
-                for spin in eigen[i]:
+                for spin in eigen[i].keys():
                     peigen[i][spin] = []
                     for j in range(len(eigen[i][spin])):
                         peigen[i][spin].append({})
@@ -1940,9 +1948,14 @@ class Oszicar(object):
         electronic_pattern = re.compile("\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
-            if header == "N" or header == "ncg":
-                return int(num)
-            return float(num)
+            try:
+                if header == "N" or header == "ncg":
+                    v = int(num)
+                    return v
+                v = float(num)
+                return v
+            except ValueError:
+                return "--"
 
         header = []
         with zopen(filename, "r") as fid:
@@ -1997,15 +2010,9 @@ class Oszicar(object):
 
 class VaspParserError(Exception):
     """
-    Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Exception class for VASP parsing.
     """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "VaspParserError : " + self.msg
+    pass
 
 
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,

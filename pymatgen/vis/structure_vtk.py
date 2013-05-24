@@ -657,7 +657,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
-    Arguments:
+    Args:
         structures:
             sequence of structures
         output_filename:

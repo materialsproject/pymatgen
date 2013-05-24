@@ -20,6 +20,8 @@ import warnings
 import collections
 
 import numpy as np
+
+from pymatgen.util.decorators import deprecated
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
@@ -48,6 +50,7 @@ class StructureModifier(object):
         return
 
 
+@deprecated(replacement=Structure)
 class StructureEditor(StructureModifier):
     """
     Editor for adding, removing and changing sites from a structure
@@ -427,6 +430,7 @@ class StructureEditor(StructureModifier):
 
     
 
+@deprecated(replacement=Structure)
 class SupercellMaker(StructureModifier):
     """
     Makes a supercell.
@@ -485,6 +489,7 @@ class SupercellMaker(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class OxidationStateDecorator(StructureModifier):
     """
     .. deprecated:: v2.1.3
@@ -523,6 +528,7 @@ class OxidationStateDecorator(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class OxidationStateRemover(StructureModifier):
     """
     .. deprecated:: v2.1.3
@@ -559,6 +565,7 @@ class OxidationStateRemover(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Structure)
 class BasisChange(StructureModifier):
     """
     Given a new basis, we express the structure in this new basis.
@@ -591,6 +598,7 @@ class BasisChange(StructureModifier):
         return self._modified_structure
 
 
+@deprecated(replacement=Molecule)
 class MoleculeEditor(StructureModifier):
     """
     Editor for adding, removing and changing sites from a molecule.

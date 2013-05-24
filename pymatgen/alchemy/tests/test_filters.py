@@ -21,11 +21,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class ContainsSpecieFilterTest(unittest.TestCase):
 
     def test_filtering(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
+                  [0.25, 0.25, 0.25]]
         lattice = Lattice([[3.0, 0.0, 0.0],
                            [1.0, 3.0, 0.00],
                            [0.00, -2.0, 3.0]])
@@ -85,23 +82,25 @@ class SpecieProximityFilterTest(unittest.TestCase):
         d = sf.to_dict
         self.assertIsInstance(SpecieProximityFilter.from_dict(d),
                               SpecieProximityFilter)
-        
+
+
 class RemoveDuplicatesFilterTest(unittest.TestCase):
-    
+
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
             entries = json.load(fp, cls=PMGJSONDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
-    
+
     def test_filter(self):
         transmuter = StandardTransmuter.from_structures(self._struct_list)
         fil = RemoveDuplicatesFilter()
         transmuter.apply_filter(fil)
         out = self._sm.group_structures(transmuter.transformed_structures)
-        self.assertEqual(self._sm.find_indexes(transmuter.transformed_structures, out),
+        self.assertEqual(self._sm.find_indexes(
+            transmuter.transformed_structures, out),
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-        
+
     def test_to_from_dict(self):
         fil = RemoveDuplicatesFilter()
         d = fil.to_dict
