@@ -408,7 +408,7 @@ class MITVaspInputSet(VaspInputSet):
     @classmethod
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
-            constrain_total_magmom=d["constrain_total_magmom"])
+                   constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITGGAVaspInputSet(VaspInputSet):
@@ -445,7 +445,7 @@ class MITGGAVaspInputSet(VaspInputSet):
     @classmethod
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
-            constrain_total_magmom=d["constrain_total_magmom"])
+                   constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITHSEVaspInputSet(VaspInputSet):
@@ -474,7 +474,7 @@ class MITHSEVaspInputSet(VaspInputSet):
     @classmethod
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
-            constrain_total_magmom=d["constrain_total_magmom"])
+                   constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MITMDVaspInputSet(VaspInputSet):
@@ -559,8 +559,9 @@ class MITMDVaspInputSet(VaspInputSet):
     @classmethod
     def from_dict(cls, d):
         return cls(start_temp=d["start_temp"], end_temp=d["end_temp"],
-            nsteps=d["nsteps"], time_step=d["time_step"], prec=d["prec"],
-            ggau=d["ggau"], user_incar_settings=d["user_incar_settings"])
+                   nsteps=d["nsteps"], time_step=d["time_step"],
+                   prec=d["prec"], ggau=d["ggau"],
+                   user_incar_settings=d["user_incar_settings"])
 
 
 class MPVaspInputSet(DictVaspInputSet):
@@ -634,7 +635,7 @@ class MPGGAVaspInputSet(DictVaspInputSet):
     @classmethod
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
-            constrain_total_magmom=d["constrain_total_magmom"])
+                   constrain_total_magmom=d["constrain_total_magmom"])
 
 
 class MPStaticVaspInputSet(MPVaspInputSet):

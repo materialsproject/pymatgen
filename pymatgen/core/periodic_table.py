@@ -433,7 +433,12 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        return self._x < other._x
+        if self._x != other._x:
+            return self._x < other._x
+        else:
+            # There are cases where the electronegativity are exactly equal.
+            # We then sort by symbol.
+            return self._symbol < other._symbol
 
     @staticmethod
     def from_Z(z):
@@ -729,8 +734,15 @@ class Specie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        other_oxi = 0 if isinstance(other, Element) else other.oxi_state
-        return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
+        if self._x != other._x:
+            return self._x < other._x
+        elif self._symbol != other._symbol:
+            # There are cases where the electronegativity are exactly equal.
+            # We then sort by symbol.
+            return self._symbol < other._symbol
+        else:
+            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+            return self.oxi_state < other_oxi
 
     @property
     def ionic_radius(self):
@@ -932,8 +944,15 @@ class DummySpecie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        other_oxi = 0 if isinstance(other, Element) else other.oxi_state
-        return (self.X - other.X) * 100 + (self.oxi_state - other_oxi)
+        if self._x != other._x:
+            return self._x < other._x
+        elif self._symbol != other._symbol:
+            # There are cases where the electronegativity are exactly equal.
+            # We then sort by symbol.
+            return self._symbol < other._symbol
+        else:
+            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+            return self.oxi_state < other_oxi
 
     @property
     def Z(self):

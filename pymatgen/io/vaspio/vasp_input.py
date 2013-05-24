@@ -595,7 +595,8 @@ class Incar(dict):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
+        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
+                      "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
@@ -634,7 +635,28 @@ class Incar(dict):
                 return int(val)
 
         except ValueError:
-            return val.capitalize()
+            pass
+
+        #Not in standard keys. We will try a hirerachy of conversions.
+        try:
+            val = int(val)
+            return val
+        except ValueError:
+            if key == "LORBIT":
+               print val
+            pass
+
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+        if "true" in val.lower():
+            return True
+
+        if "false" in val.lower():
+            return False
 
         return val.capitalize()
 
@@ -659,7 +681,7 @@ class Incar(dict):
         different_param = {}
         for k1, v1 in self.items():
             if k1 not in other:
-                different_param[k1] = {"INCAR1": v1, "INCAR2": "Default"}
+                different_param[k1] = {"INCAR1": v1, "INCAR2": None}
             elif v1 != other[k1]:
                 different_param[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
@@ -667,7 +689,7 @@ class Incar(dict):
         for k2, v2 in other.items():
             if k2 not in similar_param and k2 not in different_param:
                 if k2 not in self:
-                    different_param[k2] = {"INCAR1": "Default", "INCAR2": v2}
+                    different_param[k2] = {"INCAR1": None, "INCAR2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -934,7 +956,7 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
-                              "\s*!\s*(.*)")
+                              "\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
