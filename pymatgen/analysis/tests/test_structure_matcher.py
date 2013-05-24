@@ -7,8 +7,6 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure_modifier import StructureEditor
-from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.io.smartio import read_structure
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
@@ -41,18 +39,18 @@ class StructureMatcherTest(unittest.TestCase):
         # Test rotational/translational invariance
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False,
                                                     np.array([0.4, 0.7, 0.9]))
-        editor = StructureEditor(self.struct_list[1])
-        editor.apply_operation(op)
-        self.assertTrue(sm.fit(self.struct_list[0], editor.modified_structure))
+        self.struct_list[1].apply_operation(op)
+        self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
         #Test failure under large atomic translation
-        editor.translate_sites([0], [.4, .4, .2], frac_coords=True)
-        self.assertFalse(sm.fit(self.struct_list[0],
-                                editor.modified_structure))
+        self.struct_list[1].translate_sites([0], [.4, .4, .2],
+                                            frac_coords=True)
+        self.assertFalse(sm.fit(self.struct_list[0], self.struct_list[1]))
 
-        editor.translate_sites([0], [-.4, -.4, -.2], frac_coords=True)
+        self.struct_list[1].translate_sites([0], [-.4, -.4, -.2],
+                                            frac_coords=True)
         # random.shuffle(editor._sites)
-        self.assertTrue(sm.fit(self.struct_list[0], editor.modified_structure))
+        self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
         #Test FrameworkComporator
         sm2 = StructureMatcher(comparator=FrameworkComparator())
         lfp = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
@@ -97,10 +95,8 @@ class StructureMatcherTest(unittest.TestCase):
     def test_primitive(self):
         """Test primitive cell reduction"""
         sm = StructureMatcher(primitive_cell=True)
-        mod = SupercellMaker(self.struct_list[1],
-                             scaling_matrix=[[2, 0, 0], [0, 3, 0], [0, 0, 1]])
-        super_cell = mod.modified_structure
-        self.assertTrue(sm.fit(self.struct_list[0], super_cell))
+        self.struct_list[1].make_supercell([[2, 0, 0], [0, 3, 0], [0, 0, 1]])
+        self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
     def test_class(self):
         # Tests entire class as single working unit

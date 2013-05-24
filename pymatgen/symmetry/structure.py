@@ -21,22 +21,33 @@ from pymatgen.core.structure import Structure
 class SymmetrizedStructure(Structure):
     """
     This class represents a symmetrized structure, i.e. a structure
-    where the spacegroup and symmetry operations are defined.
+    where the spacegroup and symmetry operations are defined. This class is
+    typically not called but instead is typically obtained by calling
+    pymatgen.symmetry.SymmetryFinder.get_symmetrized_structure.
     """
 
-    def __init__(self, refined_structure, spacegroup, equivalent_positions):
-        Structure.__init__(self, refined_structure.lattice,
+    def __init__(self, structure, spacegroup, equivalent_positions):
+        """
+        Args:
+            structure:
+                Original structure
+            spacegroup:
+                An input spacegroup from SymmetryFinder.
+            equivalent_positions:
+                Equivalent positions from SymmetryFinder.
+        """
+        Structure.__init__(self, structure.lattice,
                            [site.species_and_occu
-                            for site in refined_structure],
-                           refined_structure.frac_coords)
+                            for site in structure],
+                           structure.frac_coords,
+                           site_properties=structure.site_properties)
 
         self._spacegroup = spacegroup
         site_map = zip(self._sites, equivalent_positions)
         site_map = sorted(site_map, key=lambda x: x[1])
-        self._equivalent_sites = [[x[0] for x in g]
-                                  for k, g
-                                  in itertools.groupby(site_map,
-                                                       key=lambda x: x[1])]
+        self._equivalent_sites = [
+            [x[0] for x in g] for k, g
+            in itertools.groupby(site_map, key=lambda x: x[1])]
 
     @property
     def equivalent_sites(self):

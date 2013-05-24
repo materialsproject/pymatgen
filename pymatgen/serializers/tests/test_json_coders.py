@@ -17,9 +17,11 @@ import unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.transformations.standard_transformations import IdentityTransformation
+from pymatgen.transformations.standard_transformations import \
+    IdentityTransformation
 import json
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, MSONable
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder,\
+    MSONable, MSONError
 import datetime
 
 
@@ -34,11 +36,11 @@ class MSONableTest(unittest.TestCase):
 
             @property
             def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+                d = {'a': self.a, 'b': self.b}
                 return d
 
-            @staticmethod
-            def from_dict(d):
+            @classmethod
+            def from_dict(cls, d):
                 return GoodMSONClass(d['a'], d['b'])
 
         self.good_cls = GoodMSONClass
@@ -51,7 +53,7 @@ class MSONableTest(unittest.TestCase):
 
             @property
             def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+                d = {'a': self.a, 'b': self.b}
                 return d
 
         self.bad_cls = BadMSONClass
@@ -64,7 +66,7 @@ class MSONableTest(unittest.TestCase):
         obj = self.bad_cls("Hello", "World")
         d = obj.to_dict
         self.assertIsNotNone(d)
-        self.assertRaises(NotImplementedError, self.bad_cls.from_dict, d)
+        self.assertRaises(MSONError, self.bad_cls.from_dict, d)
 
     def test_to_json(self):
         obj = self.good_cls("Hello", "World")
@@ -83,20 +85,20 @@ class PMGJSONTest(unittest.TestCase):
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         objs = [struct, struct[0], struct.lattice, struct[0].species_and_occu,
                 struct.composition]
-        for o in  objs:
+        for o in objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         mol = Molecule(["O", "O"], coords)
         objs = [mol, mol[0]]
-        for o in  objs:
+        for o in objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         #Check dict of things
-        o = {'structure':struct, "molecule":mol}
+        o = {'structure': struct, "molecule": mol}
         jsonstr = json.dumps(o, cls=PMGJSONEncoder)
         d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d['structure']), Structure)

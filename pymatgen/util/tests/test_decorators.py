@@ -17,7 +17,8 @@ __date__ = "2/24/13"
 import unittest
 import warnings
 
-from pymatgen.util.decorators import deprecated, cached_class, singleton
+from pymatgen.util.decorators import deprecated, cached_class, singleton, \
+    requires
 
 
 class DecoratorTest(unittest.TestCase):
@@ -72,6 +73,24 @@ class DecoratorTest(unittest.TestCase):
 
         self.assertEqual(id(a1), id(a2))
 
+    def test_requires(self):
+
+        try:
+            import fictitious_mod
+        except ImportError:
+            fictitious_mod = None
+
+        @requires(fictitious_mod is not None, "fictitious_mod is not present.")
+        def use_fictitious_mod():
+            print "success"
+
+        self.assertRaises(RuntimeError, use_fictitious_mod)
+
+        @requires(unittest is not None, "scipy is not present.")
+        def use_unittest():
+            return "success"
+
+        self.assertEqual(use_unittest(), "success")
 
 if __name__ == "__main__":
     unittest.main()

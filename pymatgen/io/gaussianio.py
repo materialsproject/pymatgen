@@ -332,6 +332,7 @@ class GaussianInput(object):
             para_str = ["{}={}".format(k, v) if v else k
                         for k, v in para.items()]
             return joiner.join(para_str)
+
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
@@ -351,6 +352,10 @@ class GaussianInput(object):
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("")
         return "\n".join(output)
+
+    def write_file(self, filename):
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
 
 
 class GaussianOutput(object):
@@ -465,7 +470,7 @@ class GaussianOutput(object):
         num_basis_found = False
         terminated = False
 
-        with zopen(filename, "r") as f:
+        with zopen(filename) as f:
             for line in f:
                 if parse_stage == 0:
                     if start_patt.search(line):

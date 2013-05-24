@@ -22,7 +22,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
-from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.io.vaspio.vasp_output import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -38,14 +37,14 @@ class SymmetryFinderTest(unittest.TestCase):
         parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
         self.disordered_structure = parser.get_structures()[0]
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
-        s = p.structure
-        editor = StructureEditor(s)
+        s = p.structure.copy()
         site = s[0]
-        editor.delete_site(0)
-        editor.append_site(site.species_and_occu, site.frac_coords)
-        self.sg3 = SymmetryFinder(editor.modified_structure, 0.001)
+        s.remove(0)
+        s.append(site.species_and_occu, site.frac_coords)
+        self.sg3 = SymmetryFinder(s, 0.001)
         parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
         graphite = parser.get_structures()[0]
+        graphite.add_site_property("magmom", [0.1] * len(graphite))
         self.sg4 = SymmetryFinder(graphite, 0.001)
 
     def test_get_space_symbol(self):
@@ -118,6 +117,8 @@ class SymmetryFinderTest(unittest.TestCase):
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
 
+        self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
+
     def test_find_primitive(self):
         """
         F m -3 m Li2O testing of converting to primitive cell
@@ -142,6 +143,14 @@ class SymmetryFinderTest(unittest.TestCase):
         irr_kpts = finder.get_ir_kpoints(actual_kpts)
         self.assertLess(len(irr_kpts), len(actual_kpts))
         self.assertEqual(len(irr_kpts), len(set(mapping)))
+
+    def test_get_ir_reciprocal_mesh(self):
+        grid=self.sg.get_ir_reciprocal_mesh()
+        self.assertEquals(len(grid), 216)
+        self.assertAlmostEquals(grid[1][0][0], 0.1)
+        self.assertAlmostEquals(grid[1][0][1], 0.0)
+        self.assertAlmostEquals(grid[1][0][2], 0.0)
+        self.assertEquals(grid[1][1], 2)
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))

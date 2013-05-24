@@ -298,7 +298,6 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
 
     n = len(frac_points)
     fcoords = np.array(frac_points)
-    frac_2_cart = lattice.get_cartesian_coords
     pts = np.tile(center, (n, 1))
     indices = np.array(range(n))
 
@@ -317,8 +316,9 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
         crange[None, None, :]
 
     shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
-    coords = frac_2_cart(shifted_coords)
-    dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2, axis=4))
+    coords = lattice.get_cartesian_coords(shifted_coords)
+    dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+                           axis=4))
     within_r = np.where(dists <= r)
 
     d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
@@ -369,4 +369,9 @@ def get_angle(v1, v2, units="degrees"):
     d = min(d, 1)
     d = max(d, -1)
     angle = math.acos(d)
-    return angle * 180 / math.pi if units == "degrees" else angle
+    if units == "degrees":
+        return math.degrees(angle)
+    elif units == "radians":
+        return angle
+    else:
+        raise ValueError("Invalid units {}".format(units))
